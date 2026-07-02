@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "로봇플랫폼",
-  description: "무료 개발 환경에서 구축한 로봇 플랫폼",
+  title: "로봇플랫폼 - Zero Budget Development",
+  description: "무료로 만드는 로봇 플랫폼. Firebase + Vercel + Next.js",
+  keywords: ["로봇", "플랫폼", "개발", "무료", "오픈소스"],
 };
 
 export default function RootLayout({
@@ -12,8 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="bg-[#060608] text-white">
-        {children}
+      <body className="bg-slate-900 text-white">
+        <Header />
+        <main className="min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   );
