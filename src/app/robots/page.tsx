@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter } from "lucide-react";
 import RobotCard from "@/components/RobotCard";
@@ -41,10 +41,13 @@ export default function RobotsPage() {
   const [selectedTech, setSelectedTech] = useState("all");
 
   // Load robots data
-  useMemo(async () => {
-    const res = await fetch("/data/robots.json");
-    const data = await res.json();
-    setRobots(data);
+  useEffect(() => {
+    const loadRobots = async () => {
+      const res = await fetch("/data/robots.json");
+      const data = await res.json();
+      setRobots(data);
+    };
+    loadRobots();
   }, []);
 
   // Filter robots
