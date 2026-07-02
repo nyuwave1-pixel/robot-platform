@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 모든 사용자가 로봇 데이터 읽기 가능
+    match /robots/{document=**} {
+      allow read: if true;
+      allow create, update, delete: if request.auth.uid != null &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // 사용자 데이터: 본인만 읽기/쓰기, 다른 사용자는 공개 정보만 읽기
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+      allow read: if resource.data.public == true;
+    }
+
+    // 포럼 게시물: 모든 사용자 읽기, 로그인한 사용자 작성
+    match /forum/posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth.uid != null;
+      allow update, delete: if request.auth.uid == resource.data.authorId;
+
+      // 게시물의 댓글
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth.uid != null;
+        allow update, delete: if request.auth.uid == resource.data.authorId;
+      }
+    }
+
+    // RP Points: 로그인한 사용자만 본인 포인트 읽기/쓰기
+    match /rpPoints/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // 분석/통계: 모든 사용자 읽기
+    match /analytics/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 관리자 설정
+    match /admins/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if false;
+    }
+  }
+}
