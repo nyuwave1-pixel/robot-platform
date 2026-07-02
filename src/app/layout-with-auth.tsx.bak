@@ -1,0 +1,27 @@
+// 추후 layout.tsx에 적용할 AuthProvider 버전
+// 지금은 Firebase가 설정될 때까지 대기
+
+import type { Metadata } from "next";
+import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+
+export const metadata: Metadata = {
+  title: "로봇플랫폼",
+  description: "무료 개발 환경에서 구축한 로봇 플랫폼",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="ko">
+      <body className="bg-[#060608] text-white">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
