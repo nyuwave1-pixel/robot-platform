@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, MessageCircle, Eye, ThumbsUp, Share2 } from "lucide-react";
 import Link from "next/link";
 
-export default function ForumDetailPage({ params }: { params: { category: string; id: string } }) {
+export default function ForumDetailPage({ params }: any) {
   const [comments, setComments] = useState<any[]>([
     {
       id: "1",

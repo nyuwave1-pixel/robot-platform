@@ -38,7 +38,7 @@ const SAMPLE_USER: UserProfile = {
   },
 };
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
+export default function UserProfilePage({ params }: any) {
   const user = SAMPLE_USER; // 실제로는 params.id로 사용자 조회
 
   return (

@@ -18,7 +18,7 @@ interface Robot {
   url: string;
 }
 
-export default function RobotDetailPage({ params }: { params: { id: string } }) {
+export default function RobotDetailPage({ params }: any) {
   const [robot, setRobot] = useState<Robot | null>(null);
   const [allRobots, setAllRobots] = useState<Robot[]>([]);
 
