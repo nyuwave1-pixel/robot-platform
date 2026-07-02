@@ -1,31 +1,29 @@
 {
   "name": "robot-platform-dev",
-  "version": "0.1.0",
-  "description": "AI Robot Platform Development - Zero Budget Edition",
+  "version": "1.0.0",
+  "description": "로봇 플랫폼 - Zero Budget Edition (Firebase + Vercel)",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.100.1",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "firebase": "^12.14.0",
-    "next": "^16.2.7",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "tailwindcss": "^3.4.1"
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "firebase": "^10.7.0",
+    "tailwindcss": "^3.3.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^3",
-    "autoprefixer": "^10",
-    "eslint": "^9",
-    "eslint-config-next": "^16.2.7",
-    "postcss": "^8",
-    "typescript": "^5"
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.4.32",
+    "typescript": "^5.3.0"
   }
 }
