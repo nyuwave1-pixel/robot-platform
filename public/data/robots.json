@@ -1,0 +1,122 @@
+[
+  {
+    "id": "tesla-optimus",
+    "name": "Tesla Optimus",
+    "category": "humanoid",
+    "image": "https://images.unsplash.com/photo-1534723452862-a8a6cb6cb65d?w=500&h=500&fit=crop",
+    "description": "범용 인형로봇으로 일상 작업 자동화를 목표로 개발 중",
+    "technology": ["AI", "ML", "Vision"],
+    "country": "USA",
+    "year": 2024,
+    "trustScore": 92,
+    "url": "https://www.tesla.com"
+  },
+  {
+    "id": "boston-atlas",
+    "name": "Boston Dynamics Atlas",
+    "category": "humanoid",
+    "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&h=500&fit=crop",
+    "description": "고급 이족 보행 로봇으로 산업 현장과 재난 구조에 활용",
+    "technology": ["AI", "Vision", "NLP"],
+    "country": "USA",
+    "year": 2024,
+    "trustScore": 95,
+    "url": "https://www.bostondynamics.com"
+  },
+  {
+    "id": "sony-aibo",
+    "name": "Sony Aibo",
+    "category": "other",
+    "image": "https://images.unsplash.com/photo-1620961687528-e3b2a300d6b8?w=500&h=500&fit=crop",
+    "description": "반려동물 로봇으로 AI 기반 상호작용과 학습 기능 탑재",
+    "technology": ["AI", "ML"],
+    "country": "Japan",
+    "year": 2024,
+    "trustScore": 88,
+    "url": "https://www.sony.com"
+  },
+  {
+    "id": "irobot-roomba",
+    "name": "iRobot Roomba",
+    "category": "industrial",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=500&fit=crop",
+    "description": "가정용 청소 로봇으로 AI 네비게이션과 자동 청소 기능",
+    "technology": ["AI", "Vision"],
+    "country": "USA",
+    "year": 2024,
+    "trustScore": 85,
+    "url": "https://www.irobotweb.com"
+  },
+  {
+    "id": "dji-drone",
+    "name": "DJI Avata 3S",
+    "category": "drone",
+    "image": "https://images.unsplash.com/photo-1579829366248-204fe7c87f08?w=500&h=500&fit=crop",
+    "description": "고급 드론으로 4K 영상, 야간 촬영, AI 추적 기능",
+    "technology": ["AI", "Vision", "ML"],
+    "country": "China",
+    "year": 2024,
+    "trustScore": 90,
+    "url": "https://www.dji.com"
+  },
+  {
+    "id": "unitree-go2",
+    "name": "Unitree Go2",
+    "category": "other",
+    "image": "https://images.unsplash.com/photo-1583092917360-ce0aa27e5ab6?w=500&h=500&fit=crop",
+    "description": "사족 로봇으로 야외 탐색과 산업 현장 감시 용도",
+    "technology": ["AI", "Vision"],
+    "country": "China",
+    "year": 2024,
+    "trustScore": 82,
+    "url": "https://www.unitree.com"
+  },
+  {
+    "id": "samsung-botcare",
+    "name": "Samsung Bot Care",
+    "category": "humanoid",
+    "image": "https://images.unsplash.com/photo-1599933575033-28ca2664c020?w=500&h=500&fit=crop",
+    "description": "의료/간병용 로봇으로 노인 돌봄과 건강 모니터링",
+    "technology": ["AI", "ML", "NLP"],
+    "country": "South Korea",
+    "year": 2024,
+    "trustScore": 87,
+    "url": "https://www.samsung.com"
+  },
+  {
+    "id": "Honda-asimo",
+    "name": "Honda ASIMO",
+    "category": "humanoid",
+    "image": "https://images.unsplash.com/photo-1531746790731-6c087fecd65b?w=500&h=500&fit=crop",
+    "description": "인형로봇의 선구자로 고도의 이족 보행과 상호작용 기능",
+    "technology": ["AI", "Vision"],
+    "country": "Japan",
+    "year": 2023,
+    "trustScore": 89,
+    "url": "https://www.honda.com"
+  },
+  {
+    "id": "nvidia-gr00t",
+    "name": "NVIDIA GR00T",
+    "category": "humanoid",
+    "image": "https://images.unsplash.com/photo-1626262527412-76e96150eb46?w=500&h=500&fit=crop",
+    "description": "범용 기초 모델 기반 로봇으로 AI 학습과 적응 능력 강화",
+    "technology": ["AI", "ML", "NLP"],
+    "country": "USA",
+    "year": 2024,
+    "trustScore": 91,
+    "url": "https://www.nvidia.com"
+  },
+  {
+    "id": "abb-yumi",
+    "name": "ABB YuMi",
+    "category": "industrial",
+    "image": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=500&h=500&fit=crop",
+    "description": "협동형 산업용 로봇으로 정밀한 조립 작업과 안전성",
+    "technology": ["AI", "Vision"],
+    "country": "Switzerland",
+    "year": 2024,
+    "trustScore": 93,
+    "url": "https://www.abb.com"
+  }
+]
