@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -16,6 +16,14 @@ export default function SignIn() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFirebaseConfigured) {
+      setError(
+        "데모 모드입니다. Firebase 키가 설정되지 않아 로그인이 비활성화되어 있습니다. .env.local에 실제 키를 입력하면 활성화됩니다."
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -41,6 +49,12 @@ export default function SignIn() {
             <h1 className="text-3xl font-bold mb-2">로그인</h1>
             <p className="text-zinc-400">로봇 플랫폼에 접속하세요</p>
           </div>
+
+          {!isFirebaseConfigured && (
+            <div className="mb-6 bg-yellow-500/10 border border-yellow-500/40 rounded-lg p-3 text-yellow-200 text-sm">
+              ⚠️ 데모 모드 — Firebase 키가 아직 설정되지 않았습니다. UI 미리보기만 가능합니다.
+            </div>
+          )}
 
           <form onSubmit={handleSignIn} className="space-y-4">
             <div>

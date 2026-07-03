@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -18,6 +18,14 @@ export default function SignUp() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFirebaseConfigured) {
+      setError(
+        "데모 모드입니다. Firebase 키가 설정되지 않아 회원가입이 비활성화되어 있습니다. .env.local에 실제 키를 입력하면 활성화됩니다."
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
 
