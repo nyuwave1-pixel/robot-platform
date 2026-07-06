@@ -1,48 +1,41 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 모든 사용자가 로봇 데이터 읽기 가능
-    match /robots/{document=**} {
-      allow read: if true;
-      allow create, update, delete: if request.auth.uid != null &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
-    }
 
-    // 사용자 데이터: 본인만 읽기/쓰기, 다른 사용자는 공개 정보만 읽기
+    // 사용자 문서: 본인만 쓰기, 로그인 사용자는 읽기 가능
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-      allow read: if resource.data.public == true;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
     }
 
-    // 포럼 게시물: 모든 사용자 읽기, 로그인한 사용자 작성
-    match /forum/posts/{postId} {
+    // 포럼 글: 누구나 읽기, 로그인 사용자만 작성, 작성자만 수정/삭제
+    match /posts/{postId} {
       allow read: if true;
-      allow create: if request.auth.uid != null;
-      allow update, delete: if request.auth.uid == resource.data.authorId;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.authorId == request.auth.uid;
 
-      // 게시물의 댓글
       match /comments/{commentId} {
         allow read: if true;
-        allow create: if request.auth.uid != null;
-        allow update, delete: if request.auth.uid == resource.data.authorId;
+        allow create: if request.auth != null
+          && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if request.auth != null
+          && resource.data.authorId == request.auth.uid;
       }
     }
 
-    // RP Points: 로그인한 사용자만 본인 포인트 읽기/쓰기
-    match /rpPoints/{userId} {
-      allow read, write: if request.auth.uid == userId;
-    }
-
-    // 분석/통계: 모든 사용자 읽기
-    match /analytics/{document=**} {
+    // 로봇 카탈로그: 공개 읽기 전용 (쓰기는 콘솔/어드민만)
+    match /robots/{robotId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // 관리자 설정
-    match /admins/{userId} {
-      allow read: if request.auth.uid == userId;
-      allow write: if false;
+    // 그 외 전부 차단
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
