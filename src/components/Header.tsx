@@ -23,6 +23,16 @@ export default function Header() {
               문서
             </Link>
           </li>
+          <li>
+            <a
+              href="https://www.airobotphysical.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white flex items-center gap-1"
+            >
+              🌌 AIRobotVerse
+            </a>
+          </li>
         </ul>
       </nav>
     </header>
