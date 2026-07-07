@@ -33,6 +33,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // 마켓 상품: 공개 읽기, 등록/수정은 판매자 본인만
+    match /market/{itemId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.sellerId == request.auth.uid;
+    }
+
     // 그 외 전부 차단
     match /{document=**} {
       allow read, write: if false;

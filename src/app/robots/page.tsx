@@ -39,6 +39,7 @@ export default function RobotsPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedTech, setSelectedTech] = useState("all");
+  const [sortBy, setSortBy] = useState<"trust" | "year" | "name">("trust");
 
   // Load robots data
   useEffect(() => {
@@ -61,6 +62,13 @@ export default function RobotsPage() {
       selectedTech === "all" || robot.technology.includes(selectedTech);
 
     return matchSearch && matchCategory && matchTech;
+  });
+
+  // Sort robots
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "trust") return b.trustScore - a.trustScore;
+    if (sortBy === "year") return b.year - a.year;
+    return a.name.localeCompare(b.name);
   });
 
   return (
@@ -157,19 +165,33 @@ export default function RobotsPage() {
             </div>
           </motion.div>
 
-          {/* Results Count */}
-          <p className="text-zinc-500 text-sm mb-6">
-            {filtered.length}개의 로봇 발견
-          </p>
+          {/* Results Count + Sort */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <p className="text-zinc-500 text-sm">
+              {sorted.length}개의 로봇 발견
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500">정렬:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "trust" | "year" | "name")}
+                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500/50"
+              >
+                <option value="trust">신뢰도순</option>
+                <option value="year">최신순</option>
+                <option value="name">이름순</option>
+              </select>
+            </div>
+          </div>
 
           {/* Grid */}
-          {filtered.length > 0 ? (
+          {sorted.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filtered.map((robot, i) => (
+              {sorted.map((robot, i) => (
                 <motion.div
                   key={robot.id}
                   initial={{ opacity: 0, y: 20 }}
