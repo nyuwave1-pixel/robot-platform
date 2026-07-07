@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Plus } from "lucide-react";
 import Link from "next/link";
 import ForumCard from "@/components/ForumCard";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db, isFirebaseConfigured } from "@/lib/firebase";
 
 interface ForumPost {
   id: string;
@@ -56,8 +58,40 @@ const SAMPLE_POSTS: ForumPost[] = [
 ];
 
 export default function ForumPage() {
-  const [posts] = useState<ForumPost[]>(SAMPLE_POSTS);
+  const [posts, setPosts] = useState<ForumPost[]>(SAMPLE_POSTS);
   const [selectedCategory, setSelectedCategory] = useState<"all" | "technology" | "news" | "general">("all");
+
+  // Firestore에서 실제 토론 로드 (실패·미설정 시 샘플 데이터 유지)
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    const load = async () => {
+      try {
+        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return;
+        const loaded = snapshot.docs.map((d) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            title: String(data.title ?? ""),
+            description: String(data.description ?? ""),
+            category: (["technology", "news", "general"].includes(data.category)
+              ? data.category
+              : "general") as ForumPost["category"],
+            author: String(data.author ?? "익명"),
+            views: Number(data.views ?? 0),
+            comments: Number(data.comments ?? 0),
+            rpReward: Number(data.rpReward ?? 0),
+            createdAt: String(data.createdAt ?? ""),
+          };
+        });
+        setPosts(loaded);
+      } catch {
+        // Firestore 접근 실패 시 샘플 데이터 그대로 사용
+      }
+    };
+    load();
+  }, []);
 
   const filtered = selectedCategory === "all" ? posts : posts.filter((p) => p.category === selectedCategory);
 
