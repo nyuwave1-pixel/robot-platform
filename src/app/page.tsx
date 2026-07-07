@@ -1,9 +1,8 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import AdSlot from "@/components/AdSlot";
+import robotsData from "../../public/data/robots.json";
 
 interface Robot {
   id: string;
@@ -17,16 +16,14 @@ interface Robot {
   trustScore: number;
 }
 
+export const metadata: Metadata = {
+  title: "로봇플랫폼 — 세계의 로봇을 한 곳에서",
+  description:
+    "휴머노이드·산업·의료·드론 등 48종의 실제 로봇을 탐색하고 비교하는 로봇 정보 플랫폼.",
+};
+
 export default function Home() {
-  const [robots, setRobots] = useState<Robot[]>([]);
-
-  useEffect(() => {
-    fetch("/data/robots.json")
-      .then((r) => r.json())
-      .then(setRobots)
-      .catch(() => {});
-  }, []);
-
+  const robots = robotsData as Robot[];
   const total = robots.length;
   const countries = new Set(robots.map((r) => r.country)).size;
   const categories = new Set(robots.map((r) => r.category)).size;
@@ -45,18 +42,18 @@ export default function Home() {
             휴머노이드부터 산업·의료·드론까지 — 최신 로봇 기술을 탐색하고 비교하세요
           </p>
 
-          {/* 실제 통계 칩 */}
+          {/* 실제 통계 칩 (서버 렌더) */}
           <div className="flex flex-wrap gap-4 justify-center my-8">
             <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
-              <div className="text-3xl font-bold text-blue-400">{total || "—"}</div>
+              <div className="text-3xl font-bold text-blue-400">{total}</div>
               <div className="text-xs text-zinc-500">등록 로봇</div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
-              <div className="text-3xl font-bold text-cyan-400">{categories || "—"}</div>
+              <div className="text-3xl font-bold text-cyan-400">{categories}</div>
               <div className="text-xs text-zinc-500">카테고리</div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4">
-              <div className="text-3xl font-bold text-emerald-400">{countries || "—"}</div>
+              <div className="text-3xl font-bold text-emerald-400">{countries}</div>
               <div className="text-xs text-zinc-500">제조 국가</div>
             </div>
           </div>
@@ -81,7 +78,7 @@ export default function Home() {
           <AdSlot variant="banner" className="mb-16" />
         </div>
 
-        {/* 주목받는 로봇 (실데이터) */}
+        {/* 주목받는 로봇 (서버 렌더) */}
         <section className="max-w-6xl mx-auto px-4 pb-20">
           <div className="flex items-end justify-between mb-8">
             <h2 className="text-3xl font-bold">주목받는 로봇</h2>
@@ -90,42 +87,36 @@ export default function Home() {
             </Link>
           </div>
 
-          {featured.length === 0 ? (
-            <p className="text-zinc-500">로봇을 불러오는 중...</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featured.map((r) => (
-                <Link key={r.id} href={`/robots/${r.id}`}>
-                  <div className="group bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-2xl overflow-hidden transition h-full">
-                    <div className="h-32 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-cyan-600/20 text-5xl">
-                      {r.image}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featured.map((r) => (
+              <Link key={r.id} href={`/robots/${r.id}`}>
+                <div className="group bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-2xl overflow-hidden transition h-full">
+                  <div className="h-32 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-cyan-600/20 text-5xl">
+                    {r.image}
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold group-hover:text-blue-400 transition">{r.name}</h3>
+                      <span className="text-sm text-yellow-500 shrink-0">{r.trustScore}★</span>
                     </div>
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold group-hover:text-blue-400 transition">{r.name}</h3>
-                        <span className="text-sm text-yellow-500 shrink-0">{r.trustScore}★</span>
-                      </div>
-                      <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{r.description}</p>
-                      <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <span>{r.country}</span>
-                        <span>·</span>
-                        <span>{r.year}</span>
-                      </div>
+                    <p className="text-sm text-zinc-400 line-clamp-2 mb-3">{r.description}</p>
+                    <div className="flex items-center gap-2 text-xs text-zinc-500">
+                      <span>{r.country}</span>
+                      <span>·</span>
+                      <span>{r.year}</span>
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
+                </div>
+              </Link>
+            ))}
+          </div>
         </section>
 
         {/* CTA */}
         <section className="max-w-4xl mx-auto px-4 pb-24">
           <div className="bg-gradient-to-r from-blue-600/10 to-cyan-600/10 border border-white/10 rounded-2xl p-12 text-center">
             <h2 className="text-3xl font-bold mb-4">지금 탐색을 시작하세요</h2>
-            <p className="text-zinc-400 mb-6">
-              검색·필터·정렬로 원하는 로봇을 빠르게 찾아보세요.
-            </p>
+            <p className="text-zinc-400 mb-6">검색·필터·정렬로 원하는 로봇을 빠르게 찾아보세요.</p>
             <Link
               href="/robots"
               className="inline-block px-8 py-3 bg-cyan-600 hover:bg-cyan-700 rounded-lg font-semibold transition"
