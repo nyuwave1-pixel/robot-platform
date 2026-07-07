@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdSenseLoader from "@/components/AdSenseLoader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="bg-slate-900 text-white">
+        <AdSenseLoader />
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

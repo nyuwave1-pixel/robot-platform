@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 
 export default function Home() {
   return (
@@ -28,6 +29,8 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      <AdSlot variant="banner" className="mb-20" />
 
       <section className="grid md:grid-cols-3 gap-8 mb-20">
         <div className="bg-slate-800 p-8 rounded-lg border border-slate-700">
