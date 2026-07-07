@@ -26,6 +26,15 @@ const categories = [
   "other",
 ];
 
+const CATEGORY_LABELS: Record<string, string> = {
+  humanoid: "휴머노이드",
+  industrial: "산업용",
+  medical: "의료용",
+  ai: "AI/컴패니언",
+  drone: "드론",
+  other: "기타",
+};
+
 const technologies = [
   "AI",
   "ML",
@@ -122,19 +131,24 @@ export default function RobotsPage() {
               >
                 모든 카테고리
               </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedCategory === cat
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/5 text-zinc-400 hover:bg-white/10"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+              {categories.map((cat) => {
+                const count = robots.filter((r) => r.category === cat).length;
+                if (count === 0) return null;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                      selectedCategory === cat
+                        ? "bg-blue-600 text-white"
+                        : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {CATEGORY_LABELS[cat] || cat}{" "}
+                    <span className="text-xs opacity-60">{count}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Tech Filter */}
