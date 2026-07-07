@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Star, MapPin, Calendar, ExternalLink, Share2 } from "lucide-react";
 import Link from "next/link";
@@ -15,10 +15,11 @@ interface Robot {
   country: string;
   year: number;
   trustScore: number;
-  url: string;
+  url?: string;
 }
 
 export default function RobotDetailPage({ params }: any) {
+  const { id } = use(params) as { id: string };
   const [robot, setRobot] = useState<Robot | null>(null);
   const [allRobots, setAllRobots] = useState<Robot[]>([]);
 
@@ -27,11 +28,11 @@ export default function RobotDetailPage({ params }: any) {
       const res = await fetch("/data/robots.json");
       const data = await res.json();
       setAllRobots(data);
-      const found = data.find((r: Robot) => r.id === params.id);
+      const found = data.find((r: Robot) => r.id === id);
       setRobot(found);
     };
     loadRobots();
-  }, [params.id]);
+  }, [id]);
 
   if (!robot) {
     return (
@@ -64,13 +65,8 @@ export default function RobotDetailPage({ params }: any) {
         className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-20"
       >
         {/* Image */}
-        <div className="relative h-96 rounded-2xl overflow-hidden">
-          <img
-            src={robot.image}
-            alt={robot.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
+        <div className="relative h-96 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600/20 to-cyan-600/20 flex items-center justify-center">
+          <span className="text-[10rem] leading-none">{robot.image}</span>
         </div>
 
         {/* Info */}
@@ -128,13 +124,13 @@ export default function RobotDetailPage({ params }: any) {
           {/* Actions */}
           <div className="flex gap-4">
             <a
-              href={robot.url}
+              href={robot.url || `https://www.google.com/search?q=${encodeURIComponent(robot.name + " robot")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl font-semibold transition"
             >
               <ExternalLink className="w-5 h-5" />
-              공식 사이트
+              {robot.url ? "공식 사이트" : "웹에서 검색"}
             </a>
             <button className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-semibold border border-white/20 transition">
               <Share2 className="w-5 h-5" />
@@ -155,12 +151,8 @@ export default function RobotDetailPage({ params }: any) {
                   whileHover={{ y: -8 }}
                   className="group bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-2xl overflow-hidden"
                 >
-                  <div className="h-32 overflow-hidden bg-slate-700">
-                    <img
-                      src={r.image}
-                      alt={r.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                    />
+                  <div className="h-32 flex items-center justify-center bg-gradient-to-br from-blue-600/20 to-cyan-600/20">
+                    <span className="text-5xl group-hover:scale-110 transition-transform">{r.image}</span>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold mb-2 group-hover:text-blue-400 transition">
