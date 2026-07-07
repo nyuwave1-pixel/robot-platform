@@ -1,62 +1,169 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 
+interface Robot {
+  id: string;
+  name: string;
+  image: string;
+  description: string;
+  category: string;
+  technology: string[];
+  country: string;
+  year: number;
+  trustScore: number;
+}
+
 export default function Analytics() {
+  const [robots, setRobots] = useState<Robot[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/data/robots.json")
+      .then((r) => r.json())
+      .then((data) => {
+        setRobots(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const total = robots.length;
+
+  // 연도별 등장 추이
+  const byYear = robots.reduce<Record<number, number>>((acc, r) => {
+    acc[r.year] = (acc[r.year] || 0) + 1;
+    return acc;
+  }, {});
+  const years = Object.keys(byYear)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const maxYear = Math.max(1, ...Object.values(byYear));
+
+  // 기술 채택률
+  const byTech = robots.reduce<Record<string, number>>((acc, r) => {
+    r.technology.forEach((t) => (acc[t] = (acc[t] || 0) + 1));
+    return acc;
+  }, {});
+  const techEntries = Object.entries(byTech).sort((a, b) => b[1] - a[1]);
+
+  // 신뢰도 분포 (버킷)
+  const buckets = [
+    { label: "4.8 – 5.0", min: 4.8, max: 5.01 },
+    { label: "4.5 – 4.8", min: 4.5, max: 4.8 },
+    { label: "4.0 – 4.5", min: 4.0, max: 4.5 },
+    { label: "4.0 미만", min: 0, max: 4.0 },
+  ].map((b) => ({
+    ...b,
+    count: robots.filter((r) => r.trustScore >= b.min && r.trustScore < b.max).length,
+  }));
+  const maxBucket = Math.max(1, ...buckets.map((b) => b.count));
+
+  const newest = [...robots].sort((a, b) => b.year - a.year).slice(0, 5);
+
   return (
     <>
       <Navbar />
       <main className="min-h-screen bg-[#060608] text-white pt-20 pb-20">
         <div className="max-w-7xl mx-auto px-4">
-          {/* 헤더 */}
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-2">📈 분석</h1>
-            <p className="text-zinc-400">플랫폼 전체 분석 및 통계</p>
+            <p className="text-zinc-400">
+              등록된 로봇 {total}종의 연도·기술·신뢰도 추이 분석
+            </p>
           </div>
 
-          {/* 기간 선택 */}
-          <div className="mb-8 flex gap-4">
-            <button className="px-4 py-2 bg-blue-600 rounded-lg text-sm">1주</button>
-            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm">1개월</button>
-            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm">3개월</button>
-            <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm">1년</button>
-          </div>
-
-          {/* 차트 영역 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h2 className="font-bold mb-4">거래량 추이</h2>
-              <div className="h-64 bg-white/[0.02] rounded-lg flex items-center justify-center text-zinc-500">
-                📊 차트 영역 (Chart.js 또는 Recharts 추가 가능)
+          {loading ? (
+            <p className="text-zinc-500">데이터 분석 중...</p>
+          ) : (
+            <>
+              {/* 연도별 등장 추이 */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-6">
+                <h2 className="text-xl font-bold mb-6">연도별 로봇 등장 추이</h2>
+                <div className="flex items-end justify-between gap-3 h-56">
+                  {years.map((y) => (
+                    <div key={y} className="flex-1 flex flex-col items-center justify-end h-full">
+                      <div className="text-sm font-bold text-blue-400 mb-2">{byYear[y]}</div>
+                      <div
+                        className="w-full bg-gradient-to-t from-blue-600 to-cyan-400 rounded-t-lg transition-all"
+                        style={{ height: `${(byYear[y] / maxYear) * 100}%` }}
+                      />
+                      <div className="text-xs text-zinc-400 mt-2">{y}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h2 className="font-bold mb-4">사용자 증가</h2>
-              <div className="h-64 bg-white/[0.02] rounded-lg flex items-center justify-center text-zinc-500">
-                📈 차트 영역 (Chart.js 또는 Recharts 추가 가능)
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* 기술 채택률 */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                  <h2 className="text-xl font-bold mb-6">기술 채택률</h2>
+                  <div className="space-y-4">
+                    {techEntries.map(([tech, count]) => (
+                      <div key={tech}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium">{tech}</span>
+                          <span className="text-zinc-400">
+                            {count}종 ({Math.round((count / total) * 100)}%)
+                          </span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-cyan-500 rounded-full transition-all"
+                            style={{ width: `${(count / total) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 신뢰도 분포 */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                  <h2 className="text-xl font-bold mb-6">신뢰도 분포</h2>
+                  <div className="space-y-4">
+                    {buckets.map((b) => (
+                      <div key={b.label}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium">{b.label}</span>
+                          <span className="text-zinc-400">{b.count}종</span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500 rounded-full transition-all"
+                            style={{ width: `${(b.count / maxBucket) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* 통계 카드 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="text-sm text-zinc-400 mb-2">일일 거래량</div>
-              <div className="text-3xl font-bold mb-2">$12.3K</div>
-              <div className="text-xs text-green-400">↑ 23% 증가</div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="text-sm text-zinc-400 mb-2">주간 신규 사용자</div>
-              <div className="text-3xl font-bold mb-2">456</div>
-              <div className="text-xs text-green-400">↑ 18% 증가</div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="text-sm text-zinc-400 mb-2">평균 거래 금액</div>
-              <div className="text-3xl font-bold mb-2">$287</div>
-              <div className="text-xs text-green-400">↑ 12% 증가</div>
-            </div>
-          </div>
+              {/* 최신 로봇 */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-6">최신 등록 로봇</h2>
+                <div className="space-y-4">
+                  {newest.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex items-center justify-between pb-4 border-b border-white/5 last:border-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{r.image}</span>
+                        <div>
+                          <div className="font-semibold">{r.name}</div>
+                          <div className="text-sm text-zinc-400">{r.country}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-mono text-blue-400">{r.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </>
