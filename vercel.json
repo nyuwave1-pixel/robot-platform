@@ -1,5 +1,17 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://www.airobotphysical.com/robot-platform/",
+      "statusCode": 308
+    },
+    {
+      "source": "/:path((?!robot-platform).*)",
+      "destination": "https://www.airobotphysical.com/robot-platform/:path",
+      "statusCode": 308
+    }
+  ]
 }
