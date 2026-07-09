@@ -60,8 +60,24 @@ export default async function RobotDetailPage({
     (r) => r.category === robot.category && r.id !== robot.id
   ).slice(0, 3);
 
+  // 구조화 데이터 (구글 리치 스니펫) — 사실 필드만, 허위 평점 없음
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: robot.name,
+    description: robot.description,
+    category: CATEGORY_LABELS[robot.category] || robot.category,
+    countryOfOrigin: robot.country,
+    releaseDate: String(robot.year),
+    keywords: robot.technology.join(", "),
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white pt-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Link
