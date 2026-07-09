@@ -40,9 +40,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const robot = ROBOTS.find((r) => r.id === id);
-  if (!robot) return { title: "로봇을 찾을 수 없습니다 | 로봇플랫폼" };
+  if (!robot) return { title: "로봇을 찾을 수 없습니다" };
   return {
-    title: `${robot.name} — ${CATEGORY_LABELS[robot.category] || robot.category} 로봇 | 로봇플랫폼`,
+    title: `${robot.name} — ${CATEGORY_LABELS[robot.category] || robot.category} 로봇`,
     description: `${robot.name}(${robot.country}, ${robot.year}): ${robot.description}`,
   };
 }
