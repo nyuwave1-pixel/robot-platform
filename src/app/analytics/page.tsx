@@ -20,7 +20,7 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/data/robots.json")
+    fetch("/robot-platform/data/robots.json")
       .then((r) => r.json())
       .then((data) => {
         setRobots(data);

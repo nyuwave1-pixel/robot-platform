@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import robots from "../../public/data/robots.json";
 
-const BASE_URL = "https://robot-platform-parkjong-s-projects.vercel.app";
+const BASE_URL = "https://www.airobotphysical.com/robot-platform";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [

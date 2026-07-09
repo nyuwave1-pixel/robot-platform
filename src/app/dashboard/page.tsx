@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/data/robots.json")
+    fetch("/robot-platform/data/robots.json")
       .then((r) => r.json())
       .then((data) => {
         setRobots(data);

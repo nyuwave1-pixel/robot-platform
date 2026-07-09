@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import AdSenseLoader from "@/components/AdSenseLoader";
 import "./globals.css";
 
-const SITE_URL = "https://robot-platform-parkjong-s-projects.vercel.app";
+const SITE_URL = "https://www.airobotphysical.com/robot-platform";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
