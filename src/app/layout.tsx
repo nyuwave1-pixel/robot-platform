@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "로봇플랫폼 — 세계의 로봇을 한 곳에서",
     description:
       "휴머노이드부터 드론까지 48종 로봇의 스펙·신뢰도 비교와 커뮤니티 토론.",
