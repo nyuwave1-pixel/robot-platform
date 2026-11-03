@@ -43,7 +43,7 @@ export default function Hero() {
   return (
     <section id="birthday" ref={pin} className={s.pin} style={{ height: "250svh" }} data-bg="#080706" aria-labelledby="h-birthday">
       <div className={`${s.stage} ${s.hero}`}>
-        <div className={`${s.bgStill} ${s.heroBgMobile}`} style={{ backgroundImage: `url(${detail.candle})` }} aria-hidden="true" />
+        <div className={`${s.bgStill} ${s.heroBg}`} style={{ backgroundImage: `url(${detail.candle})` }} aria-hidden="true" />
         <div className="veil-soft" />
         {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 700 : 300} />}
         <div className={`${s.center} ${s.heroGrid}`}>
@@ -54,7 +54,6 @@ export default function Hero() {
               <b className={s.heroKoEm}>{copy.s01.ko2.text}</b>
             </h1>
           </div>
-          <div className={s.heroCandle} aria-hidden="true"><img src={detail.candle} alt="" /></div>
           <div ref={frame} className={s.heroFrame} aria-label="임상 강조 필름">
             <video ref={video} poster={film.poster} playsInline muted loop preload="metadata" aria-hidden="true">
               {film.sources.map((src) => <source key={src.src} src={src.src} type={src.type} />)}
