@@ -5,6 +5,7 @@ import { copy } from "@/data/copy";
 import { detail, safetyLoop } from "@/data/images";
 import Counter from "@/components/Counter";
 import Reveal from "@/components/Reveal";
+import Tagline from "@/components/Tagline";
 import { useInView } from "@/features/scroll/useSectionProgress";
 import s from "./sections.module.css";
 
@@ -51,6 +52,7 @@ export default function Clinical() {
     <section id="clinical" className={`section`} data-bg="#080706" aria-labelledby="h-clinical">
       <div className="section-inner">
         <div className={s.flow} style={{ paddingBottom: 0 }}>
+          <Tagline />
           <Reveal as="p" mode="words" className="eyebrow">Clinical · 인체적용시험</Reveal>
           <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-clinical">{copy.s04.concern.text}</Reveal>
         </div>

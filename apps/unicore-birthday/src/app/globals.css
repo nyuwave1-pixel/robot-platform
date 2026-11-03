@@ -118,3 +118,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @keyframes soundPulse { 0% { box-shadow: 0 0 0 0 rgba(229,197,141,.55) } 100% { box-shadow: 0 0 0 14px rgba(229,197,141,0) } }
 @media (max-width: 767px) { .sound-label { display: none; } .sound-toggle { padding: 0 12px; } .sound-toggle.blocked .sound-label { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .sound-toggle.on .sound-bars i, .sound-toggle.blocked { animation: none; } }
+
+/* 반복 태그라인 */
+.tagline { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: var(--muted); }
+.tagline i { width: 28px; height: 1px; background: linear-gradient(90deg, var(--gold-metal), transparent); flex: none; }
+.tagline b { color: var(--gold-metal); font-weight: 600; }
+.tagline-light { color: #6b5433; }
+.tagline-light b { color: #8f6b3a; }
