@@ -5,13 +5,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        ivory: "#FBF8F3",
+        ivory: "#F7F2EA",
         cream: "#F4EDE3",
         sand: "#E7DBCB",
         ink: { DEFAULT: "#1D1B18", soft: "#4A4540", mute: "#7A726A" },
-        citrus: { DEFAULT: "#E98A15", deep: "#C4690A", light: "#FBE3C2" },
-        sun: { DEFAULT: "#E9B53A", light: "#FBF0CF" },
-        peach: { DEFAULT: "#E4936F", light: "#F9E1D5" },
+        // VITA C Collection palette (luxury K-beauty: ivory base, champagne/citrus gold accents)
+        citrus: { DEFAULT: "#C6A16A", deep: "#94713F", light: "#F1E6D2" },
+        sun: { DEFAULT: "#E9B94D", light: "#FBF0CF" },
+        peach: { DEFAULT: "#D7B48C", light: "#F3E8DA" },
+        night: "#080706",
+        obsidian: "#17110F",
+        champagne: "#C6A16A",
+        gold: { DEFAULT: "#E9B94D", fresh: "#F6D76B" },
+        beige: "#E7D9C5",
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

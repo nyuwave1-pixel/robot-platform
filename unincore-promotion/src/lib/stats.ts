@@ -6,7 +6,7 @@ import { DEVICES, EVENTS, type EventName, type TrackPayload } from "./events";
 
 const TTL = 60 * 60 * 24 * 400;
 const PRODUCT_KEYS = new Set(["ampoule", "mask", "wash"]);
-const LOCATIONS = new Set(["hero", "sticky", "final", "promo", "offer", "card", "routine", "shop", "header", "related", "howto"]);
+const LOCATIONS = new Set(["hero", "sticky", "final", "promo", "offer", "card", "routine", "shop", "header", "related", "howto", "ritual", "scene", "collection"]);
 
 export function dayKey(d: Date = new Date()): string {
   // Bucket by US Pacific day so the dashboard matches Amazon/Meta reporting days.
