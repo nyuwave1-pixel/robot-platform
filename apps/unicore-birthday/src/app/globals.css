@@ -27,6 +27,8 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: auto; }
+/* 다크 테마 선언 — 안드로이드 크롬/삼성 인터넷의 "자동 다크 모드"가 골드 그라데이션·버튼 배경을 어둡게 바꾸는 것을 방지 */
+html { color-scheme: dark; }
 html, body { margin: 0; background: var(--bg-midnight); color: var(--ivory); }
 body {
   font-family: var(--font-kr);
@@ -44,7 +46,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* type scale */
-.eyebrow { font: 500 11px/1 var(--font-ui); letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+.eyebrow { font: 500 11px/1.5 var(--font-ui); letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
 .display-en {
   font-family: var(--font-serif); font-weight: 300; line-height: 0.95; letter-spacing: 0.01em;
   background: linear-gradient(180deg, #fff 0%, var(--gold-metal) 58%, var(--gold-deep) 100%);
@@ -53,7 +55,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .headline-ko { font-family: var(--font-kr); font-weight: 200; line-height: 1.4; color: var(--white); letter-spacing: -0.01em; }
 .headline-ko b { font-weight: 600; }
 .body-ko { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.8; color: var(--muted); max-width: 56ch; }
-.caption { font: 400 11px/1.6 var(--font-ui); letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); }
+.caption { font: 500 11px/1.6 var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
 .footnote { font-size: 12px; line-height: 1.6; color: var(--muted); max-width: 72ch; }
 .numeral {
   font-family: var(--font-serif); font-weight: 300; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
@@ -128,3 +130,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .tagline b { color: var(--gold-metal); font-weight: 600; }
 .tagline-light { color: #6b5433; }
 .tagline-light b { color: #8f6b3a; }
+
+/* ---------- mobile typography & spacing ---------- */
+@media (max-width: 767px) {
+  .eyebrow { font-size: 10px; letter-spacing: .16em; }
+  .caption { font-size: 11px; letter-spacing: .08em; }
+  .body-ko { font-size: 15px; line-height: 1.75; }
+  .footnote { font-size: 11px; line-height: 1.6; }
+  .headline-ko { word-break: keep-all; }
+  .section { padding-left: 20px; padding-right: 20px; }
+  .tagline { font-size: 12px; margin-bottom: 14px; }
+}
