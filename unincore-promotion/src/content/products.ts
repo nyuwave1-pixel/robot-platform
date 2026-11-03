@@ -41,7 +41,7 @@ export const AMPOULE: ProductContent = {
 
   name: "Vita C 13.5 Super Brightening Ampoule",
   shortName: "Vita C 13.5 Ampoule",
-  size: "30 g",
+  size: "1.06 oz (30 g)",
   accent: "citrus",
   routineStep: 3,
 
@@ -54,10 +54,18 @@ export const AMPOULE: ProductContent = {
   highlights: ["13.5% pure vitamin C", "Lightweight ampoule texture", "For dull, tired-looking skin", "Made in Korea"],
   specs: [
     { label: "Key ingredient", value: "13.5% Pure Vitamin C" },
-    { label: "Size", value: "30 g" },
+    { label: "Size", value: "1.06 oz (30 g)" },
     { label: "Step", value: "Ampoule / Serum" },
     { label: "Best for", value: "Dull, uneven-looking skin" },
+    { label: "Made in", value: "Korea" },
   ],
+
+  heroImage: "/products/ampoule-hero.webp",
+  visualImage: "/products/ampoule-visual.webp",
+  fullIngredients:
+    "Water, Ascorbic Acid, Butylene Glycol, Dipropylene Glycol, Propanediol, Caprylic/Capric Triglyceride, Propylene Glycol Dicaprylate/Dicaprate, Polysorbate 60, Glutathione, Glycerin, Glyceryl Stearate SE, Panthenol, Chitosan, Sodium Gluconate, Sodium Hyaluronate, Helianthus Annuus (Sunflower) Seed Oil, Dimethicone, Xanthan Gum, Guar Hydroxypropyltrimonium Chloride, Sodium Metabisulfite, Fraxinus Rhynchophylla Extract, Nelumbo Nucifera Seed Extract, Inula Britannica Flower Extract, Phaseolus Radiatus Seed Extract, Opuntia Ficus-Indica Fruit Extract, Myrciaria Dubia Fruit Extract, Daucus Carota Sativa (Carrot) Seed Oil, Daucus Carota Sativa (Carrot) Root Extract, Curcuma Longa (Turmeric) Root Extract, Terminalia Ferdinandiana Fruit Extract, Beta-Glucan, Phytic Acid, Betula Platyphylla Japonica Bark Extract, Tocopherol, Rumex Crispus Root Extract, Hydrolyzed Elastin, Disodium EDTA, Sodium Hydroxide, Citrus Paradisi (Grapefruit) Fruit Extract, 1,2-Hexanediol, Ethylhexylglycerin, Fragrance, Beta-Carotene",
+  caution:
+    "External use only. Avoid contact with eyes; if contact occurs, rinse thoroughly with water. Do not use on broken or irritated skin. Discontinue use if irritation or rash occurs. Keep out of reach of children. Store in a cool, dry place away from direct sunlight.",
 
   concerns: [
     { title: "Dull, tired-looking skin", text: "Late nights, city air and dry indoor heat can leave skin looking flat and lackluster." },
@@ -122,8 +130,22 @@ export const AMPOULE: ProductContent = {
       name: "Glutathione",
       inci: "Glutathione",
       role: "Supporting antioxidant",
-      detail: "Referenced in the Amazon listing title — confirm against the US INCI list before publishing.",
-      status: "pending",
+      detail: "Listed on the US label right alongside vitamin C, as a supporting antioxidant for a clearer, more radiant-looking complexion.",
+      status: "verified",
+    },
+    {
+      name: "Hyaluronic Acid",
+      inci: "Sodium Hyaluronate",
+      role: "Hydration",
+      detail: "Helps skin feel hydrated and supple, so the vitamin C step never feels tight or dry.",
+      status: "verified",
+    },
+    {
+      name: "Panthenol",
+      inci: "Panthenol",
+      role: "Comfort",
+      detail: "Pro-vitamin B5 that helps skin feel soft, smooth and comfortable.",
+      status: "verified",
     },
   ],
   texture: {
@@ -133,7 +155,7 @@ export const AMPOULE: ProductContent = {
   },
   howTo: [
     { title: "Cleanse & prep", text: "Start on clean skin. After cleansing, use your toner or a sheet mask as usual." },
-    { title: "Apply a few drops", text: "Dispense 2–3 drops onto your fingertips and press gently over the face, avoiding the eye area." },
+    { title: "Apply one to two pumps", text: "Dispense a moderate amount — one to two pumps — and spread it evenly over the face, avoiding the eye area." },
     { title: "Seal it in", text: "Follow with moisturizer. In the morning, always finish with a broad-spectrum sunscreen." },
   ],
   routineText: "Finish with the ampoule to lock in a concentrated dose of vitamin C.",
@@ -166,23 +188,31 @@ export const MASK: ProductContent = {
 
   name: "Vita C Super Brightening Mask",
   shortName: "Vita C Brightening Mask",
-  size: "5 sheets",
+  size: "5 sheets × 0.56 oz (16 g)",
   accent: "sun",
   routineStep: 2,
 
   heroEyebrow: "2% Pure Vitamin C Sheet Mask",
   heroHeadline: "Brighten Your Routine with Vitamin C",
   heroSub:
-    "A 20-minute vitamin C sheet mask that drenches skin in brightening essence — for a fresh, glowing look before a big day, or any day.",
-  tagline: "Twenty minutes to a fresher, brighter-looking face.",
+    "A 10–20 minute vitamin C sheet mask that drenches skin in brightening essence — for a fresh, glowing look before a big day, or any day.",
+  tagline: "Up to twenty minutes to a fresher, brighter-looking face.",
   keyIngredient: "2% Pure Vitamin C",
-  highlights: ["2% pure vitamin C", "5 sheet masks per box", "20-minute ritual", "Made in Korea"],
+  highlights: ["2% pure vitamin C", "5 sheet masks per box", "10–20 minute ritual", "Made in Korea"],
   specs: [
     { label: "Key ingredient", value: "2% Pure Vitamin C" },
-    { label: "Contents", value: "5 sheets" },
-    { label: "Wear time", value: "15–20 minutes" },
+    { label: "Contents", value: "5 sheets, 0.56 oz (16 g) each" },
+    { label: "Wear time", value: "10–20 minutes" },
     { label: "Best for", value: "Dull, dehydrated-looking skin" },
+    { label: "Made in", value: "Korea" },
   ],
+
+  heroImage: "/products/mask-hero.webp",
+  visualImage: "/products/mask-visual.webp",
+  fullIngredients:
+    "Water, Propanediol, Butylene Glycol, Dipropylene Glycol, Ascorbic Acid, Caprylic/Capric Triglyceride, Propylene Glycol Dicaprylate/Dicaprate, Polysorbate 60, Polyglyceryl-10 Laurate, Glycerin, (-)-alpha-Bisabolol, Panthenol, Glutathione, Dimethicone, Chitosan, Sodium Gluconate, Sodium Hyaluronate, Helianthus Annuus (Sunflower) Seed Oil, Phytic Acid, Beta-Glucan, Fraxinus Rhynchophylla Extract, Nelumbo Nucifera Seed Extract, Hydrolyzed Elastin, Inula Britannica Flower Extract, Phaseolus Radiatus Seed Extract, Rumex Crispus Root Extract, Betula Platyphylla Japonica Bark Extract, Acetyl Hexapeptide-8, Daucus Carota Sativa (Carrot) Root Extract, Daucus Carota Sativa (Carrot) Seed Oil, Disodium EDTA, Guar Hydroxypropyltrimonium Chloride, Sodium Metabisulfite, Tocopherol, Xanthan Gum, Citrus Paradisi (Grapefruit) Fruit Extract, Sodium Hydroxide, 1,2-Hexanediol, Ethylhexylglycerin, Fragrance, Beta-Carotene",
+  caution:
+    "External use only. Avoid contact with eyes; if contact occurs, rinse thoroughly with water. Do not use on broken or irritated skin. Discontinue use if irritation or rash occurs. Keep out of reach of children. Store in a cool, dry place away from direct sunlight.",
 
   concerns: [
     { title: "Skin looks tired", text: "Busy weeks show up on your face first — as dullness and a lack of bounce." },
@@ -190,7 +220,7 @@ export const MASK: ProductContent = {
     { title: "No time for a long routine", text: "You want a visible pick-me-up without a ten-step evening." },
   ],
   benefits: [
-    { title: "Instant fresh look", text: "Skin looks brighter and feels hydrated right after a single 20-minute session." },
+    { title: "Instant fresh look", text: "Skin looks brighter and feels hydrated right after a single 10–20 minute session." },
     { title: "Essence-soaked sheet", text: "Each sheet carries vitamin C essence that you can pat in after removing the mask." },
     { title: "Prep for makeup", text: "Leaves skin smooth and comfortable — a great base before a night out." },
   ],
@@ -226,6 +256,27 @@ export const MASK: ProductContent = {
       detail: "2% pure vitamin C in a soothing essence helps skin look fresher and more even after each use.",
       status: "verified",
     },
+    {
+      name: "Glutathione",
+      inci: "Glutathione",
+      role: "Supporting antioxidant",
+      detail: "Paired with vitamin C in the essence for a clearer, more radiant-looking finish.",
+      status: "verified",
+    },
+    {
+      name: "Bisabolol",
+      inci: "(-)-alpha-Bisabolol",
+      role: "Soothing",
+      detail: "A chamomile-derived ingredient that helps skin feel calm and comfortable while you wear the mask.",
+      status: "verified",
+    },
+    {
+      name: "Hyaluronic Acid",
+      inci: "Sodium Hyaluronate",
+      role: "Hydration",
+      detail: "Helps skin feel plump and hydrated after the sheet comes off.",
+      status: "verified",
+    },
   ],
   texture: {
     title: "Essence you can feel working",
@@ -235,7 +286,7 @@ export const MASK: ProductContent = {
   howTo: [
     { title: "Cleanse & tone", text: "Start with clean skin — ideally right after the Vita C Enzyme Powder Wash." },
     { title: "Unfold & remove the film", text: "Open the pouch, unfold the sheet and peel off the protective film." },
-    { title: "Wear for 15–20 minutes", text: "Smooth the sheet over your face, aligning the eyes and mouth. Relax for 15–20 minutes." },
+    { title: "Wear for 10–20 minutes", text: "Place the sheet to fit your face — the darker side faces out — aligning the eyes and mouth. Relax for 10–20 minutes." },
     { title: "Pat in the rest", text: "Remove the sheet and gently pat the remaining essence into the skin. Follow with the ampoule." },
   ],
   routineText: "Flood freshly cleansed skin with vitamin C essence in 20 minutes.",
@@ -251,7 +302,7 @@ export const MASK: ProductContent = {
   seo: {
     title: "Vitamin C Sheet Mask (5 Pack) | UNI&CORE Brightening Face Mask",
     description:
-      "UNI&CORE Vita C Super Brightening Mask: a Korean vitamin C sheet mask with 2% pure vitamin C for a hydrated, brighter-looking glow in 20 minutes. Shop on Amazon.",
+      "UNI&CORE Vita C Super Brightening Mask: a Korean vitamin C sheet mask with 2% pure vitamin C for a hydrated, brighter-looking glow in 10–20 minutes. Shop on Amazon.",
     keywords: ["vitamin C face mask", "brightening sheet mask", "Korean vitamin C mask", "vitamin C sheet mask", "hydrating face mask", "UNI&CORE"],
   },
 };
@@ -268,23 +319,31 @@ export const WASH: ProductContent = {
 
   name: "Vita C Enzyme Powder Wash",
   shortName: "Vita C Enzyme Powder Wash",
-  size: "30 single-use packets",
+  size: "30 single-use pouches (1 g each)",
   accent: "peach",
   routineStep: 1,
 
-  heroEyebrow: "Enzyme Powder Cleanser",
+  heroEyebrow: "Papain + Bromelain Enzyme Cleanser",
   heroHeadline: "The Power of Enzymes in Every Wash",
   heroSub:
     "A gentle enzyme powder that turns into a creamy foam with a splash of water — lifting away dullness and buildup for smoother, brighter-looking skin.",
   tagline: "Fresh powder, every single wash.",
-  keyIngredient: "Bromelain Enzyme",
-  highlights: ["Bromelain enzyme powder", "30 single-use packets", "Creamy, rich foam", "Travel-friendly"],
+  keyIngredient: "Papain & Bromelain Enzymes",
+  highlights: ["Papain + bromelain enzymes", "With vitamin C (ascorbic acid)", "30 single-use pouches", "Travel-friendly"],
   specs: [
-    { label: "Key ingredient", value: "Bromelain (pineapple enzyme)" },
-    { label: "Contents", value: "30 single-use packets" },
+    { label: "Key ingredients", value: "Papain, bromelain, vitamin C" },
+    { label: "Contents", value: "30 pouches × 0.03 oz (1 g) — 1.06 oz (30 g)" },
     { label: "Format", value: "Powder-to-foam cleanser" },
-    { label: "Best for", value: "Dull, rough-feeling skin" },
+    { label: "Skin type", value: "Oily, normal, combination and dry" },
+    { label: "Made in", value: "Korea" },
   ],
+
+  heroImage: "/products/wash-hero.webp",
+  visualImage: "/products/wash-visual.webp",
+  fullIngredients:
+    "Zea Mays (Corn) Starch, Sodium Cocoyl Isethionate, Sodium Lauroyl Glutamate, Sodium Palmitate, Diglycerin, Allantoin, Maltodextrin, Citrus Aurantium Dulcis (Orange) Peel Powder, Fragaria Vesca (Strawberry) Seed, Papain, Bromelain, Ascorbic Acid, Sucrose, Cellulose Gum, Curcumin, Styrene/Acrylates Copolymer, Lipase, Titanium Dioxide (CI 77891), Mica, Iron Oxide (CI 77492)",
+  caution:
+    "External use only. Avoid contact with eyes; if contact occurs, rinse thoroughly with water. Do not use this product in a manner that may lead to inhalation. Do not use on broken or irritated skin. If irritation occurs, discontinue use immediately and consult a physician. Keep out of reach of children.",
 
   concerns: [
     { title: "Rough, uneven texture", text: "Dead-skin buildup makes skin feel rough and look dull." },
@@ -292,7 +351,7 @@ export const WASH: ProductContent = {
     { title: "Harsh scrubs", text: "Gritty exfoliators can feel too aggressive for everyday use." },
   ],
   benefits: [
-    { title: "Gentle enzyme exfoliation", text: "Bromelain helps loosen dull surface buildup — no gritty scrubbing required." },
+    { title: "Gentle enzyme exfoliation", text: "Papain and bromelain help loosen dull surface buildup — no gritty scrubbing required." },
     { title: "Rich, creamy foam", text: "The powder whips into a soft lather that rinses clean." },
     { title: "Always fresh", text: "Each wash comes in its own packet, so the powder stays dry and fresh until you use it." },
   ],
@@ -301,7 +360,7 @@ export const WASH: ProductContent = {
       id: "ph",
       value: "pH 5–5.5",
       label: "low-pH, skin-friendly cleansing",
-      source: "Confirm with the US label or a pH test certificate before publishing.",
+      source: "The US box says \"pH balanced formula\" but gives no number — confirm 5–5.5 with a pH test certificate before publishing.",
       status: "pending",
     },
   ],
@@ -309,7 +368,7 @@ export const WASH: ProductContent = {
   beforeAfter: [],
   videos: [],
   differentiators: [
-    { title: "Enzymes, not grit", text: "Exfoliates with bromelain instead of scrubbing particles, so it's gentle enough for daily use." },
+    { title: "Enzymes, not grit", text: "Exfoliates with papain and bromelain instead of scrubbing particles, so it's gentle enough for daily use." },
     { title: "One packet, one wash", text: "Pre-portioned packets mean no wet jar, no clumping and the right amount every time." },
     { title: "Built for travel", text: "Toss a few packets in your bag — no liquids, no spills." },
   ],
@@ -322,10 +381,18 @@ export const WASH: ProductContent = {
       status: "verified",
     },
     {
+      name: "Papain",
+      inci: "Papain",
+      role: "Enzyme exfoliant",
+      detail: "A papaya enzyme that works alongside bromelain to smooth away dull-looking surface buildup.",
+      status: "verified",
+    },
+    {
       name: "Vitamin C",
+      inci: "Ascorbic Acid",
       role: "Brightening",
-      detail: "Confirm the exact vitamin C derivative and its INCI name on the US label before publishing.",
-      status: "pending",
+      detail: "Pure vitamin C, listed on the US label as ascorbic acid, for a fresher, brighter-looking finish after every wash.",
+      status: "verified",
     },
   ],
   texture: {
@@ -334,14 +401,14 @@ export const WASH: ProductContent = {
     notes: ["Fine, soft powder", "Activates with water", "Dense, creamy lather"],
   },
   howTo: [
-    { title: "Open a packet", text: "Tear open one packet and pour the powder into wet palms." },
-    { title: "Add water & lather", text: "Add a little water and rub your hands together until it turns into a rich foam." },
-    { title: "Massage & rinse", text: "Gently massage over the face for 30–60 seconds, avoiding the eye area, then rinse with lukewarm water." },
+    { title: "Open a pouch", text: "Tear open one pouch and pour the powder into your palm." },
+    { title: "Add water & lather", text: "Add a small amount of lukewarm water and rub your hands together until it turns into a rich foam." },
+    { title: "Massage & rinse", text: "Massage gently over the face with soft rolling motions, avoiding the eye area, then rinse clean with warm water." },
   ],
   routineText: "Start with fresh enzyme foam to clear the way for vitamin C.",
   faqs: [
     { q: "Can I use the powder wash every day?", a: "Most skin types can use it daily. If your skin feels sensitive, use it every other day or as your evening cleanse." },
-    { q: "How many washes are in a box?", a: "Each box contains 30 individually packed single-use packets — one packet per wash." },
+    { q: "How many washes are in a box?", a: "Each box contains 30 individually packed 1 g pouches — one pouch per wash." },
     { q: "Does it replace my makeup remover?", a: "For heavy or waterproof makeup, remove it first with a cleansing oil or balm, then use the powder wash as your second cleanse." },
     { q: "Is it gentle enough for sensitive skin?", a: "It's formulated as a gentle enzyme cleanser, but always patch test first if your skin is reactive." },
   ],
@@ -351,7 +418,7 @@ export const WASH: ProductContent = {
   seo: {
     title: "Enzyme Powder Face Wash with Bromelain | UNI&CORE Korean Cleanser",
     description:
-      "UNI&CORE Vita C Enzyme Powder Wash: a gentle Korean enzyme face cleanser with bromelain in 30 single-use packets. Creamy foam, smoother-feeling skin. Shop on Amazon.",
+      "UNI&CORE Vita C Enzyme Powder Wash: a gentle Korean enzyme cleanser with papain, bromelain and vitamin C in 30 single-use pouches. Shop on Amazon.",
     keywords: ["enzyme powder wash", "enzyme face cleanser", "powder face wash", "bromelain cleanser", "foaming powder cleanser", "daily exfoliating cleanser", "UNI&CORE"],
   },
 };

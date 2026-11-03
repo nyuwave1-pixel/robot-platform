@@ -128,6 +128,12 @@ export interface ProductContent {
 
   /** Optional real photography. Without it, an illustrated packshot is rendered. */
   heroImage?: string;
+  /** Optional brand key visual (portrait), shown in the texture section. */
+  visualImage?: string;
+  /** Full INCI list exactly as printed on the US label. */
+  fullIngredients?: string;
+  /** Caution text exactly as printed on the US label. */
+  caution?: string;
 
   concerns: TitledText[];
   benefits: TitledText[];

@@ -22,8 +22,8 @@ export function Packshot({
 }) {
   if (image) {
     return (
-      <div className={`relative aspect-[4/5] ${className}`}>
-        <Image src={image} alt={alt} fill priority={priority} sizes={sizes} className="object-contain" />
+      <div className={`relative aspect-[4/5] overflow-hidden rounded-[12%] shadow-[0_24px_60px_-30px_rgba(60,40,10,0.45)] ${className}`}>
+        <Image src={image} alt={alt} fill priority={priority} sizes={sizes} className="object-cover" />
       </div>
     );
   }

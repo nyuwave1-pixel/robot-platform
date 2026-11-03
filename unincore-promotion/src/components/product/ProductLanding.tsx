@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ProductContent, VerificationStatus } from "@/content/types";
 import { ACCENT } from "@/lib/accent";
@@ -222,7 +223,15 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
                 </article>
               ))}
             </div>
-            <p className="mt-6 text-xs text-ink-mute">For the full ingredient list, see the product packaging or the Amazon listing.</p>
+            {p.fullIngredients ? (
+              <details className="mt-8 rounded-3xl border border-ink/10 p-6">
+                <summary className="cursor-pointer font-medium">Full ingredient list</summary>
+                <p className="mt-4 text-sm leading-relaxed text-ink-soft">{p.fullIngredients}</p>
+                <p className="mt-3 text-xs text-ink-mute">As printed on the US label. Always check the packaging of the product you receive.</p>
+              </details>
+            ) : (
+              <p className="mt-6 text-xs text-ink-mute">For the full ingredient list, see the product packaging or the Amazon listing.</p>
+            )}
           </div>
         </section>
       )}
@@ -230,12 +239,18 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
       {/* 8. TEXTURE */}
       <section className="section bg-cream">
         <div className="container-site grid items-center gap-12 md:grid-cols-2">
-          <div className={`relative aspect-square overflow-hidden rounded-[36px] bg-gradient-to-br ${a.texture}`} data-reveal aria-hidden>
-            <div className={`absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full ${a.bg} opacity-40 blur-2xl`} />
-            <div className="absolute left-[28%] top-[30%] h-24 w-24 rounded-full bg-white/80 shadow-inner" />
-            <div className="absolute left-[52%] top-[48%] h-14 w-14 rounded-full bg-white/70 shadow-inner" />
-            <div className="absolute left-[38%] top-[62%] h-9 w-9 rounded-full bg-white/60 shadow-inner" />
-          </div>
+          {p.visualImage ? (
+            <div className="relative mx-auto aspect-[2/3] w-full max-w-md overflow-hidden rounded-[36px]" data-reveal>
+              <Image src={p.visualImage} alt={`${p.name} by UNI&CORE`} fill sizes="(max-width: 768px) 90vw, 448px" className="object-cover" />
+            </div>
+          ) : (
+            <div className={`relative aspect-square overflow-hidden rounded-[36px] bg-gradient-to-br ${a.texture}`} data-reveal aria-hidden>
+              <div className={`absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full ${a.bg} opacity-40 blur-2xl`} />
+              <div className="absolute left-[28%] top-[30%] h-24 w-24 rounded-full bg-white/80 shadow-inner" />
+              <div className="absolute left-[52%] top-[48%] h-14 w-14 rounded-full bg-white/70 shadow-inner" />
+              <div className="absolute left-[38%] top-[62%] h-9 w-9 rounded-full bg-white/60 shadow-inner" />
+            </div>
+          )}
           <div data-reveal>
             <p className="eyebrow">Texture &amp; Application</p>
             <h2 className="h-section mt-4">{p.texture.title}</h2>
@@ -262,6 +277,7 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
               </li>
             ))}
           </ol>
+          {p.caution && <p className="mt-8 max-w-3xl text-sm text-ink-mute"><strong className="font-medium text-ink-soft">Caution:</strong> {p.caution}</p>}
         </div>
       </section>
 

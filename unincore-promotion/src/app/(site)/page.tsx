@@ -69,7 +69,7 @@ export default async function HomePage() {
       <div className="overflow-hidden border-y border-ink/10 bg-ivory py-4" aria-hidden>
         <div className="flex w-max animate-marquee gap-12 whitespace-nowrap font-display text-2xl italic text-ink-mute">
           {Array.from({ length: 2 }).flatMap((_, r) =>
-            ["13.5% Pure Vitamin C", "2% Vitamin C Sheet Mask", "Bromelain Enzyme", "Made in Korea", "Everyday Glow", "3-Step Routine"].map((t) => (
+            ["13.5% Pure Vitamin C", "2% Vitamin C Sheet Mask", "Papain + Bromelain Enzymes", "Made in Korea", "Everyday Glow", "3-Step Routine"].map((t) => (
               <span key={`${r}-${t}`}>
                 {t} <span className="not-italic text-citrus">✦</span>
               </span>

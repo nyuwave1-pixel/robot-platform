@@ -8,7 +8,7 @@ export function FaqList({ faqs, product }: { faqs: Faq[]; product?: AmazonProduc
   return (
     <div className="divide-y divide-ink/10 border-y border-ink/10">
       {faqs.map((f, i) => (
-        <details
+        <details data-faq
           key={i}
           className="group py-6"
           onToggle={(e) => {

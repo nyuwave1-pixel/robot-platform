@@ -126,7 +126,7 @@ check("Amazon opened in new tab with correct ASIN", popup.url().includes("B0HJRK
 await popup.close();
 
 // FAQ event
-await page.locator("details summary").first().click();
+await page.locator("details[data-faq] summary").first().click();
 await page.waitForTimeout(300);
 check("faq_open beacon", beacons.some((b) => b.e === "faq_open"));
 
