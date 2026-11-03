@@ -46,11 +46,14 @@ function Table({ title, rows, note }: { title: string; rows: [string, number, nu
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   const { days: d } = await searchParams;
-  const days = [7, 30, 90].includes(Number(d)) ? Number(d) : 30;
+  const days = [7, 30, 90].includes(Number(d)) ? Number(d) : 7;
   let statsError = "";
   const [{ products, settings }, stats, audit] = await Promise.all([
     getCmsFresh(),
-    getStats(days).catch((err) => {
+    Promise.race([
+      getStats(days),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("stats timeout")), 15_000)),
+    ]).catch((err) => {
       console.error("[admin] stats failed:", err);
       statsError = "Click statistics could not be loaded right now (storage error). Refresh in a minute.";
       return getStats(0);

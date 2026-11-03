@@ -164,28 +164,17 @@ export async function appendEvent(day: string, encoded: string): Promise<void> {
 export async function listEvents(days: string[]): Promise<string[][]> {
   if (!useBlobs) return days.map(() => []);
   const store = await blobStore();
-  const listDay = async (day: string) => {
-    for (let attempt = 0; ; attempt++) {
-      try {
-        const { blobs } = await store.list({ prefix: `events/${day}/` });
-        return blobs.map((b) => decodeURIComponent(b.key.split("/")[2] || ""));
-      } catch (err) {
-        if (attempt >= 1) throw err;
-        await new Promise((r) => setTimeout(r, 300));
-      }
-    }
-  };
-  // Small concurrency: dozens of parallel list calls trigger Blobs 500s.
-  const out: string[][] = new Array(days.length);
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(4, days.length) }, async () => {
-      while (next < days.length) {
-        const i = next++;
-        out[i] = await listDay(days[i]);
-      }
-    }),
-  );
+  // One paginated list over the whole event log (pages of 1,000 keys), then
+  // bucket by day locally. Per-day list calls were slow enough to time out
+  // the dashboard and, in parallel, triggered Blobs 500s.
+  const wanted = new Map(days.map((d, i) => [d, i]));
+  const out: string[][] = days.map(() => []);
+  const { blobs } = await store.list({ prefix: "events/" });
+  for (const b of blobs) {
+    const [, day, enc] = b.key.split("/");
+    const i = wanted.get(day);
+    if (i !== undefined && enc) out[i].push(decodeURIComponent(enc));
+  }
   return out;
 }
 
