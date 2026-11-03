@@ -8,3 +8,8 @@
   NEXT_TELEMETRY_DISABLED = "1"
   # Store CMS data and click stats in Netlify Blobs (no Redis needed on Netlify).
   STORAGE_DRIVER = "blobs"
+
+# Next.js runtime (SSR, route handlers, middleware). Declared explicitly so
+# CLI/API-uploaded deploys also run it, not only Git-linked builds.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
