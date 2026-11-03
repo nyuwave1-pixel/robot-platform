@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { getCmsFresh, getAuditLog } from "@/lib/cms";
-import { getStats } from "@/lib/stats";
+import { emptyStats, getStats } from "@/lib/stats";
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let t: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    p,
+    new Promise<never>((_, reject) => {
+      t = setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms);
+    }),
+  ]).finally(() => clearTimeout(t));
+}
 import { storageMode } from "@/lib/storage";
 import { isPromoActive, isPromoUpcoming, formatPromoWindow } from "@/lib/promo";
 import { validateAmazonUrl } from "@/lib/amazon";
@@ -50,15 +60,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   let statsError = "";
   const [{ products, settings }, stats, audit] = await Promise.all([
     getCmsFresh(),
-    Promise.race([
-      getStats(days),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("stats timeout")), 15_000)),
-    ]).catch((err) => {
+    withTimeout(getStats(days), 12_000).catch((err) => {
       console.error("[admin] stats failed:", err);
       statsError = "Click statistics could not be loaded right now (storage error). Refresh in a minute.";
-      return getStats(0);
+      return emptyStats(days);
     }),
-    getAuditLog().catch(() => []),
+    withTimeout(getAuditLog(), 5_000).catch(() => []),
   ]);
   const mode = storageMode();
   const V = "product_detail_view";

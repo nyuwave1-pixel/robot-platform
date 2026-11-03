@@ -162,8 +162,10 @@ export async function appendEvent(day: string, encoded: string): Promise<void> {
 }
 
 export async function listEvents(days: string[]): Promise<string[][]> {
-  if (!useBlobs) return days.map(() => []);
-  const store = await blobStore();
+  if (!useBlobs || days.length === 0) return days.map(() => []);
+  // Listing doesn't need strong consistency; eventual reads avoid the slow path.
+  const { getStore } = await import("@netlify/blobs");
+  const store = getStore({ name: BLOB_STORE });
   // One paginated list over the whole event log (pages of 1,000 keys), then
   // bucket by day locally. Per-day list calls were slow enough to time out
   // the dashboard and, in parallel, triggered Blobs 500s.

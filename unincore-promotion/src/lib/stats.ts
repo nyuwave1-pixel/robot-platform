@@ -96,6 +96,26 @@ function bump(obj: Record<string, Record<string, number>>, a: string, b: string,
   (obj[a] ||= {})[b] = (obj[a][b] || 0) + n;
 }
 
+/** Zero-filled summary without touching storage (used when storage is unavailable). */
+export function emptyStats(days: number): StatsSummary {
+  const now = Date.now();
+  const keys = Array.from({ length: days }, (_, i) => dayKey(new Date(now - (days - 1 - i) * 86400000)));
+  return {
+    days,
+    from: keys[0]?.slice(6) ?? "",
+    to: keys[keys.length - 1]?.slice(6) ?? "",
+    totals: {},
+    byProduct: {},
+    byChannel: {},
+    byDevice: {},
+    byCampaign: {},
+    bySource: {},
+    byProductChannel: {},
+    ctaLocations: {},
+    daily: keys.map((k) => ({ day: k.slice(6), views: 0, clicks: 0 })),
+  };
+}
+
 export async function getStats(days = 30): Promise<StatsSummary> {
   const now = Date.now();
   const keys = Array.from({ length: days }, (_, i) => dayKey(new Date(now - (days - 1 - i) * 86400000)));
