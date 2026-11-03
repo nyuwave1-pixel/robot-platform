@@ -25,6 +25,15 @@ const IntroOverlay = dynamic(() => import("@/features/intro/IntroOverlay"), { ss
 export default function Experience() {
   // 'pending' 동안은 인트로를 열지 않고 로컬 저장값을 확인 (SSR 콘텐츠는 그대로 렌더)
   const [intro, setIntro] = useState<"pending" | "open" | "closed">("pending");
+  // 진입 시 항상 맨 위(히어로)에서 시작 — 브라우저의 스크롤 위치 복원 차단
+  useEffect(() => {
+    try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch {}
+    const toTop = () => { window.scrollTo(0, 0); (window as unknown as { __lenis?: { scrollTo?: (y: number, o?: object) => void } }).__lenis?.scrollTo?.(0, { immediate: true }); };
+    toTop();
+    const t = window.setTimeout(toTop, 50);
+    window.addEventListener("pageshow", toTop);
+    return () => { window.clearTimeout(t); window.removeEventListener("pageshow", toTop); };
+  }, []);
   useEffect(() => {
     let seen = false;
     try { seen = localStorage.getItem("uc.introSeen") === "1"; } catch {}
