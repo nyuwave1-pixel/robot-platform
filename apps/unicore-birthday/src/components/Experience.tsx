@@ -17,6 +17,8 @@ import HowToUse from "@/components/sections/HowToUse";
 import Final from "@/components/sections/Final";
 import Lineup from "@/components/sections/Lineup";
 import Footer from "@/components/Footer";
+import SoundToggle from "@/components/SoundToggle";
+import { audio } from "@/features/audio/audio";
 
 const IntroOverlay = dynamic(() => import("@/features/intro/IntroOverlay"), { ssr: false });
 
@@ -30,6 +32,8 @@ export default function Experience() {
     if (params.get("intro") === "1") seen = false;
     if (params.get("intro") === "0") seen = true;
     setIntro(seen ? "closed" : "open");
+    // 사이트 진입 시 BGM 자동재생 시도 (차단되면 첫 제스처에서 시작)
+    void audio.autoplay();
   }, []);
   return (
     <>
@@ -54,6 +58,7 @@ export default function Experience() {
       </main>
       <Footer />
       <Chrome />
+      <SoundToggle />
     </>
   );
 }

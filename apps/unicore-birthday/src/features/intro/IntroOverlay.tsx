@@ -45,6 +45,9 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
     }
   }, [phase, failed, reduced]);
 
+  // 오버레이가 닫힐 때 영상의 소리 출력권 반환
+  useEffect(() => () => { const v = videoRef.current; if (v) audio.releaseVideo(v); }, []);
+
   const onTime = () => {
     const v = videoRef.current; if (!v) return;
     setProgress(v.duration ? v.currentTime / v.duration : 0);
@@ -52,16 +55,15 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
     if (phase === "film2" && v.currentTime >= asset.durationSec - 0.15) finish();
   };
 
+  // 사운드 게이트: ON → BGM(+보이스) 시작, 필름은 음소거 유지(BGM이 사이트 사운드트랙). OFF → BGM 끔
   const choose = (sound: boolean) => {
-    audio.unlock();
-    audio.setEnabled(sound);
     const v = videoRef.current;
-    if (v) { audio.claim(v); v.muted = !sound; }
+    if (sound) void audio.enable(); else audio.disable();
+    if (v) audio.claimVideo(v, false);
     setPhase("film2");
   };
 
   const skip = () => {
-    audio.unlock();
     const v = videoRef.current;
     if (v && !failed && !reduced && v.readyState >= 2 && v.currentTime < skipTo) {
       // 로고 컷만 짧게 보여주고 종료
@@ -103,7 +105,7 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
         <div className={styles.veil} />
 
         {phase === "gate" && (
-          <div className={styles.gate}>
+          <div className={styles.gate} data-sound-gate="">
             <p className={styles.gateHint}>{copy.intro.soundHint.text}</p>
             <div className={styles.gateBtns}>
               <button className="btn btn-primary" onClick={() => choose(true)}>{copy.intro.soundOn.text}</button>
@@ -119,7 +121,7 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
         {(failed || reduced) && phase !== "done" && (
           <div className={styles.gate}>
             <div className={styles.gateBtns}>
-              <button className="btn btn-primary" onClick={() => { audio.unlock(); finish(); }}>{product.brand} 시작하기</button>
+              <button className="btn btn-primary" onClick={finish}>{product.brand} 시작하기</button>
             </div>
           </div>
         )}
