@@ -37,7 +37,7 @@
 .hotspot b { display: block; font: 500 12px/1.5 var(--font-ui); letter-spacing: .12em; color: var(--ivory); }
 .hotspot small { display: block; font-size: 12px; color: var(--muted); }
 .fallbackJar { position: absolute; inset: 0; background-size: 190%; background-position: 50% 44%; mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 70%); }
-@media (max-width: 767px) { .hotspots { top: auto; bottom: 120px; transform: none; max-width: 60%; gap: 12px; } }
+@media (max-width: 767px) { .hotspots { top: 84px; bottom: auto; transform: none; max-width: 62%; gap: 10px; } .hotspot b { font-size: 11px; } }
 
 /* ---------- S04 clinical ---------- */
 .metric { position: relative; min-height: 100svh; display: grid; align-items: center; padding-block: 12vh; }
@@ -71,8 +71,8 @@
 .mpVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #f1efe9; }
 
 /* ---------- S06 ingredients ---------- */
-.ingTrack { position: absolute; inset: 0; display: flex; align-items: center; gap: clamp(16px, 2vw, 28px); padding: 0 max(20px, 5vw); will-change: transform; }
-.ingCard { position: relative; flex: 0 0 min(78vw, 520px); height: min(70svh, 640px); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg-obsidian); display: grid; align-content: end; padding: 28px; gap: 10px; }
+.ingTrack { position: absolute; inset: 0; display: flex; align-items: flex-end; padding-bottom: 9svh; gap: clamp(16px, 2vw, 28px); padding: 0 max(20px, 5vw); will-change: transform; }
+.ingCard { position: relative; flex: 0 0 min(78vw, 520px); height: min(60svh, 560px); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg-obsidian); display: grid; align-content: end; padding: 28px; gap: 10px; }
 .ingCard .bgStill { opacity: .55; mask-image: linear-gradient(180deg, #000 40%, transparent 95%); -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent 95%); }
 .ingOrb { position: absolute; left: 50%; top: 20%; transform: translateX(-50%); width: clamp(110px, 14vw, 180px); aspect-ratio: 1; border-radius: 50%; }
 .ingIdx { font: 500 11px/1 var(--font-ui); letter-spacing: .3em; color: var(--gold); position: relative; }

@@ -34,6 +34,8 @@ export default function Experience() {
   return (
     <>
       <SmoothScroll locked={intro === "open"} />
+      {/* SSR 시점부터 화면을 덮는 커버 — 하이드레이션 전 히어로가 먼저 보이는 플래시 방지 */}
+      {intro !== "closed" && <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 999, background: "var(--bg-midnight)" }} />}
       {intro === "open" && <IntroOverlay onDone={() => setIntro("closed")} />}
       <main id="main">
         <Hero />

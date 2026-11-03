@@ -1,6 +1,6 @@
 # UNI&CORE 1ST BIRTHDAY CREAM — Immersive 3D Brand Site 기획 패키지
 
-> PHASE 01 기획 승인(권장안 채택) 완료 → **PHASE 02 디자인 시안 v0.2 제출** 상태. 승인되면 P2 스캐폴드(`apps/unicore-birthday/`)와 P3 3D 제작에 착수합니다.
+> PHASE 01 기획 승인 → PHASE 02 시안 → **P2 스캐폴드 완료: `apps/unicore-birthday/` 독립 Next.js 앱(인트로·13섹션·3D 인스펙터·필름 스크럽·에셋 파이프라인)**. 다음: Vercel 프리뷰 배포 → 3D 정밀화(P3) → 모션 튜닝(P4).
 
 | 문서 | 내용 |
 |---|---|

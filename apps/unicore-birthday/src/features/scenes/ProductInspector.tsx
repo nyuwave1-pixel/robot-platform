@@ -29,7 +29,7 @@ function labelTexture(): THREE.CanvasTexture {
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = THREE.RepeatWrapping;
   t.repeat.set(1, 1);
-  t.offset.set(-0.25, 0); // 정면(=카메라 쪽)에 라벨 중심
+  t.offset.set(0, 0);
   t.anisotropy = 8;
   return t;
 }
@@ -48,7 +48,7 @@ function Jar({ rot, zoom, lidOpen }: { rot: React.MutableRefObject<{ x: number; 
     g.rotation.y += (r.y - g.rotation.y) * 0.18;
     g.rotation.x += (r.x - g.rotation.x) * 0.18;
     g.position.y = Math.sin(performance.now() * 0.0007) * 0.03;
-    const targetZ = 3.6 / zoom.current;
+    const targetZ = 4.3 / zoom.current;
     camera.position.z += (targetZ - camera.position.z) * 0.1;
     if (cap.current) {
       const ty = lidOpen ? 0.46 : 0; const trx = lidOpen ? -0.28 : 0;
@@ -91,8 +91,8 @@ function Jar({ rot, zoom, lidOpen }: { rot: React.MutableRefObject<{ x: number; 
         <cylinderGeometry args={[0.49, 0.47, 0.55, 96]} />
         <meshPhysicalMaterial color="#2A211E" roughness={0.25} metalness={0.05} transmission={0.28} thickness={1.2} ior={1.45} attenuationColor="#3A2520" attenuationDistance={0.9} clearcoat={0.6} clearcoatRoughness={0.25} />
       </mesh>
-      {/* 라벨 디칼 */}
-      <mesh position={[0, 0.02, 0]}>
+      {/* 라벨 디칼 — 텍스처 u=0.5(라벨 중심)가 +z(카메라 정면)를 향하도록 π 회전 */}
+      <mesh position={[0, 0.02, 0]} rotation={[0, Math.PI, 0]}>
         <cylinderGeometry args={[0.496, 0.476, 0.5, 96, 1, true]} />
         <meshPhysicalMaterial map={label} transparent metalness={0.9} roughness={0.35} envMapIntensity={1.2} depthWrite={false} />
       </mesh>
@@ -146,7 +146,7 @@ export default function ProductInspector({ className, hint, openLabel, resetLabe
 
   return (
     <div ref={wrap} className={className} style={{ position: "absolute", inset: 0, touchAction: "pan-y", cursor: "grab" }} aria-label="제품 3D 인스펙터: 드래그로 회전, 더블클릭으로 초기화">
-      <Canvas dpr={[1, 2]} shadows camera={{ position: [0, 0.35, 3.6], fov: 32 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+      <Canvas dpr={[1, 2]} shadows camera={{ position: [0, 0.35, 4.3], fov: 32 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
         <ambientLight intensity={0.25} />
         <directionalLight position={[3, 5, 4]} intensity={2.2} color="#FFF1C9" castShadow />
         <directionalLight position={[-4, 2, -3]} intensity={1.1} color="#C6A16A" />
@@ -160,10 +160,10 @@ export default function ProductInspector({ className, hint, openLabel, resetLabe
         <Jar rot={rot} zoom={zoom} lidOpen={lidOpen} />
         <ContactShadows position={[0, -0.33, 0]} opacity={0.65} scale={4} blur={2.4} far={1.2} color="#000" />
       </Canvas>
-      <div style={{ position: "absolute", left: "50%", bottom: "clamp(20px, 5vh, 44px)", transform: "translateX(-50%)", display: "grid", justifyItems: "center", gap: 10, pointerEvents: "none" }}>
+      <div className="inspector-hint">
         <span className="caption" style={{ color: "var(--gold)" }}>{hint}</span>
       </div>
-      <div style={{ position: "absolute", right: "max(16px, env(safe-area-inset-right))", bottom: "clamp(20px, 5vh, 44px)", display: "grid", gap: 8 }}>
+      <div className="inspector-ctl">
         <button className="btn btn-ghost" onClick={() => setLidOpen((v) => !v)} style={{ padding: "0 16px", minHeight: 40 }}>{lidOpen ? "CLOSE LID" : openLabel}</button>
         <div style={{ display: "flex", gap: 6 }}>
           <button className="btn btn-ghost" aria-label="축소" onClick={() => setZoom(zoomUi - 0.25)} style={{ padding: 0, width: 40, minHeight: 40 }}>−</button>

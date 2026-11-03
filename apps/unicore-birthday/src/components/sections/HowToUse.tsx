@@ -11,7 +11,7 @@ export default function HowToUse() {
       <div className={`section-inner ${s.flow}`}>
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
-            <Reveal as="h2" mode="chars" className="display-en" id="h-how" style={undefined}>{copy.s11.h.text}</Reveal>
+            <Reveal as="h2" mode="chars" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{copy.s11.h.text}</Reveal>
             <p className="body-ko">{copy.s11.sub.text}</p>
             <img src={product.images.openBox} alt={`${product.brand} ${product.name} 패키지와 용기`} loading="lazy" width={1662} height={946} style={{ borderRadius: 6, opacity: 0.9, maxWidth: 520 }} />
           </div>
