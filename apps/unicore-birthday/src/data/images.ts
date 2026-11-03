@@ -34,3 +34,6 @@ export const howtoLoop = { src: "/media/product/howto_particles_720.mp4", poster
 
 /** 제품 리빌 배경 — 실크가 용기에서 흘러내리는 영상(사용자 제공, 무음 루프), 실패 시 스톤 위 용기 사진 */
 export const productLoop = { src: "/media/product/silk_jar_720.mp4", poster: "/media/product/silk_jar_poster.webp" } as const;
+
+/** 임상 안전성(이상반응 0건) 배경 — 스포트라이트 용기 영상(사용자 제공, 무음 루프) */
+export const safetyLoop = { src: "/media/product/spotlight_jar_720.mp4", poster: "/media/product/spotlight_jar_poster.webp" } as const;

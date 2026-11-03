@@ -30,7 +30,7 @@ export default function Satisfaction() {
             {satisfaction.items.map((it) => (
               <div key={it.text} className={s.card}>
                 <p><small>{it.when}</small>{it.text}</p>
-                <span className="numeral"><data value={it.value}>{it.value}</data>%</span>
+                <span className={`numeral ${s.cardNum}`}><data value={it.value}>{it.value}</data><small>%</small></span>
               </div>
             ))}
           </div>

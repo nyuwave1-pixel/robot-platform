@@ -1,8 +1,8 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clinical, trial } from "@/data/clinical";
 import { copy } from "@/data/copy";
-import { detail } from "@/data/images";
+import { detail, safetyLoop } from "@/data/images";
 import Counter from "@/components/Counter";
 import Reveal from "@/components/Reveal";
 import { useInView } from "@/features/scroll/useSectionProgress";
@@ -19,6 +19,26 @@ function Bars({ before, after, unit, title }: { before: number; after: number; u
         <div className={`${s.bar} ${s.barBefore}`} style={{ height: "100%" }}><em>{before}</em><span>사용 전{unit ? ` (${unit})` : ""}</span></div>
         <div className={`${s.bar} ${s.barAfter}`} style={{ height: `${ratio * 100}%` }}><em>{after}</em><span>4주 후{unit ? ` (${unit})` : ""}</span></div>
       </div>
+    </div>
+  );
+}
+
+function SafetyVideo() {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [ok, setOk] = useState(true);
+  useEffect(() => {
+    const v = ref.current; if (!v) return;
+    v.muted = true; v.defaultMuted = true;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.1 });
+    io.observe(v); return () => io.disconnect();
+  }, [ok]);
+  if (!ok) return null;
+  return (
+    <div className={s.safetyBg} aria-hidden="true">
+      <video ref={ref} poster={safetyLoop.poster} playsInline muted loop preload="metadata" onError={() => setOk(false)}>
+        <source src={safetyLoop.src} type="video/mp4" />
+      </video>
+      <div className={s.safetyVeil} />
     </div>
   );
 }
@@ -68,8 +88,9 @@ export default function Clinical() {
         </div>
 
         {/* 이상반응 0건 */}
-        <div className={s.metric} style={{ minHeight: "80svh" }}>
-          <div className={s.safe}>
+        <div className={`${s.metric} ${s.metricSafe}`} style={{ minHeight: "100svh" }}>
+          <SafetyVideo />
+          <div className={s.safe} style={{ position: "relative", zIndex: 2 }}>
             <span className="caption">Safety</span>
             <Reveal as="p" mode="weight" className={`headline-ko ${s.lead}`}>{copy.s04.safeH.text.replace(" 0건", "")} <b>{safe.value}{safe.unit}</b></Reveal>
             <div className={`numeral ${s.safeNum}`} aria-hidden="true">0</div>
