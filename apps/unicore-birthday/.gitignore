@@ -5,6 +5,6 @@ out
 public/media/film/
 public/media/stills/
 public/media/posters/
+public/media/detail/
 .assets-cache
 .env*.local
-public/audio/voice_intro.mp3

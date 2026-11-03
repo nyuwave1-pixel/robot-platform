@@ -1,15 +1,16 @@
 "use client";
 import { copy } from "@/data/copy";
 import { keyIngredients } from "@/data/ingredients";
-import { stills } from "@/data/videos";
+import { detail } from "@/data/images";
 import Reveal from "@/components/Reveal";
 import s from "./sections.module.css";
 
+/** 시카 카밍 + 우레아·세라마이드 — 상세페이지 '열린 용기와 크림' 비주얼 */
 export default function Moisture() {
   const cica = keyIngredients.find((i) => i.id === "cica");
   return (
-    <section id="moisture" className="section" data-bg="#11291D" aria-labelledby="h-moist" style={{ position: "relative", overflow: "hidden" }}>
-      <div className={s.bgStill} style={{ backgroundImage: `url(${stills.creamClean})`, opacity: 0.4, maskImage: "linear-gradient(180deg, transparent, #000 30%, #000 80%, transparent)", WebkitMaskImage: "linear-gradient(180deg, transparent, #000 30%, #000 80%, transparent)" }} aria-hidden="true" />
+    <section id="moisture" className="section" data-bg="#11291D" aria-labelledby="h-moist" style={{ position: "relative", overflow: "hidden", background: "#0f1a14" }}>
+      <div className={s.bgStill} style={{ backgroundImage: `url(${detail.jarOpenCream})`, backgroundPosition: "right center", opacity: 0.55, maskImage: "linear-gradient(90deg, transparent 20%, #000 60%)", WebkitMaskImage: "linear-gradient(90deg, transparent 20%, #000 60%)" }} aria-hidden="true" />
       <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
         <div className={s.grid2}>
           <div className={s.stack}>
@@ -26,6 +27,7 @@ export default function Moisture() {
             <p className="body-ko">{copy.s09.cicaBridge1.text} <b style={{ color: "var(--ivory)", fontWeight: 500 }}>{copy.s09.cicaBridge2.text}</b></p>
           </div>
           <div className={s.stack}>
+            <figure className={s.moistFig}><img src={detail.ingCica} alt="시카 컴플렉스·우레아 비주얼" loading="lazy" /></figure>
             <Reveal as="h3" mode="weight" className={`headline-ko ${s.h3}`}><b>{copy.s09.h.text}</b></Reveal>
             <p className="body-ko">{copy.s09.l1.text} {copy.s09.l2.text}</p>
             <p className={`headline-ko ${s.lead}`}><b>{copy.s09.l3.text}</b></p>

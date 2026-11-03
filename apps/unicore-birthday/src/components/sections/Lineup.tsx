@@ -1,5 +1,6 @@
 import { copy } from "@/data/copy";
 import { lineup } from "@/data/howto";
+import { detail } from "@/data/images";
 import s from "./sections.module.css";
 
 export default function Lineup() {
@@ -12,6 +13,7 @@ export default function Lineup() {
           <span>☀ DAY — STEP 0{lineup.dayRange[0]} → 0{lineup.dayRange[1]}</span>
           <span>☾ NIGHT — STEP 0{lineup.nightRange[0]} → 0{lineup.nightRange[1]}</span>
         </div>
+        <img className={s.lineupGuide} src={detail.skincareGuide} alt="유니앤코어 스킨케어 가이드 — 6단계 루틴" loading="lazy" width={1777} height={1283} />
         <ol className={s.lineupGrid} style={{ listStyle: "none", padding: 0 }}>
           {lineup.steps.map((st) => (
             <li key={st.step} className={`${s.lineupItem} ${"highlight" in st && st.highlight ? s.lineupHi : ""}`}>

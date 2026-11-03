@@ -3,33 +3,31 @@ import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { copy } from "@/data/copy";
 import { product } from "@/data/product";
-import { filmSegments, stills } from "@/data/videos";
+import { detail } from "@/data/images";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import { useQualityTier, useReducedMotion } from "@/lib/env";
-import FilmScrub from "@/features/video/FilmScrub";
 import s from "./sections.module.css";
 
 const GoldParticles = dynamic(() => import("@/features/scenes/GoldParticles"), { ssr: false });
 
+/** 피날레 — 상세페이지 '1st Birthday' 케이크 비주얼 + CTA */
 export default function Final() {
   const pin = useRef<HTMLElement>(null);
   const stack = useRef<HTMLDivElement>(null);
+  const bg = useRef<HTMLDivElement>(null);
   const tier = useQualityTier();
   const reduced = useReducedMotion();
-  const progress = useSectionProgress(pin, (p) => {
+  useSectionProgress(pin, (p) => {
     const el = stack.current; if (!el) return;
     const q = Math.min(1, p / 0.45);
     el.style.opacity = String(q); el.style.transform = `translateY(${(1 - q) * 30}px)`;
+    if (bg.current) bg.current.style.transform = `scale(${1.15 - p * 0.12})`;
   });
   const purchase = product.urls.purchase || "#how-to-use";
   return (
     <section id="rebirth" ref={pin} className={s.pin} style={{ height: "200svh" }} data-bg="#080706" aria-labelledby="h-final">
       <div className={s.stage}>
-        <div className="media-bg">
-          <FilmScrub segment={filmSegments.ending} progressRef={progress} poster={stills.jarCandleClean} />
-        </div>
-        {/* 영상 내 용기 라벨 렌더 오류(UNIECORE) 구간 마스킹 */}
-        <div className={s.labelMask} aria-hidden="true" />
+        <div ref={bg} className={s.bgStill} style={{ backgroundImage: `url(${detail.cake})`, backgroundPosition: "center 30%", transform: "scale(1.15)" }} aria-hidden="true" />
         <div className="veil" />
         {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 500 : 200} drift={-1} />}
         <div className={s.center}>
