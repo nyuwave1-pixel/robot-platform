@@ -12,6 +12,7 @@
 | [06_video-audio-system.md](./06_video-audio-system.md) | 영상·오디오 시스템, Canva Export 연동, 디자이너 브리프 |
 | [07_responsive-design.md](./07_responsive-design.md) | PC/태블릿/모바일 경험 설계, 제스처·성능 가드 |
 | [08_schedule.md](./08_schedule.md) | 7주 일정, 단계별 완료 기준, 리스크 |
+| [09_cinematic-film-analysis.md](./09_cinematic-film-analysis.md) | **시네마틱 필름 v1(62초) 컷 리스트, 결함, 스틸 22컷 라이브러리, 스크롤 스파인 반영 설계** |
 | [design-comps-v0.2.html](./design-comps-v0.2.html) | **PHASE 02 디자인 시안 v0.2** — 인트로 3단계, S01/S03/S04/S06/S07/S12, 모바일 5보드, 디자인 시스템, B-roll 배치표 (온라인: https://claude.ai/artifact/3tHz71Z3mXsiEfHxv7b29A) |
 | [intro-design-draft.html](./intro-design-draft.html) | 1차 인트로 러프(v0.1, 참고용) |
 | `assets/` | 제품 패키지 레퍼런스 사진 2장 |
