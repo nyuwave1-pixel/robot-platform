@@ -7,3 +7,4 @@ public/media/stills/
 public/media/posters/
 .assets-cache
 .env*.local
+public/audio/voice_intro.mp3

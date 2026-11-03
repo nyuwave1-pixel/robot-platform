@@ -26,6 +26,8 @@ if (process.env.SKIP_ASSETS === "1") {
 }
 
 const SOURCES = {
+  // 인트로 보이스 라인(여성, ko-KR) — 빌드 시 내려받아 public/audio/voice_intro.mp3 로 배치
+  voiceIntroUrl: process.env.ASSET_VOICE_INTRO_URL || "https://d2ol7oe51mr4n9.cloudfront.net/user_3DTyZSlqPjD203YBlwJWTda3q73/c085d7d7-f760-4260-bc88-3e7251f3737f.mp3",
   film: process.env.ASSET_FILM_DRIVE_ID || "1oMyRx7j4OorJCE4PxYZSoki3tbJB_qUH",
   filmPortrait: process.env.ASSET_FILM_PORTRAIT_DRIVE_ID || "1ASIl1bw3QQfW_nbQivwWwXVF1h7UFYbv",
   filmClinical: process.env.ASSET_FILM_CLINICAL_DRIVE_ID || "1zn5SJGHlPsfLswqNV0Stu1-Uq9C3Wh_-",
@@ -69,6 +71,21 @@ async function download(id, dest) {
   console.log(`[assets] ok ${path.basename(dest)} ${(statSync(dest).size / 1e6).toFixed(1)}MB`);
 }
 
+/** 작은 정적 파일(오디오 등) 다운로드 — 이미 있으면 건너뜀 */
+async function downloadUrl(url, dest, minBytes = 10_000) {
+  if (existsSync(dest) && statSync(dest).size > minBytes && !FORCE) {
+    console.log(`[assets] cached ${path.basename(dest)}`);
+    return;
+  }
+  console.log(`[assets] download ${path.basename(dest)} …`);
+  const res = await fetch(url, { redirect: "follow" });
+  if (!res.ok || !res.body) throw new Error(`download failed ${path.basename(dest)}: ${res.status}`);
+  await pipeline(res.body, createWriteStream(dest));
+  const size = statSync(dest).size;
+  if (size < minBytes) throw new Error(`${path.basename(dest)} too small (${size}B)`);
+  console.log(`[assets] ok ${path.basename(dest)} ${(size / 1e3).toFixed(0)}KB`);
+}
+
 function ff(args) {
   return new Promise((resolve, reject) => {
     const p = spawn(ffmpegPath, ["-v", "error", "-y", ...args], { stdio: ["ignore", "inherit", "inherit"] });
@@ -82,6 +99,15 @@ async function main() {
   mkdirSync(MEDIA, { recursive: true });
   mkdirSync(CACHE, { recursive: true });
   for (const d of ["film", "stills", "posters"]) mkdirSync(path.join(MEDIA, d), { recursive: true });
+
+  // 0) 인트로 보이스 라인 (실패해도 사이트는 BGM 만으로 동작)
+  try {
+    const audioDir = path.join(ROOT, "public", "audio");
+    mkdirSync(audioDir, { recursive: true });
+    await downloadUrl(SOURCES.voiceIntroUrl, path.join(audioDir, "voice_intro.mp3"));
+  } catch (e) {
+    console.warn("[assets] voice intro skipped:", e.message);
+  }
 
   const srcFilm = path.join(CACHE, "film_src.mp4");
   const srcPortrait = path.join(CACHE, "film_portrait_src.mp4");
