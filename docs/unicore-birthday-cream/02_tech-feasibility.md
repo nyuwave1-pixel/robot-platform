@@ -139,3 +139,8 @@ apps/unicore-birthday/              ← 독립 Next.js 15 앱 (별도 Vercel 프
 3. 케이크 인트로 제작 경로: Canva(디자이너 수작업+Export) vs Higgsfield 영상 생성(크레딧) vs 외주 실사 촬영.
 4. 배포 도메인(예: `birthday.unicore.co.kr`) 및 구매 페이지 URL.
 5. 음원: 라이선스 음원 구매처(Artlist/Epidemic 등) 또는 오리지널 제작 여부.
+
+## 12. 추가 검증 (자료 수령 후)
+- Google Drive 커넥터로 파일 목록·권한 조회는 가능하나 **대용량 바이너리(40MB JPG, 75MB MP4)를 이 컨테이너로 직접 가져오는 경로는 없음**(Drive 호스트 차단, 커넥터 다운로드는 base64 반환으로 비현실적).
+- 해결: **Higgsfield 클라우드 샌드박스**(인터넷 가능, ffmpeg·ImageMagick·Pillow 내장)에서 공개 링크로 다운로드 → 분할·프레임 추출 → 이미지로 판독. 검증 완료(상세페이지 21구간, 영상 2종 메타데이터·프레임). 개발 단계의 에셋 전처리(트랜스코딩, 포스터, 스프라이트)도 같은 경로로 수행 가능. 샌드박스는 24시간 후 소멸하므로 결과물은 Drive 또는 스토리지로 즉시 반출해야 함.
+- Canva `import-design-from-url`은 Drive 직링크 다운로드에 실패(비-200 응답) → Canva 쪽 분석 경로는 보류.
