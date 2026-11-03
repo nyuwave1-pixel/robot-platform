@@ -40,7 +40,7 @@ export default function ProductReveal() {
           <ProductInspector className={s.inspector} hint={copy.s03.hint.text} openLabel={copy.s03.openLid.text} resetLabel={copy.s03.reset.text} />
         ) : videoOk ? (
           <div ref={photo} className={s.productPhoto} role="img" aria-label={`${product.brand} ${product.name} 용기`}>
-            <video ref={video} className={s.productVideo} poster={productLoop.poster} playsInline muted loop preload="metadata" onError={() => setVideoOk(false)} aria-hidden="true">
+            <video ref={video} className={s.productVideo} poster={productLoop.poster} playsInline muted preload="auto" onError={() => setVideoOk(false)} aria-hidden="true">
               <source src={productLoop.src} type="video/mp4" />
             </video>
           </div>
