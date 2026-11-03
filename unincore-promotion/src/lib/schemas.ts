@@ -112,7 +112,7 @@ export const productOverrideSchema = z
     const check = (url: string | undefined, path: (string | number)[]) => {
       if (!url) return;
       const r = validateAmazonUrl(url, asin);
-      if (!r.ok) ctx.addIssue({ code: z.ZodIssueCode.custom, message: r.reason, path });
+      if (!r.ok) ctx.addIssue({ code: "custom", message: r.reason, path });
     };
     check(o.amazonUrl, ["amazonUrl"]);
     if (o.attribution) for (const [k, v] of Object.entries(o.attribution)) check(v, ["attribution", k]);
