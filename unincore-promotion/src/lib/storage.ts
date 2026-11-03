@@ -21,13 +21,22 @@ export class StorageNotConfiguredError extends Error {
 const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 const useRedis = Boolean(REDIS_URL && REDIS_TOKEN);
+// Netlify: Netlify Blobs (site-wide store). Enabled by STORAGE_DRIVER=blobs or the Netlify runtime context.
+const useBlobs = !useRedis && (process.env.STORAGE_DRIVER === "blobs" || Boolean(process.env.NETLIFY_BLOBS_CONTEXT));
 // STORAGE_DRIVER=file forces JSON-file storage (self-hosted servers with a persistent disk, QA runs).
-const useFile = !useRedis && (process.env.STORAGE_DRIVER === "file" || process.env.NODE_ENV !== "production");
+const useFile = !useRedis && !useBlobs && (process.env.STORAGE_DRIVER === "file" || process.env.NODE_ENV !== "production");
 const DATA_DIR = path.join(process.cwd(), ".data");
+const BLOB_STORE = "unincore-promotion";
 
-export function storageMode(): "redis" | "file" | "none" {
-  return useRedis ? "redis" : useFile ? "file" : "none";
+export function storageMode(): "redis" | "blobs" | "file" | "none" {
+  return useRedis ? "redis" : useBlobs ? "blobs" : useFile ? "file" : "none";
 }
+
+async function blobStore() {
+  const { getStore } = await import("@netlify/blobs");
+  return getStore({ name: BLOB_STORE, consistency: "strong" });
+}
+const blobKey = (key: string) => key.replace(/:/g, "/");
 
 type RedisValue = string | number | null | RedisValue[];
 
@@ -75,6 +84,7 @@ export async function getJson<T>(key: string): Promise<T | null> {
     const [v] = await redis([["GET", key]]);
     return typeof v === "string" ? (JSON.parse(v) as T) : null;
   }
+  if (useBlobs) return ((await (await blobStore()).get(blobKey(key), { type: "json" })) as T | null) ?? null;
   if (useFile) return readFileJson<T | null>(safeName(key), null);
   return null;
 }
@@ -84,6 +94,10 @@ export async function setJson(key: string, value: unknown): Promise<void> {
     await redis([["SET", key, JSON.stringify(value)]]);
     return;
   }
+  if (useBlobs) {
+    await (await blobStore()).setJSON(blobKey(key), value);
+    return;
+  }
   if (useFile) return serial(() => writeFileJson(safeName(key), value));
   throw new StorageNotConfiguredError();
 }
@@ -91,6 +105,10 @@ export async function setJson(key: string, value: unknown): Promise<void> {
 export async function delKey(key: string): Promise<void> {
   if (useRedis) {
     await redis([["DEL", key]]);
+    return;
+  }
+  if (useBlobs) {
+    await (await blobStore()).delete(blobKey(key));
     return;
   }
   if (useFile) {
@@ -131,3 +149,27 @@ export async function hgetallMany(keys: string[]): Promise<Record<string, number
   if (useFile) return Promise.all(keys.map((k) => readFileJson<Record<string, number>>(safeName(k), {})));
   return keys.map(() => ({}));
 }
+
+/**
+ * Append-only event log for backends without atomic counters (Netlify Blobs:
+ * last write wins, so read-modify-write counters would lose updates).
+ * Each event is one empty blob whose key encodes its dimensions; reading lists keys only.
+ */
+export async function appendEvent(day: string, encoded: string): Promise<void> {
+  if (!useBlobs) throw new Error("appendEvent is only used with Netlify Blobs");
+  const id = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}${Math.random()}`;
+  await (await blobStore()).set(`events/${day}/${encodeURIComponent(encoded)}/${id}`, "");
+}
+
+export async function listEvents(days: string[]): Promise<string[][]> {
+  if (!useBlobs) return days.map(() => []);
+  const store = await blobStore();
+  return Promise.all(
+    days.map(async (day) => {
+      const { blobs } = await store.list({ prefix: `events/${day}/` });
+      return blobs.map((b) => decodeURIComponent(b.key.split("/")[2] || ""));
+    }),
+  );
+}
+
+export const usesEventLog = () => useBlobs;

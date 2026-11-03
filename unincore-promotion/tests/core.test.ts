@@ -141,3 +141,12 @@ describe("Admin sessions", () => {
     expect(await verifySession(tok)).toBeNull();
   });
 });
+
+import { counterFields, decodeEvent, encodeEvent, sanitize } from "@/lib/stats";
+describe("Event log encoding (Netlify Blobs)", () => {
+  it("round-trips to the same counter fields", () => {
+    const t = sanitize({ e: "amazon_cta_click", p: "mask", ch: "meta", dev: "mobile", loc: "sticky", cmp: "bfcm_2026", src: "facebook" })!;
+    const back = decodeEvent(encodeEvent(t))!;
+    expect(counterFields(back)).toEqual(counterFields(t));
+  });
+});

@@ -1,5 +1,5 @@
 import "server-only";
-import { hgetallMany, hincrMany } from "./storage";
+import { appendEvent, hgetallMany, hincrMany, listEvents, usesEventLog } from "./storage";
 import { cleanTag } from "./channel";
 import { CHANNELS } from "@/content/types";
 import { DEVICES, EVENTS, type EventName, type TrackPayload } from "./events";
@@ -49,8 +49,32 @@ export function counterFields(t: TrackPayload): string[] {
   return f;
 }
 
+const SEP = "\u001f";
+/** Compact encoding of the dimensions counterFields() needs (for the append-only event log). */
+export function encodeEvent(t: TrackPayload): string {
+  return [t.e, t.p ?? "", t.ch ?? "", t.dev ?? "", t.loc ?? "", t.cmp ?? "", t.src ?? ""].join(SEP);
+}
+export function decodeEvent(s: string): TrackPayload | null {
+  const [e, p, ch, dev, loc, cmp, src] = s.split(SEP);
+  return sanitize({ e, p, ch, dev, loc, cmp, src });
+}
+
 export async function recordEvent(t: TrackPayload) {
-  await hincrMany(dayKey(), counterFields(t), TTL);
+  if (usesEventLog()) await appendEvent(dayKey().slice(6), encodeEvent(t));
+  else await hincrMany(dayKey(), counterFields(t), TTL);
+}
+
+async function loadDayHashes(keys: string[]): Promise<Record<string, number>[]> {
+  if (!usesEventLog()) return hgetallMany(keys);
+  const days = await listEvents(keys.map((k) => k.slice(6)));
+  return days.map((events) => {
+    const h: Record<string, number> = {};
+    for (const raw of events) {
+      const t = decodeEvent(raw);
+      if (t) for (const f of counterFields(t)) h[f] = (h[f] || 0) + 1;
+    }
+    return h;
+  });
 }
 
 export interface StatsSummary {
@@ -75,7 +99,7 @@ function bump(obj: Record<string, Record<string, number>>, a: string, b: string,
 export async function getStats(days = 30): Promise<StatsSummary> {
   const now = Date.now();
   const keys = Array.from({ length: days }, (_, i) => dayKey(new Date(now - (days - 1 - i) * 86400000)));
-  const hashes = await hgetallMany(keys);
+  const hashes = await loadDayHashes(keys);
   const s: StatsSummary = {
     days,
     from: keys[0].slice(6),

@@ -26,12 +26,12 @@ export async function POST(req: NextRequest) {
   const t = sanitize(raw);
   if (!t) return NextResponse.json({ error: "Invalid event" }, { status: 400 });
 
+  try {
+    await recordEvent(t);
+  } catch (err) {
+    console.error("[track]", err);
+  }
   after(async () => {
-    try {
-      await recordEvent(t);
-    } catch (err) {
-      console.error("[track]", err);
-    }
     const { tracking } = await getSettings();
     await forwardToMetaCapi(t, {
       pixelId: tracking.metaPixelId,

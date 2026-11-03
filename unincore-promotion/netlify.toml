@@ -1,0 +1,10 @@
+# Netlify project: unincore-promotion (base directory = unincore-promotion when linked via Git)
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+  # Store CMS data and click stats in Netlify Blobs (no Redis needed on Netlify).
+  STORAGE_DRIVER = "blobs"
