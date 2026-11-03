@@ -1,6 +1,6 @@
 # UNI&CORE 1ST BIRTHDAY CREAM — Immersive 3D Brand Site 기획 패키지
 
-> PHASE 01 STRATEGY & PLANNING 산출물. **코드는 아직 작성하지 않았습니다.** 승인 후 PHASE 02(디자인)·03(3D)부터 단계적으로 진행합니다.
+> PHASE 01 기획 승인(권장안 채택) 완료 → **PHASE 02 디자인 시안 v0.2 제출** 상태. 승인되면 P2 스캐폴드(`apps/unicore-birthday/`)와 P3 3D 제작에 착수합니다.
 
 | 문서 | 내용 |
 |---|---|
@@ -12,7 +12,8 @@
 | [06_video-audio-system.md](./06_video-audio-system.md) | 영상·오디오 시스템, Canva Export 연동, 디자이너 브리프 |
 | [07_responsive-design.md](./07_responsive-design.md) | PC/태블릿/모바일 경험 설계, 제스처·성능 가드 |
 | [08_schedule.md](./08_schedule.md) | 7주 일정, 단계별 완료 기준, 리스크 |
-| [intro-design-draft.html](./intro-design-draft.html) | 메인 인트로 디자인 시안(정적 HTML, 브라우저에서 열기) |
+| [design-comps-v0.2.html](./design-comps-v0.2.html) | **PHASE 02 디자인 시안 v0.2** — 인트로 3단계, S01/S03/S04/S06/S07/S12, 모바일 5보드, 디자인 시스템, B-roll 배치표 (온라인: https://claude.ai/artifact/3tHz71Z3mXsiEfHxv7b29A) |
+| [intro-design-draft.html](./intro-design-draft.html) | 1차 인트로 러프(v0.1, 참고용) |
 | `assets/` | 제품 패키지 레퍼런스 사진 2장 |
 
 ## 한눈에 보는 핵심 결론
@@ -31,5 +32,8 @@
 | 5 | BGM 음원 | 라이선스 구매 또는 오리지널 제작 |
 | 6 | 로고 벡터·PDRN 순도 근거·실제 설문 자료 | 가능하면 제공 |
 
-## 현재 차단 사항
-- GitHub 푸시 권한 403 → https://claude.ai/connect-github 재연결 필요(로컬 커밋은 보존됨).
+## 확정된 결정 (2026-11-03)
+- 코드 위치 `apps/unicore-birthday/` 독립 앱, Spline 선택 적용, 케이크 인트로는 B-roll 클립으로 대체(추가 제작 불필요), 음원·도메인·구매 URL은 추후 회신.
+
+## 추가 자료 (2026-11-03)
+- Drive 폴더에 B-roll 12클립(1280×720·24fps·8초, 환경음 포함) 추가 → `06_video-audio-system.md` 1-B 배치표. 우하단 워터마크 처리 필요.
