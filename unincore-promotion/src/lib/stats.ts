@@ -102,8 +102,8 @@ export async function getStats(days = 30): Promise<StatsSummary> {
   const hashes = await loadDayHashes(keys);
   const s: StatsSummary = {
     days,
-    from: keys[0].slice(6),
-    to: keys[keys.length - 1].slice(6),
+    from: keys[0]?.slice(6) ?? "",
+    to: keys[keys.length - 1]?.slice(6) ?? "",
     totals: {},
     byProduct: {},
     byChannel: {},

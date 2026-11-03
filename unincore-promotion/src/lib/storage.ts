@@ -164,12 +164,29 @@ export async function appendEvent(day: string, encoded: string): Promise<void> {
 export async function listEvents(days: string[]): Promise<string[][]> {
   if (!useBlobs) return days.map(() => []);
   const store = await blobStore();
-  return Promise.all(
-    days.map(async (day) => {
-      const { blobs } = await store.list({ prefix: `events/${day}/` });
-      return blobs.map((b) => decodeURIComponent(b.key.split("/")[2] || ""));
+  const listDay = async (day: string) => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const { blobs } = await store.list({ prefix: `events/${day}/` });
+        return blobs.map((b) => decodeURIComponent(b.key.split("/")[2] || ""));
+      } catch (err) {
+        if (attempt >= 1) throw err;
+        await new Promise((r) => setTimeout(r, 300));
+      }
+    }
+  };
+  // Small concurrency: dozens of parallel list calls trigger Blobs 500s.
+  const out: string[][] = new Array(days.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(4, days.length) }, async () => {
+      while (next < days.length) {
+        const i = next++;
+        out[i] = await listDay(days[i]);
+      }
     }),
   );
+  return out;
 }
 
 export const usesEventLog = () => useBlobs;

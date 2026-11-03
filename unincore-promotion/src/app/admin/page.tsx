@@ -47,7 +47,16 @@ function Table({ title, rows, note }: { title: string; rows: [string, number, nu
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   const { days: d } = await searchParams;
   const days = [7, 30, 90].includes(Number(d)) ? Number(d) : 30;
-  const [{ products, settings }, stats, audit] = await Promise.all([getCmsFresh(), getStats(days), getAuditLog()]);
+  let statsError = "";
+  const [{ products, settings }, stats, audit] = await Promise.all([
+    getCmsFresh(),
+    getStats(days).catch((err) => {
+      console.error("[admin] stats failed:", err);
+      statsError = "Click statistics could not be loaded right now (storage error). Refresh in a minute.";
+      return getStats(0);
+    }),
+    getAuditLog().catch(() => []),
+  ]);
   const mode = storageMode();
   const V = "product_detail_view";
   const C = "amazon_cta_click";
@@ -92,6 +101,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <strong>Note:</strong> these numbers are landing-page events (visits and clicks to Amazon). They are <em>not</em> Amazon sales. Purchases and
         sales are reported only in Amazon Attribution / Seller Central — compare them there, side by side with these clicks.
       </div>
+
+      {statsError && <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">{statsError}</div>}
 
       {warnings.length > 0 && (
         <section className="rounded-2xl bg-white p-5 shadow-sm">
