@@ -10,7 +10,20 @@
 | 기존 메인 사이트 호스팅 | 기존 사이트는 수정하지 않음 | `promotion.` 서브도메인만 사용합니다 |
 | CAA 레코드 | `dig CAA unincore.com` | CAA가 있으면 `letsencrypt.org`를 허용해야 합니다 |
 
-## 1. Vercel 프로젝트 생성
+## 1-A. Netlify 배포 (현재 사용 중인 호스팅)
+
+Netlify 팀 `nyuwave1`에 프로젝트 **`unincore-promotion`**을 만들어 두었습니다(https://app.netlify.com/projects/unincore-promotion).
+
+**Git 연결 (권장, 푸시하면 자동 배포)**
+1. Netlify → unincore-promotion → Project configuration → Build & deploy → **Link repository** → GitHub `nyuwave1-pixel/robot-platform`을 선택합니다.
+2. **Base directory: `unincore-promotion`**, Build command: `npm run build`, Publish directory: `.next`를 지정합니다(`netlify.toml`에서 자동 적용). Production branch는 PR 병합 전이면 `claude/awesome-gauss-5kqwk2`, 병합 후면 `main`입니다.
+3. 저장소는 **Netlify Blobs**를 자동으로 사용합니다. Redis는 필요 없습니다.
+4. 등록된 환경변수: `STORAGE_DRIVER=blobs`, `NEXT_PUBLIC_SITE_URL`, `ADMIN_SESSION_SECRET`/`ADMIN_PASSWORD`/`EDITOR_PASSWORD`(secret, production 컨텍스트).
+5. 도메인: Domain management → Add domain `promotion.unincore.com` → DNS에 `CNAME promotion → unincore-promotion.netlify.app`을 추가합니다. SSL은 자동으로 발급됩니다.
+
+> Netlify Blobs의 클릭 통계는 이벤트 1건당 1개 키(append-only)로 저장합니다. 하루 수만 건 이상이면 대시보드 조회가 느려질 수 있으므로, 대량 트래픽 분석은 GA4를 기준으로 보십시오.
+
+## 1-B. Vercel 프로젝트 생성 (대안)
 
 1. Vercel → **Add New → Project** → 이 GitHub 저장소를 선택합니다.
 2. **Root Directory**를 `unincore-promotion`으로 지정합니다(중요). 기존 robot-platform 프로젝트와 별개의 프로젝트가 됩니다.
