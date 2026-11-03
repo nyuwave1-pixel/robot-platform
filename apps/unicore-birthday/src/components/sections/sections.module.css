@@ -351,3 +351,27 @@ img.ingImg { transform: scale(1.1); }
   .modeBtn { min-height: 40px; font-size: 10px; letter-spacing: .2em; background: rgba(8,7,6,.6); }
   .finalKoBig b { font-size: clamp(30px, 9vw, 48px); }
 }
+
+/* mobile: clinical metrics, charts, details */
+@media (max-width: 767px) {
+  .metric { min-height: auto; padding-block: 64px 40px; }
+  .metricInner { gap: 28px; }
+  .bigNum { font-size: clamp(64px, 19vw, 96px); }
+  .metricKind .caption { letter-spacing: .08em; }
+  .lead { font-size: 17px; }
+  .footPanel summary { letter-spacing: .06em; font-size: 12px; text-transform: none; }
+  .chartTitle { letter-spacing: .04em; font-size: 12px; margin-bottom: 44px; }
+  .bars { height: 200px; padding: 0 6%; }
+  .bar span { letter-spacing: .04em; text-transform: none; font-size: 11px; }
+  .bar em { font-size: 16px; top: -32px; }
+  .safe { gap: 10px; }
+  .safeNum { font-size: clamp(96px, 30vw, 160px); }
+  .pdrnBall b { font-size: 14px; }
+  .nobelToken { letter-spacing: .08em; }
+  .sciBand figcaption { padding: 0 16px; }
+  .sciNobel { font-size: clamp(20px, 6vw, 26px); }
+  .finalEyebrow { letter-spacing: .3em; font-size: 10px; padding: 0 12px; }
+  .finalKoBig span { font-size: 16px; }
+  .ingHead { top: 24px; }
+  .chap { letter-spacing: .2em; font-size: 9px; }
+}
