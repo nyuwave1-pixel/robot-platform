@@ -32,8 +32,12 @@ export default function Final() {
         {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 500 : 200} drift={-1} />}
         <div className={s.center}>
           <div ref={stack} className={s.finalStack} style={{ opacity: 0 }}>
+            <p className={`display-en ${s.finalEyebrow}`}>{copy.s12.en.text}</p>
+            <h2 id="h-final" className={`headline-ko ${s.finalKoBig}`}>
+              <span>{copy.s01.ko1.text}</span>
+              <b>{copy.s01.ko2.text}</b>
+            </h2>
             <p className={`headline-ko ${s.finalKo}`}>{copy.s12.ko.text}</p>
-            <h2 id="h-final" className={`display-en ${s.finalEn}`}>{copy.s12.en.text}</h2>
             <span className="caption">{copy.s12.name.text}</span>
             <div className={s.ctas}>
               <a className="btn btn-primary" href={purchase} target={product.urls.purchase ? "_blank" : undefined} rel="noopener">{copy.s12.cta1.text}</a>

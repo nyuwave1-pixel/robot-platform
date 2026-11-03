@@ -226,3 +226,32 @@
 .howtoVideo { width: 100%; height: 100%; object-fit: cover; opacity: .75; }
 .howtoVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.7), rgba(8,7,6,.45) 50%, rgba(8,7,6,.85)); pointer-events: none; }
 .productVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* emphasis: 시간을 되돌려 · 내 피부의 첫 번째 생일 / 노벨상 성분 */
+.heroEyebrow { font-size: clamp(12px, 1.2vw, 16px); letter-spacing: .42em; color: var(--gold-metal); margin: 0; font-weight: 400; }
+.heroKoBig { margin: 0; display: grid; gap: .1em; transform-origin: 50% 100%; will-change: transform, opacity; text-wrap: balance; }
+.heroKoLine { font-size: clamp(20px, 2.4vw, 36px); font-weight: 300; color: var(--ivory); letter-spacing: -.01em; }
+.heroKoEm { display: block; font-size: clamp(38px, 5.6vw, 96px); font-weight: 700; line-height: 1.12; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; }
+@media (max-width: 900px) { .heroKoEm { font-size: clamp(34px, 10vw, 56px); } .heroKoLine { font-size: clamp(16px, 4.4vw, 22px); } }
+.sciBandBig img { height: clamp(200px, 26vw, 320px); }
+.sciBandBig figcaption { gap: 10px; padding: 0 clamp(20px, 3vw, 40px); background: linear-gradient(90deg, rgba(8,7,6,.92), rgba(8,7,6,.35)); }
+.sciNobel { font-size: clamp(22px, 2.6vw, 40px); line-height: 1.25; color: var(--ivory); font-weight: 700; max-width: 18ch; }
+.sciNobel::after { content: ""; display: block; width: 56px; height: 2px; margin-top: 14px; background: linear-gradient(90deg, var(--gold-metal), transparent); }
+.finalEyebrow { font-size: clamp(11px, 1.1vw, 14px); letter-spacing: .42em; color: var(--gold-metal); margin: 0; font-weight: 400; }
+.finalKoBig { margin: 0; display: grid; gap: .1em; text-align: center; text-wrap: balance; }
+.finalKoBig span { font-size: clamp(18px, 2.2vw, 32px); font-weight: 300; color: var(--ivory); }
+.finalKoBig b { font-size: clamp(34px, 5.4vw, 92px); font-weight: 700; line-height: 1.12; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.heroKoEm { white-space: nowrap; font-size: clamp(36px, 4.9vw, 84px); }
+.heroKoBig, .finalKoBig { word-break: keep-all; }
+@media (max-width: 900px) { .heroGrid { padding-bottom: 160px; } .heroKoEm { white-space: normal; font-size: clamp(32px, 9.4vw, 52px); } }
+
+/* safety video bg (full-bleed inside the section) */
+.metricSafe { position: relative; }
+.safetyBg { position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; z-index: 0; }
+.safetyBg video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.safetyVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.85), rgba(8,7,6,.35) 45%, rgba(8,7,6,.9)); }
+/* satisfaction: bigger, bolder percentages */
+.cardNum { font-size: clamp(56px, 6.4vw, 100px) !important; font-weight: 700 !important; font-style: normal !important; line-height: 1; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+.cardNum small { font-size: .5em; font-weight: 500; margin-left: .04em; }
+.card { grid-template-columns: 1fr auto; padding: 26px 30px; }
+.card p { font-size: clamp(16px, 1.5vw, 22px); font-weight: 500; }

@@ -48,8 +48,11 @@ export default function Hero() {
         {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 700 : 300} />}
         <div className={`${s.center} ${s.heroGrid}`}>
           <div className={s.heroText}>
-            <h1 id="h-birthday" ref={en} className={`display-en ${s.heroEn}`} style={{ transform: "rotateX(3deg)" }}>{copy.s01.en.text.replace(" HAS", "\nHAS").split("\n").map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}</h1>
-            <p ref={ko} className={`headline-ko ${s.heroKo}`}>{copy.s01.ko1.text} <b>{copy.s01.ko2.text}</b></p>
+            <p ref={ko} className={`display-en ${s.heroEyebrow}`}>{copy.s01.en.text}</p>
+            <h1 id="h-birthday" ref={en} className={`headline-ko ${s.heroKoBig}`} style={{ transform: "rotateX(3deg)" }}>
+              <span className={s.heroKoLine}>{copy.s01.ko1.text}</span>
+              <b className={s.heroKoEm}>{copy.s01.ko2.text}</b>
+            </h1>
           </div>
           <div ref={frame} className={s.heroFrame} aria-label="임상 강조 필름">
             <video ref={video} poster={film.poster} playsInline muted loop preload="metadata" aria-hidden="true">

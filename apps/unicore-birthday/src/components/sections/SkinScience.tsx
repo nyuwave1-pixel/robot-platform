@@ -15,9 +15,13 @@ export default function SkinScience() {
           <div className={s.stack}>
             <Reveal as="p" mode="words" className="eyebrow">{copy.s04.bridge1.text}</Reveal>
             <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-sci"><b>{copy.s04.bridge2.text}</b></Reveal>
-            <figure className={s.sciBand}>
+            <figure className={`${s.sciBand} ${s.sciBandBig}`}>
               <img src={detail.nobelBand} alt="노벨 메달 부조" loading="lazy" />
-              <figcaption><span>{copy.s08.nobel1.text}</span><b>{copy.s08.nobel2.text}</b></figcaption>
+              <figcaption>
+                <span className="eyebrow" style={{ color: "var(--gold-metal)" }}>Nobel Prize Ingredient</span>
+                <span>{copy.s08.nobel1.text}</span>
+                <Reveal as="b" mode="weight" className={s.sciNobel}>{copy.s08.nobel2.text}</Reveal>
+              </figcaption>
             </figure>
             <p className="display-en" style={{ fontSize: "clamp(26px, 3.4vw, 48px)", fontWeight: 400, letterSpacing: ".04em" }}>{copy.s08.gf.text}</p>
             <p className="body-ko">{copy.s08.gfDesc1.text} {copy.s08.gfDesc2.text} <b style={{ color: "var(--ivory)", fontWeight: 500 }}>{copy.s08.gfDesc3.text}</b></p>
