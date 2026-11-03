@@ -1,0 +1,88 @@
+/* UNI&CORE 1ST BIRTHDAY CREAM — global design tokens */
+:root {
+  --bg-midnight: #080706;
+  --bg-obsidian: #17110f;
+  --bg-bronze: #38231c;
+  --green-deep: #11291d;
+  --gold: #c6a16a;
+  --gold-metal: #e5c58d;
+  --gold-deep: #8f6b3a;
+  --ivory: #f4efe7;
+  --white: #ffffff;
+  --muted: rgba(244, 239, 231, 0.62);
+  --line: rgba(198, 161, 106, 0.22);
+  --flame: #ffb86b;
+  --flame-core: #fff1c9;
+
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-kr: var(--font-pretendard), "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  --font-ui: var(--font-inter), Inter, system-ui, sans-serif;
+
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-metal: cubic-bezier(0.7, 0, 0.2, 1);
+
+  --bg: var(--bg-midnight);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+html, body { margin: 0; background: var(--bg-midnight); color: var(--ivory); }
+body {
+  font-family: var(--font-kr);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  overflow-x: hidden;
+  background: var(--bg);
+  transition: background 0.8s var(--ease-cinematic);
+}
+img, video { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold-metal); outline-offset: 3px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* type scale */
+.eyebrow { font: 500 11px/1 var(--font-ui); letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+.display-en {
+  font-family: var(--font-serif); font-weight: 300; line-height: 0.95; letter-spacing: 0.01em;
+  background: linear-gradient(180deg, #fff 0%, var(--gold-metal) 58%, var(--gold-deep) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.headline-ko { font-family: var(--font-kr); font-weight: 200; line-height: 1.4; color: var(--white); letter-spacing: -0.01em; }
+.headline-ko b { font-weight: 600; }
+.body-ko { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.8; color: var(--muted); max-width: 56ch; }
+.caption { font: 400 11px/1.6 var(--font-ui); letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); }
+.footnote { font-size: 12px; line-height: 1.6; color: var(--muted); max-width: 72ch; }
+.numeral {
+  font-family: var(--font-serif); font-weight: 300; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #fff, var(--gold-metal) 60%, var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* layout */
+.section { position: relative; width: 100%; padding-left: max(20px, 5vw); padding-right: max(20px, 5vw); }
+.section-inner { max-width: 1280px; margin: 0 auto; }
+.pin-stage { position: relative; height: 100svh; width: 100%; overflow: hidden; }
+.pin-wrap { position: relative; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; border-radius: 999px; border: 1px solid rgba(198, 161, 106, 0.5); font: 500 12px/1 var(--font-ui); letter-spacing: 0.24em; text-transform: uppercase; color: var(--ivory); transition: transform 0.4s var(--ease-cinematic), box-shadow 0.4s, background 0.4s; }
+.btn:hover { box-shadow: 0 0 28px rgba(198, 161, 106, 0.35); }
+.btn-primary { background: linear-gradient(135deg, var(--gold-metal), var(--gold)); color: #1a120c; border-color: transparent; box-shadow: 0 0 30px rgba(198, 161, 106, 0.35); }
+.btn-ghost { background: rgba(8, 7, 6, 0.35); backdrop-filter: blur(6px); }
+
+/* reveal helpers (GSAP sets final state; resting state visible for no-JS) */
+.split-line { display: block; overflow: hidden; }
+.split-line > span { display: block; }
+
+/* media backgrounds */
+.media-bg { position: absolute; inset: 0; overflow: hidden; }
+.media-bg img, .media-bg video, .media-bg canvas { width: 100%; height: 100%; object-fit: cover; }
+.veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8, 7, 6, 0.2), rgba(8, 7, 6, 0.55) 55%, var(--bg-midnight) 100%); pointer-events: none; }
+.veil-soft { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(8, 7, 6, 0.85) 80%); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
