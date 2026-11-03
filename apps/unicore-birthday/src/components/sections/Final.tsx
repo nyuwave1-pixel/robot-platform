@@ -3,7 +3,8 @@ import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { copy } from "@/data/copy";
 import { product } from "@/data/product";
-import { detail } from "@/data/images";
+import { clips, detail } from "@/data/images";
+import BgVideo from "@/features/video/BgVideo";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import { useQualityTier, useReducedMotion } from "@/lib/env";
 import s from "./sections.module.css";
@@ -21,13 +22,15 @@ export default function Final() {
     const el = stack.current; if (!el) return;
     const q = Math.min(1, p / 0.45);
     el.style.opacity = String(q); el.style.transform = `translateY(${(1 - q) * 30}px)`;
-    if (bg.current) bg.current.style.transform = `scale(${1.15 - p * 0.12})`;
+    if (bg.current) bg.current.style.transform = `scale(${1.08 - p * 0.06})`;
   });
   const purchase = product.urls.purchase || "#how-to-use";
   return (
     <section id="rebirth" ref={pin} className={s.pin} style={{ height: "200svh" }} data-bg="#080706" aria-labelledby="h-final">
       <div className={s.stage}>
-        <div ref={bg} className={s.bgStill} style={{ backgroundImage: `url(${detail.cake})`, backgroundPosition: "center 30%", transform: "scale(1.15)" }} aria-hidden="true" />
+        <div ref={bg} className={s.bgStill} style={{ transform: "scale(1.08)" }} aria-hidden="true">
+          <BgVideo src={clips.particlesBox.src} poster={clips.particlesBox.poster} fallback={detail.cake} />
+        </div>
         <div className="veil" />
         {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 500 : 200} drift={-1} />}
         <div className={s.center}>

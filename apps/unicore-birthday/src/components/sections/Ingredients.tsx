@@ -4,6 +4,8 @@ import { copy } from "@/data/copy";
 import { keyIngredients } from "@/data/ingredients";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import { useIsMobile } from "@/lib/env";
+import BgVideo from "@/features/video/BgVideo";
+import Tagline from "@/components/Tagline";
 import s from "./sections.module.css";
 
 /** 4대 성분 — 상세페이지 「기억할 건 딱 4가지」 실제 성분 이미지 카드. 데스크톱: 수평 스크럽 / 모바일: 세로 카드 */
@@ -20,6 +22,7 @@ export default function Ingredients() {
     <section id="ingredients" ref={pin} className={s.pin} style={{ height: mobile ? "auto" : "400svh", background: "linear-gradient(180deg, var(--bg-obsidian), #1a1612)" }} data-bg="#17110F" aria-labelledby="h-ing">
       <div className={s.stage} style={mobile ? { position: "relative", height: "auto" } : undefined}>
         <div className={s.ingHead}>
+          <Tagline />
           <span className="eyebrow">{copy.s06.eyebrow.text}</span>
           <h2 id="h-ing" className={`headline-ko ${s.h3}`}>{copy.s06.h1.text} <b>{copy.s06.h2.text}</b></h2>
         </div>
@@ -27,8 +30,9 @@ export default function Ingredients() {
           {!mobile && <div style={{ flex: "0 0 32vw" }} aria-hidden="true" />}
           {keyIngredients.map((ing) => (
             <article key={ing.id} className={s.ingCard}>
-              {ing.image && <img className={s.ingImg} src={ing.image} alt="" loading="lazy" />}
+              {ing.video ? <BgVideo src={ing.video.src} poster={ing.video.poster} fallback={ing.image} className={s.ingImg} /> : ing.image && <img className={s.ingImg} src={ing.image} alt="" loading="lazy" />}
               <div className={s.ingShade} aria-hidden="true" />
+              {ing.nobel && <span className={s.nobelBadge}><i aria-hidden="true" />NOBEL PRIZE INGREDIENT</span>}
               <span className={s.ingIdx}>{ing.index}</span>
               <h3 className={s.ingName}>{ing.name}</h3>
               <p className={s.ingClaim}>{ing.claim1} <b>{ing.claim2}</b></p>

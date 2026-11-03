@@ -5,6 +5,7 @@ import { howto } from "@/data/howto";
 import { product } from "@/data/product";
 import { detail, howtoLoop } from "@/data/images";
 import Reveal from "@/components/Reveal";
+import Tagline from "@/components/Tagline";
 import s from "./sections.module.css";
 
 /** HOW TO USE — 배경: 골든 파티클 분자 영상(무음 루프), 실패 시 상세페이지 골드 스피어 스틸 */
@@ -32,6 +33,7 @@ export default function HowToUse() {
       <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
+            <Tagline />
             <Reveal as="h2" mode="weight" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{copy.s11.h.text}</Reveal>
             <p className="body-ko">{copy.s11.sub.text}</p>
             <p className="caption" style={{ color: "var(--gold)" }}>{product.brand} · {product.name} · {product.volume.g} g</p>

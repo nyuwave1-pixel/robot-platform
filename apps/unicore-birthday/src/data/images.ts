@@ -37,3 +37,12 @@ export const productLoop = { src: "/media/product/silk_jar_720.mp4", poster: "/m
 
 /** 임상 안전성(이상반응 0건) 배경 — 스포트라이트 용기 영상(사용자 제공, 무음 루프) */
 export const safetyLoop = { src: "/media/product/spotlight_jar_720.mp4", poster: "/media/product/spotlight_jar_poster.webp" } as const;
+
+/** 성분·패키지 클립 (사용자 제공, 무음 720p) */
+export const clips = {
+  pdrnGinseng: { src: "/media/product/ing_v1_720.mp4", poster: "/media/product/ing_v1_poster.webp" },
+  cicaLeaves: { src: "/media/product/ing_v2_720.mp4", poster: "/media/product/ing_v2_poster.webp" },
+  goldenRing: { src: "/media/product/ing_v3_720.mp4", poster: "/media/product/ing_v3_poster.webp" },
+  boxOpenGreen: { src: "/media/product/ing_v4_720.mp4", poster: "/media/product/ing_v4_poster.webp" },
+  particlesBox: { src: "/media/product/ing_v5_720.mp4", poster: "/media/product/ing_v5_poster.webp" },
+} as const;

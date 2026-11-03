@@ -255,3 +255,9 @@
 .cardNum small { font-size: .5em; font-weight: 500; margin-left: .04em; }
 .card { grid-template-columns: 1fr auto; padding: 26px 30px; }
 .card p { font-size: clamp(16px, 1.5vw, 22px); font-weight: 500; }
+
+/* nobel badge on ingredient card */
+.nobelBadge { position: absolute; top: 18px; left: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(229,197,141,.6); background: rgba(8,7,6,.55); backdrop-filter: blur(6px); font: 600 10px/1 var(--font-ui); letter-spacing: .24em; color: var(--gold-metal); }
+.nobelBadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-metal); box-shadow: 0 0 10px var(--gold-metal); }
+.sciFig video, .sciFig > div { border-radius: 10px; }
+.ingShade { background: linear-gradient(180deg, rgba(23,17,15,.05) 20%, rgba(23,17,15,.6) 50%, rgba(23,17,15,.97) 100%); }

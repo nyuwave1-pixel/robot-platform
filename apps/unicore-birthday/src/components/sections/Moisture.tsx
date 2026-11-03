@@ -1,7 +1,8 @@
 "use client";
 import { copy } from "@/data/copy";
 import { keyIngredients } from "@/data/ingredients";
-import { detail } from "@/data/images";
+import { clips, detail } from "@/data/images";
+import BgVideo from "@/features/video/BgVideo";
 import Reveal from "@/components/Reveal";
 import s from "./sections.module.css";
 
@@ -10,7 +11,8 @@ export default function Moisture() {
   const cica = keyIngredients.find((i) => i.id === "cica");
   return (
     <section id="moisture" className="section" data-bg="#11291D" aria-labelledby="h-moist" style={{ position: "relative", overflow: "hidden", background: "#0f1a14" }}>
-      <div className={s.bgStill} style={{ backgroundImage: `url(${detail.jarOpenCream})`, backgroundPosition: "right center", opacity: 0.55, maskImage: "linear-gradient(90deg, transparent 20%, #000 60%)", WebkitMaskImage: "linear-gradient(90deg, transparent 20%, #000 60%)" }} aria-hidden="true" />
+      <BgVideo src={clips.cicaLeaves.src} poster={clips.cicaLeaves.poster} fallback={detail.jarOpenCream} opacity={0.9} />
+      <div className="veil" />
       <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
         <div className={s.grid2}>
           <div className={s.stack}>

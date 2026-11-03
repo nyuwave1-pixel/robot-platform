@@ -5,6 +5,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { copy } from "@/data/copy";
 import { satisfaction } from "@/data/reviews";
 import Reveal from "@/components/Reveal";
+import BgVideo from "@/features/video/BgVideo";
+import Tagline from "@/components/Tagline";
+import { clips } from "@/data/images";
 import s from "./sections.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,10 +21,13 @@ export default function Satisfaction() {
     return () => { tl.scrollTrigger?.kill(); tl.kill(); };
   }, []);
   return (
-    <section id="reviews" className="section" data-bg="#38231C" aria-labelledby="h-rev" style={{ background: "linear-gradient(180deg, var(--bg-obsidian), var(--bg-bronze))" }}>
-      <div className={`section-inner ${s.flow}`}>
+    <section id="reviews" className="section" data-bg="#38231C" aria-labelledby="h-rev" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--bg-obsidian), var(--bg-bronze))" }}>
+      <BgVideo src={clips.boxOpenGreen.src} poster={clips.boxOpenGreen.poster} opacity={0.5} />
+      <div className="veil" />
+      <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
+            <Tagline />
             <span className={s.surveyTag}><i /> 주관적 설문 · n={satisfaction.n}</span>
             <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-rev">{copy.s10.h1.text} <b>{copy.s10.h2.text}</b></Reveal>
             <p className="footnote">* {satisfaction.footnote}</p>

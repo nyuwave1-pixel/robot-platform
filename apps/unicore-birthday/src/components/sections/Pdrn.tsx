@@ -2,7 +2,9 @@
 import { useRef, useState } from "react";
 import { copy } from "@/data/copy";
 import { pdrnGenerations, purityClaim } from "@/data/ingredients";
-import { detail } from "@/data/images";
+import { clips } from "@/data/images";
+import BgVideo from "@/features/video/BgVideo";
+import Tagline from "@/components/Tagline";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import Reveal from "@/components/Reveal";
 import s from "./sections.module.css";
@@ -15,11 +17,12 @@ export default function Pdrn() {
   return (
     <>
       <section className="section" data-bg="#11291D" aria-labelledby="h-pdrn-intro" style={{ position: "relative", overflow: "hidden", background: "#0b1a12" }}>
-        <div className={s.bgStill} style={{ backgroundImage: `url(${detail.goldBubbles})`, opacity: 0.75, maskImage: "linear-gradient(180deg, transparent, #000 25%, #000 85%, transparent)", WebkitMaskImage: "linear-gradient(180deg, transparent, #000 25%, #000 85%, transparent)" }} aria-hidden="true" />
-        <div className="veil-soft" />
+        <BgVideo src={clips.pdrnGinseng.src} poster={clips.pdrnGinseng.poster} opacity={0.7} />
+        <div className="veil" />
         <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
           <div className={s.grid2}>
             <div className={s.stack}>
+              <Tagline />
               <Reveal as="p" mode="words" className="body-ko" style={undefined}>{copy.s07.q1.text}</Reveal>
               <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-pdrn-intro"><b>{copy.s07.a1.text}</b> {copy.s07.a2.text}</Reveal>
             </div>
