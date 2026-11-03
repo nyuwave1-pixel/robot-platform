@@ -13,7 +13,7 @@
 .remember { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
 .ui { position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); display: flex; justify-content: space-between; align-items: center; z-index: 3; }
 .brand { font: 500 12px/1 var(--font-serif); letter-spacing: .35em; color: var(--ivory); }
-.skip { font: 500 11px/1 var(--font-ui); letter-spacing: .24em; color: rgba(244,239,231,.85); border: 1px solid rgba(244,239,231,.3); padding: 13px 18px; border-radius: 999px; min-height: 44px; background: rgba(8,7,6,.3); }
+.skip { font: 600 11px/1 var(--font-ui); letter-spacing: .22em; color: var(--ivory); border: 1px solid rgba(244,239,231,.45); padding: 0 18px; border-radius: 999px; min-height: 40px; display: inline-flex; align-items: center; background: rgba(8,7,6,.55); backdrop-filter: blur(8px); }
 .skip:hover { border-color: var(--gold-metal); color: var(--gold-metal); }
 .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, var(--gold-metal), var(--gold)); transform-origin: left; transform: scaleX(0); transition: transform .25s linear; z-index: 3; }
 .entryBrand { font: 500 12px/1 var(--font-serif); letter-spacing: .4em; color: var(--gold-metal); }
@@ -21,3 +21,10 @@
 .skipBig { position: absolute; right: max(20px, env(safe-area-inset-right, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); z-index: 3; display: inline-flex; align-items: center; gap: 12px; padding: 14px 18px 14px 22px; min-height: 48px; border-radius: 999px; border: 1px solid rgba(201,168,106,.55); background: rgba(8,7,6,.55); backdrop-filter: blur(10px); color: var(--ivory); font: 500 12px/1 var(--font-ui); letter-spacing: .22em; cursor: pointer; transition: border-color .3s, background .3s, transform .3s; }
 .skipBig:hover { border-color: var(--gold-metal); background: rgba(8,7,6,.75); transform: translateX(2px); }
 .skipBig i { width: 0; height: 0; border-left: 9px solid var(--gold-metal); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+
+@media (max-width: 767px) {
+  .gateBtns { flex-direction: column; width: min(100%, 320px); }
+  .gateBtns .btn, .gateBtns button { width: 100%; }
+  .entryTitle { font-size: clamp(20px, 6.2vw, 28px); padding: 0 12px; }
+  .skipBig { right: 16px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); padding: 12px 16px 12px 18px; font-size: 11px; letter-spacing: .14em; }
+}
