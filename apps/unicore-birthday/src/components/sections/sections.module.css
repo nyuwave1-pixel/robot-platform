@@ -221,3 +221,7 @@
   .pdrnHead { top: 72px; padding: 0 56px 0 20px; }
   .pdrnBalls { bottom: 104px; }
 }
+
+/* how to use */
+.howtoVideo { width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.howtoVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.7), rgba(8,7,6,.45) 50%, rgba(8,7,6,.85)); pointer-events: none; }

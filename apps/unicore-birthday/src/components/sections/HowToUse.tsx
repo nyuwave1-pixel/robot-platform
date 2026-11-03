@@ -1,19 +1,40 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { copy } from "@/data/copy";
 import { howto } from "@/data/howto";
 import { product } from "@/data/product";
+import { detail, howtoLoop } from "@/data/images";
 import Reveal from "@/components/Reveal";
 import s from "./sections.module.css";
 
+/** HOW TO USE — 배경: 골든 파티클 분자 영상(무음 루프), 실패 시 상세페이지 골드 스피어 스틸 */
 export default function HowToUse() {
+  const video = useRef<HTMLVideoElement>(null);
+  const [videoOk, setVideoOk] = useState(true);
+  useEffect(() => {
+    const v = video.current; if (!v) return;
+    v.muted = true; v.defaultMuted = true;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.1 });
+    io.observe(v); return () => io.disconnect();
+  }, [videoOk]);
   return (
-    <section id="how-to-use" className="section" data-bg="#080706" aria-labelledby="h-how" style={{ background: "var(--bg-midnight)" }}>
-      <div className={`section-inner ${s.flow}`}>
+    <section id="how-to-use" className="section" data-bg="#080706" aria-labelledby="h-how" style={{ position: "relative", overflow: "hidden", background: "var(--bg-midnight)" }}>
+      <div className="media-bg" aria-hidden="true">
+        {videoOk ? (
+          <video ref={video} className={s.howtoVideo} poster={howtoLoop.poster} playsInline muted loop preload="metadata" onError={() => setVideoOk(false)}>
+            <source src={howtoLoop.src} type="video/mp4" />
+          </video>
+        ) : (
+          <div className={`${s.bgStill} ${s.kenburns}`} style={{ backgroundImage: `url(${detail.goldSphere})` }} />
+        )}
+      </div>
+      <div className={s.howtoVeil} aria-hidden="true" />
+      <div className={`section-inner ${s.flow}`} style={{ position: "relative" }}>
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
-            <Reveal as="h2" mode="chars" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{copy.s11.h.text}</Reveal>
+            <Reveal as="h2" mode="weight" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{copy.s11.h.text}</Reveal>
             <p className="body-ko">{copy.s11.sub.text}</p>
-            <img src={product.images.openBox} alt={`${product.brand} ${product.name} 패키지와 용기`} loading="lazy" width={1662} height={946} style={{ borderRadius: 6, opacity: 0.9, maxWidth: 520 }} />
+            <p className="caption" style={{ color: "var(--gold)" }}>{product.brand} · {product.name} · {product.volume.g} g</p>
           </div>
           <ol className={s.steps} style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {howto.steps.map((st) => (

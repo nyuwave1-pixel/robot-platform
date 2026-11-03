@@ -28,3 +28,6 @@ export const detail = {
 
 /** 피부 질감 배경 루프 (임상 세로 영상에서 텍스트 없는 구간만 추출, 무음) */
 export const skinLoop = { src: `${base}/skin_loop.mp4`, poster: detail.skinCheek } as const;
+
+/** HOW TO USE 배경 — 골든 파티클 분자 영상(사용자 제공, 무음 루프) */
+export const howtoLoop = { src: "/media/product/howto_particles_720.mp4", poster: detail.goldSphere } as const;
