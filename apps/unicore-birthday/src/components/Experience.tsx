@@ -58,7 +58,7 @@ export default function Experience() {
       </main>
       <Footer />
       <Chrome />
-      <SoundToggle />
+      {intro === "closed" && <SoundToggle />}
     </>
   );
 }

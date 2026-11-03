@@ -8,9 +8,9 @@
  * - SKIP_ASSETS=1 이면 아무것도 하지 않습니다 (UI만 볼 때).
  * - ffmpeg 는 ffmpeg-static 바이너리를 사용합니다 (Vercel 빌드 이미지에서 동작).
  */
-import { createWriteStream, existsSync, mkdirSync, statSync } from "node:fs";
+import { createWriteStream, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { pipeline } from "node:stream/promises";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,8 +26,8 @@ if (process.env.SKIP_ASSETS === "1") {
 }
 
 const SOURCES = {
-  // 인트로 보이스 라인(여성, ko-KR) — 빌드 시 내려받아 public/audio/voice_intro.mp3 로 배치
-  voiceIntroUrl: process.env.ASSET_VOICE_INTRO_URL || "https://d2ol7oe51mr4n9.cloudfront.net/user_3DTyZSlqPjD203YBlwJWTda3q73/c085d7d7-f760-4260-bc88-3e7251f3737f.mp3",
+  // 상세페이지(261102 수정본) 비주얼 크롭 19컷 — 빌드 시 내려받아 public/media/detail/ 에 배치
+  detailZipUrl: process.env.ASSET_DETAIL_ZIP_URL || "https://d2ol7oe51mr4n9.cloudfront.net/user_3DTyZSlqPjD203YBlwJWTda3q73/eb8d5bb1-7df5-4257-bbdf-3866bced2d91.zip",
   film: process.env.ASSET_FILM_DRIVE_ID || "1oMyRx7j4OorJCE4PxYZSoki3tbJB_qUH",
   filmPortrait: process.env.ASSET_FILM_PORTRAIT_DRIVE_ID || "1ASIl1bw3QQfW_nbQivwWwXVF1h7UFYbv",
   filmClinical: process.env.ASSET_FILM_CLINICAL_DRIVE_ID || "1zn5SJGHlPsfLswqNV0Stu1-Uq9C3Wh_-",
@@ -100,13 +100,24 @@ async function main() {
   mkdirSync(CACHE, { recursive: true });
   for (const d of ["film", "stills", "posters"]) mkdirSync(path.join(MEDIA, d), { recursive: true });
 
-  // 0) 인트로 보이스 라인 (실패해도 사이트는 BGM 만으로 동작)
+  // 0) 상세페이지 비주얼 (실패해도 사이트는 포스터/그라데이션으로 동작)
   try {
-    const audioDir = path.join(ROOT, "public", "audio");
-    mkdirSync(audioDir, { recursive: true });
-    await downloadUrl(SOURCES.voiceIntroUrl, path.join(audioDir, "voice_intro.mp3"));
+    const detailDir = path.join(MEDIA, "detail");
+    mkdirSync(detailDir, { recursive: true });
+    const marker = path.join(detailDir, "skin_loop.mp4");
+    if (need(marker)) {
+      const zipPath = path.join(CACHE, "detail_crops.zip");
+      await downloadUrl(SOURCES.detailZipUrl, zipPath, 100_000);
+      execFileSync("unzip", ["-o", "-q", "-j", zipPath, "-d", detailDir], { stdio: "inherit" });
+      // webp 변환 (1600px 이하로 리사이즈)
+      for (const f of readdirSync(detailDir).filter((x) => x.endsWith(".jpg"))) {
+        const src = path.join(detailDir, f), out = src.replace(/\.jpg$/, ".webp");
+        if (need(out)) await ff(["-i", src, "-vf", "scale='min(1600,iw)':-2", "-c:v", "libwebp", "-quality", "84", out]);
+      }
+      console.log("[assets] detail visuals ready");
+    } else console.log("[assets] cached detail visuals");
   } catch (e) {
-    console.warn("[assets] voice intro skipped:", e.message);
+    console.warn("[assets] detail visuals skipped:", e.message);
   }
 
   const srcFilm = path.join(CACHE, "film_src.mp4");
@@ -117,9 +128,9 @@ async function main() {
 
   // 1) 재생용 1080p (faststart) + 720p
   const film1080 = path.join(MEDIA, "film", "film_1080.mp4");
-  if (need(film1080)) await ff(["-i", srcFilm, "-vf", "scale=1920:-2", "-c:v", "libx264", "-crf", "21", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "128k", "-ar", "48000", film1080]);
+  if (need(film1080)) await ff(["-i", srcFilm, "-vf", "scale=1920:-2", "-c:v", "libx264", "-crf", "21", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", film1080]);
   const film720 = path.join(MEDIA, "film", "film_720.mp4");
-  if (need(film720)) await ff(["-i", srcFilm, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "23", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "96k", "-ar", "48000", film720]);
+  if (need(film720)) await ff(["-i", srcFilm, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "23", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", film720]);
 
   // 2) 스크럽 전용 (짧은 GOP, 무음) — 섹션 스크롤 동기화에 사용
   const scrub = path.join(MEDIA, "film", "film_scrub_720.mp4");
@@ -141,7 +152,7 @@ async function main() {
   try {
     await download(SOURCES.filmPortrait, srcPortrait);
     const portrait = path.join(MEDIA, "film", "film_portrait_1080.mp4");
-    if (need(portrait)) await ff(["-i", srcPortrait, "-vf", "scale=1080:-2", "-c:v", "libx264", "-crf", "22", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "112k", "-ar", "48000", portrait]);
+    if (need(portrait)) await ff(["-i", srcPortrait, "-vf", "scale=1080:-2", "-c:v", "libx264", "-crf", "22", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", portrait]);
     const pposter = path.join(MEDIA, "posters", "film_portrait_poster.webp");
     if (need(pposter)) await ff(["-ss", "12", "-i", srcPortrait, "-frames:v", "1", "-vf", "scale=1080:-2", "-c:v", "libwebp", "-quality", "80", pposter]);
   } catch (e) {
@@ -152,7 +163,7 @@ async function main() {
   try {
     await download(SOURCES.filmClinical, srcClinical);
     const clin = path.join(MEDIA, "film", "film_clinical_720.mp4");
-    if (need(clin)) await ff(["-i", srcClinical, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "23", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "96k", "-ar", "48000", clin]);
+    if (need(clin)) await ff(["-i", srcClinical, "-vf", "scale=1280:-2", "-c:v", "libx264", "-crf", "23", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", clin]);
   } catch (e) {
     console.warn("[assets] clinical film skipped:", e.message);
   }

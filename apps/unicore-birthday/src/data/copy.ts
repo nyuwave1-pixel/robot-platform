@@ -22,6 +22,9 @@ export const copy = {
     soundOn: dir("SOUND ON"),
     soundOff: dir("SOUND OFF"),
     skip: dir("SKIP INTRO"),
+    skipVideo: dir("영상 건너뛰기"),
+    enterSound: dir("사운드와 함께 입장"),
+    enterMute: dir("사운드 없이 입장"),
     rememberSkip: dir("다음 방문 시 인트로 건너뛰기"),
   },
   s01: {
