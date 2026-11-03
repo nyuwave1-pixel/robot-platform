@@ -1,0 +1,18 @@
+.overlay { position: fixed; inset: 0; z-index: 1000; background: var(--bg-midnight); transition: opacity 0.9s var(--ease-cinematic), visibility 0.9s; }
+.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.stage { position: absolute; inset: 0; overflow: hidden; }
+.video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+.veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.35), transparent 25%, transparent 75%, rgba(8,7,6,.55)); pointer-events: none; }
+.fallback { position: absolute; inset: 0; background-size: cover; background-position: center; display: grid; place-items: center; }
+.fallbackCopy { text-align: center; padding: 0 24px; display: grid; gap: 12px; }
+.fallbackCopy p { margin: 0; font-size: clamp(20px, 3vw, 32px); }
+.fallbackSub { color: var(--muted) !important; font-size: clamp(14px, 1.6vw, 18px) !important; }
+.gate { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 22px; background: radial-gradient(ellipse at 50% 70%, rgba(56,35,28,.75), rgba(8,7,6,.85) 70%); backdrop-filter: blur(8px); padding: 0 max(16px, env(safe-area-inset-left)); }
+.gateHint { margin: 0; color: var(--muted); font-size: 14px; letter-spacing: .02em; }
+.gateBtns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.remember { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.ui { position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); display: flex; justify-content: space-between; align-items: center; z-index: 3; }
+.brand { font: 500 12px/1 var(--font-serif); letter-spacing: .35em; color: var(--ivory); }
+.skip { font: 500 11px/1 var(--font-ui); letter-spacing: .24em; color: rgba(244,239,231,.85); border: 1px solid rgba(244,239,231,.3); padding: 13px 18px; border-radius: 999px; min-height: 44px; background: rgba(8,7,6,.3); }
+.skip:hover { border-color: var(--gold-metal); color: var(--gold-metal); }
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, var(--gold-metal), var(--gold)); transform-origin: left; transform: scaleX(0); transition: transform .25s linear; z-index: 3; }
