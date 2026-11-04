@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
     other: {
+      // Naver Search Advisor (public verification token, safe to commit).
+      "naver-site-verification": process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || "d6e8ae1b4af4b612f3852297fa69a6c6dadf557f",
       ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }),
       ...(process.env.NEXT_PUBLIC_META_DOMAIN_VERIFICATION && { "facebook-domain-verification": process.env.NEXT_PUBLIC_META_DOMAIN_VERIFICATION }),
     },
