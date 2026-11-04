@@ -1,5 +1,8 @@
 /* UNI&CORE 1ST BIRTHDAY CREAM — global design tokens */
 :root {
+  /* 골드 그라데이션을 SVG 이미지로 — 안드로이드 브라우저의 강제 다크 모드는 CSS gradient 는 어둡게 바꾸지만 이미지는 건드리지 않음 */
+  --gold-grad: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='64' preserveAspectRatio='none'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff8e8'/%3E%3Cstop offset='.35' stop-color='%23f1d9a6'/%3E%3Cstop offset='.62' stop-color='%23E5C58D'/%3E%3Cstop offset='1' stop-color='%238F6B3A'/%3E%3C/linearGradient%3E%3Crect width='8' height='64' fill='url(%23g)'/%3E%3C/svg%3E");
+  --gold-grad-btn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='16' preserveAspectRatio='none'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f3dfb4'/%3E%3Cstop offset='.55' stop-color='%23E5C58D'/%3E%3Cstop offset='1' stop-color='%23C6A16A'/%3E%3C/linearGradient%3E%3Crect width='64' height='16' fill='url(%23g)'/%3E%3C/svg%3E");
   --bg-midnight: #080706;
   --bg-obsidian: #17110f;
   --bg-bronze: #38231c;
@@ -141,3 +144,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .section { padding-left: 20px; padding-right: 20px; }
   .tagline { font-size: 12px; margin-bottom: 14px; }
 }
+
+/* ---------- forced-dark-proof gold (SVG gradient fills) ---------- */
+.numeral { background: var(--gold-grad) center / 100% 100% no-repeat; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.btn-primary { background: var(--gold-metal) var(--gold-grad-btn) center / 100% 100% no-repeat; color: #1a120c; }
+.tagline b, .eyebrow, .caption { color: var(--gold-metal); }
