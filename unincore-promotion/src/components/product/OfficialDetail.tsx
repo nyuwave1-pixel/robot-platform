@@ -1,4 +1,6 @@
 import type { ProductContent } from "@/content/types";
+import { toAmazonProduct } from "@/lib/visibility";
+import { TrackedDetails } from "./TrackedDetails";
 
 /**
  * The brand's official detail page, re-published as image slices inside a
@@ -19,7 +21,7 @@ export function OfficialDetail({ p }: { p: ProductContent }) {
           </li>
         ))}
       </ul>
-      <details className="group mt-8 overflow-hidden rounded-3xl border border-ink/10 bg-white">
+      <TrackedDetails product={toAmazonProduct(p)} className="group mt-8 overflow-hidden rounded-3xl border border-ink/10 bg-white">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-medium">
           <span>View the full official product page</span>
           <span className="text-xl transition-transform group-open:rotate-45" aria-hidden>+</span>
@@ -46,7 +48,7 @@ export function OfficialDetail({ p }: { p: ProductContent }) {
           </a>{" "}
           (adapted for the US site). Test results are from the brand&apos;s human application tests; individual results may vary.
         </p>
-      </details>
+      </TrackedDetails>
     </div>
   );
 }

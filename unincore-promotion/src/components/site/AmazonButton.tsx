@@ -48,7 +48,7 @@ export function AmazonButton({
       rel="noopener"
       data-asin={product.asin}
       data-cta={location}
-      onClick={() => track("amazon_cta_click", { product, location })}
+      onClick={() => track("amazon_cta_click", { product, location, url: href })}
     >
       {children ?? (
         <>

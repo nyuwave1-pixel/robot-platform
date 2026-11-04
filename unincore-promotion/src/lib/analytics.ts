@@ -120,6 +120,14 @@ function device(): Device {
   return "desktop";
 }
 
+function safeHost(url: string): string | undefined {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
+}
+
 function eventId(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
@@ -133,8 +141,27 @@ const META_EVENT_MAP: Partial<Record<EventName, [standard: boolean, name: string
   promotion_view: [false, "PromotionView"],
 };
 
+/**
+ * Internal event → GA4 event name. Where GA4 has a recommended/automatic event
+ * we use its name so it lands in the standard reports; the rest stay custom.
+ * (The first-party /api/track counters keep the internal names.)
+ */
+const GA4_NAME: Partial<Record<EventName, string>> = {
+  promotion_view: "view_promotion",
+  video_play: "video_start",
+};
+
+/** GA4 content group, so reports can be split by page type without regexes. */
+export function contentGroup(path: string): string {
+  if (path === "/") return "home";
+  if (path.startsWith("/products/")) return "product";
+  return "info";
+}
+
 export interface TrackParams {
   product?: { key: string; asin: string; name: string };
+  /** Destination URL for outbound clicks (Amazon). */
+  url?: string;
   location?: string;
   label?: string;
   value?: string;
@@ -156,17 +183,20 @@ export function track(name: EventName, params: TrackParams = {}) {
   const gaParams: Record<string, unknown> = {
     event_id: id,
     channel,
-    cta_location: params.location,
-    label: params.label,
+    content_group: contentGroup(window.location.pathname),
+    ...(params.location && { cta_location: params.location }),
+    ...(params.label && { label: params.label }),
+    ...(params.url && { link_url: params.url, link_domain: safeHost(params.url), outbound: true }),
     ...(params.product && {
       currency: "USD",
-      items: [{ item_id: params.product.asin, item_name: params.product.name, item_brand: "UNI&CORE", item_category: "Skincare" }],
+      items: [{ item_id: params.product.asin, item_name: params.product.name, item_brand: "UNI&CORE", item_category: "Skincare", item_category2: "Vitamin C", affiliation: "Amazon.com" }],
       product_key: params.product.key,
     }),
   };
+  const gaName = GA4_NAME[name] ?? name;
   window.dataLayer = window.dataLayer || [];
-  if (tagMode === "gtm") window.dataLayer.push({ event: name, ...gaParams });
-  else if (tagMode === "gtag" && window.gtag) window.gtag("event", name, gaParams);
+  if (tagMode === "gtm") window.dataLayer.push({ event: gaName, ...gaParams });
+  else if (tagMode === "gtag" && window.gtag) window.gtag("event", gaName, gaParams);
 
   const meta = META_EVENT_MAP[name];
   if (meta && allowed && window.fbq) {
