@@ -11,7 +11,8 @@ import { PromoBadge } from "@/components/site/PromoBadge";
 import { JsonLd } from "@/components/site/JsonLd";
 import { BRAND } from "@/data/brand";
 import { SCENES, RITUAL_ORDER } from "@/data/scenes";
-import { FILMS, hasFilm } from "@/data/videos";
+import { BRAND_FILMS, FILMS, hasFilm } from "@/data/videos";
+import { BrandFilm } from "@/components/vitac/BrandFilm";
 import { Intro } from "@/components/vitac/Intro";
 import { MotionProvider } from "@/components/vitac/MotionProvider";
 import { ShaderStage } from "@/components/vitac/ShaderStage";
@@ -81,6 +82,12 @@ export default async function HomePage() {
 
       {/* 01 HERO */}
       <section id="hero" className="relative isolate overflow-hidden bg-night text-ivory">
+        {hasFilm(FILMS["brand-intro"]) && (
+          <video className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover opacity-40 motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster={FILMS["brand-intro"].poster} aria-hidden>
+            {FILMS["brand-intro"].webm && <source src={FILMS["brand-intro"].webm} type="video/webm" />}
+            <source src={FILMS["brand-intro"].src} type="video/mp4" />
+          </video>
+        )}
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_70%_45%,rgba(233,185,77,.22),rgba(8,7,6,0)_70%)]" aria-hidden />
         <ShaderStage shader="gold" className="-z-10" />
         <div className="container-site grid items-center gap-8 pb-16 pt-8 lg:min-h-[min(92svh,860px)] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:py-20">
@@ -355,8 +362,26 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 09B THE FILM — collection brand film (16:9 desktop, 9:16 mobile) */}
+      <section id="film" className="section bg-night text-ivory">
+        <div className="container-site">
+          <div className="mx-auto max-w-2xl text-center" data-reveal>
+            <p className="eyebrow !text-champagne">The Film</p>
+            <h2 className="h-section mt-4">Watch the ritual.</h2>
+            <p className="mx-auto mt-4 max-w-lg text-ivory/70">Cleanse. Mask. Brighten. Thirty seconds of vitamin C, from first splash to final glow.</p>
+          </div>
+          <BrandFilm film={BRAND_FILMS.collection} className="mx-auto mt-12 max-w-5xl" />
+        </div>
+      </section>
+
       {/* 10 FINAL COLLECTION */}
       <section id="shop" className="relative isolate overflow-hidden bg-night py-24 text-ivory sm:py-32" data-hide-sticky>
+        {hasFilm(FILMS["final-collection"]) && (
+          <video className="pointer-events-none absolute inset-0 -z-20 h-full w-full scale-110 object-cover opacity-25 blur-md motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster={FILMS["final-collection"].poster} aria-hidden>
+            {FILMS["final-collection"].webm && <source src={FILMS["final-collection"].webm} type="video/webm" />}
+            <source src={FILMS["final-collection"].src} type="video/mp4" />
+          </video>
+        )}
         <ShaderStage shader="gold" className="-z-10 opacity-70" />
         <div className="container-site">
           <div className="text-center">

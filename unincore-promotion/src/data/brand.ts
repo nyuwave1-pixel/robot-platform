@@ -7,17 +7,17 @@ export const BRAND = {
   name: "UNI&CORE",
   collection: "VITA C Collection",
   intro: {
-    lines: ["The science of radiance.", "Discover the power of vitamin C."],
-    reveal: "Three steps. One radiant ritual.",
+    lines: ["Pure vitamin C.", "Unlock your radiance."],
+    reveal: "Cleanse. Mask. Brighten.",
   },
   hero: {
     eyebrow: "UNI&CORE · VITA C Collection",
-    headline: ["Your daily radiance", "starts here."],
-    sub: "Three Korean vitamin C steps — cleanse, mask, brighten — made to work as one ritual. Sold on Amazon.com.",
+    headline: ["Wake up", "your radiance."],
+    sub: "Three Korean vitamin C steps — cleanse, mask, brighten — engineered to work as one ritual. Now on Amazon.com.",
   },
   story: {
     eyebrow: "The Vitamin C Story",
-    title: "A familiar ingredient, used three ways.",
+    title: "One ingredient. Three ways to glow.",
     /** General, ingredient-level context. Kept separate from product facts on purpose. */
     ingredient: [
       "Vitamin C (ascorbic acid) is one of the most widely used antioxidants in skincare.",
@@ -26,7 +26,7 @@ export const BRAND = {
     ],
   },
   finale: {
-    title: "Three steps. One radiant skincare ritual.",
-    sub: "Your skincare. Your radiance.",
+    title: "Cleanse. Mask. Brighten. Glow.",
+    sub: "Your skin. Your light.",
   },
 } as const;

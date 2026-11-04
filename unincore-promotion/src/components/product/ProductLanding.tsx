@@ -12,6 +12,8 @@ import { FaqList } from "@/components/site/FaqList";
 import { VideoGallery } from "@/components/site/VideoGallery";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { ProductViewTracker } from "@/components/site/ProductViewTracker";
+import { BrandFilm } from "@/components/vitac/BrandFilm";
+import { BRAND_FILMS } from "@/data/videos";
 
 function Pending({ status, preview }: { status: VerificationStatus; preview: boolean }) {
   if (!preview || status === "verified") return null;
@@ -97,6 +99,17 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* 1B. THE FILM — brand film for this product */}
+      <section className="section bg-night text-ivory">
+        <div className="container-site">
+          <div className="mx-auto max-w-2xl text-center" data-reveal>
+            <p className="eyebrow !text-champagne">The Film</p>
+            <h2 className="h-section mt-4">{p.shortName}, in motion.</h2>
+          </div>
+          <BrandFilm film={BRAND_FILMS[p.key]} product={ap} className="mx-auto mt-10 max-w-5xl" />
         </div>
       </section>
 

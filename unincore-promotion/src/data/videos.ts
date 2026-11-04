@@ -1,8 +1,10 @@
 /**
  * Film slots for the VITA C Collection experience.
  *
- * No footage exists yet. Each slot stays empty (src: "") until real, approved
- * footage is supplied — the site then renders the WebGL scene / poster instead.
+ * Footage (Nov 2026): concept / texture loops generated with Google Flow (Omni 1.1 Flash)
+ * and graded + looped in post. The texture and citrus loops contain NO packaging.
+ * `final-collection` is built only from the real product photos in /public/products,
+ * so no slot shows a rendered stand-in for the product.
  * Never fill a slot with footage that pretends to show the product if it doesn't.
  *
  * Specs: MP4 (H.264) + WebM (VP9); 1080p desktop, 720p mobile; loops 6–12 s,
@@ -24,12 +26,47 @@ export interface FilmSlot {
 }
 
 export const FILMS: Record<FilmSlot["id"], FilmSlot> = {
-  "brand-intro": { id: "brand-intro", title: "Brand intro", src: "", poster: "/products/ampoule-visual.webp" },
-  "citrus-macro": { id: "citrus-macro", title: "Citrus macro", src: "", poster: "/products/ampoule-visual.webp" },
-  "powder-wash": { id: "powder-wash", title: "Powder to foam", src: "", poster: "/products/wash-visual.webp" },
-  "mask-essence": { id: "mask-essence", title: "Mask essence", src: "", poster: "/products/mask-visual.webp" },
-  "ampoule-texture": { id: "ampoule-texture", title: "Ampoule texture", src: "", poster: "/products/ampoule-visual.webp" },
-  "final-collection": { id: "final-collection", title: "The collection", src: "", poster: "/products/ampoule-visual.webp" },
+  "brand-intro": { id: "brand-intro", title: "Brand intro", src: "/videos/vitac/brand-intro.mp4", webm: "/videos/vitac/brand-intro.webm", mobileSrc: "/videos/vitac/brand-intro-mobile.mp4", poster: "/videos/vitac/brand-intro-poster.webp" },
+  "citrus-macro": { id: "citrus-macro", title: "Citrus macro", src: "/videos/vitac/citrus-macro.mp4", webm: "/videos/vitac/citrus-macro.webm", mobileSrc: "/videos/vitac/citrus-macro-mobile.mp4", poster: "/videos/vitac/citrus-macro-poster.webp" },
+  "powder-wash": { id: "powder-wash", title: "Powder to foam", src: "/videos/vitac/powder-wash.mp4", webm: "/videos/vitac/powder-wash.webm", mobileSrc: "/videos/vitac/powder-wash-mobile.mp4", poster: "/videos/vitac/powder-wash-poster.webp" },
+  "mask-essence": { id: "mask-essence", title: "Mask essence", src: "/videos/vitac/mask-essence.mp4", webm: "/videos/vitac/mask-essence.webm", mobileSrc: "/videos/vitac/mask-essence-mobile.mp4", poster: "/videos/vitac/mask-essence-poster.webp" },
+  "ampoule-texture": { id: "ampoule-texture", title: "Ampoule texture", src: "/videos/vitac/ampoule-texture.mp4", webm: "/videos/vitac/ampoule-texture.webm", mobileSrc: "/videos/vitac/ampoule-texture-mobile.mp4", poster: "/videos/vitac/ampoule-texture-poster.webp" },
+  "final-collection": { id: "final-collection", title: "The collection", src: "/videos/vitac/final-collection.mp4", webm: "/videos/vitac/final-collection.webm", mobileSrc: "/videos/vitac/final-collection-mobile.mp4", poster: "/videos/vitac/final-collection-poster.webp" },
 };
 
 export const hasFilm = (f: FilmSlot) => Boolean(f.src);
+
+/**
+ * Brand films with English kinetic typography (promo / ad cuts).
+ * Product shots in these films are AI-rendered from the real packshots; every film
+ * ends on the real product photo. Facts on screen match the US label copy.
+ */
+export interface BrandFilm {
+  id: "collection" | "wash" | "mask" | "ampoule";
+  title: string;
+  /** 16:9 desktop cut. */
+  src: string;
+  poster: string;
+  /** 9:16 mobile / social cut. */
+  vertical: string;
+  verticalPoster: string;
+  /** ISO 8601 duration. */
+  duration: string;
+}
+
+const film = (id: BrandFilm["id"], title: string, duration: string): BrandFilm => ({
+  id,
+  title,
+  src: `/videos/vitac/films/${id}-16x9.mp4`,
+  poster: `/videos/vitac/films/${id}-16x9-poster.webp`,
+  vertical: `/videos/vitac/films/${id}-9x16.mp4`,
+  verticalPoster: `/videos/vitac/films/${id}-9x16-poster.webp`,
+  duration,
+});
+
+export const BRAND_FILMS = {
+  collection: film("collection", "The VITA C ritual", "PT32S"),
+  wash: film("wash", "Vita C Enzyme Powder Wash — the film", "PT15S"),
+  mask: film("mask", "Vita C Super Brightening Mask — the film", "PT14S"),
+  ampoule: film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"),
+} as const satisfies Record<BrandFilm["id"], BrandFilm>;

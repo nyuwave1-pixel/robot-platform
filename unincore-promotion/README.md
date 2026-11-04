@@ -54,6 +54,18 @@ STORAGE_DRIVER=file ADMIN_PASSWORD=... npm start
 ADMIN_PASSWORD=... npm run qa     # → qa-artifacts/qa-report.md
 ```
 
+## 영상 (VITA C films)
+
+| 위치 | 파일 | 용도 |
+|---|---|---|
+| `public/videos/vitac/{slot}.mp4 · .webm · -mobile.mp4 · -poster.webp` | brand-intro · citrus-macro · powder-wash · mask-essence · ampoule-texture · final-collection | `src/data/videos.ts`의 `FILMS` 슬롯 (텍스트 없는 6–8초 무한 루프) |
+| `public/videos/vitac/films/{id}-16x9.mp4 · -9x16.mp4 · -poster.webp` | collection · wash · mask · ampoule | `BRAND_FILMS` — 영어 키네틱 타이포 브랜드 필름 (홈 `#film`, 제품 페이지 "The Film") |
+
+- 제작: Google Flow(Omni 1.1 Flash) 생성 → FFmpeg 그레이딩·루프 처리 → Pillow 모션 타이포(Cormorant Garamond · Inter).
+- 텍스처/시트러스 루프에는 패키지가 나오지 않습니다. `final-collection` 루프와 각 필름의 엔드카드는 `public/products`의 실제 제품 사진만 사용합니다.
+- 필름 속 제품 장면은 실제 패키지 사진을 레퍼런스로 생성한 AI 영상입니다. 실사 UGC가 아니므로 "Real Routines"(`videos`) 섹션에는 넣지 않습니다.
+- 화면 문구는 US 라벨 사실(13.5%·2% 비타민 C, 성분, 용량, 사용 시간)만 사용하고 `docs/AMAZON_SEO_GUIDE.md` 금지 표현을 따릅니다.
+
 ## 문서
 
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Vercel 배포, DNS(CNAME), 환경변수, 출시 체크리스트
