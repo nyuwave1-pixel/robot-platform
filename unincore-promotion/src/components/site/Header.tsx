@@ -24,7 +24,7 @@ export function Header({ products }: { products: Pick<ProductContent, "slug" | "
           <Link href="/#shop" className="btn-primary hidden !min-h-[40px] !px-5 !text-[11px] sm:inline-flex">
             Shop on Amazon
           </Link>
-          <MobileMenu products={products} />
+          <MobileMenu products={products.map(({ slug, shortName }) => ({ slug, shortName }))} />
         </div>
       </div>
     </header>
