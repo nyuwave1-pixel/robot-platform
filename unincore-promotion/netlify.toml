@@ -13,3 +13,11 @@
 # CLI/API-uploaded deploys also run it, not only Git-linked builds.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# The project's netlify.app address permanently forwards to the custom domain
+# (deploy permalinks like <id>--unincore-promotion.netlify.app keep working).
+[[redirects]]
+  from = "https://unincore-promotion.netlify.app/*"
+  to = "https://promotion.unincore.com/:splat"
+  status = 301
+  force = true
