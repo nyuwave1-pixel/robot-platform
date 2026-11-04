@@ -68,6 +68,8 @@ export const copy = {
     neckLine1: dp("단 4주, 벌스데이 크림이"),
     neckLine2: dp("피부 주름을 부드럽게 채워주는 시간"),
     safeH: dp("4주동안 피부 이상반응 0건"),
+    safeLead: dp("4주동안 피부 이상반응"),
+    safeUnit: dp("건"),
     safeSub: dp("지성·복합성·건성 피부 21명 대상"),
     bridge1: dp("당신의 첫 번째 생일을 위하여"),
     bridge2: dp("볼륨 다음은 재건입니다"),

@@ -276,17 +276,17 @@
 .nobelInner { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; gap: clamp(10px, 1.6vh, 18px); padding: clamp(56px, 10vh, 120px) max(20px, 5vw); max-width: 1200px; }
 .nobelEyebrow { font: 500 11px/1 var(--font-ui); letter-spacing: .42em; text-transform: uppercase; color: var(--gold-metal); opacity: 0; }
 .nobelL0 { margin: 0; font-size: clamp(14px, 1.4vw, 20px); color: var(--muted); letter-spacing: .02em; }
-.nobelL0 span { opacity: 0; }
+.nobelL0 [data-ch] { opacity: 0; }
 .nobelH { margin: 0; display: grid; gap: .05em; justify-items: center; word-break: keep-all; }
 .nobelL1 { display: block; font-size: clamp(22px, 3.2vw, 46px); font-weight: 300; color: var(--ivory); letter-spacing: -.01em; }
-.nobelL1 span { opacity: 0; }
+.nobelL1 [data-ch] { opacity: 0; }
 .nobelL2 { display: inline-flex; align-items: baseline; flex-wrap: wrap; justify-content: center; gap: 0 .18em; line-height: 1.05; }
 .nobelEgf { display: inline-flex; font-family: var(--font-serif); font-weight: 800; font-size: clamp(72px, 13vw, 220px); line-height: 1; letter-spacing: .02em; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 28px rgba(229,197,141,.35)); position: relative; }
 .nobelEgf i { display: inline-block; font-style: normal; opacity: 0; will-change: transform, opacity, filter; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .nobelEgf::after { content: ""; position: absolute; inset: -10% -6%; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; mix-blend-mode: screen; animation: nobelSweep 5s ease-in-out 3s infinite; pointer-events: none; -webkit-mask: linear-gradient(#000, #000); }
 @keyframes nobelSweep { 0% { background-position: 120% 0; opacity: 0; } 10% { opacity: 1; } 40% { background-position: -40% 0; opacity: 0; } 100% { background-position: -40% 0; opacity: 0; } }
 .nobelTail { display: inline-block; font-size: clamp(30px, 5.2vw, 84px); font-weight: 700; color: var(--ivory); letter-spacing: -.02em; }
-.nobelTail span { opacity: 0; }
+.nobelTail [data-ch] { opacity: 0; }
 .nobelRule { display: block; width: min(60vw, 360px); height: 1px; background: linear-gradient(90deg, transparent, var(--gold-metal), transparent); transform: scaleX(0); margin-top: 6px; }
 .nobelTokens { margin: 4px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 1.4vw, 18px); }
 .nobelToken { font-family: var(--font-serif); font-weight: 400; font-size: clamp(18px, 2.4vw, 34px); line-height: 1; letter-spacing: .14em; color: rgba(244,239,231,.85); padding: 12px clamp(12px, 1.6vw, 22px); border: 1px solid rgba(201,168,106,.35); border-radius: 999px; opacity: 0; background: rgba(8,7,6,.35); backdrop-filter: blur(6px); }
@@ -308,9 +308,9 @@ img.ingImg { transform: scale(1.1); }
 .pepInner { position: relative; z-index: 2; width: min(100%, 1280px); margin: 0 auto; padding: clamp(56px, 10vh, 120px) max(20px, 5vw); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
 .pepLeft { display: grid; gap: clamp(10px, 1.6vh, 18px); justify-items: start; word-break: keep-all; }
 .pepQ { margin: 0; font-size: clamp(15px, 1.5vw, 21px); color: var(--ivory); opacity: .9; }
-.pepQ span { opacity: 0; }
+.pepQ [data-ch] { opacity: 0; }
 .pepBig { margin: 0; font-size: clamp(40px, 6.4vw, 108px); font-weight: 800; line-height: 1.08; letter-spacing: -.03em; filter: drop-shadow(0 0 26px rgba(229,197,141,.3)); }
-.pepBig span { opacity: 0; will-change: transform, opacity, filter; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pepBig [data-ch] { opacity: 0; will-change: transform, opacity, filter; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .pepName { margin: 6px 0 0; font-size: clamp(26px, 3.4vw, 54px); font-weight: 700; color: var(--white); letter-spacing: -.02em; opacity: 0; }
 .pepDesc { margin: 0; max-width: 40ch; font-size: clamp(14px, 1.3vw, 18px); line-height: 1.7; color: var(--muted); opacity: 0; }
 .pepDesc b { color: var(--gold-metal); font-weight: 700; }
@@ -382,5 +382,5 @@ img.ingImg { transform: scale(1.1); }
 }
 
 /* forced-dark-proof gold text fills */
-.heroKoEm, .finalKoBig b, .cardNum, .nobelEgf i, .pepBig span { background: var(--gold-grad) center / 100% 100% no-repeat !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+.heroKoEm, .finalKoBig b, .cardNum, .nobelEgf i, .pepBig [data-ch] { background: var(--gold-grad) center / 100% 100% no-repeat !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
 .nobelTokenHi { background: var(--gold-grad-btn) center / 100% 100% no-repeat; color: #1a120c; }

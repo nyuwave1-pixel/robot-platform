@@ -18,6 +18,7 @@ import Final from "@/components/sections/Final";
 import Lineup from "@/components/sections/Lineup";
 import Footer from "@/components/Footer";
 import SoundToggle from "@/components/SoundToggle";
+import LangSwitch from "@/components/LangSwitch";
 import { audio } from "@/features/audio/audio";
 
 const IntroOverlay = dynamic(() => import("@/features/intro/IntroOverlay"), { ssr: false });
@@ -67,6 +68,7 @@ export default function Experience() {
       </main>
       <Footer />
       <Chrome />
+      {intro === "closed" && <LangSwitch />}
       {intro === "closed" && <SoundToggle />}
     </>
   );

@@ -2,17 +2,18 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { copy } from "@/data/copy";
-import { satisfaction } from "@/data/reviews";
 import Reveal from "@/components/Reveal";
 import BgVideo from "@/features/video/BgVideo";
 import Tagline from "@/components/Tagline";
 import { clips } from "@/data/images";
 import s from "./sections.module.css";
+import { useDict } from "@/i18n/context";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Satisfaction() {
+  const t = useDict();
+  const satisfaction = t.satisfactionView;
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = list.current; if (!el) return;
@@ -28,8 +29,8 @@ export default function Satisfaction() {
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
             <Tagline />
-            <span className={s.surveyTag}><i /> 주관적 설문 · n={satisfaction.n}</span>
-            <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-rev">{copy.s10.h1.text} <b>{copy.s10.h2.text}</b></Reveal>
+            <span className={s.surveyTag}><i /> {satisfaction.tag} · n={satisfaction.n}</span>
+            <Reveal as="h2" mode="weight" className={`headline-ko ${s.h2}`} id="h-rev">{t.copy.s10.h1} <b>{t.copy.s10.h2}</b></Reveal>
             <p className="footnote">* {satisfaction.footnote}</p>
           </div>
           <div ref={list} className={s.cards}>

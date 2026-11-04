@@ -127,6 +127,20 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 767px) { .sound-toggle { min-height: 40px; padding: 0 12px; font-size: 10px; letter-spacing: .18em; } .sound-toggle .sound-label { display: none; } .sound-toggle.blocked .sound-label, .sound-toggle.on .sound-label { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .sound-toggle.on .sound-bars i, .sound-toggle.blocked { animation: none; } }
 
+/* ---------- language switch (top-left, mirrors the sound toggle) ---------- */
+.lang-switch { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); z-index: 1200; display: inline-flex; align-items: center; gap: 2px; min-height: 40px; padding: 0 5px; border-radius: 999px; border: 1px solid rgba(198,161,106,.45); background: rgba(8,7,6,.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.lang-switch a { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 30px; padding: 0 9px; border-radius: 999px; font: 500 10px/1 var(--font-ui); letter-spacing: .14em; color: rgba(244,239,231,.72); text-decoration: none; transition: color .3s, background .3s; }
+.lang-switch a:lang(zh-Hans) { letter-spacing: .04em; font-size: 11px; }
+.lang-switch a:hover { color: var(--ivory); }
+.lang-switch a.on { color: #1a120c; background: var(--gold-metal) var(--gold-grad-btn) center / 100% 100% no-repeat; }
+
+/* ---------- locale typography ---------- */
+html[lang="zh-Hans"] { --font-kr: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Pretendard Variable", Pretendard, sans-serif; }
+html[lang="zh-Hans"] .headline-ko, html[lang="zh-Hans"] .body-ko, html[lang="zh-Hans"] .footnote, html[lang="zh-Hans"] .tagline { word-break: normal; overflow-wrap: anywhere; letter-spacing: .01em; }
+html[lang="zh-Hans"] .btn { word-break: normal; letter-spacing: .06em; }
+html[lang="en"] .headline-ko { letter-spacing: -0.005em; }
+html[lang="en"] .body-ko, html[lang="en"] .footnote { word-break: normal; overflow-wrap: break-word; }
+
 /* 반복 태그라인 */
 .tagline { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: var(--muted); }
 .tagline i { width: 28px; height: 1px; background: linear-gradient(90deg, var(--gold-metal), transparent); flex: none; }

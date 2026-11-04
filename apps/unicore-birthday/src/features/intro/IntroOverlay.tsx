@@ -1,11 +1,11 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { videos } from "@/data/videos";
-import { copy } from "@/data/copy";
 import { product } from "@/data/product";
 import { audio, type SoundState } from "@/features/audio/audio";
 import { useIsMobile, useReducedMotion } from "@/lib/env";
 import styles from "./intro.module.css";
+import { useDict, fmt } from "@/i18n/context";
 
 type Phase = "wait" | "entry" | "film" | "done";
 
@@ -15,6 +15,7 @@ type Phase = "wait" | "entry" | "film" | "done";
  * - 필름은 항상 음소거(사이트 사운드는 BGM 하나). 언제든 SKIP 가능. 영상 실패 시 포스터+카피 폴백.
  */
 export default function IntroOverlay({ onDone }: { onDone: () => void }) {
+  const t = useDict();
   const mobile = useIsMobile();
   const reduced = useReducedMotion();
   const asset = mobile ? videos.filmPortrait : videos.film;
@@ -79,7 +80,7 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
   const showFallback = failed || reduced;
 
   return (
-    <div className={`${styles.overlay} ${visible ? "" : styles.hidden}`} role="dialog" aria-label="인트로 영상">
+    <div className={`${styles.overlay} ${visible ? "" : styles.hidden}`} role="dialog" aria-label={t.ui.introAria}>
       <div className={styles.stage}>
         {!showFallback ? (
           <video
@@ -98,8 +99,8 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
         ) : (
           <div className={styles.fallback} style={{ backgroundImage: `url(${asset.poster})` }}>
             <div className={styles.fallbackCopy}>
-              <p className="headline-ko">{copy.intro.q1.text}</p>
-              <p className={styles.fallbackSub}>{copy.intro.q2.text}</p>
+              <p className="headline-ko">{t.copy.intro.q1}</p>
+              <p className={styles.fallbackSub}>{t.copy.intro.q2}</p>
             </div>
           </div>
         )}
@@ -109,14 +110,14 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
         {(phase === "entry" || (showFallback && phase !== "done" && phase !== "film")) && (
           <div className={styles.gate} data-sound-gate="">
             <span className={styles.entryBrand}>{product.brand}</span>
-            <p className={styles.entryTitle}>{copy.intro.q1.text}</p>
-            <p className={styles.gateHint}>{copy.intro.soundHint.text}</p>
+            <p className={styles.entryTitle}>{t.copy.intro.q1}</p>
+            <p className={styles.gateHint}>{t.copy.intro.soundHint}</p>
             <div className={styles.gateBtns}>
-              <button className="btn btn-primary" onClick={() => enter(true)}>{copy.intro.enterSound.text}</button>
-              <button className="btn btn-ghost" onClick={() => enter(false)}>{copy.intro.enterMute.text}</button>
+              <button className="btn btn-primary" onClick={() => enter(true)}>{t.copy.intro.enterSound}</button>
+              <button className="btn btn-ghost" onClick={() => enter(false)}>{t.copy.intro.enterMute}</button>
             </div>
             <label className={styles.remember}>
-              <input type="checkbox" id="intro-remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {copy.intro.rememberSkip.text}
+              <input type="checkbox" id="intro-remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {t.copy.intro.rememberSkip}
             </label>
           </div>
         )}
@@ -124,20 +125,20 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
         {showFallback && phase === "film" && (
           <div className={styles.gate}>
             <div className={styles.gateBtns}>
-              <button className="btn btn-primary" onClick={finish}>{product.brand} 시작하기</button>
+              <button className="btn btn-primary" onClick={finish}>{fmt(t.ui.introStart, { brand: product.brand })}</button>
             </div>
           </div>
         )}
 
         <div className={styles.ui}>
           <span className={styles.brand}>{product.brand}</span>
-          <button className={styles.skip} onClick={skip}>{copy.intro.skip.text}</button>
+          <button className={styles.skip} onClick={skip}>{t.copy.intro.skip}</button>
         </div>
 
         {/* 영상 스킵 버튼 (하단 우측, 재생 중 항상 노출) */}
         {phase === "film" && !showFallback && (
-          <button type="button" className={styles.skipBig} onClick={skip} aria-label="인트로 영상 건너뛰기">
-            <span>{copy.intro.skipVideo.text}</span>
+          <button type="button" className={styles.skipBig} onClick={skip} aria-label={t.ui.introSkipAria}>
+            <span>{t.copy.intro.skipVideo}</span>
             <i aria-hidden="true" />
           </button>
         )}
