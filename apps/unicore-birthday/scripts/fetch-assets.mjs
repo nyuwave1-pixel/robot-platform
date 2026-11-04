@@ -109,10 +109,11 @@ async function main() {
       const zipPath = path.join(CACHE, "detail_crops.zip");
       await downloadUrl(SOURCES.detailZipUrl, zipPath, 100_000);
       execFileSync("unzip", ["-o", "-q", "-j", zipPath, "-d", detailDir], { stdio: "inherit" });
-      // webp 변환 (1600px 이하로 리사이즈)
+      // webp 변환 (가장자리 4px 트림 → 1600px 이하로 리사이즈)
+      // 상세페이지 크롭 원본은 좌우 끝 1px 열이 흰색이라 배경으로 깔면 흰 선이 보임 → 변환 시 잘라냄
       for (const f of readdirSync(detailDir).filter((x) => x.endsWith(".jpg"))) {
         const src = path.join(detailDir, f), out = src.replace(/\.jpg$/, ".webp");
-        if (need(out)) await ff(["-i", src, "-vf", "scale='min(1600,iw)':-2", "-c:v", "libwebp", "-quality", "84", out]);
+        if (need(out)) await ff(["-i", src, "-vf", "crop=iw-8:ih-8:4:4,scale='min(1600,iw)':-2", "-c:v", "libwebp", "-quality", "84", out]);
       }
       console.log("[assets] detail visuals ready");
     } else console.log("[assets] cached detail visuals");
