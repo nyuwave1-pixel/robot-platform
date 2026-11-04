@@ -102,7 +102,8 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
         </div>
       </section>
 
-      {/* 1B. THE FILM — brand film for this product */}
+      {/* 1B. THE FILM — brand film for this product (skipped while a film is on hold) */}
+      {!BRAND_FILMS[p.key].onHold && (
       <section className="section bg-night text-ivory">
         <div className="container-site">
           <div className="mx-auto max-w-2xl text-center" data-reveal>
@@ -112,6 +113,7 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
           <BrandFilm film={BRAND_FILMS[p.key]} product={ap} className="mx-auto mt-10 max-w-5xl" />
         </div>
       </section>
+      )}
 
       {/* 2. BEFORE & AFTER (verified photos only) */}
       {p.beforeAfter.length > 0 && (

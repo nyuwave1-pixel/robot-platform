@@ -52,6 +52,8 @@ export interface BrandFilm {
   verticalPoster: string;
   /** ISO 8601 duration. */
   duration: string;
+  /** When set, the film is kept off the site (reason given). */
+  onHold?: string;
 }
 
 const film = (id: BrandFilm["id"], title: string, duration: string): BrandFilm => ({
@@ -65,10 +67,12 @@ const film = (id: BrandFilm["id"], title: string, duration: string): BrandFilm =
 });
 
 export const BRAND_FILMS = {
-  collection: film("collection", "The VITA C ritual", "PT32S"),
+  // On hold: on-screen copy states "13.5% pure vitamin C", which is not yet backed by
+  // a formula document. Re-cut without the percentage before showing it again.
+  collection: { ...film("collection", "The VITA C ritual", "PT32S"), onHold: "on-screen 13.5% claim" },
   wash: film("wash", "Vita C Enzyme Powder Wash — the film", "PT15S"),
   mask: film("mask", "Vita C Super Brightening Mask — the film", "PT14S"),
-  ampoule: film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"),
+  ampoule: { ...film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"), onHold: "on-screen 13.5% claim" },
 } as const satisfies Record<BrandFilm["id"], BrandFilm>;
 
 /* ------------------------------------------------------------------ */

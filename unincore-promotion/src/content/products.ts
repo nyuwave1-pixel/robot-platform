@@ -45,15 +45,15 @@ export const AMPOULE: ProductContent = {
   accent: "citrus",
   routineStep: 3,
 
-  heroEyebrow: "13.5% Pure Vitamin C",
-  heroHeadline: "13.5% Pure Vitamin C for Radiant-Looking Skin",
+  heroEyebrow: "Pure Vitamin C Ampoule",
+  heroHeadline: "Pure Vitamin C for Radiant-Looking Skin",
   heroSub:
     "A concentrated Korean vitamin C ampoule that layers like a serum and helps dull, uneven-looking skin look brighter, smoother and more luminous.",
   tagline: "Concentrated vitamin C, made for an everyday glow.",
-  keyIngredient: "13.5% Pure Vitamin C",
-  highlights: ["13.5% pure vitamin C", "Lightweight ampoule texture", "For dull, tired-looking skin", "Made in Korea"],
+  keyIngredient: "Pure Vitamin C (Ascorbic Acid)",
+  highlights: ["Pure vitamin C (ascorbic acid)", "Lightweight ampoule texture", "For dull, tired-looking skin", "Made in Korea"],
   specs: [
-    { label: "Key ingredient", value: "13.5% Pure Vitamin C" },
+    { label: "Key ingredient", value: "Pure vitamin C (ascorbic acid)" },
     { label: "Size", value: "1.06 oz (30 g)" },
     { label: "Step", value: "Ampoule / Serum" },
     { label: "Best for", value: "Dull, uneven-looking skin" },
@@ -73,7 +73,7 @@ export const AMPOULE: ProductContent = {
     { title: "Loss of glow", text: "When skin looks matte and fatigued, even a good routine can feel like it isn't showing." },
   ],
   benefits: [
-    { title: "Visibly brighter", text: "Pure vitamin C at 13.5% helps skin look brighter and more even with consistent use." },
+    { title: "Visibly brighter", text: "Pure vitamin C helps skin look brighter and more even with consistent use." },
     { title: "Radiant-looking finish", text: "Leaves a fresh, luminous look rather than a sticky film." },
     { title: "Layers easily", text: "A lightweight ampoule texture that sits well under moisturizer and sunscreen." },
   ],
@@ -114,7 +114,7 @@ export const AMPOULE: ProductContent = {
   ],
   videos: [],
   differentiators: [
-    { title: "13.5% — stated on the label", text: "The vitamin C percentage is right in the name, so you know exactly what you're applying." },
+    { title: "Vitamin C, right up front", text: "Ascorbic acid is listed second on the US label — right after water." },
     { title: "Ampoule-strength, serum-easy", text: "Concentrated like an ampoule, but light enough to use every day as your serum step." },
     { title: "Korean skincare know-how", text: "Developed in Korea, where layering lightweight, targeted steps is how routines are built." },
   ],
@@ -123,7 +123,7 @@ export const AMPOULE: ProductContent = {
       name: "Pure Vitamin C",
       inci: "Ascorbic Acid",
       role: "Brightening antioxidant",
-      detail: "The most studied form of vitamin C in skincare. At 13.5% it's the hero of this formula, helping skin look brighter and more even.",
+      detail: "The most studied form of vitamin C in skincare and the hero of this formula, listed second on the label. It helps skin look brighter and more even.",
       status: "verified",
     },
     {
@@ -169,9 +169,9 @@ export const AMPOULE: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "Vitamin C 13.5% Ampoule Serum | UNI&CORE Korean Skincare",
+    title: "Vitamin C Ampoule Serum | UNI&CORE Vita C 13.5 Korean Skincare",
     description:
-      "Meet the UNI&CORE Vita C 13.5 Super Brightening Ampoule — a 13.5% pure vitamin C serum from Korea for brighter, radiant-looking skin. Shop on Amazon.",
+      "Meet the UNI&CORE Vita C 13.5 Super Brightening Ampoule — a pure vitamin C (ascorbic acid) serum from Korea for brighter, radiant-looking skin. Shop on Amazon.",
     keywords: ["vitamin C 13.5 serum", "vitamin C ampoule", "pure vitamin C serum", "brightening ampoule", "Korean vitamin C serum", "skin radiance serum", "UNI&CORE"],
   },
 };
