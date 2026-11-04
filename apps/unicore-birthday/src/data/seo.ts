@@ -1,9 +1,24 @@
+/** 검색 노출(SEO) 설정 — 구글·네이버 공통. 인증 코드는 환경변수로 주입 */
 export const seo = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://birthday.unincore.com",
-  title: "UNI&CORE 1ST BIRTHDAY CREAM — 피부의 첫 번째 생일, SKIN RE:BIRTH",
+  siteName: "UNI&CORE 1ST BIRTHDAY CREAM",
+  title: "유니앤코어 1ST 버스데이 크림 | 피부의 첫 번째 생일, SKIN RE:BIRTH",
+  shortTitle: "UNI&CORE 1ST BIRTHDAY CREAM",
   description:
-    "유니앤코어 퍼스트 벌스데이 크림. 3세대 인삼 유래 PDRN, EGF·IGF·FGF·KGF, 아세틸헥사펩타이드-8, 시카 카밍 컴플렉스. 4주 인체적용시험 볼 리프팅 개선율 48.33%, 목 주름 감소율 19.06%.",
-  keywords: ["유니앤코어", "벌스데이 크림", "1ST BIRTHDAY CREAM", "인삼 PDRN 크림", "탄력 크림", "PDRN 크림", "SKIN RE:BIRTH"],
-  ogImage: "/media/stills/03_box_black_clean.jpg",
+    "유니앤코어 퍼스트 벌스데이 크림(1ST BIRTHDAY CREAM). 3세대 인삼 유래 PDRN, 노벨상 성분 EGF를 포함한 4GF 성장인자, 아세틸헥사펩타이드-8, 시카 카밍 컴플렉스. 4주 인체적용시험 볼 리프팅 개선율 48.33%, 목 주름 감소율 19.06%, 피부 이상반응 0건. 시간을 되돌려 처음으로 맞이할 내 피부의 첫 번째 생일.",
+  keywords: [
+    "유니앤코어", "UNI&CORE", "유니앤코어 벌스데이 크림", "1ST BIRTHDAY CREAM", "퍼스트 벌스데이 크림", "버스데이 크림",
+    "인삼 PDRN 크림", "3세대 PDRN", "PDRN 크림", "EGF 크림", "성장인자 크림", "4GF", "아세틸헥사펩타이드-8", "펩타이드 크림",
+    "시카 크림", "탄력 크림", "볼 리프팅 크림", "목주름 크림", "표정주름 크림", "안티에이징 크림", "피부 재생 크림", "프리미엄 크림",
+    "SKIN RE:BIRTH", "피부의 첫 번째 생일", "인체적용시험 크림",
+  ],
+  ogImage: "/og/og-1200x630.jpg",
+  ogImageSquare: "/og/og-square-1200.jpg",
   locale: "ko_KR",
+  /** 서치콘솔/서치어드바이저 인증 — Vercel 환경변수로 설정 */
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+    naver: process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || "",
+  },
+  publishedAt: "2026-11-03",
 } as const;
