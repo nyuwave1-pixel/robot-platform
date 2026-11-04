@@ -15,6 +15,21 @@ import type { ShaderName } from "./shaders";
  * `progressFrom` names an element whose scroll progress (0 → 1 while it passes
  * through the viewport) drives uProgress; it defaults to the stage's parent.
  */
+let gateDone = false;
+let idleScheduled = false;
+/** Desktop fallback: start the effects after a few idle seconds even without interaction. */
+function scheduleIdleGate() {
+  if (idleScheduled || typeof window === "undefined") return;
+  idleScheduled = true;
+  const mark = () => (gateDone = true);
+  ["pointerdown", "pointermove", "wheel", "touchstart", "scroll", "keydown"].forEach((e) => window.addEventListener(e, mark, { passive: true, once: true }));
+  if (window.matchMedia("(pointer: coarse)").matches) return; // touch devices scroll right away
+  window.setTimeout(() => {
+    gateDone = true;
+    window.dispatchEvent(new Event("uc-fx-ready"));
+  }, 6000);
+}
+
 export function ShaderStage({ shader, className = "", progressFrom }: { shader: ShaderName; className?: string; progressFrom?: string }) {
   const host = useRef<HTMLDivElement>(null);
 
@@ -118,18 +133,37 @@ export function ShaderStage({ shader, className = "", progressFrom }: { shader: 
       };
     };
 
-    // Load three.js only when the stage is about to be seen.
-    const near = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        near.disconnect();
-        start();
-      }
-    }, { rootMargin: "400px" });
-    near.observe(el);
+    // Load three.js only when the stage is about to be seen — and never during the
+    // initial page load: wait for the visitor's first interaction (or, on desktop,
+    // a few idle seconds) so the first paint and the Amazon buttons stay fast.
+    let near: IntersectionObserver | null = null;
+    const arm = () => {
+      if (near || disposed) return;
+      near = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          near?.disconnect();
+          start();
+        }
+      }, { rootMargin: "400px" });
+      near.observe(el);
+    };
+    const events = ["pointerdown", "pointermove", "wheel", "touchstart", "scroll", "keydown"] as const;
+    const onFirst = () => {
+      events.forEach((e) => window.removeEventListener(e, onFirst));
+      arm();
+    };
+    if (gateDone) arm();
+    else {
+      events.forEach((e) => window.addEventListener(e, onFirst, { passive: true, once: true }));
+      window.addEventListener("uc-fx-ready", onFirst, { once: true });
+      scheduleIdleGate();
+    }
 
     return () => {
       disposed = true;
-      near.disconnect();
+      events.forEach((e) => window.removeEventListener(e, onFirst));
+      window.removeEventListener("uc-fx-ready", onFirst);
+      near?.disconnect();
       cleanup();
     };
   }, [shader, progressFrom]);

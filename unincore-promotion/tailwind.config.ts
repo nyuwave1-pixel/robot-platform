@@ -8,7 +8,7 @@ export default {
         ivory: "#F7F2EA",
         cream: "#F4EDE3",
         sand: "#E7DBCB",
-        ink: { DEFAULT: "#1D1B18", soft: "#4A4540", mute: "#7A726A" },
+        ink: { DEFAULT: "#1D1B18", soft: "#4A4540", mute: "#6B635C" },
         // VITA C Collection palette (luxury K-beauty: ivory base, champagne/citrus gold accents)
         citrus: { DEFAULT: "#C6A16A", deep: "#94713F", light: "#F1E6D2" },
         sun: { DEFAULT: "#E9B94D", light: "#FBF0CF" },

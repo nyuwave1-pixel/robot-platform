@@ -1,3 +1,4 @@
+import { preload } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -57,6 +58,8 @@ function BuyButton({ p, location, label, className = "btn-gold" }: { p: ProductC
 }
 
 export default async function HomePage() {
+  // The hero film poster is the LCP element; let the browser fetch it before hydration.
+  preload(FILMS["brand-intro"].poster, { as: "image", fetchPriority: "high" });
   const all = await getProducts();
   const products = byKey(all.map(publicView));
   const get = (k: string) => products.find((p) => p.key === k);
