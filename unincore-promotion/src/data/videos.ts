@@ -70,3 +70,49 @@ export const BRAND_FILMS = {
   mask: film("mask", "Vita C Super Brightening Mask — the film", "PT14S"),
   ampoule: film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"),
 } as const satisfies Record<BrandFilm["id"], BrandFilm>;
+
+/* ------------------------------------------------------------------ */
+/* Motion films (home page): intro, scroll-scrubbed and ambient layers  */
+/* ------------------------------------------------------------------ */
+
+/** Any film with an MP4 source, optional WebM and a poster. FilmSlot fits this too. */
+export interface Film {
+  src: string;
+  webm?: string;
+  mobileSrc?: string;
+  poster: string;
+}
+
+const motion = (name: string): Film => ({ src: `/films/${name}.mp4`, webm: `/films/${name}.webm`, poster: `/films/${name}.webp` });
+
+/**
+ * Web encodes of the supplied Google Flow clips (1280×720, no audio, WebP poster).
+ * The two scrub films use a 4-frame keyframe interval so they can be scrubbed
+ * backwards smoothly. Clips that show packaging render the label text
+ * inaccurately, so they are pre-blurred at encode time (*-ambient) and used only
+ * as backgrounds behind the official product photos — never as product shots.
+ */
+export const MOTION = {
+  /** Intro: translucent lemon slice turning in gold bokeh (no packaging). */
+  introLemon: motion("intro-lemon"),
+  /** Vitamin C story: lemon slice sinking into water (no packaging). */
+  storyLemonWater: motion("story-lemon-water"),
+  /** Wash interlude: powder pours into water and turns into foam — scroll-scrubbed. */
+  washPowderFoam: motion("wash-powder-foam"),
+  /** Ampoule interlude: a golden serum drop splashing — scroll-scrubbed. */
+  ampouleSerumDrop: motion("ampoule-serum-drop"),
+} satisfies Record<string, Film>;
+
+/** Pre-blurred ambient backgrounds made from the packaging clips. */
+export const AMBIENT_FILM = {
+  wash: motion("wash-ambient"),
+  mask: motion("mask-ambient"),
+  ampoule: motion("ampoule-ambient"),
+} satisfies Record<string, Film>;
+
+/** Texture loop per product (graded seamless loops from the FILMS slots). */
+export const TEXTURE_FILM = {
+  wash: FILMS["powder-wash"],
+  mask: FILMS["mask-essence"],
+  ampoule: FILMS["ampoule-texture"],
+} as const;

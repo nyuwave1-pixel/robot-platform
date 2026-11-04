@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BRAND } from "@/data/brand";
 import { claimAudio, releaseAudio, startAmbientPad } from "@/lib/audio";
+import type { Film } from "@/data/videos";
 
 const KEY = "uc_intro_seen";
 const DURATION = 8200;
@@ -15,9 +16,10 @@ const DURATION = 8200;
  */
 const DECIDE = `try{var e=document.getElementById('vc-intro');var q=/[?&]intro=1/.test(location.search);var s=null;try{s=localStorage.getItem('${KEY}')}catch(_){}var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(e&&(q||(!s&&!rm&&!navigator.webdriver))){e.setAttribute('data-state','play');document.documentElement.style.overflow='hidden'}}catch(_){}`;
 
-export function Intro({ products }: { products: { key: string; name: string; image?: string }[] }) {
+export function Intro({ products, film }: { products: { key: string; name: string; image?: string }[]; film?: Film }) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const stopSound = useRef<null | (() => void)>(null);
   const [playing, setPlaying] = useState(false);
   const [sound, setSound] = useState(false);
@@ -42,6 +44,12 @@ export function Intro({ products }: { products: { key: string; name: string; ima
     if (!el || el.getAttribute("data-state") !== "play") return;
     setPlaying(true);
     const timer = setTimeout(finish, DURATION);
+    const v = video.current;
+    if (v && film) {
+      v.innerHTML = `${film.webm ? `<source src="${film.webm}" type="video/webm">` : ""}<source src="${film.src}" type="video/mp4">`;
+      v.load();
+      v.play().catch(() => {});
+    }
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && finish();
     window.addEventListener("keydown", onKey);
 
@@ -95,7 +103,7 @@ export function Intro({ products }: { products: { key: string; name: string; ima
       clearTimeout(timer);
       window.removeEventListener("keydown", onKey);
     };
-  }, [finish]);
+  }, [finish, film]);
 
   const toggleSound = () => {
     if (sound) {
@@ -121,6 +129,7 @@ export function Intro({ products }: { products: { key: string; name: string; ima
   return (
     <>
       <div ref={root} id="vc-intro" className="vc-intro" data-state="off" suppressHydrationWarning role="dialog" aria-modal="true" aria-label={`${BRAND.name} ${BRAND.collection} intro`}>
+        {film && <video ref={video} className="vc-intro-film" poster={film.poster} muted playsInline preload="none" aria-hidden />}
         <canvas ref={canvas} className="vc-intro-dust" aria-hidden />
         <div className="vc-intro-orb" aria-hidden />
         <div className="vc-intro-copy">

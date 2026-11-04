@@ -1,5 +1,4 @@
 import type { ProductKey } from "@/content/types";
-import type { FilmSlot } from "./videos";
 
 /**
  * Per-product cinematic direction. Each product has its own "hero material"
@@ -22,7 +21,6 @@ export interface ProductScene {
   buy: string;
   /** Short label for tight spots (mobile purchase bar). */
   buyShort: string;
-  film: FilmSlot["id"];
   /** Section theme: light sections sit on ivory, dark ones on obsidian. */
   tone: "light" | "dark";
 }
@@ -38,7 +36,6 @@ export const SCENES: Record<ProductKey, ProductScene> = {
     discover: "Discover Powder Wash",
     buy: "Buy Vita C Enzyme Powder Wash",
     buyShort: "Buy Powder Wash",
-    film: "powder-wash",
     tone: "light",
   },
   mask: {
@@ -51,7 +48,6 @@ export const SCENES: Record<ProductKey, ProductScene> = {
     discover: "Discover Brightening Mask",
     buy: "Buy Vita C Super Brightening Mask",
     buyShort: "Buy the Mask",
-    film: "mask-essence",
     tone: "light",
   },
   ampoule: {
@@ -64,7 +60,6 @@ export const SCENES: Record<ProductKey, ProductScene> = {
     discover: "Discover Vita C 13.5",
     buy: "Buy Vita C 13.5 Super Brightening Ampoule",
     buyShort: "Buy Vita C 13.5",
-    film: "ampoule-texture",
     tone: "dark",
   },
 };

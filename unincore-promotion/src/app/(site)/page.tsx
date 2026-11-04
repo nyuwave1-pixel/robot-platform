@@ -11,8 +11,11 @@ import { PromoBadge } from "@/components/site/PromoBadge";
 import { JsonLd } from "@/components/site/JsonLd";
 import { BRAND } from "@/data/brand";
 import { SCENES, RITUAL_ORDER } from "@/data/scenes";
-import { BRAND_FILMS, FILMS, hasFilm } from "@/data/videos";
+import { BRAND_FILMS, FILMS, MOTION, TEXTURE_FILM, AMBIENT_FILM } from "@/data/videos";
 import { BrandFilm } from "@/components/vitac/BrandFilm";
+import { FilmLayer } from "@/components/vitac/FilmLayer";
+import { ScrubFilm } from "@/components/vitac/ScrubFilm";
+import { ScrollProgress } from "@/components/vitac/ScrollProgress";
 import { Intro } from "@/components/vitac/Intro";
 import { MotionProvider } from "@/components/vitac/MotionProvider";
 import { ShaderStage } from "@/components/vitac/ShaderStage";
@@ -77,17 +80,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <Intro products={products.map((p) => ({ key: p.key, name: p.name, image: p.heroImage }))} />
+      <Intro film={MOTION.introLemon} products={products.map((p) => ({ key: p.key, name: p.name, image: p.heroImage }))} />
       <MotionProvider />
 
       {/* 01 HERO */}
       <section id="hero" className="relative isolate overflow-hidden bg-night text-ivory">
-        {hasFilm(FILMS["brand-intro"]) && (
-          <video className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover opacity-40 motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster={FILMS["brand-intro"].poster} aria-hidden>
-            {FILMS["brand-intro"].webm && <source src={FILMS["brand-intro"].webm} type="video/webm" />}
-            <source src={FILMS["brand-intro"].src} type="video/mp4" />
-          </video>
-        )}
+        <div className="absolute inset-0 -z-20 opacity-40" aria-hidden>
+          <FilmLayer film={FILMS["brand-intro"]} />
+        </div>
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_70%_45%,rgba(233,185,77,.22),rgba(8,7,6,0)_70%)]" aria-hidden />
         <ShaderStage shader="gold" className="-z-10" />
         <div className="container-site grid items-center gap-8 pb-16 pt-8 lg:min-h-[min(92svh,860px)] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:py-20">
@@ -180,6 +180,17 @@ export default async function HomePage() {
             </ol>
           </div>
         </div>
+        <ScrollProgress className="container-site mt-20">
+          <figure className="vc-circle relative aspect-[16/10] overflow-hidden rounded-[36px] bg-cream sm:aspect-[21/9]">
+            <div className="vc-circle-clip absolute inset-0">
+              <FilmLayer film={MOTION.storyLemonWater} />
+            </div>
+            <figcaption className="vc-circle-caption absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-6 sm:p-10">
+              <span className="font-display text-3xl leading-tight text-ink sm:text-5xl">Inspired by citrus.<br />Formulated with vitamin C.</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-mute">Creative visualization</span>
+            </figcaption>
+          </figure>
+        </ScrollProgress>
       </section>
 
       {/* 03 THREE-STEP RITUAL — pinned horizontal scroll on desktop, vertical on mobile */}
@@ -230,6 +241,9 @@ export default async function HomePage() {
       {/* 04 PRODUCT 01 — ENZYME POWDER WASH: powder meets water, turns into foam */}
       {wash && (
         <section id="wash" data-product-key="wash" className="vc-scene vc-scene-wash relative isolate overflow-hidden">
+          <div className="absolute inset-0 -z-20 opacity-60 mix-blend-multiply" aria-hidden>
+            <FilmLayer film={AMBIENT_FILM.wash} />
+          </div>
           <ShaderStage shader="powder" className="-z-10" />
           <div className="container-site grid items-center gap-12 py-24 lg:grid-cols-2 lg:py-32">
             <TiltProduct src={wash.heroImage || ""} alt={wash.name} className="mx-auto w-full max-w-[420px]" glow="rgba(255,255,255,.6)" />
@@ -237,10 +251,22 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+      {wash && (
+        <ScrubFilm
+          film={MOTION.washPowderFoam}
+          eyebrow="Step 01 · Vita C Enzyme Powder Wash"
+          captions={["Powder.", "Water.", "Foam."]}
+          note="Creative visualization. On your skin: one pouch, a little lukewarm water, a soft lather."
+          tone="light"
+        />
+      )}
 
       {/* 05 PRODUCT 02 — SUPER BRIGHTENING MASK: essence and sheet texture */}
       {mask && (
         <section id="mask" data-product-key="mask" className="vc-scene vc-scene-mask relative isolate overflow-hidden">
+          <div className="absolute inset-0 -z-20 opacity-50 mix-blend-multiply" aria-hidden>
+            <FilmLayer film={AMBIENT_FILM.mask} />
+          </div>
           <ShaderStage shader="essence" className="-z-10" />
           <div className="container-site grid items-center gap-12 py-24 lg:grid-cols-2 lg:py-32">
             <div className="order-2 lg:order-1">
@@ -251,10 +277,21 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 06 PRODUCT 03 — VITA C 13.5 AMPOULE: 13.5 typography and molten gold */}
+      {/* 06 PRODUCT 03 — VITA C 13.5 AMPOULE: one drop, then 13.5 typography and molten gold */}
+      {ampoule && (
+        <ScrubFilm
+          film={MOTION.ampouleSerumDrop}
+          eyebrow="Step 03 · Vita C 13.5 Super Brightening Ampoule"
+          captions={["One drop.", "Vitamin C.", "Your radiance."]}
+          note="Creative visualization of a serum drop."
+        />
+      )}
       {ampoule && (
         <section id="ampoule" data-product-key="ampoule" className="vc-scene relative isolate overflow-hidden bg-night text-ivory">
-          <ShaderStage shader="liquid" className="-z-10" />
+          <div className="absolute inset-0 -z-20 opacity-70" aria-hidden>
+            <FilmLayer film={AMBIENT_FILM.ampoule} />
+            <div className="absolute inset-0 bg-gradient-to-b from-night/70 via-night/40 to-night/80" />
+          </div>
           <div className="flex justify-center pt-20 [perspective:900px] sm:pt-24" aria-hidden>
             <span className="vc-135" data-zoom>
               13.5
@@ -305,18 +342,12 @@ export default async function HomePage() {
           <h2 className="h-section mt-4 max-w-3xl">Powder. Essence. Ampoule.</h2>
           <div className="mt-14 grid gap-5 md:grid-cols-3">
             {products.map((p) => {
-              const film = FILMS[SCENES[p.key].film];
+              const film = TEXTURE_FILM[p.key];
               return (
                 <figure key={p.key} className="group relative overflow-hidden rounded-[28px] bg-night ring-1 ring-ivory/10">
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    {hasFilm(film) ? (
-                      <video className="h-full w-full object-cover" autoPlay muted loop playsInline preload="none" poster={film.poster} aria-label={`${p.name} texture film`}>
-                        {film.webm && <source src={film.webm} type="video/webm" />}
-                        <source src={film.src} type="video/mp4" />
-                      </video>
-                    ) : (
-                      <Image src={p.visualImage || p.heroImage || ""} alt={`${p.name} key visual`} fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition duration-[1.6s] group-hover:scale-105" />
-                    )}
+                    <FilmLayer film={film} label={`${p.name}: ${p.texture.title} (creative visualization)`} className="transition duration-[1.6s] group-hover:scale-105" />
+                    <span className="absolute left-4 top-4 rounded-full bg-night/60 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-ivory/80 backdrop-blur">Creative visualization</span>
                   </div>
                   <figcaption className="p-6">
                     <p className="eyebrow !text-champagne">{SCENES[p.key].verb}</p>
@@ -376,12 +407,9 @@ export default async function HomePage() {
 
       {/* 10 FINAL COLLECTION */}
       <section id="shop" className="relative isolate overflow-hidden bg-night py-24 text-ivory sm:py-32" data-hide-sticky>
-        {hasFilm(FILMS["final-collection"]) && (
-          <video className="pointer-events-none absolute inset-0 -z-20 h-full w-full scale-110 object-cover opacity-25 blur-md motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster={FILMS["final-collection"].poster} aria-hidden>
-            {FILMS["final-collection"].webm && <source src={FILMS["final-collection"].webm} type="video/webm" />}
-            <source src={FILMS["final-collection"].src} type="video/mp4" />
-          </video>
-        )}
+        <div className="absolute inset-0 -z-20 scale-110 opacity-25 blur-md" aria-hidden>
+          <FilmLayer film={FILMS["final-collection"]} />
+        </div>
         <ShaderStage shader="gold" className="-z-10 opacity-70" />
         <div className="container-site">
           <div className="text-center">
