@@ -10,25 +10,3 @@ export const EVENTS = [
   "official_details_open",
 ] as const;
 export type EventName = (typeof EVENTS)[number];
-
-export const DEVICES = ["mobile", "tablet", "desktop"] as const;
-export type Device = (typeof DEVICES)[number];
-
-export interface TrackPayload {
-  e: EventName;
-  /** product key */
-  p?: string;
-  /** CTA placement, e.g. hero / sticky / final */
-  loc?: string;
-  ch?: string;
-  src?: string;
-  med?: string;
-  cmp?: string;
-  cnt?: string;
-  dev?: Device;
-  path?: string;
-  /** dedup id shared with the Meta Pixel event (for Conversions API) */
-  id?: string;
-  /** visitor allowed ad tracking (consent / no GPC) */
-  ad?: boolean;
-}

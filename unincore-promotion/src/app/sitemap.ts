@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next";
 import { getProducts } from "@/lib/cms";
 import { abs } from "@/lib/seo";
 
-export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getProducts();

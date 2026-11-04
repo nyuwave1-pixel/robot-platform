@@ -23,7 +23,6 @@ import { ShaderStage } from "@/components/vitac/ShaderStage";
 import { TiltProduct } from "@/components/vitac/TiltProduct";
 import { HomeStickyCTA } from "@/components/vitac/HomeStickyCTA";
 
-export const revalidate = 300;
 
 export const metadata: Metadata = pageMetadata({
   title: "UNI&CORE VITA C Collection | Korean Vitamin C Skincare on Amazon",

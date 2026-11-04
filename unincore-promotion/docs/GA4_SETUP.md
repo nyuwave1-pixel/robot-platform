@@ -60,10 +60,10 @@
 
 ## 8. 광고 캠페인 링크
 
-Meta·Google 광고 링크에는 UTM을 꼭 붙이세요. 관리자 화면 `/admin/links`의 UTM 빌더를 쓰면 자동으로 만들어집니다.
+Meta·Google 광고 링크에는 UTM을 꼭 붙이세요. 예: `https://promotion.unincore.com/?product=mask&utm_source=facebook&utm_medium=paid_social&utm_campaign=bfcm_2026` (`?product=`는 해당 제품 페이지로 바로 이동합니다).
 UTM이 붙은 방문은 `channel` 값과 GA4 기본 "세션 소스/매체"에 모두 반영됩니다.
 
 ## 참고: 아마존 이후 구매는 GA4에 안 보입니다
 
 구매는 Amazon.com에서 일어나므로 GA4가 알 수 없습니다. 실제 판매 기여는 **Amazon Attribution** 링크로 측정하세요.
-Attribution 링크를 만들면 관리자 화면 → 제품 → Attribution 칸에 채널별로 넣을 수 있고, 사이트가 방문자 채널에 맞는 링크로 자동 연결합니다.
+Attribution 링크를 만들어 주시면 `src/content/products.ts`의 `attribution`에 채널별(meta / google / email)로 넣고, 사이트가 방문자 채널에 맞는 링크로 자동 연결합니다.

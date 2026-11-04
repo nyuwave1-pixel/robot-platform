@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 import { extractAsin, resolveAmazonUrl, validateAmazonUrl } from "@/lib/amazon";
 import { formatPromoWindow, isPromoActive } from "@/lib/promo";
 import { detectChannel, cleanTag } from "@/lib/channel";
-import { productOverrideSchema, settingsSchema } from "@/lib/schemas";
-import { signSession, verifySession } from "@/lib/session";
 import { publicView } from "@/lib/visibility";
 import { DEFAULT_PRODUCTS, AMPOULE, MASK, WASH } from "@/content/products";
 
@@ -45,7 +43,11 @@ describe("Amazon links", () => {
 });
 
 describe("Promotions", () => {
-  const p = AMPOULE.promotion;
+  // The shipped promos are off until the Amazon deal is confirmed; test the window logic on an enabled copy.
+  const p = { ...AMPOULE.promotion, enabled: true };
+  it("ships disabled until the Amazon deal is confirmed", () => {
+    for (const x of DEFAULT_PRODUCTS) expect(isPromoActive(x.promotion, new Date("2026-11-25T12:00:00Z"))).toBe(false);
+  });
   it("is active only inside the BFCM window (US Pacific)", () => {
     expect(isPromoActive(p, new Date("2026-11-19T07:59:59Z"))).toBe(false); // Nov 18 23:59:59 PST
     expect(isPromoActive(p, new Date("2026-11-19T08:00:00Z"))).toBe(true);
@@ -101,26 +103,6 @@ describe("Verification gating", () => {
   });
 });
 
-describe("CMS validation", () => {
-  it("blocks saving a mismatched Amazon link", () => {
-    const r = productOverrideSchema.safeParse({ asin: "B0HJRKRKT7", amazonUrl: MASK.amazonUrl });
-    expect(r.success).toBe(false);
-  });
-  it("accepts a valid override", () => {
-    const r = productOverrideSchema.safeParse({ asin: "B0HJRKRKT7", amazonUrl: AMPOULE.amazonUrl, promotion: AMPOULE.promotion, seo: AMPOULE.seo });
-    expect(r.success).toBe(true);
-  });
-  it("rejects promotions that end before they start", () => {
-    const r = productOverrideSchema.safeParse({ promotion: { ...AMPOULE.promotion, endsAt: "2026-11-01T00:00:00-08:00" } });
-    expect(r.success).toBe(false);
-  });
-  it("validates tracking IDs", () => {
-    const base = { announcement: { enabled: true, text: "x" }, contactEmail: "", consentMode: "opt-out" };
-    expect(settingsSchema.safeParse({ ...base, tracking: { ga4Id: "G-ABC1234", gtmId: "", metaPixelId: "123456789012" } }).success).toBe(true);
-    expect(settingsSchema.safeParse({ ...base, tracking: { ga4Id: "<script>", gtmId: "", metaPixelId: "" } }).success).toBe(false);
-  });
-});
-
 describe("SEO uniqueness", () => {
   it("every product has a unique title and description within length limits", () => {
     const titles = DEFAULT_PRODUCTS.map((p) => p.seo.title);
@@ -129,29 +111,5 @@ describe("SEO uniqueness", () => {
     expect(new Set(descs).size).toBe(3);
     for (const t of titles) expect(t.length).toBeLessThanOrEqual(70);
     for (const d of descs) expect(d.length).toBeLessThanOrEqual(170);
-  });
-});
-
-describe("Admin sessions", () => {
-  it("round-trips and rejects tampering", async () => {
-    const tok = await signSession({ u: "admin", role: "admin" });
-    expect((await verifySession(tok))?.role).toBe("admin");
-    const [body, sig] = tok.split(".");
-    const forged = Buffer.from(JSON.stringify({ u: "x", role: "admin", exp: 9999999999 })).toString("base64url");
-    expect(await verifySession(`${forged}.${sig}`)).toBeNull();
-    expect(await verifySession(`${body}.AAAA`)).toBeNull();
-  });
-  it("rejects expired tokens", async () => {
-    const tok = await signSession({ u: "admin", role: "editor" }, -10);
-    expect(await verifySession(tok)).toBeNull();
-  });
-});
-
-import { counterFields, decodeEvent, encodeEvent, sanitize } from "@/lib/stats";
-describe("Event log encoding (Netlify Blobs)", () => {
-  it("round-trips to the same counter fields", () => {
-    const t = sanitize({ e: "amazon_cta_click", p: "mask", ch: "meta", dev: "mobile", loc: "sticky", cmp: "bfcm_2026", src: "facebook" })!;
-    const back = decodeEvent(encodeEvent(t))!;
-    expect(counterFields(back)).toEqual(counterFields(t));
   });
 });

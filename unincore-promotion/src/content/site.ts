@@ -23,7 +23,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     enabled: true,
     text: "Korean vitamin C skincare by UNI&CORE — now available on Amazon.com",
   },
-  // Set in /admin → Settings. Left empty until the brand confirms a US-facing inbox.
+  // Left empty until the brand confirms a US-facing inbox.
   contactEmail: "",
   consentMode: "opt-out",
 };

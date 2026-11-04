@@ -21,17 +21,15 @@ Amazon.com /dp/<ASIN>  (채널별 Amazon Attribution 링크)
 | `/products/vita-c-brightening-mask` | Vita C Super Brightening Mask (ASIN B0HGR6V48S) |
 | `/products/vita-c-enzyme-powder-wash` | Vita C Enzyme Powder Wash (ASIN B0HGQYFF13) |
 | `/privacy` `/terms` `/contact` `/disclaimer` | 정책 페이지 |
-| `/admin` | CMS 대시보드 (로그인 필요) |
 | `/?product=mask` | 광고용 단축 경로 → 제품 페이지로 이동 (UTM 보존) |
 | `/sitemap.xml` `/robots.txt` `/og/<slug>` | SEO |
 
 ## 기술 스택과 선택 이유
 
 - **Next.js 15 (App Router) + TypeScript + Tailwind CSS**: 같은 저장소의 기존 robot-platform과 동일한 스택이며 Vercel에 그대로 배포됩니다.
-- **ISR(5분) + 태그 재검증**: 페이지는 정적 HTML로 제공되고 CMS에서 저장하면 즉시 갱신됩니다. 첫 로드 JS는 약 114 kB입니다.
-- **저장소: Upstash Redis REST (Vercel Marketplace)**: SDK 없이 `fetch`만 사용합니다. 저장소가 없어도 사이트는 기본 콘텐츠로 동작합니다.
-- **GSAP / Framer Motion은 사용하지 않음**: 스크롤 등장 효과는 IntersectionObserver 하나와 CSS로 처리했습니다. LCP와 INP를 위해 의도적으로 제외했습니다(`prefers-reduced-motion` 지원).
-- **추가 의존성은 `zod` 1개**(입력값 검증)입니다.
+- **완전 정적 아마존 랜딩 사이트**: 관리자(CMS)·저장소·서버 API가 없습니다. 모든 페이지가 빌드 때 정적 HTML로 만들어지고 Netlify CDN에서 제공됩니다.
+- **모든 버튼은 아마존 공식 리스팅으로**: 첫 화면, 테스트 결과, 상세, 하단, 모바일 고정 버튼이 모두 Amazon.com으로 연결되며 GA4 `amazon_cta_click`으로 측정됩니다.
+- **모션**: three.js 셰이더(첫 상호작용 후 로드), GSAP ScrollTrigger + Lenis, 실제 제품 사진 기반 루프 영상. `prefers-reduced-motion`이면 정지 화면만 보여줍니다.
 
 기존 `robot-platform` 앱(basePath `/robot-platform`)과 코드·빌드·배포가 완전히 분리되어 있습니다. 루트 `tsconfig.json`도 이 폴더를 제외하도록 설정했습니다.
 
@@ -40,8 +38,7 @@ Amazon.com /dp/<ASIN>  (채널별 Amazon Attribution 링크)
 ```bash
 cd unincore-promotion
 npm install
-cp .env.example .env.local   # 값 채우기
-npm run dev                   # http://localhost:3100  (로컬은 ./.data 에 저장)
+npm run dev                   # http://localhost:3100
 ```
 
 ```bash
@@ -49,10 +46,23 @@ npm run typecheck && npm test && npm run build
 ```
 
 ```bash
-# E2E QA (서버 실행 후)
-STORAGE_DRIVER=file ADMIN_PASSWORD=... npm start
-ADMIN_PASSWORD=... npm run qa     # → qa-artifacts/qa-report.md
+# E2E QA (GA4 ID를 넣고 빌드 → 서버 실행 후)
+NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5 npm run build && npm start
+npm run qa                        # → qa-artifacts/qa-report.md
 ```
+
+## 콘텐츠 수정
+
+관리자 화면이 없으므로 문구·수치·아마존 링크·프로모션은 코드에서 고칩니다.
+
+| 무엇을 | 파일 |
+|---|---|
+| 제품 문구, 성분, 사용법, FAQ, 테스트 수치, 아마존 URL/ASIN, SEO 제목·설명 | `src/content/products.ts` |
+| 블랙프라이데이 등 프로모션 (할인율, 기간, `enabled`) | `src/content/products.ts`의 `bfcm()` / 각 제품 `promotion` |
+| 홈 카피 | `src/data/brand.ts`, `src/data/scenes.ts` |
+| GA4 / GTM / Meta Pixel ID | Netlify 환경 변수 `NEXT_PUBLIC_GA4_ID` 등 (`src/content/site.ts`) |
+
+수정 → 커밋 → 배포하면 반영됩니다.
 
 ## 영상 (VITA C films)
 
@@ -69,9 +79,9 @@ ADMIN_PASSWORD=... npm run qa     # → qa-artifacts/qa-report.md
 ## 문서
 
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Vercel 배포, DNS(CNAME), 환경변수, 출시 체크리스트
-- [docs/OPERATOR_MANUAL.md](docs/OPERATOR_MANUAL.md): 운영자 매뉴얼 (CMS, 프로모션, 링크, 검증 절차)
+- [docs/GA4_SETUP.md](docs/GA4_SETUP.md): GA4 이벤트 구조와 관리 화면 설정 체크리스트
+- [docs/flow-product-prompts.md](docs/flow-product-prompts.md): 라벨 정확한 제품 영상용 Google Flow 프롬프트
 - [docs/TRACKING.md](docs/TRACKING.md): GA4 · GTM · Meta Pixel · CAPI · Amazon Attribution · UTM 설계
 - [docs/SEO_REPORT.md](docs/SEO_REPORT.md): SEO 검수 보고서
 - [docs/AMAZON_SEO_GUIDE.md](docs/AMAZON_SEO_GUIDE.md): Amazon 리스팅(내부 검색) 콘텐츠 가이드
-- [docs/DATA_MODEL.md](docs/DATA_MODEL.md): 데이터 구조 (CMS · 통계 키)
 - [docs/QA_REPORT.md](docs/QA_REPORT.md): 테스트 결과

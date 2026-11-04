@@ -2,7 +2,7 @@
 
 import { detectChannel, UTM_KEYS, type Utm } from "./channel";
 import type { Channel } from "@/content/types";
-import type { Device, EventName, TrackPayload } from "./events";
+import type { EventName } from "./events";
 
 declare global {
   interface Window {
@@ -112,13 +112,6 @@ export function configureAnalytics(opts: { consentMode: "opt-out" | "opt-in"; ta
 }
 
 // ---------------- events ----------------
-function device(): Device {
-  const w = window.innerWidth;
-  const ua = navigator.userAgent;
-  if (/iPad|Tablet/i.test(ua) || (w >= 640 && w < 1024 && "ontouchstart" in window)) return "tablet";
-  if (/Mobi|Android|iPhone/i.test(ua) || w < 640) return "mobile";
-  return "desktop";
-}
 
 function safeHost(url: string): string | undefined {
   try {
@@ -144,7 +137,6 @@ const META_EVENT_MAP: Partial<Record<EventName, [standard: boolean, name: string
 /**
  * Internal event → GA4 event name. Where GA4 has a recommended/automatic event
  * we use its name so it lands in the standard reports; the rest stay custom.
- * (The first-party /api/track counters keep the internal names.)
  */
 const GA4_NAME: Partial<Record<EventName, string>> = {
   promotion_view: "view_promotion",
@@ -171,7 +163,6 @@ export interface TrackParams {
  * Fire one event to every configured destination:
  *  - dataLayer (GTM) and gtag (GA4)
  *  - Meta Pixel (only when ad tracking is allowed)
- *  - first-party /api/track (aggregated counters for the admin dashboard; no cookies, no PII)
  */
 export function track(name: EventName, params: TrackParams = {}) {
   if (typeof window === "undefined") return;
@@ -204,30 +195,5 @@ export function track(name: EventName, params: TrackParams = {}) {
       ? { content_ids: [params.product.asin], content_type: "product", content_name: params.product.name, cta_location: params.location }
       : { label: params.label };
     window.fbq(meta[0] ? "track" : "trackCustom", meta[1], custom, { eventID: id });
-  }
-
-  const payload: TrackPayload = {
-    e: name,
-    p: params.product?.key,
-    loc: params.location,
-    ch: channel,
-    src: attr.utm_source,
-    med: attr.utm_medium,
-    cmp: attr.utm_campaign,
-    cnt: attr.utm_content,
-    dev: device(),
-    path: window.location.pathname,
-    id,
-    ad: allowed,
-  };
-  const body = JSON.stringify(payload);
-  try {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon("/api/track", new Blob([body], { type: "application/json" }));
-    } else {
-      void fetch("/api/track", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } });
-    }
-  } catch {
-    /* never break the page for analytics */
   }
 }

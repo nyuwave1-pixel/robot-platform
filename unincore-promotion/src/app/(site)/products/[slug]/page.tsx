@@ -7,7 +7,6 @@ import { publicView } from "@/lib/visibility";
 import { ProductLanding } from "@/components/product/ProductLanding";
 import { JsonLd } from "@/components/site/JsonLd";
 
-export const revalidate = 300;
 // Note: no `dynamicParams = false` — in Next 15.5 it breaks on-demand revalidation (NoFallbackError).
 // Unknown slugs still 404 via notFound().
 

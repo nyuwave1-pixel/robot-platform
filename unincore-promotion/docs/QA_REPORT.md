@@ -1,5 +1,7 @@
 # 테스트 결과 (광고 전환 이벤트 포함)
 
+> 참고(2026-11-04): 관리자(CMS)·/api 기능은 제거되었습니다. 이 문서의 관리자 관련 내용은 이전 버전 기준입니다.
+
 실행일 2026-11-03 · Next.js 15.5.4 production build (`next start`) · Chromium (Playwright)
 
 ## 요약

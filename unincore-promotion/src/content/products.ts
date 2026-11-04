@@ -30,7 +30,9 @@ const AMPOULE_TEST =
 
 function bfcm(discountPct: number, extra: Partial<Promotion> = {}): Promotion {
   return {
-    enabled: true,
+    // Off until the actual Amazon deal (rate + dates per product) is confirmed —
+    // the site must never advertise a discount Amazon isn't running.
+    enabled: false,
     ...BFCM_2026,
     discountPct,
     headline: `Black Friday: ${discountPct}% off on Amazon`,
