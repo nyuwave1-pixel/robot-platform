@@ -18,7 +18,8 @@ export const seo = {
   /** 서치콘솔/서치어드바이저 인증 — Vercel 환경변수로 설정 */
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
-    naver: process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || "",
+    // 네이버 서치어드바이저 HTML 태그 인증 코드(공개값) — 환경변수로 교체 가능
+    naver: process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION || "d1fe09cdf7cfb7ae5378ab9be0f95c5ab8d238f7",
   },
   publishedAt: "2026-11-03",
 } as const;
