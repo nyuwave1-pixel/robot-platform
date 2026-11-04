@@ -29,7 +29,7 @@ export default function Moisture() {
             <p className="body-ko">{t.copy.s09.cicaBridge1} <b style={{ color: "var(--ivory)", fontWeight: 500 }}>{t.copy.s09.cicaBridge2}</b></p>
           </div>
           <div className={s.stack}>
-            <figure className={s.moistFig}><img src={detail.ingCica} alt={t.ui.moistureAlt} loading="lazy" /></figure>
+            <figure className={s.moistFig}><img src={detail.ingCica} alt={t.ui.moistureAlt} loading="lazy" decoding="async" width={476} height={444} /></figure>
             <Reveal as="h3" mode="weight" className={`headline-ko ${s.h3}`}><b>{t.copy.s09.h}</b></Reveal>
             <p className="body-ko">{t.copy.s09.l1} {t.copy.s09.l2}</p>
             <p className={`headline-ko ${s.lead}`}><b>{t.copy.s09.l3}</b></p>

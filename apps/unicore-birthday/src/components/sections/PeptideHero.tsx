@@ -74,7 +74,7 @@ export default function PeptideHero() {
           {mols.map((m, i) => (
             <li key={m.name} data-mol className={s.pepMol}>
               <i data-ring className={s.pepRing} aria-hidden="true" />
-              <img src={m.img} alt="" loading="lazy" />
+              <img src={m.img} alt="" loading="lazy" decoding="async" width={520} height={540} />
               <b>{m.name}</b>
               {m.desc && <span>{m.desc}</span>}
               <em aria-hidden="true">0{i + 1}</em>

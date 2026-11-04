@@ -115,6 +115,9 @@ async function main() {
         const src = path.join(detailDir, f), out = src.replace(/\.jpg$/, ".webp");
         if (need(out)) await ff(["-i", src, "-vf", "crop=iw-8:ih-8:4:4,scale='min(1600,iw)':-2", "-c:v", "libwebp", "-quality", "84", out]);
       }
+      // 히어로 캔들 배경 모바일 변형(900px) — 모바일 LCP 용량 절감
+      const candle = path.join(detailDir, "d01_candle_1st.webp"), candleM = path.join(detailDir, "d01_candle_1st_m.webp");
+      if (existsSync(candle) && need(candleM)) await ff(["-i", candle, "-vf", "scale=900:-2", "-c:v", "libwebp", "-quality", "80", candleM]);
       console.log("[assets] detail visuals ready");
     } else console.log("[assets] cached detail visuals");
   } catch (e) {

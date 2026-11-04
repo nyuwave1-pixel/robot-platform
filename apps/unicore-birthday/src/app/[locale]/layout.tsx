@@ -69,19 +69,25 @@ export const viewport: Viewport = { themeColor: "#080706", colorScheme: "dark", 
 export default async function RootLayout({ children, params }: { children: React.ReactNode } & Params) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  const fontCss = [
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@400;500;600&display=swap",
+    ...(locale === "zh" ? ["https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@200;300;400;500;600;700&display=swap"] : []),
+    "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css",
+  ];
   return (
     <html lang={localeMeta[locale].htmlLang} data-locale={locale}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@400;500;600&display=swap" />
-        {locale === "zh" && (
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@200;300;400;500;600;700&display=swap" />
-        )}
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-        {/* LCP 후보 — 데스크톱은 캔들 배경, 모바일은 세로 필름 포스터 */}
+        {/* 폰트 CSS 는 렌더 차단 없이 로드(preload → 스크립트로 삽입, JS 미지원 시 noscript 폴백). font-display: swap */}
+        {fontCss.map((h) => <link key={h} rel="preload" as="style" href={h} />)}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){${JSON.stringify(fontCss)}.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;document.head.appendChild(l)})})();` }} />
+        <noscript>{fontCss.map((h) => <link key={h} rel="stylesheet" href={h} />)}</noscript>
+        {/* LCP 후보 선로드 — 히어로 캔들 배경(데스크톱 1600px / 모바일 900px) + 인트로 포스터 */}
         <link rel="preload" as="image" href="/media/detail/d01_candle_1st.webp" media="(min-width: 768px)" />
+        <link rel="preload" as="image" href="/media/detail/d01_candle_1st_m.webp" media="(max-width: 767px)" />
+        <link rel="preload" as="image" href="/media/posters/film_poster.webp" media="(min-width: 768px)" />
         <link rel="preload" as="image" href="/media/posters/film_portrait_poster.webp" media="(max-width: 767px)" />
       </head>
       <body>{children}</body>

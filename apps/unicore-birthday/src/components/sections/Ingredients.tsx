@@ -30,7 +30,7 @@ export default function Ingredients() {
           {!mobile && <div style={{ flex: "0 0 32vw" }} aria-hidden="true" />}
           {t.ingredientsList.map((ing) => (
             <article key={ing.id} className={s.ingCard}>
-              {ing.video ? <BgVideo src={ing.video.src} poster={ing.video.poster} fallback={ing.image} className={s.ingImg} /> : ing.image && <img className={s.ingImg} src={ing.image} alt="" loading="lazy" />}
+              {ing.video ? <BgVideo src={ing.video.src} poster={ing.video.poster} fallback={ing.image} className={s.ingImg} /> : ing.image && <img className={s.ingImg} src={ing.image} alt="" loading="lazy" decoding="async" width={476} height={444} />}
               <div className={s.ingShade} aria-hidden="true" />
               {ing.nobel && <span className={s.nobelBadge}><i aria-hidden="true" />{t.ui.nobelBadge}</span>}
               <span className={s.ingIdx}>{ing.index}</span>

@@ -42,7 +42,7 @@ export default function HowToUse() {
             {t.howto.steps.map((st) => (
               <li key={st.step} className={s.step}>
                 <b>{st.step}</b>
-                <h4>{st.area}</h4>
+                <h3>{st.area}</h3>
                 <p>{st.line1}<br />{st.line2}</p>
               </li>
             ))}
