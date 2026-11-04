@@ -375,3 +375,7 @@ img.ingImg { transform: scale(1.1); }
   .ingHead { top: 24px; }
   .chap { letter-spacing: .2em; font-size: 9px; }
 }
+
+/* forced-dark-proof gold text fills */
+.heroKoEm, .finalKoBig b, .cardNum, .nobelEgf i, .pepBig span { background: var(--gold-grad) center / 100% 100% no-repeat !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+.nobelTokenHi { background: var(--gold-grad-btn) center / 100% 100% no-repeat; color: #1a120c; }
