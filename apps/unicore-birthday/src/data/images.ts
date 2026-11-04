@@ -38,6 +38,9 @@ export const productLoop = { src: "/media/product/silk_jar_720.mp4", poster: "/m
 /** 임상 안전성(이상반응 0건) 배경 — 스포트라이트 용기 영상(사용자 제공, 무음 루프) */
 export const safetyLoop = { src: "/media/product/spotlight_jar_720.mp4", poster: "/media/product/spotlight_jar_poster.webp" } as const;
 
+/** 더 마스터피스 — 열린 선물상자 속 제품 영상(사용자 제공, 무음 720p, 0.5초 키프레임으로 스크럽 최적화) */
+export const boxOpen = { src: "/media/product/box_open_720.mp4", poster: "/media/product/box_open_poster.webp" } as const;
+
 /** 성분·패키지 클립 (사용자 제공, 무음 720p) */
 export const clips = {
   pdrnGinseng: { src: "/media/product/ing_v1_720.mp4", poster: "/media/product/ing_v1_poster.webp" },

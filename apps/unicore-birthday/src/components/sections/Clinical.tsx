@@ -59,7 +59,8 @@ export default function Clinical() {
 
         {/* 48.33% */}
         <div className={s.metric}>
-          <div className={s.bgStill} style={{ backgroundImage: `url(${detail.modelJar})`, backgroundPosition: "right center", opacity: 0.5, maskImage: "linear-gradient(90deg, transparent 25%, #000 65%)", WebkitMaskImage: "linear-gradient(90deg, transparent 25%, #000 65%)" }} aria-hidden="true" />
+          <div className={s.bgStill} style={{ backgroundImage: `url(${detail.modelJar})`, backgroundPosition: "right center", opacity: 0.5, maskImage: "linear-gradient(90deg, transparent 22%, #000 60%, #000 90%, transparent 100%)", WebkitMaskImage: "linear-gradient(90deg, transparent 22%, #000 60%, #000 90%, transparent 100%)" }} aria-hidden="true" />
+          <div className={s.bgEdgeFade} aria-hidden="true" />
           <div className={s.metricInner}>
             <div className={s.stack}>
               <span className={s.metricKind}><i /><span className="caption">{trial.instrument} · 기기 측정</span></span>
@@ -75,7 +76,8 @@ export default function Clinical() {
 
         {/* 19.06% */}
         <div className={s.metric}>
-          <div className={s.bgStill} style={{ backgroundImage: `url(${detail.skinCheek})`, backgroundPosition: "left center", opacity: 0.35, maskImage: "linear-gradient(90deg, #000 30%, transparent 70%)", WebkitMaskImage: "linear-gradient(90deg, #000 30%, transparent 70%)" }} aria-hidden="true" />
+          <div className={s.bgStill} style={{ backgroundImage: `url(${detail.skinCheek})`, backgroundPosition: "left center", opacity: 0.35, maskImage: "linear-gradient(90deg, transparent 0%, #000 10%, #000 36%, transparent 70%)", WebkitMaskImage: "linear-gradient(90deg, transparent 0%, #000 10%, #000 36%, transparent 70%)" }} aria-hidden="true" />
+          <div className={s.bgEdgeFade} aria-hidden="true" />
           <div className={s.metricInner}>
             {neck.before && neck.after && <Bars before={neck.before} after={neck.after} unit="" title={`${copy.s04.neckChart.text}*`} />}
             <div className={s.stack}>
