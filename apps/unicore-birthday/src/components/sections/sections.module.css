@@ -207,7 +207,7 @@
 .sciBand b { font-size: clamp(16px, 1.5vw, 22px); color: var(--ivory); font-weight: 600; }
 .sciFig { margin: 0; position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; }
 .sciFig img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sciFig figcaption { position: absolute; left: 18px; bottom: 16px; font: 400 12px/1 var(--font-serif); letter-spacing: .4em; color: var(--ivory); }
+.sciFig figcaption { position: absolute; left: 18px; right: 18px; bottom: 16px; font: 400 12px/1.5 var(--font-serif); letter-spacing: .22em; color: var(--ivory); }
 .sciSkin { height: clamp(160px, 22vw, 280px); border-radius: 10px; background-size: cover; background-position: center; opacity: .9; }
 .sciCircles { display: flex; gap: clamp(14px, 2vw, 28px); flex-wrap: wrap; }
 .sciCircles figure { margin: 0; display: grid; gap: 10px; justify-items: center; width: clamp(120px, 14vw, 180px); }
@@ -384,3 +384,27 @@ img.ingImg { transform: scale(1.1); }
 /* forced-dark-proof gold text fills */
 .heroKoEm, .finalKoBig b, .cardNum, .nobelEgf i, .pepBig [data-ch] { background: var(--gold-grad) center / 100% 100% no-repeat !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
 .nobelTokenHi { background: var(--gold-grad-btn) center / 100% 100% no-repeat; color: #1a120c; }
+
+/* ---------- mobile: 넓은 자간의 대문자 라벨을 좁혀 영문·중문에서도 한 줄 유지 ---------- */
+@media (max-width: 767px) {
+  .heroEyebrow, .heroGrid .heroEyebrow { letter-spacing: .26em; }
+  .nobelEyebrow { letter-spacing: .24em; text-align: center; }
+  .sciFig figcaption { font-size: 11px; letter-spacing: .14em; }
+  .day b { letter-spacing: .18em; }
+  .step b, .ingIdx { letter-spacing: .22em; }
+  .heroFrameCap { letter-spacing: .2em; }
+  .chartTitle { letter-spacing: .12em; }
+  .nobelL0 { font-size: 14px; line-height: 1.5; }
+  .pepQ { font-size: 15px; line-height: 1.55; }
+}
+
+/* ---------- 영문 히어로/피날레 헤드라인: 영문은 글자 수가 많아 줄바꿈 허용 + 크기 한 단계 축소 ---------- */
+html[lang="en"] .heroKoEm { white-space: normal; font-size: clamp(32px, 4.1vw, 70px); line-height: 1.1; }
+html[lang="en"] .heroKoLine { font-size: clamp(18px, 2vw, 30px); }
+html[lang="en"] .finalKoBig b { font-size: clamp(30px, 4.6vw, 76px); }
+html[lang="en"] .nobelTail { font-size: clamp(28px, 4.6vw, 72px); }
+html[lang="en"] .pepBig { font-size: clamp(36px, 5.6vw, 92px); }
+@media (max-width: 900px) {
+  html[lang="en"] .heroKoEm, html[lang="en"] .heroGrid .heroKoEm { font-size: clamp(28px, 8vw, 42px); }
+  html[lang="en"] .pepBig { font-size: clamp(32px, 9.4vw, 52px); }
+}

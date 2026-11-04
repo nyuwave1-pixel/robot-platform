@@ -17,7 +17,7 @@ export const en: Messages = {
     },
     s01: {
       en: "YOUR SKIN HAS A BIRTHDAY.",
-      ko1: "Turn back time and welcome, for the very first time,",
+      ko1: "Turn back time and meet, for the first time,",
       ko2: "the first birthday of your skin",
       cake1: "The first birthday your skin has been waiting for",
       cake2: "UNI&CORE 1st Birthday Cream",

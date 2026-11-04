@@ -17,9 +17,10 @@
   --flame: #ffb86b;
   --flame-core: #fff1c9;
 
-  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
-  --font-kr: var(--font-pretendard), "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
-  --font-ui: var(--font-inter), Inter, system-ui, sans-serif;
+  /* 주의: 정의되지 않은 var() 를 섞으면 토큰 전체가 무효화되어 브라우저 기본 세리프로 떨어짐 — 실제 로드되는 패밀리만 나열 */
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-kr: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-ui: Inter, "Pretendard Variable", Pretendard, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-metal: cubic-bezier(0.7, 0, 0.2, 1);
@@ -138,8 +139,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 html[lang="zh-Hans"] { --font-kr: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Pretendard Variable", Pretendard, sans-serif; }
 html[lang="zh-Hans"] .headline-ko, html[lang="zh-Hans"] .body-ko, html[lang="zh-Hans"] .footnote, html[lang="zh-Hans"] .tagline { word-break: normal; overflow-wrap: anywhere; letter-spacing: .01em; }
 html[lang="zh-Hans"] .btn { word-break: normal; letter-spacing: .06em; }
+html[lang="zh-Hans"] { --font-ui: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+html[lang="zh-Hans"] .eyebrow, html[lang="zh-Hans"] .caption { letter-spacing: .12em; }
 html[lang="en"] .headline-ko { letter-spacing: -0.005em; }
 html[lang="en"] .body-ko, html[lang="en"] .footnote { word-break: normal; overflow-wrap: break-word; }
+/* 라틴·한자는 200 굵기가 너무 가늘어 300 으로 — 한국어 디자인(200)은 유지 */
+html:not([lang="ko"]) .headline-ko { font-weight: 300; }
+html:not([lang="ko"]) .headline-ko b { font-weight: 600; }
 
 /* 반복 태그라인 */
 .tagline { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: var(--muted); }
@@ -156,7 +162,8 @@ html[lang="en"] .body-ko, html[lang="en"] .footnote { word-break: normal; overfl
   .footnote { font-size: 11px; line-height: 1.6; }
   .headline-ko { word-break: keep-all; }
   .section { padding-left: 20px; padding-right: 20px; }
-  .tagline { font-size: 12px; margin-bottom: 14px; }
+  .tagline { font-size: 12px; margin-bottom: 14px; line-height: 1.5; }
+  .tagline i { width: 20px; }
 }
 
 /* ---------- forced-dark-proof gold (SVG gradient fills) ---------- */

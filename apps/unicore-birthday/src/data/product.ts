@@ -15,7 +15,8 @@ export const product = {
   },
   urls: {
     purchase: process.env.NEXT_PUBLIC_PURCHASE_URL || "",
-    brand: process.env.NEXT_PUBLIC_BRAND_URL || "https://www.unicore.co.kr",
+    /** 브랜드 소개 — 유니앤코어 공식 사이트. 제품 상세페이지가 나오면 NEXT_PUBLIC_PURCHASE_URL 로 구매 유입 */
+    brand: process.env.NEXT_PUBLIC_BRAND_URL || "https://www.unincore.com",
     detail: "#how-to-use",
   },
   images: {
