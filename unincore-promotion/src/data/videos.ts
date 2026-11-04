@@ -120,3 +120,14 @@ export const TEXTURE_FILM = {
   mask: FILMS["mask-essence"],
   ampoule: FILMS["ampoule-texture"],
 } as const;
+
+/**
+ * Label-accurate product loops (scripts/films/build_product_loops.py): the official
+ * product photo moved by a virtual camera with light and bokeh on top. No AI, so the
+ * packaging text is exactly as printed. Used in the product-page hero.
+ */
+export const PRODUCT_LOOP = {
+  wash: motion("wash-loop"),
+  mask: motion("mask-loop"),
+  ampoule: motion("ampoule-loop"),
+} satisfies Record<string, Film>;

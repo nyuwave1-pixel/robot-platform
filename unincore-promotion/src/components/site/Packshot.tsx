@@ -1,5 +1,7 @@
 import Image from "next/image";
 import type { ProductKey } from "@/content/types";
+import type { Film } from "@/data/videos";
+import { FilmLayer } from "@/components/vitac/FilmLayer";
 
 /**
  * Product visual. Uses real photography when `image` is set in the CMS;
@@ -12,6 +14,7 @@ export function Packshot({
   className = "",
   priority = false,
   sizes = "(max-width: 768px) 80vw, 40vw",
+  film,
 }: {
   kind: ProductKey;
   image?: string;
@@ -19,11 +22,18 @@ export function Packshot({
   className?: string;
   priority?: boolean;
   sizes?: string;
+  /** Optional muted loop played over the photo (the photo stays as poster/fallback). */
+  film?: Film;
 }) {
   if (image) {
     return (
       <div className={`relative aspect-[4/5] overflow-hidden rounded-[12%] shadow-[0_24px_60px_-30px_rgba(60,40,10,0.45)] ${className}`}>
         <Image src={image} alt={alt} fill priority={priority} sizes={sizes} className="object-cover" />
+        {film && (
+          <div className="absolute inset-0">
+            <FilmLayer film={film} />
+          </div>
+        )}
       </div>
     );
   }

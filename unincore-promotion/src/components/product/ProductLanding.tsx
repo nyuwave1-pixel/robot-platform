@@ -13,7 +13,7 @@ import { VideoGallery } from "@/components/site/VideoGallery";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { ProductViewTracker } from "@/components/site/ProductViewTracker";
 import { BrandFilm } from "@/components/vitac/BrandFilm";
-import { BRAND_FILMS } from "@/data/videos";
+import { BRAND_FILMS, PRODUCT_LOOP } from "@/data/videos";
 import { AmazonPanel } from "./AmazonPanel";
 import { OfficialDetail } from "./OfficialDetail";
 
@@ -86,7 +86,7 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
                 {pct}
               </p>
             )}
-            <Packshot kind={p.key} image={p.heroImage} alt={`UNI&CORE ${p.name}, ${p.size}`} priority className="relative mx-auto max-w-[420px] animate-floaty" sizes="(max-width: 768px) 80vw, 420px" />
+            <Packshot kind={p.key} image={p.heroImage} alt={`UNI&CORE ${p.name}, ${p.size}`} priority className="relative mx-auto max-w-[420px] animate-floaty" sizes="(max-width: 768px) 80vw, 420px" film={p.heroImage === `/products/${p.key}-hero.webp` ? PRODUCT_LOOP[p.key] : undefined} />
           </div>
         </div>
       </section>

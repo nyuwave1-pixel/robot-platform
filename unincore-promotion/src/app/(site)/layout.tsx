@@ -13,7 +13,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <>
       {/* Must run before any tag: defines gtag + Consent Mode defaults (honors GPC). */}
-      <script dangerouslySetInnerHTML={{ __html: consentDefaultSnippet(settings.consentMode) }} />
+      <script dangerouslySetInnerHTML={{ __html: consentDefaultSnippet(settings.consentMode, settings.tracking.gtmId ? undefined : settings.tracking.ga4Id) }} />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-ivory">
         Skip to content
       </a>
