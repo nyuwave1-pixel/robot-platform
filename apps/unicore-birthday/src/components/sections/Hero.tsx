@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { detail } from "@/data/images";
 import { sourcesFor, videos } from "@/data/videos";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import { useIntroClosed, useIsMobile, useQualityTier, useReducedMotion } from "@/lib/env";
@@ -46,9 +45,10 @@ export default function Hero() {
   return (
     <section id="birthday" ref={pin} className={s.pin} style={{ height: "250svh" }} data-bg="#080706" aria-labelledby="h-birthday">
       <div className={`${s.stage} ${s.hero}`}>
-        <div className={`${s.bgStill} ${s.heroBg}`} style={{ backgroundImage: `url(${detail.candle})` }} aria-hidden="true" />
+        <div className={`${s.bgStill} ${s.heroBg}`} aria-hidden="true" />
         <div className="veil-soft" />
-        {tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 700 : 300} />}
+        {/* 파티클(three.js)은 인트로가 닫힌 뒤 로드 — 인트로 중 메인스레드 부담 제거 */}
+        {introClosed && tier !== "lite" && !reduced && <GoldParticles count={tier === "high" ? 700 : 300} />}
         <div className={`${s.center} ${s.heroGrid}`}>
           <div className={s.heroText}>
             <p ref={ko} className={`display-en ${s.heroEyebrow}`}>{t.copy.s01.en}</p>

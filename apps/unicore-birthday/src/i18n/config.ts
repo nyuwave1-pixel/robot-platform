@@ -22,6 +22,8 @@ export function localePath(locale: Locale, hash = ""): string {
 export function hreflangMap(base = ""): Record<string, string> {
   const m: Record<string, string> = {};
   for (const l of locales) m[localeMeta[l].hreflang] = `${base}${localeMeta[l].path}`;
+  m["ko"] = `${base}${localeMeta.ko.path}`;
+  m["zh"] = `${base}${localeMeta.zh.path}`;
   m["x-default"] = `${base}${localeMeta.ko.path}`;
   return m;
 }

@@ -45,7 +45,7 @@ export default function Pdrn() {
             {t.pdrnList.map((g, i) => (
               <li key={g.gen} className={`${s.pdrnBall} ${focus === i ? s.pdrnBallOn : ""}`}>
                 <figure>
-                  <img src={g.image} alt={fmt(t.ui.pdrnImage, { name: g.name })} loading="lazy" />
+                  <img src={g.image} alt={fmt(t.ui.pdrnImage, { name: g.name })} loading="lazy" decoding="async" width={500} height={480} />
                 </figure>
                 <b>{g.name}</b>
                 <span>{g.line1} {g.line2}</span>

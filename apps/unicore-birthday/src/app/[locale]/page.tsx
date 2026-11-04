@@ -42,6 +42,8 @@ export default async function Page({ params }: Params) {
       inLanguage: lang,
       isPartOf: { "@id": `${idBase}#website` },
       about: { "@id": `${idBase}#product` },
+      breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+      mainEntity: { "@id": `${idBase}#product` },
       primaryImageOfPage: { "@type": "ImageObject", url: `${site}${seo.ogImage}`, width: 1200, height: 630 },
       datePublished: seo.publishedAt,
       dateModified: new Date().toISOString().slice(0, 10),
@@ -51,6 +53,7 @@ export default async function Page({ params }: Params) {
       "@type": "Product",
       "@id": `${idBase}#product`,
       name: `${product.brand} ${product.name}`,
+      url: pageUrl,
       alternateName: [`${d.product.brandLocal} ${d.product.nameLocal}`, d.jsonld.birthdayAlias, product.subtitle],
       description: d.seoView.description,
       slogan: `${d.copy.s01.ko1} ${d.copy.s01.ko2}`,
@@ -94,6 +97,7 @@ export default async function Page({ params }: Params) {
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
       itemListElement: [
         { "@type": "ListItem", position: 1, name: d.product.brandLocal, item: product.urls.brand },
         { "@type": "ListItem", position: 2, name: `${d.product.nameLocal} (${product.name})`, item: pageUrl },
@@ -102,6 +106,7 @@ export default async function Page({ params }: Params) {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
+      "@id": `${pageUrl}#faq`,
       inLanguage: lang,
       mainEntity: [
         { "@type": "Question", name: faq[0].q, acceptedAnswer: { "@type": "Answer", text: `${howto.intro}. ${howto.steps.map((s) => `${s.step} ${s.area}: ${s.line1} ${s.line2}`).join(" ")}` } },
