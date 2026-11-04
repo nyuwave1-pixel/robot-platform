@@ -2,10 +2,10 @@
 export const seo = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://birthday.unincore.com",
   siteName: "UNI&CORE 1ST BIRTHDAY CREAM",
-  title: "유니앤코어 1ST 버스데이 크림 | 피부의 첫 번째 생일, SKIN RE:BIRTH",
+  title: "유니앤코어 1ST 버스데이 크림 | 피부의 첫 번째 생일",
   shortTitle: "UNI&CORE 1ST BIRTHDAY CREAM",
   description:
-    "유니앤코어 퍼스트 벌스데이 크림(1ST BIRTHDAY CREAM). 3세대 인삼 유래 PDRN, 노벨상 성분 EGF를 포함한 4GF 성장인자, 아세틸헥사펩타이드-8, 시카 카밍 컴플렉스. 4주 인체적용시험 볼 리프팅 개선율 48.33%, 목 주름 감소율 19.06%, 피부 이상반응 0건. 시간을 되돌려 처음으로 맞이할 내 피부의 첫 번째 생일.",
+    "3세대 인삼 PDRN · 노벨상 성분 EGF 4GF · 아세틸헥사펩타이드-8 · 시카 카밍. 4주 인체적용시험 볼 리프팅 48.33% 개선, 목 주름 19.06% 감소, 이상반응 0건. 시간을 되돌려 처음으로 맞이할 내 피부의 첫 번째 생일, 유니앤코어 퍼스트 벌스데이 크림.",
   keywords: [
     "유니앤코어", "UNI&CORE", "유니앤코어 벌스데이 크림", "1ST BIRTHDAY CREAM", "퍼스트 벌스데이 크림", "버스데이 크림",
     "인삼 PDRN 크림", "3세대 PDRN", "PDRN 크림", "EGF 크림", "성장인자 크림", "4GF", "아세틸헥사펩타이드-8", "펩타이드 크림",

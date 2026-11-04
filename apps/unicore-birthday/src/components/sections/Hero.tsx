@@ -2,9 +2,9 @@
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { detail } from "@/data/images";
-import { videos } from "@/data/videos";
+import { sourcesFor, videos } from "@/data/videos";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
-import { useQualityTier, useReducedMotion } from "@/lib/env";
+import { useIntroClosed, useIsMobile, useQualityTier, useReducedMotion } from "@/lib/env";
 import s from "./sections.module.css";
 import { useDict } from "@/i18n/context";
 
@@ -21,6 +21,8 @@ export default function Hero() {
   const tier = useQualityTier();
   const reduced = useReducedMotion();
   const film = videos.filmPortrait;
+  const mobile = useIsMobile();
+  const introClosed = useIntroClosed();
 
   useSectionProgress(pin, (p) => {
     if (reduced) return;
@@ -35,11 +37,11 @@ export default function Hero() {
 
   // 뷰포트 안에서만 재생 (항상 음소거 — 사이트 사운드는 BGM 단일)
   useEffect(() => {
-    const v = video.current; if (!v) return;
+    const v = video.current; if (!v || !introClosed) return;
     v.muted = true; v.defaultMuted = true;
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.2 });
     io.observe(v); return () => io.disconnect();
-  }, []);
+  }, [introClosed]);
 
   return (
     <section id="birthday" ref={pin} className={s.pin} style={{ height: "250svh" }} data-bg="#080706" aria-labelledby="h-birthday">
@@ -56,8 +58,9 @@ export default function Hero() {
             </h1>
           </div>
           <div ref={frame} className={s.heroFrame} aria-label={t.ui.heroFilm}>
-            <video ref={video} poster={film.poster} playsInline muted loop preload="metadata" aria-hidden="true">
-              {film.sources.map((src) => <source key={src.src} src={src.src} type={src.type} />)}
+            {/* 인트로가 닫힌 뒤에만 소스를 붙여 인트로 필름과 동시 다운로드를 피함 (포스터가 LCP) */}
+            <video ref={video} poster={film.poster} playsInline muted loop preload={introClosed ? "auto" : "none"} aria-hidden="true">
+              {introClosed && sourcesFor(film, mobile).map((src) => <source key={src.src} src={src.src} type={src.type} />)}
             </video>
             <span className={s.heroFrameCap}>CLINICAL FILM · 60s</span>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { videos } from "@/data/videos";
+import { sourcesFor, videos } from "@/data/videos";
 import { product } from "@/data/product";
 import { audio, type SoundState } from "@/features/audio/audio";
 import { useIsMobile, useReducedMotion } from "@/lib/env";
@@ -94,7 +94,7 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
             onError={() => setFailed(true)}
             onEnded={finish}
           >
-            {asset.sources.map((s) => <source key={s.src} src={s.src} type={s.type} />)}
+            {sourcesFor(asset, mobile).map((s) => <source key={s.src} src={s.src} type={s.type} />)}
           </video>
         ) : (
           <div className={styles.fallback} style={{ backgroundImage: `url(${asset.poster})` }}>
