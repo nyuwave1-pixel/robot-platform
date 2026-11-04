@@ -67,12 +67,12 @@ const film = (id: BrandFilm["id"], title: string, duration: string): BrandFilm =
 });
 
 export const BRAND_FILMS = {
-  // On hold: on-screen copy states "13.5% pure vitamin C", which is not yet backed by
-  // a formula document. Re-cut without the percentage before showing it again.
-  collection: { ...film("collection", "The VITA C ritual", "PT32S"), onHold: "on-screen 13.5% claim" },
+  // collection + ampoule were re-cut (scripts/films/build_ampoule_films.py) so no
+  // on-screen copy states a vitamin C percentage. Set `onHold` to pull a film again.
+  collection: film("collection", "The VITA C ritual", "PT32S"),
   wash: film("wash", "Vita C Enzyme Powder Wash — the film", "PT15S"),
   mask: film("mask", "Vita C Super Brightening Mask — the film", "PT14S"),
-  ampoule: { ...film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"), onHold: "on-screen 13.5% claim" },
+  ampoule: film("ampoule", "Vita C 13.5 Super Brightening Ampoule — the film", "PT15S"),
 } as const satisfies Record<BrandFilm["id"], BrandFilm>;
 
 /* ------------------------------------------------------------------ */
