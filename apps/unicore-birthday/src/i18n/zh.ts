@@ -220,8 +220,8 @@ export const zh: Messages = {
     guideNote: "品牌影片以韩语呈现。",
   },
   seo: {
-    title: "UNI&CORE 1ST 生日面霜 | 肌肤的第一个生日，SKIN RE:BIRTH",
-    description: "UNI&CORE 1ST BIRTHDAY CREAM（生日面霜）。第三代人参来源PDRN、含诺贝尔奖成分EGF的4GF生长因子、乙酰基六肽-8、积雪草舒缓复合物。4周人体适用试验：面颊提拉改善率48.33%，颈纹减少率19.06%，皮肤不良反应0例。让时间倒流，第一次迎来我肌肤的第一个生日。",
+    title: "UNI&CORE 1ST 生日面霜 | 肌肤的第一个生日",
+    description: "第三代人参PDRN · 诺贝尔奖成分EGF 4GF · 乙酰基六肽-8 · 积雪草舒缓。4周人体适用试验：面颊提拉改善48.33%，颈纹减少19.06%，不良反应0例。SKIN RE:BIRTH，UNI&CORE 生日面霜。",
     keywords: [
       "UNI&CORE", "UNI&CORE 生日面霜", "1ST BIRTHDAY CREAM", "生日面霜", "SKIN RE:BIRTH",
       "人参PDRN面霜", "第三代PDRN", "PDRN面霜", "EGF面霜", "生长因子面霜", "4GF", "乙酰基六肽-8", "多肽面霜",

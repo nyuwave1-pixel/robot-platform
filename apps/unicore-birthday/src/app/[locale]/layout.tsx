@@ -80,7 +80,9 @@ export default async function RootLayout({ children, params }: { children: React
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@200;300;400;500;600;700&display=swap" />
         )}
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-        <link rel="preload" as="image" href="/media/detail/d01_candle_1st.webp" />
+        {/* LCP 후보 — 데스크톱은 캔들 배경, 모바일은 세로 필름 포스터 */}
+        <link rel="preload" as="image" href="/media/detail/d01_candle_1st.webp" media="(min-width: 768px)" />
+        <link rel="preload" as="image" href="/media/posters/film_portrait_poster.webp" media="(max-width: 767px)" />
       </head>
       <body>{children}</body>
     </html>

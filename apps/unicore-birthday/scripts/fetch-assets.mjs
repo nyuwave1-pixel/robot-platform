@@ -154,6 +154,9 @@ async function main() {
     await download(SOURCES.filmPortrait, srcPortrait);
     const portrait = path.join(MEDIA, "film", "film_portrait_1080.mp4");
     if (need(portrait)) await ff(["-i", srcPortrait, "-vf", "scale=1080:-2", "-c:v", "libx264", "-crf", "22", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", portrait]);
+    // 모바일용 720p (데이터 절감 — 1080p 대비 약 1/3 용량)
+    const portrait720 = path.join(MEDIA, "film", "film_portrait_720.mp4");
+    if (need(portrait720)) await ff(["-i", srcPortrait, "-vf", "scale=720:-2", "-c:v", "libx264", "-crf", "24", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", portrait720]);
     const pposter = path.join(MEDIA, "posters", "film_portrait_poster.webp");
     if (need(pposter)) await ff(["-ss", "12", "-i", srcPortrait, "-frames:v", "1", "-vf", "scale=1080:-2", "-c:v", "libwebp", "-quality", "80", pposter]);
   } catch (e) {

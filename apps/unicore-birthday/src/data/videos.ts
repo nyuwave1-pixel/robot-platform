@@ -55,7 +55,10 @@ export const videos: Record<string, VideoAsset> = {
   },
   filmPortrait: {
     key: "filmPortrait",
-    sources: [{ src: "/media/film/film_portrait_1080.mp4", type: "video/mp4", width: 1080, height: 1920 }],
+    sources: [
+      { src: "/media/film/film_portrait_1080.mp4", type: "video/mp4", width: 1080, height: 1920 },
+      { src: "/media/film/film_portrait_720.mp4", type: "video/mp4", width: 720, height: 1280 },
+    ],
     poster: "/media/posters/film_portrait_poster.webp",
     aspect: "9/16",
     durationSec: 63,
@@ -89,3 +92,9 @@ export const stills = {
   jarCandleClean: "/media/stills/10_jar_candle_clean.webp",
   logo: "/media/stills/11_logo.webp",
 } as const;
+
+/** 뷰포트에 맞는 소스 순서 — 모바일은 저용량(720p)부터, 브라우저는 첫 번째 재생 가능한 소스를 사용 */
+export function sourcesFor(asset: VideoAsset, mobile: boolean): VideoSource[] {
+  const sorted = [...asset.sources].sort((a, b) => (mobile ? a.width - b.width : b.width - a.width));
+  return sorted;
+}

@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="section-inner" style={{ paddingBlock: 40, display: "grid", gap: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ font: "500 13px/1 var(--font-serif)", letterSpacing: ".35em", color: "var(--ivory)" }}>{product.brand}</span>
-          <nav style={{ display: "flex", gap: 18, flexWrap: "wrap" }} aria-label={t.ui.footerNav}>
+          <nav className="footer-nav" aria-label={t.ui.footerNav}>
             <a href="#clinical">{t.ui.footerLinks.clinical}</a>
             <a href="#ingredients">{t.ui.footerLinks.ingredients}</a>
             <a href="#how-to-use">{t.ui.footerLinks.howto}</a>

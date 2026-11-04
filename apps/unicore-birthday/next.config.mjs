@@ -1,6 +1,13 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   transpilePackages: ["three"],
   images: { formats: ["image/avif", "image/webp"] },
   experimental: { optimizePackageImports: ["@react-three/drei"] },
@@ -14,6 +21,17 @@ const nextConfig = {
   async headers() {
     return [
       { source: "/media/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/audio/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=604800" }] },
+      { source: "/og/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=86400" }] },
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
     ];
   },
 };

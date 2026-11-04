@@ -220,8 +220,8 @@ export const en: Messages = {
     guideNote: "The brand films are presented in Korean.",
   },
   seo: {
-    title: "UNI&CORE 1st Birthday Cream | Your Skin's First Birthday, SKIN RE:BIRTH",
-    description: "UNI&CORE 1ST BIRTHDAY CREAM. 3rd-generation ginseng-derived PDRN, 4GF growth factors including the Nobel Prize ingredient EGF, Acetyl Hexapeptide-8 and Cica Calming Complex. 4-week human application test: 48.33% cheek lifting improvement, 19.06% neck wrinkle reduction, 0 adverse skin reactions. Turn back time and welcome your skin's first birthday.",
+    title: "UNI&CORE 1st Birthday Cream | Your Skin's First Birthday",
+    description: "Ginseng PDRN, Nobel Prize ingredient EGF (4GF), Acetyl Hexapeptide-8 and Cica. 4-week clinical test: 48.33% cheek lifting, 19.06% neck wrinkle reduction, 0 adverse reactions. SKIN RE:BIRTH by UNI&CORE.",
     keywords: [
       "UNI&CORE", "UNI&CORE 1st Birthday Cream", "1ST BIRTHDAY CREAM", "Birthday Cream", "SKIN RE:BIRTH",
       "ginseng PDRN cream", "3rd generation PDRN", "PDRN cream", "EGF cream", "growth factor cream", "4GF", "Acetyl Hexapeptide-8", "peptide cream",
