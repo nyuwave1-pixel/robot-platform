@@ -1,15 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { copy } from "@/data/copy";
-import { howto } from "@/data/howto";
 import { product } from "@/data/product";
 import { detail, howtoLoop } from "@/data/images";
 import Reveal from "@/components/Reveal";
 import Tagline from "@/components/Tagline";
 import s from "./sections.module.css";
+import { useDict } from "@/i18n/context";
 
 /** HOW TO USE — 배경: 골든 파티클 분자 영상(무음 루프), 실패 시 상세페이지 골드 스피어 스틸 */
 export default function HowToUse() {
+  const t = useDict();
   const video = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(true);
   useEffect(() => {
@@ -34,12 +34,12 @@ export default function HowToUse() {
         <div className={s.grid2} style={{ alignItems: "start" }}>
           <div className={s.stack}>
             <Tagline />
-            <Reveal as="h2" mode="weight" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{copy.s11.h.text}</Reveal>
-            <p className="body-ko">{copy.s11.sub.text}</p>
+            <Reveal as="h2" mode="weight" className="display-en" id="h-how" style={{ fontSize: "clamp(34px, 5vw, 72px)", margin: 0, letterSpacing: ".08em" }}>{t.copy.s11.h}</Reveal>
+            <p className="body-ko">{t.copy.s11.sub}</p>
             <p className="caption" style={{ color: "var(--gold)" }}>{product.brand} · {product.name} · {product.volume.g} g</p>
           </div>
           <ol className={s.steps} style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {howto.steps.map((st) => (
+            {t.howto.steps.map((st) => (
               <li key={st.step} className={s.step}>
                 <b>{st.step}</b>
                 <h4>{st.area}</h4>

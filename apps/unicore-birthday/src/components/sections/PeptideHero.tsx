@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { copy } from "@/data/copy";
-import { keyIngredients } from "@/data/ingredients";
 import { detail } from "@/data/images";
 import s from "./sections.module.css";
+import { useDict } from "@/i18n/context";
 
 /**
  * 표정주름 × 아세틸헥사펩타이드-8 — 모션 타이포그래피 히어로
@@ -12,11 +11,12 @@ import s from "./sections.module.css";
  * 펩타이드 성분명이 골드 대형 타이포로, 분자 2종이 오빗 링과 함께 팝업됩니다. (문구는 상세페이지 원문)
  */
 export default function PeptideHero() {
+  const t = useDict();
   const root = useRef<HTMLDivElement>(null);
-  const pep = keyIngredients.find((i) => i.id === "peptide");
+  const pep = t.ingredientsList.find((i) => i.id === "peptide");
   const mols = [
-    { name: pep?.sub?.[0]?.name ?? "아세틸헥사펩타이드-8", desc: pep?.sub?.[0]?.desc ?? "", img: detail.moleculeA },
-    { name: pep?.sub?.[1]?.name ?? "카퍼트라이펩타이드-1", desc: pep?.sub?.[1]?.desc ?? "", img: detail.moleculeB },
+    { name: pep?.sub?.[0]?.name ?? t.copy.s08.pep, desc: pep?.sub?.[0]?.desc ?? "", img: detail.moleculeA },
+    { name: pep?.sub?.[1]?.name ?? "Copper Tripeptide-1", desc: pep?.sub?.[1]?.desc ?? "", img: detail.moleculeB },
   ];
 
   useEffect(() => {
@@ -31,8 +31,8 @@ export default function PeptideHero() {
       io.observe(el);
       tl.fromTo(el.querySelector("[data-bg]"), { scale: 1.2, opacity: 0 }, { scale: 1.06, opacity: 1, duration: 2, ease: "power2.out" }, 0)
         .fromTo(el.querySelector("[data-eyebrow]"), { opacity: 0, letterSpacing: "1em" }, { opacity: 1, letterSpacing: ".42em", duration: 1.1, ease: "power3.out" }, 0.1)
-        .fromTo(el.querySelectorAll("[data-q] span"), { opacity: 0, y: 22, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.7, stagger: 0.025, ease: "power3.out" }, 0.4)
-        .fromTo(el.querySelectorAll("[data-big] span"), { opacity: 0, y: 60, scale: 1.4, rotateX: -35, filter: "blur(12px)", transformPerspective: 900 }, { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: "blur(0px)", duration: 0.9, stagger: 0.06, ease: "expo.out" }, 1.0)
+        .fromTo(el.querySelectorAll("[data-q] [data-ch]"), { opacity: 0, y: 22, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.7, stagger: 0.025, ease: "power3.out" }, 0.4)
+        .fromTo(el.querySelectorAll("[data-big] [data-ch]"), { opacity: 0, y: 60, scale: 1.4, rotateX: -35, filter: "blur(12px)", transformPerspective: 900 }, { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: "blur(0px)", duration: 0.9, stagger: 0.06, ease: "expo.out" }, 1.0)
         .fromTo(el.querySelector("[data-glow]"), { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 1.4, ease: "power2.out" }, 1.1)
         .fromTo(el.querySelector("[data-rule]"), { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.inOut" }, 1.9)
         .fromTo(el.querySelector("[data-name]"), { opacity: 0, y: 30, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" }, 2.1)
@@ -43,9 +43,18 @@ export default function PeptideHero() {
       gsap.to(el.querySelectorAll("[data-mol] img"), { y: -8, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: 0.6, delay: 3.4 });
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [t.locale]);
 
-  const split = (t: string) => Array.from(t).map((ch, i) => <span key={i} style={{ display: "inline-block", whiteSpace: ch === " " ? "pre" : undefined }}>{ch}</span>);
+  // 글자 단위 모션 — 단어는 줄바꿈되지 않도록 묶고(영문·한글), 중국어는 글자마다 줄바꿈 허용
+  const split = (txt: string) => {
+    const ch = (c: string, i: number) => <span key={i} data-ch style={{ display: "inline-block", whiteSpace: c === " " ? "pre" : undefined }}>{c}</span>;
+    if (t.locale === "zh") return Array.from(txt).map(ch);
+    return txt.split(/(\s+)/).filter(Boolean).map((w, wi) =>
+      /^\s+$/.test(w)
+        ? <span key={`s${wi}`} data-ch style={{ display: "inline-block", whiteSpace: "pre" }}> </span>
+        : <span key={`w${wi}`} style={{ display: "inline-block", whiteSpace: "nowrap" }}>{Array.from(w).map(ch)}</span>,
+    );
+  };
 
   return (
     <div ref={root} className={s.pepHero} aria-labelledby="h-pep">
@@ -54,14 +63,14 @@ export default function PeptideHero() {
       <div data-glow className={s.pepGlow} aria-hidden="true" />
       <div className={s.pepInner}>
         <div className={s.pepLeft}>
-          <span data-eyebrow data-anim className={s.nobelEyebrow}>Expression Lines Care</span>
-          <p data-q className={s.pepQ}>{split(`${copy.s08.exp1.text} ${copy.s08.exp2.text}`)}</p>
-          <h3 id="h-pep" data-big className={s.pepBig}>{split(copy.s08.exp3.text)}</h3>
+          <span data-eyebrow data-anim className={s.nobelEyebrow}>{t.ui.peptideEyebrow}</span>
+          <p data-q className={s.pepQ}>{split(`${t.copy.s08.exp1} ${t.copy.s08.exp2}`)}</p>
+          <h3 id="h-pep" data-big className={s.pepBig}>{split(t.copy.s08.exp3)}</h3>
           <i data-rule className={s.nobelRule} style={{ margin: "8px 0 0" }} aria-hidden="true" />
-          <p data-name className={s.pepName}>{copy.s08.pep.text}</p>
-          <p data-desc className={s.pepDesc}>{copy.s08.pepDesc1.text} {copy.s08.pepDesc2.text} <b>{copy.s08.pepDesc3.text}</b></p>
+          <p data-name className={s.pepName}>{t.copy.s08.pep}</p>
+          <p data-desc className={s.pepDesc}>{t.copy.s08.pepDesc1} {t.copy.s08.pepDesc2} <b>{t.copy.s08.pepDesc3}</b></p>
         </div>
-        <ul className={s.pepMols} aria-label="핵심 펩타이드 2종">
+        <ul className={s.pepMols} aria-label={t.ui.peptides}>
           {mols.map((m, i) => (
             <li key={m.name} data-mol className={s.pepMol}>
               <i data-ring className={s.pepRing} aria-hidden="true" />

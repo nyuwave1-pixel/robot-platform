@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { copy } from "@/data/copy";
 import { detail, skinLoop } from "@/data/images";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import Reveal from "@/components/Reveal";
 import s from "./sections.module.css";
+import { useDict } from "@/i18n/context";
 
 /** 28일 — 배경은 피부 질감 루프(텍스트 없는 구간, 무음), 실패 시 상세페이지 피부 스틸 */
 export default function TwentyEight() {
+  const t = useDict();
   const pin = useRef<HTMLElement>(null);
   const num = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -42,15 +43,15 @@ export default function TwentyEight() {
         <div className="veil" />
         <div className={s.center}>
           <div style={{ display: "grid", gap: "clamp(10px, 2vh, 24px)", justifyItems: "center" }}>
-            <h2 id="h-28" className="sr-only">{copy.s02.total.text}</h2>
+            <h2 id="h-28" className="sr-only">{t.copy.s02.total}</h2>
             <div ref={num} className={`numeral ${s.n28}`} aria-hidden="true">28</div>
             <div className={s.days} aria-live="polite">
-              <div className={`${s.day} ${phase >= 0 ? s.dayOn : ""}`}><b>{copy.s02.days[0].text}</b><span>{copy.s02.d1.text}</span></div>
-              <div className={`${s.day} ${phase >= 1 ? s.dayOn : ""}`}><b>{copy.s02.days[1].text}</b><span>{copy.s02.d2.text}</span></div>
-              <div className={`${s.day} ${phase >= 2 ? s.dayOn : ""}`}><b>{copy.s02.days[2].text}</b><span>{copy.s02.total.text}</span></div>
+              <div className={`${s.day} ${phase >= 0 ? s.dayOn : ""}`}><b>{t.copy.s02.days[0]}</b><span>{t.copy.s02.d1}</span></div>
+              <div className={`${s.day} ${phase >= 1 ? s.dayOn : ""}`}><b>{t.copy.s02.days[1]}</b><span>{t.copy.s02.d2}</span></div>
+              <div className={`${s.day} ${phase >= 2 ? s.dayOn : ""}`}><b>{t.copy.s02.days[2]}</b><span>{t.copy.s02.total}</span></div>
             </div>
-            <Reveal mode="weight" as="p" className={`headline-ko ${s.lead}`}>{copy.s02.line1.text} <b>{copy.s02.line2.text}</b></Reveal>
-            <p className="footnote" style={{ textAlign: "center" }}>{copy.s02.footnote.text}</p>
+            <Reveal mode="weight" as="p" className={`headline-ko ${s.lead}`}>{t.copy.s02.line1} <b>{t.copy.s02.line2}</b></Reveal>
+            <p className="footnote" style={{ textAlign: "center" }}>{t.copy.s02.footnote}</p>
           </div>
         </div>
         <span className={s.chap}>02 / 13 · THE 28 DAYS</span>

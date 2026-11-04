@@ -21,7 +21,9 @@ export default function Reveal({ children, as: Tag = "div", mode = "lines", clas
     let stagger = 0.08;
     if (mode === "chars" || mode === "words") {
       const text = el.textContent || "";
-      const units = mode === "chars" ? Array.from(text) : text.split(/(\s+)/);
+      // 중국어는 띄어쓰기가 없어 단어 모드도 글자 단위로 쪼개 줄바꿈을 허용
+      const zh = document.documentElement.lang.toLowerCase().startsWith("zh");
+      const units = mode === "chars" || zh ? Array.from(text) : text.split(/(\s+)/);
       el.textContent = "";
       units.forEach((u) => {
         const s = document.createElement("span");
