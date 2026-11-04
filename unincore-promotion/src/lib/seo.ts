@@ -83,11 +83,15 @@ export function productLd(p: ProductContent) {
     "@id": `${url}#product`,
     name: p.name,
     description: p.seo.description,
-    image: [abs(p.heroImage || `/og/${p.slug}`)],
+    image: [p.packshotWhite, p.heroImage, p.visualImage].filter((x): x is string => Boolean(x)).map(abs).concat(p.heroImage ? [] : [abs(`/og/${p.slug}`)]),
     brand: { "@type": "Brand", name: SITE.name },
     sku: p.asin,
     category: "Beauty > Skin Care",
     url,
+    ...(p.size && { size: p.size }),
+    countryOfOrigin: "KR",
+    ...(p.keyIngredient && { additionalProperty: [{ "@type": "PropertyValue", name: "Key ingredient", value: p.keyIngredient }] }),
+    sameAs: [p.amazonUrl, ...(p.officialDetail ? [p.officialDetail.sourceUrl] : [])],
   };
   if (p.price) {
     data.offers = {
@@ -121,4 +125,14 @@ export function videoLd(p: ProductContent) {
     contentUrl: abs(v.src),
     ...(v.duration && { duration: v.duration }),
   }));
+}
+
+/** Home page: the three products as an ItemList (helps Google tie the landing pages together). */
+export function productListLd(products: ProductContent[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "UNI&CORE VITA C Collection",
+    itemListElement: products.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: abs(`/products/${p.slug}`), name: p.name })),
+  };
 }

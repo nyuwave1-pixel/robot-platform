@@ -66,6 +66,15 @@ export interface TitledText {
   text: string;
 }
 
+export interface OfficialDetail {
+  /** Brand page the slices were taken from. */
+  sourceUrl: string;
+  /** Top-to-bottom slices of the official detail image. */
+  slices: { src: string; width: number; height: number }[];
+  /** Plain-text outline of what the detail image covers (alt text + SEO). */
+  outline: string[];
+}
+
 export interface Faq {
   q: string;
   a: string;
@@ -134,6 +143,12 @@ export interface ProductContent {
   fullIngredients?: string;
   /** Caution text exactly as printed on the US label. */
   caution?: string;
+  /** Official packshot on a white background (Product structured data, Amazon panel). */
+  packshotWhite?: string;
+  /** Official brand detail page, re-published as lazy-loaded image slices. */
+  officialDetail?: OfficialDetail;
+  /** Extra usage notes from the official detail page (shown under the steps). */
+  usageNotes?: string[];
 
   concerns: TitledText[];
   benefits: TitledText[];

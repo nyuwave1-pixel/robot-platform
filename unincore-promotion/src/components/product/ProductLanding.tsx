@@ -14,6 +14,8 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { ProductViewTracker } from "@/components/site/ProductViewTracker";
 import { BrandFilm } from "@/components/vitac/BrandFilm";
 import { BRAND_FILMS } from "@/data/videos";
+import { AmazonPanel } from "./AmazonPanel";
+import { OfficialDetail } from "./OfficialDetail";
 
 function Pending({ status, preview }: { status: VerificationStatus; preview: boolean }) {
   if (!preview || status === "verified") return null;
@@ -72,7 +74,10 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
               <AmazonButton product={ap} location="hero" />
               <Link href="#how-to-use" className="text-xs font-semibold uppercase tracking-widest underline underline-offset-4">How to use</Link>
             </div>
-            <p className="mt-4 text-xs text-ink-mute">Sold on Amazon.com · Prices and availability shown on Amazon</p>
+            <p className="mt-4 flex items-center gap-2 text-xs font-medium text-ink-soft">
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-[#FF9900] text-[10px] font-bold text-[#232F3E]" aria-hidden>✓</span>
+              Official UNI&amp;CORE listing on Amazon.com · Price, delivery &amp; reviews on Amazon
+            </p>
           </div>
           <div className="relative order-1 md:order-2">
             <div className={`absolute inset-[12%] rounded-full ${a.bg} opacity-20 blur-3xl`} aria-hidden />
@@ -179,7 +184,7 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
         <section className="section">
           <div className="container-site">
             <SectionHead eyebrow="Tested Results" title="The numbers behind the glow" center />
-            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className={`mt-14 grid gap-5 sm:grid-cols-2 ${p.claims.length > 4 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
               {p.claims.map((c, i) => (
                 <div key={c.id} className="card p-8 text-center" data-reveal style={{ ["--reveal-delay" as string]: `${i * 100}ms` }}>
                   <p className={`font-display text-6xl ${a.text}`}>{c.value}</p>
@@ -191,14 +196,21 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
               ))}
             </div>
             <p className="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-ink-mute">
-              {p.claims.filter((c) => c.source && c.status === "verified").map((c, i) => (
-                <span key={c.id} className="block">{i + 1}. {c.source}</span>
+              {[...new Set(p.claims.filter((c) => c.source && c.status === "verified").map((c) => c.source as string))].map((src, i) => (
+                <span key={src} className="block">{i + 1}. {src}</span>
               ))}
               {p.claimsNote}
             </p>
           </div>
         </section>
       )}
+
+      {/* 5B. AMAZON PANEL — right after the proof points */}
+      <section className="pb-20 sm:pb-28">
+        <div className="container-site">
+          <AmazonPanel p={p} ap={ap} location="results" />
+        </div>
+      </section>
 
       {/* 6. DIFFERENTIATION */}
       <section className="section bg-ink text-ivory">
@@ -292,26 +304,41 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
               </li>
             ))}
           </ol>
+          {p.usageNotes && p.usageNotes.length > 0 && (
+            <ul className="mt-8 max-w-3xl space-y-2">
+              {p.usageNotes.map((n) => (
+                <li key={n} className={`rounded-2xl ${a.bgLight} px-5 py-3 text-sm text-ink-soft`}>
+                  <strong className="font-semibold text-ink">Tip:</strong> {n}
+                </li>
+              ))}
+            </ul>
+          )}
           {p.caution && <p className="mt-8 max-w-3xl text-sm text-ink-mute"><strong className="font-medium text-ink-soft">Caution:</strong> {p.caution}</p>}
         </div>
       </section>
 
+      {/* 9B. OFFICIAL PRODUCT DETAILS */}
+      {p.officialDetail && (
+        <section className="section bg-cream">
+          <div className="container-site">
+            <SectionHead eyebrow="Official Product Details" title={`Everything about ${p.shortName}`} sub="The full detail page from UNI&CORE — key points, test results, ingredients and usage, as published by the brand." center />
+            <div className="mt-12">
+              <OfficialDetail p={p} />
+            </div>
+            <div className="mt-10 flex justify-center">
+              <AmazonButton product={ap} location="details" />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 10. AMAZON OFFER */}
-      <section className="pb-20 sm:pb-28">
+      <section className="py-20 sm:py-28">
         <div className="container-site" data-reveal>
           <PromoOffer
             product={ap}
             initialActive={promoInitial}
-            fallback={
-              <div className={`relative overflow-hidden rounded-[32px] ${a.bgLight} px-6 py-14 text-center sm:px-14`}>
-                <p className="eyebrow">Available on Amazon</p>
-                <p className="mx-auto mt-4 max-w-xl font-display text-4xl leading-tight sm:text-5xl">Fast, trusted checkout on Amazon.com</p>
-                <p className="mx-auto mt-4 max-w-lg text-ink-soft">See today's price, Prime eligibility and customer reviews on the official listing.</p>
-                <div className="mt-8 flex justify-center">
-                  <AmazonButton product={ap} location="offer" />
-                </div>
-              </div>
-            }
+            fallback={<AmazonPanel p={p} ap={ap} location="offer" dark />}
           />
         </div>
       </section>

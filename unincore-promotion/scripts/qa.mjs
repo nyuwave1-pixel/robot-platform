@@ -93,7 +93,7 @@ for (const p of PRODUCTS) {
   check(`${p.key}: hero/final/sticky CTAs present`, ["hero", "final", "sticky", "offer"].every((loc) => own.some((l) => l.loc === loc)), own.map((l) => l.loc).join(","));
   check(`${p.key}: all own CTAs go to amazon.com/${p.asin}`, own.length > 0 && own.every((l) => l.href.includes(p.asin) && new URL(l.href).hostname.endsWith("amazon.com")));
   check(`${p.key}: CTAs open in a new tab`, own.every((l) => l.target === "_blank"));
-  const pending = await page.evaluate(() => document.body.innerText.includes("+35.6%") || document.body.innerText.includes("pH 5–5.5") || document.body.innerText.includes("10M+"));
+  const pending = await page.evaluate(() => document.body.innerText.includes("100,000+") || document.body.innerText.includes("10M+"));
   check(`${p.key}: unverified claims are not shown publicly`, !pending);
 }
 
@@ -222,7 +222,7 @@ if (ADMIN_PW) {
   // Ended → regular page
   await api("/api/admin/products/wash", "PUT", { asin: "B0HGQYFF13", promotion: { ...promo, startsAt: iso(now - 7200e3), endsAt: iso(now - 60e3) } });
   await page.goto(`${BASE}/products/vita-c-enzyme-powder-wash`, { waitUntil: "load" });
-  check("ended promotion → page returns to regular layout", (await page.locator("text=QA: 20% off on Amazon").count()) === 0 && (await page.locator("text=Fast, trusted checkout").count()) === 1);
+  check("ended promotion → page returns to regular layout", (await page.locator("text=QA: 20% off on Amazon").count()) === 0 && (await page.locator("text=Shop the official listing").count()) === 2);
 
   // Verify a claim → becomes public
   const claim = { id: "qa", value: "QA-99%", label: "qa claim", source: "QA", status: "verified" };
@@ -241,7 +241,7 @@ if (ADMIN_PW) {
   check("settings rejects invalid GA4 ID", badSettings.status === 422);
 
   await ap.goto(`${BASE}/admin/preview/vitamin-c-13-5-ampoule`);
-  check("admin preview shows pending claims flagged", (await ap.locator("text=Pending verification").count()) > 0 && (await ap.locator("text=+35.6%").count()) === 1);
+  check("admin preview shows pending claims flagged", (await ap.locator("text=Pending verification").count()) > 0 && (await ap.locator("text=100,000+").count()) === 1);
 } else {
   console.log("SKIP admin flow (set ADMIN_PASSWORD)");
 }

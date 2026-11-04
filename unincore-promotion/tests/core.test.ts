@@ -89,10 +89,15 @@ describe("Verification gating", () => {
       expect(v.claims.every((c) => c.status === "verified")).toBe(true);
       expect(v.ingredients.every((c) => c.status === "verified")).toBe(true);
     }
-    // Unverified brief numbers must not be public by default.
-    expect(publicView(AMPOULE).claims.map((c) => c.value)).not.toContain("+35.6%");
-    expect(publicView(WASH).claims.map((c) => c.value)).not.toContain("pH 5–5.5");
+    // Unverified brief numbers (sales counts) must not be public by default.
+    expect(publicView(AMPOULE).claims.map((c) => c.value)).not.toContain("100,000+");
     expect(publicView(MASK).claims.map((c) => c.value)).not.toContain("10M+");
+    // Figures confirmed on the official brand detail page are public — and the test figures cite their source.
+    expect(publicView(AMPOULE).claims.map((c) => c.value)).toContain("+35.6%");
+    expect(publicView(WASH).claims.map((c) => c.value)).toContain("pH 5–5.5");
+    for (const c of publicView(AMPOULE).claims.filter((x) => x.value.startsWith("+") || x.id === "pigmentation")) {
+      expect(c.source).toMatch(/SKINMED/);
+    }
   });
 });
 

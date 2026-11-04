@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import type { ProductContent } from "@/content/types";
 import { getProducts } from "@/lib/cms";
-import { pageMetadata, breadcrumbLd } from "@/lib/seo";
+import { pageMetadata, breadcrumbLd, productListLd } from "@/lib/seo";
 import { isPromoActive } from "@/lib/promo";
 import { publicView, toAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
@@ -451,7 +451,7 @@ export default async function HomePage() {
       </section>
 
       <HomeStickyCTA products={products.map(toAmazonProduct)} labels={buyLabels} />
-      <JsonLd data={breadcrumbLd([{ name: "Home", path: "/" }])} />
+      <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), productListLd(products)]} />
     </>
   );
 }

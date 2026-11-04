@@ -56,7 +56,7 @@ export const SCENES: Record<ProductKey, ProductScene> = {
     verb: "Brighten",
     kicker: "Vita C 13.5 Super Brightening Ampoule",
     headline: "Discover your radiance.",
-    sub: "The finishing step of the ritual — a concentrated vitamin C ampoule in a pump bottle.",
+    sub: "The finishing step of the ritual — 13.5% pure vitamin C, stabilized in a dual-layer formula, in a pump bottle.",
     discover: "Discover Vita C 13.5",
     buy: "Buy Vita C 13.5 Super Brightening Ampoule",
     buyShort: "Buy Vita C 13.5",
