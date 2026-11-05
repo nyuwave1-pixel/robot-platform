@@ -75,9 +75,9 @@ export default async function RootLayout({ children, params }: { children: React
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        {/* 폰트 CSS 는 렌더 차단 없이 로드(preload → 스크립트로 삽입, JS 미지원 시 noscript 폴백). font-display: swap */}
+        {/* 폰트 CSS 는 렌더 차단 없이 로드(preload → media=print 로 삽입 후 onload 에 all 로 전환, JS 미지원 시 noscript 폴백). font-display: swap */}
         {fontCss.map((h) => <link key={h} rel="preload" as="style" href={h} />)}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){${JSON.stringify(fontCss)}.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;document.head.appendChild(l)})})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){${JSON.stringify(fontCss)}.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l)})})();` }} />
         <noscript>{fontCss.map((h) => <link key={h} rel="stylesheet" href={h} />)}</noscript>
         {/* LCP 후보 선로드 — 히어로 캔들 배경(데스크톱 1600px / 모바일 900px) + 인트로 포스터 */}
         <link rel="preload" as="image" href="/media/detail/d01_candle_1st.webp" media="(min-width: 768px)" />

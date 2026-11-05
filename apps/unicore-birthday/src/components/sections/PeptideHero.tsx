@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { useAfterFirstPaint } from "@/features/scroll/afterFirstPaint";
 import { detail } from "@/data/images";
 import s from "./sections.module.css";
 import { useDict } from "@/i18n/context";
@@ -19,7 +20,9 @@ export default function PeptideHero() {
     { name: pep?.sub?.[1]?.name ?? "Copper Tripeptide-1", desc: pep?.sub?.[1]?.desc ?? "", img: detail.moleculeB },
   ];
 
+  const ready = useAfterFirstPaint();
   useEffect(() => {
+    if (!ready) return;
     const el = root.current; if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       el.querySelectorAll<HTMLElement>("[data-anim]").forEach((n) => { n.style.opacity = "1"; n.style.transform = "none"; n.style.filter = "none"; });
@@ -43,7 +46,7 @@ export default function PeptideHero() {
       gsap.to(el.querySelectorAll("[data-mol] img"), { y: -8, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: 0.6, delay: 3.4 });
     }, el);
     return () => ctx.revert();
-  }, [t.locale]);
+  }, [t.locale, ready]);
 
   // 글자 단위 모션 — 단어는 줄바꿈되지 않도록 묶고(영문·한글), 중국어는 글자마다 줄바꿈 허용
   const split = (txt: string) => {

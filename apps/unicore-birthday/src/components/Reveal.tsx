@@ -2,6 +2,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAfterFirstPaint } from "@/features/scroll/afterFirstPaint";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,8 +14,9 @@ type Mode = "lines" | "chars" | "words" | "weight" | "depth";
  */
 export default function Reveal({ children, as: Tag = "div", mode = "lines", className, delay = 0, once = true, id, style }: { children: ReactNode; as?: keyof React.JSX.IntrinsicElements; mode?: Mode; className?: string; delay?: number; once?: boolean; id?: string; style?: React.CSSProperties }) {
   const ref = useRef<HTMLElement>(null);
+  const ready = useAfterFirstPaint();
   useEffect(() => {
-    const el = ref.current; if (!el) return;
+    const el = ref.current; if (!el || !ready) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let targets: Element[] = [el];
     let from: gsap.TweenVars = { y: 24, opacity: 0 };
@@ -47,7 +49,7 @@ export default function Reveal({ children, as: Tag = "div", mode = "lines", clas
       scrollTrigger: { trigger: el, start: "top 85%", once, toggleActions: once ? "play none none none" : "play none none reverse" },
     });
     return () => { tl.scrollTrigger?.kill(); tl.kill(); };
-  }, [mode, delay, once]);
+  }, [mode, delay, once, ready]);
   const Comp = Tag as "div";
   return <Comp ref={ref as React.RefObject<HTMLDivElement>} id={id} className={className} style={{ transformStyle: "preserve-3d", ...style }}>{children}</Comp>;
 }

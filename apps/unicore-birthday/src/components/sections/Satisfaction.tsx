@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { useAfterFirstPaint } from "@/features/scroll/afterFirstPaint";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Reveal from "@/components/Reveal";
 import BgVideo from "@/features/video/BgVideo";
@@ -15,12 +16,14 @@ export default function Satisfaction() {
   const t = useDict();
   const satisfaction = t.satisfactionView;
   const list = useRef<HTMLDivElement>(null);
+  const ready = useAfterFirstPaint();
   useEffect(() => {
+    if (!ready) return;
     const el = list.current; if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const tl = gsap.fromTo(el.children, { z: -260, opacity: 0, rotateX: -12, transformPerspective: 1200 }, { z: 0, opacity: 1, rotateX: 0, duration: 1.1, ease: "power3.out", stagger: 0.16, scrollTrigger: { trigger: el, start: "top 80%", once: true } });
     return () => { tl.scrollTrigger?.kill(); tl.kill(); };
-  }, []);
+  }, [ready]);
   return (
     <section id="reviews" className="section" data-bg="#38231C" aria-labelledby="h-rev" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(180deg, var(--bg-obsidian), var(--bg-bronze))" }}>
       <BgVideo src={clips.boxOpenGreen.src} poster={clips.boxOpenGreen.poster} opacity={0.5} />
