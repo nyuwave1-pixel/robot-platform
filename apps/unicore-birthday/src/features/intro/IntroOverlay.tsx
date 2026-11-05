@@ -19,6 +19,10 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
   const mobile = useIsMobile();
   const reduced = useReducedMotion();
   const asset = mobile ? videos.filmPortrait : videos.film;
+  // 뷰포트 판별(useIsMobile)은 첫 렌더 뒤에 확정되므로, 확정 전에는 <source> 를 붙이지 않는다
+  // (첫 렌더에 데스크톱 1080p 소스가 붙어 모바일에서 5MB 를 받기 시작하던 문제 방지)
+  const [vpReady, setVpReady] = useState(false);
+  useEffect(() => { setVpReady(true); }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [phase, setPhase] = useState<Phase>("wait");
   const [progress, setProgress] = useState(0);
@@ -94,7 +98,7 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
             onError={() => setFailed(true)}
             onEnded={finish}
           >
-            {sourcesFor(asset, mobile).map((s) => <source key={s.src} src={s.src} type={s.type} />)}
+            {vpReady && sourcesFor(asset, mobile).map((s) => <source key={s.src} src={s.src} type={s.type} />)}
           </video>
         ) : (
           <div className={styles.fallback} style={{ backgroundImage: `url(${asset.poster})` }}>

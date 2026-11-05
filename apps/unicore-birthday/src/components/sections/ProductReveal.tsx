@@ -5,6 +5,7 @@ import { product } from "@/data/product";
 import { detail, productLoop } from "@/data/images";
 import { hasWebGL, useReducedMotion } from "@/lib/env";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
+import { useNearViewport } from "@/features/video/useNearViewport";
 import s from "./sections.module.css";
 import { useDict } from "@/i18n/context";
 
@@ -21,6 +22,8 @@ export default function ProductReveal() {
   const [videoOk, setVideoOk] = useState(true);
   const video = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
+  const near = useNearViewport(pin);
+  useEffect(() => { const v = video.current; if (v && near && v.preload !== "auto") { v.preload = "auto"; v.load(); } }, [near, videoOk, mode]);
   useEffect(() => { setWebgl(hasWebGL()); }, []);
   useEffect(() => {
     const v = video.current; if (!v) return;
@@ -41,7 +44,7 @@ export default function ProductReveal() {
           <ProductInspector className={s.inspector} hint={t.copy.s03.hint} openLabel={t.copy.s03.openLid} resetLabel={t.copy.s03.reset} ariaLabel={t.ui.inspectorHint} zoomInLabel={t.ui.zoomIn} zoomOutLabel={t.ui.zoomOut} />
         ) : videoOk ? (
           <div ref={photo} className={s.productPhoto} role="img" aria-label={`${product.brand} ${product.name} ${t.ui.productJar}`}>
-            <video ref={video} className={s.productVideo} poster={productLoop.poster} playsInline muted preload="auto" onError={() => setVideoOk(false)} aria-hidden="true">
+            <video ref={video} className={s.productVideo} poster={productLoop.poster} playsInline muted preload="metadata" onError={() => setVideoOk(false)} aria-hidden="true">
               <source src={productLoop.src} type="video/mp4" />
             </video>
           </div>
