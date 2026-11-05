@@ -4,6 +4,7 @@ import { formatPromoWindow, isPromoActive } from "@/lib/promo";
 import { detectChannel, cleanTag } from "@/lib/channel";
 import { publicView } from "@/lib/visibility";
 import { DEFAULT_PRODUCTS, AMPOULE, MASK, WASH } from "@/content/products";
+import { GUIDES } from "@/content/guides";
 
 describe("Amazon links", () => {
   it("each product link points at its own ASIN", () => {
@@ -112,5 +113,19 @@ describe("SEO uniqueness", () => {
     for (const t of titles) expect(t.length).toBeLessThanOrEqual(70);
     for (const d of descs) expect(d.length).toBeLessThanOrEqual(160); // Google truncates longer snippets
     for (const t of titles) expect(t).toMatch(/UNI&CORE/);
+  });
+});
+
+describe("Guides SEO", () => {
+  it("every guide has a unique slug/title, fits Google's limits and features a product", () => {
+    expect(new Set(GUIDES.map((g) => g.slug)).size).toBe(GUIDES.length);
+    expect(new Set(GUIDES.map((g) => g.title)).size).toBe(GUIDES.length);
+    for (const g of GUIDES) {
+      expect(g.title.length).toBeLessThanOrEqual(60);
+      expect(g.title).toMatch(/UNI&CORE/);
+      expect(g.description.length).toBeLessThanOrEqual(155);
+      expect(g.products.length).toBeGreaterThan(0);
+      expect(JSON.stringify(g).toLowerCase()).not.toMatch(/whitening|bleach|cure|treats? /);
+    }
   });
 });

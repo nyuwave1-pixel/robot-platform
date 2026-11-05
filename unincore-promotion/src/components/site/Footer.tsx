@@ -27,7 +27,7 @@ export function Footer({ products }: { products: Pick<ProductContent, "slug" | "
         <div>
           <p className="eyebrow !text-ivory/50">Info</p>
           <ul className="mt-4 space-y-3 text-sm text-ivory/80">
-            <li><Link href="/guides/korean-vitamin-c-skincare-routine" className="hover:text-ivory">Vitamin C Routine Guide</Link></li>
+            <li><Link href="/guides" className="hover:text-ivory">Vitamin C Skincare Guides</Link></li>
             <li><Link href="/contact" className="hover:text-ivory">Contact</Link></li>
             <li><Link href="/privacy" className="hover:text-ivory">Privacy Policy</Link></li>
             <li><Link href="/terms" className="hover:text-ivory">Terms of Use</Link></li>

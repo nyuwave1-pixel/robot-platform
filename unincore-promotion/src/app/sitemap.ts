@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getProducts } from "@/lib/cms";
 import { abs } from "@/lib/seo";
+import { GUIDES } from "@/content/guides";
 
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -15,7 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
       images: [p.heroImage, p.packshotWhite, p.visualImage, `/og/${p.slug}`].filter((x): x is string => Boolean(x)).map(abs),
     })),
+    { url: abs("/guides"), lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
     { url: abs("/guides/korean-vitamin-c-skincare-routine"), lastModified: now, changeFrequency: "monthly" as const, priority: 0.8 },
+    ...GUIDES.map((g) => ({ url: abs(`/guides/${g.slug}`), lastModified: new Date(g.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
     ...["/contact", "/privacy", "/terms", "/disclaimer"].map((path) => ({ url: abs(path), lastModified: now, changeFrequency: "yearly" as const, priority: 0.2 })),
   ];
 }

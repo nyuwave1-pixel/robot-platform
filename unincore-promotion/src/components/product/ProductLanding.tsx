@@ -15,6 +15,7 @@ import { ProductViewTracker } from "@/components/site/ProductViewTracker";
 import { BrandFilm } from "@/components/vitac/BrandFilm";
 import { BRAND_FILMS, PRODUCT_LOOP } from "@/data/videos";
 import { AmazonPanel } from "./AmazonPanel";
+import { GUIDES } from "@/content/guides";
 import { OfficialDetail } from "./OfficialDetail";
 
 function Pending({ status, preview }: { status: VerificationStatus; preview: boolean }) {
@@ -366,9 +367,15 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
                   ))}
                 </article>
               ))}
-              <p className="text-sm text-ink-mute">
-                Building a routine? Read our <Link href="/guides/korean-vitamin-c-skincare-routine" className="underline underline-offset-4">Korean vitamin C skincare routine guide</Link>.
-              </p>
+              <div className="text-sm text-ink-mute">
+                <p>Related guides:</p>
+                <ul className="mt-2 space-y-1">
+                  <li><Link href="/guides/korean-vitamin-c-skincare-routine" className="underline underline-offset-4">Korean vitamin C skincare routine</Link></li>
+                  {GUIDES.filter((g) => g.products.includes(p.key)).map((g) => (
+                    <li key={g.slug}><Link href={`/guides/${g.slug}`} className="underline underline-offset-4">{g.h1}</Link></li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </section>
