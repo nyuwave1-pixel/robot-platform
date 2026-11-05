@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     classification: "Skincare · Cream",
     referrer: "origin-when-cross-origin",
     formatDetection: { telephone: false, email: false, address: false },
-    alternates: { canonical: sv.path, languages: hreflangMap() },
+    alternates: { canonical: sv.path, languages: hreflangMap(), types: { "application/rss+xml": `${seo.siteUrl}/rss.xml` } },
     openGraph: {
       type: "website",
       locale: sv.locale,
@@ -55,11 +55,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     verification: {
       ...(seo.verification.google ? { google: seo.verification.google } : {}),
       ...(seo.verification.naver ? { other: { "naver-site-verification": seo.verification.naver } } : {}),
-    },
-    other: {
-      "og:image:secure_url": `${seo.siteUrl}${seo.ogImage}`,
-      "article:author": d.product.brandLocal,
-      "format-detection": "telephone=no",
     },
   };
 }
