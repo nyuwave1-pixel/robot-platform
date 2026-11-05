@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import "../globals.css";
 import { seo } from "@/data/seo";
 import { product } from "@/data/product";
 import { hreflangMap, isLocale, localeMeta, locales, type Locale } from "@/i18n/config";
 import { getDict } from "@/i18n/dict";
+
+/** GA4 측정 ID — 환경변수 NEXT_PUBLIC_GA4_ID 로 교체 가능(빈 문자열이면 태그 미삽입) */
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID ?? "G-X6T6W1XYQ9";
 
 /** 언어 세그먼트 — ko(/ 로 리라이트) · en · zh 만 정적 생성 */
 export const dynamicParams = false;
@@ -90,7 +94,18 @@ export default async function RootLayout({ children, params }: { children: React
         <link rel="preload" as="image" href="/media/posters/film_poster.webp" media="(min-width: 768px)" />
         <link rel="preload" as="image" href="/media/posters/film_portrait_poster.webp" media="(max-width: 767px)" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* GA4 — 유니앤코어 오피스 계정(387197170) / unincore 속성 / "UNI&CORE 1ST Birthday Cream" 스트림 */}
+        {GA4_ID ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA4_ID}');`}
+            </Script>
+          </>
+        ) : null}
+      </body>
     </html>
   );
 }
