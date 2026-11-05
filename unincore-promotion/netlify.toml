@@ -19,3 +19,25 @@
   to = "https://promotion.unincore.com/:splat"
   status = 301
   force = true
+
+# Common sitemap URLs people submit to Search Console / Naver → the real sitemap.
+[[redirects]]
+  from = "/sitemap"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/sitemap_index.xml"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/sitemap-index.xml"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/sitemap.html"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
