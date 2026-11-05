@@ -2,6 +2,7 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAfterFirstPaint } from "./afterFirstPaint";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,9 +14,10 @@ export function useSectionProgress(ref: RefObject<HTMLElement | null>, onUpdate?
   const progress = useRef(0);
   const cb = useRef(onUpdate);
   cb.current = onUpdate;
+  const ready = useAfterFirstPaint();
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !ready) return;
     const st = ScrollTrigger.create({
       trigger: el,
       start: "top top",
@@ -27,7 +29,7 @@ export function useSectionProgress(ref: RefObject<HTMLElement | null>, onUpdate?
       },
     });
     return () => st.kill();
-  }, [ref]);
+  }, [ref, ready]);
   return progress;
 }
 
@@ -35,10 +37,11 @@ export function useSectionProgress(ref: RefObject<HTMLElement | null>, onUpdate?
 export function useInView(ref: RefObject<HTMLElement | null>, onEnter: () => void, start = "top 75%") {
   const cb = useRef(onEnter);
   cb.current = onEnter;
+  const ready = useAfterFirstPaint();
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !ready) return;
     const st = ScrollTrigger.create({ trigger: el, start, once: true, onEnter: () => cb.current() });
     return () => st.kill();
-  }, [ref, start]);
+  }, [ref, start, ready]);
 }
