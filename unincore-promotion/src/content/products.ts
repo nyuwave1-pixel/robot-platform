@@ -98,6 +98,39 @@ export const AMPOULE: ProductContent = {
     "The ampoule is naturally yellow from its ingredients. Even once absorbed it can transfer to pillowcases or clothing — wipe spills right away, as they can stain if left.",
   ],
 
+  about: [
+    {
+      heading: "A Korean vitamin C serum with 13.5% pure ascorbic acid",
+      paragraphs: [
+        "The UNI&CORE Vita C 13.5 Super Brightening Ampoule is a Korean vitamin C serum built around 13.5% pure vitamin C — ascorbic acid, the form of vitamin C most studied in skincare. It is listed second on the US label, right after water, and is paired with glutathione for a brighter, more even-looking complexion.",
+        "\"Ampoule\" is the Korean-skincare name for a concentrated serum. You use it exactly like a vitamin C serum: after cleansing and toning, before your moisturizer and sunscreen.",
+      ],
+    },
+    {
+      heading: "Why the formula stays stable",
+      paragraphs: [
+        "Pure ascorbic acid is powerful but easily degraded by water and air. This ampoule uses a dual-layer formulation to keep the vitamin C stable, with a high hydration level so the water-soluble vitamin C can do its job. It comes in a 1.06 oz (30 g) pump bottle — 2 pumps per use, as the brand recommends.",
+      ],
+    },
+    {
+      heading: "Results measured in 7 days",
+      paragraphs: [
+        "In a 7-day human application test with 21 adults aged 20–60 (SKINMED Co., Ltd. Clinical Trial Centre), skin glow (radiance) improved by 35.6%, elasticity by 14.3% and a skin-pigmentation measurement by 7.2%. In the satisfaction survey, 95.2% said they were satisfied with the product. Individual results may vary.",
+      ],
+    },
+    {
+      heading: "Who it is for",
+      paragraphs: [
+        "Anyone whose skin looks dull, tired or uneven and wants a daily vitamin C step that layers well under makeup. Supporting ingredients — camu camu, turmeric, beta-carotene, hyaluronic acid, panthenol and a calming complex — keep the routine comfortable. If your skin is sensitive, start with a toner first for two weeks, as the brand recommends.",
+      ],
+    },
+    {
+      heading: "Where to buy the UNI&CORE Vita C 13.5 ampoule in the US",
+      paragraphs: [
+        "The ampoule is sold on Amazon.com through the official UNI&CORE listing (ASIN B0HJRKRKT7). Use any Shop on Amazon button on this page to see today's price, delivery options and customer reviews.",
+      ],
+    },
+  ],
   concerns: [
     { title: "Dull, tired-looking skin", text: "Late nights, city air and dry indoor heat can leave skin looking flat and lackluster." },
     { title: "Uneven-looking tone", text: "Spots and patches make makeup work harder and skin look less even." },
@@ -195,15 +228,17 @@ export const AMPOULE: ProductContent = {
     { q: "How do I use it?", a: "After cleansing, apply 2 pumps and spread evenly over the face, avoiding the eye area. Dab a little extra on areas of concern, then follow with cream and mist. Use sunscreen in the morning." },
     { q: "Is it suitable for sensitive skin?", a: "If your skin is sensitive, prep with a toner for the first two weeks before applying the ampoule, then try using it directly after cleansing. Patch test first and stop if irritation occurs." },
     { q: "Why is the ampoule yellow?", a: "The color comes from its ingredients, such as turmeric root extract and beta-carotene. It can transfer to pillowcases or clothing even after it absorbs, so wipe any spills right away." },
+    { q: "Is an ampoule the same as a vitamin C serum?", a: "Yes — ampoule is the Korean-skincare word for a concentrated serum. Use it in the serum step: after cleansing and toner, before moisturizer and sunscreen." },
+    { q: "Can I layer it with other serums or actives?", a: "Apply the ampoule first on clean skin, then lighter serums and your cream. Many people use vitamin C in the morning (with sunscreen) and stronger actives such as retinol at night. Patch test new combinations." },
     { q: "Where can I buy it in the US?", a: "UNI&CORE products are sold on Amazon.com. Use the Shop on Amazon button on this page to go straight to the official listing." },
   ],
 
   promotion: bfcm(20),
 
   seo: {
-    title: "13.5% Pure Vitamin C Ampoule Serum | UNI&CORE Vita C 13.5",
+    title: "13.5% Vitamin C Serum Ampoule | UNI&CORE Korean Skincare",
     description:
-      "UNI&CORE Vita C 13.5 Super Brightening Ampoule: 13.5% pure vitamin C (ascorbic acid) with glutathione. +35.6% radiance in 7 days*. Shop on Amazon.",
+      "Korean vitamin C serum with 13.5% pure ascorbic acid and glutathione. +35.6% radiance in a 7-day test*. Shop the UNI&CORE Vita C 13.5 on Amazon.",
     keywords: ["13.5% vitamin C serum", "vitamin C ampoule", "pure vitamin C serum", "ascorbic acid serum", "glutathione vitamin C serum", "brightening ampoule", "Korean vitamin C serum", "skin radiance serum", "UNI&CORE"],
   },
 };
@@ -262,6 +297,32 @@ export const MASK: ProductContent = {
   },
   usageNotes: ["Place the sheet with its darker side facing out."],
 
+  about: [
+    {
+      heading: "A Korean vitamin C sheet mask with 2% pure vitamin C",
+      paragraphs: [
+        "The UNI&CORE Vita C Super Brightening Mask is a Korean sheet mask soaked in an essence with 2% pure vitamin C (ascorbic acid), glutathione and Inula britannica flower extract — a brightening trio for skin that looks tired or dull. The vitamin C is stabilized with a double-layer formula and kept at a high hydration level.",
+      ],
+    },
+    {
+      heading: "A 100% TENCEL™ sheet that hugs the skin",
+      paragraphs: [
+        "The premium high-adherence sheet is made from 100% TENCEL™ using water-save technology. Its front keeps moisture and essence from evaporating, while the back pushes the essence toward the skin, so the mask clings to every contour for a firmer, lifted feel.",
+      ],
+    },
+    {
+      heading: "How to use a vitamin C face mask",
+      paragraphs: [
+        "Cleanse, apply the mask with the darker side facing out, and remove it after 10–20 minutes. Pat the remaining essence in, then finish with a mist and cream. Each box holds 5 individually sealed sheets (0.56 oz / 16 g each) — ideal before an event or as a weekly brightening ritual.",
+      ],
+    },
+    {
+      heading: "Where to buy the UNI&CORE vitamin C sheet mask in the US",
+      paragraphs: [
+        "The mask is sold on Amazon.com through the official UNI&CORE listing (ASIN B0HGR6V48S). Use the Shop on Amazon buttons on this page for today's price, delivery and reviews.",
+      ],
+    },
+  ],
   concerns: [
     { title: "Skin looks tired", text: "Busy weeks show up on your face first — as dullness and a lack of bounce." },
     { title: "Makeup won't sit right", text: "Dry-feeling, uneven-looking skin makes foundation look patchy." },
@@ -366,14 +427,15 @@ export const MASK: ProductContent = {
     { q: "How many masks come in a box?", a: "Each box contains 5 individually packed sheet masks, 0.56 oz (16 g) each." },
     { q: "What is the sheet made of?", a: "A premium high-adherence sheet made from 100% TENCEL™ using water-save technology. It hugs the skin, keeps the essence from evaporating and pushes it toward the skin." },
     { q: "Which side faces out?", a: "Place the sheet with the darker side facing out." },
+    { q: "Where can I buy the vitamin C sheet mask in the US?", a: "On Amazon.com, through the official UNI&CORE listing. Use the Shop on Amazon button on this page." },
   ],
 
   promotion: bfcm(20),
 
   seo: {
-    title: "Vitamin C Sheet Mask (5 Pack) | UNI&CORE Brightening Face Mask",
+    title: "Vitamin C Sheet Mask (5 Pack) | UNI&CORE Korean Face Mask",
     description:
-      "UNI&CORE Vita C Super Brightening Mask: 2% pure vitamin C on a 100% TENCEL™ high-adherence sheet for a brighter-looking glow in 10–20 minutes. Shop on Amazon.",
+      "Korean vitamin C sheet mask: 2% pure vitamin C and glutathione on a 100% TENCEL™ sheet. Brighter-looking skin in 10–20 minutes. Shop on Amazon.",
     keywords: ["vitamin C face mask", "brightening sheet mask", "Korean vitamin C mask", "vitamin C sheet mask", "TENCEL sheet mask", "glutathione sheet mask", "hydrating face mask", "UNI&CORE"],
   },
 };
@@ -431,6 +493,32 @@ export const WASH: ProductContent = {
     ],
   },
 
+  about: [
+    {
+      heading: "A Korean enzyme powder wash with vitamin C",
+      paragraphs: [
+        "The UNI&CORE Vita C Enzyme Powder Wash is a Korean powder cleanser that turns into a rich, creamy foam with a splash of water. It combines pure vitamin C (ascorbic acid) and curcumin with three enzymes — papain from papaya, bromelain from pineapple and lipase — for a gentle daily exfoliating cleanse.",
+      ],
+    },
+    {
+      heading: "Gentle exfoliation at a skin-friendly pH",
+      paragraphs: [
+        "Instead of harsh scrubbing, the enzymes break down dead skin cells, excess sebum and impurities. Fine wild strawberry seeds and orange peel powder add a soft polish, and mild coconut- and amino-acid-derived cleansers keep skin from feeling tight. The formula is mildly acidic, at pH 5 to 5.5, close to the skin's own barrier.",
+      ],
+    },
+    {
+      heading: "Single-use packets for every skin type",
+      paragraphs: [
+        "Each box holds 30 single-use 1 g pouches (1.06 oz / 30 g total), so the powder stays dry and fresh and travels easily. The box lists oily, normal, combination and dry skin. Use it daily, or as the first step before the vitamin C sheet mask and ampoule.",
+      ],
+    },
+    {
+      heading: "Where to buy the UNI&CORE enzyme powder wash in the US",
+      paragraphs: [
+        "The powder wash is sold on Amazon.com through the official UNI&CORE listing (ASIN B0HGQYFF13). Use the Shop on Amazon buttons on this page for today's price, delivery options and reviews.",
+      ],
+    },
+  ],
   concerns: [
     { title: "Rough, uneven texture", text: "Dead-skin buildup makes skin feel rough and look dull." },
     { title: "Congested-looking pores", text: "Oil and residue can leave pores looking more visible by the end of the day." },
@@ -532,6 +620,8 @@ export const WASH: ProductContent = {
     { q: "How is a powder wash different from a regular foam cleanser?", a: "The powder turns into a soft foam on contact with water and uses enzymes and naturally derived ingredients to clear away dead skin cells and impurities without irritation. It also leaves skin moisturized, without that tight feeling after cleansing." },
     { q: "Can I use the powder wash every day?", a: "Yes. It removes dead skin cells and impurities with the power of enzymes rather than harsh scrubbing, so you can use it every day for clear, healthy-looking skin." },
     { q: "How many washes are in a box?", a: "Each box contains 30 individually packed 1 g pouches — one pouch per wash." },
+    { q: "Is the powder wash good for oily or combination skin?", a: "The box lists oily, normal, combination and dry skin. The lipase enzyme helps break down excess sebum, while mild cleansers keep skin from feeling tight." },
+    { q: "Where can I buy the enzyme powder wash in the US?", a: "On Amazon.com, through the official UNI&CORE listing. Use the Shop on Amazon button on this page." },
     { q: "Does it replace my makeup remover?", a: "For heavy or waterproof makeup, remove it first with a cleansing oil or balm, then use the powder wash as your second cleanse." },
     { q: "Can I use it with sensitive skin?", a: "Yes. It's made with naturally derived ingredients and low-irritation enzymes at a mildly acidic pH of 5–5.5. As with any new product, patch test first if your skin is reactive." },
   ],
@@ -539,9 +629,9 @@ export const WASH: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "Enzyme Powder Face Wash with Bromelain | UNI&CORE Korean Cleanser",
+    title: "Vitamin C Enzyme Powder Face Wash | UNI&CORE Korean Cleanser",
     description:
-      "UNI&CORE Vita C Enzyme Powder Wash: a pH 5–5.5 Korean enzyme cleanser with papain, bromelain, lipase and vitamin C. 30 single-use pouches. Shop on Amazon.",
+      "Korean enzyme powder cleanser with vitamin C, papain and bromelain. Low pH 5–5.5 daily exfoliation in 30 single-use packets. Shop on Amazon.",
     keywords: ["enzyme powder wash", "enzyme face cleanser", "powder face wash", "vitamin C powder cleanser", "bromelain papain cleanser", "low pH cleanser", "foaming powder cleanser", "daily exfoliating cleanser", "UNI&CORE"],
   },
 };

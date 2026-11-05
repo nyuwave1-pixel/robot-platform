@@ -60,10 +60,13 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
           </nav>
           <div className="order-2 md:order-1">
             <p className={`eyebrow ${a.text}`}>{p.heroEyebrow}</p>
-            <h1 className="mt-5 font-display text-[42px] leading-[1] sm:text-6xl lg:text-7xl">{p.heroHeadline}</h1>
-            <p className="mt-5 text-sm font-semibold uppercase tracking-widest text-ink-soft">
-              UNI&amp;CORE {p.name} · {p.size}
-            </p>
+            {/* H1 carries both the campaign line and the full product name (what shoppers search for). */}
+            <h1>
+              <span className="mt-5 block font-display text-[42px] leading-[1] sm:text-6xl lg:text-7xl">{p.heroHeadline}</span>
+              <span className="mt-5 block font-sans text-sm font-semibold uppercase tracking-widest text-ink-soft">
+                UNI&amp;CORE {p.name} · {p.size}
+              </span>
+            </h1>
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-ink-soft">{p.heroSub}</p>
             <ul className="mt-6 flex flex-wrap gap-2">
               {p.highlights.map((h) => (
@@ -342,6 +345,34 @@ export function ProductLanding({ product: p, related, preview = false }: { produ
           />
         </div>
       </section>
+
+      {/* 10B. ABOUT — long-form copy around what shoppers search for */}
+      {p.about && p.about.length > 0 && (
+        <section className="section" aria-labelledby="about-title">
+          <div className="container-site grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+            <div data-reveal>
+              <p className="eyebrow">About the product</p>
+              <h2 id="about-title" className="h-section mt-4">About UNI&amp;CORE {p.name}</h2>
+              <div className="mt-8">
+                <AmazonButton product={ap} location="about" />
+              </div>
+            </div>
+            <div className="space-y-10">
+              {p.about.map((sec) => (
+                <article key={sec.heading} data-reveal>
+                  <h3 className="text-2xl leading-snug sm:text-3xl">{sec.heading}</h3>
+                  {sec.paragraphs.map((para) => (
+                    <p key={para.slice(0, 40)} className="mt-3 leading-relaxed text-ink-soft">{para}</p>
+                  ))}
+                </article>
+              ))}
+              <p className="text-sm text-ink-mute">
+                Building a routine? Read our <Link href="/guides/korean-vitamin-c-skincare-routine" className="underline underline-offset-4">Korean vitamin C skincare routine guide</Link>.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 11. FAQ */}
       {p.faqs.length > 0 && (

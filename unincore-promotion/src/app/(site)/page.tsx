@@ -25,11 +25,11 @@ import { HomeStickyCTA } from "@/components/vitac/HomeStickyCTA";
 
 
 export const metadata: Metadata = pageMetadata({
-  title: "UNI&CORE VITA C Collection | Korean Vitamin C Skincare on Amazon",
+  title: "Korean Vitamin C Skincare on Amazon | UNI&CORE VITA C",
   description:
-    "Discover the UNI&CORE VITA C Collection: an enzyme powder wash, a brightening sheet mask and the Vita C 13.5 ampoule — one Korean vitamin C ritual. Shop on Amazon.",
+    "Shop UNI&CORE's Korean vitamin C routine on Amazon: the 13.5% vitamin C serum ampoule, a vitamin C sheet mask and an enzyme powder wash.",
   path: "/",
-  keywords: ["UNI&CORE", "Korean vitamin C skincare", "K beauty vitamin C", "vitamin C skincare routine", "Korean skincare", "vitamin C serum", "vitamin C sheet mask", "enzyme powder wash"],
+  keywords: ["UNI&CORE", "Korean vitamin C skincare", "Korean vitamin C serum", "K beauty vitamin C", "vitamin C skincare routine", "vitamin C serum Amazon", "vitamin C sheet mask", "enzyme powder wash", "glutathione vitamin C"],
   ogImage: "/og/home",
   absoluteTitle: true,
 });
@@ -94,9 +94,11 @@ export default async function HomePage() {
         <ShaderStage shader="gold" className="-z-10" />
         <div className="container-site grid items-center gap-8 pb-16 pt-8 lg:min-h-[min(92svh,860px)] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:py-20">
           <div className="relative z-10 order-2 lg:order-1">
-            <p className="eyebrow !text-champagne">{BRAND.hero.eyebrow}</p>
-            <h1 className="mt-6 font-display text-[46px] leading-[0.98] sm:text-7xl lg:text-[92px]">
-              {BRAND.hero.headline[0]} <em className="vc-gold-text not-italic">{BRAND.hero.headline[1]}</em>
+            <h1>
+              <span className="eyebrow block !text-champagne">UNI&amp;CORE Korean Vitamin C Skincare</span>
+              <span className="mt-6 block font-display text-[46px] leading-[0.98] sm:text-7xl lg:text-[92px]">
+                {BRAND.hero.headline[0]} <em className="vc-gold-text not-italic">{BRAND.hero.headline[1]}</em>
+              </span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-ivory/75">{BRAND.hero.sub}</p>
             <div className="mt-9 flex flex-wrap gap-3">

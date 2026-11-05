@@ -158,6 +158,10 @@ check("sitemap.xml lists home + 3 products", PRODUCTS.every((p) => sm.includes(`
 const rb = await (await fetch(`${BASE}/robots.txt`)).text();
 check("robots.txt allows crawling and points to sitemap", rb.includes("Allow: /") && rb.includes(`Sitemap: ${SITE}/sitemap.xml`));
 check("no admin area", (await fetch(`${BASE}/admin`)).status === 404);
+const guide = await fetch(`${BASE}/guides/korean-vitamin-c-skincare-routine`);
+const guideHtml = await guide.text();
+check("routine guide page live with Article + FAQ schema", guide.status === 200 && guideHtml.includes('"@type":"Article"') && guideHtml.includes('"@type":"FAQPage"'));
+check("sitemap lists the routine guide", sm.includes(`${SITE}/guides/korean-vitamin-c-skincare-routine`));
 const nf = await fetch(`${BASE}/this-does-not-exist`);
 check("unknown URL → 404", nf.status === 404);
 const badProduct = await fetch(`${BASE}/products/not-a-product`);

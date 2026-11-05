@@ -149,6 +149,12 @@ export interface ProductContent {
   officialDetail?: OfficialDetail;
   /** Extra usage notes from the official detail page (shown under the steps). */
   usageNotes?: string[];
+  /**
+   * Long-form "About" copy for search: H2 + paragraphs written around the phrases
+   * shoppers type into Google before buying on Amazon. Facts only from the label
+   * and the official detail page.
+   */
+  about?: { heading: string; paragraphs: string[] }[];
 
   concerns: TitledText[];
   benefits: TitledText[];
