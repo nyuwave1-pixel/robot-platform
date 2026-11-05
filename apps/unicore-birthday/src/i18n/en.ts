@@ -221,7 +221,7 @@ export const en: Messages = {
   },
   seo: {
     title: "UNI&CORE 1st Birthday Cream | Your Skin's First Birthday",
-    description: "Ginseng PDRN, Nobel Prize ingredient EGF (4GF), Acetyl Hexapeptide-8 and Cica. 4-week clinical test: 48.33% cheek lifting, 19.06% neck wrinkle reduction, 0 adverse reactions. SKIN RE:BIRTH by UNI&CORE.",
+    description: "Ginseng PDRN, Nobel Prize EGF (4GF), Acetyl Hexapeptide-8 and Cica. 4-week clinical test: 48.33% cheek lifting, 19.06% fewer neck lines, 0 adverse reactions.",
     keywords: [
       "UNI&CORE", "UNI&CORE 1st Birthday Cream", "1ST BIRTHDAY CREAM", "Birthday Cream", "SKIN RE:BIRTH",
       "ginseng PDRN cream", "3rd generation PDRN", "PDRN cream", "EGF cream", "growth factor cream", "4GF", "Acetyl Hexapeptide-8", "peptide cream",

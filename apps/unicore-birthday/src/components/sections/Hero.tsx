@@ -53,7 +53,7 @@ export default function Hero() {
           <div className={s.heroText}>
             <p ref={ko} className={`display-en ${s.heroEyebrow}`}>{t.copy.s01.en}</p>
             <h1 id="h-birthday" ref={en} className={`headline-ko ${s.heroKoBig}`} style={{ transform: "rotateX(3deg)" }}>
-              <span className={s.heroKoLine}>{t.copy.s01.ko1}</span>
+              <span className={s.heroKoLine}>{t.copy.s01.ko1}</span>{" "}
               <b className={s.heroKoEm}>{t.copy.s01.ko2}</b>
             </h1>
           </div>

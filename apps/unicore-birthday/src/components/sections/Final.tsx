@@ -38,7 +38,7 @@ export default function Final() {
           <div ref={stack} className={s.finalStack} style={{ opacity: 0 }}>
             <p className={`display-en ${s.finalEyebrow}`}>{t.copy.s12.en}</p>
             <h2 id="h-final" className={`headline-ko ${s.finalKoBig}`}>
-              <span>{t.copy.s01.ko1}</span>
+              <span>{t.copy.s01.ko1}</span>{" "}
               <b>{t.copy.s01.ko2}</b>
             </h2>
             <p className={`headline-ko ${s.finalKo}`}>{t.copy.s12.ko}</p>
