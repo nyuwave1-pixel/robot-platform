@@ -16,7 +16,7 @@ export default function SoundToggle() {
       className={`sound-toggle ${on ? "on" : ""} ${blocked ? "blocked" : ""}`}
       onClick={() => audio.toggle()}
       aria-pressed={on}
-      aria-label={on ? t.ui.soundOff : t.ui.soundOn}
+      title={on ? t.ui.soundOff : t.ui.soundOn}
     >
       <span className="sound-bars" aria-hidden="true"><i /><i /><i /><i /></span>
       <span className="sound-label">{on ? "SOUND ON" : blocked ? "TAP FOR SOUND" : "SOUND OFF"}</span>

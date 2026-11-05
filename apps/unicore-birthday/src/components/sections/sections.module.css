@@ -65,7 +65,7 @@
 
 /* ---------- S05 masterpiece ---------- */
 .mpTitle { position: absolute; left: 0; right: 0; top: clamp(60px, 10vh, 120px); text-align: center; z-index: 3; display: grid; gap: 10px; justify-items: center; padding: 0 20px; }
-.mpTitle .eyebrow { color: var(--gold-deep); }
+.mpTitle :global(.eyebrow) { color: var(--gold-deep); }
 .mpH { font-size: clamp(34px, 5.5vw, 76px); color: #1a120c; margin: 0; }
 .mpEn { font: 400 clamp(12px, 1.2vw, 16px)/1 var(--font-serif); letter-spacing: .5em; color: #6b5433; }
 .mpBottom { position: absolute; left: 0; right: 0; bottom: clamp(60px, 10vh, 120px); text-align: center; z-index: 3; display: grid; gap: 8px; padding: 0 20px; color: #1a120c; }
@@ -127,10 +127,9 @@
 
 /* ---------- S13 lineup ---------- */
 .lineup { background: var(--ivory); color: #1a120c; }
-.lineup .eyebrow { color: #8f6b3a; }
 .lineupGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 40px; }
 .lineupItem { display: grid; gap: 10px; padding: 18px 12px; border-radius: 8px; text-align: center; }
-.lineupItem b { font: 400 clamp(20px, 2.4vw, 34px)/1 var(--font-serif); color: #8f6b3a; }
+.lineupItem b { font: 400 clamp(20px, 2.4vw, 34px)/1 var(--font-serif); color: #7a5a2a; }
 .lineupItem i { font: 500 11px/1 var(--font-ui); letter-spacing: .2em; color: #6b5433; font-style: normal; }
 .lineupItem span { font-size: 13px; color: #3b2e22; line-height: 1.5; }
 .lineupHi { background: #fff; box-shadow: 0 20px 50px rgba(0,0,0,.08); }
@@ -170,7 +169,7 @@
 /* masterpiece (light scene — 흰 배경 선물상자 영상 위 다크 타이포) */
 .mpVideo { background: #efece6; }
 .mpVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(239,236,230,.9), rgba(239,236,230,0) 34%, rgba(239,236,230,0) 56%, rgba(239,236,230,.92) 82%, #efece6 100%); pointer-events: none; }
-.mpTitle .eyebrow { color: #4a3620; }
+.mpTitle :global(.eyebrow) { color: #4a3620; }
 .mpH { color: #1a120c; }
 .mpEn { color: #6b5433; }
 .mpBottom { color: #1a120c; }
@@ -362,7 +361,7 @@ img.ingImg { transform: scale(1.1); }
   .metric { min-height: auto; padding-block: 64px 40px; }
   .metricInner { gap: 28px; }
   .bigNum { font-size: clamp(64px, 19vw, 96px); }
-  .metricKind .caption { letter-spacing: .08em; }
+  .metricKind :global(.caption) { letter-spacing: .08em; }
   .lead { font-size: 17px; }
   .footPanel summary { letter-spacing: .06em; font-size: 12px; text-transform: none; }
   .chartTitle { letter-spacing: .04em; font-size: 12px; margin-bottom: 44px; }
@@ -415,4 +414,10 @@ html[lang="en"] .pepBig { font-size: clamp(36px, 5.6vw, 92px); }
 .heroBg { background-image: url("/media/detail/d01_candle_1st.webp"); }
 @media (max-width: 767px) { .heroBg { background-image: url("/media/detail/d01_candle_1st_m.webp"); } }
 /* 라이트 섹션 명도 대비(WCAG AA) */
-.lineup .eyebrow { color: #7a5a2a; }
+.lineup :global(.eyebrow) { color: #7a5a2a; }
+
+/* ---------- 모바일 최소 글자 크기 12px (Lighthouse legible-text · 가독성) ---------- */
+@media (max-width: 767px) {
+  .chap, .hotspot b, .heroFrameCap, .nobelEyebrow, .nobelBadge, .heroGrid .heroEyebrow, .finalEyebrow, .sciFig figcaption,
+  .ingIdx, .layer b, .conceptTag, .surveyTag, .step b, .lineupItem i, .routine, .bar span, .footPanel summary { font-size: 12px; }
+}
