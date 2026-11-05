@@ -23,7 +23,7 @@ class AudioController {
     if (typeof window === "undefined" || this.bgm) return;
     const a = new Audio();
     const src = BGM_SRC.find((s) => a.canPlayType(s.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg")) || BGM_SRC[1];
-    a.src = src; a.loop = true; a.preload = "auto"; a.volume = 0;
+    a.src = src; a.loop = true; a.preload = "metadata"; a.volume = 0; // 재생 허용 시 play() 가 로드 — 차단 상태에서 2.7MB 선로드 방지
     this.bgm = a;
   }
 
