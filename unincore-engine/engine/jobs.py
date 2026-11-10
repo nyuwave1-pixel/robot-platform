@@ -335,15 +335,65 @@ def gemini_content(max_images: int = 5) -> dict:
 
 # --------------------------------------------------------------------------- creatives / performance (connection-gated)
 
+CREATIVE_DIR = core.ROOT / "creatives"
+CREATIVE_FORMATS = ["pinterest_pin", "instagram_post", "story"]
+
+
+def render_creatives(out_dir=None, site_images=None) -> list[dict]:
+    """Template renderer (no external API): official photo + copy already on the site → PNG files."""
+    import shutil
+    import subprocess
+    import tempfile
+
+    from .publish import BANNED
+
+    copy = json.loads((CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
+    site_images = site_images or core.ROOT.parent / "unincore-promotion" / "public" / "products"
+    out_dir = out_dir or core.DATA / "creatives"
+    products = []
+    for pid, c in copy["products"].items():
+        text = " ".join([c["headline"], c["sub"], *c["points"]])
+        if BANNED.search(text) or re.search(r"[$%]\s*off|\d\s*stars?|review", text, re.I):
+            raise ValueError(f"{pid}: 홍보 문구에 금지 표현이 있습니다")
+        img = site_images / c["image"]
+        if not img.exists():
+            raise FileNotFoundError(f"제품 사진 없음: {img}")
+        products.append({**c, "product_id": pid, "imagePath": str(img)})
+    node = shutil.which("node")
+    if not node:
+        raise WaitingConnection("렌더러 미설치: node 가 필요합니다")
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+        json.dump({"site": copy["site"], "cta": copy["cta"], "formats": CREATIVE_FORMATS, "products": products}, f)
+    env = {**os.environ}
+    if not env.get("NODE_PATH") and os.path.isdir("/usr/local/lib/node_modules_global"):
+        env["NODE_PATH"] = "/usr/local/lib/node_modules_global"
+    r = subprocess.run([node, str(CREATIVE_DIR / "render.mjs"), f.name, str(out_dir)], capture_output=True, text=True, timeout=300, env=env)
+    os.unlink(f.name)
+    if r.returncode == 3:
+        raise WaitingConnection("렌더러 미설치: playwright 가 필요합니다 (npm i playwright)")
+    if r.returncode != 0:
+        raise RuntimeError(f"렌더링 실패: {r.stderr.strip()[-300:]}")
+    return json.loads(r.stdout.strip().splitlines()[-1])
+
+
 def creatives() -> dict:
+    """Render template creatives locally. Canva/Higgsfield stay waiting until their APIs are connected."""
+    from .models import CreativeAsset
+
     missing = [p for p in ("canva", "higgsfield") if not connected(p)]
-    if missing:
-        with session() as s:
-            if not s.scalars(select(VideoJob).where(VideoJob.status == "waiting_connection")).first():
-                for p in s.scalars(select(Product).where(Product.active.is_(True)).limit(3)):
-                    s.add(VideoJob(product_id=p.id, spec={"length_s": 15, "style": "black luxury / champagne gold", "source": "official packshot, label locked"}, status="waiting_connection"))
-        raise WaitingConnection(f"미연결: {', '.join(missing)}. 영상 작업 사양만 대기열에 저장했습니다")
-    raise NotImplementedError("Canva/Higgsfield 실행기는 키 연결 후 PHASE 5에서 구현")
+    with session() as s:
+        if "higgsfield" in missing and not s.scalars(select(VideoJob).where(VideoJob.status == "waiting_connection")).first():
+            for p in s.scalars(select(Product).where(Product.id.in_(AMAZON_ASIN))):
+                s.add(VideoJob(product_id=p.id, spec={"length_s": 15, "style": "black luxury / champagne gold", "source": "official packshot, label locked"}, status="waiting_connection"))
+    files = render_creatives()
+    with session() as s:
+        have = set(s.scalars(select(Product.id)))
+        for x in files:
+            rel = str(os.path.relpath(x["file"], core.ROOT))
+            row = s.scalars(select(CreativeAsset).where(CreativeAsset.url == rel)).first()
+            if not row:
+                s.add(CreativeAsset(product_id=x["product_id"] if x["product_id"] in have else None, provider="engine", format=x["format"], url=rel, status="rendered", cost=0))
+    return {"rendered": len(files), "provider": "engine (template, no AI)", "waiting_connection": missing, "cost": 0}
 
 
 def performance() -> dict:

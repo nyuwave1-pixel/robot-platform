@@ -33,7 +33,7 @@ PHASES = [
     (2, "통합 DB · 관리자 대시보드", "partial", "21개 테이블, 읽기 전용 대시보드. 편집 UI·권한 관리는 미구현"),
     (3, "Gemini 이미지 분석 · 키워드", "waiting", "키 인증 확인. 생성 호출은 Gemini 선불 크레딧 소진(402)으로 미검증. 키워드는 제품명 시드 + CSV 가져오기"),
     (4, "Google · Naver SEO 엔진", "partial", "promotion 사이트 감사·메타 백업 동작. 서치 콘솔 API 미연결"),
-    (5, "Canva · Higgsfield 연동", "waiting", "API 키/OAuth 미연결. 작업 사양만 대기열 저장"),
+    (5, "Canva · Higgsfield 연동", "partial", "자체 템플릿 렌더러로 제품당 3종 홍보 이미지 생성(실제 사진·검증 문구, AI 미사용). Canva/Higgsfield API는 미연결 대기"),
     (6, "사이트 자동 반영 · 승인", "partial", "승인 → 검증 → 사이트 파일(seo-overrides.json) 반영 동작. 배포는 git push/Netlify에 따름"),
     (7, "Amazon 광고 데이터", "waiting", "Amazon Ads API 권한 필요. 테이블만 준비"),
     (8, "매일 자동 실행", "partial", "일일 파이프라인 동작(잠금·재시도·로그). GitHub Actions 워크플로 포함"),

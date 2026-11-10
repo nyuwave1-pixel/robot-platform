@@ -60,9 +60,37 @@ def test_waiting_gemini_jobs_are_queued_not_lost():
 
 
 def test_unconnected_api_is_never_reported_as_success():
-    for name in ("gemini_content", "creatives", "performance"):
+    for name in ("gemini_content", "performance"):
         j = core.run_job(name, jobs.JOBS[name])
         assert j.status == "waiting_connection", name
+
+
+def test_creatives_render_locally_and_keep_canva_higgsfield_waiting(monkeypatch, tmp_path):
+    f = tmp_path / "x-pinterest_pin.png"
+    f.write_bytes(b"png")
+    monkeypatch.setattr(jobs, "render_creatives", lambda: [{"product_id": "UC-US-449", "format": "pinterest_pin", "file": str(f)}])
+    j = core.run_job("creatives", jobs.JOBS["creatives"])
+    assert j.status == "success"
+    assert j.result["rendered"] == 1 and j.result["provider"].startswith("engine")
+    assert set(j.result["waiting_connection"]) == {"canva", "higgsfield"}  # never reported as connected
+
+
+def test_creative_copy_is_compliant_and_uses_site_photos():
+    import json
+
+    from engine.publish import BANNED, SLUGS
+
+    copy = json.loads((jobs.CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
+    assert set(copy["products"]) == set(SLUGS)
+    site = (core.ROOT.parent / "unincore-promotion" / "src" / "content" / "products.ts").read_text(encoding="utf-8")
+    for pid, c in copy["products"].items():
+        assert c["slug"] == SLUGS[pid]
+        text = " ".join([c["headline"], c["sub"], *c["points"]])
+        assert not BANNED.search(text)
+        assert not __import__("re").search(r"\$|% ?off|stars?|review|#1|best", text, __import__("re").I)
+        assert (core.ROOT.parent / "unincore-promotion" / "public" / "products" / c["image"]).exists()
+        for n in __import__("re").findall(r"\d+(?:\.\d+)?%", text):  # every percentage must be on the site
+            assert n in site, (pid, n)
 
 
 def test_job_retries_then_fails_and_duplicate_runs_are_skipped(monkeypatch):

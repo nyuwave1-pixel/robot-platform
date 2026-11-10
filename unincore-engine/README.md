@@ -70,3 +70,11 @@ curl -u admin:$ENGINE_ADMIN_PASSWORD -H "Content-Type: text/csv" --data-binary @
 - 가격·성분·인증·임상 수치 변경은 `approval_requests.protected`로 항상 수동 승인 대상.
 - Amazon 광고 데이터(`amazon_campaigns`)와 검색 성과(`search_performance`)는 별도 테이블.
 - 쇼핑몰 수집은 robots.txt 확인 후 요청 간 0.4초 간격.
+
+## 홍보 이미지 (creatives)
+
+`python -m engine creatives` 는 외부 API 없이 자체 템플릿 렌더러(`creatives/render.mjs`, node + playwright)로 제품당 3종(Pinterest 1000×1500, Instagram 1080×1350, Story 1080×1920) PNG를 `data/creatives/` 에 만듭니다.
+
+- 제품 사진은 프로모션 사이트의 공식 사진을 크기만 맞춰 그대로 씁니다(자르기·보정·AI 재생성 없음).
+- 문구는 `creatives/copy.json` 에만 있으며, 사이트에 이미 있는 사실만 허용합니다(가격·할인·평점·리뷰·임상 수치 금지, 테스트로 검증).
+- Canva / Higgsfield API는 계속 `waiting_connection` 으로 보고됩니다. Canva AI 생성은 제품 사진을 다른 병으로 바꿔 그려 사용하지 않습니다.
