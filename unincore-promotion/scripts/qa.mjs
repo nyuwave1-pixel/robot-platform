@@ -88,8 +88,10 @@ for (const p of PRODUCTS) {
   check(`${p.key}: hero/final/sticky CTAs present`, ["hero", "final", "sticky", "offer"].every((loc) => own.some((l) => l.loc === loc)), own.map((l) => l.loc).join(","));
   check(`${p.key}: all own CTAs go to amazon.com/${p.asin}`, own.length > 0 && own.every((l) => l.href.includes(p.asin) && new URL(l.href).hostname.endsWith("amazon.com")));
   check(`${p.key}: CTAs open in a new tab`, own.every((l) => l.target === "_blank"));
-  const pending = await page.evaluate(() => document.body.innerText.includes("100,000+") || document.body.innerText.includes("10M+"));
-  check(`${p.key}: unverified claims are not shown publicly`, !pending);
+  // Korea sales figures come from the brand's own Amazon US listing images (landing.ts). No other product may show them.
+  const figures = await page.evaluate(() => ({ k100: document.body.innerText.includes("100,000+"), m10: document.body.innerText.includes("10M+") }));
+  check(`${p.key}: Korea sales figures only on the product whose listing states them`, figures.k100 === (p.key === "ampoule") && figures.m10 === (p.key === "mask"), JSON.stringify(figures));
+  check(`${p.key}: FAQ section present`, (await page.locator("details[data-faq]").count()) >= 5);
 }
 
 // ---------- ad routing & UTM ----------

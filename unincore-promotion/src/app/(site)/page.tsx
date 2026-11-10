@@ -22,6 +22,7 @@ import { MotionProvider } from "@/components/vitac/MotionProvider";
 import { ShaderStage } from "@/components/vitac/ShaderStage";
 import { TiltProduct } from "@/components/vitac/TiltProduct";
 import { HomeStickyCTA } from "@/components/vitac/HomeStickyCTA";
+import { PageBackgroundLink, StoreCta, StoreLink } from "@/components/site/StoreLink";
 
 
 export const metadata: Metadata = pageMetadata({
@@ -84,15 +85,20 @@ export default async function HomePage() {
     <>
       <Intro film={MOTION.introLemon} products={products.map((p) => ({ key: p.key, name: p.name, image: p.heroImage }))} />
       <MotionProvider />
+      {/* Every empty spot on the page opens UNI&CORE on Amazon; buttons and links keep their own destinations. */}
+      <PageBackgroundLink />
 
       {/* 01 HERO */}
-      <section id="hero" className="relative isolate overflow-hidden bg-night text-ivory">
+      <section id="hero" className="relative isolate overflow-hidden bg-night text-ivory lg:flex lg:min-h-[calc(100svh-104px)] lg:flex-col">
         <div className="absolute inset-0 -z-20 opacity-40" aria-hidden>
           <FilmLayer film={FILMS["brand-intro"]} />
         </div>
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_70%_45%,rgba(233,185,77,.22),rgba(8,7,6,0)_70%)]" aria-hidden />
         <ShaderStage shader="gold" className="-z-10" />
-        <div className="container-site grid items-center gap-8 pb-16 pt-8 lg:min-h-[min(92svh,860px)] lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:py-20">
+        {/* The whole banner background opens UNI&CORE on Amazon. The content sits above it and lets clicks
+            through, except on its own links and buttons, which keep their own destinations. */}
+        <StoreLink location="hero-background" decorative className="absolute inset-0 z-0 cursor-pointer" />
+        <div className="vc-hero-grid container-site pointer-events-none relative z-10 grid w-full items-center gap-8 pb-10 pt-8 lg:flex-1 lg:grid-cols-[1fr_1.1fr] lg:gap-10 lg:pb-4 lg:pt-14 [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
           <div className="relative z-10 order-2 lg:order-1">
             <h1>
               <span className="eyebrow block !text-champagne">UNI&amp;CORE Korean Vitamin C Skincare</span>
@@ -100,26 +106,12 @@ export default async function HomePage() {
                 {BRAND.hero.headline[0]} <em className="vc-gold-text not-italic">{BRAND.hero.headline[1]}</em>
               </span>
             </h1>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-ivory/75">{BRAND.hero.sub}</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#shop" className="btn-gold" data-magnetic>
-                Shop now
-              </a>
+            <p className="vc-hero-sub mt-6 max-w-md text-lg leading-relaxed text-ivory/75">{BRAND.hero.sub}</p>
+            <div className="vc-hero-actions mt-9 flex flex-wrap gap-3">
               <a href="#ritual" className="btn-ghost-light" data-magnetic>
                 Explore the collection
               </a>
             </div>
-            <ul className="mt-10 flex flex-wrap gap-2" aria-label="The collection">
-              {products.map((p) => (
-                <li key={p.slug}>
-                  <Link href={`/products/${p.slug}`} className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-ivory/5 px-4 py-2 text-xs font-medium ring-1 ring-ivory/15 transition hover:ring-champagne">
-                    <span className="text-champagne">{SCENES[p.key].step}</span>
-                    {p.shortName}
-                    <PromoBadge promotion={p.promotion} initial={isPromoActive(p.promotion)} className="!px-2 !py-0.5" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
           <div className="relative order-1 mx-auto grid w-full max-w-[330px] grid-cols-3 items-end gap-2 pt-6 sm:max-w-[560px] lg:order-2 lg:max-w-[640px] lg:pt-0">
             {[mask, ampoule, wash].map((p, i) =>
@@ -138,6 +130,9 @@ export default async function HomePage() {
               ) : null,
             )}
           </div>
+        </div>
+        <div className="vc-hero-cta pointer-events-none relative z-10 flex justify-center px-5 pb-24 lg:pb-[88px]">
+          <StoreCta location="hero" className="pointer-events-auto w-full max-w-[360px] sm:w-auto sm:min-w-[320px]" />
         </div>
         <div className="vc-scroll-cue" aria-hidden>
           <span />
@@ -320,7 +315,7 @@ export default async function HomePage() {
           </div>
           <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ingredients.map((ing, i) => (
-              <li key={ing.name} className="vc-ingredient relative overflow-hidden rounded-[28px] bg-cream p-7" data-reveal style={{ ["--reveal-delay" as string]: `${(i % 4) * 90}ms` }}>
+              <li key={`${ing.name}-${i}`} className="vc-ingredient relative overflow-hidden rounded-[28px] bg-cream p-7" data-reveal style={{ ["--reveal-delay" as string]: `${(i % 4) * 90}ms` }}>
                 <span className="vc-molecule" aria-hidden />
                 <p className="eyebrow !text-champagne">{ing.role}</p>
                 <h3 className="mt-3 text-3xl leading-tight">{ing.name}</h3>

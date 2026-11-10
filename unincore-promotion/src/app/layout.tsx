@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Bodoni_Moda, Cormorant_Garamond, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SITE } from "@/content/site";
 
 const display = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "500", "600"], style: ["normal", "italic"], variable: "--font-display", display: "swap" });
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+// Product landing pages: a Didone for headlines and figures (the packaging wordmark is a Didone), Hanken Grotesk for text.
+const serif = Bodoni_Moda({ subsets: ["latin"], axes: ["opsz"], variable: "--font-serif", display: "swap" });
+const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -32,7 +34,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-US" className={`${display.variable} ${sans.variable}`}>
+    // Browser extensions (e.g. an HWP viewer) add attributes to <html> before React loads; ignore those on this one element.
+    <html lang="en-US" className={`${display.variable} ${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

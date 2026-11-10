@@ -9,9 +9,9 @@ export function BeforeAfterSlider({ item }: { item: BeforeAfter }) {
   return (
     <figure>
       <div className="relative aspect-square overflow-hidden rounded-3xl bg-cream select-none">
-        <Image src={item.after} alt={`${item.alt} — ${item.afterLabel}`} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover" />
+        <Image src={item.after} alt={`${item.alt}: ${item.afterLabel}`} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover" />
         <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-          <Image src={item.before} alt={`${item.alt} — ${item.beforeLabel}`} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover" />
+          <Image src={item.before} alt={`${item.alt}: ${item.beforeLabel}`} fill sizes="(max-width:768px) 100vw, 50vw" className="object-cover" />
         </div>
         <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow" style={{ left: `${pos}%` }} />
         <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold">{item.beforeLabel}</span>
