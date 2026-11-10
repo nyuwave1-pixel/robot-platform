@@ -130,7 +130,7 @@ function Stage({ item, priority }: { item: GalleryItem; priority: boolean }) {
     case "image":
       return <Image src={item.src} alt={item.alt} fill priority={priority} sizes="(min-width: 1024px) 620px, 100vw" className="object-cover" />;
     case "beforeAfter":
-      return <BeforeAfter item={item} />;
+      return <BeforeAfter item={item} priority={priority} />;
     case "slot":
       return (
         <div className="lp-slot absolute inset-0 grid place-items-center" role="img" aria-label={`${item.caption} (photo to be added)`}>
@@ -180,12 +180,12 @@ function IngredientIcon({ icon }: { icon?: IconKey }) {
 }
 
 /** Before and after side by side, the way the brand's Amazon listing shows them. */
-function BeforeAfter({ item }: { item: Extract<GalleryItem, { kind: "beforeAfter" }> }) {
+function BeforeAfter({ item, priority = false }: { item: Extract<GalleryItem, { kind: "beforeAfter" }>; priority?: boolean }) {
   const ready = Boolean(item.before && item.after);
   const half = (src: string | undefined, label: string, after: boolean) => (
     <figure className="relative h-full overflow-hidden">
       {src ? (
-        <Image src={src} alt={`${item.alt}: ${label}`} fill sizes="(min-width: 1024px) 310px, 50vw" className="object-cover" />
+        <Image src={src} alt={`${item.alt}: ${label}`} fill priority={priority} sizes="(min-width: 1024px) 310px, 50vw" className="object-cover" />
       ) : (
         <div className={`h-full w-full ${after ? "bg-[radial-gradient(62%_52%_at_50%_44%,#fff,transparent_72%),linear-gradient(165deg,#F6F4EF,#ECE9E2)]" : "bg-[radial-gradient(90%_70%_at_30%_15%,#fff,transparent_60%),linear-gradient(165deg,#F2F0EA,#E4E0D6)]"}`} />
       )}

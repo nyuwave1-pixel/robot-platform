@@ -66,7 +66,7 @@ function ProductShot({ k, className = "", sizes, priority = false }: { k: Produc
 /** Amazon star rating, partial stars filled to the score. */
 function Stars({ score, size = 18 }: { score: number; size?: number }) {
   return (
-    <span className="relative inline-flex" aria-label={`${score} out of 5 stars`}>
+    <span role="img" className="relative inline-flex" aria-label={`${score} out of 5 stars`}>
       <span className="flex text-body/15">
         {[0, 1, 2, 3, 4].map((i) => (
           <Star key={i} size={size} weight="fill" aria-hidden />
