@@ -218,6 +218,15 @@ export const en: Messages = {
     lineupAlt: "UNI&CORE skincare guide — 6-step routine",
     introAria: "Intro film", introStart: "Start {brand}", introSkipAria: "Skip intro video",
     guideNote: "The brand films are presented in Korean.",
+    promo: {
+      badge: "LAUNCH PROMOTION",
+      text: "6-Pack 26% OFF · KRW 1,494,000 → 1,100,000",
+      textShort: "6-Pack 26% OFF",
+      open: "Opens Nov 10 (Tue) 3 PM KST",
+      live: "Promotion now on",
+      cta: "Shop now",
+      close: "Close banner",
+    },
   },
   seo: {
     title: "UNI&CORE 1st Birthday Cream | Your Skin's First Birthday",

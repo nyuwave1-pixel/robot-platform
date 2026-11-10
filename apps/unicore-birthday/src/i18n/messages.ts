@@ -51,6 +51,8 @@ export interface Messages {
     lineupAlt: string;
     introAria: string; introStart: string; introSkipAria: string; // introStart: {brand}
     guideNote: string;
+    /** 상단 띠 배너(런칭 프로모션) */
+    promo: { badge: string; text: string; textShort: string; open: string; live: string; cta: string; close: string };
   };
   seo: { title: string; description: string; keywords: string[]; ogAlt: string };
   jsonld: {
@@ -114,6 +116,15 @@ export const ko: Messages = {
     lineupAlt: "유니앤코어 스킨케어 가이드 — 6단계 루틴",
     introAria: "인트로 영상", introStart: "{brand} 시작하기", introSkipAria: "인트로 영상 건너뛰기",
     guideNote: "",
+    promo: {
+      badge: "LAUNCH PROMOTION",
+      text: "6개 패키지 26% 할인 · 1,494,000원 → 1,100,000원",
+      textShort: "6개 패키지 26% 할인",
+      open: "11월 10일(화) 오후 3시 오픈",
+      live: "프로모션 진행 중",
+      cta: "구매하기",
+      close: "배너 닫기",
+    },
   },
   seo: { title: seo.title, description: seo.description, keywords: [...seo.keywords], ogAlt: `${product.brandKo} ${product.nameKo} — ${product.subtitle}` },
   jsonld: {
