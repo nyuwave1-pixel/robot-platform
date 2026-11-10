@@ -22,33 +22,30 @@ export function MobileMenu({ products }: { products: { slug: string; shortName: 
         aria-controls="mobile-nav"
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((v) => !v)}
-        className="grid h-10 w-10 place-items-center rounded-full border border-ink/15"
+        className="grid h-10 w-10 place-items-center rounded-[10px] ring-1 ring-black/10"
       >
         <span className="relative block h-3 w-4">
-          <span className={`absolute left-0 h-px w-4 bg-ink transition ${open ? "top-1.5 rotate-45" : "top-0"}`} />
-          <span className={`absolute left-0 top-1.5 h-px w-4 bg-ink transition ${open ? "opacity-0" : ""}`} />
-          <span className={`absolute left-0 h-px w-4 bg-ink transition ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
+          <span className={`absolute left-0 h-px w-4 bg-[#191A17] transition ${open ? "top-1.5 rotate-45" : "top-0"}`} />
+          <span className={`absolute left-0 top-1.5 h-px w-4 bg-[#191A17] transition ${open ? "opacity-0" : ""}`} />
+          <span className={`absolute left-0 h-px w-4 bg-[#191A17] transition ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
         </span>
       </button>
       {open && (
-        <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-x-0 bottom-0 top-16 z-40 bg-ivory px-6 py-8">
+        <nav id="mobile-nav" aria-label="Mobile" className="fixed inset-x-0 bottom-0 top-[80px] z-40 bg-white px-5 py-6">
           <ul className="space-y-1">
             {products.map((p) => (
               <li key={p.slug}>
-                <Link href={`/products/${p.slug}`} className="block border-b border-ink/10 py-5 font-display text-3xl">
+                <Link href={`/products/${p.slug}`} className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
                   {p.shortName}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/#routine" className="block border-b border-ink/10 py-5 font-display text-3xl">
+              <Link href="/#routine" className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
                 3-Step Routine
               </Link>
             </li>
           </ul>
-          <Link href="/#shop" className="btn-primary mt-8 w-full">
-            Shop on Amazon
-          </Link>
         </nav>
       )}
     </div>

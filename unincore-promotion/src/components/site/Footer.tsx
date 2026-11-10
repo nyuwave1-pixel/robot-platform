@@ -5,19 +5,20 @@ import { Logo } from "./Logo";
 import { PrivacyChoicesLink } from "./ConsentBanner";
 
 export function Footer({ products }: { products: Pick<ProductContent, "slug" | "name">[] }) {
+  const link = "text-[#3F413B] transition-colors hover:text-[#191A17]";
   return (
-    <footer data-hide-sticky className="bg-ink text-ivory">
-      <div className="container-site grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer data-hide-sticky className="border-t border-black/[0.06] bg-[#F5F5F1] text-[#191A17]">
+      <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-10">
         <div>
-          <Logo light />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-ivory/60">{SITE.tagline}. Korean vitamin C skincare, available in the US on Amazon.com.</p>
+          <Logo />
+          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-[#5C5F58]">Korean vitamin C skincare, available in the US on Amazon.com.</p>
         </div>
         <div>
-          <p className="eyebrow !text-ivory/50">Shop</p>
-          <ul className="mt-4 space-y-3 text-sm text-ivory/80">
+          <p className="text-[13px] font-semibold text-[#191A17]">Shop</p>
+          <ul className="mt-4 space-y-3 text-[14px]">
             {products.map((p) => (
               <li key={p.slug}>
-                <Link href={`/products/${p.slug}`} className="hover:text-ivory">
+                <Link href={`/products/${p.slug}`} className={link}>
                   {p.name}
                 </Link>
               </li>
@@ -25,18 +26,18 @@ export function Footer({ products }: { products: Pick<ProductContent, "slug" | "
           </ul>
         </div>
         <div>
-          <p className="eyebrow !text-ivory/50">Info</p>
-          <ul className="mt-4 space-y-3 text-sm text-ivory/80">
-            <li><Link href="/contact" className="hover:text-ivory">Contact</Link></li>
-            <li><Link href="/privacy" className="hover:text-ivory">Privacy Policy</Link></li>
-            <li><Link href="/terms" className="hover:text-ivory">Terms of Use</Link></li>
-            <li><Link href="/disclaimer" className="hover:text-ivory">Disclaimer</Link></li>
-            <li><PrivacyChoicesLink className="hover:text-ivory" /></li>
+          <p className="text-[13px] font-semibold text-[#191A17]">Info</p>
+          <ul className="mt-4 space-y-3 text-[14px]">
+            <li><Link href="/contact" className={link}>Contact</Link></li>
+            <li><Link href="/privacy" className={link}>Privacy Policy</Link></li>
+            <li><Link href="/terms" className={link}>Terms of Use</Link></li>
+            <li><Link href="/disclaimer" className={link}>Disclaimer</Link></li>
+            <li><PrivacyChoicesLink className={link} /></li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-ivory/10">
-        <div className="container-site flex flex-col gap-2 py-6 text-xs text-ivory/45 sm:flex-row sm:justify-between">
+      <div className="border-t border-black/[0.06]">
+        <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-2 px-4 py-6 text-[12.5px] text-[#5C5F58] sm:flex-row sm:justify-between sm:px-6 lg:px-10">
           <p>© {new Date().getFullYear()} {SITE.legalName}. All rights reserved.</p>
           <p>Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.</p>
         </div>

@@ -129,7 +129,8 @@ function eventId(): string {
 
 const META_EVENT_MAP: Partial<Record<EventName, [standard: boolean, name: string]>> = {
   view_item: [true, "ViewContent"],
-  amazon_cta_click: [false, "AmazonCTAClick"],
+  // JYT plan: Amazon button clicks are reported to Meta as "sticky_cta".
+  amazon_cta_click: [false, "sticky_cta"],
   video_play: [false, "VideoPlay"],
   promotion_view: [false, "PromotionView"],
 };

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DEFAULT_PRODUCTS } from "@/content/products";
 import { getProductBySlug, getProducts } from "@/lib/cms";
-import { breadcrumbLd, faqLd, pageMetadata, productLd, videoLd } from "@/lib/seo";
+import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
 import { publicView } from "@/lib/visibility";
-import { ProductLanding } from "@/components/product/ProductLanding";
+import { LandingPage } from "@/components/landing/LandingPage";
 import { JsonLd } from "@/components/site/JsonLd";
 
 // Note: no `dynamicParams = false` — in Next 15.5 it breaks on-demand revalidation (NoFallbackError).
@@ -35,21 +35,20 @@ export default async function ProductPage({ params }: Props) {
   const raw = await getProductBySlug(slug);
   if (!raw) notFound();
   const product = publicView(raw);
-  const related = (await getProducts()).filter((p) => p.slug !== slug).sort((a, b) => a.routineStep - b.routineStep);
+  const all = await getProducts();
 
+  // FAQ and video structured data were dropped with those sections: the JYT plan has neither.
   const ld: unknown[] = [
     productLd(product),
     breadcrumbLd([
       { name: "Home", path: "/" },
       { name: product.shortName, path: `/products/${product.slug}` },
     ]),
-    ...videoLd(product),
   ];
-  if (product.faqs.length) ld.push(faqLd(product.faqs));
 
   return (
     <>
-      <ProductLanding product={product} related={related} />
+      <LandingPage product={product} all={all} />
       <JsonLd data={ld} />
     </>
   );

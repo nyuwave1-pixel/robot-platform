@@ -4,6 +4,8 @@ import { ConsentBanner } from "@/components/site/ConsentBanner";
 import { RevealProvider } from "@/components/site/RevealProvider";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { AnnouncementBar } from "@/components/site/AnnouncementBar";
+import { LANDING } from "@/content/landing";
 import { JsonLd } from "@/components/site/JsonLd";
 import { consentDefaultSnippet } from "@/lib/consent-snippet";
 import { organizationLd, websiteLd } from "@/lib/seo";
@@ -18,9 +20,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         Skip to content
       </a>
       {settings.announcement.enabled && settings.announcement.text && (
-        <div className="bg-cream text-center text-[11px] font-medium uppercase tracking-[0.18em] text-ink-soft">
-          <p className="container-site py-2">{settings.announcement.text}</p>
-        </div>
+        <AnnouncementBar text={settings.announcement.text} banners={Object.fromEntries(products.map((p) => [`/products/${p.slug}`, LANDING[p.key].banner]))} />
       )}
       <Header products={products} />
       <main id="main">{children}</main>
