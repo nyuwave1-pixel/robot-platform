@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "product_id": "T-AMP",
+    "target": "seo_metadata",
+    "change": {
+      "title": "New title"
+    },
+    "protected": false,
+    "status": "approved",
+    "decided_by": "admin"
+  },
+  {
+    "id": 2,
+    "product_id": "T-AMP",
+    "target": "product",
+    "change": {
+      "price": 10,
+      "title": "x"
+    },
+    "protected": true,
+    "status": "pending",
+    "decided_by": null
+  },
+  {
+    "id": 3,
+    "product_id": "UC-US-449",
+    "target": "site_seo",
+    "change": {
+      "seoTitle": "13.5% Vitamin C Ampoule | UNI&CORE",
+      "faq": {
+        "q": "Can I use it every day?",
+        "a": "Yes, most people use it daily after cleansing."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "tester"
+  },
+  {
+    "id": 4,
+    "product_id": "UC-US-449",
+    "target": "site_seo",
+    "change": {
+      "seoTitle": "Skin whitening serum | UNI&CORE"
+    },
+    "protected": false,
+    "status": "rejected",
+    "decided_by": "publish-validator: 금지 표현 포함 (whitening/cure/treat/guarantee 등)"
+  },
+  {
+    "id": 5,
+    "product_id": "UC-US-449",
+    "target": "site_seo",
+    "change": {
+      "price": 1
+    },
+    "protected": true,
+    "status": "approved",
+    "decided_by": "tester"
+  },
+  {
+    "id": 6,
+    "product_id": "UC-US-449",
+    "target": "site_seo",
+    "change": {
+      "seoTitle": "Pending title | UNI&CORE"
+    },
+    "protected": false,
+    "status": "pending",
+    "decided_by": null
+  }
+]

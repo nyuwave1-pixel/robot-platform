@@ -149,3 +149,12 @@ def test_publish_applies_only_valid_unprotected_approved_changes(tmp_path):
     assert st == {good: "applied", bad: "rejected", prot: "approved", pending: "pending"}
     assert publish(f)["applied"] == 0  # idempotent
     assert validate({"seoTitle": "x" * 61 + " UNI&CORE"}) and validate({"h1": "nope"})
+
+
+def test_approvals_mirror_roundtrip():
+    import json
+    from engine import imports
+    imports.dump_approvals()
+    rows = json.loads((core.DATA / "approvals.json").read_text())
+    assert rows and {"id", "status", "change", "protected"} <= set(rows[0])
+    assert imports.restore_approvals() == 0  # database already has rows: never overwritten

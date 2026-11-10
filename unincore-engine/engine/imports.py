@@ -120,3 +120,32 @@ def decide(approval_id: int, approve: bool, by: str) -> dict:
             raise ValueError(f"already {a.status}")
         a.status, a.decided_by = ("approved" if approve else "rejected"), by
         return {"id": a.id, "status": a.status, "protected": a.protected}
+
+
+# ---- approvals survive container restarts: mirrored to data/approvals.json (committed to git)
+
+def _approvals_file():
+    from . import core
+    return core.DATA / "approvals.json"
+
+
+def dump_approvals() -> None:
+    import json
+    with session() as s:
+        rows = [{"id": a.id, "product_id": a.product_id, "target": a.target, "change": a.change, "protected": a.protected, "status": a.status, "decided_by": a.decided_by} for a in s.scalars(select(ApprovalRequest).order_by(ApprovalRequest.id))]
+    _approvals_file().write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n")
+
+
+def restore_approvals() -> int:
+    """Load approvals from the JSON mirror when the database has none (fresh container)."""
+    import json
+    f = _approvals_file()
+    if not f.exists():
+        return 0
+    with session() as s:
+        if s.scalars(select(ApprovalRequest)).first():
+            return 0
+        rows = json.loads(f.read_text())
+        for r in rows:
+            s.add(ApprovalRequest(id=r["id"], product_id=r["product_id"], target=r["target"], change=r["change"], protected=r["protected"], status=r["status"], decided_by=r.get("decided_by")))
+        return len(rows)
