@@ -90,3 +90,35 @@ def test_dashboard_and_api(monkeypatch):
     monkeypatch.setenv("ENGINE_ADMIN_PASSWORD", "pw")
     assert c.get("/").status_code == 401
     assert c.get("/", auth=("admin", "pw")).status_code == 200
+
+
+def test_csv_imports_store_only_real_values_and_relate_products():
+    from engine import imports
+    from engine.models import AmazonCampaign, Keyword, KeywordMetric, Product
+    with core.session() as s:
+        s.add(Product(id="T-AMP", source="test", source_ref="2", name="VITA C 13.5 SUPER BRIGHTENING AMPOULE 30g"))
+    gsc = "\ufeffTop queries,Clicks,Impressions,CTR,Position\nvita c 13.5 brightening ampoule,3,120,2.5%,8.4\nkorean powder wash,0,15,0%,\n"
+    assert imports.import_gsc_queries(gsc, "https://promotion.unincore.com", day="2026-11-10") == {"rows": 2, "stored": 2, "new_keywords": 2}
+    amz = "Customer Search Term,Campaign Name,Impressions,Clicks,Spend,7 Day Total Sales,7 Day Total Orders (#)\nvitamin c brightening ampoule,SP-Amp,\"1,200\",14,$9.80,$52.00,2\n"
+    assert imports.import_amazon_search_terms(amz)["stored"] == 1
+    with core.session() as s:
+        k = s.query(Keyword).filter_by(keyword="vita c 13.5 brightening ampoule").one()
+        assert k.source == "gsc" and k.product_id == "T-AMP"
+        m = s.query(KeywordMetric).filter_by(keyword_id=k.id).one()
+        assert (m.clicks, m.impressions, m.position, m.search_volume) == (3, 120, 8.4, None)
+        k2 = s.query(Keyword).filter_by(keyword="korean powder wash").one()
+        assert s.query(KeywordMetric).filter_by(keyword_id=k2.id).one().position is None  # blank stays NULL
+        a = s.query(AmazonCampaign).one()
+        assert (a.impressions, a.clicks, a.spend, a.sales, a.orders) == (1200, 14, 9.8, 52.0, 2)
+
+
+def test_approvals_flag_protected_fields_and_cannot_be_decided_twice():
+    from engine import imports
+    c = TestClient(app)
+    safe = imports.request_approval("seo_metadata", {"title": "New title"}, product_id="T-AMP")
+    risky = imports.request_approval("product", {"price": 10, "title": "x"}, product_id="T-AMP")
+    pend = {a["id"]: a for a in c.get("/api/approvals").json()}
+    assert pend[safe]["protected"] is False and pend[risky]["protected"] is True
+    assert c.post(f"/api/approvals/{safe}/approve").json()["status"] == "approved"
+    assert c.post(f"/api/approvals/{safe}/reject").status_code == 409
+    assert c.post("/api/approvals/99999/approve").status_code == 404

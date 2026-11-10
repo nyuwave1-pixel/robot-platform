@@ -9,13 +9,13 @@ import os
 import secrets
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Body, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import func, select
 
-from . import core
+from . import core, imports
 from .jobs import JOBS
 from .models import (
     ApiConnection, ApprovalRequest, AutomationJob, AutomationSchedule, ImageJob, Keyword, Product,
@@ -31,10 +31,10 @@ tpl = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), 
 PHASES = [
     (1, "사이트 · 제품 데이터 분석", "done", "us.unincore.com 60개 제품 수집, promotion 사이트 감사"),
     (2, "통합 DB · 관리자 대시보드", "partial", "21개 테이블, 읽기 전용 대시보드. 편집 UI·권한 관리는 미구현"),
-    (3, "Gemini 이미지 분석 · 키워드", "waiting", "코드 구현됨, GEMINI_API_KEY 미연결로 미검증. 키워드는 제품명 기반 시드만"),
+    (3, "Gemini 이미지 분석 · 키워드", "waiting", "키 인증 확인. 생성 호출은 Gemini 선불 크레딧 소진(402)으로 미검증. 키워드는 제품명 시드 + CSV 가져오기"),
     (4, "Google · Naver SEO 엔진", "partial", "promotion 사이트 감사·메타 백업 동작. 서치 콘솔 API 미연결"),
     (5, "Canva · Higgsfield 연동", "waiting", "API 키/OAuth 미연결. 작업 사양만 대기열 저장"),
-    (6, "사이트 자동 반영 · 승인", "todo", "approval_requests 테이블만 준비"),
+    (6, "사이트 자동 반영 · 승인", "partial", "승인 요청·승인/거절 API 동작. 사이트 반영은 미구현"),
     (7, "Amazon 광고 데이터", "waiting", "Amazon Ads API 권한 필요. 테이블만 준비"),
     (8, "매일 자동 실행", "partial", "일일 파이프라인 동작(잠금·재시도·로그). GitHub Actions 워크플로 포함"),
     (9, "통합 테스트 · 보안", "partial", "단위 테스트, Basic 인증. 보안 검증은 미완"),
@@ -124,3 +124,33 @@ def api_schedule(name: str, local_time: str | None = None, enabled: bool | None 
         if enabled is not None:
             row.enabled = enabled
         return {"job": row.job_name, "time": row.local_time, "enabled": row.enabled}
+
+
+@app.post("/api/import/gsc-queries", dependencies=[Depends(guard)])
+def api_import_gsc(csv_text: str = Body(..., media_type="text/csv"), site: str = core.PROMO_SITE, country: str = "US"):
+    """Upload Search Console → Performance → Export → Queries.csv as the request body."""
+    return imports.import_gsc_queries(csv_text, site, country)
+
+
+@app.post("/api/import/amazon-search-terms", dependencies=[Depends(guard)])
+def api_import_amazon(csv_text: str = Body(..., media_type="text/csv"), country: str = "US"):
+    """Upload an Amazon Ads Sponsored Products search-term report (CSV) as the request body."""
+    return imports.import_amazon_search_terms(csv_text, country)
+
+
+@app.get("/api/approvals", dependencies=[Depends(guard)])
+def api_approvals(status: str = "pending"):
+    with core.session() as s:
+        return [{"id": a.id, "product_id": a.product_id, "target": a.target, "change": a.change, "protected": a.protected, "status": a.status} for a in s.scalars(select(ApprovalRequest).where(ApprovalRequest.status == status).order_by(ApprovalRequest.id.desc()))]
+
+
+@app.post("/api/approvals/{approval_id}/{action}", dependencies=[Depends(guard)])
+def api_decide(approval_id: int, action: str, by: str = "admin"):
+    if action not in ("approve", "reject"):
+        raise HTTPException(404, "action must be approve or reject")
+    try:
+        return imports.decide(approval_id, action == "approve", by)
+    except KeyError:
+        raise HTTPException(404, "unknown approval") from None
+    except ValueError as e:
+        raise HTTPException(409, str(e)) from None
