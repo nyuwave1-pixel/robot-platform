@@ -380,6 +380,11 @@ def report() -> dict:
     return {"report": f"data/reports/{today}.json"}
 
 
+def _publish() -> dict:
+    from .publish import publish
+    return publish()
+
+
 JOBS = {
     "connections": check_connections,
     "sync_products": sync_products,
@@ -387,6 +392,7 @@ JOBS = {
     "discover_keywords": discover_keywords,
     "gemini_content": gemini_content,
     "creatives": creatives,
+    "publish": _publish,
     "performance": performance,
     "report": report,
 }

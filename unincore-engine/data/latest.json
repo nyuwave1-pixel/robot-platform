@@ -24,6 +24,17 @@
       "error": "",
       "result": null
     },
+    "publish": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "applied": 1,
+        "rejected_by_validator": 0,
+        "protected_left_for_manual": 0,
+        "file": "unincore-promotion/src/content/seo-overrides.json"
+      }
+    },
     "connections": {
       "status": "success",
       "attempts": 1,
@@ -40,9 +51,9 @@
       }
     },
     "gemini_content": {
-      "status": "success",
+      "status": "failed",
       "attempts": 1,
-      "error": "",
+      "error": "Gemini 402: prepayment credits depleted (5/5 calls failed)",
       "result": {
         "analyzed": 0,
         "attempted": 5

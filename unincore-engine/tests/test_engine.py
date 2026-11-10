@@ -84,7 +84,7 @@ def test_dashboard_and_api(monkeypatch):
     c = TestClient(app)
     assert c.get("/").status_code == 200 and "미연결" in c.get("/").text
     s = c.get("/api/summary").json()
-    assert s["kpi"]["google_clicks"] is None and len(s["phases"]) == 10 and len(s["schedule"]) == 8
+    assert s["kpi"]["google_clicks"] is None and len(s["phases"]) == 10 and len(s["schedule"]) == 9
     assert c.patch("/api/schedule/report", params={"local_time": "25:00"}).status_code == 422
     assert c.patch("/api/schedule/report", params={"local_time": "07:30"}).json()["time"] == "07:30"
     monkeypatch.setenv("ENGINE_ADMIN_PASSWORD", "pw")
@@ -122,3 +122,30 @@ def test_approvals_flag_protected_fields_and_cannot_be_decided_twice():
     assert c.post(f"/api/approvals/{safe}/approve").json()["status"] == "approved"
     assert c.post(f"/api/approvals/{safe}/reject").status_code == 409
     assert c.post("/api/approvals/99999/approve").status_code == 404
+
+
+def test_publish_applies_only_valid_unprotected_approved_changes(tmp_path):
+    import json
+    from engine import imports
+    from engine.models import ApprovalRequest, Product
+    from engine.publish import publish, validate
+    with core.session() as s:
+        if not s.get(Product, "UC-US-449"):
+            s.add(Product(id="UC-US-449", source="test", source_ref="449", name="VITA C 13.5 SUPER BRIGHTENING AMPOULE 30g"))
+    good = imports.request_approval("site_seo", {"seoTitle": "13.5% Vitamin C Ampoule | UNI&CORE", "faq": {"q": "Can I use it every day?", "a": "Yes, most people use it daily after cleansing."}}, product_id="UC-US-449")
+    bad = imports.request_approval("site_seo", {"seoTitle": "Skin whitening serum | UNI&CORE"}, product_id="UC-US-449")
+    prot = imports.request_approval("site_seo", {"price": 1}, product_id="UC-US-449")
+    pending = imports.request_approval("site_seo", {"seoTitle": "Pending title | UNI&CORE"}, product_id="UC-US-449")
+    for i in (good, bad, prot):
+        imports.decide(i, True, "tester")
+    f = tmp_path / "o.json"
+    f.write_text('{"products": {}}')
+    r = publish(f)
+    assert (r["applied"], r["rejected_by_validator"], r["protected_left_for_manual"]) == (1, 1, 1)
+    o = json.loads(f.read_text())["products"]["vitamin-c-13-5-ampoule"]
+    assert o["seoTitle"].startswith("13.5%") and o["extraFaqs"][0]["q"] == "Can I use it every day?"
+    with core.session() as s:
+        st = {i: s.get(ApprovalRequest, i).status for i in (good, bad, prot, pending)}
+    assert st == {good: "applied", bad: "rejected", prot: "approved", pending: "pending"}
+    assert publish(f)["applied"] == 0  # idempotent
+    assert validate({"seoTitle": "x" * 61 + " UNI&CORE"}) and validate({"h1": "nope"})

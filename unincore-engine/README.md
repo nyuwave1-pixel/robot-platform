@@ -12,10 +12,10 @@
 | 3 Gemini | 대기 | 키 인증(`x-goog-api-key`)과 모델 목록 호출은 확인. 생성 호출은 선불 크레딧 소진(402)으로 **미검증** |
 | 4 SEO 엔진 | 부분 | promotion.unincore.com 15페이지 감사·메타 백업. 서치 콘솔 미연결 |
 | 5 Canva·Higgsfield | 대기 | 키 없음. 작업 사양만 대기열 저장 |
-| 6 자동 반영·승인 | 부분 | 승인 요청·승인/거절 API, 보호 항목(가격·성분·인증·임상) 표시. 사이트 반영은 미구현 |
+| 6 자동 반영·승인 | 동작 | 승인 → 검증(길이·금지 표현) → `unincore-promotion/src/content/seo-overrides.json` 반영. 제목·설명·추가 FAQ만 가능. 실제 공개는 git push 후 배포 시점 |
 | 7 Amazon 광고 | 대기 | Amazon Ads API 권한 필요 |
 | 8 매일 실행 | 부분 | 파이프라인(잠금·재시도·로그) + GitHub Actions 워크플로 |
-| 9 테스트·보안 | 부분 | 단위 테스트 9개, Basic 인증 |
+| 9 테스트·보안 | 부분 | 단위 테스트 10개, Basic 인증 |
 | 10 운영 배포 | 미구현 | 호스팅·PostgreSQL 결정 필요 |
 
 unincore.com(한국 본사 사이트)은 robots.txt 응답이 없어 수집하지 않았습니다.

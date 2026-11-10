@@ -5,6 +5,7 @@ import { detectChannel, cleanTag } from "@/lib/channel";
 import { publicView } from "@/lib/visibility";
 import { DEFAULT_PRODUCTS, AMPOULE, MASK, WASH } from "@/content/products";
 import { GUIDES } from "@/content/guides";
+import overrides from "@/content/seo-overrides.json";
 
 describe("Amazon links", () => {
   it("each product link points at its own ASIN", () => {
@@ -126,6 +127,22 @@ describe("Guides SEO", () => {
       expect(g.description.length).toBeLessThanOrEqual(155);
       expect(g.products.length).toBeGreaterThan(0);
       expect(JSON.stringify(g).toLowerCase()).not.toMatch(/whitening|bleach|cure|treats? /);
+    }
+  });
+});
+
+describe("Engine SEO overrides", () => {
+  it("only touch known products and stay within SEO and compliance limits", () => {
+    const slugs = new Set(DEFAULT_PRODUCTS.map((p) => p.slug));
+    const banned = /whitening|bleach|\bcures?\b|\btreat(s|ment)?\b|\bheals?\b|fda[- ]approved/i;
+    for (const [slug, o] of Object.entries((overrides as { products: Record<string, { seoTitle?: string; seoDescription?: string; extraFaqs?: { q: string; a: string }[] }> }).products)) {
+      expect(slugs.has(slug)).toBe(true);
+      if (o.seoTitle) {
+        expect(o.seoTitle.length).toBeLessThanOrEqual(60);
+        expect(o.seoTitle).toMatch(/UNI&CORE/);
+      }
+      if (o.seoDescription) expect(o.seoDescription.length).toBeLessThanOrEqual(160);
+      expect(JSON.stringify(o)).not.toMatch(banned);
     }
   });
 });

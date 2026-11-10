@@ -1,0 +1,13 @@
+{
+  "_comment": "Written by unincore-engine (publish job) from approved requests only. Do not hand-edit; validated by tests.",
+  "products": {
+    "vita-c-enzyme-powder-wash": {
+      "extraFaqs": [
+        {
+          "q": "How is a powder wash different from a gel cleanser?",
+          "a": "A powder wash stays dry until you add water, so the enzymes are activated fresh with each use. It lathers into a creamy foam and rinses clean."
+        }
+      ]
+    }
+  }
+}

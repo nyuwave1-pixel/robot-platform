@@ -32,6 +32,7 @@ DEFAULT_SCHEDULE = [
     ("discover_keywords", "02:00", "신규 키워드 분석 · 우선순위 선정"),
     ("gemini_content", "03:00", "Gemini 콘텐츠 · 이미지 분석"),
     ("creatives", "04:00", "Canva 디자인 · Higgsfield 영상 요청"),
+    ("publish", "05:00", "승인된 SEO 변경을 사이트 파일에 반영"),
     ("performance", "06:00", "Search Console · Naver · Amazon 성과 수집"),
     ("report", "07:00", "통합 리포트 생성"),
 ]
