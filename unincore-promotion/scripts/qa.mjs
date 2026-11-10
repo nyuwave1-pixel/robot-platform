@@ -74,7 +74,7 @@ for (const path of ["/", ...PRODUCTS.map((p) => `/products/${p.slug}`), "/privac
   }
   check(`${path} JSON-LD parses`, ldOk, types.join(", "));
   if (path.startsWith("/products/")) {
-    check(`${path} has Product + BreadcrumbList + FAQPage schema`, ["Product", "BreadcrumbList", "FAQPage"].every((t) => types.includes(t)));
+    check(`${path} has Product + BreadcrumbList schema, no FAQPage`, ["Product", "BreadcrumbList"].every((t) => types.includes(t)) && !types.includes("FAQPage"));
   }
   if (path === "/") check("home has Organization + WebSite schema", types.includes("Organization") && types.includes("WebSite"));
 }
@@ -91,7 +91,7 @@ for (const p of PRODUCTS) {
   // Korea sales figures come from the brand's own Amazon US listing images (landing.ts). No other product may show them.
   const figures = await page.evaluate(() => ({ k100: document.body.innerText.includes("100,000+"), m10: document.body.innerText.includes("10M+") }));
   check(`${p.key}: Korea sales figures only on the product whose listing states them`, figures.k100 === (p.key === "ampoule") && figures.m10 === (p.key === "mask"), JSON.stringify(figures));
-  check(`${p.key}: FAQ section present`, (await page.locator("details[data-faq]").count()) >= 5);
+  check(`${p.key}: no FAQ section on the product page (landing plan)`, (await page.locator("details[data-faq]").count()) === 0);
 }
 
 // ---------- ad routing & UTM ----------
@@ -122,11 +122,6 @@ const click = (await gaEvents()).find((b) => b.e === "amazon_cta_click");
 check("GA4 amazon_cta_click (product, placement, channel, link)", click?.p === "ampoule" && click?.loc === "hero" && click?.ch === "meta" && click?.url?.includes("amazon.com"), JSON.stringify(click));
 check("Amazon opened in new tab with correct ASIN", popup.url().includes("B0HJRKRKT7"), popup.url());
 await popup.close();
-
-// FAQ event
-await page.locator("details[data-faq] summary").first().click();
-await page.waitForTimeout(300);
-check("GA4 faq_open", (await gaEvents()).some((b) => b.e === "faq_open"));
 
 // ---------- mobile sticky CTA ----------
 const mob = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" });

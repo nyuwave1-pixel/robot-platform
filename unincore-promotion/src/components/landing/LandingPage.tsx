@@ -9,7 +9,6 @@ import { toAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
 import { PromoStrip } from "@/components/site/PromoBanner";
 import { StickyCTA } from "@/components/site/StickyCTA";
-import { FaqList } from "@/components/site/FaqList";
 import { ProductViewTracker } from "@/components/site/ProductViewTracker";
 import { LandingGallery } from "./LandingGallery";
 import { ResultMeters } from "./ResultMeters";
@@ -400,16 +399,6 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
                 </div>
               </div>
             </Block>
-
-            {/* FAQ: kept from the previous product page for search (matches the FAQPage structured data) */}
-            {p.faqs.length > 0 && (
-              <Block id="faq">
-                <Heading title="Questions, answered" accent="answered" />
-                <div className="mt-7">
-                  <FaqList faqs={p.faqs} product={ap} />
-                </div>
-              </Block>
-            )}
 
             <footer className="mt-16 border-t border-body/10 pt-6 text-[13px] leading-relaxed text-body-mute">
               <p>{c.disclaimer}</p>

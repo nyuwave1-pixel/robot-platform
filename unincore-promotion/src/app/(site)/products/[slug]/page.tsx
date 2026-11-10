@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DEFAULT_PRODUCTS } from "@/content/products";
 import { getProductBySlug, getProducts } from "@/lib/cms";
-import { breadcrumbLd, faqLd, pageMetadata, productLd } from "@/lib/seo";
+import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
 import { publicView } from "@/lib/visibility";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -37,7 +37,7 @@ export default async function ProductPage({ params }: Props) {
   const product = publicView(raw);
   const all = await getProducts();
 
-  // Video structured data was dropped with the old film section. The FAQ stays (at the end of the page) for search.
+  // FAQ and video structured data were dropped with those sections: the JYT plan has neither.
   const ld: unknown[] = [
     productLd(product),
     breadcrumbLd([
@@ -45,8 +45,6 @@ export default async function ProductPage({ params }: Props) {
       { name: product.shortName, path: `/products/${product.slug}` },
     ]),
   ];
-
-  if (product.faqs.length) ld.push(faqLd(product.faqs));
 
   return (
     <>
