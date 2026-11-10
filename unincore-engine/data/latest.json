@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-10",
+  "products": 60,
+  "product_images": 232,
+  "keywords": 269,
+  "seo_pages": 15,
+  "open_seo_issues": 0,
+  "image_jobs_waiting": 5,
+  "video_jobs_waiting": 3,
+  "connections": {
+    "gemini": "pending",
+    "google_search_console": "pending",
+    "ga4": "pending",
+    "naver_search_advisor": "pending",
+    "canva": "pending",
+    "higgsfield": "pending",
+    "amazon_ads": "pending",
+    "unincore_shop": "connected"
+  },
+  "jobs": {
+    "report": {
+      "status": "running",
+      "attempts": 0,
+      "error": "",
+      "result": null
+    },
+    "gemini_content": {
+      "status": "waiting_connection",
+      "attempts": 1,
+      "error": "GEMINI_API_KEY 미연결: 이미지 분석 작업을 대기열에 저장했습니다",
+      "result": null
+    },
+    "performance": {
+      "status": "waiting_connection",
+      "attempts": 1,
+      "error": "미연결: google_search_console, amazon_ads. 성과 데이터는 수집되지 않았습니다 (CSV 업로드로 대체 가능)",
+      "result": null
+    },
+    "creatives": {
+      "status": "waiting_connection",
+      "attempts": 1,
+      "error": "미연결: canva, higgsfield. 영상 작업 사양만 대기열에 저장했습니다",
+      "result": null
+    },
+    "discover_keywords": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "new_keywords": 269,
+        "duplicates_skipped": 35,
+        "note": "검색량·경쟁도는 미측정(NULL). GSC/Amazon 데이터 연결 후 채워짐"
+      }
+    },
+    "seo_audit": {
+      "status": "success",
+      "attempts": 2,
+      "error": "",
+      "result": {
+        "site": "https://promotion.unincore.com",
+        "pages": 15,
+        "issues": 0
+      }
+    },
+    "sync_products": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "categories": 9,
+        "products_found": 60,
+        "synced": 60,
+        "created": 60,
+        "updated": 0,
+        "new_images": 232
+      }
+    },
+    "connections": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "gemini": "pending",
+        "google_search_console": "pending",
+        "ga4": "pending",
+        "naver_search_advisor": "pending",
+        "canva": "pending",
+        "higgsfield": "pending",
+        "amazon_ads": "pending",
+        "unincore_shop": "connected"
+      }
+    }
+  },
+  "disclaimer": "검색량·순위·전환은 연결된 실제 소스가 있을 때만 기록됩니다. SEO 점수는 자체 지표이며 Google 순위를 뜻하지 않습니다."
+}

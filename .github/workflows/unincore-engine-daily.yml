@@ -1,0 +1,38 @@
+name: UNI&CORE engine – daily run
+on:
+  schedule:
+    - cron: "0 16 * * *" # 01:00 Asia/Seoul
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: unincore-engine-daily
+  cancel-in-progress: false
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: unincore-engine
+    env:
+      # Optional. Without DATABASE_URL each run starts from an empty SQLite file (no history).
+      DATABASE_URL: ${{ secrets.ENGINE_DATABASE_URL }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: unincore-engine/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+      - run: python -m engine daily
+      - name: Commit the daily report
+        run: |
+          git config user.name "unincore-engine"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/latest.json data/reports
+          git diff --cached --quiet || git commit -m "engine: daily report $(date -u +%F)"
+          git push
