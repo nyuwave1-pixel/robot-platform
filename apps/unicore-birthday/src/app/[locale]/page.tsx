@@ -68,7 +68,7 @@ export default async function Page({ params }: Params) {
         ...verified.map((c) => ({ "@type": "PropertyValue", name: c.label, value: `${c.value}${c.unitLabel}`, description: c.footnote })),
         { "@type": "PropertyValue", name: d.jsonld.trialProp, value: `${d.trialInfo.institute} ${d.trialInfo.code}` },
       ],
-      ...(product.urls.purchase ? { offers: { "@type": "Offer", url: product.urls.purchase, availability: "https://schema.org/InStock", priceCurrency: "KRW" } } : {}),
+      ...(product.urls.purchase ? { offers: { "@type": "Offer", url: product.urls.purchase, availability: "https://schema.org/InStock", priceCurrency: "KRW", price: "249000", itemCondition: "https://schema.org/NewCondition", seller: { "@id": `${idBase}#organization` } } } : {}),
     },
     {
       "@context": "https://schema.org",
