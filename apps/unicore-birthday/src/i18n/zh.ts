@@ -218,6 +218,15 @@ export const zh: Messages = {
     lineupAlt: "UNI&CORE 护肤指南 — 6步流程",
     introAria: "片头影片", introStart: "开始体验 {brand}", introSkipAria: "跳过片头影片",
     guideNote: "品牌影片以韩语呈现。",
+    promo: {
+      badge: "LAUNCH PROMOTION",
+      text: "6瓶套装 26% 优惠 · 1,494,000韩元 → 1,100,000韩元",
+      textShort: "6瓶套装 26% 优惠",
+      open: "11月10日(周二) 下午3点(韩国时间)开启",
+      live: "促销进行中",
+      cta: "立即购买",
+      close: "关闭横幅",
+    },
   },
   seo: {
     title: "UNI&CORE 1ST 生日面霜 | 肌肤的第一个生日",

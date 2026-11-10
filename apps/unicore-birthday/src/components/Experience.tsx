@@ -19,6 +19,7 @@ import Lineup from "@/components/sections/Lineup";
 import Footer from "@/components/Footer";
 import SoundToggle from "@/components/SoundToggle";
 import LangSwitch from "@/components/LangSwitch";
+import PromoBar from "@/components/PromoBar";
 import { audio } from "@/features/audio/audio";
 
 /** 인트로 종료를 문서에 기록하고 알림 — 히어로 영상 등이 이 시점부터 로드 */
@@ -75,6 +76,7 @@ export default function Experience() {
       </main>
       <Footer />
       <Chrome />
+      {intro === "closed" && <PromoBar />}
       {intro === "closed" && <LangSwitch />}
       {intro === "closed" && <SoundToggle />}
     </>
