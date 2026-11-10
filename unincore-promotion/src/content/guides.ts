@@ -203,6 +203,55 @@ export const GUIDES: Guide[] = [
     published: "2026-11-05",
     updated: "2026-11-05",
   },
+  {
+    slug: "how-to-use-vitamin-c-serum",
+    title: "How to Use Vitamin C Serum: Morning or Night? | UNI&CORE",
+    description:
+      "How to use a vitamin C serum: morning or night, where it goes in your routine, how to layer it with other products, and tips for sensitive skin.",
+    h1: "How to Use Vitamin C Serum",
+    intro:
+      "Vitamin C is one of the most popular skincare ingredients — and one of the most asked-about. Here is when to apply it, in what order, and how to fit it in with the rest of your routine.",
+    keywords: ["how to use vitamin C serum", "vitamin C serum morning or night", "vitamin C serum routine order", "how to layer vitamin C serum", "vitamin C serum for beginners"],
+    sections: [
+      {
+        heading: "Morning or night?",
+        paragraphs: [
+          "Both work. Many people prefer the morning, because vitamin C is an antioxidant that pairs well with sunscreen in your daytime routine. If you use it in the morning, always finish with a broad-spectrum sunscreen. You can also use it at night, or morning and night, as your product's directions allow.",
+        ],
+      },
+      {
+        heading: "Where it goes in your routine",
+        paragraphs: [
+          "Apply vitamin C on clean skin, after cleansing and toner (or a sheet mask), and before moisturizer. The general rule is thinnest to thickest: cleanser → toner or essence → vitamin C serum → other serums → moisturizer → sunscreen in the morning.",
+          "Use a small amount and spread it evenly over the face, avoiding the eye area. Let it absorb for a moment before the next step.",
+        ],
+      },
+      {
+        heading: "Layering with other products",
+        paragraphs: [
+          "Vitamin C layers well with hydrating ingredients such as hyaluronic acid and panthenol. If you also use stronger actives, such as retinol or exfoliating acids, many people keep vitamin C for the morning and use the other active at night, so each has its own slot. Introduce one new product at a time and patch test.",
+        ],
+      },
+      {
+        heading: "An example: the UNI&CORE Vita C 13.5 ampoule",
+        product: "ampoule",
+        paragraphs: [
+          "The UNI&CORE Vita C 13.5 Super Brightening Ampoule is a Korean vitamin C serum with 13.5% pure vitamin C (ascorbic acid), stabilized in a dual-layer formula, with glutathione, hyaluronic acid and panthenol. The brand recommends 2 pumps after cleansing, spread evenly over the face, a little extra on areas of concern, then cream and mist.",
+          "Sensitive skin? UNI&CORE suggests prepping with a toner before the ampoule for the first two weeks, then trying it directly after cleansing. The ampoule is naturally yellow, so let it absorb before bed to avoid transfer to pillowcases.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "Should I apply vitamin C serum before or after moisturizer?", a: "Before. Apply vitamin C on clean skin after toner, then moisturizer on top, and sunscreen last in the morning." },
+      { q: "Can I use vitamin C serum every day?", a: "Most people can use it daily. If you're new to vitamin C or have sensitive skin, start once a day and build up." },
+      { q: "Can I use vitamin C serum with retinol?", a: "Many people use vitamin C in the morning and retinol at night, so each product has its own step. Patch test new combinations." },
+      { q: "How much vitamin C serum should I use?", a: "Follow your product's directions. For the UNI&CORE Vita C 13.5 ampoule, the brand recommends 2 pumps for the whole face." },
+      { q: "Where can I buy the UNI&CORE vitamin C serum?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
+    ],
+    products: ["ampoule"],
+    published: "2026-11-10",
+    updated: "2026-11-10",
+  },
 ];
 
 export const ROUTINE_GUIDE = {

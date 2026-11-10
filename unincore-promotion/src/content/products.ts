@@ -629,7 +629,7 @@ export const WASH: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "Vitamin C Enzyme Powder Face Wash | UNI&CORE Korean Cleanser",
+    title: "Vitamin C Enzyme Powder Wash | UNI&CORE Korean Cleanser",
     description:
       "Korean enzyme powder cleanser with vitamin C, papain and bromelain. Low pH 5–5.5 daily exfoliation in 30 single-use packets. Shop on Amazon.",
     keywords: ["enzyme powder wash", "enzyme face cleanser", "powder face wash", "vitamin C powder cleanser", "bromelain papain cleanser", "low pH cleanser", "foaming powder cleanser", "daily exfoliating cleanser", "UNI&CORE"],

@@ -110,7 +110,7 @@ describe("SEO uniqueness", () => {
     const descs = DEFAULT_PRODUCTS.map((p) => p.seo.description);
     expect(new Set(titles).size).toBe(3);
     expect(new Set(descs).size).toBe(3);
-    for (const t of titles) expect(t.length).toBeLessThanOrEqual(70);
+    for (const t of titles) expect(t.length).toBeLessThanOrEqual(60);
     for (const d of descs) expect(d.length).toBeLessThanOrEqual(160); // Google truncates longer snippets
     for (const t of titles) expect(t).toMatch(/UNI&CORE/);
   });
