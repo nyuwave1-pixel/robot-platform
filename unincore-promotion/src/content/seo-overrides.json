@@ -6,6 +6,26 @@
         {
           "q": "How is a powder wash different from a gel cleanser?",
           "a": "A powder wash stays dry until you add water, so the enzymes are activated fresh with each use. It lathers into a creamy foam and rinses clean."
+        },
+        {
+          "q": "Is the enzyme powder wash good for travel?",
+          "a": "Yes. Each wash comes in its own 1 g single-use pouch, so the powder stays dry and fresh and there is no liquid to spill. A box holds 30 pouches."
+        }
+      ]
+    },
+    "vita-c-brightening-mask": {
+      "extraFaqs": [
+        {
+          "q": "When should I use a sheet mask in my routine?",
+          "a": "After cleansing and toner, before your ampoule and moisturizer. Leave the sheet on for 10–20 minutes, remove it, then pat in the remaining essence and continue with the rest of your routine."
+        }
+      ]
+    },
+    "vitamin-c-13-5-ampoule": {
+      "extraFaqs": [
+        {
+          "q": "Should I use vitamin C serum in the morning or at night?",
+          "a": "Either works. Many people apply vitamin C in the morning and follow with sunscreen, then keep stronger actives such as retinol for the evening. Apply 2 pumps after cleansing, before your cream."
         }
       ]
     }

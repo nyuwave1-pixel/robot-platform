@@ -24,8 +24,8 @@
       }
     },
     "protected": false,
-    "status": "pending",
-    "decided_by": null
+    "status": "applied",
+    "decided_by": "owner-via-chat"
   },
   {
     "id": 3,
@@ -38,8 +38,8 @@
       }
     },
     "protected": false,
-    "status": "pending",
-    "decided_by": null
+    "status": "applied",
+    "decided_by": "owner-via-chat"
   },
   {
     "id": 4,
@@ -52,7 +52,7 @@
       }
     },
     "protected": false,
-    "status": "pending",
-    "decided_by": null
+    "status": "applied",
+    "decided_by": "owner-via-chat"
   }
 ]
