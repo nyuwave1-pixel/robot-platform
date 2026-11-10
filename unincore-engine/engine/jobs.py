@@ -54,7 +54,7 @@ def check_connections() -> dict:
             status, detail = ("pending", f"환경변수 없음: {', '.join(missing)}") if missing else ("configured_unverified", "키는 있으나 실제 호출 검증 전")
             if provider == "gemini" and not missing:
                 try:
-                    r = requests.get("https://generativelanguage.googleapis.com/v1beta/models", params={"key": os.environ["GEMINI_API_KEY"]}, timeout=20)
+                    r = requests.get("https://generativelanguage.googleapis.com/v1beta/models", headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]}, timeout=20)
                     status, detail = ("connected", "models.list OK") if r.ok else ("error", f"HTTP {r.status_code}")
                 except requests.RequestException as e:
                     status, detail = "error", str(e)[:200]
@@ -295,7 +295,7 @@ def gemini_analyze_image(image_url: str) -> dict:
         "contents": [{"parts": [{"text": GEMINI_PROMPT}, {"inline_data": {"mime_type": img.headers.get("content-type", "image/png").split(";")[0], "data": base64.b64encode(img.content).decode()}}]}],
         "generationConfig": {"responseMimeType": "application/json"},
     }
-    r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", params={"key": key}, json=body, timeout=120)
+    r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", headers={"x-goog-api-key": key}, json=body, timeout=120)  # key in a header, never in the URL
     r.raise_for_status()
     return json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
 
@@ -326,6 +326,10 @@ def gemini_content(max_images: int = 5) -> dict:
                 ok += 1
             except Exception as e:  # noqa: BLE001
                 s.add(ImageJob(product_id=pid, image_id=image_id, task="analyze", status="failed", error=str(e)[:500]))
+    if targets and ok == 0:  # every call failed: this run is a failure, not a success
+        with session() as s:
+            last = s.scalars(select(ImageJob).where(ImageJob.status == "failed").order_by(ImageJob.id.desc())).first()
+        raise RuntimeError(f"Gemini 분석 {len(targets)}건 모두 실패: {(last.error if last else '')[:200]}")
     return {"analyzed": ok, "attempted": len(targets)}
 
 

@@ -24,11 +24,29 @@
       "error": "",
       "result": null
     },
-    "gemini_content": {
-      "status": "waiting_connection",
+    "connections": {
+      "status": "success",
       "attempts": 1,
-      "error": "GEMINI_API_KEY 미연결: 이미지 분석 작업을 대기열에 저장했습니다",
-      "result": null
+      "error": "",
+      "result": {
+        "gemini": "pending",
+        "google_search_console": "pending",
+        "ga4": "pending",
+        "naver_search_advisor": "pending",
+        "canva": "pending",
+        "higgsfield": "pending",
+        "amazon_ads": "pending",
+        "unincore_shop": "connected"
+      }
+    },
+    "gemini_content": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "analyzed": 0,
+        "attempted": 5
+      }
     },
     "performance": {
       "status": "waiting_connection",
@@ -73,21 +91,6 @@
         "created": 60,
         "updated": 0,
         "new_images": 232
-      }
-    },
-    "connections": {
-      "status": "success",
-      "attempts": 1,
-      "error": "",
-      "result": {
-        "gemini": "pending",
-        "google_search_console": "pending",
-        "ga4": "pending",
-        "naver_search_advisor": "pending",
-        "canva": "pending",
-        "higgsfield": "pending",
-        "amazon_ads": "pending",
-        "unincore_shop": "connected"
       }
     }
   },
