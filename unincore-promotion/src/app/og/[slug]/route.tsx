@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 import { DEFAULT_PRODUCTS } from "@/content/products";
+import { GUIDES } from "@/content/guides";
 import { BRAND } from "@/data/brand";
 import { SCENES } from "@/data/scenes";
 
@@ -13,7 +14,7 @@ import { SCENES } from "@/data/scenes";
  */
 export const dynamic = "force-static";
 export function generateStaticParams() {
-  return [{ slug: "home" }, ...DEFAULT_PRODUCTS.map((p) => ({ slug: p.slug }))];
+  return [{ slug: "home" }, ...DEFAULT_PRODUCTS.map((p) => ({ slug: p.slug })), ...GUIDES.map((g) => ({ slug: g.slug }))];
 }
 
 const size = { width: 1200, height: 630 };
@@ -70,6 +71,30 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const p = DEFAULT_PRODUCTS.find((x) => x.slug === slug);
   const opts = { ...size, fonts: await fonts() };
+
+  // Guide share image: built automatically for every guide in src/content/guides.ts.
+  const guide = GUIDES.find((x) => x.slug === slug);
+  if (guide) {
+    const img = await photo(guide.products[0]);
+    return new ImageResponse(
+      (
+        <div style={frame}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: "62%" }}>
+            <Logo />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", fontSize: 24, letterSpacing: 8, color: GOLD }}>KOREAN SKINCARE GUIDE</div>
+              <div style={{ display: "flex", fontSize: guide.h1.length > 34 ? 60 : 72, lineHeight: 1.02, marginTop: 16, fontStyle: "italic" }}>{guide.h1}</div>
+            </div>
+            <div style={{ display: "flex", fontSize: 24, letterSpacing: 5, color: GOLD }}>SHOP ON AMAZON.COM</div>
+          </div>
+          <div style={{ display: "flex", width: "38%", alignItems: "center", justifyContent: "flex-end" }}>
+            <Card src={img} h={450} />
+          </div>
+        </div>
+      ),
+      opts,
+    );
+  }
 
   if (!p) {
     const [wash, mask, ampoule] = await Promise.all([photo("wash"), photo("mask"), photo("ampoule")]);

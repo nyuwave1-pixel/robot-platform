@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const g = GUIDES.find((x) => x.slug === slug);
   if (!g) return {};
-  return pageMetadata({ title: g.title, description: g.description, path: `/guides/${g.slug}`, keywords: [...g.keywords, "UNI&CORE"], ogImage: "/og/home", absoluteTitle: true });
+  return pageMetadata({ title: g.title, description: g.description, path: `/guides/${g.slug}`, keywords: [...g.keywords, "UNI&CORE"], ogImage: `/og/${g.slug}`, absoluteTitle: true });
 }
 
 export default async function GuidePage({ params }: Props) {
@@ -44,7 +44,7 @@ export default async function GuidePage({ params }: Props) {
     datePublished: g.published,
     dateModified: g.updated,
     inLanguage: "en-US",
-    image: [abs("/og/home"), ...featured.map((p) => abs(p.heroImage || `/og/${p.slug}`))],
+    image: [abs(`/og/${g.slug}`), ...featured.map((p) => abs(p.heroImage || `/og/${p.slug}`))],
     author: { "@type": "Organization", name: "UNI&CORE", url: abs("/") },
     publisher: { "@id": abs("/#organization") },
     about: featured.map((p) => ({ "@type": "Product", name: `UNI&CORE ${p.name}`, url: abs(`/products/${p.slug}`) })),
