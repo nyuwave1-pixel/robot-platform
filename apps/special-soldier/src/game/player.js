@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { clamp, damp, lerp } from '../core/util.js';
 import { DIFFICULTY } from '../core/save.js';
+import { TUNE } from '../ui/tune.js';
 
 const HEIGHTS = [1.78, 1.15, 0.5], SPEED = [4.5, 2.3, 0.95];
 const _f = new THREE.Vector3(), _r = new THREE.Vector3(), _t = new THREE.Vector3();
@@ -22,7 +23,7 @@ export class Player {
   get moving() { return this.speedNow > 0.5; }
   damage(amt, sx, sz, kind) {
     if (!this.alive || G.state !== 'playing' || G.godMode) return;
-    amt *= DIFFICULTY[G.settings.difficulty].dmg;
+    amt *= DIFFICULTY[G.settings.difficulty].dmg * TUNE.enemyDmg;
     if (this.armor > 0) { const a = Math.min(this.armor, amt * 0.6); this.armor -= a; amt -= a; }
     this.health -= amt; this.hurt = Math.min(1, this.hurt + amt / 45); this.lastHurt = G.time; this.shake = Math.max(this.shake, 0.25);
     G.hud.hitFrom(Math.atan2(sx - this.pos.x, sz - this.pos.z)); G.audio.play('hurt');
@@ -49,7 +50,7 @@ export class Player {
     const il = Math.hypot(ix, iz) || 1; ix /= il; iz /= il;
     this.sprinting = canMove && I.down('ShiftLeft') && iz > 0 && this.stance === 0 && this.stamina > 1 && wp.adsT < 0.3 && this.grounded && !wp.reloading;
     const depth = this.pos.y < -30 ? 0 : clamp(-W.heightAt(this.pos.x, this.pos.z), 0, 1.4);
-    let sp = SPEED[this.stance] * (this.sprinting ? 1.62 : 1) * (1 - (wp.weight - 3) * 0.022) * lerp(1, 0.62, wp.adsT) * (1 - depth * 0.38);
+    let sp = SPEED[this.stance] * TUNE.moveSpeed * (this.sprinting ? 1.62 : 1) * (1 - (wp.weight - 3) * 0.022) * lerp(1, 0.62, wp.adsT) * (1 - depth * 0.38);
     _f.set(-Math.sin(this.yaw), 0, -Math.cos(this.yaw)); _r.set(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
     _t.set(0, 0, 0).addScaledVector(_f, iz * sp).addScaledVector(_r, ix * sp * 0.85);
     if (this.sliding > 0) { this.sliding -= dt; _t.copy(_f).multiplyScalar(4 + this.sliding * 8); if (this.sliding <= 0 && !I.down('ControlLeft') && this.canStand()) this.stance = 0; }

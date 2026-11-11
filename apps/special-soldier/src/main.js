@@ -19,6 +19,7 @@ import { Hud } from './ui/hud.js';
 import { Menu } from './ui/menu.js';
 import { clamp } from './core/util.js';
 import { loadAssets, ASSETS } from './game/assets.js';
+import { TunePanel } from './ui/tune.js';
 import { makeSoldier, makeAPC, makeHeli, PALETTE, HOT } from './game/models.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
@@ -46,7 +47,9 @@ async function boot() {
   await step(55, 'ZONES 01–05 — STRUCTURES & VEGETATION'); buildIsland();
   await step(75, 'OPERATORS · WEAPONS · AI'); G.player = new Player(); G.weapons = new Weapons(); G.enemies = new Enemies(); G.squad = new Squad(); G.gear = new Gear(); G.mission = new MissionSys(); G.cine = new Cine();
   await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
+  G.tune = new TunePanel();
   G.applySettings(); addEventListener('resize', G.applySettings);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && G.state === 'playing' && !G.test) G.pause(); }); // hidden tab: pause instead of running a huge catch-up frame
   // shader warm-up: put one of every late-spawned material in view so first use never hitches mid-combat
   { const warm = new THREE.Group(); for (const k of Object.keys(PALETTE)) warm.add(makeSoldier(k)); warm.add(makeAPC(), makeHeli(), new THREE.Mesh(G.fx.nadeGeo, G.fx.nadeMat), new THREE.Mesh(G.fx.nadeGeo, HOT), new THREE.Mesh(G.fx.nadeGeo, new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 1 })));
     G.scene.add(warm); G.weapons.root.visible = true; r.compile(G.scene, G.camera); G.scene.remove(warm); G.weapons.root.visible = false; }
@@ -113,7 +116,7 @@ function tick(dt) {
     G.player.update(dt); G.weapons.update(dt); G.gear.update(dt); G.enemies.update(dt); G.squad.update(dt); G.fx.update(dt); if (st === 'playing') G.mission.update(dt);
     G.cine.update(dt); G.world.update(dt); G.sky.update(dt); if (G.state === 'playing' || G.state === 'dead') G.hud.update(dt); ambient(dt);
     if (st === 'dead' && (deadT -= dt) <= 0 && G.state === 'dead') { G.state = 'deadMenu'; G.input.unlock(); G.menu.death(deathKind); }
-    if (G.test && G.input.pressed('Escape')) G.pause();
+    if (G.test && G.input.pressed('Escape')) G.pause(); G.tune.update();
     $('lockHint').style.display = !G.input.locked && !G.test && G.state === 'playing' ? 'block' : 'none';
   }
   G.audio.listener(G.camera);

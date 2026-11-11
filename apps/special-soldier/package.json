@@ -1,6 +1,6 @@
 {
   "name": "special-soldier",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "SPECIAL SOLDIER \u2014 Operation: Island Invasion. Playable browser FPS prototype (Three.js).",
@@ -13,7 +13,8 @@
     "test:e2e": "node tests/e2e.mjs",
     "desktop": "electron .",
     "build:win": "vite build && npm run package:win",
-    "package:win": "electron-packager . SpecialSoldier --platform=win32 --arch=x64 --out=release --overwrite --ignore=\"^/(src|tests|docs|release|node_modules|index.html|vite.config.js)\""
+    "package:win": "electron-packager . SpecialSoldier --platform=win32 --arch=x64 --out=release --overwrite --ignore=\"^/(src|tests|docs|release|node_modules|index.html|vite.config.js)\"",
+    "build:single": "SINGLE=1 vite build"
   },
   "dependencies": {
     "three": "^0.170.0"
@@ -21,7 +22,8 @@
   "devDependencies": {
     "@electron/packager": "^18.4.4",
     "electron": "^33.4.11",
-    "vite": "^5.4.0"
+    "vite": "^5.4.0",
+    "vite-plugin-singlefile": "^2.3.4"
   },
   "productName": "SPECIAL SOLDIER"
 }

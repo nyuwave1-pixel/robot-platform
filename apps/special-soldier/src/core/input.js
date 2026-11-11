@@ -11,6 +11,7 @@ export class Input {
     addEventListener('mouseup', (e) => { this.btn[e.button] = false; });
     addEventListener('wheel', (e) => { this.wheel += Math.sign(e.deltaY); }, { passive: true });
     addEventListener('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('pointerlockerror', () => { this.locked = false; }); // lock refused (no gesture / unsupported): the "click to resume" hint stays up
     document.addEventListener('pointerlockchange', () => { this.locked = document.pointerLockElement === canvas; if (!this.locked && G.state === 'playing' && !G.test) G.pause(); });
   }
   lock() { try { const p = this.canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* headless */ } }

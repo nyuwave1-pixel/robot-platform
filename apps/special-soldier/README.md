@@ -19,6 +19,7 @@ npm run dev        # http://localhost:5180
 
 ```bash
 npm run build      # dist/ 정적 번들 (아무 정적 호스팅에 배포 가능)
+npm run build:single  # dist-single/index.html 한 파일 — 더블클릭으로 실행
 npm run preview    # http://localhost:5181
 npm test           # DPS 밸런스 모델 단위 테스트 (node:test)
 npm run test:e2e   # 헤드리스 Chromium 전체 QA (메뉴·조작·AI·캠페인 5개 미션 완주)
@@ -37,6 +38,7 @@ Windows 데스크톱 빌드(Electron 래퍼)는 [`docs/TECHNICAL.md` §9](docs/T
 | E | 상호작용(표시된 곳은 길게) | F / X | 선택 장비 사용 / 장비 변경 |
 | N · T · L | 야간투시경 · 열화상 · 전술 라이트 | B | 정찰 드론 |
 | H | 의료 키트 | Tab / Esc | 전술 지도 / 일시정지 |
+| F2 | 튜닝 패널(개발용) | | |
 
 ## 구현된 내용
 
@@ -54,6 +56,9 @@ Windows 데스크톱 빌드(Electron 래퍼)는 [`docs/TECHNICAL.md` §9](docs/T
 
 ## 문서
 
+- [`design/game-brief.md`](design/game-brief.md) · [`design/gdd/`](design/gdd) — 게임 브리프와 시스템 설계서(8섹션)
+- [`production/handover.md`](production/handover.md) — 핸드오버 카드(통과 / 깨짐 / 추정)
+- [`docs/STUDIO_PRACTICES.md`](docs/STUDIO_PRACTICES.md) — claude-code-game-studios 분석과 반영 내역
 - [`docs/FLOW_PROMPTS.md`](docs/FLOW_PROMPTS.md) — Google Flow(Veo) 프롬프트 팩, 만든 영상을 미션 인트로로 넣는 법
 - [`docs/BLENDER.md`](docs/BLENDER.md) — Blender 5.3 에셋 파이프라인, `.blend` 여는 법, 다시 빌드하는 법
 - [`docs/TECHNICAL.md`](docs/TECHNICAL.md) — 아키텍처, 시스템별 설계, DPS 모델, 확장 방법

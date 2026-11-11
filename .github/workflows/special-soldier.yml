@@ -1,0 +1,28 @@
+name: special-soldier
+on:
+  pull_request:
+    paths: ['apps/special-soldier/**', '.github/workflows/special-soldier.yml']
+  push:
+    branches: [main]
+    paths: ['apps/special-soldier/**']
+permissions:
+  contents: read
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/special-soldier
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/special-soldier/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run build:single

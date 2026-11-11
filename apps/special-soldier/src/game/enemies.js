@@ -7,6 +7,7 @@ import { clamp, angDiff, damp, TAU } from '../core/util.js';
 import { DIFFICULTY } from '../core/save.js';
 import { makeSoldier, makeAPC, poseSoldier, HOT } from './models.js';
 import { raySphere } from './fx.js';
+import { TUNE } from '../ui/tune.js';
 
 export const ST = { PATROL: 0, SUSPICIOUS: 1, SEARCH: 2, COMBAT: 3, RETREAT: 4 };
 export const ST_NAME = ['PATROL', 'SUSPICIOUS', 'SEARCH', 'COMBAT', 'RETREAT'];
@@ -102,6 +103,7 @@ export class Enemies {
     _a.set(e.pos.x, e.pos.y + (t.vehicle ? 2.6 : crouch ? 1.05 : 1.6), e.pos.z);
     const dx = P.pos.x - e.pos.x, dz = P.pos.z - e.pos.z, dist = Math.hypot(dx, dz, P.pos.y - e.pos.y); e.dist = dist;
     let vr = t.vision * (1 - G.sky.night * 0.5) * [1, 0.72, 0.5][P.stance] * D.detect * (e.alerted ? 1.25 : 1) * (G.gear.light ? 1.5 : 1) * (1 - Math.min(0.3, G.sky.rainAmt * 0.2));
+    vr *= TUNE.enemyDetect;
     if (e.state === ST.COMBAT) vr = Math.max(vr, t.vision * 0.9);
     let see = false;
     if (P.alive && dist < vr && !G.noTarget) { const ang = Math.abs(angDiff(Math.atan2(dx, dz), e.yaw + e.turret)); if (e.state >= ST.COMBAT || ang < t.fov / 2 || dist < 3.5) see = W.los(_a, _b.copy(P.eye).setY(P.eye.y - 0.15)); }
@@ -155,7 +157,7 @@ export class Enemies {
     const th = isP ? P.height * 0.62 : 1.1, lead = e.dist / t.gun.vel * 0.7; _b.set(T.pos.x + (isP ? P.vel.x * lead : 0), T.pos.y + th, T.pos.z + (isP ? P.vel.z * lead : 0));
     _d.subVectors(_b, _a).normalize();
     let s = t.spread * D.acc * (isP ? (P.inCover ? 1.7 : 1) * (1 + P.speedNow * 0.07) * [1, 0.95, 1.2][P.stance] : 1.2) * (e.speedNow > 0.5 ? 1.6 : 1) * (e.stateT < 1.2 ? 1.8 : 1) * (1 + G.sky.night * 0.25);
-    s = (s * Math.PI) / 180; const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * Math.tan(s); _m.set(-_d.z, 0, _d.x).normalize(); _d.addScaledVector(_m, Math.cos(a) * r); _d.y += Math.sin(a) * r; _d.normalize();
+    s = (s * TUNE.enemyAcc * Math.PI) / 180; const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * Math.tan(s); _m.set(-_d.z, 0, _d.x).normalize(); _d.addScaledVector(_m, Math.cos(a) * r); _d.y += Math.sin(a) * r; _d.normalize();
     G.fx.fire(_a, _d, t.gun, 'enemy', e); e.lastFire = G.time;
     G.fx.puff(_a.x, _a.y, _a.z, 0xffc070, t.vehicle ? 1.1 : 0.55, 0.06, 1, 0, 0, 0, true, 0, 0.5);
     G.audio.play('shot:' + (e.kind === 'sniper' ? 'SNIPER RIFLE' : e.kind === 'heavy' || t.vehicle ? 'LMG' : 'ENEMY'), e.pos);

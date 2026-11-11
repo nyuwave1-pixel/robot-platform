@@ -78,3 +78,11 @@ export async function video({ page }) {
   await page.waitForTimeout(4000); console.log('after it ends  :', await st());
   await page.evaluate(() => { SS.toMenu(); SS.startMission(1); }); await page.waitForTimeout(2500); console.log('m2 without file:', await st());
 }
+export async function tune({ page, sim, shot }) {
+  await page.evaluate(HELPERS); await page.evaluate(() => SS.startMission(0, true)); await sim(0.3);
+  await page.keyboard.press('F2'); const open = await page.evaluate(() => document.getElementById('tune').classList.contains('on'));
+  const before = await page.evaluate(() => SS.weapons.slot.w.rpm);
+  await page.evaluate(() => { const i = document.querySelector('#tune input[data-k="rpm"]'); i.value = 300; i.dispatchEvent(new Event('input', { bubbles: true })); const g = document.querySelector('#tune input[data-k="moveSpeed"]'); g.value = 1.5; g.dispatchEvent(new Event('input', { bubbles: true })); });
+  console.log(JSON.stringify({ open, before, after: await page.evaluate(() => SS.weapons.slot.w.rpm), sum: await page.textContent('#tuneSum'), state: await page.evaluate(() => SS.state) })); await shot('T-tune');
+  await page.evaluate(() => { SS.weapons.slot.w.rpm = 800; });
+}
