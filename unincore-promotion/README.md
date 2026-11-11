@@ -57,7 +57,9 @@ npm run qa                        # → qa-artifacts/qa-report.md
 
 | 무엇을 | 파일 |
 |---|---|
-| 제품 문구, 성분, 사용법, FAQ, 테스트 수치, 아마존 URL/ASIN, SEO 제목·설명 | `src/content/products.ts` |
+| 제품 랜딩 페이지 문구·갤러리·성분·사용법·리뷰 | `src/content/landing.ts` |
+| 제품 기본 정보, 아마존 URL/ASIN, SEO 제목·설명 | `src/content/products.ts` |
+| 가이드 글 | `src/content/guides.ts` |
 | 블랙프라이데이 등 프로모션 (할인율, 기간, `enabled`) | `src/content/products.ts`의 `bfcm()` / 각 제품 `promotion` |
 | 홈 카피 | `src/data/brand.ts`, `src/data/scenes.ts` |
 | GA4 / GTM / Meta Pixel ID | Netlify 환경 변수 `NEXT_PUBLIC_GA4_ID` 등 (`src/content/site.ts`) |
