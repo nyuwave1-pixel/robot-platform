@@ -2,8 +2,9 @@
 import { tune } from "../data/config";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { AdaptiveDpr, PerformanceMonitor, Sparkles } from "@react-three/drei";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import { AdaptiveDpr, Environment, Lightformer, PerformanceMonitor, Sparkles } from "@react-three/drei";
+import { Bloom, BrightnessContrast, DepthOfField, EffectComposer, HueSaturation, N8AO, SMAA, ToneMapping, Vignette } from "@react-three/postprocessing";
+import { ToneMappingMode, type DepthOfFieldEffect } from "postprocessing";
 import * as THREE from "three";
 import { DEMO_FRIENDS } from "../data/game";
 import { DEFAULT_LOOK, earnedStage, useGame, type Look } from "../store/game";
@@ -16,42 +17,84 @@ import { Care3D } from "./Care3D";
 import { Customers, npcPos } from "./Customers";
 
 const lerp = THREE.MathUtils.lerp;
+/** 카메라가 바라보는 지점 — 피사계 심도의 초점 */
+const camFocus = new THREE.Vector3(0, 1, 0);
 
 export function World() {
   const quality = useGame((s) => s.settings.quality);
   const [auto, setAuto] = useState<"low" | "high">(() => (typeof navigator !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent) ? "low" : "high"));
-  const q = quality === "auto" ? auto : quality;
+  // 그래픽 컨텍스트가 죽으면(메모리 부족 등) 낮은 품질로 캔버스를 다시 만든다
+  const [lost, setLost] = useState(0);
+  const lostRef = useRef(false);
+  const q = lost ? "low" : quality === "auto" ? auto : quality;
   const wrap = useRef<HTMLDivElement>(null);
   useCameraGestures(wrap);
 
   return (
     <div ref={wrap} className="absolute inset-0 touch-none select-none">
       <Canvas
+        key={lost}
         shadows={q === "high"}
         dpr={q === "high" ? [1, 2] : [0.75, 1.25]}
         camera={{ fov: 42, near: 0.1, far: 80, position: [0, 4, 10] }}
         gl={{ antialias: q === "high", preserveDrawingBuffer: true, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.05; }}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.1;
+          gl.domElement.addEventListener("webglcontextlost", (e) => {
+            // 캔버스를 내릴 때 R3F 가 일부러 컨텍스트를 버리는 경우는 무시하고, 복구는 한 번만 시도한다
+            if (!gl.domElement.isConnected || lostRef.current) return;
+            lostRef.current = true;
+            e.preventDefault();
+            setLost((n) => n + 1);
+            useUI.getState().toast(useGame.getState().settings.lang === "ko" ? "그래픽을 가볍게 바꿔 다시 불러왔어요" : "Graphics reloaded at a lighter setting");
+          }, { once: true });
+        }}
       >
-        <color attach="background" args={["#fbe9ee"]} />
-        <fog attach="fog" args={["#fbe9ee", 26, 55]} />
+        <color attach="background" args={["#f6e1e7"]} />
+        <fog attach="fog" args={["#f6e1e7", 30, 60]} />
+        {/* 환경 반사광: 외부 HDR 파일 없이 라이트포머로 만든 스튜디오 */}
+        <Environment resolution={256} frames={1} environmentIntensity={0.3}>
+          <color attach="background" args={["#e9d3d9"]} />
+          <Lightformer form="rect" intensity={3.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 12, 1]} color="#fff1e0" />
+          <Lightformer form="rect" intensity={2.4} position={[7, 2.5, 0]} rotation-y={-Math.PI / 2} scale={[7, 4, 1]} color="#ffffff" />
+          <Lightformer form="rect" intensity={1.3} position={[-7, 2.5, 2]} rotation-y={Math.PI / 2} scale={[7, 4, 1]} color="#ffc9d8" />
+          <Lightformer form="ring" intensity={5} position={[0, 3, -7]} scale={3} color="#ffe0b0" />
+          <Lightformer form="rect" intensity={1.2} position={[0, 2, 8]} rotation-y={Math.PI} scale={[8, 3, 1]} color="#e7dcff" />
+        </Environment>
         <PerformanceMonitor onDecline={() => setAuto("low")} onIncline={() => setAuto("high")} flipflops={2} />
         <AdaptiveDpr pixelated={false} />
         <Suspense fallback={null}>
-          <Scene />
+          <Scene q={q} />
         </Suspense>
-        {q === "high" && (
-          <EffectComposer multisampling={0}>
-            <Bloom intensity={0.45} luminanceThreshold={0.82} luminanceSmoothing={0.2} mipmapBlur />
-            <Vignette eskil={false} offset={0.2} darkness={0.42} />
-          </EffectComposer>
-        )}
+        {q === "high" && <Fx />}
       </Canvas>
     </div>
   );
 }
 
-function Scene() {
+/** 후처리 체인 (고품질 전용): AO → 피사계 심도 → 블룸 → 색 보정 → 톤매핑 → 비네트 → AA */
+function Fx() {
+  const dof = useRef<DepthOfFieldEffect>(null);
+  useFrame(() => {
+    const ui = useUI.getState();
+    const close = ui.mode === "care" || ui.mode === "photo" || ui.mode === "cinematic" || ui.panel === "character" || ui.panel === "growth";
+    if (dof.current) { dof.current.target = camFocus; dof.current.bokehScale = lerp(dof.current.bokehScale, close ? 2.6 : 0, 0.06); }
+  });
+  return (
+    <EffectComposer multisampling={0} enableNormalPass={false}>
+      <N8AO aoRadius={0.85} intensity={2.4} distanceFalloff={0.7} halfRes quality="medium" color="#4a2330" />
+      <DepthOfField ref={dof} worldFocusRange={2.2} bokehScale={0} height={540} />
+      <Bloom intensity={0.55} luminanceThreshold={0.97} luminanceSmoothing={0.12} mipmapBlur radius={0.7} />
+      <HueSaturation saturation={0.1} />
+      <BrightnessContrast brightness={0.0} contrast={0.07} />
+      <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      <Vignette eskil={false} offset={0.18} darkness={0.5} />
+      <SMAA />
+    </EffectComposer>
+  );
+}
+
+function Scene({ q }: { q: "low" | "high" }) {
   const lounge = useGame((s) => s.lounge);
   const visiting = useUI((s) => s.visiting);
   const mode = useUI((s) => s.mode);
@@ -88,6 +131,7 @@ function Scene() {
         furniture={friend ? FRIEND_FURNITURE : lounge.furniture}
         selected={mode === "edit" ? selected : null}
         activeMode={careMode}
+        quality={q}
         onFloor={onFloor}
         onFurniture={mode === "edit" && !friend ? (uid) => useUI.setState({ selected: uid }) : undefined}
       />
@@ -304,6 +348,7 @@ function CameraRig({ L }: { L: Layout }) {
     }
     camera.position.lerp(want, k);
     target.current.lerp(wantT, k);
+    camFocus.copy(target.current);
     camera.up.lerp(wantUp, k).normalize();
     camera.lookAt(target.current);
   });

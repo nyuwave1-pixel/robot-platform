@@ -15,7 +15,7 @@ export function layout(level: number) {
   const zones: { key: ZoneKey; x: z_; z: z_; min: number }[] = [
     { key: "shelf", x: shelf.x, z: shelf.z + 1.5, min: 1 },
     { key: "device", x: bed.x, z: bed.z + 1.5, min: 1 },
-    { key: "reception", x: reception.x - 0.2, z: reception.z - 1.1, min: 1 },
+    { key: "reception", x: reception.x, z: reception.z - 1.75, min: 1 },
     { key: "vanity", x: vanity.x + 1.3, z: vanity.z, min: 1 },
     { key: "photo", x: photo.x + 1.7, z: photo.z, min: 2 },
   ];
@@ -23,13 +23,13 @@ export function layout(level: number) {
   const obstacles = [
     { x: bed.x - 0.6, z: bed.z, r: 0.8 }, { x: bed.x + 0.6, z: bed.z, r: 0.8 }, { x: bed.x - 1.75, z: bed.z - 0.4, r: 0.55 },
     { x: shelf.x - 1.2, z: shelf.z, r: 0.75 }, { x: shelf.x, z: shelf.z, r: 0.75 }, { x: shelf.x + 1.2, z: shelf.z, r: 0.75 },
-    { x: reception.x, z: reception.z, r: 0.95 },
+    { x: reception.x, z: reception.z + 0.25, r: 1.3 },
     { x: vanity.x, z: vanity.z, r: 0.7 },
     { x: sofa.x - 1.3, z: sofa.z + 0.15, r: 0.6 }, { x: sofa.x - 0.4, z: sofa.z + 0.15, r: 0.6 }, { x: sofa.x + 0.5, z: sofa.z + 0.15, r: 0.6 },
   ];
-  return { level: L, w, d, bed, shelf, reception, vanity, photo, sofa, zones: zones.filter((z) => level >= z.min), seats, obstacles, entrance: { x: 0, z: d / 2 - 0.3 }, payPoint: { x: reception.x - 0.2, z: reception.z - 1.0 } };
+  return { level: L, w, d, bed, shelf, reception, vanity, photo, sofa, zones: zones.filter((z) => level >= z.min), seats, obstacles, entrance: { x: 0, z: d / 2 - 0.3 }, payPoint: { x: reception.x, z: reception.z - 1.6 } };
 }
 type z_ = number;
 export type Layout = ReturnType<typeof layout>;
 
-export const BED_TOP = 0.62;
+export const BED_TOP = 0.68; // 케어 스테이지(6cm) 위의 베드 상판

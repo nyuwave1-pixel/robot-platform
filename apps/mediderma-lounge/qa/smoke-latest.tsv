@@ -1,6 +1,4 @@
 boots	pass	canvas=1 errors=0
-responds	pass	moved=0.85m
+responds	pass	moved=0.28m
 care	pass	phase=result
-save	pass	care 1 -> 1
-text	pass	모든 글자 12px 이상
-console	pass	errors=0
+run	fail	locator.click: Target page, context or browser has been closed
