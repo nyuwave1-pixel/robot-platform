@@ -4,7 +4,7 @@ import type { ModeId, RoutineStep, ZoneId } from "../data/devices";
 import type { ExpKey } from "../data/game";
 
 export type Screen = "splash" | "intro" | "create" | "game";
-export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame";
+export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank";
 export type GameMode = "explore" | "care" | "edit" | "cinematic" | "photo";
 export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo" | "game";
 

@@ -1,9 +1,9 @@
 /** 펫 · 라운지 맵과 스테이션 증설 · 친구 초대 · 미니게임(카드 짝 맞추기) */
 import { useMemo, useState } from "react";
 import { tune } from "../data/config";
-import { LOUNGE_LEVELS, MAX_PETS, PET_MAP, PET_TYPES, STATION_COSTS } from "../data/game";
+import { LOUNGE_LEVELS, MAX_PETS, PET_MAP, PET_TYPES, RANKS, STATION_COSTS, gtvOf } from "../data/game";
 import { PRODUCTS, productImage } from "../data/products";
-import { useGame } from "../store/game";
+import { rankBonus, useGame } from "../store/game";
 import { inviteLink } from "../store/invite";
 import { useUI } from "../store/ui";
 import { layout } from "../three/layout";
@@ -237,6 +237,60 @@ export function MiniGameBody() {
       )}
       <button className="btn-ghost mt-3 w-full" onClick={restart}>{t("mini.restart")}</button>
       <p className="mt-2 text-[12px] leading-relaxed text-ink/45">{t("mini.note")}</p>
+    </>
+  );
+}
+
+// ───────────── 라운지 등급 (New Benefit Plan 직급 체계 기반 게임 규칙) ─────────────
+export function RankBody() {
+  const t = useT();
+  const g = useGame();
+  const ko = g.settings.lang === "ko";
+  const gtv = Math.floor(gtvOf(g.pv));
+  const cur = RANKS[g.rank - 1];
+  const next = RANKS[g.rank];
+  const salaryDone = g.daily.date === new Date().toISOString().slice(0, 10) && !!g.daily.stats.salary;
+  const Row = ({ label, v, max, color }: { label: string; v: number; max: number; color: string }) => (
+    <div className="mt-2">
+      <div className="flex justify-between text-[12px] font-bold text-ink/60"><span>{label}</span><span>{Math.floor(v).toLocaleString()}{max > 0 ? ` / ${max.toLocaleString()}` : ""}</span></div>
+      <div className="mt-1 h-2 overflow-hidden rounded-full bg-ink/10"><div className="h-full rounded-full transition-all" style={{ width: `${max > 0 ? Math.min(100, (v / max) * 100) : 100}%`, background: color }} /></div>
+    </div>
+  );
+  return (
+    <>
+      <div className="rounded-3xl bg-gradient-to-br from-pink-soft to-lav/70 p-4">
+        <p className="text-[12px] font-bold tracking-[0.2em] text-gold">LOUNGE RANK</p>
+        <p className="mt-0.5 text-xl font-black text-ink">{cur ? `${cur.code} · ${ko ? cur.ko : cur.en}` : t("rank.none")}</p>
+        <p className="mt-1 text-[13px] font-bold text-ink/60">{t("rank.bonusNow", { pct: Math.round((rankBonus(g.rank) - 1) * 100), coin: g.rank * tune("rank.salary_per_rank") })}</p>
+        <button disabled={g.rank < 1 || salaryDone} className="btn-primary mt-3 w-full disabled:opacity-40"
+          onClick={() => { const c = g.claimSalary(); if (c) toast(`+${c} BEAUTY COIN`); }}>
+          {g.rank < 1 ? t("rank.salaryLocked") : salaryDone ? t("rank.salaryDone") : t("rank.salary")}
+        </button>
+      </div>
+      <div className="mt-3 rounded-2xl bg-cream p-3">
+        <p className="text-xs font-black text-ink">{next ? t("rank.next", { name: `${next.code} · ${ko ? next.ko : next.en}` }) : t("rank.max")}</p>
+        <Row label={t("rank.gtv")} v={gtv} max={next?.gtv ?? 0} color="linear-gradient(90deg,#e79aae,#c9a66b)" />
+        <Row label={t("rank.stv")} v={g.pv.cust} max={next?.stv ?? 0} color="#8fb7ee" />
+        <Row label={t("rank.plv")} v={g.pv.use} max={next?.plv ?? 0} color="#6fcfa6" />
+        <p className="mt-2 text-[12px] font-bold text-ink/50">{t("rank.buy")} {Math.floor(g.pv.buy).toLocaleString()} PV</p>
+      </div>
+      <p className="mt-3 text-[12px] leading-relaxed text-ink/55">{t("rank.how")}</p>
+      <div className="mt-3 space-y-1.5">
+        {RANKS.map((k) => {
+          const got = g.rank >= k.n;
+          return (
+            <div key={k.n} className={`flex items-center gap-2 rounded-2xl border-2 px-3 py-2 ${g.rank === k.n ? "border-pink-deep bg-pink-soft/50" : got ? "border-gold/40 bg-cream" : "border-ink/5 bg-ink/[0.03]"}`}>
+              <span className="flex h-8 w-11 shrink-0 items-center justify-center rounded-full text-[12px] font-black text-white" style={{ background: k.color }}>{k.code}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-black text-ink">{ko ? k.ko : k.en}</span>
+                <span className="block text-[12px] font-bold text-ink/45">GTV {k.gtv.toLocaleString()}{k.stv ? ` · STV ${k.stv.toLocaleString()}` : ""}{k.plv ? ` · PLV ${k.plv.toLocaleString()}` : ""}</span>
+              </span>
+              <span className="shrink-0 text-right text-[12px] font-bold text-ink/55">+{Math.round(k.n * tune("rank.bonus_per_rank") * 100)}%<br />{got ? "✔" : <><Price c="coin" n={k.coins} /></>}</span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[12px] leading-relaxed text-ink/45">{t("rank.notice")}</p>
     </>
   );
 }

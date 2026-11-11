@@ -5,7 +5,7 @@
 import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, QUESTS, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
+import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, QUESTS, RANKS, rankFor, type PV, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
 import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
@@ -49,6 +49,12 @@ export interface GameState {
   ownedInterior: string[];
   storage: Record<string, number>; // 보관 중인 가구 수량
   lounge: { level: number; furniture: Furniture[]; floor: string; wall: string; light: string; stations: number };
+  /** 게임 PV: 제품 구매 · 제품 소비 · 고객 등록 */
+  pv: PV;
+  /** 달성한 라운지 등급 (0 = 없음, 1 = 매니저 … 10 = 최고경영자) */
+  rank: number;
+  /** 방금 오른 등급 (안내를 띄운 뒤 지운다) */
+  rankNotice: number | null;
   pets: Pet[];
   friendCode: string;
   invitedBy: Friend | null;
@@ -96,6 +102,9 @@ export interface GameState {
   acceptInvite: (code: string, name: string) => boolean;
   addFriend: (code: string, name: string) => "ok" | "self" | "dup" | "bad";
   miniReward: (moves: number) => number;
+  addPV: (p: Partial<PV>) => void;
+  claimSalary: () => number;
+  clearRankNotice: () => void;
   setSettings: (p: Partial<GameState["settings"]>) => void;
   reset: () => void;
 }
@@ -115,6 +124,9 @@ const fresh = () => ({
   ownedInterior: ["floor-cream", "wall-cream", "light-warm"],
   storage: { plant: 1, flower: 1 } as Record<string, number>,
   lounge: { level: 1, furniture: [] as Furniture[], floor: "floor-cream", wall: "wall-cream", light: "light-warm", stations: 0 },
+  pv: { buy: 0, use: 0, cust: 0 } as PV,
+  rank: 0,
+  rankNotice: null as number | null,
   pets: [] as Pet[],
   friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
   invitedBy: null as Friend | null,
@@ -130,6 +142,11 @@ const fresh = () => ({
   following: [] as string[],
   settings: { lang: (typeof navigator !== "undefined" && navigator.language?.startsWith("ko") ? "ko" : "en") as Lang, quality: "auto" as const, tutorial: true },
 });
+
+/** 제품 1개 구매의 게임 PV (공식몰 표시가 기준, 안내서 예시 "10만원 ≈ 100PV") */
+export const pvOf = (id: string) => Math.round((PRODUCT_MAP[id]?.priceKRW ?? 0) / tune("rank.krw_per_pv"));
+/** 등급에 따른 고객 결제·LOUNGE POINT 보너스 배율 */
+export const rankBonus = (rank: number) => 1 + rank * tune("rank.bonus_per_rank");
 
 /** 친구 코드: 영문 대문자·숫자 6자리 */
 export const normCode = (c: string) => { const x = (c ?? "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return x.length === 6 ? x : ""; };
@@ -179,6 +196,7 @@ export const useGame = create<GameState>()(
         const paid = pay(s, "coin", p.coinPrice);
         if (!paid) return false;
         set({ ...paid, inventory: { ...s.inventory, [id]: (s.inventory[id] ?? 0) + usesOf(id) }, codex: s.codex.includes(id) ? s.codex : [...s.codex, id] });
+        get().addPV({ buy: pvOf(id) });
         return true;
       },
       grantProduct: (id, n = 1) => set((s) => ({ inventory: { ...s.inventory, [id]: (s.inventory[id] ?? 0) + n }, codex: s.codex.includes(id) ? s.codex : [...s.codex, id] })),
@@ -186,6 +204,7 @@ export const useGame = create<GameState>()(
         const s = get();
         if ((s.inventory[id] ?? 0) < 1) return false;
         set({ inventory: { ...s.inventory, [id]: s.inventory[id] - 1 } });
+        get().addPV({ use: pvOf(id) / usesOf(id) });
         return true;
       },
 
@@ -260,6 +279,7 @@ export const useGame = create<GameState>()(
           }
         }
         set({ exp, modesUsed, routinesDone, coins: s.coins + r.coins, lp, regulars, posts, stats, daily: { date: d.date, stats: dstats } });
+        if (r.customer) get().addPV({ cust: r.customer.stars * tune("rank.customer_pv_per_star") });
       },
 
       addPost: (p) => set((s) => {
@@ -354,11 +374,30 @@ export const useGame = create<GameState>()(
           ? ex ? s.regulars.map((x) => (x === ex ? { ...x, visits: x.visits + 1, lastStars: r.stars } : x)) : [...s.regulars, { name: r.name, type: r.type, visits: 1, lastStars: r.stars }].slice(-30)
           : s.regulars;
         return {
+          pv: s.pv,
           coins: s.coins + r.coins, lp: s.lp + r.lp, regulars,
           exp: { ...s.exp, lounge: s.exp.lounge + tune("station.auto_lounge_exp") },
           stats: { ...s.stats, customers: (s.stats.customers ?? 0) + 1, autoServed: (s.stats.autoServed ?? 0) + 1 },
         };
       }),
+      addPV: (p) => {
+        const s = get();
+        const pv = { buy: s.pv.buy + (p.buy ?? 0), use: s.pv.use + (p.use ?? 0), cust: s.pv.cust + (p.cust ?? 0) };
+        const to = rankFor(pv);
+        if (to <= s.rank) return set({ pv });
+        // 승격 보너스: 건너뛴 등급의 보상도 모두 지급한다
+        const gained = RANKS.filter((k) => k.n > s.rank && k.n <= to);
+        set({ pv, rank: to, rankNotice: to, coins: s.coins + gained.reduce((a, k) => a + k.coins, 0), gems: s.gems + gained.reduce((a, k) => a + k.gems, 0) });
+      },
+      claimSalary: () => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        if (s.rank < 1 || d.stats.salary) return 0;
+        const coins = s.rank * tune("rank.salary_per_rank");
+        set({ coins: s.coins + coins, daily: { date: d.date, stats: { ...d.stats, salary: 1 } } });
+        return coins;
+      },
+      clearRankNotice: () => set({ rankNotice: null }),
       acceptInvite: (code, name) => {
         const s = get(); const c = normCode(code);
         if (!c || s.invitedBy || c === s.friendCode) return false;
@@ -400,6 +439,7 @@ export const useGame = create<GameState>()(
             look: { ...DEFAULT_LOOK, ...(p.look ?? {}) },
             exp: { ...base.exp, ...(p.exp ?? {}) },
             lounge: { ...base.lounge, ...(p.lounge ?? {}) },
+            pv: { ...base.pv, ...(p.pv ?? {}) },
             settings: { ...base.settings, ...(p.settings ?? {}) },
             daily: p.daily?.date ? p.daily : base.daily,
           } as GameState;

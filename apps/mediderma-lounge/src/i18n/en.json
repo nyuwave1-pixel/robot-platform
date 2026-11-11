@@ -263,5 +263,19 @@
   "invite.self": "You can't add your own code",
   "invite.dup": "Already added",
   "invite.bad": "Codes are 6 letters or digits",
-  "invite.note": "There is no server yet, so friends are stored on this device only and codes are checked for format only. Real lounge visits and gifts arrive with online features."
+  "invite.note": "There is no server yet, so friends are stored on this device only and codes are checked for format only. Real lounge visits and gifts arrive with online features.",
+  "rank.none": "No rank yet",
+  "rank.bonusNow": "Customer pay & LOUNGE POINT +{pct}% · daily subscription bonus {coin} COIN",
+  "rank.salary": "Claim today's subscription bonus",
+  "rank.salaryDone": "Bonus claimed today",
+  "rank.salaryLocked": "Available from Manager",
+  "rank.next": "Next rank {name}",
+  "rank.max": "You reached the top rank",
+  "rank.gtv": "GTV · total PV",
+  "rank.stv": "STV · customer registration points",
+  "rank.plv": "PLV · product use PV",
+  "rank.buy": "Product purchases",
+  "rank.how": "Buying products adds purchase PV, using them in care adds use PV, and caring for customers adds registration points by star rating. Meet all three to rank up and receive a one-time rank-up bonus.",
+  "rank.up": "Rank up · {name}",
+  "rank.notice": "Rank names and order follow the UNI&CORE New Benefit Plan v1 guide. Numbers and bonuses are game rules and are unrelated to real ranks, commissions or income."
 }

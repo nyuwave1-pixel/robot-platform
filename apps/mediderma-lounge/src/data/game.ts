@@ -256,3 +256,34 @@ export const MAX_PETS = 3;
 
 // ───────────── DERMA HOME 추가 스테이션 (n번째 증설 비용) ─────────────
 export const STATION_COSTS = [400, 900, 1800, 3200, 5000];
+
+// ───────────── 라운지 등급 (UNI&CORE New Benefit Plan v1 의 직급 체계를 게임 규칙으로 옮김) ─────────────
+/**
+ * 직급 이름·코드·순서와 승급 조건의 구조(GTV·STV·PLV 세 기준, 단계마다 2배)는 공식 안내서 그대로다.
+ * 수치는 공식 표의 1/10 로 줄인 **게임 수치**이고, 세 기준의 의미도 게임 활동으로 바꿨다:
+ *   GTV(전체) = 게임 PV 합계 (제품 구매 + 제품 소비 + 고객 등록)
+ *   STV(사이드) = 고객 등록 포인트 (케어한 고객에게서 쌓임)
+ *   PLV(파워)  = 제품 소비 PV (케어에 실제로 쓴 제품)
+ * 게임 등급은 실제 유니앤코어 직급·소득과 무관하다.
+ */
+export interface Rank { n: number; code: string; ko: string; en: string; gtv: number; stv: number; plv: number; coins: number; gems: number; color: string }
+export const RANKS: Rank[] = [
+  { n: 1, code: "M", ko: "매니저", en: "Manager", gtv: 100, stv: 0, plv: 0, coins: 100, gems: 2, color: "#f29bb1" },
+  { n: 2, code: "TM", ko: "팀 매니저", en: "Team Manager", gtv: 500, stv: 50, plv: 0, coins: 200, gems: 4, color: "#ef86c3" },
+  { n: 3, code: "DR", ko: "디렉터", en: "Director", gtv: 1000, stv: 100, plv: 100, coins: 400, gems: 6, color: "#b9a2e8" },
+  { n: 4, code: "ED", ko: "이그제큐티브 디렉터", en: "Executive Director", gtv: 2000, stv: 200, plv: 200, coins: 700, gems: 8, color: "#8fb7ee" },
+  { n: 5, code: "ID", ko: "인터내셔널 디렉터", en: "International Director", gtv: 4000, stv: 400, plv: 400, coins: 1100, gems: 10, color: "#62c6e8" },
+  { n: 6, code: "VP", ko: "바이스프레지던트", en: "Vice President", gtv: 8000, stv: 800, plv: 800, coins: 1600, gems: 14, color: "#6fcfa6" },
+  { n: 7, code: "IVP", ko: "인터내셔날 바이스 프레지던트", en: "International Vice President", gtv: 16000, stv: 1600, plv: 1600, coins: 2200, gems: 18, color: "#e6c15a" },
+  { n: 8, code: "PD", ko: "프레지던트", en: "President", gtv: 32000, stv: 3200, plv: 3200, coins: 3000, gems: 24, color: "#d8a048" },
+  { n: 9, code: "IPD", ko: "인터내셔널PD", en: "International PD", gtv: 64000, stv: 6400, plv: 6400, coins: 4000, gems: 30, color: "#c9a66b" },
+  { n: 10, code: "CEO", ko: "최고경영자", en: "CEO", gtv: 128000, stv: 12800, plv: 12800, coins: 6000, gems: 50, color: "#1b1719" },
+];
+export interface PV { buy: number; use: number; cust: number }
+export const gtvOf = (pv: PV) => pv.buy + pv.use + pv.cust;
+/** 세 기준을 모두 채운 가장 높은 등급 (0 = 등급 없음) */
+export function rankFor(pv: PV) {
+  let r = 0;
+  for (const k of RANKS) if (gtvOf(pv) >= k.gtv && pv.cust >= k.stv && pv.use >= k.plv) r = k.n; else break;
+  return r;
+}

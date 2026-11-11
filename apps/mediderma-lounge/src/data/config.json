@@ -364,5 +364,42 @@
       "step": 1,
       "note": "하루에 보상을 받는 횟수"
     }
+  },
+  "rank": {
+    "customer_pv_per_star": {
+      "value": 10,
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "note": "직접 케어한 고객 1명당 등록 포인트 = 별 × 이 값"
+    },
+    "auto_customer_ratio": {
+      "value": 0.6,
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05,
+      "note": "직원 자동 케어 고객의 등록 포인트 비율"
+    },
+    "bonus_per_rank": {
+      "value": 0.03,
+      "min": 0,
+      "max": 0.1,
+      "step": 0.005,
+      "note": "등급 1단계당 고객 결제·LOUNGE POINT 보너스율"
+    },
+    "salary_per_rank": {
+      "value": 25,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "note": "하루 한 번 받는 구독 보너스 = 등급 × 이 값 (BEAUTY COIN)"
+    },
+    "krw_per_pv": {
+      "value": 1000,
+      "min": 100,
+      "max": 10000,
+      "step": 100,
+      "note": "공식몰 표시가 몇 원당 게임 PV 1 인가 (안내서 예시: 10만원 ≈ 100PV)"
+    }
   }
 }

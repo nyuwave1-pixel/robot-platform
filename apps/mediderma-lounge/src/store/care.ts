@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { MODES, ROUTINE_MAP, type ModeId, type Routine, type RoutineStep, type ZoneId } from "../data/devices";
 import { CUSTOMER_TYPES, type ExpKey } from "../data/game";
 import { PRODUCT_MAP, CARE_PRODUCTS } from "../data/products";
-import { useGame } from "./game";
+import { rankBonus, useGame } from "./game";
 import { useUI, input } from "./ui";
 
 /** 3D 이펙트와 공유하는 프레임 단위 값 */
@@ -102,8 +102,9 @@ export function finishCare(withMist: boolean) {
     const cu = ui.customers.find((x) => x.id === c.subject);
     const type = CUSTOMER_TYPES.find((t) => t.id === cu?.type);
     stars = Math.min(5, (c.liked ? 4 : 3) + (withMist ? 1 : 0) + (c.liked && !c.mistAllowed ? 1 : 0));
-    lp = stars * tune("customer.lp_per_star");
-    coins = Math.round((type?.pay ?? 60) * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")));
+    // 라운지 등급이 높을수록 결제와 LOUNGE POINT 에 보너스가 붙는다
+    lp = Math.round(stars * tune("customer.lp_per_star") * rankBonus(g.rank));
+    coins = Math.round((type?.pay ?? 60) * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")) * rankBonus(g.rank));
     gain.lounge = tune("customer.lounge_exp_base") + c.steps.length * tune("customer.lounge_exp_per_step");
     gain.social = stars >= 4 ? 4 : 1;
     gain.skin = Math.round((gain.skin ?? 0) * tune("customer.skin_exp_ratio"));

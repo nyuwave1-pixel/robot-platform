@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { CUSTOMER_NAMES, CUSTOMER_TYPES } from "../data/game";
-import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
+import { DEFAULT_LOOK, rankBonus, useGame, type Look } from "../store/game";
 import { useUI, type Customer } from "../store/ui";
 import { Character, type Anim } from "./Character";
 import { Label } from "./Label";
@@ -111,8 +111,9 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
         // 라운지 재고의 수딩 젤을 쓰면 만족도가 한 단계 높다
         const stocked = game.consume("soothing-gel");
         const stars = stocked ? 4 : 3;
-        const coins = Math.round(type.pay * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")) * tune("station.auto_pay_ratio"));
-        game.autoServe({ name: c.name, type: c.type, stars, coins, lp: stars });
+        const coins = Math.round(type.pay * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")) * tune("station.auto_pay_ratio") * rankBonus(game.rank));
+        game.autoServe({ name: c.name, type: c.type, stars, coins, lp: Math.round(stars * rankBonus(game.rank)) });
+        game.addPV({ cust: stars * tune("rank.customer_pv_per_star") * tune("rank.auto_customer_ratio") });
         ui.patchCustomer(c.id, { state: "toPay", stars });
         ui.toast(`${c.name} +${coins}`);
       }

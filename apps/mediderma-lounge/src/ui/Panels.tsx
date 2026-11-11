@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { MODES, ROUTINES } from "../data/devices";
 import {
   BROWS, CUSTOMER_TYPES, DEMO_FRIENDS, EXP_KEYS, EXP_META, EYE_COLORS, EYE_SHAPES, FACE_SHAPES, FASHION, FASHION_MAP, HAIR_COLORS, INTERIOR, LIP_COLORS,
-  LOUNGE_LEVELS, POSES, QUESTS, SKIN_TONES, STAGES, type Slot,
+  LOUNGE_LEVELS, POSES, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
 } from "../data/game";
 import { MALL_URL, PRODUCTS, PRODUCT_MAP, RARITY_COLOR, productImage, usesOf, type Product } from "../data/products";
 import { levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
@@ -13,7 +13,7 @@ import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
 import { Chips, Swatches } from "./Screens";
 import { Icon, Price } from "./Icon";
-import { InviteBody, LoungeMap, MiniGameBody, PetsBody } from "./Extras";
+import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
 export function Sheet({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
@@ -51,6 +51,7 @@ export function PanelHost() {
       {panel === "customers" && <CustomersPanel />}
       {panel === "settings" && <SettingsPanel />}
       {panel === "pets" && <Sheet title="LOUNGE PETS"><PetsBody /></Sheet>}
+      {panel === "rank" && <Sheet title="LOUNGE RANK"><RankBody /></Sheet>}
       {panel === "minigame" && <Sheet title="BEAUTY CARD MATCH"><MiniGameBody /></Sheet>}
       {consult && <ConsultModal id={consult} />}
     </>
@@ -494,6 +495,7 @@ function ProfilePanel() {
         <S k={t("profile.cares")} v={g.stats.care ?? 0} /><S k={t("profile.customers")} v={g.stats.customers ?? 0} /><S k={t("profile.regulars")} v={g.regulars.length} />
         <S k="FOLLOWERS" v={g.followers} /><S k={t("profile.codex")} v={`${g.codex.length}/${PRODUCTS.length}`} /><S k={t("profile.routines")} v={`${g.routinesDone.length}/${ROUTINES.length}`} />
       </div>
+      <button className="btn-ghost mt-3 w-full" onClick={() => useUI.setState({ panel: "rank" })}><Icon n="star" /> LOUNGE RANK · {g.rank ? RANKS[g.rank - 1].code : "-"}</button>
       <p className="mb-1.5 mt-4 text-xs font-bold text-ink/70">{t("profile.exp")}</p>
       <ExpBars />
     </Sheet>

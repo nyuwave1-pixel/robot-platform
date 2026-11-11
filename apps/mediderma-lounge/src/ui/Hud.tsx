@@ -1,6 +1,6 @@
 /** 메인 HUD: 상단 프로필·재화, 하단 내비게이션, 상호작용 버튼, 조이스틱, 모드별 툴바 */
 import { useEffect, useRef, useState } from "react";
-import { DEMO_FRIENDS, INTERIOR_MAP, POSES, QUESTS, STAGES } from "../data/game";
+import { DEMO_FRIENDS, INTERIOR_MAP, POSES, QUESTS, RANKS, STAGES } from "../data/game";
 import { claimableCount, earnedStage, levelOf, questClaimed, questValue, totalExp, useGame } from "../store/game";
 import { input, useUI, type ZoneKey } from "../store/ui";
 import { openCare } from "../store/care";
@@ -54,6 +54,14 @@ export function Hud() {
   const claimable = claimableCount(g);
   const daily = QUESTS.find((q) => q.daily && !questClaimed(g, q));
 
+  // 등급이 오르면 한 번 알린다
+  useEffect(() => {
+    if (!g.rankNotice) return;
+    const k = RANKS[g.rankNotice - 1];
+    useUI.getState().toast(`${t("rank.up", { name: `${k.code} · ${g.settings.lang === "ko" ? k.ko : k.en}` })}`);
+    g.clearRankNotice();
+  }, [g.rankNotice]);
+
   useEffect(() => {
     const kd = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT" || (e.target as HTMLElement)?.tagName === "TEXTAREA") return;
@@ -85,6 +93,7 @@ export function Hud() {
               </span>
             </button>
             <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-1.5">
+              <button onClick={() => open("rank")} title="LOUNGE RANK" className="rounded-full px-2.5 py-1 text-[12px] font-black text-white shadow-sm" style={{ background: g.rank ? RANKS[g.rank - 1].color : "#b9a9af" }}>{g.rank ? RANKS[g.rank - 1].code : "RANK"}</button>
               <Coin n={g.coins} icon="coin" title="BEAUTY COIN" />
               <Coin n={g.gems} icon="gem" title="BEAUTY GEM" />
               <Coin n={g.stars} icon="star" title="SOCIAL STAR" />
