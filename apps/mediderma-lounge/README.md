@@ -14,6 +14,8 @@ npm run dev        # http://localhost:3200
 ```bash
 npm run build      # 타입체크 + dist/ 정적 빌드
 npm run preview
+npm test           # 단위 테스트 30개 (상품 DB 정합성, 케어·고객·저장 로직)
+npm run smoke      # 빌드본을 헤드리스 브라우저로 열어 6개 항목 확인, 스크린샷은 qa/evidence/
 npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 ```
 
@@ -37,10 +39,11 @@ npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 | 카메라 | 드래그, 휠 | 드래그, 핀치 |
 | 상호작용 | E · Space | 액션 버튼 |
 
-`?debug` 를 주소에 붙이면 `window.__mdl`(스토어 핸들)이 노출된다 — QA 전용.
+`?debug` 를 주소에 붙이면 밸런스 수치를 슬라이더로 바꿔 보는 TWEAK 패널과 `window.__mdl`(스토어 핸들)이 열린다 — QA 전용.
 
 ## 데이터 원칙
 - `src/data/products.ts`, `devices.ts` 는 **공식 사이트에서 수집한 실데이터**다. 제품명·성분·사용법을 임의로 바꾸지 않는다. 출처·검증 범위는 `docs/PRODUCT_ITEM_DATABASE.md`.
+- `src/data/config.json` 은 밸런스 수치(보상·경제·고객·성장)의 단일 출처다. 코드에 숫자를 직접 쓰지 않는다.
 - `src/data/game.ts` 는 게임 기획 수치와 가상 콘텐츠(고객 NPC, 데모 SNS 계정)다.
 - 게임 속 캐릭터 변화는 EXP 기반 판타지 연출이며 실제 제품 효능을 나타내지 않는다.
 
@@ -55,6 +58,9 @@ npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 | [GAME_ASSET_PIPELINE](docs/GAME_ASSET_PIPELINE.md) | GLB 교체 절차, AI 모델 검수 |
 | [DEVELOPMENT_ROADMAP](docs/DEVELOPMENT_ROADMAP.md) | Phase 1~5 진행 상태 |
 | [LICENSE_AUDIT](docs/LICENSE_AUDIT.md) | 의존성·참고 저장소·브랜드 자산 |
+| [GAME_BRIEF](docs/GAME_BRIEF.md) | 한 장짜리 브리프 |
+| [gdd/care-system](docs/gdd/care-system.md) | 케어 시스템 설계서(공식·튜닝·수용 기준) |
+| [STUDIO_PRACTICES](docs/STUDIO_PRACTICES.md) | claude-code-game-studios 분석과 반영 내역 |
 
 ## 아직 없는 것
 서버·계정·실제 멀티플레이/SNS, 운영자 어드민, 사운드, 리깅된 고품질 캐릭터 모델, 영상 컷신. 자세한 내용은 로드맵 참조.

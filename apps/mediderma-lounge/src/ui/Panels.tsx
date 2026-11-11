@@ -12,8 +12,8 @@ import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
 import { Chips, Swatches } from "./Screens";
+import { Icon, Price } from "./Icon";
 
-const CUR = { coin: "🪙", star: "⭐", gem: "💎" } as const;
 
 function Sheet({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
   return (
@@ -80,15 +80,15 @@ function CharacterPanel() {
           <span className="h-6 w-6 shrink-0 rounded-full border border-white shadow" style={{ background: f.color ?? "#f3e6d0" }} />
           <span className="min-w-0 truncate text-xs font-bold text-ink">{L(f)}</span>
         </span>
-        <span className="mt-1 block text-[10px] font-semibold text-ink/50">
-          {on ? `✔ ${t("look.equipped")}` : owned ? t("look.owned") : g.stage < f.minStage ? `🔒 STAGE ${f.minStage}` : `${CUR[f.currency]} ${f.price}`}
+        <span className="mt-1 block text-[12px] font-semibold text-ink/50">
+          {on ? `✔ ${t("look.equipped")}` : owned ? t("look.owned") : g.stage < f.minStage ? <><Icon n="lock" /> STAGE {f.minStage}</> : <Price c={f.currency} n={f.price} />}
         </span>
       </button>
     );
   };
   return (
     <Sheet title="MY BEAUTY CHARACTER">
-      <p className="mb-1 text-[11px] text-ink/50">{t("char.rotate")}</p>
+      <p className="mb-1 text-[13px] text-ink/50">{t("char.rotate")}</p>
       <Tabs tabs={[["face", t("char.face")], ["hair", t("char.hair")], ["style", t("char.style")], ["pose", t("char.pose")]]} value={tab} onPick={setTab} />
       {tab === "face" && (
         <>
@@ -98,7 +98,7 @@ function CharacterPanel() {
           <Swatches label={t("look.eyeColor")} values={EYE_COLORS} value={look.eyeColor} onPick={(v) => g.setLook({ eyeColor: v })} />
           <Chips label={t("look.brows")} values={[...BROWS]} value={look.brows} onPick={(v) => g.setLook({ brows: v })} render={(v) => t(`brows.${v}`)} />
           <Swatches label={t("look.lip")} values={LIP_COLORS} value={look.lipColor} onPick={(v) => g.setLook({ lipColor: v })} />
-          <p className="mt-3 text-[10px] text-ink/40">{t("create.diversity")}</p>
+          <p className="mt-3 text-[12px] text-ink/40">{t("create.diversity")}</p>
         </>
       )}
       {tab === "hair" && (
@@ -117,7 +117,7 @@ function CharacterPanel() {
       {tab === "pose" && (
         <>
           <Chips label={t("char.pose")} values={[...POSES]} value={look.pose} onPick={(v) => g.setLook({ pose: v })} render={(v) => t(`pose.${v}`)} />
-          <button className="btn-primary mt-4 w-full" onClick={() => useUI.setState({ panel: null, mode: "photo" })}>📸 {t("photo.title")}</button>
+          <button className="btn-primary mt-4 w-full" onClick={() => useUI.setState({ panel: null, mode: "photo" })}><Icon n="camera" /> {t("photo.title")}</button>
         </>
       )}
     </Sheet>
@@ -137,25 +137,25 @@ function LoungePanel() {
   return (
     <Sheet title="LOUNGE MANAGEMENT">
       <div className="rounded-3xl bg-gradient-to-br from-pink-soft to-lav/70 p-4">
-        <p className="text-[10px] font-bold tracking-[0.25em] text-ink/60">LEVEL {cur.n}</p>
+        <p className="text-[12px] font-bold tracking-[0.25em] text-ink/60">LEVEL {cur.n}</p>
         <p className="text-xl font-black text-ink">{cur.name}</p>
         <p className="mt-1 text-xs text-ink/65">{cur.w}m × {cur.d}m · {t("lounge.capacity", { n: cur.customers })}</p>
       </div>
       {next ? (
         <div className="card mt-3">
-          <p className="text-[10px] font-bold tracking-[0.2em] text-gold">NEXT · LEVEL {next.n}</p>
+          <p className="text-[12px] font-bold tracking-[0.2em] text-gold">NEXT · LEVEL {next.n}</p>
           <p className="text-sm font-black text-ink">{next.name}</p>
-          <p className="mt-0.5 text-[11px] text-ink/55">{next.unlocks}</p>
-          <div className="mt-2 space-y-1.5 text-[11px] font-semibold text-ink/70">
-            <div><div className="flex justify-between"><span>🪙 BEAUTY COIN</span><span>{g.coins}/{next.cost}</span></div><Bar v={g.coins} max={next.cost} color="#c9a66b" /></div>
-            <div><div className="flex justify-between"><span>🏛️ LOUNGE POINT</span><span>{g.lp}/{next.lp}</span></div><Bar v={g.lp} max={next.lp} color="#e79aae" /></div>
+          <p className="mt-0.5 text-[13px] text-ink/55">{next.unlocks}</p>
+          <div className="mt-2 space-y-1.5 text-[13px] font-semibold text-ink/70">
+            <div><div className="flex justify-between"><span><Icon n="coin" /> BEAUTY COIN</span><span>{g.coins}/{next.cost}</span></div><Bar v={g.coins} max={next.cost} color="#c9a66b" /></div>
+            <div><div className="flex justify-between"><span><Icon n="lp" /> LOUNGE POINT</span><span>{g.lp}/{next.lp}</span></div><Bar v={g.lp} max={next.lp} color="#e79aae" /></div>
           </div>
-          <button disabled={!can} className="btn-primary mt-3 w-full disabled:opacity-40" onClick={() => { if (g.upgradeLounge()) { useUI.setState({ panel: null }); useUI.getState().toast(`🎉 LEVEL ${next.n} · ${next.name}`); } }}>{t("lounge.upgrade")}</button>
-          <p className="mt-1 text-center text-[10px] text-ink/45">{t("lounge.lpHint")}</p>
+          <button disabled={!can} className="btn-primary mt-3 w-full disabled:opacity-40" onClick={() => { if (g.upgradeLounge()) { useUI.setState({ panel: null }); useUI.getState().toast(`LEVEL ${next.n} · ${next.name}`); } }}>{t("lounge.upgrade")}</button>
+          <p className="mt-1 text-center text-[12px] text-ink/45">{t("lounge.lpHint")}</p>
         </div>
       ) : <p className="mt-3 text-center text-sm font-bold text-gold">★ {t("lounge.max")}</p>}
-      <button className="btn-dark mt-3 w-full" onClick={() => useUI.setState({ panel: null, mode: "edit", selected: null })}>🛋️ {t("edit.title")}</button>
-      <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ panel: "shop", shopTab: "interior" })}>🛍️ INTERIOR SHOP</button>
+      <button className="btn-dark mt-3 w-full" onClick={() => useUI.setState({ panel: null, mode: "edit", selected: null })}><Icon n="sofa" /> {t("edit.title")}</button>
+      <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ panel: "shop", shopTab: "interior" })}><Icon n="shop" /> INTERIOR SHOP</button>
       {(["floor", "wall", "light"] as const).map((k) => (
         <div key={k} className="mt-3">
           <p className="text-xs font-bold text-ink/70">{t(`lounge.${k}`)}</p>
@@ -164,7 +164,7 @@ function LoungePanel() {
       ))}
       <p className="mt-4 text-xs font-bold text-ink/70">{t("lounge.spaces")}</p>
       <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-        {SPACES.map(([n, lv]) => <div key={n} className={`rounded-xl px-2.5 py-1.5 text-[10px] font-bold ${g.lounge.level >= lv ? "bg-pink-soft/60 text-ink" : "bg-ink/5 text-ink/35"}`}>{g.lounge.level >= lv ? "✔" : `🔒 LV.${lv}`} {n}</div>)}
+        {SPACES.map(([n, lv]) => <div key={n} className={`rounded-xl px-2.5 py-1.5 text-[12px] font-bold ${g.lounge.level >= lv ? "bg-pink-soft/60 text-ink" : "bg-ink/5 text-ink/35"}`}>{g.lounge.level >= lv ? "✔" : <><Icon n="lock" /> LV.{lv}</>} {n}</div>)}
       </div>
     </Sheet>
   );
@@ -185,7 +185,7 @@ function ShopPanel() {
     <Sheet title={tab === "codex" ? "PRODUCT COLLECTION" : tab === "fashion" ? "FASHION SHOP" : tab === "interior" ? "INTERIOR SHOP" : "SKINCARE ITEM SHOP"} wide>
       <Tabs tabs={[["product", t("shop.product")], ["codex", t("shop.codex")], ["fashion", t("shop.fashion")], ["interior", t("shop.interior")]]} value={tab} onPick={(v) => useUI.setState({ shopTab: v })} />
       {(tab === "product" || tab === "codex") && (
-        <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[10px] leading-relaxed text-ink/60">
+        <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] leading-relaxed text-ink/60">
           ⓘ {t("shop.virtual")} <a className="font-bold text-pink-deep underline" href={MALL_URL} target="_blank" rel="noreferrer">{t("shop.mall")}</a>
         </p>
       )}
@@ -198,7 +198,7 @@ function ShopPanel() {
                 <button onClick={() => setDetail(p)} className="shrink-0"><ProductImg p={p} className="h-14 w-14" /></button>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-black text-ink">{p.name}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-1 text-[10px]">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-1 text-[12px]">
                     <span className="rounded-full px-1.5 py-0.5 font-black text-white" style={{ background: RARITY_COLOR[p.rarity] }}>{p.rarity}</span>
                     {p.modes.map((m) => <span key={m} className="rounded-full px-1.5 py-0.5 font-bold text-white" style={{ background: MODES[m].color }}>{m.toUpperCase()}</span>)}
                     {p.finisher && <span className="rounded-full bg-[#7fb2e6] px-1.5 py-0.5 font-bold text-white">FINISH</span>}
@@ -207,7 +207,7 @@ function ShopPanel() {
                 </div>
                 <button disabled={lk} className="btn-primary shrink-0 !px-3 !py-2 text-xs disabled:opacity-40"
                   onClick={() => useUI.getState().toast(g.buyProduct(p.id) ? t("shop.bought") : t("shop.noMoney"))}>
-                  {lk ? `🔒 ${p.unlock.stage ? `STAGE ${p.unlock.stage}` : `LV.${p.unlock.lounge}`}` : `🪙 ${p.coinPrice}`}
+                  {lk ? <><Icon n="lock" /> {p.unlock.stage ? `STAGE ${p.unlock.stage}` : `LV.${p.unlock.lounge}`}</> : <Price c="coin" n={p.coinPrice} />}
                 </button>
               </div>
             );
@@ -216,7 +216,7 @@ function ShopPanel() {
       )}
       {tab === "codex" && (
         <>
-          <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-ink/60"><span>{t("codex.progress")}</span><span>{g.codex.length} / {PRODUCTS.length}</span></div>
+          <div className="mb-1 flex items-center justify-between text-[13px] font-bold text-ink/60"><span>{t("codex.progress")}</span><span>{g.codex.length} / {PRODUCTS.length}</span></div>
           <Bar v={g.codex.length} max={PRODUCTS.length} color="#c9a66b" />
           <div className="my-2 flex gap-1 overflow-x-auto pb-1">{cats.map((c) => <button key={c} className={`chip shrink-0 ${cat === c ? "chip-on" : ""}`} onClick={() => setCat(c)}>{c}</button>)}</div>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -225,8 +225,8 @@ function ShopPanel() {
               return (
                 <button key={p.id} onClick={() => setDetail(p)} className="card !p-1.5 text-center">
                   <ProductImg p={p} className={`mx-auto h-16 w-16 ${has ? "" : "opacity-30 grayscale"}`} />
-                  <p className="mt-1 line-clamp-2 text-[9px] font-bold leading-tight text-ink">{p.name}</p>
-                  <p className="text-[8px] font-black" style={{ color: RARITY_COLOR[p.rarity] }}>{has ? p.rarity : "???"}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] font-bold leading-tight text-ink">{p.name}</p>
+                  <p className="text-[12px] font-black" style={{ color: RARITY_COLOR[p.rarity] }}>{has ? p.rarity : "???"}</p>
                 </button>
               );
             })}
@@ -242,7 +242,7 @@ function ShopPanel() {
               <button key={f.id} disabled={owned || lk} className="card !p-2 text-left disabled:opacity-55"
                 onClick={() => { if (g.buyFashion(f.id)) { g.equip(f.slot, f.id); useUI.getState().toast(t("shop.bought")); } else useUI.getState().toast(t("shop.noMoney")); }}>
                 <span className="flex items-center gap-2"><span className="h-7 w-7 shrink-0 rounded-full border border-white shadow" style={{ background: f.color ?? "#f3e6d0" }} /><span className="min-w-0 truncate text-xs font-bold text-ink">{L(f)}</span></span>
-                <span className="mt-1 flex justify-between text-[10px] font-semibold text-ink/50"><span>{t(`look.${f.slot}`)}</span><span>{owned ? `✔ ${t("look.owned")}` : lk ? `🔒 STAGE ${f.minStage}` : `${CUR[f.currency]} ${f.price}`}</span></span>
+                <span className="mt-1 flex justify-between text-[12px] font-semibold text-ink/50"><span>{t(`look.${f.slot}`)}</span><span>{owned ? `✔ ${t("look.owned")}` : lk ? <><Icon n="lock" /> STAGE {f.minStage}</> : <Price c={f.currency} n={f.price} />}</span></span>
               </button>
             );
           })}
@@ -257,9 +257,9 @@ function ShopPanel() {
               <button key={i.id} disabled={owned || lk} className="card !p-2 text-left disabled:opacity-55"
                 onClick={() => useUI.getState().toast(g.buyInterior(i.id) ? t(i.kind === "furniture" ? "shop.stored" : "shop.bought") : t("shop.noMoney"))}>
                 <span className="block truncate text-xs font-bold text-ink">{i.color && <span className="mr-1 inline-block h-3 w-3 rounded-full border border-white align-middle shadow" style={{ background: i.color }} />}{L(i)}</span>
-                <span className="mt-1 flex justify-between text-[10px] font-semibold text-ink/50">
+                <span className="mt-1 flex justify-between text-[12px] font-semibold text-ink/50">
                   <span>{t(`interior.${i.kind}`)}{i.kind === "furniture" ? ` ×${(g.storage[i.id] ?? 0) + g.lounge.furniture.filter((f) => f.type === i.id).length}` : ""}</span>
-                  <span>{owned ? `✔ ${t("look.owned")}` : lk ? `🔒 LV.${i.minLounge}` : `${CUR[i.currency]} ${i.price}`}</span>
+                  <span>{owned ? `✔ ${t("look.owned")}` : lk ? <><Icon n="lock" /> LV.{i.minLounge}</> : <Price c={i.currency} n={i.price} />}</span>
                 </span>
               </button>
             );
@@ -281,7 +281,7 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
   const g = useGame();
   const [all, setAll] = useState(false);
   const routines = ROUTINES.filter((r) => r.steps.some((s) => s.products.includes(p.id)));
-  const Row = ({ k, v }: { k: string; v?: string | null }) => (v ? <div className="flex gap-2 border-b border-ink/5 py-1.5 text-[11px]"><span className="w-20 shrink-0 font-bold text-ink/50">{k}</span><span className="min-w-0 flex-1 text-ink/80">{v}</span></div> : null);
+  const Row = ({ k, v }: { k: string; v?: string | null }) => (v ? <div className="flex gap-2 border-b border-ink/5 py-1.5 text-[13px]"><span className="w-20 shrink-0 font-bold text-ink/50">{k}</span><span className="min-w-0 flex-1 text-ink/80">{v}</span></div> : null);
   // 시트의 backdrop-filter 가 fixed 기준을 바꾸므로 body 로 포털
   return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4" onClick={onClose}>
@@ -289,16 +289,16 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
         <div className="flex gap-3">
           <ProductImg p={p} className="h-24 w-24 shrink-0 border border-ink/5" />
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-wider text-gold">UNI&CORE · {p.category}</p>
+            <p className="text-[12px] font-bold tracking-wider text-gold">UNI&CORE · {p.category}</p>
             <p className="text-sm font-black leading-snug text-ink">{p.name}</p>
-            {p.nameEn && <p className="text-[10px] font-semibold text-ink/45">{p.nameEn}</p>}
-            <p className="mt-1 flex flex-wrap gap-1 text-[10px]">
+            {p.nameEn && <p className="text-[12px] font-semibold text-ink/45">{p.nameEn}</p>}
+            <p className="mt-1 flex flex-wrap gap-1 text-[12px]">
               <span className="rounded-full px-1.5 py-0.5 font-black text-white" style={{ background: RARITY_COLOR[p.rarity] }}>{p.rarity}</span>
               <span className={`rounded-full px-1.5 py-0.5 font-bold ${p.verified ? "bg-[#dff3e4] text-[#2f7a45]" : "bg-ink/5 text-ink/50"}`}>{p.verified ? t("codex.verified") : t("codex.unverified")}</span>
             </p>
           </div>
         </div>
-        <p className="mt-3 text-[10px] font-black tracking-wider text-pink-deep">{t("codex.real")}</p>
+        <p className="mt-3 text-[12px] font-black tracking-wider text-pink-deep">{t("codex.real")}</p>
         <Row k={t("codex.code")} v={p.productCode} />
         <Row k={t("codex.price")} v={p.priceKRW ? `${p.priceKRW.toLocaleString()}원` : t("codex.inquiry")} />
         <Row k={t("codex.volume")} v={p.volume} />
@@ -308,17 +308,17 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
         <Row k={t("codex.functional")} v={p.functional === undefined ? null : p.functional ? t("codex.funcYes") : t("codex.funcNo")} />
         <Row k={t("codex.maker")} v={p.maker} />
         {p.ingredients && (
-          <div className="py-1.5 text-[11px]">
+          <div className="py-1.5 text-[13px]">
             <button className="font-bold text-pink-deep" onClick={() => setAll(!all)}>{t("codex.ingredients")} {all ? "▲" : "▼"}</button>
-            {all && <p className="mt-1 text-[10px] leading-relaxed text-ink/60">{p.ingredients}</p>}
+            {all && <p className="mt-1 text-[12px] leading-relaxed text-ink/60">{p.ingredients}</p>}
           </div>
         )}
-        {!p.verified && <p className="py-1.5 text-[10px] text-ink/45">{t("codex.unverifiedDesc")}</p>}
-        <p className="mt-2 text-[10px] font-black tracking-wider text-pink-deep">{t("codex.game")}</p>
+        {!p.verified && <p className="py-1.5 text-[12px] text-ink/45">{t("codex.unverifiedDesc")}</p>}
+        <p className="mt-2 text-[12px] font-black tracking-wider text-pink-deep">{t("codex.game")}</p>
         <Row k={t("codex.modes")} v={p.modes.length ? p.modes.map((m) => MODES[m].label).join(" · ") : p.finisher ? t("codex.finisher") : t("codex.display")} />
         <Row k={t("codex.routines")} v={routines.map((r) => L(r)).join(" · ") || null} />
         <Row k={t("shop.have")} v={`×${g.inventory[p.id] ?? 0}`} />
-        <p className="mt-2 text-[10px] leading-relaxed text-ink/45">{t("codex.disclaimer")}</p>
+        <p className="mt-2 text-[12px] leading-relaxed text-ink/45">{t("codex.disclaimer")}</p>
         <div className="mt-3 flex gap-2">
           <a className="btn-ghost flex-1 text-center !py-2.5 text-xs" href={MALL_URL} target="_blank" rel="noreferrer">{t("shop.mall")} ↗</a>
           <button className="btn-primary flex-1 !py-2.5 text-xs" onClick={onClose}>{t("common.close")}</button>
@@ -344,13 +344,13 @@ function SocialPanel() {
   return (
     <Sheet title="BEAUTY SOCIAL" wide>
       <Tabs tabs={[["feed", "BEAUTY FEED"], ["friends", t("social.friends")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
-      <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[10px] text-ink/55">ⓘ {t("social.demo")}</p>
+      <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>
       {tab === "feed" && (
         <>
           <div className="mb-3 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">
-            <div className="text-center"><p className="text-lg font-black text-ink">{g.followers}</p><p className="text-[9px] font-bold text-ink/50">FOLLOWERS</p></div>
-            <div className="text-center"><p className="text-lg font-black text-ink">{g.posts.filter((p) => p.mine).length}</p><p className="text-[9px] font-bold text-ink/50">POSTS</p></div>
-            <button className="btn-primary ml-auto !px-4 !py-2 text-xs" onClick={() => useUI.setState({ panel: null, mode: "photo" })}>📸 {t("social.selfie")}</button>
+            <div className="text-center"><p className="text-lg font-black text-ink">{g.followers}</p><p className="text-[12px] font-bold text-ink/50">FOLLOWERS</p></div>
+            <div className="text-center"><p className="text-lg font-black text-ink">{g.posts.filter((p) => p.mine).length}</p><p className="text-[12px] font-bold text-ink/50">POSTS</p></div>
+            <button className="btn-primary ml-auto !px-4 !py-2 text-xs" onClick={() => useUI.setState({ panel: null, mode: "photo" })}><Icon n="camera" /> {t("social.selfie")}</button>
           </div>
           <div className="mb-3 flex gap-2">
             <input value={text} maxLength={80} onChange={(e) => setText(e.target.value)} placeholder={t("social.story")} className="min-w-0 flex-1 rounded-full border border-pink-soft px-4 py-2 text-xs outline-none focus:border-pink-deep" />
@@ -362,20 +362,20 @@ function SocialPanel() {
                 <header className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-black text-white" style={{ background: p.mine ? "linear-gradient(135deg,#e79aae,#d9cff2)" : `hsl(${p.hue ?? 300} 70% 72%)` }}>{p.author.slice(0, 1).toUpperCase()}</span>
                   <span className="text-xs font-black text-ink">{p.country} {p.author}</span>
-                  {p.demo && <span className="rounded-full bg-ink/5 px-1.5 py-0.5 text-[8px] font-bold text-ink/40">DEMO</span>}
-                  <span className="ml-auto text-[10px] font-bold text-pink-deep">{p.tag}</span>
+                  {p.demo && <span className="rounded-full bg-ink/5 px-1.5 py-0.5 text-[12px] font-bold text-ink/40">DEMO</span>}
+                  <span className="ml-auto text-[12px] font-bold text-pink-deep">{p.tag}</span>
                 </header>
                 {p.img && <img src={p.img} alt="" className="mt-2 aspect-square w-full rounded-2xl object-cover" />}
                 <p className="mt-2 text-xs leading-relaxed text-ink/80">{p.text}</p>
                 <footer className="mt-2 flex items-center gap-3 text-xs font-bold">
                   <button className={p.liked ? "text-pink-deep" : "text-ink/45"} onClick={() => g.likePost(p.id)}>{p.liked ? "♥" : "♡"} {p.likes}</button>
-                  <button className="text-ink/45" onClick={() => { setOpen(open === p.id ? null : p.id); setCm(""); }}>💬 {p.comments.length}</button>
+                  <button className="text-ink/45" onClick={() => { setOpen(open === p.id ? null : p.id); setCm(""); }}><Icon n="chat" /> {p.comments.length}</button>
                 </footer>
                 {open === p.id && (
                   <div className="mt-2 border-t border-ink/5 pt-2">
-                    {p.comments.map((c, i) => <p key={i} className="text-[11px] text-ink/70"><b>{c.who}</b> {c.text}</p>)}
+                    {p.comments.map((c, i) => <p key={i} className="text-[13px] text-ink/70"><b>{c.who}</b> {c.text}</p>)}
                     <div className="mt-1.5 flex gap-2">
-                      <input value={cm} maxLength={80} onChange={(e) => setCm(e.target.value)} placeholder={t("social.comment")} className="min-w-0 flex-1 rounded-full border border-pink-soft px-3 py-1.5 text-[11px] outline-none" />
+                      <input value={cm} maxLength={80} onChange={(e) => setCm(e.target.value)} placeholder={t("social.comment")} className="min-w-0 flex-1 rounded-full border border-pink-soft px-3 py-1.5 text-[13px] outline-none" />
                       <button disabled={!cm.trim()} className="chip chip-on disabled:opacity-40" onClick={() => { g.commentPost(p.id, cm.trim()); setCm(""); }}>{t("social.send")}</button>
                     </div>
                   </div>
@@ -391,14 +391,14 @@ function SocialPanel() {
             <div key={f.id} className="card flex items-center gap-3 !p-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: f.hairColor }}>{f.name[0]}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-black text-ink">{f.country} {f.name} <span className="rounded-full bg-ink/5 px-1.5 py-0.5 text-[8px] text-ink/40">DEMO</span></p>
-                <p className="text-[10px] text-ink/50">STAGE {f.stage} · {LOUNGE_LEVELS[f.level - 1].name}</p>
+                <p className="text-xs font-black text-ink">{f.country} {f.name} <span className="rounded-full bg-ink/5 px-1.5 py-0.5 text-[12px] text-ink/40">DEMO</span></p>
+                <p className="text-[12px] text-ink/50">STAGE {f.stage} · {LOUNGE_LEVELS[f.level - 1].name}</p>
               </div>
               <button className={`chip ${g.following.includes(f.id) ? "chip-on" : ""}`} onClick={() => g.follow(f.id)}>{g.following.includes(f.id) ? t("social.following") : t("social.follow")}</button>
-              <button className="btn-primary !px-3 !py-2 text-[11px]" onClick={() => { const first = g.visitFriend(f.id); useUI.setState({ panel: null, visiting: f.id, customers: [] }); if (first) useUI.getState().toast("⭐ +3 SOCIAL STAR"); }}>{t("social.visit")}</button>
+              <button className="btn-primary !px-3 !py-2 text-[13px]" onClick={() => { const first = g.visitFriend(f.id); useUI.setState({ panel: null, visiting: f.id, customers: [] }); if (first) useUI.getState().toast("+3 SOCIAL STAR"); }}>{t("social.visit")}</button>
             </div>
           ))}
-          <p className="pt-2 text-[10px] leading-relaxed text-ink/45">{t("social.phase")}</p>
+          <p className="pt-2 text-[12px] leading-relaxed text-ink/45">{t("social.phase")}</p>
         </div>
       )}
       {tab === "rank" && (
@@ -426,23 +426,23 @@ function QuestsPanel() {
       <div key={q.id} className={`card !p-3 ${done ? "opacity-50" : ""}`}>
         <div className="flex items-center gap-2">
           <p className="min-w-0 flex-1 text-xs font-bold text-ink">{L(q)}</p>
-          <button disabled={!ready} className="btn-primary shrink-0 !px-3 !py-1.5 text-[11px] disabled:opacity-35" onClick={() => { if (g.claim(q)) useUI.getState().toast(`🎁 ${t("quest.claimed")}`); }}>{done ? "✔" : t("quest.claim")}</button>
+          <button disabled={!ready} className="btn-primary shrink-0 !px-3 !py-1.5 text-[13px] disabled:opacity-35" onClick={() => { if (g.claim(q)) useUI.getState().toast(t("quest.claimed")); }}>{done ? "✔" : t("quest.claim")}</button>
         </div>
         <div className="mt-1.5 flex items-center gap-2">
           <div className="flex-1"><Bar v={v} max={q.goal} color="#e79aae" /></div>
-          <span className="text-[10px] font-bold text-ink/50">{v}/{q.goal}</span>
+          <span className="text-[12px] font-bold text-ink/50">{v}/{q.goal}</span>
         </div>
-        <p className="mt-1 text-[10px] font-semibold text-gold">
-          {r.coins ? `🪙${r.coins} ` : ""}{r.gems ? `💎${r.gems} ` : ""}{r.stars ? `⭐${r.stars} ` : ""}{r.lp ? `🏛️${r.lp} ` : ""}{r.item ? `🎁 ${PRODUCT_MAP[r.item]?.name}` : ""}
+        <p className="mt-1 text-[12px] font-semibold text-gold">
+          {!!r.coins && <Price c="coin" n={r.coins} />} {!!r.gems && <Price c="gem" n={r.gems} />} {!!r.stars && <Price c="star" n={r.stars} />} {!!r.lp && <Price c="lp" n={r.lp} />} {r.item && <><Icon n="gift" /> {PRODUCT_MAP[r.item]?.name}</>}
         </p>
       </div>
     );
   });
   return (
     <Sheet title="QUEST & MISSION">
-      <p className="mb-1.5 text-[11px] font-black tracking-wide text-pink-deep">{t("quest.daily")}</p>
+      <p className="mb-1.5 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.daily")}</p>
       <div className="space-y-2">{render(true)}</div>
-      <p className="mb-1.5 mt-4 text-[11px] font-black tracking-wide text-pink-deep">{t("quest.main")}</p>
+      <p className="mb-1.5 mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.main")}</p>
       <div className="space-y-2">{render(false)}</div>
     </Sheet>
   );
@@ -456,7 +456,7 @@ function ExpBars() {
     <div className="space-y-1.5">
       {EXP_KEYS.map((k) => (
         <div key={k}>
-          <div className="flex justify-between text-[10px] font-bold"><span style={{ color: EXP_META[k].color }}>{EXP_META[k].label} EXP</span><span className="text-ink/50">{g.exp[k]}</span></div>
+          <div className="flex justify-between text-[12px] font-bold"><span style={{ color: EXP_META[k].color }}>{EXP_META[k].label} EXP</span><span className="text-ink/50">{g.exp[k]}</span></div>
           <Bar v={g.exp[k]} max={max} color={EXP_META[k].color} />
         </div>
       ))}
@@ -467,12 +467,12 @@ function ProfilePanel() {
   const t = useT();
   const g = useGame();
   const total = totalExp(g);
-  const S = ({ k, v }: { k: string; v: number | string }) => <div className="rounded-2xl bg-cream px-3 py-2 text-center"><p className="text-base font-black text-ink">{v}</p><p className="text-[9px] font-bold text-ink/50">{k}</p></div>;
+  const S = ({ k, v }: { k: string; v: number | string }) => <div className="rounded-2xl bg-cream px-3 py-2 text-center"><p className="text-base font-black text-ink">{v}</p><p className="text-[12px] font-bold text-ink/50">{k}</p></div>;
   return (
     <Sheet title="PROFILE">
       <div className="flex items-center gap-3 rounded-3xl bg-gradient-to-br from-pink-soft to-lav/70 p-4">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-xl font-black text-pink-deep shadow">{g.name.slice(0, 1).toUpperCase()}</span>
-        <div><p className="text-lg font-black text-ink">{g.name}</p><p className="text-[11px] font-bold text-ink/60">Lv.{levelOf(total)} · STAGE {g.stage} {STAGES[g.stage - 1].name}</p><p className="text-[10px] text-ink/50">{LOUNGE_LEVELS[g.lounge.level - 1].name}</p></div>
+        <div><p className="text-lg font-black text-ink">{g.name}</p><p className="text-[13px] font-bold text-ink/60">Lv.{levelOf(total)} · STAGE {g.stage} {STAGES[g.stage - 1].name}</p><p className="text-[12px] text-ink/50">{LOUNGE_LEVELS[g.lounge.level - 1].name}</p></div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         <S k={t("profile.cares")} v={g.stats.care ?? 0} /><S k={t("profile.customers")} v={g.stats.customers ?? 0} /><S k={t("profile.regulars")} v={g.regulars.length} />
@@ -499,23 +499,23 @@ function GrowthPanel() {
             <div key={s.n} className={`rounded-2xl border-2 p-3 ${cur ? "border-pink-deep bg-pink-soft/50" : reached ? "border-gold/40 bg-cream" : "border-ink/5 bg-ink/[0.03]"}`}>
               <div className="flex items-center justify-between">
                 <p className={`text-xs font-black tracking-wide ${reached ? "text-ink" : "text-ink/35"}`}>STAGE {s.n} — {reached ? s.name : "? ? ?"}</p>
-                <span className="text-[10px] font-bold text-ink/45">{reached ? (cur ? "NOW" : "✔") : `🔒 ${s.need} EXP`}</span>
+                <span className="text-[12px] font-bold text-ink/45">{reached ? (cur ? "NOW" : "✔") : <><Icon n="lock" /> {s.need} EXP</>}</span>
               </div>
-              {reached && <p className="mt-0.5 text-[11px] text-ink/55">{g.settings.lang === "ko" ? s.ko : s.name}</p>}
-              {cur && nx && <div className="mt-2"><Bar v={total - s.need} max={nx.need - s.need} color="linear-gradient(90deg,#e79aae,#c9a66b)" /><p className="mt-1 text-right text-[10px] font-bold text-ink/50">{total} / {nx.need} EXP</p></div>}
+              {reached && <p className="mt-0.5 text-[13px] text-ink/55">{g.settings.lang === "ko" ? s.ko : s.name}</p>}
+              {cur && nx && <div className="mt-2"><Bar v={total - s.need} max={nx.need - s.need} color="linear-gradient(90deg,#e79aae,#c9a66b)" /><p className="mt-1 text-right text-[12px] font-bold text-ink/50">{total} / {nx.need} EXP</p></div>}
             </div>
           );
         })}
       </div>
       {unlocks.length > 0 && (
         <>
-          <p className="mb-1 mt-3 text-xs font-bold text-ink/70">🔓 {t("growth.unlocks")}</p>
+          <p className="mb-1 mt-3 text-xs font-bold text-ink/70"><Icon n="unlock" /> {t("growth.unlocks")}</p>
           <div className="flex flex-wrap gap-1.5">{unlocks.map((f) => <span key={f.id} className="chip">{L(f)}</span>)}</div>
         </>
       )}
       <p className="mb-1.5 mt-4 text-xs font-bold text-ink/70">{t("profile.exp")}</p>
       <ExpBars />
-      <p className="mt-3 text-[10px] leading-relaxed text-ink/45">{t("growth.note")}</p>
+      <p className="mt-3 text-[12px] leading-relaxed text-ink/45">{t("growth.note")}</p>
     </Sheet>
   );
 }
@@ -529,27 +529,27 @@ function CustomersPanel() {
   const type = (id: string) => CUSTOMER_TYPES.find((x) => x.id === id)!;
   return (
     <Sheet title="CUSTOMER MANAGEMENT">
-      <p className="text-[11px] font-black tracking-wide text-pink-deep">{t("cust.now")} ({customers.length}/{LOUNGE_LEVELS[g.lounge.level - 1].customers})</p>
+      <p className="text-[13px] font-black tracking-wide text-pink-deep">{t("cust.now")} ({customers.length}/{LOUNGE_LEVELS[g.lounge.level - 1].customers})</p>
       <div className="mt-1.5 space-y-2">
         {customers.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/50">{t("cust.none")}</p>}
         {customers.map((c) => (
           <div key={c.id} className="card flex items-center gap-3 !p-3">
-            <div className="min-w-0 flex-1"><p className="text-xs font-black text-ink">{c.name} <span className="font-semibold text-ink/50">· {L(type(c.type))}</span></p><p className="text-[10px] text-ink/50">{t(`cust.state.${c.state}`)}</p></div>
-            {c.state === "wait" && <button className="btn-primary !px-3 !py-2 text-[11px]" onClick={() => useUI.setState({ panel: null, consult: c.id })}>{t("action.consult")}</button>}
+            <div className="min-w-0 flex-1"><p className="text-xs font-black text-ink">{c.name} <span className="font-semibold text-ink/50">· {L(type(c.type))}</span></p><p className="text-[12px] text-ink/50">{t(`cust.state.${c.state}`)}</p></div>
+            {c.state === "wait" && <button className="btn-primary !px-3 !py-2 text-[13px]" onClick={() => useUI.setState({ panel: null, consult: c.id })}>{t("action.consult")}</button>}
           </div>
         ))}
       </div>
-      <p className="mt-4 text-[11px] font-black tracking-wide text-pink-deep">{t("cust.regulars")} ({g.regulars.length})</p>
+      <p className="mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("cust.regulars")} ({g.regulars.length})</p>
       <div className="mt-1.5 space-y-1.5">
         {g.regulars.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/50">{t("cust.noRegulars")}</p>}
         {g.regulars.map((r) => (
           <div key={r.name} className="flex items-center justify-between rounded-2xl bg-cream px-3 py-2 text-xs">
             <span className="font-bold text-ink">{r.name} <span className="font-semibold text-ink/50">· {L(type(r.type))}</span></span>
-            <span className="text-[10px] font-bold text-gold">{"★".repeat(r.lastStars)} · {t("cust.visits", { n: r.visits })}</span>
+            <span className="text-[12px] font-bold text-gold">{"★".repeat(r.lastStars)} · {t("cust.visits", { n: r.visits })}</span>
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[10px] text-ink/45">{t("cust.fiction")}</p>
+      <p className="mt-3 text-[12px] text-ink/45">{t("cust.fiction")}</p>
     </Sheet>
   );
 }
@@ -577,12 +577,12 @@ function ConsultModal({ id }: { id: string }) {
     useUI.setState({ consult: null });
     openCare(c.id);
     beginRoutine(rid, { express: true, liked });
-    useUI.getState().toast(liked ? `😊 ${t("consult.good")}` : `🙂 ${t("consult.ok")}`);
+    useUI.getState().toast(t(liked ? "consult.good" : "consult.ok"));
   };
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center sm:p-4">
       <div className="w-full max-w-md rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:rounded-3xl">
-        <p className="text-[10px] font-bold tracking-[0.25em] text-gold">BEAUTY CONSULTING</p>
+        <p className="text-[12px] font-bold tracking-[0.25em] text-gold">BEAUTY CONSULTING</p>
         <p className="mt-1 text-base font-black text-ink">{c.name} <span className="text-xs font-semibold text-ink/50">· {L(type)}</span></p>
         <p className="mt-2 rounded-2xl rounded-tl-none bg-pink-soft/60 p-3 text-sm leading-relaxed text-ink">“{L(type.ask)}”</p>
         <p className="mt-3 text-xs font-bold text-ink/70">{t("consult.recommend")}</p>
@@ -590,17 +590,17 @@ function ConsultModal({ id }: { id: string }) {
           {options.map((r) => (
             <button key={r.id} className="card w-full text-left" onClick={() => choose(r.id)}>
               <p className="text-sm font-black text-ink">{L(r)}</p>
-              <p className="text-[10px] text-ink/50">{L(r.group)} · {r.steps.slice(0, 2).map((s) => s.mode.toUpperCase()).join(" → ")}</p>
+              <p className="text-[12px] text-ink/50">{L(r.group)} · {r.steps.slice(0, 2).map((s) => s.mode.toUpperCase()).join(" → ")}</p>
               <p className="mt-1 flex flex-wrap gap-1">
                 {r.steps.slice(0, 2).map((s, i) => {
                   const has = s.products.some((id) => (g.inventory[id] ?? 0) > 0);
-                  return <span key={i} className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${has ? "bg-[#dff3e4] text-[#2f7a45]" : "bg-pink-soft text-pink-deep"}`}>{has ? "✔" : "✕"} {PRODUCT_MAP[s.products[0]].name.split(" ").slice(0, 3).join(" ")}</span>;
+                  return <span key={i} className={`rounded-full px-1.5 py-0.5 text-[12px] font-bold ${has ? "bg-[#dff3e4] text-[#2f7a45]" : "bg-pink-soft text-pink-deep"}`}>{has ? "✔" : "✕"} {PRODUCT_MAP[s.products[0]].name.split(" ").slice(0, 3).join(" ")}</span>;
                 })}
               </p>
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-ink/45">{t("consult.express")}</p>
+        <p className="mt-2 text-[12px] text-ink/45">{t("consult.express")}</p>
         <button className="btn-ghost mt-3 w-full" onClick={() => useUI.setState({ consult: null })}>{t("consult.later")}</button>
       </div>
     </div>
@@ -616,13 +616,13 @@ function SettingsPanel() {
     <Sheet title="SETTINGS">
       <p className="text-xs font-bold text-ink/70">{t("set.lang")}</p>
       <div className="mt-1.5 flex flex-wrap gap-2">{LANGS.map((l) => <button key={l.id} className={`chip ${g.settings.lang === l.id ? "chip-on" : ""}`} onClick={() => g.setSettings({ lang: l.id })}>{l.label}</button>)}</div>
-      <p className="mt-1 text-[10px] text-ink/45">{t("set.langNote")}</p>
+      <p className="mt-1 text-[12px] text-ink/45">{t("set.langNote")}</p>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.quality")}</p>
       <div className="mt-1.5 flex gap-2">{(["auto", "high", "low"] as const).map((q) => <button key={q} className={`chip ${g.settings.quality === q ? "chip-on" : ""}`} onClick={() => g.setSettings({ quality: q })}>{t(`set.q.${q}`)}</button>)}</div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.controls")}</p>
-      <p className="mt-1 whitespace-pre-line rounded-2xl bg-cream p-3 text-[11px] leading-relaxed text-ink/65">{t("set.controlsBody")}</p>
+      <p className="mt-1 whitespace-pre-line rounded-2xl bg-cream p-3 text-[13px] leading-relaxed text-ink/65">{t("set.controlsBody")}</p>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.save")}</p>
-      <p className="mt-1 text-[11px] text-ink/60">{saveStatus.ok ? `✔ ${t("set.saveOk")}` : `⚠ ${t("set.saveFail")}`}</p>
+      <p className="mt-1 text-[13px] text-ink/60">{saveStatus.ok ? `✔ ${t("set.saveOk")}` : <><Icon n="warn" /> {t("set.saveFail")}</>}</p>
       {!confirm ? (
         <button className="btn-ghost mt-2 w-full" onClick={() => setConfirm(true)}>{t("set.reset")}</button>
       ) : (
@@ -635,7 +635,7 @@ function SettingsPanel() {
         </div>
       )}
       <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ screen: "splash", panel: null })}>{t("set.title")}</button>
-      <p className="mt-4 text-[10px] leading-relaxed text-ink/40">{t("set.legal")}</p>
+      <p className="mt-4 text-[12px] leading-relaxed text-ink/40">{t("set.legal")}</p>
     </Sheet>
   );
 }

@@ -1,4 +1,5 @@
 /** 케어 세션 진행 로직 (순수 상태 전이). 3D 연출은 three/Care3D.tsx 가 담당. */
+import { tune } from "../data/config";
 import * as THREE from "three";
 import { MODES, ROUTINE_MAP, type ModeId, type Routine, type RoutineStep, type ZoneId } from "../data/devices";
 import { CUSTOMER_TYPES, type ExpKey } from "../data/game";
@@ -90,22 +91,22 @@ export function finishCare(withMist: boolean) {
   const full = c.routineId ? c.steps.length === ROUTINE_MAP[c.routineId].steps.length : false;
   const firstTime = !!c.routineId && full && !g.routinesDone.includes(c.routineId);
   const gain: Partial<Record<ExpKey, number>> = {
-    skin: c.zonesDone * 4 + (full ? 10 : 0) + (withMist ? 6 : 0),
-    device: c.zonesDone * 5 + (full ? 10 : 0),
-    knowledge: c.steps.length * 3 + (full ? 6 : 0) + (firstTime ? 15 : 0),
+    skin: c.zonesDone * tune("care.zone_skin_exp") + (full ? tune("care.full_routine_bonus_exp") : 0) + (withMist ? tune("care.mist_skin_exp") : 0),
+    device: c.zonesDone * tune("care.zone_device_exp") + (full ? tune("care.full_routine_bonus_exp") : 0),
+    knowledge: c.steps.length * tune("care.step_knowledge_exp") + (full ? tune("care.full_routine_knowledge_exp") : 0) + (firstTime ? tune("care.first_clear_knowledge_exp") : 0),
   };
-  let coins = c.steps.length * 30;
+  let coins = c.steps.length * tune("care.step_coins");
   let stars: number | undefined; let lp: number | undefined;
   let customer: { name: string; type: string; stars: number; lp: number } | undefined;
   if (c.subject !== "player") {
     const cu = ui.customers.find((x) => x.id === c.subject);
     const type = CUSTOMER_TYPES.find((t) => t.id === cu?.type);
     stars = Math.min(5, (c.liked ? 4 : 3) + (withMist ? 1 : 0) + (c.liked && !c.mistAllowed ? 1 : 0));
-    lp = stars * 2;
-    coins = Math.round((type?.pay ?? 60) * (0.5 + stars * 0.12));
-    gain.lounge = 10 + c.steps.length * 8;
+    lp = stars * tune("customer.lp_per_star");
+    coins = Math.round((type?.pay ?? 60) * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")));
+    gain.lounge = tune("customer.lounge_exp_base") + c.steps.length * tune("customer.lounge_exp_per_step");
     gain.social = stars >= 4 ? 4 : 1;
-    gain.skin = Math.round((gain.skin ?? 0) * 0.4);
+    gain.skin = Math.round((gain.skin ?? 0) * tune("customer.skin_exp_ratio"));
     if (cu) { customer = { name: cu.name, type: cu.type, stars, lp }; ui.patchCustomer(cu.id, { stars }); }
   }
   g.finishCare({ routineId: full ? c.routineId : null, modes: c.modes, gain, coins, customer });

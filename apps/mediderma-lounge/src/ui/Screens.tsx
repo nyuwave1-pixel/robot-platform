@@ -7,6 +7,7 @@ import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
 import { Character } from "../three/Character";
+import { Icon, type IconName } from "./Icon";
 
 export function Splash() {
   const t = useT();
@@ -20,7 +21,7 @@ export function Splash() {
       <div className="relative h-56 w-56 sm:h-64 sm:w-64">
         <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} auto />
       </div>
-      <p className="mt-2 text-[11px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
+      <p className="mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
       <h1 className="mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">MEDIDERMA <span className="text-pink-deep">LOUNGE</span></h1>
       <p className="mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.</p>
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
@@ -29,7 +30,7 @@ export function Splash() {
         )}
         <button className={started ? "btn-ghost" : "btn-primary"} onClick={() => set({ screen: "intro" })}>{t("splash.new")}</button>
       </div>
-      <p className="absolute bottom-4 px-6 text-[10px] leading-relaxed text-ink/45">{t("splash.notice")}</p>
+      <p className="absolute bottom-4 px-6 text-[12px] leading-relaxed text-ink/45">{t("splash.notice")}</p>
     </div>
   );
 }
@@ -42,8 +43,8 @@ export function Intro() {
   const last = i === slides.length - 1;
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-ink to-[#3a2a33] px-6 text-center text-cream">
-      <p className="text-[11px] font-semibold tracking-[0.35em] text-gold">STORY {i + 1} / {slides.length}</p>
-      <div className="mt-5 text-6xl">{["🌸", "🧴", "✨", "🏛️"][i]}</div>
+      <p className="text-[13px] font-semibold tracking-[0.35em] text-gold">STORY {i + 1} / {slides.length}</p>
+      <div className="mt-5 text-6xl text-pink-soft"><Icon n={(["flower", "bottle", "sparkle", "lounge"] as IconName[])[i]} /></div>
       <h2 className="mt-5 max-w-md text-2xl font-bold sm:text-3xl">{t(`intro.${i + 1}.title`)}</h2>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-cream/75">{t(`intro.${i + 1}.body`)}</p>
       <div className="mt-8 flex gap-2">{slides.map((_, k) => <span key={k} className={`h-1.5 rounded-full transition-all ${k === i ? "w-8 bg-pink-deep" : "w-2 bg-cream/30"}`} />)}</div>
@@ -68,8 +69,8 @@ export function Create() {
     <div className="absolute inset-0 flex flex-col bg-gradient-to-b from-[#fde7ee] to-cream md:flex-row">
       <div className="relative h-[38%] w-full md:h-full md:w-1/2">
         <Preview look={look} growth={1} />
-        <p className="absolute left-0 right-0 top-4 text-center text-[11px] font-semibold tracking-[0.3em] text-gold">STAGE 1 · BABY BEAUTY</p>
-        <p className="absolute bottom-2 left-0 right-0 text-center text-[11px] text-ink/45">{t("create.rotate")}</p>
+        <p className="absolute left-0 right-0 top-4 text-center text-[13px] font-semibold tracking-[0.3em] text-gold">STAGE 1 · BABY BEAUTY</p>
+        <p className="absolute bottom-2 left-0 right-0 text-center text-[13px] text-ink/45">{t("create.rotate")}</p>
       </div>
       <div className="flex-1 overflow-y-auto rounded-t-3xl bg-white/85 p-5 shadow-[0_-8px_30px_rgba(231,154,174,0.25)] backdrop-blur md:rounded-none md:p-10">
         <h2 className="text-2xl font-black text-ink">{t("create.title")}</h2>
@@ -85,7 +86,7 @@ export function Create() {
         <Chips label={t("look.hair")} values={["hair-bob", "hair-twin"]} value={look.hair} onPick={(v) => patch({ hair: v })} render={(v) => t(`hair.${v}`)} />
         <Chips label={t("look.face")} values={[...FACE_SHAPES]} value={look.face} onPick={(v) => patch({ face: v })} render={(v) => t(`face.${v}`)} />
         <Chips label={t("look.eyes")} values={[...EYE_SHAPES]} value={look.eyes} onPick={(v) => patch({ eyes: v })} render={(v) => t(`eyes.${v}`)} />
-        <p className="mt-4 text-[11px] leading-relaxed text-ink/45">{t("create.diversity")}</p>
+        <p className="mt-4 text-[13px] leading-relaxed text-ink/45">{t("create.diversity")}</p>
         <button className="btn-primary mt-5 w-full" onClick={start}>{t("create.start")}</button>
       </div>
     </div>

@@ -55,6 +55,7 @@ interface UIState {
   growthView: number | null; // 연출 중 표시 성장값
   flash: number;
   stroking: boolean;
+  skipCine: boolean;
   set: (p: Partial<UIState>) => void;
   toast: (text: string) => void;
   open: (p: Panel) => void;
@@ -80,6 +81,7 @@ export const useUI = create<UIState>((set, get) => ({
   growthView: null,
   flash: 0,
   stroking: false,
+  skipCine: false,
   set: (p) => set(p),
   toast: (text) => {
     const id = ++tid;

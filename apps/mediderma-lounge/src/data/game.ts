@@ -198,14 +198,14 @@ export const QUESTS: Quest[] = [
 
 // ───────────── 데모 SNS (가상 계정 — 실제 사용자 아님) ─────────────
 export const DEMO_FRIENDS = [
-  { id: "f-mia", name: "Mia", country: "🇺🇸", level: 3, stage: 3, hair: "hair-wave", hairColor: "#f1d28a", outfit: "fit-peach", skin: "#ffe4d2", wall: "wall-pink", floor: "floor-cream" },
-  { id: "f-yuki", name: "Yuki", country: "🇯🇵", level: 2, stage: 2, hair: "hair-twin", hairColor: "#f2a7b8", outfit: "fit-lav", skin: "#f8d2b8", wall: "wall-lav", floor: "floor-lav" },
-  { id: "f-linh", name: "Linh", country: "🇻🇳", level: 4, stage: 4, hair: "hair-long", hairColor: "#1c1a1f", outfit: "fit-black", skin: "#eebf9c", wall: "wall-black", floor: "floor-black" },
+  { id: "f-mia", name: "Mia", country: "US", level: 3, stage: 3, hair: "hair-wave", hairColor: "#f1d28a", outfit: "fit-peach", skin: "#ffe4d2", wall: "wall-pink", floor: "floor-cream" },
+  { id: "f-yuki", name: "Yuki", country: "JP", level: 2, stage: 2, hair: "hair-twin", hairColor: "#f2a7b8", outfit: "fit-lav", skin: "#f8d2b8", wall: "wall-lav", floor: "floor-lav" },
+  { id: "f-linh", name: "Linh", country: "VN", level: 4, stage: 4, hair: "hair-long", hairColor: "#1c1a1f", outfit: "fit-black", skin: "#eebf9c", wall: "wall-black", floor: "floor-black" },
 ];
 export const DEMO_POSTS = [
-  { id: "p-demo1", author: "Mia", country: "🇺🇸", text: "Brightening routine done ✨ 오늘의 라운지 루틴 인증!", tag: "#BeautyRoutine", likes: 128, hue: 340 },
-  { id: "p-demo2", author: "Yuki", country: "🇯🇵", text: "新しいラベンダーのワンピース💜 포토존에서 한 컷", tag: "#OOTD", likes: 96, hue: 265 },
-  { id: "p-demo3", author: "Linh", country: "🇻🇳", text: "LEVEL 4 라운지 오픈! Black & Gold 인테리어 공개 🖤", tag: "#LoungeStory", likes: 214, hue: 40 },
+  { id: "p-demo1", author: "Mia", country: "US", text: "Brightening routine done 오늘의 라운지 루틴 인증!", tag: "#BeautyRoutine", likes: 128, hue: 340 },
+  { id: "p-demo2", author: "Yuki", country: "JP", text: "新しいラベンダーのワンピース 포토존에서 한 컷", tag: "#OOTD", likes: 96, hue: 265 },
+  { id: "p-demo3", author: "Linh", country: "VN", text: "LEVEL 4 라운지 오픈! Black & Gold 인테리어 공개", tag: "#LoungeStory", likes: 214, hue: 40 },
 ];
 
 export const MODE_ORDER: ModeId[] = ["rf", "us", "ionto"];

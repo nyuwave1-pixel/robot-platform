@@ -1,4 +1,5 @@
 /** 고객 NPC: 입장 → 대기(착석) → 상담 → 케어(침대) → 결제 → 퇴장 */
+import { tune } from "../data/config";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
@@ -26,19 +27,19 @@ export function Customers({ L }: { L: Layout }) {
       const g = useGame.getState();
       if (ui.screen !== "game" || ui.visiting || ui.mode === "cinematic") return;
       const now = performance.now();
-      const gap = ui.customers.length === 0 ? 7000 : 24000;
+      const gap = (ui.customers.length === 0 ? tune("customer.first_spawn_sec") : tune("customer.spawn_gap_sec")) * 1000;
       if (ui.customers.length >= L.level.customers || now - lastSpawn < gap) return;
       lastSpawn = now;
       const pool = CUSTOMER_TYPES.filter((t) => t.minLounge <= g.lounge.level);
       // 단골 재방문
-      const reg = g.regulars.length && Math.random() < 0.35 ? g.regulars[Math.floor(Math.random() * g.regulars.length)] : null;
+      const reg = g.regulars.length && Math.random() < tune("customer.regular_return_chance") ? g.regulars[Math.floor(Math.random() * g.regulars.length)] : null;
       const type = (reg && pool.find((t) => t.id === reg.type)) || pool[Math.floor(Math.random() * pool.length)];
       const used = new Set(ui.customers.map((c) => c.seat));
       const seat = [0, 1, 2, 3, 4].find((i) => !used.has(i) && (i < 3 || g.lounge.level >= 3)) ?? 0;
       const names = CUSTOMER_NAMES.filter((n) => !ui.customers.some((c) => c.name === n));
       const c: Customer = { id: Math.random().toString(36).slice(2, 8), type: type.id, name: reg?.name ?? names[Math.floor(Math.random() * names.length)], state: "enter", seat, stars: 0, t: 0 };
       useUI.setState({ customers: [...ui.customers, c] });
-      ui.toast(`🔔 ${c.name} · ${g.settings.lang === "ko" ? type.ko : type.en}`);
+      ui.toast(`${c.name} · ${g.settings.lang === "ko" ? type.ko : type.en}`);
     };
     const id = setInterval(tick, 2000);
     return () => clearInterval(id);
@@ -90,7 +91,7 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
     } else if (c.state === "wait") {
       moving.current = false;
       if (g.current) g.current.rotation.y = Math.PI;
-      if (timer.current > 150 && ui.consult !== c.id) ui.patchCustomer(c.id, { state: "leave" });
+      if (timer.current > tune("customer.patience_sec") && ui.consult !== c.id) ui.patchCustomer(c.id, { state: "leave" });
     } else if (c.state === "toPay") {
       if (walkTo(L.payPoint.x, L.payPoint.z)) { if (g.current) g.current.rotation.y = 0; ui.patchCustomer(c.id, { state: "pay" }); }
     } else if (c.state === "pay") {

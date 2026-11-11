@@ -27,6 +27,9 @@ GPL·AGPL 계열 의존성 없음. 전이 의존성까지의 전수 점검(`lice
 
 "찾지 못함"은 `main`/`master` 브랜치 루트의 `LICENSE`, `LICENSE.md`, `license` 경로 조회가 실패했다는 뜻이다. 저장소가 다른 경로에 라이선스를 두었거나 이름·기본 브랜치가 다를 수 있으므로, 실제로 참고하려면 저장소 페이지에서 다시 확인한다.
 
+### 추가 분석: donchitos/claude-code-game-studios
+MIT (`LICENSE`, Copyright (c) 2026 Donchitos). Claude Code 용 게임 개발 작업 방식 템플릿. **코드·스크립트·문서 본문은 복사하지 않고** 규칙만 읽어 이 게임에 맞게 새로 구현했다. 반영 내역은 `STUDIO_PRACTICES.md`.
+
 ## 3. 3D 에셋
 | 에셋 | 출처 | 상태 |
 |---|---|---|

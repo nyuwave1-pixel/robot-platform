@@ -2,6 +2,7 @@
  * 영구 저장되는 게임 상태 (localStorage). 계정 도입 시 같은 형태를 서버로 옮길 수 있게
  * 직렬화 가능한 순수 데이터만 담는다. 재화·보상 검증은 Phase 5 에서 서버 권한으로 이전.
  */
+import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, QUESTS, STAGES, STARTER_FASHION, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
@@ -90,7 +91,7 @@ const fresh = () => ({
   look: DEFAULT_LOOK,
   exp: Object.fromEntries(EXP_KEYS.map((k) => [k, 0])) as Record<ExpKey, number>,
   stage: 1,
-  coins: 300, gems: 0, stars: 0, lp: 0,
+  coins: tune("player.start_coins"), gems: 0, stars: 0, lp: 0,
   // 첫 루틴(카밍·붓기 완화)을 바로 체험할 수 있는 스타터 키트 (게임 내 가상 아이템)
   inventory: { "soothing-gel": 6, "toner-pad": 6, "deep-repair-cream": 4, "serum-mist": 4, "vitac-mask": 2, "vitac-ampoule": 2 } as Record<string, number>,
   codex: ["derma-home", "soothing-gel", "toner-pad", "deep-repair-cream", "serum-mist", "vitac-mask", "vitac-ampoule"],
@@ -170,7 +171,7 @@ export const useGame = create<GameState>()(
         if (!f || s.ownedFashion.includes(id)) return false;
         const paid = pay(s, f.currency, f.price);
         if (!paid) return false;
-        set({ ...paid, ownedFashion: [...s.ownedFashion, id], exp: { ...s.exp, fashion: s.exp.fashion + 15 }, stats: { ...s.stats, fashionBought: (s.stats.fashionBought ?? 0) + 1 } });
+        set({ ...paid, ownedFashion: [...s.ownedFashion, id], exp: { ...s.exp, fashion: s.exp.fashion + tune("growth.fashion_buy_exp") }, stats: { ...s.stats, fashionBought: (s.stats.fashionBought ?? 0) + 1 } });
         return true;
       },
       equip: (slot, id) => set((s) => ({ look: { ...s.look, [slot]: id } })),
@@ -181,8 +182,8 @@ export const useGame = create<GameState>()(
         if (it.kind !== "furniture" && s.ownedInterior.includes(id)) return false;
         const paid = pay(s, it.currency, it.price);
         if (!paid) return false;
-        if (it.kind === "furniture") set({ ...paid, storage: { ...s.storage, [id]: (s.storage[id] ?? 0) + 1 }, exp: { ...s.exp, lounge: s.exp.lounge + 8 } });
-        else set({ ...paid, ownedInterior: [...s.ownedInterior, id], exp: { ...s.exp, lounge: s.exp.lounge + 12 } });
+        if (it.kind === "furniture") set({ ...paid, storage: { ...s.storage, [id]: (s.storage[id] ?? 0) + 1 }, exp: { ...s.exp, lounge: s.exp.lounge + tune("growth.furniture_buy_exp") } });
+        else set({ ...paid, ownedInterior: [...s.ownedInterior, id], exp: { ...s.exp, lounge: s.exp.lounge + tune("growth.theme_buy_exp") } });
         return true;
       },
       place: (type) => {
@@ -208,7 +209,7 @@ export const useGame = create<GameState>()(
       upgradeLounge: () => {
         const s = get(); const next = LOUNGE_LEVELS[s.lounge.level];
         if (!next || s.coins < next.cost || s.lp < next.lp) return false;
-        set({ coins: s.coins - next.cost, lounge: { ...s.lounge, level: next.n }, exp: { ...s.exp, lounge: s.exp.lounge + 60 }, gems: s.gems + 5 });
+        set({ coins: s.coins - next.cost, lounge: { ...s.lounge, level: next.n }, exp: { ...s.exp, lounge: s.exp.lounge + tune("growth.lounge_upgrade_exp") }, gems: s.gems + 5 });
         return true;
       },
 
@@ -226,7 +227,7 @@ export const useGame = create<GameState>()(
           dstats.customer = (dstats.customer ?? 0) + 1;
           stats.customers = (stats.customers ?? 0) + 1;
           lp += r.customer.lp;
-          if (r.customer.stars >= 4) {
+          if (r.customer.stars >= tune("customer.regular_min_stars")) {
             const ex = regulars.find((x) => x.name === r.customer!.name);
             regulars = ex
               ? regulars.map((x) => (x === ex ? { ...x, visits: x.visits + 1, lastStars: r.customer!.stars } : x))
@@ -249,8 +250,8 @@ export const useGame = create<GameState>()(
         return {
           posts: [{ id: uid(), author: s.name, mine: true, text: p.text, tag: p.tag, img: p.img, likes, liked: false, comments: [], t: Date.now() }, ...posts].slice(0, 40),
           followers: s.followers + Math.round(likes / 4),
-          stars: s.stars + 4,
-          exp: { ...s.exp, social: s.exp.social + 14 },
+          stars: s.stars + tune("social.post_stars"),
+          exp: { ...s.exp, social: s.exp.social + tune("social.post_exp") },
           daily: { date: d.date, stats: { ...d.stats, post: (d.stats.post ?? 0) + 1 } },
           stats: { ...s.stats, posts: (s.stats.posts ?? 0) + 1 },
         };
@@ -262,13 +263,13 @@ export const useGame = create<GameState>()(
         const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
         return {
           posts: s.posts.map((x) => (x.id === id ? { ...x, liked, likes: x.likes + (liked ? 1 : -1) } : x)),
-          exp: liked && !p.mine ? { ...s.exp, social: s.exp.social + 2 } : s.exp,
+          exp: liked && !p.mine ? { ...s.exp, social: s.exp.social + tune("social.like_exp") } : s.exp,
           daily: liked ? { date: d.date, stats: { ...d.stats, like: (d.stats.like ?? 0) + 1 } } : d,
         };
       }),
       commentPost: (id, text) => set((s) => ({
         posts: s.posts.map((x) => (x.id === id ? { ...x, comments: [...x.comments, { who: s.name, text: text.slice(0, 80) }].slice(-20) } : x)),
-        exp: { ...s.exp, social: s.exp.social + 3 },
+        exp: { ...s.exp, social: s.exp.social + tune("social.comment_exp") },
       })),
       follow: (id) => set((s) => (s.following.includes(id) ? { following: s.following.filter((x) => x !== id) } : { following: [...s.following, id] })),
       visitFriend: (id) => {
@@ -276,7 +277,7 @@ export const useGame = create<GameState>()(
         const key = `visit:${id}`;
         const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
         if (d.stats[key]) return false;
-        set({ stars: s.stars + 3, exp: { ...s.exp, social: s.exp.social + 6 }, daily: { date: d.date, stats: { ...d.stats, [key]: 1 } }, stats: { ...s.stats, visits: (s.stats.visits ?? 0) + 1 } });
+        set({ stars: s.stars + tune("social.visit_stars"), exp: { ...s.exp, social: s.exp.social + tune("social.visit_exp") }, daily: { date: d.date, stats: { ...d.stats, [key]: 1 } }, stats: { ...s.stats, visits: (s.stats.visits ?? 0) + 1 } });
         return true;
       },
 
@@ -324,7 +325,7 @@ export const useGame = create<GameState>()(
 );
 
 export const totalExp = (s: Pick<GameState, "exp">) => EXP_KEYS.reduce((a, k) => a + s.exp[k], 0);
-export const levelOf = (total: number) => Math.floor(total / 60) + 1;
+export const levelOf = (total: number) => Math.floor(total / tune("growth.exp_per_level")) + 1;
 export const earnedStage = (s: Pick<GameState, "exp">) => stageFor(totalExp(s));
 
 export function questValue(s: GameState, q: Quest): number {

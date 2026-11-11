@@ -3,6 +3,7 @@
  * 모드별 판타지 이펙트 — RF: 따뜻한 엠버 / ULTRASONIC: 물결 링 / IONTOPHORESIS: 은은한 스파크.
  * (실제 기기 강도·시간이 아니라 축약된 체험 연출)
  */
+import { tune } from "../data/config";
 import { useMemo, useRef } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
@@ -78,7 +79,7 @@ export function Care3D({ L }: { L: Layout }) {
     const c = useUI.getState().care;
     const zone = c?.zone ? pts[c.zone] : null;
     // 누르고 있기만 해도 조금씩 진행 (터치 접근성)
-    if (hold.current && onZone.current && c?.applied) addProgress(dt * 0.3);
+    if (hold.current && onZone.current && c?.applied) addProgress(dt * tune("care.hold_rate"));
     careFx.active = hold.current && onZone.current && !!c?.applied;
     if (careFx.active) emit(careFx.pos, mode.fx, mode.color, mode.fx === "spark" ? 3 : 2);
     if (careFx.burst > 0) { emit(zone ?? careFx.pos, "burst", "#ffe2a0", Math.round(26 * careFx.burst)); careFx.burst = 0; }
@@ -158,7 +159,7 @@ export function Care3D({ L }: { L: Layout }) {
     // 피부 표면에 붙도록 부위 중심에서 살짝만 벗어나게
     if (off > hitR) cp.sub(zp).setLength(hitR).add(zp);
     careFx.pos.copy(cp).setY(Math.max(cp.y, zp.y + 0.012));
-    if (last.current) addProgress(Math.min(0.08, last.current.distanceTo(cp) / (hitR * 9)));
+    if (last.current) addProgress(Math.min(0.08, last.current.distanceTo(cp) / (hitR * tune("care.stroke_length"))));
     last.current = (last.current ?? new THREE.Vector3()).copy(cp);
   };
   const up = () => { hold.current = false; onZone.current = false; last.current = null; careFx.active = false; useUI.setState({ stroking: false }); };

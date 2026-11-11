@@ -1,4 +1,5 @@
 /** 3D 월드: 캔버스, 플레이어 이동·카메라, 존 감지, 성장 시네마틱 */
+import { tune } from "../data/config";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { AdaptiveDpr, PerformanceMonitor, Sparkles } from "@react-three/drei";
@@ -161,7 +162,7 @@ function Player({ L }: { L: Layout }) {
         else { vx = dx / dist; vz = dz / dist; }
       }
       if (vx || vz) {
-        const speed = 2.6 + bodyDims(growth).leg * 1.2;
+        const speed = tune("player.walk_speed") + bodyDims(growth).leg * 1.2;
         let nx = p.x + vx * speed * dt, nz = p.z + vz * speed * dt;
         const r = 0.32;
         nx = THREE.MathUtils.clamp(nx, -L.w / 2 + r, L.w / 2 - r);
@@ -360,7 +361,6 @@ function useCameraGestures(ref: React.RefObject<HTMLDivElement>) {
 }
 
 // ───────────── 성장 시네마틱 ─────────────
-const CINE_LEN = 5.2;
 function Director() {
   const cine = useUI((s) => s.cine);
   const t = useRef(0);
@@ -381,10 +381,11 @@ function Director() {
 
   useFrame((_, dt) => {
     if (!cine) return;
+    if (useUI.getState().skipCine) { t.current = 1e9; useUI.setState({ skipCine: false }); }
     t.current += Math.min(dt, 0.25); // 저사양에서도 연출 길이는 실제 시간 기준
-    const x = t.current / CINE_LEN;
+    const x = t.current / tune("growth.cinematic_sec");
     // 1.3s~3.6s 구간에서 프로포션이 블렌딩된다
-    const m = THREE.MathUtils.smootherstep(t.current, 1.3, 3.6);
+    const m = THREE.MathUtils.smootherstep(Math.min(t.current, 100), 1.3, 3.6);
     const flash = Math.max(0, 1 - Math.abs(t.current - 2.4) / 0.9);
     useUI.setState({ growthView: cine.from + (cine.to - cine.from) * m, flash });
     if (ring.current) {

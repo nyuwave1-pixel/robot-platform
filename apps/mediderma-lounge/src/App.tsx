@@ -5,6 +5,7 @@ import { World } from "./three/World";
 import { Hud } from "./ui/Hud";
 import { PanelHost } from "./ui/Panels";
 import { CarePanel } from "./ui/CarePanel";
+import { Tweaks } from "./ui/Tweaks";
 
 /** WebGL 미지원·렌더 오류 시에도 흰 화면 대신 안내와 복구 버튼을 보여 준다. */
 class Boundary extends Component<{ children: ReactNode }, { err: string | null }> {
@@ -14,7 +15,7 @@ class Boundary extends Component<{ children: ReactNode }, { err: string | null }
     if (!this.state.err) return this.props.children;
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cream p-6 text-center">
-        <p className="text-4xl">🌸</p>
+        
         <p className="text-lg font-black text-ink">문제가 발생했어요 · Something went wrong</p>
         <p className="max-w-sm text-xs text-ink/60">브라우저가 WebGL(3D)을 지원하는지 확인한 뒤 다시 시도해 주세요. 저장된 진행도는 유지됩니다.</p>
         <p className="max-w-sm break-all text-[10px] text-ink/35">{this.state.err}</p>
@@ -39,6 +40,7 @@ export function App() {
             <Hud />
             {mode === "care" && <CarePanel />}
             <PanelHost />
+            <Tweaks />
           </>
         )}
       </div>
