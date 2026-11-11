@@ -64,7 +64,7 @@ export class Weapons {
     this.flashLight = new THREE.PointLight(0xffb060, 0, 22, 1.6); G.camera.add(this.flashLight); this.flashLight.position.set(0.2, -0.1, -1);
     // arms
     this.armR = new THREE.Group(); this.armL = new THREE.Group();
-    for (const a of [this.armR, this.armL]) { const arm = ASSETS.ready ? rebuild('Arm', new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, map: detailMap('camo', 1.5), normalMap: detailNormal('fabric', 45), normalScale: new THREE.Vector2(0.6, 0.6) })) : null; if (arm) { arm.rotation.y = Math.PI; arm.traverse((o) => { if (o.isMesh) o.castShadow = false; }); a.add(arm); } else { box(a, 0.075, 0.075, 0.46, 0, 0, 0.3, mSleeve); box(a, 0.07, 0.055, 0.1, 0, 0, 0.03, mGlove); } this.root.add(a); }
+    for (const a of [this.armR, this.armL]) { const arm = ASSETS.ready ? rebuild('Arm', new THREE.MeshStandardMaterial({ vertexColors: true, color: new THREE.Color(1.3, 1.3, 1.3), roughness: 0.9, map: detailMap('camo', 1.5), normalMap: detailNormal('fabric', 45), normalScale: new THREE.Vector2(0.6, 0.6) })) : null; if (arm) { arm.rotation.y = Math.PI; arm.traverse((o) => { if (o.isMesh) o.castShadow = false; }); a.add(arm); } else { box(a, 0.075, 0.075, 0.46, 0, 0, 0.3, mSleeve); box(a, 0.07, 0.055, 0.1, 0, 0, 0.03, mGlove); } this.root.add(a); }
     this.grenades = 4; this.reset();
   }
   reset() { this.cool = 0; this.reloading = false; this.reloadT = 0; this.switchT = 0; this.pending = -1; this.bloom = 0; this.kick = 0; this.kickRot = 0; this.burstLeft = 0; this.sprintOut = 0; this.swayX = this.swayY = 0; this.triggerHeld = false; this.pumpT = 0; this.shotsSince = 0; this.lastShot = -9; this.throwT = 0; }

@@ -57,7 +57,7 @@ export function buildIsland() {
     if (opts.light !== false) { const l = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.08, 0.3), MAT.lamp); l.position.set(x, y + h - 0.1, z); W.group.add(l); }
     return y;
   };
-  const glass = (x, y, z, sx, sy, sz) => W.box(x, y, z, sx, sy, sz, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true });
+  const glass = (x, y, z, sx, sy, sz) => { sx >= sz ? W.addStatic('P_window', x, y, z, sx, sy, sz * 1.4) : W.addStatic('P_window', x, y, z, sz, sy, sx * 1.4, Math.PI / 2); return W.box(x, y, z, sx, sy, sz, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true }); }; // Blender frame stays, pane breaks
   const radar = (x, z, h = 7) => { const y = H(x, z), dg = assetGeo('Radar', 'dish'); const piv = new THREE.Group(); piv.position.set(x, y + h + 1.6, z);
     if (dg) { const bg = assetGeo('Radar', 'base'); const bm = new THREE.Mesh(bg, MAT.prop); bm.position.set(x, y, z); bm.scale.set(1, h / 7, 1); W.statics.push(bm); W.box(x, y, z, 2.4, h, 2.4, MAT.concrete, { hidden: true }); const d = new THREE.Mesh(dg, MAT.prop); d.castShadow = true; piv.add(d); }
     else { W.box(x, y, z, 2.4, h, 2.4, MAT.concrete, {}); const dish = new THREE.Mesh(new THREE.SphereGeometry(2.6, 14, 8, 0, TAU, 0, 1.1), MAT.white); dish.material.side = THREE.DoubleSide; dish.rotation.x = -1.2; piv.add(dish); }
@@ -90,14 +90,14 @@ export function buildIsland() {
     crate(c.x + 6, c.z + 5); crate(c.x + 7.3, c.z + 5.2); barrel(c.x + 10, c.z - 3); ammoBox(c.x - 8, c.z + 3); tower(c.x + 26, c.z + 26); lamp(c.x + 4, c.z + 10, 6, true);
   }
   { const p = POI.waterfall, y = H(p.x, p.z); // rock cliff + falling water + pond + cave shelter
-    for (let i = 0; i < 7; i++) W.box(p.x - 12 + i * 4, y - 1, p.z - 8 - (i % 2) * 1.5, 4.6, 13 + (i % 3) * 2.5, 5, MAT.rock, { mat: 'concrete' });
+    for (let i = 0; i < 7; i++) W.box(p.x - 12 + i * 4, y - 1, p.z - 8 - (i % 2) * 1.5, 4.6, 13 + (i % 3) * 2.5, 5, MAT.rock, { mat: 'concrete', geo: 'P_cliff', rot90: i % 2 === 1 });
     const wt = new THREE.CanvasTexture(Object.assign(document.createElement('canvas'), { width: 32, height: 128 })); { const g = wt.image.getContext('2d'); for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(220,240,255,${0.15 + rnd() * 0.5})`; g.fillRect(rnd() * 32, rnd() * 128, 1 + rnd() * 2, 6 + rnd() * 22); } } wt.wrapS = wt.wrapT = THREE.RepeatWrapping;
     const fall = new THREE.Mesh(new THREE.PlaneGeometry(6, 14), new THREE.MeshBasicMaterial({ map: wt, transparent: true, opacity: 0.85, depthWrite: false })); fall.position.set(p.x, y + 6, p.z - 5.4); W.group.add(fall);
     const pond = new THREE.Mesh(new THREE.CircleGeometry(9, 20), new THREE.MeshStandardMaterial({ color: 0x1d4a50, roughness: 0.08, metalness: 0.5, transparent: true, opacity: 0.85 })); pond.rotation.x = -Math.PI / 2; pond.position.set(p.x, y + 0.12, p.z + 3); W.group.add(pond);
     W.animated.push((dt, t) => { wt.offset.y = t * 1.6; if (G.player && Math.hypot(G.player.pos.x - p.x, G.player.pos.z - p.z) < 60 && Math.random() < 0.3) G.fx.puff(p.x + (Math.random() - 0.5) * 5, y + 0.6, p.z - 4.5, 0xdff4ff, 2.4, 1.2, 0.35); });
     POI.waterfallY = y;
     // cave: rock shelter with supply cache
-    const cx = p.x + 22, cz = p.z - 2, cy = H(cx, cz); W.box(cx - 4, cy - 0.5, cz, 2, 4.5, 9, MAT.rock, {}); W.box(cx + 4, cy - 0.5, cz, 2, 4.5, 9, MAT.rock, {}); W.box(cx, cy - 0.5, cz - 4.5, 10, 4.5, 2, MAT.rock, {}); W.box(cx, cy + 3.6, cz, 10.5, 1.6, 10, MAT.rock, {});
+    const cx = p.x + 22, cz = p.z - 2, cy = H(cx, cz); const rk = { geo: 'P_cliff' }; W.box(cx - 4, cy - 0.5, cz, 2, 4.5, 9, MAT.rock, rk); W.box(cx + 4, cy - 0.5, cz, 2, 4.5, 9, MAT.rock, { geo: 'P_cliff', rot90: true }); W.box(cx, cy - 0.5, cz - 4.5, 10, 4.5, 2, MAT.rock, rk); W.box(cx, cy + 3.6, cz, 10.5, 1.6, 10, MAT.rock, rk);
     ammoBox(cx, cz - 2.4, cy); W.interactables.push({ x: cx - 1.5, y: cy + 0.5, z: cz - 2.4, r: 2.2, label: 'TAKE MED KIT', once: true, act: () => { G.player.medkits++; G.hud.toast('MED KIT +1'); } });
   }
   // ================= ZONE 03 — MILITARY BASE =================
@@ -114,7 +114,7 @@ export function buildIsland() {
     W.box(-70, y, -48, 4, 1.1, 1.2, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' });
     // HQ: two rooms, windows, intel terminal
     building(0, -132, 28, 18, 4, MAT.concrete, { s: [[-10, -6], [-2, 2], [6, 10]], e: [[-131, -128]], w: [[-136, -133]] });
-    W.box(0, y, -134, 0.4, 4, 9, MAT.concrete, {}); // partition (leaves gaps both ends)
+    W.box(0, y, -134, 0.4, 4, 9, MAT.concrete, { hidden: true }); for (const pz of [-136.25, -131.75]) W.addStatic('P_wall_concrete', 0, y, pz, 4.5, 4, 0.45, Math.PI / 2); // partition (leaves gaps both ends)
     glass(-8, y, -123, 4, 4, 0.3); glass(8, y, -123, 4, 4, 0.3); // HQ front windows (breakable)
     W.box(8, y, -138, 5, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' }); W.box(-7, y, -136, 3, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' });
     const scr = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.1), MAT.screen); scr.position.set(8, y + 1.6, -138.5); W.group.add(scr);
@@ -130,13 +130,13 @@ export function buildIsland() {
     // yard clutter / cover lanes
     sandbags(30, -100, 7); sandbags(-18, -105, 6); sandbags(40, -128, 6, false); container(28, -60, MAT.blue, false); container(96, -100, MAT.rust); container(96, -96.6, MAT.olive);
     crate(20, -82, 1.2, y); crate(21.4, -82.3, 1.2, y); crate(60, -112, 1.3, y); barrel(34, -62, y); barrel(70, -120, y); barrel(-100, -70, y); ammoBox(24, -98, y);
-    W.box(0, y, -60, 3, 0.2, 3, MAT.concrete, { noCol: true }); W.box(0, y, -60, 0.25, 11, 0.25, MAT.metal, {}); // flag pole
+    if (W.addStatic('Flagpole', 0, y, -60, 1, 1, 1, 0, null, true)) W.box(0, y, -60, 0.3, 11, 0.3, MAT.metal, { hidden: true, mat: 'metal' }); else { W.box(0, y, -60, 3, 0.2, 3, MAT.concrete, { noCol: true }); W.box(0, y, -60, 0.25, 11, 0.25, MAT.metal, {}); } // flag pole
     const flag = new THREE.Mesh(new THREE.PlaneGeometry(3, 1.8, 6, 2), new THREE.MeshStandardMaterial({ color: 0x151515, side: THREE.DoubleSide, emissive: 0x3a0505 })); flag.position.set(1.6, y + 9.8, -60); W.group.add(flag);
     W.animated.push((dt, t) => { const p = flag.geometry.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 2 + t * 5) * 0.18 * (p.getX(i) + 1.5) * G.sky.wind); p.needsUpdate = true; });
     for (const [lx, lz, on] of [[-30, -20, 1], [30, -20, 0], [-30, -80, 0], [30, -80, 1], [-30, -160, 0], [40, -165, 1], [80, -120, 0], [-95, -90, 0]]) lamp(lx, lz, 7, !!on);
   }
   // fence line between base north gate and airfield
-  for (const sx of [-1, 1]) W.box(sx * 12, 14.5, -210, 0.15, 3, 46, MAT.fence, { mat: 'metal', thin: true, seeThrough: true, noShadow: true });
+  for (const sx of [-1, 1]) { const fo = { mat: 'metal', thin: true, seeThrough: true, noShadow: true }; if (W.addStatic('P_fence', sx * 12, 14.5, -231.56, 2.875, 3, 0.16, Math.PI / 2)) { for (let i = 1; i < 16; i++) W.addStatic('P_fence', sx * 12, 14.5, -231.56 + i * 2.875, 2.875, 3, 0.16, Math.PI / 2); W.box(sx * 12, 14.5, -210, 0.15, 3, 46, MAT.fence, { ...fo, hidden: true }); } else W.box(sx * 12, 14.5, -210, 0.15, 3, 46, MAT.fence, fo); }
   // ================= ZONE 05 — AIRFIELD & PORT =================
   { const y = 7;
     const rw = new THREE.Mesh(new THREE.PlaneGeometry(300, 26), new THREE.MeshStandardMaterial({ color: 0x1b1c1e, roughness: 0.85 })); rw.rotation.x = -Math.PI / 2; rw.position.set(105, y + 0.04, -296); rw.receiveShadow = true; W.group.add(rw);
@@ -145,7 +145,7 @@ export function buildIsland() {
     building(40, -262, 40, 24, 9, MAT.metal, { n: [[26, 54]] }, { surf: 'metal', roof: MAT.rust });
     const pad = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 4), MAT.metal); pad.position.set(40, y + 0.05, -256); W.group.add(pad);
     crate(28, -256, 1.4, y); crate(29.6, -256, 1.4, y); container(52, -254, MAT.olive, true, y); ammoBox(34, -253, y);
-    building(120, -262, 16, 12, 9, MAT.concrete, { n: [[118, 122]] }); const ct = new THREE.Mesh(new THREE.BoxGeometry(9, 3, 9), MAT.glass); ct.position.set(120, y + 10.7, -262); W.group.add(ct); W.box(120, y + 12.2, -262, 10, 0.3, 10, MAT.dark, { noCol: true });
+    building(120, -262, 16, 12, 9, MAT.concrete, { n: [[118, 122]] }); const ct = new THREE.Mesh(new THREE.BoxGeometry(9, 3, 9), MAT.glass); ct.position.set(120, y + 10.7, -262); W.group.add(ct); if (!W.addStatic('TowerCab', 120, y + 9.2, -262, 1, 1, 1, 0, null, true)) W.box(120, y + 12.2, -262, 10, 0.3, 10, MAT.dark, { noCol: true });
     // helipad
     const hp = new THREE.Mesh(new THREE.CylinderGeometry(11, 11, 0.12, 28), new THREE.MeshStandardMaterial({ color: 0x2a2c2e, roughness: 0.8 })); hp.position.set(POI.helipad.x, y + 0.06, POI.helipad.z); W.group.add(hp);
     const ring = new THREE.Mesh(new THREE.RingGeometry(8.6, 9.2, 32), new THREE.MeshBasicMaterial({ color: 0xe8e060 })); ring.rotation.x = -Math.PI / 2; ring.position.set(POI.helipad.x, y + 0.14, POI.helipad.z); W.group.add(ring);
@@ -162,7 +162,7 @@ export function buildIsland() {
     const ship = W.addStatic('CargoShip', 55, -1.5, -452, 1, 1, 1, -Math.PI / 2, null, true), sh = ship ? { mat: 'metal', hidden: true } : { mat: 'metal' }; // Blender freighter: bow towards -X, house aft at x=88
     W.box(55, -1.5, -452, 96, 9, 20, MAT.dark, sh); W.box(88, 7.5, -452, 16, 10, 16, MAT.white, sh); if (!ship) W.box(88, 17.5, -452, 6, 3, 6, MAT.red, { noCol: true });
     for (let i = 0; i < 9; i++) W.box(18 + i * 6.6, 8.7, -452 + ((i % 3) - 1) * 4.2, 6.1, 2.6 * (1 + (i % 2)), 2.5, [MAT.rust, MAT.blue, MAT.olive, MAT.red][i % 4], { mat: 'metal', geo: 'P_container', tint: [[1.35, 0.62, 0.4], [0.5, 0.8, 1.3], [0.78, 0.86, 0.56], [1.5, 0.35, 0.3]][i % 4] });
-    W.box(55, 1.6, -432, 60, 0.6, 22, MAT.concrete, {}); // pier
+    W.box(55, 1.6, -432, 60, 0.6, 22, MAT.concrete, W.addStatic('Pier', 55, 1.6, -432, 1, 1, 1, 0, null, true) ? { hidden: true } : {}); // pier (Blender deck, piles, bollards)
   }
   buildFacility();
   buildVegetation(rnd);
@@ -191,15 +191,15 @@ function buildFacility() {
     const col = W.addCollider({ min: new THREE.Vector3(wx - 0.3, y + h - 0.8, wz - 0.35), max: new THREE.Vector3(wx + 0.3, y + h - 0.2, wz + 0.35), mat: 'metal', hp: 10, kind: 'camera', mesh: g, pass: true, onDestroy: () => { cam.dead = true; G.fx.sparks(wx, y + h - 0.5, wz, 10); } });
     const cam = { x: wx, y: y + h - 0.5, z: wz, g, dead: false, col }; POI.cameras.push(cam); W.animated.push((dt, t) => { if (!cam.dead) g.rotation.y = Math.sin(t * 0.7 + cx) * 0.7; }); }
   // security door (opened by mission script)
-  { const [dx, dz] = L(0, -46); POI.secDoor = W.box(dx, y, dz, 5, h, 0.4, MAT.rust, { mat: 'metal', dynamic: true }); POI.secDoorPos = { x: dx, y: y + 1.3, z: dz + 1.6 }; }
+  { const [dx, dz] = L(0, -46); POI.secDoor = W.box(dx, y, dz, 5, h, 0.4, MAT.rust, { mat: 'metal', dynamic: true, geo: 'P_door' }); POI.secDoorPos = { x: dx, y: y + 1.3, z: dz + 1.6 }; }
   // C: laboratory with glass partitions
   room(-14, -76, 14, -46, { s: [[-2.5, 2.5]], n: [[-2.5, 2.5]], e: [[-63, -59]] }); light(-7, -55, false, true); light(7, -68, false, true); light(0, -61, true, false);
-  for (const gx of [-9, -5, 5, 9]) W.box(...ins(L(gx, -61), y), 3.9, h - 0.4, 0.2, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true });
+  for (const gx of [-9, -5, 5, 9]) { const g = ins(L(gx, -61), y); W.addStatic('P_window', g[0], g[1], g[2], 3.9, h - 0.4, 0.3); W.box(...g, 3.9, h - 0.4, 0.2, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true }); }
   for (const [tx, tz, sx, sz] of [[-8, -53, 5, 1.4], [8, -53, 5, 1.4], [-8, -69, 5, 1.4], [6, -70, 1.4, 5], [0, -56, 1.4, 3]]) W.box(...ins(L(tx, tz), y), sx, 1.05, sz, WM, { mat: 'metal', kind: 'cover', geo: 'P_desk', rot90: sz > sx });
   for (const [tx, tz] of [[-12, -72], [12, -49]]) W.box(...ins(L(tx, tz), y), 1.4, 2.6, 1.4, MAT.blue, { mat: 'metal', kind: 'cover', geo: 'P_cabinet' });
   // F: bio vault (east of lab)
   room(14, -70, 34, -52, { w: [[-63, -59]] }, DM); light(24, -61, true, true);
-  { const [vx, vz] = L(29, -61); W.box(vx, y, vz, 1.6, 1.0, 1.6, MAT.metal, { mat: 'metal' }); const s = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 12), new THREE.MeshStandardMaterial({ color: 0x60ff90, emissive: 0x30ff60, emissiveIntensity: 2.5, transparent: true, opacity: 0.85 })); s.position.set(vx, y + 1.5, vz); W.group.add(s); POI.sample = { x: vx - 1.4, y: y + 1.2, z: vz, mesh: s }; }
+  { const [vx, vz] = L(29, -61); W.box(vx, y, vz, 1.6, 1.0, 1.6, MAT.metal, { mat: 'metal', geo: 'P_pedestal' }); const s = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 12), new THREE.MeshStandardMaterial({ color: 0x60ff90, emissive: 0x30ff60, emissiveIntensity: 2.5, transparent: true, opacity: 0.85 })); s.position.set(vx, y + 1.5, vz); W.group.add(s); POI.sample = { x: vx - 1.4, y: y + 1.2, z: vz, mesh: s }; }
   for (const [tx, tz] of [[19, -56], [19, -66], [26, -55]]) W.box(...ins(L(tx, tz), y), 1.5, 1.3, 1.5, MAT.olive, { mat: 'metal', kind: 'cover', geo: 'P_ammo' });
   // D: corridor, E: server room
   room(-2.5, -90, 2.5, -76, { n: [[-2.5, 2.5]], s: [[-2.5, 2.5]] }); light(0, -83, true, true);

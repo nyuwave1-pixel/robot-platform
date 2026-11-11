@@ -9,6 +9,7 @@ H = math.pi / 2
 def soldier():
     a = Asm('Soldier')
     cloth = mat('cloth', (0.17, 0.21, 0.14), 0.92); vest = mat('vest', (0.09, 0.1, 0.075), 0.85); skin = mat('skin', (0.52, 0.36, 0.27), 0.6)
+    web = mat('webbing', (0.12, 0.115, 0.09), 0.92); glove = mat('glove', (0.05, 0.05, 0.045), 0.8); pmag = mat('pmag', (0.04, 0.04, 0.038), 0.6, 0.1); patch = mat('patch', (0.3, 0.29, 0.22), 0.9); gog = mat('goggle', (0.03, 0.05, 0.06), 0.1, 0.6)
     helm = mat('helmet', (0.1, 0.12, 0.085), 0.6, 0.1); boots = mat('boots', (0.03, 0.028, 0.025), 0.75); gear = mat('gear', (0.035, 0.037, 0.04), 0.6, 0.3)
     visor = mat('visor', (0.02, 0.02, 0.02), 0.2, 0.5, (1, 0.15, 0.05, 5)); accent = mat('accent', (0.45, 0.04, 0.04), 0.8)
     a.pivot('body', (0, 0, 0)); a.pivot('legL', (0.105, 0, 0.93), 'body'); a.pivot('legR', (-0.105, 0, 0.93), 'body'); a.pivot('upper', (0, 0, 0.93), 'body')
@@ -21,7 +22,33 @@ def soldier():
         a.box(g, (0.115, 0.27, 0.11), (x * 1.02, -0.045, 0.055), boots, bevel=0.03)
         a.box(g, (0.11, 0.16, 0.12), (x * 1.02, 0.0, 0.15), boots, bevel=0.03)
         a.box(g, (0.12, 0.275, 0.02), (x * 1.02, -0.045, 0.01), gear, bevel=0.006)
-        a.box(g, (0.035, 0.11, 0.16), (x * 1.9 if sx > 0 else x * 1.9, 0.0, 0.72), gear, bevel=0.012)  # thigh rig / holster
+        # cargo pocket with flap and button tab
+        a.box(g, (0.03, 0.13, 0.16), (x + sx * 0.088, 0.005, 0.66), cloth, bevel=0.012); a.box(g, (0.034, 0.135, 0.045), (x + sx * 0.089, 0.005, 0.735), cloth, bevel=0.008)
+        a.box(g, (0.036, 0.03, 0.02), (x + sx * 0.09, 0.005, 0.715), web, bevel=0.003)
+        # knee pad: hard cap + two elastic straps
+        a.sphere(g, 0.052, (x * 1.02, -0.072, 0.52), gear, scale=(1.0, 0.55, 1.15), seg=10)
+        for z in (0.565, 0.475):
+            a.cyl(g, 0.08 if z > 0.5 else 0.074, 0.02, (x * 1.02, -0.008, z), web, n=14)
+        # bloused trouser cuff, boot collar, laces, toe cap, heel
+        a.cyl(g, 0.07, 0.06, (x * 1.02, 0.008, 0.235), cloth, n=14, bevel=0.012)
+        a.cyl(g, 0.064, 0.03, (x * 1.02, 0.008, 0.205), boots, n=14, bevel=0.006)
+        for k in range(5):
+            a.box(g, (0.06, 0.008, 0.007), (x * 1.02, -0.082, 0.195 - k * 0.02), web, bevel=0.002)
+        a.sphere(g, 0.058, (x * 1.02, -0.14, 0.05), boots, scale=(1.0, 1.0, 0.8), seg=10)
+        a.box(g, (0.118, 0.085, 0.022), (x * 1.02, 0.05, 0.004), gear, bevel=0.005)
+        for k in range(4):
+            a.box(g, (0.122, 0.02, 0.012), (x * 1.02, -0.15 + k * 0.045, 0.004), gear, bevel=0.002)  # sole lugs
+        if sx > 0:  # drop-leg holster on the trigger-hand side: platform, straps, pistol grip
+            a.box(g, (0.03, 0.12, 0.17), (x + sx * 0.118, -0.005, 0.7), gear, bevel=0.012)
+            a.box(g, (0.034, 0.075, 0.2), (x + sx * 0.14, -0.015, 0.69), gear, bevel=0.012, taper=(1, 0.8))
+            a.box(g, (0.028, 0.045, 0.085), (x + sx * 0.14, 0.03, 0.825), boots, rot=(0.25, 0, 0), bevel=0.008)
+            a.box(g, (0.03, 0.09, 0.03), (x + sx * 0.14, -0.005, 0.795), gear, bevel=0.005)
+            for z in (0.74, 0.63):
+                a.cyl(g, 0.101 if z > 0.7 else 0.093, 0.028, (x, 0, z), web, n=14)
+            a.box(g, (0.02, 0.04, 0.2), (x + sx * 0.1, 0, 0.88), web, bevel=0.004)
+        else:  # dump pouch + tourniquet on the support side
+            a.box(g, (0.05, 0.13, 0.15), (x + sx * 0.12, 0.03, 0.86), vest, bevel=0.02)
+            a.cyl(g, 0.016, 0.1, (x + sx * 0.1, -0.09, 0.9), gear, n=8); a.cyl(g, 0.018, 0.02, (x + sx * 0.1, -0.09, 0.9), accent, n=8)
         a.cyl(g, 0.103, 0.03, (x, 0, 0.74), gear, n=14)
     # torso
     a.box('upper', (0.34, 0.2, 0.2), (0, 0, 0.99), cloth, bevel=0.05)
@@ -35,10 +62,41 @@ def soldier():
     for i in range(3):
         a.box('upper', (0.085, 0.055, 0.14), (-0.105 + i * 0.105, -0.165, 1.16), vest, bevel=0.012)  # mag pouches
         a.box('upper', (0.07, 0.02, 0.05), (-0.105 + i * 0.105, -0.19, 1.24), gear, bevel=0.006)
-    a.box('upper', (0.1, 0.05, 0.08), (0.1, -0.155, 1.36), gear, bevel=0.012)  # radio
+    a.box('upper', (0.075, 0.05, 0.13), (0.115, -0.158, 1.375), gear, bevel=0.012)  # radio in its pouch
+    a.box('upper', (0.085, 0.03, 0.07), (0.115, -0.165, 1.335), vest, bevel=0.01); a.cyl('upper', 0.008, 0.02, (0.135, -0.16, 1.45), gear, n=8)
+    a.tube('upper', [(0.1, -0.17, 1.44), (0.06, -0.15, 1.5), (0.07, -0.06, 1.53), (0.09, 0.0, 1.56)], 0.004, gear)  # headset lead
+    for sx_, z in ((-1, 1.45),):
+        a.box('upper', (0.04, 0.03, 0.05), (sx_ * 0.12, -0.14, z), gear, bevel=0.008)  # push-to-talk
+    for z in (1.33, 1.375, 1.42):
+        a.box('upper', (0.3, 0.008, 0.022), (0, -0.148, z), web, bevel=0.002)  # MOLLE rows
+    a.box('upper', (0.15, 0.03, 0.085), (-0.065, -0.158, 1.385), vest, bevel=0.012)  # admin pouch
+    a.box('upper', (0.075, 0.005, 0.045), (-0.065, -0.175, 1.39), patch, bevel=0.002); a.box('upper', (0.03, 0.006, 0.02), (-0.085, -0.176, 1.395), accent, bevel=0)
+    for i in range(3):  # magazines seated in the pouches, with bungee retainers
+        xm = -0.105 + i * 0.105
+        a.box('upper', (0.062, 0.026, 0.07), (xm, -0.163, 1.25), pmag, bevel=0.006, shear=0.0)
+        a.box('upper', (0.012, 0.062, 0.012), (xm, -0.165, 1.288), web, bevel=0.003)
+    a.box('upper', (0.055, 0.016, 0.042), (0, -0.108, 1.02), gear, bevel=0.006)  # belt buckle
+    for sx in (-1, 1):
+        a.box('upper', (0.075, 0.055, 0.1), (sx * 0.14, -0.115, 1.035), vest, bevel=0.014)  # belt pouches
+        a.box('upper', (0.078, 0.058, 0.03), (sx * 0.14, -0.117, 1.075), vest, bevel=0.008)
+        a.box('upper', (0.055, 0.13, 0.17), (sx * 0.215, 0.01, 1.2), vest, bevel=0.018)  # cummerbund side pouch
+        for z in (1.14, 1.19, 1.24, 1.29):
+            a.box('upper', (0.008, 0.18, 0.02), (sx * 0.2, 0.0, z + 0.06), web, bevel=0.002)
+        a.box('upper', (0.085, 0.2, 0.025), (sx * 0.12, 0, 1.497), web, bevel=0.01)  # padded shoulder strap covers
+    a.cyl('upper', 0.032, 0.07, (-0.19, -0.1, 1.07), mat('frag', (0.13, 0.17, 0.1), 0.6, 0.2), n=10, bevel=0.012); a.cyl('upper', 0.012, 0.03, (-0.19, -0.1, 1.115), gear, n=8)  # frag grenade
+    a.box('upper', (0.17, 0.075, 0.11), (0, 0.13, 1.03), vest, bevel=0.02); a.box('upper', (0.05, 0.006, 0.05), (0, 0.169, 1.035), accent, bevel=0.002)  # IFAK
     a.cyl('upper', 0.004, 0.2, (0.14, -0.15, 1.5), gear, n=6)
     a.box('upper', (0.3, 0.15, 0.38), (0, 0.21, 1.25), vest, bevel=0.04)  # pack
     a.box('upper', (0.22, 0.06, 0.2), (0, 0.3, 1.2), vest, bevel=0.025)
+    a.box('upper', (0.3, 0.16, 0.06), (0, 0.212, 1.435), vest, bevel=0.025)  # pack lid
+    for z in (1.33, 1.375):
+        a.box('upper', (0.26, 0.008, 0.022), (0, 0.288, z), web, bevel=0.002)
+    for sx in (-1, 1):
+        a.box('upper', (0.012, 0.155, 0.02), (sx * 0.153, 0.21, 1.3), web, bevel=0.003); a.box('upper', (0.012, 0.155, 0.02), (sx * 0.153, 0.21, 1.15), web, bevel=0.003)  # compression straps
+    a.cyl('upper', 0.045, 0.28, (0, 0.24, 1.055), cloth, rot=(0, H, 0), n=10, bevel=0.01)  # rolled poncho
+    a.tube('upper', [(-0.04, 0.14, 1.47), (-0.04, 0.16, 1.52), (0.04, 0.16, 1.52), (0.04, 0.14, 1.47)], 0.007, web)  # drag handle
+    a.limb('upper', (-0.12, 0.23, 1.44), (-0.15, 0.27, 1.98), 0.006, 0.0025, gear, n=5)  # whip antenna
+    a.tube('upper', [(0.1, 0.2, 1.46), (0.12, 0.08, 1.52), (0.13, -0.06, 1.5), (0.12, -0.12, 1.44)], 0.006, gear)  # hydration tube
     a.cyl('upper', 0.06, 0.08, (0, 0, 1.52), cloth, n=14)  # neck
     a.cyl('upper', 0.085, 0.05, (0, 0, 1.495), cloth, n=14, r2=0.065)  # collar
     for sx in (-1, 1):
@@ -48,7 +106,21 @@ def soldier():
     a.box('head', (0.03, 0.03, 0.045), (0, -0.105, 1.69), skin, bevel=0.012)  # nose
     a.box('head', (0.15, 0.02, 0.028), (0, -0.092, 1.715), gear, bevel=0.008)  # brow shadow / eyes
     a.box('head', (0.175, 0.15, 0.13), (0, -0.02, 1.625), cloth, bevel=0.045)  # balaclava / chin wrap
+    for sx in (-1, 1):
+        a.box('head', (0.02, 0.035, 0.05), (sx * 0.094, 0.0, 1.695), skin, bevel=0.008)  # ears
+    a.cyl('head', 0.078, 0.07, (0, 0.0, 1.565), cloth, n=14, bevel=0.012)  # neck gaiter
     a.pivot('acc_helmet', (0, 0, 1.6), 'head')
+    a.cyl('acc_helmet', 0.125, 0.012, (0, 0.005, 1.765), web, n=18, scale=(1, 1.1, 1))  # cover band
+    a.box('acc_helmet', (0.09, 0.03, 0.065), (0, 0.142, 1.695), gear, bevel=0.01)  # battery / counterweight pouch
+    a.box('acc_helmet', (0.075, 0.008, 0.045), (0, 0.139, 1.765), patch, rot=(-0.35, 0, 0), bevel=0.002)
+    a.box('acc_helmet', (0.03, 0.04, 0.022), (0.045, 0.06, 1.842), gear, bevel=0.005)  # strobe
+    a.box('acc_helmet', (0.155, 0.022, 0.05), (0, -0.118, 1.795), gog, rot=(0.45, 0, 0), bevel=0.012)  # goggles parked on the brim
+    a.box('acc_helmet', (0.17, 0.03, 0.06), (0, -0.112, 1.793), gear, rot=(0.45, 0, 0), bevel=0.014)
+    for sx in (-1, 1):
+        a.limb('acc_helmet', (sx * 0.112, 0.02, 1.7), (sx * 0.045, -0.07, 1.592), 0.006, 0.006, web, n=5)  # chin strap
+        a.limb('acc_helmet', (sx * 0.112, -0.03, 1.72), (sx * 0.045, -0.07, 1.592), 0.005, 0.005, web, n=5)
+    a.box('acc_helmet', (0.07, 0.03, 0.022), (0, -0.085, 1.588), web, bevel=0.008)
+    a.limb('acc_helmet', (0.127, -0.02, 1.665), (0.05, -0.118, 1.64), 0.004, 0.004, gear, n=5); a.sphere('acc_helmet', 0.011, (0.045, -0.12, 1.64), gear, seg=8)  # boom mic
     a.sphere('acc_helmet', 0.128, (0, 0.005, 1.725), helm, scale=(1, 1.1, 0.95), seg=20, cut_below=-0.02)
     a.box('acc_helmet', (0.262, 0.03, 0.03), (0, -0.115, 1.722), helm, bevel=0.01)
     for sx in (-1, 1):
@@ -84,7 +156,19 @@ def soldier():
     for s, e, h in ((sR, eR, hR), (sL, eL, hL)):
         a.limb('arms', s, e, 0.062, 0.05, cloth, n=12); a.limb('arms', e, h, 0.05, 0.04, cloth, n=12)
         a.sphere('arms', 0.054, e, gear, seg=10)
-        a.box('arms', (0.06, 0.075, 0.06), h, boots, bevel=0.02)
+        d = [e[i] - h[i] for i in range(3)]; L_ = math.sqrt(sum(c * c for c in d)); d = [c / L_ for c in d]
+        a.box('arms', (0.062, 0.078, 0.062), h, glove, bevel=0.02)
+        a.box('arms', (0.064, 0.03, 0.022), (h[0], h[1] - 0.02, h[2] + 0.032), gear, bevel=0.006)  # knuckle guard
+        a.box('arms', (0.058, 0.035, 0.04), (h[0], h[1] - 0.045, h[2] - 0.012), glove, bevel=0.012)  # curled fingers
+        a.limb('arms', tuple(h[i] + d[i] * 0.04 for i in range(3)), tuple(h[i] + d[i] * 0.075 for i in range(3)), 0.047, 0.047, web, n=10)  # glove cuff
+        a.limb('arms', tuple(h[i] + d[i] * 0.085 for i in range(3)), tuple(h[i] + d[i] * 0.11 for i in range(3)), 0.05, 0.051, cloth, n=10)  # sleeve cuff
+        sgn = 1 if s[0] > 0 else -1; mid = [(s[i] + e[i]) / 2 for i in range(3)]; ang = -math.atan2(s[1] - e[1], s[2] - e[2])
+        a.box('arms', (0.016, 0.085, 0.11), (mid[0] + sgn * 0.052, mid[1], mid[2]), cloth, rot=(ang, 0, 0), bevel=0.006)  # sleeve pocket
+        a.box('arms', (0.006, 0.07, 0.05), (mid[0] + sgn * 0.062, mid[1], mid[2] + 0.015), patch, rot=(ang, 0, 0), bevel=0.002)
+        a.box('arms', (0.007, 0.03, 0.02), (mid[0] + sgn * 0.063, mid[1], mid[2] - 0.03), accent if sgn > 0 else gear, rot=(ang, 0, 0), bevel=0)
+    a.box('arms', (0.03, 0.035, 0.012), (hL[0] - 0.03, hL[1] + 0.07, hL[2] + 0.03), gear, bevel=0.004)  # wrist GPS
+    for _ in ():
+        pass
     a.marker('eye', (0, -0.1, 1.71), 'head')
     return a
 
@@ -659,4 +743,153 @@ def cargo_ship():
         a.sphere('root', 1.0, (sx * 8.6, 36.0, 15.2), mat('ship_orange', (0.85, 0.3, 0.05), 0.6), scale=(0.8, 2.6, 0.9), seg=12)
         a.box('root', (0.2, 1.4, 1.8), (sx * 5.2, -44.5, 6.4), st, bevel=0.03, seg=1)
     a.limb('root', (0, -46.5, 9.0), (0, -46.5, 13.0), 0.12, 0.08, wh, n=6)  # jackstaff
+    return a
+
+
+# ---------------------------------------------------------------- structures (v0.6)
+def structure_props():
+    """Unit-cube structure pieces: cliff rock, chain-link fence panel, blast door, window frame, sample pedestal."""
+    out = []
+    st = mat('s_steel', (0.2, 0.21, 0.22), 0.5, 0.7); dk = mat('s_dark', (0.07, 0.075, 0.08), 0.6, 0.5); hz = mat('s_hazard', (0.9, 0.68, 0.08), 0.6); gal = mat('s_galv', (0.42, 0.44, 0.45), 0.45, 0.8)
+    # cliff / boulder block: fills most of the cube so the box collider still matches
+    a = Asm('P_cliff'); rk = mat('s_rock', (0.27, 0.26, 0.24), 0.96); rk2 = mat('s_rock_dark', (0.2, 0.2, 0.19), 0.96)
+    a.box('root', (0.84, 0.84, 0.94), (0, 0, -0.02), rk, bevel=0.06, seg=1, taper=(0.9, 0.9))
+    a.ico('root', 1.0, (0, 0, 0.0), rk, scale=(0.64, 0.64, 0.6), sub=3, displace=(0.3, 0.4), decimate=0.5, smooth=0.3)
+    for (x, y, z, r) in ((0.3, 0.3, 0.2, 0.3), (-0.3, -0.28, 0.25, 0.28), (-0.32, 0.3, -0.05, 0.3), (0.3, -0.3, 0.0, 0.3), (0, 0, 0.36, 0.34)):
+        a.ico('root', 1.0, (x, y, z), rk2 if z < 0.1 else rk, scale=(r, r, r * 0.8), sub=2, displace=(0.3, 0.5), decimate=0.5, smooth=0.3)
+    a.ico('root', 1.0, (0.2, -0.18, -0.22), rk2, scale=(0.36, 0.36, 0.3), sub=2, displace=(0.25, 0.5), decimate=0.5, smooth=0.4)
+    a.ico('root', 1.0, (-0.22, 0.2, -0.3), rk2, scale=(0.32, 0.34, 0.22), sub=2, displace=(0.25, 0.5), decimate=0.5, smooth=0.4)
+    out.append(a)
+    # chain-link fence panel (long axis X): posts, rails, diagonal mesh, barbed-wire outriggers
+    a = Asm('P_fence')
+    for sx in (-1, 1):
+        a.box('root', (0.028, 0.6, 0.9), (sx * 0.486, 0, -0.05), gal, bevel=0.003, seg=1)
+        a.box('root', (0.022, 0.5, 0.14), (sx * 0.486, -0.35, 0.43), gal, rot=(0.6, 0, 0), bevel=0.002, seg=1)
+    for z in (-0.47, 0.38):
+        a.box('root', (1.0, 0.4, 0.018), (0, 0, z), gal, bevel=0.002, seg=1)
+    n = 14
+    for k in range(-n, n + 1):
+        x0 = k / n
+        for d in (-1, 1):
+            p0 = [x0, 0, -0.47]; p1 = [x0 + d * 0.85, 0, 0.38]
+            for p, q in ((p0, p1), (p1, p0)):  # clip the segment to the panel
+                if p[0] < -0.5: t = (-0.5 - p[0]) / (q[0] - p[0]); p[2] += t * (q[2] - p[2]); p[0] = -0.5
+                if p[0] > 0.5: t = (0.5 - p[0]) / (q[0] - p[0]); p[2] += t * (q[2] - p[2]); p[0] = 0.5
+            if abs(p0[0] - p1[0]) > 0.02:
+                a.limb('root', tuple(p0), tuple(p1), 0.0035, 0.0035, gal, n=3)
+    for k in range(3):
+        a.limb('root', (-0.5, -0.2 - k * 0.14, 0.4 + k * 0.035), (0.5, -0.2 - k * 0.14, 0.4 + k * 0.035), 0.004, 0.004, dk, n=3)
+    out.append(a)
+    # blast door (long axis X, thin Y): two leaves, hazard band, wheel lock on both faces
+    a = Asm('P_door'); rd = mat('s_door', (0.3, 0.17, 0.11), 0.7, 0.5)
+    a.box('root', (1.0, 0.7, 1.0), (0, 0, 0), rd, bevel=0.006, seg=1)
+    a.box('root', (0.012, 0.76, 1.0), (0, 0, 0), dk, bevel=0, seg=1)
+    for sx in (-1, 1):
+        a.box('root', (0.05, 1.0, 1.0), (sx * 0.475, 0, 0), st, bevel=0.004, seg=1)
+        for z in (-0.3, 0.32):
+            a.box('root', (0.4, 0.9, 0.05), (sx * 0.24, 0, z), st, bevel=0.004, seg=1)
+    for z in (-0.47, 0.47):
+        a.box('root', (1.0, 1.0, 0.06), (0, 0, z), st, bevel=0.004, seg=1)
+    for k in range(10):
+        a.box('root', (0.05, 0.8, 0.09), (-0.45 + k * 0.1, 0, -0.06), hz if k % 2 else dk, bevel=0, seg=1, shear=0.0)
+    for sy in (-1, 1):
+        a.cyl('root', 0.07, 0.12, (0.12, sy * 0.5, 0.1), st, rot=(H, 0, 0), n=14, scale=(1, 1, 1))
+        a.cyl('root', 0.025, 0.2, (0.12, sy * 0.5, 0.1), dk, rot=(H, 0, 0), n=8)
+        a.box('root', (0.1, 0.06, 0.07), (-0.2, sy * 0.5, 0.1), mat('s_led_red', (1.8, 0.15, 0.1), 0.4), bevel=0, seg=1)
+    out.append(a)
+    # window frame (the breakable glass pane stays a separate game object)
+    a = Asm('P_window'); fr = mat('s_frame', (0.12, 0.125, 0.13), 0.5, 0.6)
+    for sx in (-1, 1):
+        a.box('root', (0.03, 1.0, 1.0), (sx * 0.485, 0, 0), fr, bevel=0.003, seg=1)
+    for z in (-0.48, 0.48):
+        a.box('root', (1.0, 1.0, 0.04), (0, 0, z), fr, bevel=0.003, seg=1)
+    a.box('root', (0.016, 0.9, 0.92), (0, 0, 0), fr, bevel=0.002, seg=1)
+    a.box('root', (1.0, 1.4, 0.025), (0, 0, -0.5 + 0.0125), fr, bevel=0.002, seg=1)  # sill
+    out.append(a)
+    # bio-sample containment pedestal
+    a = Asm('P_pedestal'); wh = mat('s_white', (0.72, 0.74, 0.74), 0.4, 0.2)
+    a.box('root', (1.0, 1.0, 0.18), (0, 0, -0.41), st, bevel=0.02, seg=1)
+    a.cyl('root', 0.36, 0.56, (0, 0, -0.04), wh, n=20, bevel=0.02)
+    a.cyl('root', 0.44, 0.1, (0, 0, 0.29), st, n=20, bevel=0.015)
+    a.cyl('root', 0.3, 0.16, (0, 0, 0.42), dk, n=20, bevel=0.01)
+    for k in range(8):
+        an = k * math.pi / 4
+        a.box('root', (0.07, 0.02, 0.3), (math.cos(an) * 0.37, math.sin(an) * 0.37, -0.05), hz if k % 2 else dk, rot=(0, 0, an + H), bevel=0, seg=1)
+    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+        a.cyl('root', 0.05, 0.3, (sx * 0.42, sy * 0.42, -0.2), st, n=8)
+    a.box('root', (0.2, 0.02, 0.1), (0, -0.5, -0.41), mat('s_led_green', (0.2, 1.6, 0.5), 0.4), bevel=0, seg=1)
+    out.append(a)
+    return out
+
+
+def flagpole():
+    """11 m flagpole on a stepped concrete plinth with a hanging flag."""
+    a = Asm('Flagpole'); c = mat('f_conc', (0.44, 0.44, 0.42), 0.92); al = mat('f_alu', (0.6, 0.62, 0.63), 0.35, 0.85); fl = mat('f_flag', (0.5, 0.06, 0.05), 0.9); fl2 = mat('f_flag_dark', (0.05, 0.05, 0.05), 0.9)
+    a.box('root', (3.0, 3.0, 0.2), (0, 0, 0.1), c, bevel=0.03, seg=1); a.box('root', (1.4, 1.4, 0.3), (0, 0, 0.35), c, bevel=0.03, seg=1)
+    a.cyl('root', 0.2, 0.25, (0, 0, 0.62), al, n=12, bevel=0.02)
+    a.limb('root', (0, 0, 0.5), (0, 0, 11.0), 0.11, 0.06, al, n=12)
+    a.sphere('root', 0.13, (0, 0, 11.08), mat('f_gold', (0.8, 0.6, 0.15), 0.3, 0.9), seg=10)
+    a.limb('root', (0.1, 0, 1.2), (0.1, 0, 10.8), 0.008, 0.008, fl2, n=4)
+    nx, w, h = 9, 2.6, 1.6; verts = []; faces = []
+    for i in range(nx + 1):
+        u = i / nx; sag = 0.35 * u * u; wave = 0.12 * math.sin(u * 7.0) * u
+        for z in (0.0, 0.5, 1.0):
+            verts.append((0.12 + u * w * 0.85, wave + 0.04 * math.sin(z * 3 + u * 5) * u, 10.7 - sag - z * h * (1 - 0.06 * u)))
+    for i in range(nx):
+        for j in range(2):
+            p = i * 3 + j; faces.append((p, p + 3, p + 4, p + 1))
+    a.mesh('root', verts, faces, fl, smooth=1.0, solidify=0.015)
+    a.box('root', (0.02, 0.05, 0.06), (0.08, 0, 10.68), al, bevel=0, seg=1); a.box('root', (0.02, 0.05, 0.06), (0.08, 0, 9.12), al, bevel=0, seg=1)
+    return a
+
+
+def tower_cab():
+    """Control-tower cab dressing (origin = cab floor centre): sill, mullions, catwalk with railing, roof, antennas, beacon.
+    The glass itself is a transparent box in the game."""
+    a = Asm('TowerCab'); fr = mat('t_frame', (0.1, 0.105, 0.11), 0.5, 0.6); wh = mat('t_white', (0.68, 0.69, 0.68), 0.6, 0.1); rf = mat('t_roof', (0.16, 0.17, 0.17), 0.6, 0.4); bc = mat('t_beacon', (2.2, 0.15, 0.1), 0.3)
+    a.box('root', (10.8, 10.8, 0.22), (0, 0, -0.11), rf, bevel=0.03, seg=1)  # catwalk slab
+    a.box('root', (9.16, 9.16, 0.7), (0, 0, 0.35), wh, bevel=0.03, seg=1)  # sill band
+    for i in range(4):
+        an = i * H; c, s = math.cos(an), math.sin(an)
+        for k in range(7):
+            t = -4.5 + k * 1.5
+            a.box('root', (0.14, 0.14, 2.4), (c * 4.55 - s * t, s * 4.55 + c * t, 1.85), fr, rot=(0, 0, an), bevel=0.01, seg=1)
+        a.box('root', (0.12, 9.2, 0.12), (c * 4.55, s * 4.55, 2.95), fr, rot=(0, 0, an), bevel=0.01, seg=1)
+        # railing
+        a.limb('root', (c * 5.3 - s * -5.3, s * 5.3 + c * -5.3, 1.05), (c * 5.3 - s * 5.3, s * 5.3 + c * 5.3, 1.05), 0.03, 0.03, fr, n=6)
+        a.limb('root', (c * 5.3 - s * -5.3, s * 5.3 + c * -5.3, 0.55), (c * 5.3 - s * 5.3, s * 5.3 + c * 5.3, 0.55), 0.02, 0.02, fr, n=5)
+        for k in range(8):
+            t = -5.3 + k * 1.514
+            a.limb('root', (c * 5.3 - s * t, s * 5.3 + c * t, 0.0), (c * 5.3 - s * t, s * 5.3 + c * t, 1.05), 0.025, 0.025, fr, n=5)
+    a.box('root', (10.4, 10.4, 0.35), (0, 0, 3.2), rf, bevel=0.05, seg=1); a.box('root', (9.0, 9.0, 0.2), (0, 0, 3.45), wh, bevel=0.04, seg=1)
+    a.limb('root', (2.5, 2.5, 3.5), (2.5, 2.5, 8.0), 0.05, 0.02, fr, n=6); a.limb('root', (-3, 2, 3.5), (-3, 2, 6.2), 0.035, 0.015, fr, n=6); a.limb('root', (-2.6, -3, 3.5), (-2.6, -3, 5.4), 0.03, 0.015, fr, n=6)
+    a.cyl('root', 0.18, 0.35, (2.5, 2.5, 8.1), bc, n=10)
+    a.cyl('root', 0.5, 0.5, (0, 0, 3.8), wh, n=14, bevel=0.03); a.box('root', (3.2, 0.25, 0.5), (0, 0, 4.4), wh, bevel=0.05, seg=1)  # surveillance radar bar
+    a.box('root', (1.6, 1.2, 0.9), (-2.5, -1.5, 4.0), wh, bevel=0.05, seg=1)  # HVAC unit
+    for k in range(5):
+        a.box('root', (1.3, 0.02, 0.06), (-2.5, -2.11, 3.75 + k * 0.14), fr, bevel=0, seg=1)
+    return a
+
+
+def pier():
+    """Concrete cargo pier 60 x 22 m (origin = deck underside centre): deck, kerbs, piles, cross-beams, bollards, tyre fenders."""
+    a = Asm('Pier'); c = mat('p_conc', (0.4, 0.4, 0.38), 0.93); c2 = mat('p_conc_dark', (0.27, 0.27, 0.26), 0.95); ir = mat('p_iron', (0.08, 0.08, 0.085), 0.6, 0.6); yl = mat('p_yellow', (0.8, 0.6, 0.08), 0.7); rb = mat('p_rubber', (0.03, 0.03, 0.03), 0.95)
+    a.box('root', (60.0, 22.0, 0.6), (0, 0, 0.3), c, bevel=0.04, seg=1)
+    for k in range(12):
+        a.box('root', (0.05, 21.6, 0.02), (-27.5 + k * 5.0, 0, 0.6), c2, bevel=0, seg=1)  # expansion joints
+    for sy in (-1, 1):
+        a.box('root', (60.0, 0.4, 0.25), (0, sy * 10.8, 0.72), c2, bevel=0.03, seg=1)  # kerb
+        a.box('root', (60.0, 0.25, 0.012), (0, sy * 10.2, 0.605), yl, bevel=0, seg=1)
+        for k in range(7):
+            x = -27 + k * 9.0
+            a.cyl('root', 0.22, 0.5, (x, sy * 9.6, 0.85), ir, n=10, bevel=0.02); a.cyl('root', 0.32, 0.12, (x, sy * 9.6, 1.14), ir, n=10, bevel=0.02)  # bollards
+            a.cyl('root', 0.55, 0.3, (x + 4.5, sy * 11.1, -0.2), rb, rot=(H, 0, 0), n=14, bevel=0.05)  # tyre fenders
+            a.limb('root', (x + 4.5, sy * 10.9, 0.6), (x + 4.5, sy * 11.1, 0.3), 0.02, 0.02, ir, n=4)
+    for sx in (-1, 1):
+        a.box('root', (0.4, 22.0, 0.25), (sx * 29.8, 0, 0.72), c2, bevel=0.03, seg=1)
+    for k in range(9):
+        x = -28 + k * 7.0
+        a.box('root', (0.9, 21.0, 0.7), (x, 0, -0.35), c2, bevel=0.03, seg=1)  # cross-beam
+        for y in (-9.0, 0.0, 9.0):
+            a.cyl('root', 0.45, 8.0, (x, y, -4.6), c2, n=10)  # piles
     return a

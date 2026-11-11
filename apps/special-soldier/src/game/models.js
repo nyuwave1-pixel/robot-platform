@@ -9,7 +9,7 @@ const G1 = new THREE.BoxGeometry(1, 1, 1);
 function part(parent, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(G1, m); b.scale.set(sx, sy, sz); b.position.set(x, y, z); b.castShadow = true; parent.add(b); return b; }
 export const HOT = new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 5, 5), fog: false, toneMapped: false });
 export const PALETTE = {
-  squad:  { cloth: 0x2f3a2a, vest: 0x1d2219, skin: 0x8a6a50, helmet: 0x232a1e, nvg: true },
+  squad:  { cloth: 0x5c5c42, vest: 0x45452f, skin: 0x8a6a50, helmet: 0x45452f, nvg: true }, // multi-terrain camo, coyote plate carrier
   guard:  { cloth: 0x5a5a4a, vest: 0x2a2a26, skin: 0x8a6a50, helmet: 0x1a1a1a, cap: true },
   assault:{ cloth: 0x3a3a3c, vest: 0x161618, skin: 0x8a6a50, helmet: 0x222224 },
   sniper: { cloth: 0x3f4a2c, vest: 0x2c3420, skin: 0x7a5a44, helmet: 0x3a4428, hood: true },
@@ -36,7 +36,11 @@ export function detailMap(kind, perMetre) {
   const G = 16, grid = new Float32Array(G * G * 3); for (let i = 0; i < grid.length; i++) grid[i] = rnd();
   const noise = (x, y, ch, f) => { const fx = (x / S) * G * f, fy = (y / S) * G * f, x0 = Math.floor(fx), y0 = Math.floor(fy), u = fx - x0, v = fy - y0, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v), at = (a, b) => grid[((((b % G) + G) % G) * G + (((a % G) + G) % G)) * 3 + ch]; return (at(x0, y0) * (1 - su) + at(x0 + 1, y0) * su) * (1 - sv) + (at(x0, y0 + 1) * (1 - su) + at(x0 + 1, y0 + 1) * su) * sv; };
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { let v;
-    if (kind === 'camo') { const a = noise(x, y, 0, 0.5) + noise(x, y, 1, 1) * 0.5, b = noise(x + 90, y + 40, 2, 0.5) + noise(x, y, 0, 2) * 0.25; v = a > 0.86 ? 0.5 : b > 0.72 ? 0.74 : a < 0.52 ? 1.12 : 0.95; v *= 0.94 + rnd() * 0.12; }
+    if (kind === 'camo') { // multi-terrain pattern: tan base, green and brown macro blotches, dark and pale micro elements (RGB multiplier / 1.3)
+      const a = noise(x, y, 0, 0.5) + noise(x, y, 1, 1) * 0.5, b = noise(x + 90, y + 40, 2, 0.5) + noise(x, y, 0, 2) * 0.25, m = noise(x + 31, y + 77, 1, 4), m2 = noise(x + 150, y + 9, 2, 4);
+      let t = a > 0.9 ? [0.8, 0.95, 0.62] : b > 0.74 ? [0.82, 0.66, 0.5] : a < 0.5 ? [1.22, 1.16, 0.98] : [1.0, 1.0, 0.92];
+      if (m > 0.74) t = [0.46, 0.47, 0.42]; else if (m2 > 0.76) t = [1.3, 1.26, 1.12]; else if (m2 < 0.2) t = [0.7, 0.82, 0.56];
+      const n = 0.95 + rnd() * 0.1, i = (y * S + x) * 4; for (let k = 0; k < 3; k++) img.data[i + k] = Math.max(0, Math.min(255, (t[k] * n / 1.3) * 255)); img.data[i + 3] = 255; continue; }
     else { const d = noise(x, y, 0, 0.5) * 0.6 + noise(x, y, 1, 2) * 0.3 + noise(x, y * 0.2, 2, 4) * 0.25; v = 0.98 - Math.max(0, d - 0.5) * 0.9 + (rnd() - 0.5) * 0.06; if (rnd() < 0.0016) v = 1.35; }
     const i = (y * S + x) * 4, k = Math.max(0, Math.min(255, v * 238)); img.data[i] = img.data[i + 1] = img.data[i + 2] = k; img.data[i + 3] = 255; }
   g.putImageData(img, 0, 0);
@@ -45,6 +49,7 @@ export function detailMap(kind, perMetre) {
 }
 const NS = (v) => new THREE.Vector2(v, v);
 const CLOTH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0, map: detailMap('camo', 1.5), normalMap: detailNormal('fabric', 45), normalScale: NS(0.6) });
+CLOTH_MAT.color.setScalar(1.3); // the camo map stores multiplier / 1.3
 const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.86, metalness: 0.02, normalMap: detailNormal('fabric', 45), normalScale: NS(0.3) });
 const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.35, map: detailMap('grunge', 0.45), normalMap: detailNormal('paint', 6), normalScale: NS(0.35) });
 export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.7, map: detailMap('grunge', 5), normalMap: detailNormal('metal', 30), normalScale: NS(0.3) });

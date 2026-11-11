@@ -65,6 +65,19 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
     a.box('root', (0.003, L * 0.3, 0.02), (0.0235, -L * 0.5, 0.004), m['steel'], bevel=0.001)  # ejection port
     a.cyl('root', 0.006, 0.02, (0.026, -L * 0.2, 0.0), m['steel'], rot=(0, H, 0), n=10)
     rail(a, 'root', 0.0, -L, 0.029, m['steel'])
+    # receiver furniture: charging handle, bolt carrier in the port, dust cover hinge, forward assist, selector, mag release, pins
+    a.box('root', (0.05, 0.02, 0.008), (0, -0.005, 0.03), m['steel'], bevel=0.002); a.box('root', (0.012, 0.03, 0.008), (0, -0.02, 0.03), m['steel'], bevel=0.002)
+    a.cyl('root', 0.003, L * 0.32, (0.0245, -L * 0.5, -0.008), m['steel'], rot=(H, 0, 0), n=6)
+    a.box('root', (0.008, 0.03, 0.012), (0.025, -L * 0.72, 0.014), b, bevel=0.003)  # brass deflector
+    a.box('root', (0.004, 0.022, 0.006), (-0.0245, -0.03, -0.012), m['steel'], rot=(0.5, 0, 0), bevel=0.001)  # selector
+    a.cyl('root', 0.0045, 0.004, (0.0245, -L * 0.42, -0.02), m['steel'], rot=(0, H, 0), n=8)  # mag release
+    a.box('root', (0.003, 0.03, 0.012), (-0.0245, -L * 0.38, -0.014), m['steel'], bevel=0.001)  # bolt catch
+    for y in (-0.015, -L * 0.85):
+        a.cyl('root', 0.0035, 0.05, (0, y, -0.024), m['steel'], rot=(0, H, 0), n=8)  # takedown / pivot pins
+    a.box('root', (0.042, 0.03, 0.03), (0, -L * 0.62, -0.068), b, bevel=0.004)  # flared mag well
+    for i in range(5):
+        a.box('root', (0.032, 0.004, 0.012), (0, -0.036 + i * 0.002, -0.07 - i * 0.012), m['rubber'], rot=(0.3, 0, 0), bevel=0.001)  # grip texture
+    a.cyl('root', 0.007, 0.008, (-0.026, 0.005, -0.01), m['steel'], rot=(0, H, 0), n=10)  # rear QD sling socket
     # barrel + handguard
     y_m = -L - B
     a.cyl('root', barrel_r * (1.5 if heavy else 1), B, (0, -L - B / 2, 0.002), m['steel'], rot=(H, 0, 0), n=14)
@@ -73,10 +86,29 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
         rail(a, 'root', -L, -L - hg, hg_r + 0.001, m['steel'], 0.018)
         for i in range(5):
             a.box('root', (hg_r * 2 + 0.002, 0.018, 0.008), (0, -L - hg * (0.14 + i * 0.18), 0.002), m['steel'], bevel=0.002)  # vent slots
+            for sz in (-1, 1):
+                a.box('root', (hg_r * 1.45, 0.02, 0.006), (0, -L - hg * (0.14 + i * 0.18), 0.002 + sz * hg_r * 0.68), m['steel'], bevel=0.001)  # M-LOK slots, upper / lower flats
+        a.cyl('root', hg_r + 0.0015, 0.012, (0, -L - 0.006, 0.002), m['steel'], rot=(H, 0, 0), n=12, bevel=0.002)  # barrel nut
+        a.cyl('root', 0.006, 0.008, (-hg_r - 0.002, -L - hg * 0.8, 0.002), m['steel'], rot=(0, H, 0), n=10)  # front QD socket
+        if hg >= 0.19 and not pump:  # laser/illuminator on the top rail, weapon light + pressure-pad cable on the side
+            a.box('root', (0.05, 0.075, 0.026), (0, -L - hg * 0.72, hg_r + 0.02), m['tan'] if body == 'steel' else m['steel'], bevel=0.004)
+            for sx in (-0.014, 0.014):
+                a.cyl('root', 0.006, 0.006, (sx, -L - hg * 0.72 - 0.039, hg_r + 0.02), m['lens'], rot=(H, 0, 0), n=8)
+            a.cyl('root', 0.012, 0.085, (hg_r + 0.014, -L - hg * 0.7, 0.002), m['steel'], rot=(H, 0, 0), n=12, bevel=0.002)
+            a.cyl('root', 0.015, 0.03, (hg_r + 0.014, -L - hg * 0.7 - 0.05, 0.002), m['steel'], rot=(H, 0, 0), n=12, bevel=0.002)
+            a.cyl('root', 0.0125, 0.004, (hg_r + 0.014, -L - hg * 0.7 - 0.066, 0.002), m['lens'], rot=(H, 0, 0), n=12)
+            a.tube('root', [(hg_r + 0.012, -L - hg * 0.62, 0.014), (hg_r * 0.6, -L - hg * 0.5, hg_r + 0.004), (0.008, -L - hg * 0.35, hg_r + 0.007)], 0.002, m['rubber'])
+            a.box('root', (0.016, 0.05, 0.005), (0.008, -L - hg * 0.3, hg_r + 0.008), m['rubber'], bevel=0.001)
+        if sight != 'iron':  # folded back-up sights
+            a.box('root', (0.02, 0.03, 0.008), (0, -L - hg * 0.93, hg_r + 0.011), m['steel'], bevel=0.002); a.box('root', (0.02, 0.03, 0.008), (0, -0.03, 0.039), m['steel'], bevel=0.002)
     if supp:
         a.cyl('root', 0.019, 0.17, (0, y_m - 0.075, 0.002), m['steel'], rot=(H, 0, 0), n=18, bevel=0.003); y_m -= 0.16
     else:
         a.cyl('root', barrel_r + 0.004, 0.045, (0, y_m + 0.01, 0.002), m['steel'], rot=(H, 0, 0), n=8, bevel=0.002)
+        for i in range(3):  # flash-hider ports + crush washer
+            an = i * math.pi * 2 / 3 + H
+            a.box('root', (0.004, 0.024, 0.004), (math.cos(an) * (barrel_r + 0.0035), y_m + 0.004, 0.002 + math.sin(an) * (barrel_r + 0.0035)), m['rubber'], bevel=0)
+        a.cyl('root', barrel_r + 0.0055, 0.004, (0, y_m + 0.034, 0.002), m['steel'], rot=(H, 0, 0), n=10)
     a.box('root', (0.018, 0.02, 0.022), (0, -L - min(hg, B) * 0.92, 0.012), m['steel'], bevel=0.003)  # gas block
     # grip + trigger
     a.box('root', (0.03, 0.042, 0.1), (0, -0.018, -0.1), m['poly'], rot=(0.3, 0, 0), bevel=0.008)
@@ -97,12 +129,19 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
         ml, md, curve = mag
         a.box('mag', (0.024, md, ml), (0, -L * 0.6 - curve * 0.05, -0.058 - ml / 2), m['steel'], rot=(-curve * 0.9, 0, 0), bevel=0.004, shear=-curve * 0.12)
         a.box('mag', (0.027, md + 0.004, 0.012), (0, -L * 0.6 - curve * 0.11, -0.058 - ml), m['poly'], rot=(-curve * 0.9, 0, 0), bevel=0.003)
+        for i in range(3):  # body ribs + witness window
+            a.box('mag', (0.0256, md * 0.16, ml * 0.8), (0, -L * 0.6 - curve * 0.05 + (i - 1) * md * 0.3, -0.062 - ml / 2), m['steel'], rot=(-curve * 0.9, 0, 0), bevel=0.001, shear=-curve * 0.1)
     # stock
     if stock == 'm4':
         a.cyl('root', 0.0145, 0.19, (0, 0.095, 0.004), m['steel'], rot=(H, 0, 0), n=14)
         a.box('root', (0.036, 0.15, 0.05), (0, 0.15, -0.005), m['poly'], bevel=0.008)
         a.box('root', (0.036, 0.05, 0.12), (0, 0.215, -0.035), m['poly'], bevel=0.01, taper=(1, 0.8))
         a.box('root', (0.038, 0.012, 0.125), (0, 0.243, -0.035), m['rubber'], bevel=0.004)
+        a.cyl('root', 0.019, 0.012, (0, 0.006, 0.004), m['steel'], rot=(H, 0, 0), n=12)  # castle nut
+        a.box('root', (0.012, 0.05, 0.012), (0, 0.13, -0.036), m['steel'], bevel=0.003)  # adjustment lever
+        for i in range(5):
+            a.box('root', (0.016, 0.006, 0.004), (0, 0.04 + i * 0.022, -0.011), m['steel'], bevel=0)  # position holes
+        a.box('root', (0.04, 0.012, 0.03), (0, 0.19, -0.07), m['steel'], bevel=0.003)  # sling slot
     elif stock == 'fixed':
         a.box('root', (0.04, 0.24, 0.07), (0, 0.12, -0.02), b, bevel=0.012, taper=(1, 1), shear=0)
         a.box('root', (0.04, 0.08, 0.13), (0, 0.22, -0.045), b, bevel=0.012)
@@ -150,6 +189,12 @@ def pistol():
     a.cyl('root', 0.007, 0.03, (0, -0.195, 0.012), m['steel'], rot=(H, 0, 0), n=10)
     a.box('root', (0.004, 0.006, 0.012), (0, -0.18, 0.032), m['steel'], bevel=0.001)
     a.box('root', (0.016, 0.006, 0.01), (0, -0.01, 0.03), m['steel'], bevel=0.001)
+    a.box('root', (0.0295, 0.04, 0.012), (0.0005, -0.1, 0.02), m['brass'], bevel=0.001)  # barrel hood in the ejection port
+    a.box('root', (0.004, 0.03, 0.005), (-0.0145, -0.06, -0.003), m['steel'], bevel=0.001)  # slide stop
+    rail(a, 'root', -0.115, -0.16, -0.026, m['poly'], 0.02)
+    a.cyl('root', 0.011, 0.05, (0, -0.14, -0.04), m['steel'], rot=(H, 0, 0), n=10, bevel=0.002); a.cyl('root', 0.0095, 0.004, (0, -0.167, -0.04), m['lens'], rot=(H, 0, 0), n=10)  # weapon light
+    for i in range(5):
+        a.box('root', (0.031, 0.004, 0.01), (0, -0.03 + i * 0.003, -0.05 - i * 0.012), m['rubber'], rot=(0.24, 0, 0), bevel=0.001)
     a.pivot('mag', (0, -0.01, -0.1)); a.box('mag', (0.03, 0.052, 0.012), (0, 0.004, -0.133), m['poly'], rot=(0.24, 0, 0), bevel=0.003)
     a.marker('muzzle', (0, -0.36, 0.012)); a.marker('sight', (0, 0, 0.038)); a.marker('gripL', (0, -0.02, -0.08))
     return a
@@ -157,14 +202,29 @@ def pistol():
 
 def arm():
     """First-person forearm: hand at the origin, elbow towards +Y (so it points at the camera after export)."""
-    a = Asm('Arm'); sl = mat('sleeve_camo', (0.16, 0.2, 0.12), 0.9); gl = mat('glove', (0.03, 0.03, 0.032), 0.8); st = mat('strap', (0.02, 0.02, 0.02), 0.6, 0.3)
+    a = Asm('Arm'); sl = mat('sleeve_camo', (0.11, 0.11, 0.065), 0.9); gl = mat('glove', (0.05, 0.05, 0.045), 0.8); st = mat('strap', (0.02, 0.02, 0.02), 0.6, 0.3)
+    pad = mat('glove_pad', (0.12, 0.115, 0.09), 0.9); lcd = mat('watch_lcd', (0.1, 0.5, 0.3), 0.2, 0.2, (0.1, 0.6, 0.3, 1.2))
     a.limb('root', (0, 0.05, 0), (0, 0.5, 0), 0.038, 0.058, sl, n=14)
-    a.cyl('root', 0.041, 0.03, (0, 0.065, 0), sl, rot=(H, 0, 0), n=14, bevel=0.004)
+    for y in (0.2, 0.33):  # sleeve folds
+        a.cyl('root', 0.045 + (y - 0.05) * 0.044, 0.02, (0, y, 0), sl, rot=(H, 0, 0), n=14, bevel=0.006)
+    a.cyl('root', 0.043, 0.035, (0, 0.075, 0), sl, rot=(H, 0, 0), n=14, bevel=0.006)  # cuff
+    a.box('root', (0.03, 0.04, 0.006), (0.03, 0.075, 0.03), pad, rot=(0, 0.7, 0), bevel=0.002)  # cuff velcro tab
+    a.box('root', (0.02, 0.1, 0.09), (-0.058, 0.38, 0), sl, bevel=0.006); a.box('root', (0.006, 0.07, 0.05), (-0.068, 0.38, 0.01), pad, bevel=0.002)  # sleeve pocket + patch
+    # glove: back of hand, knuckle guard, wrist closure, four fingers (two segments each), thumb
     a.box('root', (0.075, 0.09, 0.045), (0, 0.0, 0), gl, bevel=0.014)
-    a.box('root', (0.07, 0.05, 0.04), (0, -0.06, -0.008), gl, rot=(-0.5, 0, 0), bevel=0.012)
-    a.box('root', (0.025, 0.05, 0.028), (0.045, -0.015, -0.005), gl, rot=(0, 0, 0.5), bevel=0.01)
-    a.box('root', (0.082, 0.022, 0.05), (0, 0.035, 0), st, bevel=0.004)
-    a.box('root', (0.03, 0.03, 0.008), (0, 0.1, 0.04), st, bevel=0.003)  # watch
+    a.box('root', (0.07, 0.022, 0.018), (0, -0.038, 0.02), st, bevel=0.006)
+    a.box('root', (0.05, 0.045, 0.008), (0, 0.0, 0.024), pad, bevel=0.003)
+    a.box('root', (0.082, 0.026, 0.05), (0, 0.04, 0), st, bevel=0.005); a.box('root', (0.03, 0.028, 0.01), (0.012, 0.04, 0.026), pad, bevel=0.002)
+    for i in range(4):
+        x = -0.027 + i * 0.018
+        a.box('root', (0.0165, 0.04, 0.02), (x, -0.058, 0.004 - abs(i - 1.5) * 0.002), gl, rot=(-0.35, 0, 0), bevel=0.006)
+        a.box('root', (0.0155, 0.034, 0.018), (x, -0.078, -0.016), gl, rot=(-1.25, 0, 0), bevel=0.006)
+        a.box('root', (0.0165, 0.012, 0.006), (x, -0.058, 0.016), pad, rot=(-0.35, 0, 0), bevel=0.002)
+    a.box('root', (0.022, 0.05, 0.024), (0.046, -0.018, -0.006), gl, rot=(0, 0, 0.5), bevel=0.008)
+    a.box('root', (0.019, 0.032, 0.02), (0.052, -0.05, -0.012), gl, rot=(-0.3, 0, 0.2), bevel=0.007)
+    # wrist-top watch / GPS
+    a.box('root', (0.085, 0.022, 0.052), (0, 0.105, 0), st, bevel=0.004)
+    a.box('root', (0.04, 0.038, 0.012), (0, 0.105, 0.04), st, bevel=0.004); a.box('root', (0.03, 0.028, 0.004), (0, 0.105, 0.047), lcd, bevel=0.001)
     return a
 
 

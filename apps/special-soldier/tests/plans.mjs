@@ -103,3 +103,36 @@ export async function structs2({ page, sim, shot }) {
   await page.evaluate(() => { const L = SS.POI.facL; const [x, z] = L(-2, -49); QA.tp(x, z, -60); SS.player.yaw = 0.5; SS.player.pitch = -0.05; }); await sim(0.6); await shot('U3-lab');
   await view(0, -20, 334, -0.4, 0.0, 'U4-beach');
 }
+
+// v0.6: structure models (pier, tower cab, fence, cliff, flagpole, window frames, blast door) and the detailed soldier kit
+export async function structs3({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const view = async (mi, x, z, tx, tz, pitch, name, y) => { await page.evaluate(([mi, x, z, tx, tz, pitch, y]) => { if (SS.mission.idx !== mi || SS.state !== 'playing') { SS.startMission(mi, true); SS.noTarget = true; SS.godMode = true; } QA.tp(x, z, y); SS.player.yaw = Math.atan2(-(tx - x), -(tz - z)); SS.player.pitch = pitch; }, [mi, x, z, tx, tz, pitch, y ?? null]); await sim(0.6); await shot(name); };
+  await view(4, 18, -412, 50, -436, -0.02, 'V1-pier');
+  await view(4, 120, -238, 120, -262, 0.38, 'V2-tower');
+  await view(4, 4, -204, 12, -214, 0.0, 'V3-fence');
+  await view(4, 5, -50, 0, -60, 0.35, 'V6-flag');
+  await view(4, -4, -112, -8, -123, 0.0, 'V5-windows');
+  const wf = await page.evaluate(() => [SS.POI.waterfall.x, SS.POI.waterfall.z]);
+  await view(4, wf[0] + 4, wf[1] + 16, wf[0], wf[1] - 8, 0.25, 'V4-cliff');
+  // squad mate close-up, front and back
+  for (const [name, back] of [['V8-soldier', 0], ['V9-soldier-back', 1]]) {
+    await page.evaluate((back) => { const P = SS.player, m = SS.squad.list[0], fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw); m.pos.set(P.pos.x + fx * 2.1, P.pos.y, P.pos.z + fz * 2.1); m.yaw = back ? P.yaw : P.yaw + Math.PI; m.model.position.copy(m.pos); m.model.rotation.y = m.yaw; P.pitch = -0.08; SS.weapons && SS.weapons.fx && 0; }, back);
+    await shot(name);
+  }
+  const d = await page.evaluate(() => { SS.startMission(3, true); SS.noTarget = true; SS.godMode = true; const L = SS.POI.facL, [x, z] = L(1.5, -38), [tx, tz] = L(0, -46); QA.tp(x, z, -60); SS.player.yaw = Math.atan2(-(tx - x), -(tz - z)); SS.player.pitch = 0; return [x, z]; });
+  await sim(0.6); await shot('V7-door');
+}
+
+// daylight close-ups of a squad mate and an enemy (uniform / kit check)
+export async function kit({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const day = await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; const k = Object.keys(SS.sky.constructor.PRESETS || {}); return k; });
+  await page.evaluate(() => { const names = ['day', 'noon', 'clear', 'dawn', 'overcast']; for (const n of names) { try { SS.sky.set(n, true); if (SS.sky.target) break; } catch (e) {} } SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-20, 318); SS.player.yaw = 0; });
+  await sim(0.4);
+  for (const [name, back, dist] of [['K1-front', 0, 2.0], ['K2-back', 1, 2.0], ['K3-close', 0, 1.2]]) {
+    await page.evaluate(([back, dist]) => { const P = SS.player, m = SS.squad.list[0], fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw); m.pos.set(P.pos.x + fx * dist, P.pos.y, P.pos.z + fz * dist); m.yaw = back ? P.yaw : P.yaw + Math.PI; m.model.position.copy(m.pos); m.model.rotation.y = m.yaw; P.pitch = dist < 1.5 ? 0.12 : -0.1; }, [back, dist]);
+    await shot(name);
+  }
+  console.log('presets', day, await page.evaluate(() => SS.sky.presetName));
+}

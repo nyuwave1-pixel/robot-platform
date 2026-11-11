@@ -99,7 +99,10 @@ class Asm:
                 if taper:
                     v.co.x *= taper[0]; v.co.y *= taper[1]
                 v.co.y += shear
-        return self._add(g, _bake(bm, min(bevel, min(size) * 0.45), seg, subsurf), self._M(loc, rot), m)
+        bevel = min(bevel, min(size) * 0.45)
+        if bevel < 0.0025: bevel = 0.0  # triangle budget: invisible bevels cost 10x the faces
+        elif bevel < 0.012 or max(size) < 0.1: seg = 1
+        return self._add(g, _bake(bm, bevel, seg, subsurf), self._M(loc, rot), m)
 
     def cyl(self, g, r, depth, loc, m, rot=(0, 0, 0), r2=None, n=16, bevel=0.0, scale=(1, 1, 1), seg=2):
         bm = bmesh.new()

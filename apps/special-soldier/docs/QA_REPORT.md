@@ -133,3 +133,4 @@ Blender 5.3 모델 22종을 넣은 빌드로 전체 E2E를 다시 실행했습�
 | ![jungle](screenshots/zone-jungle.jpg) 정글(새벽·비) | ![base](screenshots/zone-base.jpg) 군사기지(뇌우) |
 | ![drone](screenshots/drone.jpg) 정찰 드론 | ![thermal](screenshots/thermal.jpg) 열화상 |
 | ![boss](screenshots/m5-play.jpg) 보스전 | ![result](screenshots/m5-result.jpg) 결과 화면 |
+- **v0.5 빌드**(실내 소품 9종·대전차 장애물·크레인·화물선을 Blender 모델로 교체): 캠페인 구간 **16 / 16 통과** (1,592 s), 미션 01–05 완주, 콘솔 에러 0건, JS 힙 117 MB. 성능(SwiftShader): Low 1.6 · Medium 1.0 · High 1.4 FPS, 드로콜 415, 삼각형 232만.
