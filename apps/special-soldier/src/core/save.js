@@ -1,6 +1,6 @@
 // Persistent profile + settings (localStorage). UE5 equivalent: SaveGame object + GameUserSettings.
 const KEY = 'special-soldier-save-v1';
-export const DEFAULT_SETTINGS = { quality: 'high', scale: 1, fov: 78, sens: 1, volume: 0.7, shadows: true, fpsCap: 0, invertY: false, voice: true, difficulty: 'regular', showFps: true };
+export const DEFAULT_SETTINGS = { quality: 'high', scale: 1, fov: 78, sens: 1, volume: 0.7, shadows: true, fpsCap: 0, invertY: false, voice: true, difficulty: 'regular', showFps: true, ssao: false };
 export const DIFFICULTY = {
   recruit: { label: 'RECRUIT', detect: 0.7, react: 1.5, acc: 1.6, dmg: 0.6 },
   regular: { label: 'REGULAR', detect: 1.0, react: 1.0, acc: 1.0, dmg: 1.0 },

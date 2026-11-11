@@ -22,7 +22,7 @@ export class Gear {
     if (!this.droneActive) { if (this.battery < 0.15 || G.player.pos.y < -30) { G.hud.toast(G.player.pos.y < -30 ? 'NO DRONE SIGNAL UNDERGROUND' : 'DRONE BATTERY LOW', true); return; } this.droneActive = true; this.dronePos.copy(G.player.eye).y += 2; this.dyaw = G.player.yaw; this.dpitch = -0.3; G.audio.play('beep', null, { f: 1400 }); }
     else { this.droneActive = false; G.audio.loop('drone', 0); G.player.updateCamera(0); }
   }
-  use(id) { if (!this.has(id)) return; if (id === 'nvg') this.setVision(1); else if (id === 'thermal') this.setVision(2); else if (id === 'light') { this.light = !this.light; this.spot.intensity = this.light ? 420 : 0; G.audio.play('click'); } else if (id === 'drone') this.toggleDrone(); else if (id === 'medkit') G.player.heal(); }
+  use(id) { if (!this.has(id)) return; if (id === 'nvg') this.setVision(1); else if (id === 'thermal') this.setVision(2); else if (id === 'light') { this.light = !this.light; this.spot.intensity = this.light ? 140 : 0; G.audio.play('click'); } else if (id === 'drone') this.toggleDrone(); else if (id === 'medkit') G.player.heal(); }
   update(dt) {
     const I = G.input, P = G.player; if (!P.alive) return;
     if (!P.frozen) { for (const g of GEAR) if (g.id !== 'medkit' && I.pressed('Key' + g.key)) { if (this.has(g.id)) this.use(g.id); else G.hud.toast(g.name + ' — LOCKED', true); }

@@ -21,7 +21,7 @@ print('TOTAL', sum(lib.tris(r) for r in roots.values()), 'tris,', len(roots), 'a
 
 os.makedirs(os.path.join(ROOT, 'src', 'assets'), exist_ok=True); os.makedirs(os.path.join(ROOT, 'blender'), exist_ok=True)
 glb = os.path.join(ROOT, 'src', 'assets', 'assets.glb')
-bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', export_yup=True, export_apply=False, export_cameras=False, export_lights=False, export_animations=False)
+bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', export_yup=True, export_apply=False, export_cameras=False, export_lights=False, export_animations=False, export_vertex_color='ACTIVE', export_all_vertex_colors=False)
 print('GLB', os.path.getsize(glb) // 1024, 'kB')
 
 # ---- studio for renders / the saved .blend ----

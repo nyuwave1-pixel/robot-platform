@@ -27,10 +27,11 @@ export const NODES = new Set(['body', 'legL', 'legR', 'upper', 'head', 'arms', '
 const isNode = (c) => NODES.has(clean(c.name));
 function ownMeshes(node) { const out = node.isMesh ? [node] : []; for (const c of node.children) if (c.isMesh && !isNode(c)) out.push(c); return out; }
 function withColor(geo, color, matrix) {
-  const g = geo.index ? geo.toNonIndexed() : geo.clone(); for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+  const g = geo.index ? geo.toNonIndexed() : geo.clone(); const ao = g.attributes.color || null; // COLOR_0 = ambient occlusion baked in Blender
+  for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
   if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
   if (matrix) g.applyMatrix4(matrix);
-  const n = g.attributes.position.count, c = new Float32Array(n * 3); for (let i = 0; i < n; i++) { c[i * 3] = color.r; c[i * 3 + 1] = color.g; c[i * 3 + 2] = color.b; } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
+  const n = g.attributes.position.count, c = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const k = ao ? ao.getX(i) : 1; c[i * 3] = color.r * k; c[i * 3 + 1] = color.g * k; c[i * 3 + 2] = color.b * k; } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
 }
 /** Merge a node's primitives into one vertex-coloured geometry. colorOf(materialName, material) → THREE.Color | null (null = keep as separate mesh). */
 export function mergeNode(node, colorOf, deep = false) {

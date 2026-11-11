@@ -5,6 +5,10 @@ import math
 import bpy
 import bmesh
 from mathutils import Vector, Matrix, Euler
+from mathutils.bvhtree import BVHTree
+
+# cosine-weighted hemisphere sample directions (tangent, bitangent, normal)
+AO_DIRS = [(math.cos(a) * math.sin(e), math.sin(a) * math.sin(e), math.cos(e)) for e, n in ((0.25, 4), (0.7, 8), (1.15, 10)) for a in [(i + 0.5 * (n % 3)) * 2 * math.pi / n for i in range(n)]]
 
 MATS = {}
 
@@ -153,8 +157,21 @@ class Asm:
             bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=solidify)
         return self._add(g, _bake(bm, bevel, 2, subsurf, smooth), Matrix.Identity(4), m)
 
+    # ---- ambient occlusion: ray-cast against the whole assembly, stored as vertex colour (exported as COLOR_0) ----
+    def _bvh(self):
+        verts, polys = [], []
+        for meshes in self.groups.values():
+            for me in meshes:
+                n0 = len(verts); verts += [v.co.copy() for v in me.vertices]; polys += [[n0 + i for i in p.vertices] for p in me.polygons]
+        if not polys:
+            return None, 1.0
+        lo = Vector((min(v.x for v in verts), min(v.y for v in verts), min(v.z for v in verts))); hi = Vector((max(v.x for v in verts), max(v.y for v in verts), max(v.z for v in verts)))
+        return BVHTree.FromPolygons(verts, polys), (hi - lo).length
+
     # ---- finish: one mesh object per group, parented by pivot ----
-    def build(self, offset=(0, 0, 0)):
+    def build(self, offset=(0, 0, 0), ao=True):
+        bvh, size = self._bvh() if ao else (None, 1.0)
+        reach = max(0.03, min(0.9, size * 0.09))
         col = bpy.data.collections.new(self.name); bpy.context.scene.collection.children.link(col)
         objs = {}
         for g, meshes in self.groups.items():
@@ -170,8 +187,24 @@ class Asm:
                     for f in bm.faces[n0:]:
                         f.material_index = idx
                     bpy.data.meshes.remove(me)
+                occ = None
+                if bvh:
+                    bm.normal_update(); occ = []
+                    for v in bm.verts:
+                        n = v.normal if v.normal.length > 0.1 else Vector((0, 0, 1)); o = v.co + n * (reach * 0.02 + 0.001)
+                        t = n.orthogonal().normalized(); b2 = n.cross(t); hit = 0.0
+                        for (dx, dy, dz) in AO_DIRS:
+                            d = (t * dx + b2 * dy + n * dz).normalized(); r = bvh.ray_cast(o, d, reach)
+                            if r[0] is not None:
+                                hit += 1.0 - r[3] / reach
+                        occ.append(max(0.18, 1.0 - 1.15 * hit / len(AO_DIRS)))
                 bmesh.ops.translate(bm, verts=bm.verts[:], vec=-piv)
                 out = bpy.data.meshes.new(f'{self.name}_{g}'); bm.to_mesh(out); bm.free()
+                if occ:
+                    ca = out.color_attributes.new('AO', 'FLOAT_COLOR', 'POINT')
+                    for i, k in enumerate(occ):
+                        ca.data[i].color = (k, k, k, 1.0)
+                    out.color_attributes.active_color = ca; out.color_attributes.render_color_index = 0
                 for mt in mats:
                     out.materials.append(mt)
                 ob = bpy.data.objects.new(self.name if g == 'root' else g, out)

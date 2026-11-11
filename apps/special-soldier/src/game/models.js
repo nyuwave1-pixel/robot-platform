@@ -18,9 +18,20 @@ export const PALETTE = {
   boss:   { cloth: 0x1a0c0c, vest: 0x5a1010, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
 };
 /** Returns a group (origin at feet, facing +Z) with userData.parts for animation. */
-const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0.05 });
-const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.25 });
-export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0.55 });
+/** Tileable micro-detail normal map (fabric weave / cast metal / paint) generated once on a canvas. */
+export function detailNormal(kind, repeat) {
+  if (typeof document === 'undefined') return null;
+  const S = 128, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), img = g.createImageData(S, S), h = new Float32Array(S * S);
+  let seed = kind.length * 7919; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { let v = rnd() * 0.5; if (kind === 'fabric') v = Math.sin((x * Math.PI) / 2) * Math.sin((y * Math.PI) / 2) * 0.9 + rnd() * 0.35 + Math.sin((x + y) * 0.2) * 0.3; else if (kind === 'metal') v = rnd() * 0.45 + Math.sin(y * 1.9 + Math.sin(x * 0.07) * 3) * 0.12; else v = rnd() * 0.3 + Math.sin(x * 0.19) * Math.sin(y * 0.23) * 0.5; h[y * S + x] = v; }
+  const H = (x, y) => h[((y + S) % S) * S + ((x + S) % S)];
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const i = (y * S + x) * 4; img.data[i] = 128 + (H(x - 1, y) - H(x + 1, y)) * 90; img.data[i + 1] = 128 + (H(x, y - 1) - H(x, y + 1)) * 90; img.data[i + 2] = 255; img.data[i + 3] = 255; }
+  g.putImageData(img, 0, 0); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = 4; return t;
+}
+const NS = (v) => new THREE.Vector2(v, v);
+const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.86, metalness: 0.02, normalMap: detailNormal('fabric', 5), normalScale: NS(0.55) });
+const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.35, normalMap: detailNormal('paint', 3), normalScale: NS(0.35) });
+export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.7, normalMap: detailNormal('metal', 3), normalScale: NS(0.3) });
 const KIT = { // headgear / armour set and weapon per soldier type (nodes modelled in Blender)
   squad: { acc: ['acc_helmet', 'acc_nvg'], gun: 'm4' }, guard: { acc: ['acc_cap'], gun: 'kr5' }, assault: { acc: ['acc_helmet'], gun: 'm4' }, sniper: { acc: ['acc_hood'], gun: 'bolt' },
   heavy: { acc: ['acc_helmet', 'acc_heavy'], gun: 'lmg' }, elite: { acc: ['acc_helmet', 'acc_visor'], gun: 'arx' }, boss: { acc: ['acc_beret', 'acc_visor', 'acc_heavy'], gun: 'lmg' },

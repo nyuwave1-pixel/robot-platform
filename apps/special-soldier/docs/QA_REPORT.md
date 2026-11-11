@@ -103,6 +103,15 @@
 - 성능(SwiftShader): Low 3.0 FPS, Medium 1.3 FPS, High 1.6 FPS — 실행마다 편차가 크며 §3과 같은 한계가 적용됩니다.
 - 이 재실행은 메뉴·조작·AI 단위 체크(§2의 앞 47개)를 다시 돌리지 않았습니다. 그 항목들은 재빌드 직전 빌드에서 통과한 결과입니다.
 
+## 6-b. Blender 에셋 빌드(v0.2) 재검증
+
+Blender 5.3 모델 22종을 넣은 빌드로 전체 E2E를 다시 실행했습니다.
+
+- **63 / 63 통과** (1,474 s), 캠페인 미션 01–05 완주, 콘솔 에러 0건, JS 힙 69 MB
+- 성능(SwiftShader, 미션 03): Low 1.4 FPS · Medium 1.8 FPS · High 1.4 FPS — 드로콜 363(이전 531), 삼각형 174만(이전 71만). 실제 GPU 수치는 여전히 미측정.
+- 이 실행 이후 추가한 실사화 개선(베이크 AO, 환경광, 디테일 노멀, 반사 수면, 블룸 조정)이 들어간 **최종 빌드**는 캠페인 구간 회귀만 다시 돌렸습니다 → 결과: REGRESSION2_PLACEHOLDER
+- GTAO(화면 공간 AO) 옵션은 자동 테스트에서 켜 보지 않았습니다(기본 꺼짐, 실험 옵션).
+
 ## 7. Windows 빌드
 
 - `npm run build:win` → `release/SpecialSoldier-win32-x64/SpecialSoldier.exe` (Electron 33, x64, 폴더 269 MB / zip 115 MB)

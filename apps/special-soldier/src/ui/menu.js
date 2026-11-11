@@ -39,7 +39,7 @@ export class Menu {
     this.screen = 'main'; const p = G.save.progress;
     this.open(`<div class="title"><div class="kicker">INTERNATIONAL SPECIAL OPERATIONS COMMAND · SQUAD 07</div><h1>SPECIAL<br><span>SOLDIER</span></h1><div class="sub">OPERATION: ISLAND INVASION</div></div>
       <nav>${MAIN.map(([a, t, d], i) => `<button data-a="${a}"><em>0${i + 1}</em><b>${t}</b><small>${d}</small></button>`).join('')}</nav>
-      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.1 · THREE.JS / WEBGL2 · ALL ART & AUDIO ARE PROCEDURAL PLACEHOLDERS</div></div>`, 'main');
+      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.2 · THREE.JS / WEBGL2 · MODELS: BLENDER 5.3 · TEXTURES & AUDIO: PROCEDURAL PLACEHOLDERS</div></div>`, 'main');
   }
   campaign() {
     const p = G.save.progress;
@@ -80,6 +80,7 @@ export class Menu {
       <label>Resolution scale</label>${sl('scale', 0.5, 1.5, 0.05, (v) => `${(v * 100).toFixed(0)}% → ${Math.round(innerWidth * G.pixelRatio())}×${Math.round(innerHeight * G.pixelRatio())}`)}
       <label>Field of view</label>${sl('fov', 60, 100, 1, (v) => v + '°')}
       <label>Shadows</label><input type="checkbox" data-set="shadows" ${s.shadows ? 'checked' : ''}><b></b>
+      <label>Ambient occlusion (GTAO · High/Ultra)</label><input type="checkbox" data-set="ssao" ${s.ssao ? 'checked' : ''}><b>experimental</b>
       <label>Frame limit</label><select data-set="fpsCap">${[[0, 'Unlimited (v-sync)'], [30, '30'], [60, '60'], [120, '120']].map(([v, t]) => `<option value="${v}" ${+s.fpsCap === v ? 'selected' : ''}>${t}</option>`).join('')}</select><b></b>
       <label>Show performance counter</label><input type="checkbox" data-set="showFps" ${s.showFps ? 'checked' : ''}><b></b>
       <h3>CONTROLS</h3><label>Mouse sensitivity</label>${sl('sens', 0.2, 3, 0.05, (v) => v.toFixed(2))}<label>Invert Y</label><input type="checkbox" data-set="invertY" ${s.invertY ? 'checked' : ''}><b></b>

@@ -8,7 +8,7 @@ app.whenReady().then(() => {
   // SS_SMOKE=1: packaging smoke test — report the game state once booted, then quit.
   if (process.env.SS_SMOKE) {
     const t0 = Date.now(); const poll = setInterval(async () => {
-      const s = await win.webContents.executeJavaScript('window.SS ? SS.state + "|" + document.title : "loading"').catch((e) => 'error ' + e.message);
+      const s = await win.webContents.executeJavaScript('window.SS ? SS.state + "|assets=" + (SS.assets && SS.assets.ready) + "/" + (SS.assets && SS.assets.count) + "|" + document.title : "loading"').catch((e) => 'error ' + e.message);
       if (s.startsWith('menu') || Date.now() - t0 > 120000) { console.log('SS_SMOKE ' + s); clearInterval(poll); app.quit(); }
     }, 1000);
   }

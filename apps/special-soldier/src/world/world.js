@@ -62,7 +62,7 @@ export function initMaterials() {
   MAT.lamp = new THREE.MeshStandardMaterial({ color: 0xfff2c0, emissive: 0xffe9a0, emissiveIntensity: 3 });
   MAT.redLamp = new THREE.MeshStandardMaterial({ color: 0xff2a1a, emissive: 0xff2010, emissiveIntensity: 4 });
   MAT.screen = new THREE.MeshStandardMaterial({ color: 0x10301a, emissive: 0x30ff80, emissiveIntensity: 1.6 });
-  MAT.prop = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.1 });
+  MAT.prop = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.78, metalness: 0.1 });
   MAT.fence = new THREE.MeshStandardMaterial({ color: 0x70787a, transparent: true, opacity: 0.45, roughness: 0.6, metalness: 0.7, side: THREE.DoubleSide });
 }
 

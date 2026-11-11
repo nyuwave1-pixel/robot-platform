@@ -6,6 +6,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { G } from '../core/ctx.js';
 import { lerp, fbm, damp } from '../core/util.js';
 import { windUniform, windStrength } from './build.js';
@@ -43,13 +44,25 @@ export class Sky {
     for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) { const dx = (hh(x + 1, y) - hh(x - 1, y)) * 6, dy = (hh(x, y + 1) - hh(x, y - 1)) * 6, i = (y * 128 + x) * 4; img.data[i] = 128 + dx * 127; img.data[i + 1] = 128 + dy * 127; img.data[i + 2] = 255; img.data[i + 3] = 255; }
     ng.putImageData(img, 0, 0); this.waterN = new THREE.CanvasTexture(nc); this.waterN.wrapS = this.waterN.wrapT = THREE.RepeatWrapping; this.waterN.repeat.set(140, 140);
     this.waterT = { value: 0 };
-    const wm = new THREE.MeshStandardMaterial({ color: 0x0b2a3a, roughness: 0.42, metalness: 0.1, normalMap: this.waterN, normalScale: new THREE.Vector2(0.45, 0.45), transparent: true, opacity: 0.93 });
+    const wm = new THREE.MeshStandardMaterial({ color: 0x0b2a3a, roughness: 0.3, metalness: 0.45, envMapIntensity: 0.85, normalMap: this.waterN, normalScale: new THREE.Vector2(0.45, 0.45), transparent: true, opacity: 0.93 });
     wm.onBeforeCompile = (s) => { s.uniforms.uT = this.waterT; s.vertexShader = 'uniform float uT;\n' + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vec4 wp = modelMatrix * vec4(position,1.0);\n transformed.z += sin(wp.x*0.045+uT*0.9)*0.45 + sin(wp.z*0.06+uT*1.15+1.3)*0.38 + sin((wp.x+wp.z)*0.11+uT*1.7)*0.16;'); };
     this.water = new THREE.Mesh(new THREE.PlaneGeometry(3600, 3600, 180, 180), wm); this.water.rotation.x = -Math.PI / 2; this.water.receiveShadow = true; S.add(this.water);
     // rain streaks
     const RN = 2400; this.rainPos = new Float32Array(RN * 6); this.rainSeed = new Float32Array(RN * 3); for (let i = 0; i < RN * 3; i++) this.rainSeed[i] = Math.random();
     this.rain = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(this.rainPos, 3)), new THREE.LineBasicMaterial({ color: 0xaec4d4, transparent: true, opacity: 0.35, fog: false, depthWrite: false })); this.rain.frustumCulled = false; S.add(this.rain);
-    this.apply(PRESETS.night, 1);
+    // image-based lighting: the sky gradient + sun/moon glow is pre-filtered into an environment map, so metal,
+    // water and wet surfaces reflect the actual sky of the current weather preset
+    this.pmrem = new THREE.PMREMGenerator(G.renderer); this.envScene = new THREE.Scene(); this.envT = 0; this.envKey = '';
+    this.envU = { top: { value: C(0) }, bot: { value: C(0) }, sun: { value: C(0) }, dir: { value: new THREE.Vector3(0, 1, 0) }, dim: { value: 1 } };
+    this.envScene.add(new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.ShaderMaterial({ side: THREE.BackSide, uniforms: this.envU,
+      vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader: 'uniform vec3 top; uniform vec3 bot; uniform vec3 sun; uniform vec3 dir; uniform float dim; varying vec3 vP; void main(){ vec3 n = normalize(vP); float h = n.y; vec3 c = h > 0.0 ? mix(bot, top, pow(h, 0.45)) : bot * mix(0.55, 0.2, -h); float s = max(dot(n, normalize(dir)), 0.0); c += sun * (pow(s, 600.0) * 10.0 + pow(s, 12.0) * 0.1); gl_FragColor = vec4(c * dim, 1.0); }' })));
+    this.apply(PRESETS.night, 1); this.refreshEnv();
+  }
+  refreshEnv() {
+    const c = this.cur, u = this.envU; u.top.value.copy(c.top); u.bot.value.copy(c.bot); u.sun.value.copy(c.sun).multiplyScalar(this.indoor ? 0 : c.sunI); u.dir.value.copy(c.dir); u.dim.value = this.indoor ? 0.35 : 1;
+    if (this.indoor) { u.top.value.setRGB(0.1, 0.11, 0.12); u.bot.value.setRGB(0.05, 0.05, 0.055); }
+    const rt = this.pmrem.fromScene(this.envScene, 0, 0.1, 200); if (this.envRT) this.envRT.dispose(); this.envRT = rt; G.scene.environment = rt.texture; G.scene.environmentIntensity = 1.15;
   }
   set(name, instant = false) { this.target = PRESETS[name]; this.presetName = name; if (instant) this.apply(this.target, 1); }
   apply(p, k) {
@@ -59,14 +72,15 @@ export class Sky {
   }
   update(dt) {
     const p = this.target || PRESETS.night, c = this.cur, cam = G.camera.position; this.apply(p, Math.min(1, dt * 0.6));
-    this.indoor = cam.y < -30; this.night = c.night; this.wind = c.wind; this.rainAmt = this.indoor ? 0 : c.rain;
+    this.indoor = cam.y < -30; this.night = c.night;
+    { const key = this.presetName + (this.indoor ? 'i' : 'o'); this.envT -= dt; if (key !== this.envKey || this.envT < 0) { const changed = key !== this.envKey; if (changed) this.envSettle = 5; if (changed || this.envSettle > 0) { this.refreshEnv(); this.envSettle = (this.envSettle || 0) - 1.5; } this.envKey = key; this.envT = 1.5; } } this.wind = c.wind; this.rainAmt = this.indoor ? 0 : c.rain;
     // lightning
     this.flash = Math.max(0, this.flash - dt * 5);
     if (p.storm && !this.indoor && G.state !== 'menu') { this.nextBolt -= dt; if (this.nextBolt < 0) { this.nextBolt = 5 + Math.random() * 12; this.flash = 1; setTimeout(() => G.audio.play('thunder'), 300 + Math.random() * 1500); } }
     const fl = this.flash > 0.5 || (this.flash > 0.15 && this.flash < 0.3) ? 1 : 0;
     this.domeU.top.value.copy(c.top); this.domeU.bot.value.copy(c.bot); this.domeU.flash.value = fl;
     G.scene.fog.color.copy(c.fog).addScalar(fl * 0.25); G.scene.fog.density = c.dens * (G.gear && G.gear.vision === 2 ? 0.4 : 1);
-    this.hemi.intensity = c.hemi + fl * 2.5 + (G.state === 'cinematic' || G.state === 'menu' ? 0.9 * c.night : 0); this.hemi.color.copy(c.top).lerp(_w, 0.55); this.hemi.groundColor.copy(c.fog).multiplyScalar(0.5);
+    this.hemi.intensity = c.hemi * 0.72 + fl * 2.5 + (G.state === 'cinematic' || G.state === 'menu' ? 0.9 * c.night : 0); this.hemi.color.copy(c.top).lerp(_w, 0.55); this.hemi.groundColor.copy(c.fog).multiplyScalar(0.5);
     this.sun.color.copy(c.sun); this.sun.intensity = this.indoor ? 0 : c.sunI; _d.copy(c.dir).normalize();
     const f = G.player ? G.player.pos : cam; this.sun.position.set(f.x + _d.x * 150, f.y + _d.y * 150, f.z + _d.z * 150); this.sun.target.position.copy(f);
     this.dome.position.copy(cam); this.stars.position.copy(cam); this.stars.material.opacity = c.stars; this.stars.visible = c.stars > 0.02 && !this.indoor;
@@ -102,7 +116,8 @@ const FinalShader = {
 export class Post {
   constructor() {
     const r = G.renderer; this.composer = new EffectComposer(r); this.composer.addPass(new RenderPass(G.scene, G.camera));
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.55, 0.5, 0.92); this.composer.addPass(this.bloom);
+    this.gtao = new GTAOPass(G.scene, G.camera, innerWidth, innerHeight); this.gtao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.4, thickness: 1.2, scale: 1.1, samples: 12 }); this.gtao.enabled = false; this.composer.addPass(this.gtao);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.36, 0.45, 0.95); this.composer.addPass(this.bloom);
     this.final = new ShaderPass(FinalShader); this.composer.addPass(this.final); this.composer.addPass(new OutputPass());
     this.u = this.final.uniforms; this.fade = 0; this.fadeTarget = 0; this.flash = 0;
   }
@@ -111,7 +126,7 @@ export class Post {
     const u = this.u; this.fade = damp(this.fade, this.fadeTarget, 5, dt); this.flash = Math.max(0, this.flash - dt * 2.2);
     u.uTime.value = G.time; u.uFade.value = this.fade; u.uFlash.value = this.flash; u.uMode.value = G.gear ? G.gear.vision : 0;
     u.uDamage.value = G.player ? G.player.hurt : 0; u.uWater.value = G.camera.position.y < -0.15 && G.camera.position.y > -30 ? 1 : 0;
-    this.bloom.enabled = G.settings.quality !== 'low';
+    this.bloom.enabled = G.settings.quality !== 'low'; this.gtao.enabled = !!G.settings.ssao && (G.settings.quality === 'high' || G.settings.quality === 'ultra');
     if (G.settings.quality === 'low' && false) G.renderer.render(G.scene, G.camera); else this.composer.render(dt);
   }
 }

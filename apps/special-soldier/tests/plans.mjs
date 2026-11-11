@@ -63,3 +63,12 @@ export async function prof({ page }) {
   const cdp = await page.context().newCDPSession(page); // PROF is readable even while the page is busy? no — so read what we can
   console.log(await Promise.race([page.evaluate(() => Object.entries(PROF).filter(([, p]) => p.max > 30).map(([k, p]) => `${k}: max ${p.max.toFixed(0)} ms, total ${p.sum.toFixed(0)} ms, calls ${p.n}`).join('\n') || 'nothing over 30 ms'), new Promise((r) => setTimeout(() => r('page still busy'), 60000))]));
 }
+export async function look({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; }); await sim(0.4);
+  await page.evaluate(() => { const m = SS.squad.list[0], P = SS.player; QA.tp(m.pos.x + 1.2, m.pos.z + 2.6); const dx = m.pos.x - P.pos.x, dz = m.pos.z - P.pos.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = -0.08; }); await sim(0.3); await shot('L1-squad');
+  await page.evaluate(() => { SS.startMission(2, true); SS.noTarget = true; QA.tp(-22, -92); SS.player.yaw = -1.2; }); await sim(1.0); await shot('L2-base');
+  await page.evaluate(() => { const e = SS.enemies.list.find((e) => e.type.vehicle), P = SS.player; QA.tp(e.pos.x + 7, e.pos.z + 9); const dx = e.pos.x - P.pos.x, dz = e.pos.z - P.pos.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = 0.02; }); await sim(0.5); await shot('L3-apc');
+  await page.evaluate(() => { SS.startMission(4, true); SS.noTarget = true; QA.tp(150, -270); SS.player.yaw = -1.2; SS.input.btn[2] = false; }); await sim(1.0); await shot('L4-air');
+  await page.evaluate(() => SS.toMenu()); await sim(1.5); await shot('L5-menu');
+}
