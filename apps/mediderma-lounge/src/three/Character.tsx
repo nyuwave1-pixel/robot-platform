@@ -9,7 +9,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sparkles } from "@react-three/drei";
 import * as THREE from "three";
-import { FASHION_MAP, STAGES } from "../data/game";
+import { FASHION_MAP, STAGES, RANKS } from "../data/game";
 import type { Look } from "../store/game";
 
 export type Anim = "idle" | "walk" | "sit" | "lie" | "wave" | "pose" | "pay" | "photo";
@@ -41,9 +41,15 @@ interface Props {
   seed?: number;
   /** 걷기 여부를 프레임마다 읽는 함수 (플레이어용) */
   movingRef?: { current: boolean };
+  /** 라운지 등급 (0 = 없음). 등급이 오를수록 브로치 → 케이프릿 → 망토 → 티아라 → 왕관이 더해진다 */
+  rank?: number;
 }
 
-export function Character({ look, growth, anim = "idle", mood = "smile", glow = 0, sparkle, seed = 0, movingRef }: Props) {
+export function Character({ look, growth, anim = "idle", mood = "smile", glow = 0, sparkle, seed = 0, movingRef, rank = 0 }: Props) {
+  const rk = rank > 0 ? RANKS[Math.min(rank, RANKS.length) - 1] : null;
+  /** 등급 뷰티 연출 강도 0..1 (게임 판타지 연출이며 제품 효능 표현이 아니다) */
+  const beauty = Math.min(1, rank / 10);
+  const rankCol = rk ? (rk.n === 10 ? "#2a2226" : rk.color) : "#ffffff";
   const d = bodyDims(growth);
   const stage = Math.round(growth);
   const outfit = FASHION_MAP[look.outfit] ?? FASHION_MAP["fit-pastel"];
@@ -65,7 +71,8 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
   // 가짜 SSS: 따뜻한 에미시브를 살짝 섞어 부드러운 피부 톤을 만든다.
   skinMat.color.set(look.skin);
   skinMat.emissive.set(look.skin).lerp(new THREE.Color("#ff9f9f"), 0.35);
-  skinMat.emissiveIntensity = 0.16 + glow * 0.22;
+  skinMat.emissiveIntensity = 0.16 + glow * 0.22 + beauty * 0.08;
+  skinMat.roughness = 0.55 - beauty * 0.15;
   const hairMat = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.42, metalness: 0.05, side: THREE.DoubleSide }), []);
   hairMat.color.set(look.hairColor);
   hairMat.emissive.set(look.hairColor);
@@ -137,7 +144,7 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
   const R = d.head;
   const faceW = look.face === "oval" ? 0.94 : look.face === "soft" ? 1.0 : 1.06;
   const faceH = look.face === "oval" ? 1.06 : look.face === "soft" ? 1.02 : 0.98;
-  const eyeR = R * 0.2 * d.eye;
+  const eyeR = R * 0.2 * d.eye * (1 + beauty * 0.14);
   const eyeY = -R * lerp(0.08, 0.0, d.k);
   const eyeX = R * lerp(0.4, 0.34, d.k);
   const eyeSx = look.eyes === "almond" ? 1.2 : 1;
@@ -256,6 +263,41 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           </mesh>
         )}
 
+        {/* ── 등급 장식 (게임 연출) ── */}
+        {rk && (
+          <group position={[d.shoulder * 0.45, waistY + (topY - waistY) * (rank >= 3 ? 0.38 : 0.72), chestR * 0.98]}>
+            <mesh rotation={[0, 0, Math.PI / 4]}>
+              <octahedronGeometry args={[0.03 + rank * 0.0015]} />
+              <meshStandardMaterial color={rankCol} metalness={0.5} roughness={0.15} emissive={rk.color} emissiveIntensity={0.45} />
+            </mesh>
+            <mesh>
+              <torusGeometry args={[0.042 + rank * 0.0015, 0.007, 6, 20]} />
+              <meshStandardMaterial color={gold} metalness={0.8} roughness={0.25} />
+            </mesh>
+          </group>
+        )}
+        {rank >= 3 && (
+          <group position={[0, topY - d.torso * 0.11, 0]}>
+            <mesh castShadow>
+              <cylinderGeometry args={[d.shoulder * 0.9, d.shoulder * 1.34, d.torso * 0.3, 24, 1, true]} />
+              <meshStandardMaterial color={rankCol} roughness={0.55} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh position={[0, -d.torso * 0.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[d.shoulder * 1.34, 0.008, 6, 32]} />
+              <meshStandardMaterial color={gold} metalness={0.8} roughness={0.25} />
+            </mesh>
+          </group>
+        )}
+        {rank >= 5 && anim !== "lie" && (() => {
+          const len = rank >= 9 ? topY - 0.05 : topY - d.leg * 0.55;
+          return (
+            <mesh castShadow position={[0, topY - d.torso * 0.08 - len / 2, -d.shoulder * 0.3]} rotation={[0.1, 0, 0]}>
+              <cylinderGeometry args={[d.shoulder * 1.1, d.shoulder * (rank >= 9 ? 2.1 : 1.6), len, 20, 1, true, Math.PI / 2, Math.PI]} />
+              <meshStandardMaterial color={rankCol} roughness={0.6} side={THREE.DoubleSide} emissive={rk!.color} emissiveIntensity={0.06} />
+            </mesh>
+          );
+        })()}
+
         {/* ── 머리 ── */}
         <group ref={headG} position={[0, d.headY, 0]}>
           <mesh castShadow scale={[faceW, faceH, 0.98]} material={skinMat}>
@@ -307,6 +349,40 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
                   <circleGeometry args={[eyeR * 0.11, 12]} />
                   <meshBasicMaterial color="#ffffff" />
                 </mesh>
+                {/* 등급 뷰티 연출: 아이섀도 → 속눈썹 → 홍채 광채 → 별빛 하이라이트 */}
+                {rank >= 2 && (
+                  <mesh position={[0, eyeR * 0.5, -0.001]} scale={[1.25, 1, 1]}>
+                    <circleGeometry args={[eyeR * 1.02, 24, 0, Math.PI]} />
+                    <meshBasicMaterial color={rk!.n === 10 ? "#c9a66b" : rk!.color} transparent opacity={0.28 + beauty * 0.3} depthWrite={false} />
+                  </mesh>
+                )}
+                {rank >= 1 && (
+                  <mesh position={[0, eyeR * 0.1, 0.007]} scale={[1.1 + d.k * 0.12, 1.08, 1]}>
+                    <ringGeometry args={[eyeR * 0.97, eyeR * (1.07 + beauty * 0.1), 28, 1, 0.15, Math.PI - 0.3]} />
+                    <meshBasicMaterial color="#1c1210" />
+                  </mesh>
+                )}
+                {rank >= 3 && Array.from({ length: rank >= 6 ? 4 : 2 }, (_, i) => {
+                  const a = (s > 0 ? 0.35 : Math.PI - 0.35) + (s > 0 ? 1 : -1) * i * 0.3;
+                  return (
+                    <mesh key={i} position={[Math.cos(a) * eyeR * 1.2, Math.sin(a) * eyeR * 1.2 + eyeR * 0.1, 0.007]} rotation={[0, 0, a - Math.PI / 2]}>
+                      <coneGeometry args={[eyeR * 0.07, eyeR * (0.3 + beauty * 0.2), 4]} />
+                      <meshBasicMaterial color="#1c1210" />
+                    </mesh>
+                  );
+                })}
+                {rank >= 5 && (
+                  <mesh position={[0, -eyeR * 0.3, 0.0055]}>
+                    <ringGeometry args={[eyeR * 0.38, eyeR * 0.6, 24, 1, Math.PI * 1.15, Math.PI * 0.7]} />
+                    <meshBasicMaterial color="#fff6d8" transparent opacity={0.55} />
+                  </mesh>
+                )}
+                {rank >= 7 && (
+                  <mesh position={[-eyeR * 0.05, eyeR * 0.05, 0.009]} rotation={[0, 0, Math.PI / 4]}>
+                    <circleGeometry args={[eyeR * 0.13, 4]} />
+                    <meshBasicMaterial color="#fffbe6" />
+                  </mesh>
+                )}
               </group>
             ))}
           </group>
@@ -323,22 +399,73 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           </mesh>
           {/* 입 */}
           <mesh position={[0, -R * (0.36 + d.k * 0.06), R * 0.9]} rotation={[0.25, 0, Math.PI]} scale={[1, mood === "happy" ? 1.3 : 1, 1]}>
-            <torusGeometry args={[R * (0.11 - d.k * 0.015), R * (0.022 + d.k * 0.012), 8, 16, Math.PI]} />
-            <meshStandardMaterial color={look.lipColor} roughness={0.35} />
+            <torusGeometry args={[R * (0.11 - d.k * 0.015), R * (0.022 + d.k * 0.012) * (1 + beauty * 0.45), 8, 16, Math.PI]} />
+            <meshStandardMaterial color={look.lipColor} roughness={0.35 - beauty * 0.25} emissive={look.lipColor} emissiveIntensity={beauty * 0.25} />
           </mesh>
+          {rank >= 4 && (
+            <mesh position={[R * 0.025, -R * (0.385 + d.k * 0.06), R * 0.925]}>
+              <sphereGeometry args={[R * 0.012, 6, 6]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
+            </mesh>
+          )}
+          {/* 광대 하이라이트 · 뷰티 젬 */}
+          {rank >= 6 && [-1, 1].map((s) => (
+            <mesh key={s} position={[s * R * 0.5, -R * 0.12, R * 0.84]} rotation={[0, s * 0.55, s * 0.5]} scale={[1.6, 0.6, 1]}>
+              <circleGeometry args={[R * 0.07, 14]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.22 + beauty * 0.12} depthWrite={false} />
+            </mesh>
+          ))}
+          {rank >= 8 && (
+            <mesh position={[R * 0.5, -R * 0.02, R * 0.86]} rotation={[0, 0.5, Math.PI / 4]}>
+              <octahedronGeometry args={[R * 0.028]} />
+              <meshStandardMaterial color="#fff2c8" emissive="#ffd98a" emissiveIntensity={0.9} metalness={0.5} roughness={0.1} />
+            </mesh>
+          )}
           {/* 블러셔 */}
           {[-1, 1].map((s) => (
             <mesh key={s} position={[s * R * 0.56, -R * 0.24, R * 0.79]} rotation={[0.1, s * 0.62, 0]}>
               <circleGeometry args={[R * (0.17 - d.k * 0.03), 18]} />
-              <meshBasicMaterial color={makeup} transparent opacity={0.42 + glow * 0.15} depthWrite={false} />
+              <meshBasicMaterial color={makeup} transparent opacity={0.42 + glow * 0.15 + beauty * 0.12} depthWrite={false} />
             </mesh>
           ))}
 
           <Hair style={look.hair} R={R} mat={hairMat} swayRef={sway} k={d.k} bodyLen={d.torso + d.neck} />
           <HeadAccessory id={look.accessory} R={R} />
+          {rank >= 7 && (
+            <group position={[0, R * (rank >= 9 ? 1.16 : 1.1), 0]} scale={1.25}>
+              <mesh>
+                <cylinderGeometry args={[R * 0.34, R * 0.3, R * (rank >= 9 ? 0.22 : 0.1), 16, 1, true]} />
+                <meshStandardMaterial color={gold} metalness={0.6} roughness={0.3} emissive="#b8893a" emissiveIntensity={0.45} side={THREE.DoubleSide} />
+              </mesh>
+              {Array.from({ length: rank >= 9 ? 8 : 5 }, (_, i) => {
+                const n = rank >= 9 ? 8 : 5, a = (i / n) * Math.PI * 2;
+                return (
+                  <mesh key={i} position={[Math.sin(a) * R * 0.33, R * (rank >= 9 ? 0.2 : 0.11), Math.cos(a) * R * 0.33]}>
+                    <coneGeometry args={[R * 0.06, R * (rank >= 9 ? 0.2 : 0.13), 6]} />
+                    <meshStandardMaterial color={i % 2 ? gold : "#fff2c8"} metalness={0.85} roughness={0.15} emissive="#ffd98a" emissiveIntensity={0.4} />
+                  </mesh>
+                );
+              })}
+              {rank >= 9 && (
+                <mesh position={[0, R * 0.02, R * 0.33]}>
+                  <octahedronGeometry args={[R * 0.07]} />
+                  <meshStandardMaterial color={rk!.color} emissive={rk!.color} emissiveIntensity={0.8} metalness={0.4} roughness={0.1} />
+                </mesh>
+              )}
+            </group>
+          )}
         </group>
       </group>
 
+      {rank >= 9 && anim !== "lie" && (
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[d.shoulder * 2.6, d.shoulder * 2.9, 40]} />
+          <meshBasicMaterial color="#ffe2a0" transparent opacity={0.55} depthWrite={false} />
+        </mesh>
+      )}
+      {rank >= 7 && !(sparkle || stage >= 5) && (
+        <Sparkles count={14} scale={[d.shoulder * 5, d.height, d.shoulder * 5]} position={[0, d.height / 2, 0]} size={2} speed={0.4} color="#ffe2a0" opacity={0.8} />
+      )}
       {(sparkle || stage >= 5) && (
         <Sparkles count={stage >= 5 ? 26 : 16} scale={[d.shoulder * 6, d.height * 1.05, d.shoulder * 6]} position={[0, d.height / 2, 0]} size={2.4} speed={0.5} color={stage >= 4 ? "#ffe2a0" : "#ffc7d6"} opacity={0.9} />
       )}

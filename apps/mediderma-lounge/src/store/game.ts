@@ -16,6 +16,8 @@ export interface Look {
   hair: string; outfit: string;
   /** 키 배율 0.92~1.08 */
   height?: number;
+  /** 등급 장식을 숨길지 (기본: 표시) */
+  hideRank?: boolean;
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
 }
 export const DEFAULT_LOOK: Look = {

@@ -169,6 +169,7 @@ function Player({ L }: { L: Layout }) {
   const look = useGame((s) => s.look);
   const stage = useGame((s) => s.stage);
   const skinExp = useGame((s) => s.exp.skin);
+  const rank = useGame((s) => (s.look.hideRank ? 0 : s.rank));
   const furniture = useGame((s) => s.lounge.furniture);
   const growthView = useUI((s) => s.growthView);
   const mode = useUI((s) => s.mode);
@@ -260,12 +261,12 @@ function Player({ L }: { L: Layout }) {
   if (lying)
     return (
       <Lying L={L} growth={growth}>
-        <Character look={look} growth={growth} anim="lie" mood={carePhase === "result" ? "happy" : "relaxed"} glow={glow} />
+        <Character look={look} growth={growth} anim="lie" mood={carePhase === "result" ? "happy" : "relaxed"} glow={glow} rank={rank} />
       </Lying>
     );
   return (
     <group ref={g}>
-      <Character look={look} growth={growth} anim={anim} movingRef={movingRef} glow={glow} mood="smile" sparkle={mode === "cinematic"} />
+      <Character look={look} growth={growth} anim={anim} movingRef={movingRef} glow={glow} mood="smile" sparkle={mode === "cinematic"} rank={rank} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
         <circleGeometry args={[0.3, 24]} />
         <meshBasicMaterial color="#e79aae" transparent opacity={0.22} depthWrite={false} />

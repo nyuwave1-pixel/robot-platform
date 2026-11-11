@@ -274,6 +274,15 @@ export function RankBody() {
         <Row label={t("rank.plv")} v={g.pv.use} max={next?.plv ?? 0} color="#6fcfa6" />
         <p className="mt-2 text-[12px] font-bold text-ink/50">{t("rank.buy")} {Math.floor(g.pv.buy).toLocaleString()} PV</p>
       </div>
+      <div className="mt-3 rounded-2xl bg-cream p-3">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-black text-ink">{t("rank.look")}</p>
+          <button className={`chip ${g.look.hideRank ? "" : "chip-on"}`} onClick={() => g.setLook({ hideRank: !g.look.hideRank })}>{g.look.hideRank ? t("rank.lookOff") : t("rank.lookOn")}</button>
+        </div>
+        {([[1, "rank.look1"], [3, "rank.look3"], [5, "rank.look5"], [7, "rank.look7"], [9, "rank.look9"]] as const).map(([n, k]) => (
+          <p key={n} className={`mt-1 text-[12px] font-bold ${g.rank >= n ? "text-ink/75" : "text-ink/35"}`}>{g.rank >= n ? "✔" : "·"} {RANKS[n - 1].code}+ {t(k)}</p>
+        ))}
+      </div>
       <p className="mt-3 text-[12px] leading-relaxed text-ink/55">{t("rank.how")}</p>
       <div className="mt-3 space-y-1.5">
         {RANKS.map((k) => {

@@ -21,7 +21,7 @@ export function Splash() {
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-pink-soft/70 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-lav/70 blur-3xl" />
       <div className="relative h-56 w-56 sm:h-64 sm:w-64">
-        <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} auto />
+        <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} rank={started && !useGame.getState().look.hideRank ? useGame.getState().rank : 0} auto />
       </div>
       <p className="mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
       <h1 className="mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">MEDIDERMA <span className="text-pink-deep">LOUNGE</span></h1>
@@ -112,14 +112,14 @@ export function Create() {
   );
 }
 
-export function Preview({ look, growth, auto }: { look: Look; growth: number; auto?: boolean }) {
+export function Preview({ look, growth, auto, rank }: { look: Look; growth: number; auto?: boolean; rank?: number }) {
   return (
-    <Canvas camera={{ fov: 32, position: [0, 0.75, 3.1] }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ fov: 32, position: [0, 0.75 + (growth - 1) * 0.1, 3.1 + (growth - 1) * 0.28 + (rank && rank >= 7 ? 0.3 : 0)] }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
       <hemisphereLight args={["#fff4ee", "#f3d9e0", 1.2]} />
       <directionalLight position={[2, 4, 3]} intensity={1.6} />
       <Suspense fallback={null}>
         <group position={[0, -0.1, 0]}>
-          <Character look={look} growth={growth} anim={auto ? "wave" : "idle"} />
+          <Character look={look} growth={growth} anim={auto ? "wave" : "idle"} rank={rank} />
           <ContactShadows opacity={0.3} scale={3} blur={2.4} far={2} color="#e79aae" />
         </group>
       </Suspense>

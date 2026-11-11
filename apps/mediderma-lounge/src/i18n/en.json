@@ -277,5 +277,13 @@
   "rank.buy": "Product purchases",
   "rank.how": "Buying products adds purchase PV, using them in care adds use PV, and caring for customers adds registration points by star rating. Meet all three to rank up and receive a one-time rank-up bonus.",
   "rank.up": "Rank up · {name}",
-  "rank.notice": "Rank names and order follow the UNI&CORE New Benefit Plan v1 guide. Numbers and bonuses are game rules and are unrelated to real ranks, commissions or income."
+  "rank.notice": "Rank names and order follow the UNI&CORE New Benefit Plan v1 guide. Numbers and bonuses are game rules and are unrelated to real ranks, commissions or income.",
+  "rank.look": "Rank look",
+  "rank.lookOn": "Shown",
+  "rank.lookOff": "Hidden",
+  "rank.look1": "Rank brooch",
+  "rank.look3": "Rank-colour capelet",
+  "rank.look5": "Rank cape",
+  "rank.look7": "Gold tiara and sparkles",
+  "rank.look9": "Crown · long cape · gold aura"
 }
