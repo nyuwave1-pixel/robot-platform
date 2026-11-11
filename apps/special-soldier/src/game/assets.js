@@ -34,11 +34,11 @@ function withColor(geo, color, matrix) {
   const n = g.attributes.position.count, c = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const k = ao ? ao.getX(i) : 1; c[i * 3] = color.r * k; c[i * 3 + 1] = color.g * k; c[i * 3 + 2] = color.b * k; } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
 }
 /** Merge a node's primitives into one vertex-coloured geometry. colorOf(materialName, material) → THREE.Color | null (null = keep as separate mesh). */
-export function mergeNode(node, colorOf, deep = false) {
-  const geos = [], keep = [], inv = new THREE.Matrix4().copy(node.matrixWorld).invert(), list = deep ? [] : ownMeshes(node);
+export function mergeNode(node, colorOf, deep = false, pick = null) {
+  const buckets = new Map(), geos = [], keep = [], inv = new THREE.Matrix4().copy(node.matrixWorld).invert(), list = deep ? [] : ownMeshes(node);
   if (deep) node.traverse((m) => { if (m.isMesh) list.push(m); });
-  for (const m of list) { const col = colorOf(m.material.name, m.material); if (!col) { keep.push(m); continue; } geos.push(withColor(m.geometry, col, m === node ? null : new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); }
-  return { geo: geos.length ? mergeGeometries(geos) : null, keep };
+  for (const m of list) { const col = colorOf(m.material.name, m.material); if (!col) { keep.push(m); continue; } const g = withColor(m.geometry, col, m === node ? null : new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld)); geos.push(g); if (pick) { const k = pick(m.material.name, m.material); if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(g); } }
+  return { geo: !pick && geos.length ? mergeGeometries(geos) : null, parts: [...buckets].map(([key, list]) => ({ key, geo: mergeGeometries(list) })), keep };
 }
 const linear = (m) => m.color.clone();
 /** One merged, vertex-coloured geometry for a whole asset (props, vegetation parts, vehicles' static bodies). */
@@ -56,8 +56,9 @@ export function rebuild(name, material, colorOf, skip) {
   const src = typeof name === 'string' ? roots.get(name) : name; if (!src) return null; src.updateMatrixWorld(true);
   const walk = (node) => {
     const g = new THREE.Group(); g.name = clean(node.name); g.position.copy(node.position); g.quaternion.copy(node.quaternion); g.scale.copy(node.scale);
-    const { geo, keep } = mergeNode(node, (n, m) => (special(m) ? null : (colorOf && colorOf(n, m)) || m.color));
-    if (geo) { const mesh = new THREE.Mesh(geo, material); mesh.castShadow = true; mesh.receiveShadow = true; g.add(mesh); }
+    const byName = typeof material === 'function'; // material(matName) → one mesh per distinct material (e.g. camo cloth vs plain kit)
+    const { geo, parts, keep } = mergeNode(node, (n, m) => (special(m) ? null : (colorOf && colorOf(n, m)) || m.color), false, byName ? (n) => material(n) : null);
+    for (const part of byName ? parts : geo ? [{ key: material, geo }] : []) { const mesh = new THREE.Mesh(part.geo, part.key); mesh.castShadow = true; mesh.receiveShadow = true; g.add(mesh); }
     for (const k of keep) { const mesh = new THREE.Mesh(k.geometry, (colorOf && colorOf(k.material.name, k.material, true)) || k.material); if (k !== node) { mesh.position.copy(k.position); mesh.quaternion.copy(k.quaternion); } g.add(mesh); }
     for (const c of node.children) if ((isNode(c) || !c.isMesh) && !(skip && skip(clean(c.name)))) g.add(walk(c));
     return g;

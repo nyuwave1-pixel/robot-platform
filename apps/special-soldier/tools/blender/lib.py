@@ -187,6 +187,13 @@ class Asm:
                     for f in bm.faces[n0:]:
                         f.material_index = idx
                     bpy.data.meshes.remove(me)
+                # box-projected UVs in metres (uniform texel density, so tiling camo / grunge maps line up across parts)
+                bm.normal_update(); uvl = bm.loops.layers.uv.verify()
+                for f in bm.faces:
+                    n = f.normal; ax = max(range(3), key=lambda i: abs(n[i]))
+                    for l in f.loops:
+                        c = l.vert.co
+                        l[uvl].uv = (c.y, c.z) if ax == 0 else (c.x, c.z) if ax == 1 else (c.x, c.y)
                 occ = None
                 if bvh:
                     bm.normal_update(); occ = []

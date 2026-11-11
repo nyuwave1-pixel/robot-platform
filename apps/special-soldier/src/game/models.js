@@ -28,10 +28,26 @@ export function detailNormal(kind, repeat) {
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const i = (y * S + x) * 4; img.data[i] = 128 + (H(x - 1, y) - H(x + 1, y)) * 90; img.data[i + 1] = 128 + (H(x, y - 1) - H(x, y + 1)) * 90; img.data[i + 2] = 255; img.data[i + 3] = 255; }
   g.putImageData(img, 0, 0); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = 4; return t;
 }
+/** Tileable albedo multiplier (vertex colour × this): 'camo' = three-tone disruptive pattern, 'grunge' = dirt, streaks and edge scratches. UVs are in metres. */
+export function detailMap(kind, perMetre) {
+  if (typeof document === 'undefined') return null;
+  const S = 256, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), img = g.createImageData(S, S);
+  let seed = kind === 'camo' ? 4242 : 977; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const G = 16, grid = new Float32Array(G * G * 3); for (let i = 0; i < grid.length; i++) grid[i] = rnd();
+  const noise = (x, y, ch, f) => { const fx = (x / S) * G * f, fy = (y / S) * G * f, x0 = Math.floor(fx), y0 = Math.floor(fy), u = fx - x0, v = fy - y0, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v), at = (a, b) => grid[((((b % G) + G) % G) * G + (((a % G) + G) % G)) * 3 + ch]; return (at(x0, y0) * (1 - su) + at(x0 + 1, y0) * su) * (1 - sv) + (at(x0, y0 + 1) * (1 - su) + at(x0 + 1, y0 + 1) * su) * sv; };
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { let v;
+    if (kind === 'camo') { const a = noise(x, y, 0, 0.5) + noise(x, y, 1, 1) * 0.5, b = noise(x + 90, y + 40, 2, 0.5) + noise(x, y, 0, 2) * 0.25; v = a > 0.86 ? 0.5 : b > 0.72 ? 0.74 : a < 0.52 ? 1.12 : 0.95; v *= 0.94 + rnd() * 0.12; }
+    else { const d = noise(x, y, 0, 0.5) * 0.6 + noise(x, y, 1, 2) * 0.3 + noise(x, y * 0.2, 2, 4) * 0.25; v = 0.98 - Math.max(0, d - 0.5) * 0.9 + (rnd() - 0.5) * 0.06; if (rnd() < 0.0016) v = 1.35; }
+    const i = (y * S + x) * 4, k = Math.max(0, Math.min(255, v * 238)); img.data[i] = img.data[i + 1] = img.data[i + 2] = k; img.data[i + 3] = 255; }
+  g.putImageData(img, 0, 0);
+  if (kind === 'grunge') { g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1; for (let i = 0; i < 26; i++) { const x = rnd() * S, y = rnd() * S, l = 4 + rnd() * 18, a = rnd() * 6.28; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); } }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(perMetre, perMetre); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
 const NS = (v) => new THREE.Vector2(v, v);
-const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.86, metalness: 0.02, normalMap: detailNormal('fabric', 5), normalScale: NS(0.55) });
-const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.35, normalMap: detailNormal('paint', 3), normalScale: NS(0.35) });
-export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.7, normalMap: detailNormal('metal', 3), normalScale: NS(0.3) });
+const CLOTH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0, map: detailMap('camo', 1.5), normalMap: detailNormal('fabric', 45), normalScale: NS(0.6) });
+const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.86, metalness: 0.02, normalMap: detailNormal('fabric', 45), normalScale: NS(0.3) });
+const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.35, map: detailMap('grunge', 0.45), normalMap: detailNormal('paint', 6), normalScale: NS(0.35) });
+export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.7, map: detailMap('grunge', 5), normalMap: detailNormal('metal', 30), normalScale: NS(0.3) });
 const KIT = { // headgear / armour set and weapon per soldier type (nodes modelled in Blender)
   squad: { acc: ['acc_helmet', 'acc_nvg'], gun: 'm4' }, guard: { acc: ['acc_cap'], gun: 'kr5' }, assault: { acc: ['acc_helmet'], gun: 'm4' }, sniper: { acc: ['acc_hood'], gun: 'bolt' },
   heavy: { acc: ['acc_helmet', 'acc_heavy'], gun: 'lmg' }, elite: { acc: ['acc_helmet', 'acc_visor'], gun: 'arx' }, boss: { acc: ['acc_beret', 'acc_visor', 'acc_heavy'], gun: 'lmg' },
@@ -41,7 +57,7 @@ function soldierTemplate(kind) {
   if (templates.has(kind)) return templates.get(kind);
   const p = PALETTE[kind], kit = KIT[kind], col = { cloth: C(p.cloth), vest: C(p.vest), skin: C(p.skin), helmet: C(p.helmet), boots: C(0x0b0b0c), gear: C(0x16171a), accent: C(0x8a1010) };
   const glow = p.visor ? new THREE.MeshStandardMaterial({ color: 0x111111, emissive: p.visor, emissiveIntensity: 2.5 }) : null;
-  const g = rebuild('Soldier', CHAR_MAT, (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n));
+  const g = rebuild('Soldier', (n) => (n === 'cloth' || n === 'vest' ? CLOTH_MAT : CHAR_MAT), (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n));
   const gg = geometry('W_' + kit.gun); if (gg) { const one = new THREE.Mesh(gg, GUN_MAT); one.castShadow = true; g.getObjectByName('gun').add(one); }
   templates.set(kind, g); return g;
 }
