@@ -2,7 +2,9 @@
 import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ContactShadows, OrbitControls } from "@react-three/drei";
-import { EYE_COLORS, EYE_SHAPES, FACE_SHAPES, HAIR_COLORS, SKIN_TONES } from "../data/game";
+import { EYE_COLORS, EYE_SHAPES, FACE_SHAPES, HAIR_COLORS, LOOK_PRESETS, SKIN_TONES } from "../data/game";
+import { applyPendingInvite } from "../store/invite";
+import { useL } from "../i18n";
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
@@ -64,6 +66,12 @@ export function Create() {
   const start = () => {
     useGame.getState().startNew(name, look);
     useUI.setState({ screen: "game", panel: null, mode: "explore", customers: [], care: null });
+    applyPendingInvite();
+  };
+  const L = useL();
+  const random = () => {
+    const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
+    patch({ skin: pick(SKIN_TONES), hairColor: pick(HAIR_COLORS), eyeColor: pick(EYE_COLORS), hair: pick(["hair-bob", "hair-twin"]), face: pick(FACE_SHAPES), eyes: pick(EYE_SHAPES) });
   };
   return (
     <div className="absolute inset-0 flex flex-col bg-gradient-to-b from-[#fde7ee] to-cream md:flex-row">
@@ -80,6 +88,17 @@ export function Create() {
           value={name} maxLength={12} onChange={(e) => setName(e.target.value)} placeholder={t("create.namePh")}
           className="mt-1 w-full rounded-2xl border-2 border-pink-soft bg-white px-4 py-3 text-base font-semibold text-ink outline-none focus:border-pink-deep"
         />
+        <div className="mt-4">
+          <p className="text-xs font-bold text-ink/70">{t("create.preset")}</p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {LOOK_PRESETS.map((p) => (
+              <button key={p.id} className="chip" onClick={() => patch(p.look)}>
+                <span className="mr-1 inline-block h-3 w-3 rounded-full border border-white align-middle shadow" style={{ background: `linear-gradient(135deg, ${p.look.skin} 50%, ${p.look.hairColor} 50%)` }} />{L(p)}
+              </button>
+            ))}
+            <button className="chip chip-on" onClick={random}>{t("create.random")}</button>
+          </div>
+        </div>
         <Swatches label={t("look.skin")} values={SKIN_TONES} value={look.skin} onPick={(v) => patch({ skin: v })} />
         <Swatches label={t("look.hairColor")} values={HAIR_COLORS} value={look.hairColor} onPick={(v) => patch({ hairColor: v })} />
         <Swatches label={t("look.eyeColor")} values={EYE_COLORS} value={look.eyeColor} onPick={(v) => patch({ eyeColor: v })} />

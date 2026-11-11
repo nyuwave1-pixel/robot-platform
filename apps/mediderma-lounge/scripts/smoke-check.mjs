@@ -48,7 +48,9 @@ const measureText = () => page.evaluate((min) => {
     if (!t || !el) continue;
     const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
     if (r.width === 0 || r.height === 0 || cs.visibility === "hidden" || Number(cs.opacity) === 0) continue;
-    if (parseFloat(cs.fontSize) < min) small.push(`${t.slice(0, 16)}(${cs.fontSize})`);
+    // SVG 글자는 font-size 가 도형 좌표 단위라서, 실제로 그려진 높이로 잰다
+    const px = el instanceof SVGElement ? r.height / 1.15 : parseFloat(cs.fontSize);
+    if (px < min) small.push(`${t.slice(0, 16)}(${px.toFixed(1)}px)`);
     if (r.right < 0 || r.bottom < 0 || r.left > innerWidth || r.top > innerHeight) off.push(t.slice(0, 16));
   }
   return { small, off };
@@ -59,6 +61,8 @@ const checkText = async (where) => { const m = await measureText(); for (const s
 try {
   await page.goto(URL); await page.waitForTimeout(1500);
   await shot("01-splash"); await checkText("splash");
+  // 소프트웨어 렌더링에서도 제시간에 끝나도록 처음부터 낮은 품질로 연다
+  await page.evaluate(() => window.__mdl.useGame.getState().setSettings({ quality: "low" }));
   await page.getByText("새로 시작하기").click();
   await page.getByText("건너뛰기").click(); await page.waitForTimeout(800);
   await page.locator("input").fill("스모크"); await checkText("create");
@@ -93,6 +97,33 @@ try {
 
   await page.locator("nav button", { hasText: "ITEM SHOP" }).click(); await page.waitForTimeout(600);
   await shot("05-shop"); await checkText("shop");
+  await page.locator("button[aria-label=close]").click();
+
+  // 펫 입양 → 라운지에 등장, 스테이션 증설, 미니게임 화면
+  await page.evaluate(() => window.__mdl.useGame.setState({ coins: 5000 }));
+  await page.locator("nav button", { hasText: "LOUNGE" }).click(); await page.waitForTimeout(400);
+  await checkText("lounge-panel");
+  await page.getByRole("button", { name: /확장 맵/ }).click(); await page.waitForTimeout(400);
+  await page.getByRole("button", { name: /스테이션 설치/ }).click(); await page.waitForTimeout(600);
+  await shot("06-map"); await checkText("map");
+  const stations = await page.evaluate(() => window.__mdl.useGame.getState().lounge.stations);
+  row("station", stations === 1 ? "pass" : "fail", `stations=${stations}`);
+  await page.getByRole("button", { name: "운영", exact: true }).click();
+  await page.getByRole("button", { name: /펫 \(/ }).click(); await page.waitForTimeout(400);
+  await page.getByRole("button", { name: /크림 고양이/ }).click(); await page.waitForTimeout(500);
+  await shot("07-pets"); await checkText("pets");
+  const pets = await page.evaluate(() => window.__mdl.useGame.getState().pets.length);
+  row("pet", pets === 1 ? "pass" : "fail", `pets=${pets}`);
+  await page.locator("button[aria-label=close]").click(); await page.waitForTimeout(2500);
+  await shot("08-lounge-pet-station");
+  await page.locator("nav button", { hasText: "LOUNGE" }).click();
+  await page.getByRole("button", { name: /미니게임/ }).click(); await page.waitForTimeout(400);
+  const cardBtns = page.locator("button[aria-label=card]");
+  const nCards = await cardBtns.count();
+  await cardBtns.nth(0).click(); await page.waitForTimeout(250);
+  await shot("09-minigame"); await checkText("minigame");
+  row("minigame", nCards === 12 ? "pass" : "fail", `cards=${nCards}`);
+  await page.locator("button[aria-label=close]").click();
 
   // 저장: 새로고침 후에도 진행도가 남는가
   const before = await page.evaluate(() => window.__mdl.useGame.getState().stats.care);

@@ -9,11 +9,11 @@ Claude Code 로 게임을 만드는 **작업 방식 템플릿**이다. 게임 �
 | 프레임워크의 규칙 | 이 게임에서 한 일 | 위치 |
 |---|---|---|
 | 그림을 이모지로 그리지 않는다 ("no emoji art") | UI 아이콘·재화·잠금 표시 등 이모지 약 100곳을 직접 그린 SVG 아이콘 28종으로 교체. 문구에서도 그림 이모지 제거 | `src/ui/Icon.tsx`, `src/i18n/*.json` |
-| 게임 수치는 데이터 파일에 두고 코드에 박지 않는다. 값마다 `value·min·max·step` | 보상·경제·고객·성장 수치 35개를 `config.json` 으로 분리. 코드는 `tune("care.zone_skin_exp")` 로 읽는다 | `src/data/config.json`, `src/data/config.ts` |
+| 게임 수치는 데이터 파일에 두고 코드에 박지 않는다. 값마다 `value·min·max·step` | 보상·경제·고객·성장·펫·스테이션·미니게임 수치 50개를 `config.json` 으로 분리. 코드는 `tune("care.zone_skin_exp")` 로 읽는다 | `src/data/config.json`, `src/data/config.ts` |
 | 튜닝을 요청하면 값마다 슬라이더가 있는 트윅 패널 | `?debug` 에서 TWEAK 패널. 바꾼 값은 메모리에만 적용 | `src/ui/Tweaks.tsx` |
-| 로직은 자동 단위 테스트가 통과해야 한다 | 30개 테스트: 상품 DB·루틴 정합성, 케어 세션 상태 전이와 보상 공식, 고객 결제, 구매·가구·퀘스트·저장 | `tests/*.test.ts`, `npm test` |
-| "파싱 통과는 실행이 아니다" — 실제로 띄워서 본 스크린샷을 남긴다 | 스모크 체크 스크립트가 게임을 열어 6개 행을 판정하고 스크린샷을 저장 | `scripts/smoke-check.mjs`, `qa/evidence/`, `npm run smoke` |
-| 스모크 체크 행: 열림 · 입력에 반응 · 글자 크기 · 콘솔 오류 | `boots` `responds` `care` `save` `text` `console`. 판정할 수 없으면 통과가 아니라 `not_assessed` | `qa/smoke-latest.tsv` |
+| 로직은 자동 단위 테스트가 통과해야 한다 | 46개 테스트: 상품 DB·루틴 정합성, 케어 세션 상태 전이와 보상 공식, 고객 결제, 구매·가구·퀘스트·저장, 펫·스테이션·친구 초대·미니게임 | `tests/*.test.ts`, `npm test` |
+| "파싱 통과는 실행이 아니다" — 실제로 띄워서 본 스크린샷을 남긴다 | 스모크 체크 스크립트가 게임을 열어 9개 행을 판정하고 스크린샷을 저장 | `scripts/smoke-check.mjs`, `qa/evidence/`, `npm run smoke` |
+| 스모크 체크 행: 열림 · 입력에 반응 · 글자 크기 · 콘솔 오류 | `boots` `responds` `care` `station` `pet` `minigame` `save` `text` `console`. 판정할 수 없으면 통과가 아니라 `not_assessed` | `qa/smoke-latest.tsv` |
 | 너무 작은 글자는 고친다 | 8~11px 이던 글자 104곳을 12~13px 로 올림. 체크 기준 12px | `src/ui/*.tsx` |
 | 모든 애니메이션은 건너뛸 수 있어야 한다 | 성장 시네마틱에 건너뛰기 버튼 | `src/ui/Hud.tsx`, `src/three/World.tsx` |
 | 한 장짜리 게임 브리프가 설계의 출발점 | `GAME_BRIEF.md` 작성 (요청 원문의 말, 첫 1분, 도전, 기능, 나중으로 미룬 것) | `docs/GAME_BRIEF.md` |
@@ -35,7 +35,7 @@ Claude Code 로 게임을 만드는 **작업 방식 템플릿**이다. 게임 �
 프레임워크의 코드·스크립트·문서 본문은 **복사하지 않았다.** 규칙과 절차를 읽고 이 게임에 맞게 새로 작성했다. MIT 라이선스라 가져다 쓸 수는 있으며, 그 경우 저작권 고지를 포함해야 한다.
 
 ## 현재 상태 (프레임워크의 인수인계 카드 형식)
-- **통과:** 타입체크, 빌드, 단위 테스트 30개, 스모크 체크 6행
+- **통과:** 타입체크, 빌드, 단위 테스트 46개, 스모크 체크 9행
 - **판정하지 않음:** 재미, 난이도, 케어 조작의 손맛, 실제 GPU·실제 휴대폰에서의 성능
 - **짐작으로 정한 것:** 모든 밸런스 수치(성장 기준, 보상, 가격) — 플레이 기록 없이 정했다
 - **사람이 아직 플레이하지 않음**

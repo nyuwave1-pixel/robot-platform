@@ -1,4 +1,5 @@
-import { Component, type ReactNode } from "react";
+import { Component, useEffect, type ReactNode } from "react";
+import { applyPendingInvite } from "./store/invite";
 import { useUI } from "./store/ui";
 import { Create, Intro, Splash } from "./ui/Screens";
 import { World } from "./three/World";
@@ -28,6 +29,8 @@ class Boundary extends Component<{ children: ReactNode }, { err: string | null }
 export function App() {
   const screen = useUI((s) => s.screen);
   const mode = useUI((s) => s.mode);
+  // 초대 링크로 들어온 기존 플레이어
+  useEffect(() => { if (screen === "game") applyPendingInvite(); }, [screen]);
   return (
     <Boundary>
       <div className="fixed inset-0 overflow-hidden bg-cream font-sans text-ink">

@@ -6,6 +6,8 @@ import { input, useUI, type ZoneKey } from "../store/ui";
 import { openCare } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, type IconName } from "./Icon";
+import { petFx } from "../three/Pet";
+import { tune } from "../data/config";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -17,6 +19,12 @@ function doAction() {
   const ui = useUI.getState();
   if (ui.mode !== "explore" || ui.panel || ui.consult) return;
   if (ui.nearCustomer) return ui.set({ consult: ui.nearCustomer });
+  if (ui.nearPet) {
+    const g = useGame.getState();
+    const r = g.petPet(ui.nearPet);
+    if (r) { petFx[ui.nearPet] = 1; const name = g.pets.find((p) => p.id === ui.nearPet)?.name ?? ""; ui.toast(r.star ? `♥ ${name} · +${tune("pet.daily_star")} SOCIAL STAR` : `♥ ${name}`); }
+    return;
+  }
   const z = ui.near;
   if (!z) return;
   if (z === "device") openCare("player");
@@ -24,7 +32,7 @@ function doAction() {
   else if (z === "reception") ui.set({ panel: "customers" });
   else if (z === "vanity") ui.set({ panel: "character" });
   else if (z === "photo") ui.set({ mode: "photo", near: null });
-  else if (z === "game") ui.toast(useGame.getState().settings.lang === "ko" ? "미니게임은 곧 열려요" : "Mini-game opening soon");
+  else if (z === "game") ui.set({ panel: "minigame" });
 }
 
 export function Hud() {
@@ -35,6 +43,7 @@ export function Hud() {
   const panel = useUI((s) => s.panel);
   const near = useUI((s) => s.near);
   const nearCustomer = useUI((s) => s.nearCustomer);
+  const nearPet = useUI((s) => s.nearPet);
   const visiting = useUI((s) => s.visiting);
   const set = useUI((s) => s.set);
   const open = useUI((s) => s.open);
@@ -57,7 +66,7 @@ export function Hud() {
 
   const explore = mode === "explore";
   const zoneLabel: Record<ZoneKey, string> = { shelf: t("zone.shelf"), device: t("zone.device"), reception: t("zone.reception"), vanity: t("zone.vanity"), photo: t("zone.photo"), game: t("zone.game") };
-  const action = nearCustomer ? t("action.consult") : near ? zoneLabel[near] : null;
+  const action = nearCustomer ? t("action.consult") : nearPet ? t("pet.action") : near ? zoneLabel[near] : null;
 
   return (
     <>

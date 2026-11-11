@@ -1,4 +1,9 @@
 boots	pass	canvas=1 errors=0
 responds	pass	moved=0.28m
 care	pass	phase=result
-run	fail	locator.click: Target page, context or browser has been closed
+station	pass	stations=1
+pet	pass	pets=1
+minigame	pass	cards=12
+save	pass	care 1 -> 1
+text	pass	모든 글자 12px 이상
+console	pass	errors=0

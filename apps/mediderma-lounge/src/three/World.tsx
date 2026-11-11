@@ -54,7 +54,7 @@ export function World() {
         <color attach="background" args={["#f6e1e7"]} />
         <fog attach="fog" args={["#f6e1e7", 30, 60]} />
         {/* 환경 반사광: 외부 HDR 파일 없이 라이트포머로 만든 스튜디오 */}
-        <Environment resolution={256} frames={1} environmentIntensity={0.3}>
+        <Environment resolution={q === "high" ? 256 : 64} frames={1} environmentIntensity={0.3}>
           <color attach="background" args={["#e9d3d9"]} />
           <Lightformer form="rect" intensity={3.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 12, 1]} color="#fff1e0" />
           <Lightformer form="rect" intensity={2.4} position={[7, 2.5, 0]} rotation-y={-Math.PI / 2} scale={[7, 4, 1]} color="#ffffff" />

@@ -68,7 +68,7 @@ export function Lounge({ level, floor, wall, light, stations = 0, furniture, sel
       <directionalLight position={[-6, 4, 7]} intensity={0.4} color={dark ? "#ffd9a0" : "#ffd3e2"} />
       <pointLight position={[0, ROOM_H - 1.1, 0]} intensity={7} distance={L.w} color={lt.color} />
       <pointLight position={[L.bed.x - 0.2, 2.5, L.bed.z + 0.8]} intensity={6} distance={7} color="#ffe6ee" />
-      <pointLight position={[L.shelf.x, 2.2, L.shelf.z + 1.6]} intensity={4} distance={6} color="#ffe9c8" />
+      {hi && <pointLight position={[L.shelf.x, 2.2, L.shelf.z + 1.6]} intensity={4} distance={6} color="#ffe9c8" />}
 
       {/* ── 바닥 ── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow onClick={click}>

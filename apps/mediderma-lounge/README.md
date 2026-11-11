@@ -14,8 +14,8 @@ npm run dev        # http://localhost:3200
 ```bash
 npm run build      # 타입체크 + dist/ 정적 빌드
 npm run preview
-npm test           # 단위 테스트 30개 (상품 DB 정합성, 케어·고객·저장 로직)
-npm run smoke      # 빌드본을 헤드리스 브라우저로 열어 6개 항목 확인, 스크린샷은 qa/evidence/
+npm test           # 단위 테스트 46개 (상품 DB 정합성, 케어·고객·저장·펫·스테이션·초대·미니게임 로직)
+npm run smoke      # 빌드본을 헤드리스 브라우저로 열어 9개 항목 확인, 스크린샷은 qa/evidence/
 npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 ```
 
@@ -31,7 +31,8 @@ npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 3. 스텝마다 **바르기** → 부위 마커를 누른 채 문질러 게이지 채우기 → 미스트 마무리
 4. EXP 가 차면 성장 시네마틱. 첫 풀 루틴 1회면 STAGE 2 가 된다
 5. 소파에 앉은 고객(`!`)에게 다가가 상담 → 케어 → 코인·LOUNGE POINT
-6. LOUNGE 에서 확장·인테리어 편집, ITEM SHOP 에서 제품·패션·인테리어, SOCIAL 에서 셀피 게시
+6. LOUNGE 에서 확장·인테리어 편집·확장 맵·스테이션 증설·펫 입양, ITEM SHOP 에서 제품·패션·인테리어, SOCIAL 에서 셀피 게시·친구 초대
+7. 펫에게 다가가 쓰다듬기, 게임 테이블에서 카드 짝 맞추기
 
 | | PC | 모바일 |
 |---|---|---|

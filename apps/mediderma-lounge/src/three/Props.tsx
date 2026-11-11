@@ -5,8 +5,27 @@ import { Label } from "./Label";
 import type { Product } from "../data/products";
 import type { ModeId } from "../data/devices";
 import { MODES } from "../data/devices";
+import { Model } from "./Model";
 
 const gold = "#c9a66b";
+
+/** GLB 본체 위에 얹는 스크린 화면과 전면 로고 플레이트 */
+function DermaHomeDecals({ screen, plate }: { screen: THREE.Texture; plate: THREE.Texture }) {
+  return (
+    <>
+      <mesh position={[0, 0.115, 0.2045]}>
+        <planeGeometry args={[0.11, 0.07]} />
+        <meshStandardMaterial map={plate} metalness={0.5} roughness={0.4} />
+      </mesh>
+      <group position={[0, 0.235, 0.1]} rotation={[-0.42, 0, 0]}>
+        <mesh position={[0, 0.215, 0.0135]}>
+          <planeGeometry args={[0.33, 0.2]} />
+          <meshStandardMaterial map={screen} emissive="#ffffff" emissiveMap={screen} emissiveIntensity={0.55} roughness={0.15} />
+        </mesh>
+      </group>
+    </>
+  );
+}
 
 /**
  * DERMA HOME 본체. 공식 제품 사진 기준:
@@ -35,6 +54,11 @@ export function DermaHome({ activeMode, ...props }: { activeMode?: ModeId | null
   const glow = activeMode ? MODES[activeMode].color : "#9fd8ff";
   return (
     <group {...props}>
+      {/* 본체: Blender 모델 (없으면 코드로 만든 형상) + 스크린·로고 플레이트는 캔버스 텍스처로 덧그린다 */}
+      <Model
+        url="./models/derma_home.glb"
+        tint={{ glow: { color: glow, emissive: glow, emissiveIntensity: 1.6 } }}
+        fallback={<>
       {/* 하단 라이트 스트립 */}
       <mesh position={[0, 0.012, 0]}>
         <boxGeometry args={[0.52, 0.024, 0.42]} />
@@ -65,6 +89,9 @@ export function DermaHome({ activeMode, ...props }: { activeMode?: ModeId | null
           <meshStandardMaterial map={screen} emissive="#ffffff" emissiveMap={screen} emissiveIntensity={0.55} roughness={0.15} />
         </mesh>
       </group>
+        </>}
+      />
+      <DermaHomeDecals screen={screen} plate={plate} />
       {/* 좌: 이온토 프로브 거치대 */}
       <group position={[-0.31, 0.12, 0.08]}>
         <mesh>
@@ -113,7 +140,11 @@ export function Handpiece({ mode, ...props }: { mode: ModeId } & JSX.IntrinsicEl
 
 export function CareBed({ accent = "#f9d5dc", ...props }: { accent?: string } & JSX.IntrinsicElements["group"]) {
   return (
-    <group {...props}>
+    <Model
+      {...props}
+      url="./models/care_bed.glb"
+      tint={{ accent: { color: accent } }}
+      fallback={<>
       <mesh position={[0, 0.24, 0]} castShadow receiveShadow><boxGeometry args={[2.3, 0.36, 0.9]} /><meshStandardMaterial color="#fffaf4" roughness={0.6} /></mesh>
       <mesh position={[0, 0.5, 0]} castShadow receiveShadow><boxGeometry args={[2.36, 0.16, 0.96]} /><meshStandardMaterial color={accent} roughness={0.85} /></mesh>
       <mesh position={[0, 0.595, 0]} receiveShadow><boxGeometry args={[2.2, 0.04, 0.82]} /><meshStandardMaterial color="#ffffff" roughness={0.9} /></mesh>
@@ -121,7 +152,8 @@ export function CareBed({ accent = "#f9d5dc", ...props }: { accent?: string } & 
       {[-1, 1].flatMap((x) => [-1, 1].map((z) => (
         <mesh key={`${x}${z}`} position={[x * 1.05, 0.03, z * 0.36]}><cylinderGeometry args={[0.04, 0.05, 0.06, 10]} /><meshStandardMaterial color={gold} metalness={0.8} roughness={0.3} /></mesh>
       )))}
-    </group>
+      </>}
+    />
   );
 }
 
@@ -326,8 +358,13 @@ export function FurnitureMesh({ type, accent = "#f9d5dc" }: { type: string; acce
 
 export function Sofa({ color = "#f6bccb", seats = 3 }: { color?: string; seats?: number }) {
   const w = seats * 0.8 + 0.3;
+  // Blender 모델은 정면이 +Z 라서, 등받이가 +Z 인 기존 배치에 맞게 반 바퀴 돌린다
   return (
-    <group>
+    <Model
+      url={`./models/sofa_${Math.min(3, Math.max(1, seats))}.glb`}
+      rotation={[0, Math.PI, 0]}
+      tint={{ fabric: { color } }}
+      fallback={<group rotation={[0, Math.PI, 0]}>
       <mesh position={[0, 0.26, 0]} castShadow receiveShadow><boxGeometry args={[w, 0.36, 0.8]} /><meshStandardMaterial color={color} roughness={0.9} /></mesh>
       <mesh position={[0, 0.62, 0.34]} castShadow><boxGeometry args={[w, 0.6, 0.18]} /><meshStandardMaterial color={color} roughness={0.9} /></mesh>
       {[-1, 1].map((s) => (
@@ -336,7 +373,8 @@ export function Sofa({ color = "#f6bccb", seats = 3 }: { color?: string; seats?:
       {[-1, 1].flatMap((x) => [-1, 1].map((z) => (
         <mesh key={`${x}${z}`} position={[x * (w / 2 - 0.12), 0.04, z * 0.3]}><cylinderGeometry args={[0.03, 0.02, 0.08, 8]} /><meshStandardMaterial color={gold} metalness={0.8} roughness={0.3} /></mesh>
       )))}
-    </group>
+      </group>}
+    />
   );
 }
 

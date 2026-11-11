@@ -13,9 +13,10 @@ import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
 import { Chips, Swatches } from "./Screens";
 import { Icon, Price } from "./Icon";
+import { InviteBody, LoungeMap, MiniGameBody, PetsBody } from "./Extras";
 
 
-function Sheet({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
+export function Sheet({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
   return (
     <div className={`absolute bottom-0 left-0 right-0 z-40 flex max-h-[62vh] flex-col rounded-t-3xl bg-white/95 shadow-[0_-8px_40px_rgba(27,23,25,0.18)] backdrop-blur md:bottom-3 md:left-auto md:right-3 md:top-16 md:max-h-none ${wide ? "md:w-[520px]" : "md:w-[430px]"} md:rounded-3xl`}>
       <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
@@ -49,6 +50,8 @@ export function PanelHost() {
       {panel === "growth" && <GrowthPanel />}
       {panel === "customers" && <CustomersPanel />}
       {panel === "settings" && <SettingsPanel />}
+      {panel === "pets" && <Sheet title="LOUNGE PETS"><PetsBody /></Sheet>}
+      {panel === "minigame" && <Sheet title="BEAUTY CARD MATCH"><MiniGameBody /></Sheet>}
       {consult && <ConsultModal id={consult} />}
     </>
   );
@@ -98,6 +101,10 @@ function CharacterPanel() {
           <Swatches label={t("look.eyeColor")} values={EYE_COLORS} value={look.eyeColor} onPick={(v) => g.setLook({ eyeColor: v })} />
           <Chips label={t("look.brows")} values={[...BROWS]} value={look.brows} onPick={(v) => g.setLook({ brows: v })} render={(v) => t(`brows.${v}`)} />
           <Swatches label={t("look.lip")} values={LIP_COLORS} value={look.lipColor} onPick={(v) => g.setLook({ lipColor: v })} />
+          <div className="mt-4">
+            <p className="text-xs font-bold text-ink/70">{t("look.height")} <span className="font-semibold text-ink/45">{Math.round((look.height ?? 1) * 100)}%</span></p>
+            <input type="range" min={0.92} max={1.08} step={0.01} value={look.height ?? 1} onChange={(e) => g.setLook({ height: Number(e.target.value) })} className="mt-1 w-full accent-pink-500" />
+          </div>
           <p className="mt-3 text-[12px] text-ink/40">{t("create.diversity")}</p>
         </>
       )}
@@ -134,8 +141,11 @@ function LoungePanel() {
   const next = LOUNGE_LEVELS[g.lounge.level];
   const can = next && g.coins >= next.cost && g.lp >= next.lp;
   const themes = (kind: "floor" | "wall" | "light") => INTERIOR.filter((i) => i.kind === kind && g.ownedInterior.includes(i.id));
+  const [tab, setTab] = useState<"manage" | "map">("manage");
   return (
     <Sheet title="LOUNGE MANAGEMENT">
+      <Tabs tabs={[["manage", t("lounge.tabManage")], ["map", t("lounge.tabMap")]]} value={tab} onPick={setTab} />
+      {tab === "map" ? <LoungeMap /> : <>
       <div className="rounded-3xl bg-gradient-to-br from-pink-soft to-lav/70 p-4">
         <p className="text-[12px] font-bold tracking-[0.25em] text-ink/60">LEVEL {cur.n}</p>
         <p className="text-xl font-black text-ink">{cur.name}</p>
@@ -156,6 +166,10 @@ function LoungePanel() {
       ) : <p className="mt-3 text-center text-sm font-bold text-gold">★ {t("lounge.max")}</p>}
       <button className="btn-dark mt-3 w-full" onClick={() => useUI.setState({ panel: null, mode: "edit", selected: null })}><Icon n="sofa" /> {t("edit.title")}</button>
       <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ panel: "shop", shopTab: "interior" })}><Icon n="shop" /> INTERIOR SHOP</button>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "pets" })}>♥ {t("pet.title")} ({g.pets.length})</button>
+        <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "minigame" })}><Icon n="sparkle" /> {t("mini.title")}</button>
+      </div>
       {(["floor", "wall", "light"] as const).map((k) => (
         <div key={k} className="mt-3">
           <p className="text-xs font-bold text-ink/70">{t(`lounge.${k}`)}</p>
@@ -166,6 +180,7 @@ function LoungePanel() {
       <div className="mt-1.5 grid grid-cols-2 gap-1.5">
         {SPACES.map(([n, lv]) => <div key={n} className={`rounded-xl px-2.5 py-1.5 text-[12px] font-bold ${g.lounge.level >= lv ? "bg-pink-soft/60 text-ink" : "bg-ink/5 text-ink/35"}`}>{g.lounge.level >= lv ? "✔" : <><Icon n="lock" /> LV.{lv}</>} {n}</div>)}
       </div>
+      </>}
     </Sheet>
   );
 }
@@ -333,7 +348,7 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
 function SocialPanel() {
   const t = useT();
   const g = useGame();
-  const [tab, setTab] = useState<"feed" | "friends" | "rank">("feed");
+  const [tab, setTab] = useState<"feed" | "friends" | "invite" | "rank">("feed");
   const [text, setText] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [cm, setCm] = useState("");
@@ -343,7 +358,8 @@ function SocialPanel() {
   ].sort((a, b) => b.score - a.score), [g.followers, g.lounge.level, g.stage, g.name]);
   return (
     <Sheet title="BEAUTY SOCIAL" wide>
-      <Tabs tabs={[["feed", "BEAUTY FEED"], ["friends", t("social.friends")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
+      <Tabs tabs={[["feed", "BEAUTY FEED"], ["friends", t("social.friends")], ["invite", t("invite.tab")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
+      {tab === "invite" && <InviteBody />}
       <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>
       {tab === "feed" && (
         <>

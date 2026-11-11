@@ -35,6 +35,7 @@ MIT (`LICENSE`, Copyright (c) 2026 Donchitos). Claude Code 용 게임 개발 작
 |---|---|---|
 | 캐릭터, 라운지, 가구, 제품 용기 | 본 프로젝트 코드(프로시저럴) | 자체 제작 |
 | DERMA HOME 본체·핸드피스 | 공식 제품 사진을 보고 코드로 모델링 | 자체 제작. **실제 제품 디자인·로고 재현이므로 권리자(UNI&CORE) 승인 필요** |
+| `public/models/*.glb` (DERMA HOME 본체, 케어 베드, 소파) | 본 프로젝트의 Blender 스크립트로 생성 | 자체 제작 |
 | 외부 3D 모델 / AI 생성 모델 | 없음 | — |
 
 ## 4. 브랜드 자산 — 출시 전 권리자 확인 필요
@@ -56,7 +57,7 @@ MIT (`LICENSE`, Copyright (c) 2026 Donchitos). Claude Code 용 게임 개발 작
 - 현금 결제·확률형 아이템 없음.
 
 ## 6. 외부 도구
-Blender, Meshy, Tripo3D, Tinkercad, Blockbench, Womp, Gemini, Google Flow — **이번 결과물에는 사용하지 않았다.** 도입 시 각 도구의 플랜별 상업적 이용 조건과 생성물 권리 귀속을 이 문서에 기록한다.
+Blender(GPL — 도구의 라이선스이며 Blender 로 만든 결과물에는 적용되지 않는다)는 `tools/blender/build_assets.py` 로 GLB 5개를 만드는 데 사용했다. Meshy, Tripo3D, Tinkercad, Blockbench, Womp, Gemini, Google Flow 는 사용하지 않았다. 도입 시 각 도구의 플랜별 상업적 이용 조건과 생성물 권리 귀속을 이 문서에 기록한다.
 
 ## 7. 폰트
 웹폰트 파일을 포함하지 않는다. 시스템 폰트 스택(Pretendard 가 설치된 경우 우선)만 사용.
