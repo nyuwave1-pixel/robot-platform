@@ -123,6 +123,27 @@ check("GA4 amazon_cta_click (product, placement, channel, link)", click?.p === "
 check("Amazon opened in new tab with correct ASIN", popup.url().includes("B0HJRKRKT7"), popup.url());
 await popup.close();
 
+// ---------- deferred tag loading ----------
+{
+  const tctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, userAgent: UA });
+  const tp = await tctx.newPage();
+  const tagReqs = [];
+  tp.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) tagReqs.push(Date.now()); });
+  await tp.goto(BASE + "/", { waitUntil: "load" });
+  await tp.waitForTimeout(600);
+  const before = tagReqs.length;
+  await tp.mouse.move(200, 300);
+  await tp.waitForTimeout(800);
+  check("gtag.js waits for the first interaction, then loads", before === 0 && tagReqs.length === 1, `${before}/${tagReqs.length}`);
+  const idle = await tctx.newPage();
+  const idleReqs = [];
+  idle.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) idleReqs.push(1); });
+  await idle.goto(BASE + "/", { waitUntil: "load" });
+  await idle.waitForTimeout(4000);
+  check("gtag.js loads by itself after 3 s without interaction", idleReqs.length === 1, String(idleReqs.length));
+  await tctx.close();
+}
+
 // ---------- mobile sticky CTA ----------
 const mob = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" });
 const mp = await mob.newPage();

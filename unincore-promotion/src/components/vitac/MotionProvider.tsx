@@ -24,6 +24,13 @@ export function MotionProvider() {
     let teardown = () => {};
 
     (async () => {
+      // Let the first paint finish before pulling in the animation libraries.
+      await new Promise<void>((resolve) => {
+        const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+        if (idle) idle(() => resolve(), { timeout: 1500 });
+        else window.setTimeout(resolve, 600);
+      });
+      if (cancelled) return;
       const [{ gsap }, { ScrollTrigger }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")]);
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
