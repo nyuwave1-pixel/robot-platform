@@ -117,9 +117,9 @@ export const ko: Messages = {
     introAria: "인트로 영상", introStart: "{brand} 시작하기", introSkipAria: "인트로 영상 건너뛰기",
     guideNote: "",
     promo: {
-      badge: "LAUNCH PROMOTION",
-      text: "6개 패키지 26% 할인 · 1,494,000원 → 1,100,000원",
-      textShort: "6개 패키지 26% 할인",
+      badge: "출시기념 4+2",
+      text: "4개 구매 시 2개 증정 · 총 6개 1,100,000원 (정가 1,494,000원 · 26% 할인)",
+      textShort: "출시기념 4+2 · 6개 1,100,000원",
       open: "11월 10일(화) 오후 3시 오픈",
       live: "프로모션 진행 중",
       cta: "구매하기",
