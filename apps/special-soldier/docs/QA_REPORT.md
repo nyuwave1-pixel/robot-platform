@@ -134,3 +134,4 @@ Blender 5.3 모델 22종을 넣은 빌드로 전체 E2E를 다시 실행했습�
 | ![drone](screenshots/drone.jpg) 정찰 드론 | ![thermal](screenshots/thermal.jpg) 열화상 |
 | ![boss](screenshots/m5-play.jpg) 보스전 | ![result](screenshots/m5-result.jpg) 결과 화면 |
 - **v0.5 빌드**(실내 소품 9종·대전차 장애물·크레인·화물선을 Blender 모델로 교체): 캠페인 구간 **16 / 16 통과** (1,592 s), 미션 01–05 완주, 콘솔 에러 0건, JS 힙 117 MB. 성능(SwiftShader): Low 1.6 · Medium 1.0 · High 1.4 FPS, 드로콜 415, 삼각형 232만.
+- **v0.6 빌드**(병사 전투복·장구류·총기 디테일 강화, 다색 위장무늬, 구조물 8종 교체): 캠페인 구간 **16 / 16 통과** (1,436 s), 미션 01–05 완주, 콘솔 에러 0건, JS 힙 125 MB. 성능(SwiftShader): Low 1.3 · Medium 1.0 · High 1.3 FPS, 드로콜 413, 삼각형 246만(v0.5 대비 +14만 — 병사 1인당 폴리곤 증가분). 실제 GPU 성능은 여전히 미검증입니다.
