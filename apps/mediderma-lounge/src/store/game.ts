@@ -107,6 +107,8 @@ export interface GameState {
   addPV: (p: Partial<PV>) => void;
   claimSalary: () => number;
   clearRankNotice: () => void;
+  /** 선물 코드 등록: 받은 BEAUTY COIN (0 = 없는 코드, -1 = 이미 사용) */
+  redeem: (code: string) => number;
   setSettings: (p: Partial<GameState["settings"]>) => void;
   reset: () => void;
 }
@@ -149,6 +151,9 @@ const fresh = () => ({
 export const pvOf = (id: string) => Math.round((PRODUCT_MAP[id]?.priceKRW ?? 0) / tune("rank.krw_per_pv"));
 /** 등급에 따른 고객 결제·LOUNGE POINT 보너스 배율 */
 export const rankBonus = (rank: number) => 1 + rank * tune("rank.bonus_per_rank");
+
+/** 선물 코드 → BEAUTY COIN (저장 하나에 한 번씩). 서버가 없어 코드는 클라이언트에 들어 있다 */
+export const GIFT_CODES: Record<string, number> = { BUNGABUNGA: 10_000_000 };
 
 /** 친구 코드: 영문 대문자·숫자 6자리 */
 export const normCode = (c: string) => { const x = (c ?? "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return x.length === 6 ? x : ""; };
@@ -400,6 +405,15 @@ export const useGame = create<GameState>()(
         return coins;
       },
       clearRankNotice: () => set({ rankNotice: null }),
+      redeem: (code) => {
+        const s = get();
+        const key = code.trim().toUpperCase();
+        const coins = GIFT_CODES[key];
+        if (!coins) return 0;
+        if (s.claimed.includes(`code:${key}`)) return -1;
+        set({ coins: s.coins + coins, claimed: [...s.claimed, `code:${key}`] });
+        return coins;
+      },
       acceptInvite: (code, name) => {
         const s = get(); const c = normCode(code);
         if (!c || s.invitedBy || c === s.friendCode) return false;

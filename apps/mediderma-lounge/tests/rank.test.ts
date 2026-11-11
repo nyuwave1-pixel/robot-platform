@@ -60,4 +60,12 @@ describe("라운지 등급", () => {
     g().finishCare({ routineId: null, modes: [], gain: {}, coins: 10, customer: { name: "A", type: "office", stars: 5, lp: 5 } });
     expect(g().pv.cust).toBe(5 * tune("rank.customer_pv_per_star"));
   });
+  it("선물 코드는 한 번만 등록된다", () => {
+    const c = g().coins;
+    expect(g().redeem("nope")).toBe(0);
+    expect(g().redeem(" bungabunga ")).toBe(10_000_000);
+    expect(g().coins).toBe(c + 10_000_000);
+    expect(g().redeem("BUNGABUNGA")).toBe(-1);
+    expect(g().coins).toBe(c + 10_000_000);
+  });
 });

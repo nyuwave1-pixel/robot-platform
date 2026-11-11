@@ -11,7 +11,7 @@ import { tune } from "../data/config";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
-    <Icon n={icon} />{n.toLocaleString()}
+    <Icon n={icon} />{n >= 1_000_000 ? `${(Math.floor(n / 10_000) / 100).toLocaleString()}M` : n.toLocaleString()}
   </span>
 );
 

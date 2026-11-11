@@ -630,6 +630,7 @@ function SettingsPanel() {
   const t = useT();
   const g = useGame();
   const [confirm, setConfirm] = useState(false);
+  const [code, setCode] = useState("");
   return (
     <Sheet title="SETTINGS">
       <p className="text-xs font-bold text-ink/70">{t("set.lang")}</p>
@@ -637,6 +638,11 @@ function SettingsPanel() {
       <p className="mt-1 text-[12px] text-ink/45">{t("set.langNote")}</p>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.quality")}</p>
       <div className="mt-1.5 flex gap-2">{(["auto", "high", "low"] as const).map((q) => <button key={q} className={`chip ${g.settings.quality === q ? "chip-on" : ""}`} onClick={() => g.setSettings({ quality: q })}>{t(`set.q.${q}`)}</button>)}</div>
+      <p className="mt-4 text-xs font-bold text-ink/70">{t("set.gift")}</p>
+      <div className="mt-1.5 flex gap-2">
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder={t("set.giftPh")} className="min-w-0 flex-1 rounded-2xl border-2 border-pink-soft bg-white px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-pink-deep" />
+        <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => { const n = g.redeem(code); useUI.getState().toast(n > 0 ? `+${n.toLocaleString()} BEAUTY COIN` : n < 0 ? t("set.giftUsed") : t("set.giftBad")); if (n > 0) setCode(""); }}>{t("set.giftOk")}</button>
+      </div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.controls")}</p>
       <p className="mt-1 whitespace-pre-line rounded-2xl bg-cream p-3 text-[13px] leading-relaxed text-ink/65">{t("set.controlsBody")}</p>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.save")}</p>

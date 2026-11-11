@@ -285,5 +285,10 @@
   "rank.look3": "Rank-colour capelet",
   "rank.look5": "Rank cape",
   "rank.look7": "Gold tiara and sparkles",
-  "rank.look9": "Crown · long cape · gold aura"
+  "rank.look9": "Crown · long cape · gold aura",
+  "set.gift": "Gift code",
+  "set.giftPh": "Enter code",
+  "set.giftOk": "Redeem",
+  "set.giftUsed": "Code already used",
+  "set.giftBad": "Unknown code"
 }

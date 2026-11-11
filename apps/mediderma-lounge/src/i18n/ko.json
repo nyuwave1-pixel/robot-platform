@@ -285,5 +285,10 @@
   "rank.look3": "등급 색 케이프릿",
   "rank.look5": "등급 망토",
   "rank.look7": "골드 티아라와 반짝임",
-  "rank.look9": "왕관 · 긴 망토 · 골드 오라"
+  "rank.look9": "왕관 · 긴 망토 · 골드 오라",
+  "set.gift": "선물 코드",
+  "set.giftPh": "코드 입력",
+  "set.giftOk": "등록",
+  "set.giftUsed": "이미 사용한 코드예요",
+  "set.giftBad": "없는 코드예요"
 }
