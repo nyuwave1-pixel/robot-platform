@@ -11,10 +11,11 @@ import lib, weapons, models
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
-asms = [models.soldier(), *weapons.all_weapons(), models.boat(), models.heli(), models.apc(), models.tree(), models.palm(), models.rock(), *models.unit_props()]
+asms = [models.soldier(), *weapons.all_weapons(), models.boat(), models.heli(), models.apc(), models.tree(), models.palm(), models.rock(), *models.unit_props(),
+        models.truck(), models.watchtower(), models.comms_tower(), models.radar(), models.lamp_post(), *models.wall_panels()]
 x = 0.0; roots = {}
 for a in asms:  # lay the assets out in a row so the .blend is browsable
-    w = 14 if a.name in ('Heli',) else 9 if a.name in ('Boat', 'APC', 'Tree', 'Palm') else 2.2
+    w = 14 if a.name in ('Heli',) else 9 if a.name in ('Boat', 'APC', 'Tree', 'Palm', 'Truck', 'Watchtower', 'CommsTower', 'Radar') else 2.2
     r = a.build((x + w / 2, 0, 0)); x += w + 0.6; roots[a.name] = r
     print(f'{a.name:14s} {lib.tris(r):6d} tris')
 print('TOTAL', sum(lib.tris(r) for r in roots.values()), 'tris,', len(roots), 'assets')
@@ -55,7 +56,7 @@ if '--no-render' not in sys.argv:
     scene.view_settings.view_transform = 'Filmic' if 'Filmic' in [v.name for v in scene.view_settings.bl_rna.properties['view_transform'].enum_items] else scene.view_settings.view_transform
     out = os.path.join(ROOT, 'docs', 'screenshots'); os.makedirs(out, exist_ok=True)
     # hide the gun-less soldier's unused headgear for the beauty shot, attach a rifle
-    shots = [('Soldier', 1.25, 1.85, 0, 0.55), ('W_m4', 0.42, 0.1, -0.02, 0.9), ('W_bolt', 0.6, 0.1, 0, 0.9), ('W_lmg', 0.55, 0.1, 0, 0.9), ('Boat', 4.6, 1.6, 0, 0.75), ('Heli', 7.5, 4.0, 0, 0.8), ('APC', 3.8, 2.6, 0, 0.75), ('Tree', 7.5, 11, 0, 0.5), ('Palm', 6, 9, 0, 0.5), ('P_crate', 0.9, 0.2, 0, 0.7)]
+    shots = [('Soldier', 1.25, 1.85, 0, 0.55), ('W_m4', 0.42, 0.1, -0.02, 0.9), ('W_bolt', 0.6, 0.1, 0, 0.9), ('W_lmg', 0.55, 0.1, 0, 0.9), ('Boat', 4.6, 1.6, 0, 0.75), ('Heli', 7.5, 4.0, 0, 0.8), ('APC', 3.8, 2.6, 0, 0.75), ('Tree', 7.5, 11, 0, 0.5), ('Palm', 6, 9, 0, 0.5), ('P_crate', 0.9, 0.2, 0, 0.7), ('Truck', 4.2, 3.0, 0, 0.75), ('Watchtower', 6.5, 9.5, 0, 0.6), ('CommsTower', 20, 36, 0, 0.5), ('Radar', 6.5, 10, 0, 0.6)]
     only = os.environ.get('ONLY')
     for o in bpy.data.objects:
         if o.name.startswith('acc_') and o.name not in ('acc_helmet', 'acc_nvg'):

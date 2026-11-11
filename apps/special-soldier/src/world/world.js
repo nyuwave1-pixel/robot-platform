@@ -183,17 +183,27 @@ export class World {
   /** Box prop. y = bottom. opts: {mat (surface name), hp, kind, noCol, dynamic, thin, pass, seeThrough, onDestroy} */
   box(x, y, z, sx, sy, sz, material, opts = {}) {
     const ag = opts.geo ? assetGeo(opts.geo) : null; // Blender prop modelled in a unit cube → scaled to the collider
+    if (opts.hidden) return this.addCollider({ min: new THREE.Vector3(x - sx / 2, y, z - sz / 2), max: new THREE.Vector3(x + sx / 2, y + sy, z + sz / 2), mat: opts.mat || 'concrete', mesh: null, kind: opts.kind, thin: opts.thin, pass: opts.pass, seeThrough: opts.seeThrough, noStand: opts.noStand }); // collider only: the visual is a separate Blender mesh
     const m = new THREE.Mesh(ag || boxGeo, ag ? MAT.prop : material); if (ag && opts.tint) m.userData.tint = opts.tint; m.position.set(x, y + sy / 2, z); if (ag && opts.rot90) { m.rotation.y = Math.PI / 2; m.scale.set(sz, sy, sx); } else m.scale.set(sx, sy, sz); m.castShadow = !opts.noShadow; m.receiveShadow = true;
     const dynamic = opts.dynamic || opts.hp !== undefined;
     if (dynamic) this.group.add(m); else this.statics.push(m);
     if (opts.noCol) return { mesh: m };
     return this.addCollider({ min: new THREE.Vector3(x - sx / 2, y, z - sz / 2), max: new THREE.Vector3(x + sx / 2, y + sy, z + sz / 2), mat: opts.mat || 'concrete', mesh: dynamic ? m : null, hp: opts.hp, kind: opts.kind, thin: opts.thin, pass: opts.pass, seeThrough: opts.seeThrough, noStand: opts.noStand, onDestroy: opts.onDestroy, explosive: opts.explosive });
   }
+  /** Static Blender mesh (merged into the batch at finalize). y = bottom for unit-cube props, origin for full models (pass origin:true). */
+  addStatic(geoName, x, y, z, sx = 1, sy = 1, sz = 1, rotY = 0, tint = null, origin = false) {
+    const g = assetGeo(geoName); if (!g) return false; const m = new THREE.Mesh(g, MAT.prop); m.position.set(x, origin ? y : y + sy / 2, z); m.rotation.y = rotY; m.scale.set(sx, sy, sz); if (tint) m.userData.tint = tint; this.statics.push(m); return true;
+  }
   /** Rectangular wall ring with door gaps. gaps: {n:[[a,b]],s:[],e:[],w:[]} in world coords along the wall. */
   walls(x0, z0, x1, z1, y, h, material, gaps = {}, th = 0.5, mat = 'concrete') {
+    const panel = material === MAT.concrete ? { geo: 'P_wall_concrete' } : material === MAT.dark ? { geo: 'P_wall_concrete', tint: [0.5, 0.5, 0.52] } : material === MAT.white ? { geo: 'P_wall_concrete', tint: [1.7, 1.72, 1.72] } : material === MAT.metal ? { geo: 'P_wall_metal' } : material === MAT.olive ? { geo: 'P_wall_metal', tint: [0.85, 0.95, 0.6] } : material === MAT.wood ? { geo: 'P_wall_wood' } : null;
     const seg = (a0, a1, fixed, horiz, g = []) => {
       let cur = a0; const gs = [...g].sort((p, q) => p[0] - q[0]);
-      for (const [ga, gb] of [...gs, [a1, a1]]) { if (ga > cur + 0.01) { const len = ga - cur, mid = (cur + ga) / 2; horiz ? this.box(mid, y, fixed, len, h, th, material, { mat }) : this.box(fixed, y, mid, th, h, len, material, { mat }); } cur = Math.max(cur, gb); }
+      for (const [ga, gb] of [...gs, [a1, a1]]) { if (ga > cur + 0.01) { const len = ga - cur, mid = (cur + ga) / 2;
+        if (panel && assetGeo(panel.geo)) { // one collider, Blender wall panels tiled along it (≈4 m each)
+          horiz ? this.box(mid, y, fixed, len, h, th, material, { mat, hidden: true }) : this.box(fixed, y, mid, th, h, len, material, { mat, hidden: true });
+          const n = Math.max(1, Math.round(len / 4)), w = len / n; for (let i = 0; i < n; i++) { const c = cur + w * (i + 0.5); horiz ? this.addStatic(panel.geo, c, y, fixed, w, h, th * 1.12, 0, panel.tint) : this.addStatic(panel.geo, fixed, y, c, w, h, th * 1.12, Math.PI / 2, panel.tint); }
+        } else horiz ? this.box(mid, y, fixed, len, h, th, material, { mat }) : this.box(fixed, y, mid, th, h, len, material, { mat }); } cur = Math.max(cur, gb); }
     };
     seg(x0, x1, z0, true, gaps.n); seg(x0, x1, z1, true, gaps.s); seg(z0, z1, x0, false, gaps.w); seg(z0, z1, x1, false, gaps.e);
   }

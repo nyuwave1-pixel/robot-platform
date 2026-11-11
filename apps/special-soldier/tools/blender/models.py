@@ -285,3 +285,197 @@ def unit_props():
         a.box('root', (1.0, 1.0, 0.04), (0, 0, sz * 0.48), cm, bevel=0.004, seg=1)
     out.append(a)
     return out
+
+
+# ---------------------------------------------------------------- structures & vehicles (v0.4)
+def truck():
+    """6x6 cargo truck, 6.4 m long (front -Y), 2.5 m wide, 3.1 m high. Origin: ground centre."""
+    a = Asm('Truck')
+    ol = mat('truck_olive', (0.16, 0.18, 0.11), 0.8, 0.1); dk = mat('truck_dark', (0.03, 0.032, 0.035), 0.85); st = mat('truck_steel', (0.07, 0.075, 0.08), 0.5, 0.7)
+    canvas = mat('truck_canvas', (0.2, 0.21, 0.14), 0.95); glass = mat('truck_glass', (0.05, 0.08, 0.1), 0.1, 0.6); lamp = mat('truck_lamp', (0.9, 0.85, 0.6), 0.3)
+    a.box('root', (0.9, 6.0, 0.22), (0, 0.1, 0.92), st, bevel=0.03)  # chassis rails
+    # cab
+    a.box('root', (2.3, 1.7, 1.25), (0, -2.2, 1.7), ol, bevel=0.12)
+    a.box('root', (2.25, 1.4, 0.75), (0, -2.05, 2.6), ol, bevel=0.14, taper=(0.9, 0.8))
+    a.box('root', (2.0, 0.05, 0.6), (0, -2.74, 2.58), glass, rot=(0.22, 0, 0), bevel=0.01)
+    for sx in (-1, 1):
+        a.box('root', (0.05, 0.8, 0.5), (sx * 1.13, -2.05, 2.6), glass, bevel=0.01)
+        a.box('root', (0.5, 0.5, 0.35), (sx * 0.85, -3.1, 1.55), ol, bevel=0.08)  # fenders
+        a.cyl('root', 0.11, 0.06, (sx * 0.8, -3.18, 1.7), lamp, rot=(H, 0, 0), n=12)
+        a.box('root', (0.06, 0.06, 0.5), (sx * 1.3, -2.7, 2.4), st, bevel=0.01); a.box('root', (0.05, 0.2, 0.3), (sx * 1.36, -2.72, 2.6), dk, bevel=0.02)  # mirrors
+    a.box('root', (1.6, 0.9, 0.85), (0, -3.25, 1.55), ol, bevel=0.1)  # hood
+    for i in range(6):
+        a.box('root', (1.3, 0.04, 0.06), (0, -3.72, 1.3 + i * 0.1), dk, bevel=0.01)  # grille
+    a.box('root', (2.4, 0.18, 0.28), (0, -3.72, 0.95), st, bevel=0.04)  # bumper
+    # cargo bed + canvas tilt with bows
+    a.box('root', (2.45, 3.9, 0.16), (0, 1.15, 1.3), st, bevel=0.02)
+    for sx in (-1, 1):
+        a.box('root', (0.08, 3.9, 0.7), (sx * 1.19, 1.15, 1.7), ol, bevel=0.02)
+    a.box('root', (2.45, 0.08, 0.7), (0, 3.08, 1.7), ol, bevel=0.02); a.box('root', (2.45, 0.08, 0.7), (0, -0.78, 1.7), ol, bevel=0.02)
+    verts, faces = [], []
+    for i, y in enumerate((-0.8, 0.2, 1.15, 2.1, 3.1)):
+        sag = 0.05 if i % 2 else 0.0
+        verts += [(-1.22, y, 2.05), (-1.2, y, 2.7 - sag), (-0.7, y, 3.08 - sag), (0.7, y, 3.08 - sag), (1.2, y, 2.7 - sag), (1.22, y, 2.05)]
+    for i in range(4):
+        for j in range(5):
+            p = i * 6 + j; faces.append((p, p + 1, p + 7, p + 6))
+    faces.append((0, 1, 2, 3, 4, 5)); faces.append((24, 25, 26, 27, 28, 29))
+    a.mesh('root', verts, faces, canvas, smooth=0.5, subsurf=1)
+    for wy in (-2.6, 0.9, 2.3):
+        for sx in (-1, 1):
+            a.cyl('root', 0.54, 0.38, (sx * 1.02, wy, 0.54), dk, rot=(0, H, 0), n=18, bevel=0.07)
+            a.cyl('root', 0.24, 0.42, (sx * 1.02, wy, 0.54), st, rot=(0, H, 0), n=10, bevel=0.02)
+        a.cyl('root', 0.07, 2.0, (0, wy, 0.54), st, rot=(0, H, 0), n=8)
+    a.cyl('root', 0.3, 0.9, (1.0, -0.9, 1.0), st, rot=(H, 0, 0), n=14, bevel=0.03)  # fuel tank
+    a.box('root', (0.5, 0.7, 0.5), (-1.0, -0.9, 1.0), dk, bevel=0.05)  # battery box / spare
+    return a
+
+
+def watchtower():
+    """Timber watchtower: deck top at z=6.5 (3.6 m square), roof above. Origin: ground centre."""
+    a = Asm('Watchtower')
+    wood = mat('tower_wood', (0.33, 0.24, 0.14), 0.9); dark = mat('tower_wood_dark', (0.2, 0.14, 0.08), 0.92); tin = mat('tower_tin', (0.3, 0.19, 0.14), 0.6, 0.4); st = mat('tower_steel', (0.1, 0.1, 0.11), 0.5, 0.6)
+    legs = [(-1.5, -1.5), (1.5, -1.5), (-1.5, 1.5), (1.5, 1.5)]
+    for x, y in legs:
+        a.limb('root', (x * 1.12, y * 1.12, -0.3), (x, y, 6.5), 0.13, 0.11, wood, n=8)
+        a.box('root', (0.45, 0.45, 0.25), (x * 1.12, y * 1.12, 0.05), mat('tower_conc', (0.4, 0.4, 0.38), 0.9), bevel=0.04)
+    for z0, z1 in ((0.4, 2.4), (2.4, 4.4), (4.4, 6.3)):  # cross bracing on all four sides
+        for (x0, y0), (x1, y1) in ((legs[0], legs[1]), (legs[1], legs[3]), (legs[3], legs[2]), (legs[2], legs[0])):
+            a.limb('root', (x0, y0, z0), (x1, y1, z1), 0.045, 0.045, dark, n=6); a.limb('root', (x1, y1, z0), (x0, y0, z1), 0.045, 0.045, dark, n=6)
+            a.limb('root', (x0, y0, z1), (x1, y1, z1), 0.05, 0.05, dark, n=6)
+    for i in range(9):  # deck planks
+        a.box('root', (0.38, 3.6, 0.1), (-1.6 + i * 0.4, 0, 6.45), wood, bevel=0.012, seg=1)
+    a.box('root', (3.7, 3.7, 0.12), (0, 0, 6.33), dark, bevel=0.02, seg=1)
+    for sx, sy, sz in ((3.6, 0.1, 0.0), (0.1, 3.6, 0.0)):  # rails (0.7 m, matches the collider)
+        for s in (-1, 1):
+            cx, cy = (0, s * 1.75) if sx > 1 else (s * 1.75, 0)
+            a.box('root', (sx, sy, 0.1), (cx, cy, 7.15), wood, bevel=0.012, seg=1); a.box('root', (sx, sy, 0.08), (cx, cy, 6.85), wood, bevel=0.012, seg=1)
+            for k in range(5):
+                off = -1.6 + k * 0.8
+                a.box('root', (0.07, 0.07, 0.7), ((off, s * 1.75) if sx > 1 else (s * 1.75, off)) + (6.85,), dark, bevel=0.01, seg=1)
+    for x, y in legs:
+        a.limb('root', (x * 1.13, y * 1.13, 6.5), (x * 1.13, y * 1.13, 8.9), 0.07, 0.06, wood, n=6)
+    for s in (-1, 1):  # corrugated gable roof
+        a.box('root', (4.3, 2.3, 0.06), (0, s * 1.05, 9.25), tin, rot=(s * 0.38, 0, 0), bevel=0.01, seg=1)
+        for k in range(10):
+            a.box('root', (0.08, 2.3, 0.05), (-1.9 + k * 0.42, s * 1.05, 9.3), tin, rot=(s * 0.38, 0, 0), bevel=0.01, seg=1)
+    a.box('root', (4.3, 0.12, 0.12), (0, 0, 9.68), dark, bevel=0.02, seg=1)
+    for k in range(14):  # ladder
+        a.limb('root', (-0.3, -1.95 - k * 0.012, 0.3 + k * 0.45), (0.3, -1.95 - k * 0.012, 0.3 + k * 0.45), 0.025, 0.025, dark, n=6)
+    for sx in (-0.3, 0.3):
+        a.limb('root', (sx, -1.95, 0.0), (sx, -2.12, 6.6), 0.035, 0.035, wood, n=6)
+    a.cyl('root', 0.3, 0.42, (1.2, -1.2, 7.55), st, rot=(H * 0.85, 0, 0.6), n=14, bevel=0.03)  # searchlight housing
+    a.limb('root', (1.2, -1.2, 6.5), (1.2, -1.2, 7.4), 0.04, 0.04, st, n=6)
+    for k in range(3):  # sandbags on the deck edge
+        a.box('root', (0.7, 0.32, 0.2), (-0.9 + k * 0.72, -1.5, 6.62), mat('p_sand', (0.55, 0.48, 0.33), 0.95), bevel=0.06, seg=1)
+    return a
+
+
+def comms_tower():
+    """34 m lattice relay mast with dishes and whip antennas. Origin: base centre."""
+    a = Asm('CommsTower')
+    st = mat('mast_steel', (0.42, 0.44, 0.45), 0.5, 0.7); red = mat('mast_red', (0.55, 0.1, 0.07), 0.6, 0.4); wh = mat('mast_white', (0.75, 0.76, 0.75), 0.5, 0.1); dk = mat('mast_dark', (0.05, 0.05, 0.06), 0.7)
+    H0, top = 34.0, 0.32
+    def corner(i, z):
+        w = 1.25 + (top - 1.25) * (z / H0); return ((w if i in (1, 2) else -w), (w if i in (2, 3) else -w), z)
+    for i in range(4):
+        for s in range(8):
+            z0, z1 = s * H0 / 8, (s + 1) * H0 / 8
+            a.limb('root', corner(i, z0), corner(i, z1), 0.07, 0.065, red if s % 2 else st, n=6)
+    for s in range(16):
+        z0, z1 = s * H0 / 16, (s + 1) * H0 / 16
+        for i in range(4):
+            j = (i + 1) % 4
+            a.limb('root', corner(i, z1), corner(j, z1), 0.028, 0.028, st, n=4)
+            a.limb('root', corner(i, z0), corner(j, z1), 0.022, 0.022, st, n=4) if s % 2 == 0 else a.limb('root', corner(j, z0), corner(i, z1), 0.022, 0.022, st, n=4)
+    a.box('root', (3.4, 3.4, 0.4), (0, 0, 0.1), mat('mast_conc', (0.42, 0.42, 0.4), 0.9), bevel=0.05, seg=1)
+    for an, z, r in ((0.5, 24.0, 1.1), (2.6, 27.0, 0.9), (4.4, 29.5, 1.0), (1.4, 21.0, 0.7)):  # microwave dishes
+        w = 1.25 + (top - 1.25) * (z / H0) + 0.25; cx, cy = math.cos(an) * w, math.sin(an) * w
+        a.cyl('root', r, 0.35, (cx + math.cos(an) * 0.25, cy + math.sin(an) * 0.25, z), wh, rot=(0, H, an), r2=r * 0.35, n=18, bevel=0.02)
+        a.limb('root', (cx * 0.6, cy * 0.6, z), (cx, cy, z), 0.05, 0.05, st, n=6)
+    for k, (x, y) in enumerate(((0.25, 0.25), (-0.25, 0.25), (0.0, -0.3))):
+        a.cyl('root', 0.02, 4.0 + k, (x, y, H0 + 2.0 + k * 0.5), dk, n=6)  # whips
+    for z in (11.0, 22.0):  # panel antennas
+        for an in (0, 2.09, 4.19):
+            w = 1.25 + (top - 1.25) * (z / H0) + 0.2
+            a.box('root', (0.28, 0.12, 2.0), (math.cos(an) * w, math.sin(an) * w, z), wh, rot=(0, 0, an + H), bevel=0.03, seg=1)
+    a.box('root', (0.8, 0.5, 1.4), (1.5, -0.2, 1.0), mat('mast_cabinet', (0.3, 0.33, 0.3), 0.6, 0.4), bevel=0.04, seg=1)
+    for k in range(40):  # ladder up one face
+        z = 0.6 + k * 0.82
+        if z > H0 - 1:
+            break
+        w = 1.25 + (top - 1.25) * (z / H0)
+        a.limb('root', (-0.2, -w - 0.03, z), (0.2, -w - 0.03, z), 0.018, 0.018, dk, n=4)
+    return a
+
+
+def radar():
+    """Coastal radar: 7 m concrete pedestal ('base') and a rotating reflector ('dish', pivot at z=8.6)."""
+    a = Asm('Radar')
+    conc = mat('radar_conc', (0.42, 0.42, 0.4), 0.9); wh = mat('radar_white', (0.72, 0.74, 0.73), 0.5, 0.1); st = mat('radar_steel', (0.2, 0.21, 0.22), 0.5, 0.7)
+    a.pivot('base', (0, 0, 0)); a.pivot('dish', (0, 0, 8.6))
+    a.box('base', (2.4, 2.4, 6.6), (0, 0, 3.3), conc, bevel=0.08, taper=(0.86, 0.86), seg=1)
+    a.box('base', (3.0, 3.0, 0.4), (0, 0, 6.8), conc, bevel=0.06, seg=1)
+    for k in range(4):
+        an = k * H
+        a.limb('base', (math.cos(an) * 1.45, math.sin(an) * 1.45, 7.0), (math.cos(an) * 1.45, math.sin(an) * 1.45, 7.9), 0.03, 0.03, st, n=6)
+        a.limb('base', (math.cos(an) * 1.45, math.sin(an) * 1.45, 7.9), (math.cos(an + H) * 1.45, math.sin(an + H) * 1.45, 7.9), 0.03, 0.03, st, n=6)
+    a.box('base', (0.9, 0.08, 1.9), (0, -1.22, 1.0), st, bevel=0.02, seg=1)  # door
+    a.cyl('base', 0.45, 1.3, (0, 0, 7.6), st, n=12, bevel=0.03)
+    # reflector: parabolic-ish mesh panel, feed horn and back frame
+    verts, faces, NX, NZ = [], [], 9, 5
+    for j in range(NZ):
+        for i in range(NX):
+            x = (i / (NX - 1) - 0.5) * 5.2; z = (j / (NZ - 1) - 0.5) * 2.4
+            verts.append((x, 0.55 - (x * x) * 0.11 - (z * z) * 0.1, 8.6 + 1.5 + z))
+    for j in range(NZ - 1):
+        for i in range(NX - 1):
+            p = j * NX + i; faces.append((p, p + 1, p + NX + 1, p + NX))
+    a.mesh('dish', verts, faces, wh, smooth=1.0, solidify=0.06)
+    a.limb('dish', (0, 0.3, 8.6), (0, 0.3, 9.6), 0.12, 0.1, st, n=8)
+    a.limb('dish', (0, 0.35, 9.2), (0, -1.5, 10.1), 0.04, 0.04, st, n=6); a.box('dish', (0.3, 0.3, 0.3), (0, -1.6, 10.1), st, bevel=0.04, seg=1)
+    for sx in (-1, 1):
+        a.limb('dish', (0, 0.4, 9.3), (sx * 2.2, 0.15, 10.1), 0.035, 0.035, st, n=6)
+    return a
+
+
+def lamp_post():
+    """6 m steel lamp post with an arm and hooded head (the glowing bulb is added by the game)."""
+    a = Asm('LampPost'); st = mat('lamp_steel', (0.12, 0.125, 0.13), 0.5, 0.7)
+    a.limb('root', (0, 0, 0), (0, 0, 5.75), 0.09, 0.055, st, n=10)
+    a.cyl('root', 0.16, 0.5, (0, 0, 0.25), st, n=10, bevel=0.02)
+    a.tube('root', [(0, 0, 5.6), (0, -0.1, 5.95), (0, -0.5, 6.05), (0, -0.9, 6.0)], 0.04, st, res=4, bevel_res=2)
+    a.box('root', (0.3, 0.55, 0.12), (0, -0.95, 5.98), st, bevel=0.04, seg=1)
+    return a
+
+
+def wall_panels():
+    """Wall / roof panels modelled in a unit cube; the game tiles them along a wall (one panel ≈ 4 m)."""
+    out = []
+    a = Asm('P_wall_concrete'); c = mat('w_conc', (0.44, 0.44, 0.42), 0.92); c2 = mat('w_conc_dark', (0.33, 0.33, 0.32), 0.92)
+    a.box('root', (1.0, 0.86, 1.0), (0, 0, 0), c, bevel=0.004, seg=1)
+    for sx in (-0.5, 0.5):
+        a.box('root', (0.07, 1.0, 1.0), (sx * 0.93, 0, 0), c2, bevel=0.01, seg=1)  # pilasters
+    a.box('root', (1.0, 1.0, 0.07), (0, 0, 0.465), c2, bevel=0.01, seg=1); a.box('root', (1.0, 1.0, 0.1), (0, 0, -0.45), c2, bevel=0.01, seg=1)
+    for z in (-0.12, 0.2):
+        a.box('root', (0.86, 0.9, 0.012), (0, 0, z), c2, bevel=0.0, seg=1)  # formwork lines
+    out.append(a)
+    a = Asm('P_wall_metal'); m = mat('w_metal', (0.3, 0.33, 0.32), 0.55, 0.6); m2 = mat('w_metal_dark', (0.16, 0.17, 0.17), 0.6, 0.6)
+    a.box('root', (1.0, 0.7, 1.0), (0, 0, 0), m, bevel=0.003, seg=1)
+    for k in range(12):
+        a.box('root', (0.045, 1.0, 0.96), (-0.458 + k * 0.0833, 0, 0), m, bevel=0.012, seg=1)  # corrugation
+    for z in (-0.47, 0.47):
+        a.box('root', (1.0, 1.0, 0.06), (0, 0, z), m2, bevel=0.008, seg=1)
+    out.append(a)
+    a = Asm('P_wall_wood'); w = mat('w_wood', (0.4, 0.29, 0.17), 0.9); w2 = mat('w_wood_dark', (0.24, 0.17, 0.1), 0.92); random.seed(11)
+    for k in range(8):
+        a.box('root', (0.118, random.uniform(0.82, 0.96), 1.0), (-0.44 + k * 0.125, 0, 0), w if k % 3 else w2, bevel=0.008, seg=1)
+    for z in (-0.3, 0.32):
+        a.box('root', (1.0, 1.0, 0.09), (0, 0, z), w2, bevel=0.01, seg=1)
+    out.append(a)
+    a = Asm('P_roof'); r = mat('w_roof', (0.2, 0.21, 0.21), 0.6, 0.5)
+    a.box('root', (1.0, 1.0, 0.6), (0, 0, -0.2), r, bevel=0.01, seg=1)
+    for k in range(10):
+        a.box('root', (0.05, 1.0, 0.4), (-0.45 + k * 0.1, 0, 0.3), r, bevel=0.01, seg=1)
+    out.append(a)
+    return out

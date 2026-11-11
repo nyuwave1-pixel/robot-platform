@@ -86,3 +86,12 @@ export async function tune({ page, sim, shot }) {
   console.log(JSON.stringify({ open, before, after: await page.evaluate(() => SS.weapons.slot.w.rpm), sum: await page.textContent('#tuneSum'), state: await page.evaluate(() => SS.state) })); await shot('T-tune');
   await page.evaluate(() => { SS.weapons.slot.w.rpm = 800; });
 }
+export async function structs({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const view = async (mi, x, z, yaw, pitch, name) => { await page.evaluate(([mi, x, z, yaw, pitch]) => { if (SS.mission.idx !== mi || SS.state !== 'playing') { SS.startMission(mi, true); SS.noTarget = true; SS.godMode = true; } QA.tp(x, z); SS.player.yaw = yaw; SS.player.pitch = pitch; }, [mi, x, z, yaw, pitch]); await sim(0.6); await shot(name); };
+  await view(2, -45, -108, 2.2, 0.05, 'S1-trucks');      // motor pool trucks + containers
+  await view(2, 20, -105, 0.15, 0.1, 'S2-hq');           // HQ building walls / roof
+  await view(2, -95, -22, 2.5, 0.35, 'S3-tower');        // corner watchtower
+  await view(1, -112, 178, 2.45, 0.5, 'S4-comms');       // comms mast
+  console.log(await page.evaluate(() => JSON.stringify({ assets: SS.assets.count, draws: SS.stats.calls, tris: SS.stats.tris })));
+}

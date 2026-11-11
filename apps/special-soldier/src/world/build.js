@@ -23,24 +23,28 @@ export function buildIsland() {
   const crate = (x, z, s = 1.1, y) => W.box(x, y ?? H(x, z) - 0.05, z, s, s, s, MAT.wood, { mat: 'wood', hp: 70, kind: 'crate', geo: 'P_crate' });
   const ammoBox = (x, z, y) => { const yy = y ?? H(x, z); W.box(x, yy, z, 0.9, 0.5, 0.6, MAT.olive, { mat: 'metal', kind: 'cover' }); W.interactables.push({ x, y: yy + 0.5, z, r: 2.4, label: 'RESUPPLY AMMO', repeat: 20, act: () => G.weapons.resupply() }); };
   const barrel = (x, z, y) => W.box(x, y ?? H(x, z) - 0.05, z, 0.75, 1.15, 0.75, MAT.red, { mat: 'metal', hp: 25, kind: 'barrel', explosive: 6, geo: 'P_barrel' });
-  const lamp = (x, z, h = 6, light = false) => { const y = H(x, z); W.box(x, y, z, 0.18, h, 0.18, MAT.dark, { noCol: true }); const b = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), MAT.lamp); b.position.set(x, y + h, z); W.group.add(b); if (light) { const p = new THREE.PointLight(0xffe2a0, 60, 38, 1.8); p.position.set(x, y + h - 0.3, z); W.group.add(p); } };
+  const lamp = (x, z, h = 6, light = false) => { const y = H(x, z), k = h / 6, model = W.addStatic('LampPost', x, y, z, 1, k, 1, 0, null, true); if (!model) W.box(x, y, z, 0.18, h, 0.18, MAT.dark, { noCol: true });
+    const b = new THREE.Mesh(new THREE.SphereGeometry(model ? 0.13 : 0.28, 8, 6), MAT.lamp); b.position.set(x, y + (model ? 5.9 * k : h), z + (model ? 0.95 : 0)); W.group.add(b); if (light) { const p = new THREE.PointLight(0xffe2a0, 60, 38, 1.8); p.position.set(x, y + h - 0.4, z + (model ? 0.95 : 0)); W.group.add(p); } };
   const container = (x, z, m, alongX = true, y) => W.box(x, y ?? H(x, z) - 0.1, z, alongX ? 6.1 : 2.5, 2.6, alongX ? 2.5 : 6.1, m, { mat: 'metal', kind: 'cover', geo: 'P_container', rot90: !alongX, tint: m === MAT.rust ? [1.35, 0.62, 0.4] : m === MAT.blue ? [0.5, 0.8, 1.3] : [0.78, 0.86, 0.56] });
   const truck = (x, z, alongX = true) => {
-    const y = H(x, z), L = 6.4, Wd = 2.5, g = new THREE.Group(); g.position.set(x, y, z); if (!alongX) g.rotation.y = Math.PI / 2;
-    const part = (px, py, pz, sx, sy, sz, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(px, py, pz); b.castShadow = true; g.add(b); return b; };
-    part(1.9, 1.75, 0, 2.2, 1.9, 2.4, MAT.olive); part(-1.2, 2.0, 0, 4, 2.2, 2.45, MAT.olive); part(0, 0.8, 0, L, 0.5, 2.3, MAT.dark);
-    for (const wx of [-2.1, -0.9, 2]) for (const wz of [-1.15, 1.15]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.4, 10), MAT.rubber); w.rotation.x = Math.PI / 2; w.position.set(wx, 0.52, wz); g.add(w); }
+    const y = H(x, z), L = 7.2, Wd = 2.6, g = new THREE.Group(); g.position.set(x, y, z); if (!alongX) g.rotation.y = Math.PI / 2;
+    const tgeo = assetGeo('Truck');
+    if (tgeo) { const body = new THREE.Mesh(tgeo, MAT.prop); body.castShadow = true; body.receiveShadow = true; g.add(body); g.rotation.y = alongX ? Math.PI / 2 : 0; } // Blender truck faces +Z
+    else { const part = (px, py, pz, sx, sy, sz, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(px, py, pz); b.castShadow = true; g.add(b); return b; };
+      part(1.9, 1.75, 0, 2.2, 1.9, 2.4, MAT.olive); part(-1.2, 2.0, 0, 4, 2.2, 2.45, MAT.olive); part(0, 0.8, 0, L, 0.5, 2.3, MAT.dark);
+      for (const wx of [-2.1, -0.9, 2]) for (const wz of [-1.15, 1.15]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.4, 10), MAT.rubber); w.rotation.x = Math.PI / 2; w.position.set(wx, 0.52, wz); g.add(w); } }
     W.group.add(g);
     const c = W.addCollider({ min: new THREE.Vector3(x - (alongX ? L : Wd) / 2, y, z - (alongX ? Wd : L) / 2), max: new THREE.Vector3(x + (alongX ? L : Wd) / 2, y + 3.1, z + (alongX ? Wd : L) / 2), mat: 'metal', hp: 260, kind: 'vehicle', explosive: 8, mesh: null,
       onDestroy: () => { g.traverse((o) => { if (o.isMesh) o.material = MAT.rubber; }); g.rotation.z = 0.08; W.addCollider({ min: c.min, max: c.max.clone().setY(y + 2.4), mat: 'metal', kind: 'cover' }); } });
   };
   const tower = (x, z, h = 6.5) => {
-    const y = H(x, z); for (const [ax, az] of [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]]) W.box(x + ax, y, z + az, 0.25, h, 0.25, MAT.wood, { noCol: true });
-    W.box(x, y + h, z, 3.6, 0.25, 3.6, MAT.wood, { mat: 'wood' });
-    W.box(x, y + h + 0.25, z - 1.7, 3.6, 0.7, 0.15, MAT.wood, { mat: 'wood' }); W.box(x, y + h + 0.25, z + 1.7, 3.6, 0.7, 0.15, MAT.wood, { mat: 'wood' });
-    W.box(x - 1.7, y + h + 0.25, z, 0.15, 0.7, 3.6, MAT.wood, { mat: 'wood' }); W.box(x + 1.7, y + h + 0.25, z, 0.15, 0.7, 3.6, MAT.wood, { mat: 'wood' });
-    W.box(x, y + h + 2.6, z, 4, 0.2, 4, MAT.rust, { noCol: true });
-    for (const [ax, az] of [[-1.7, -1.7], [1.7, -1.7], [-1.7, 1.7], [1.7, 1.7]]) W.box(x + ax, y + h, z + az, 0.15, 2.6, 0.15, MAT.wood, { noCol: true });
+    const y = H(x, z), model = W.addStatic('Watchtower', x, y, z, 1, (h + 0.25) / 6.5, 1, 0, null, true), hid = model ? { mat: 'wood', hidden: true } : { mat: 'wood' }; // Blender tower: deck top at 6.5 m → scaled to this tower's deck
+    if (!model) for (const [ax, az] of [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]]) W.box(x + ax, y, z + az, 0.25, h, 0.25, MAT.wood, { noCol: true });
+    W.box(x, y + h, z, 3.6, 0.25, 3.6, MAT.wood, hid);
+    W.box(x, y + h + 0.25, z - 1.7, 3.6, 0.7, 0.15, MAT.wood, hid); W.box(x, y + h + 0.25, z + 1.7, 3.6, 0.7, 0.15, MAT.wood, hid);
+    W.box(x - 1.7, y + h + 0.25, z, 0.15, 0.7, 3.6, MAT.wood, hid); W.box(x + 1.7, y + h + 0.25, z, 0.15, 0.7, 3.6, MAT.wood, hid);
+    if (!model) { W.box(x, y + h + 2.6, z, 4, 0.2, 4, MAT.rust, { noCol: true });
+      for (const [ax, az] of [[-1.7, -1.7], [1.7, -1.7], [-1.7, 1.7], [1.7, 1.7]]) W.box(x + ax, y + h, z + az, 0.15, 2.6, 0.15, MAT.wood, { noCol: true }); }
     // searchlight beam (animated cone)
     const beam = new THREE.Mesh(new THREE.ConeGeometry(3.2, 46, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x8fa8c8, transparent: true, opacity: 0.012, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
     beam.geometry.translate(0, -23, 0); beam.geometry.rotateX(-Math.PI / 2); const piv = new THREE.Group(); piv.position.set(x, y + h + 2.2, z); piv.add(beam); W.group.add(piv);
@@ -49,12 +53,15 @@ export function buildIsland() {
   };
   const building = (x, z, w, d, h, mat, gaps, opts = {}) => {
     const y = H(x, z) - 0.05; W.walls(x - w / 2, z - d / 2, x + w / 2, z + d / 2, y, h, mat, gaps, 0.5, opts.surf || 'concrete');
-    W.box(x, y + h, z, w + 0.8, 0.35, d + 0.8, opts.roof || MAT.dark, { mat: 'metal' });
+    { const rm = opts.roof || MAT.dark; W.box(x, y + h, z, w + 0.8, 0.45, d + 0.8, rm, { mat: 'metal', geo: 'P_roof', tint: rm === MAT.rust ? [2.3, 1.15, 0.75] : rm === MAT.concrete ? [2.0, 2.0, 1.9] : [1, 1, 1] }); }
     if (opts.light !== false) { const l = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.08, 0.3), MAT.lamp); l.position.set(x, y + h - 0.1, z); W.group.add(l); }
     return y;
   };
   const glass = (x, y, z, sx, sy, sz) => W.box(x, y, z, sx, sy, sz, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true });
-  const radar = (x, z, h = 7) => { const y = H(x, z); W.box(x, y, z, 2.4, h, 2.4, MAT.concrete, {}); const dish = new THREE.Mesh(new THREE.SphereGeometry(2.6, 14, 8, 0, TAU, 0, 1.1), MAT.white); dish.material.side = THREE.DoubleSide; dish.rotation.x = -1.2; const piv = new THREE.Group(); piv.position.set(x, y + h + 1.6, z); piv.add(dish); W.group.add(piv); W.animated.push((dt) => { piv.rotation.y += dt * 0.7; }); const bl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), MAT.redLamp); bl.position.set(x, y + h + 0.2, z); W.group.add(bl); };
+  const radar = (x, z, h = 7) => { const y = H(x, z), dg = assetGeo('Radar', 'dish'); const piv = new THREE.Group(); piv.position.set(x, y + h + 1.6, z);
+    if (dg) { const bg = assetGeo('Radar', 'base'); const bm = new THREE.Mesh(bg, MAT.prop); bm.position.set(x, y, z); bm.scale.set(1, h / 7, 1); W.statics.push(bm); W.box(x, y, z, 2.4, h, 2.4, MAT.concrete, { hidden: true }); const d = new THREE.Mesh(dg, MAT.prop); d.castShadow = true; piv.add(d); }
+    else { W.box(x, y, z, 2.4, h, 2.4, MAT.concrete, {}); const dish = new THREE.Mesh(new THREE.SphereGeometry(2.6, 14, 8, 0, TAU, 0, 1.1), MAT.white); dish.material.side = THREE.DoubleSide; dish.rotation.x = -1.2; piv.add(dish); }
+    W.group.add(piv); W.animated.push((dt) => { piv.rotation.y += dt * 0.7; }); const bl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), MAT.redLamp); bl.position.set(x, y + h + 0.2, z); W.group.add(bl); };
 
   // ================= ZONE 01 — BEACH =================
   sandbags(-42, 306, 7); sandbags(-46.5, 303, 5, false); sandbags(46, 300, 7); sandbags(50.5, 297, 5, false);
@@ -70,9 +77,11 @@ export function buildIsland() {
     W.box(c.x - 16, y, c.z + 6, 1, 1.4, 3, MAT.metal, { mat: 'metal' }); const scr = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.7, 2), MAT.screen); scr.position.set(c.x - 15.45, y + 1.2, c.z + 6); W.group.add(scr);
     // lattice tower (visual) + collider core
     const tg = new THREE.Group(); tg.position.set(c.x, y, c.z);
-    for (const [ax, az] of [[-1.6, -1.6], [1.6, -1.6], [-1.6, 1.6], [1.6, 1.6]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.22, 34, 0.22), MAT.metal); l.position.set(ax * 0.6, 17, az * 0.6); l.rotation.set(az * 0.018, 0, -ax * 0.018); l.castShadow = true; tg.add(l); }
-    for (let i = 1; i < 9; i++) { const r = new THREE.Mesh(new THREE.BoxGeometry(2.6 - i * 0.14, 0.12, 2.6 - i * 0.14), MAT.metal); r.position.y = i * 3.8; tg.add(r); }
-    for (const a of [0.5, 2.6, 4.4]) { const d = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.3, 12), MAT.white); d.rotation.z = Math.PI / 2; d.rotation.y = a; d.position.set(Math.cos(a) * 1.3, 24 + a * 1.5, Math.sin(a) * 1.3); tg.add(d); }
+    const mg = assetGeo('CommsTower');
+    if (mg) { const mast = new THREE.Mesh(mg, MAT.prop); mast.castShadow = true; tg.add(mast); }
+    else { for (const [ax, az] of [[-1.6, -1.6], [1.6, -1.6], [-1.6, 1.6], [1.6, 1.6]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.22, 34, 0.22), MAT.metal); l.position.set(ax * 0.6, 17, az * 0.6); l.rotation.set(az * 0.018, 0, -ax * 0.018); l.castShadow = true; tg.add(l); }
+      for (let i = 1; i < 9; i++) { const r = new THREE.Mesh(new THREE.BoxGeometry(2.6 - i * 0.14, 0.12, 2.6 - i * 0.14), MAT.metal); r.position.y = i * 3.8; tg.add(r); }
+      for (const a of [0.5, 2.6, 4.4]) { const d = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.3, 12), MAT.white); d.rotation.z = Math.PI / 2; d.rotation.y = a; d.position.set(Math.cos(a) * 1.3, 24 + a * 1.5, Math.sin(a) * 1.3); tg.add(d); } }
     const bl = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 6), MAT.redLamp); bl.position.y = 34.3; tg.add(bl); W.group.add(tg);
     POI.commsTower = { group: tg, col: W.addCollider({ min: new THREE.Vector3(c.x - 1.3, y, c.z - 1.3), max: new THREE.Vector3(c.x + 1.3, y + 30, c.z + 1.3), mat: 'metal', noStand: true }) };
     W.animated.push((dt, t) => { bl.visible = Math.sin(t * 4) > 0; });

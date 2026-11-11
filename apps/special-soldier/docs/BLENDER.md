@@ -7,7 +7,7 @@ Blender에서 바로 열 수 있는 `.blend`, 그리고 Cycles 렌더 이미지�
 |---|---|
 | `tools/blender/lib.py` | 모델링 헬퍼(베벨 박스, 원기둥, 림, 스윕 튜브, 로프트 메시, 피벗 계층) |
 | `tools/blender/weapons.py` | 총기 10종 + 1인칭 팔 |
-| `tools/blender/models.py` | 병사, 침투 보트, 헬기, APC, 나무, 야자수, 바위, 소품 4종 |
+| `tools/blender/models.py` | 병사, 침투 보트, 헬기, APC, 나무, 야자수, 바위, 소품 4종, **트럭, 감시탑, 통신탑, 레이더, 가로등, 벽·지붕 패널 4종 (v0.4)** |
 | `tools/blender/build.py` | 전체 빌드 → GLB / .blend / 렌더 |
 | `blender/special_soldier_assets.blend` | **결과물. Blender 5.3에서 열어 수정 가능** |
 | `src/assets/assets.glb` | 게임이 로드하는 파일(번들에 인라인) |
@@ -38,6 +38,9 @@ Blender에서 직접 모델을 고친 경우에는 File → Export → glTF 2.0 
 | `APC` | `turret` | 포탑 회전 |
 | `Tree` `Palm` | `trunk` `canopy` | 인스턴싱(잎은 바람 셰이더) |
 | `P_crate` `P_barrel` `P_sandbags` `P_container` | — | 1×1×1 단위 큐브 안에 모델링 → 게임이 충돌 박스 크기로 스케일 |
+| `P_wall_concrete` `P_wall_metal` `P_wall_wood` `P_roof` | — | 단위 큐브 패널. 벽 한 구간에 약 4 m 간격으로 타일링(충돌체는 구간당 1개) |
+| `Truck` `Watchtower` `CommsTower` `LampPost` | — | 실제 크기 모델, 원점 = 지면 중심. 충돌체는 게임이 따로 둠 |
+| `Radar` | `base` `dish` | 받침대와 회전하는 반사판 |
 
 머티리얼 이름 `cloth` `vest` `skin` `helmet` 은 게임에서 병종 팔레트 색으로 바뀝니다.
 
@@ -66,7 +69,7 @@ Blender: 정면 −Y, 위 +Z, 미터. glTF로 내보내면 정면 +Z, 위 +Y.
 - 형상은 프리미티브 조합 + 베벨/스윕/로프트로 만든 **하드서피스 수준**입니다. 스컬프팅·리토폴로지·하이폴리 베이크는 없습니다.
 - 텍스처는 **코드로 생성한 타일링 패턴**(위장·때)이며 사진/스캔 기반 PBR 텍스처 세트가 아닙니다. UV는 박스 투영이라 이음새가 있습니다.
 - **리깅/스키닝 없음** — 병사는 관절이 분리된 강체 파츠이며 애니메이션은 게임 코드가 피벗을 돌립니다.
-- 건물·차량 트럭·통신탑·지형은 아직 게임 코드의 박스 지오메트리입니다.
+- 지형, 유리, 지하 시설의 바닥·천장·서버 랙·책상, 화물선, 항구 크레인은 아직 게임 코드의 박스 지오메트리입니다. 건물 벽은 패널 모델을 타일링한 것이라 창틀·문짝 같은 개별 디테일은 없습니다.
 
 ## 이 저장소의 에셋은 어디서 만들어졌나
 
