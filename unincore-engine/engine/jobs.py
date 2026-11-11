@@ -348,7 +348,7 @@ def render_creatives(out_dir=None, site_images=None) -> list[dict]:
     from .publish import BANNED
 
     copy = json.loads((CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
-    site_images = site_images or core.ROOT.parent / "unincore-promotion" / "public" / "products"
+    site_images = site_images or core.ROOT.parent / "unincore-promotion" / "public"
     out_dir = out_dir or core.DATA / "creatives"
     products = []
     for pid, c in copy["products"].items():

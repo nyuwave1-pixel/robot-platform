@@ -92,7 +92,7 @@ def test_creative_copy_is_compliant_and_uses_site_photos():
         text = " ".join([c["headline"], c["sub"], *c["points"]])
         assert not BANNED.search(text)
         assert not __import__("re").search(r"\$|% ?off|stars?|review|#1|best", text, __import__("re").I)
-        assert (core.ROOT.parent / "unincore-promotion" / "public" / "products" / c["image"]).exists()
+        assert (core.ROOT.parent / "unincore-promotion" / "public" / c["image"]).exists()
         for n in __import__("re").findall(r"\d+(?:\.\d+)?%", text):  # every percentage must be on the site
             assert n in site, (pid, n)
 

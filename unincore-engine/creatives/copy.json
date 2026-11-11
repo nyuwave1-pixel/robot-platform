@@ -5,7 +5,7 @@
   "products": {
     "UC-US-449": {
       "slug": "vitamin-c-13-5-ampoule",
-      "image": "ampoule-hero.webp",
+      "image": "landing/amz/ampoule-product.webp",
       "headline": "13.5% Pure Vitamin C Ampoule",
       "sub": "Korean vitamin C serum with glutathione",
       "points": ["13.5% pure vitamin C (ascorbic acid)", "Dual-layer formula", "2 pumps after cleansing"],
@@ -13,7 +13,7 @@
     },
     "UC-US-445": {
       "slug": "vita-c-brightening-mask",
-      "image": "mask-hero.webp",
+      "image": "landing/amz/mask-product.webp",
       "headline": "Vitamin C Sheet Mask",
       "sub": "2% pure vitamin C and glutathione",
       "points": ["100% TENCEL™ sheet", "10–20 minutes", "5 individually packed masks"],
@@ -21,7 +21,7 @@
     },
     "UC-US-441": {
       "slug": "vita-c-enzyme-powder-wash",
-      "image": "wash-hero.webp",
+      "image": "landing/amz/wash-product.webp",
       "headline": "Vitamin C Enzyme Powder Wash",
       "sub": "Korean enzyme powder cleanser",
       "points": ["Papain and bromelain enzymes", "Mildly acidic pH 5–5.5", "30 single-use 1 g pouches"],
