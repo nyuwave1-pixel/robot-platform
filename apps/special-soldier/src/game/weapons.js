@@ -75,7 +75,7 @@ export class Weapons {
     // recoil: part permanent climb, part self-recovering kick; horizontal drift alternates as the burst continues
     const stance = [1, 0.8, 0.62][p.stance] * (this.adsT > 0.5 ? 0.82 : 1.1), climb = (w.recoilV * (0.8 + Math.random() * 0.4) * stance * Math.PI) / 180;
     p.pitch = clamp(p.pitch + climb * 0.55, -1.5, 1.5); p.recoilOff += climb * 0.45; p.yaw += ((w.recoilH * (Math.random() - 0.5 + Math.sin(this.shotsSince * 0.9) * 0.35) * stance * Math.PI) / 180) * 1.6;
-    this.bloom = Math.min(3.5, this.bloom + w.spread * 0.16); this.kick = Math.min(0.09, this.kick + 0.022 + w.recoilV * 0.006); this.kickRot += 0.02 + w.recoilV * 0.008; p.shake = Math.max(p.shake, 0.06 + w.recoilV * 0.02);
+    this.bloom = Math.min(3.5, this.bloom + (lerp(w.spread, w.adsSpread, this.adsT) + 0.25) * 0.16); this.kick = Math.min(0.09, this.kick + 0.022 + w.recoilV * 0.006); this.kickRot += 0.02 + w.recoilV * 0.008; p.shake = Math.max(p.shake, 0.06 + w.recoilV * 0.02);
     // fx
     this.flash.visible = true; this.flashT = 0.045; this.flash.material.rotation = Math.random() * 6; const fs = w.cls === 'SIDEARM' ? 0.06 : 0.16 + w.recoilV * 0.02; this.flash.scale.set(fs, fs, 1); this.flashLight.intensity = w.cls === 'SIDEARM' ? 3 : 26;
     if (!w.shellReload && !w.explosive && w.cls !== 'SNIPER RIFLE' || id(s) === 'dmr') G.fx.shell(_o.copy(p.eye).addScaledVector(_dir, 0.4).addScaledVector(_right, 0.16).addScaledVector(_up, -0.1), _right, _up);

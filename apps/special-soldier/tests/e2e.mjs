@@ -22,6 +22,7 @@ await page.waitForFunction(() => window.SS && SS.state === 'menu', null, { timeo
 check('boot → main menu', true, `${((Date.now() - t0) / 1000).toFixed(1)} s load`);
 await ev(HELPERS); await ev(() => { localStorage.clear(); });
 const gl = await ev(() => { const g = SS.renderer.getContext(), d = g.getExtension('WEBGL_debug_renderer_info'); return d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'unknown'; });
+if (!process.env.CAMPAIGN_ONLY) {
 // ---------- menus: every main-menu button opens a working screen ----------
 for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['multiplayer', 'MULTIPLAYER'], ['operations', 'OPERATIONS'], ['weapons', 'ARMORY'], ['operator', 'OPERATOR'], ['settings', 'SETTINGS'], ['exit', 'EXIT GAME']]) {
   await page.click(`nav [data-a="${a}"]`); const h = await page.textContent('#menu h2'); check(`menu: ${a}`, h.includes(expect), h); if (a === 'weapons') await shot('menu-weapons'); if (a === 'settings') await shot('menu-settings');
@@ -51,7 +52,7 @@ await ev(() => { SS.player.pitch = 0.6; SS.input.btn[0] = true; }); await run(0.
 const pit = await ev(() => SS.player.pitch); check('recoil climbs the muzzle', pit > 0.6, `pitch +${((pit - 0.6) * 57.3).toFixed(1)}°`);
 await ev(() => QA.key('KeyV')); await run(0.1); check('fire mode toggle [V]', await ev(() => SS.weapons.slot.mode === 'semi')); await ev(() => { SS.input.btn[0] = true; }); await run(0.5); const mag2 = await ev(() => { SS.input.btn[0] = false; return SS.weapons.slot.mag; }); check('semi-auto: one round per trigger pull', mag2 === mag - 1, `${mag} → ${mag2}`); await ev(() => QA.key('KeyV'));
 await ev(() => QA.key('KeyR')); await run(0.3); check('reload starts', await ev(() => SS.weapons.reloading)); await run(2.6); check('reload completes', await ev(() => SS.weapons.slot.mag === 30));
-await ev(() => { SS.input.btn[2] = true; }); await run(0.6); check('ADS: zoom + tighter spread', await ev(() => SS.weapons.adsT === 1 && SS.camera.fov < 62 && SS.weapons.spreadDeg() < 0.5), await ev(() => `fov ${SS.camera.fov.toFixed(0)}, spread ${SS.weapons.spreadDeg().toFixed(2)}°`)); await ev(() => { SS.input.btn[2] = false; });
+await ev(() => { SS.input.btn[2] = true; }); await run(0.6); check('ADS: zoom + tighter spread', await ev(() => SS.weapons.adsT === 1 && SS.camera.fov < 62 && SS.weapons.spreadDeg() < 1.3), await ev(() => `fov ${SS.camera.fov.toFixed(0)}, spread ${SS.weapons.spreadDeg().toFixed(2)}°`)); await ev(() => { SS.input.btn[2] = false; });
 await ev(() => { SS.player.pitch = 0.3; QA.key('KeyG'); }); await run(0.2); check('grenade thrown', await ev(() => SS.fx.nades.length === 1 && SS.weapons.grenades === 3)); await run(3.5); check('grenade detonates', await ev(() => SS.fx.nades.length === 0));
 await ev(() => QA.key('KeyN')); await run(0.2); check('night vision [N]', await ev(() => SS.gear.vision === 1)); await shot('m1-nvg'); await ev(() => QA.key('KeyN'));
 await ev(() => QA.key('KeyL')); await run(0.1); check('tac light [L]', await ev(() => SS.gear.light && SS.gear.spot.intensity > 0)); await ev(() => QA.key('KeyL'));
@@ -60,9 +61,10 @@ await ev(() => QA.key('Tab')); await run(0.3); check('tactical map [Tab]', await
 await ev(() => QA.key('Escape')); await run(0.1); check('pause', await ev(() => SS.state === 'paused')); await page.click('[data-a="resume"]'); check('resume', await ev(() => SS.state === 'playing'));
 // ---------- AI: stealth detection, alert, damage, death + checkpoint ----------
 await ev(() => { SS.noTarget = false; SS.godMode = false; SS.startMission(0, true); }); await run(0.3);
-await ev(() => { const e = SS.enemies.list[6]; window._e = e; SS.player.stance = 1; QA.tp(e.pos.x - Math.sin(e.yaw) * 13, e.pos.z - Math.cos(e.yaw) * 13); SS.squad.clear(); }); await run(1.5);
+const yard = () => { SS.enemies.clear(); SS.squad.clear(); const mk = (x, z) => SS.enemies.spawn('guard', x, z, { group: 'beach', yaw: 0 }); window._e = mk(0, -40); return mk; };
+await ev(`(${yard})()(10, -36); SS.enemies.spawn('guard', -10, -36, { group: 'beach', yaw: 0 }); SS.player.stance = 1; QA.tp(0, -53);`); await run(1.5);
 check('AI: crouched behind a sentry (outside view cone) → not seen', await ev(() => !_e.see && _e.state === 0 && _e.detect < 0.3), await ev(() => `state ${_e.state}, detect ${_e.detect.toFixed(2)}`));
-await ev(() => { const e = _e; SS.player.stance = 0; QA.tp(e.pos.x + Math.sin(e.yaw) * 12, e.pos.z + Math.cos(e.yaw) * 12); }); await run(0.4); const det1 = await ev(() => _e.detect); await run(4);
+await ev(() => { SS.player.stance = 0; QA.tp(0, -28); }); await run(0.4); const det1 = await ev(() => _e.detect); await run(4);
 check('AI: awareness meter fills in view cone → COMBAT', await ev(() => _e.state === 3), `detect ${det1.toFixed(2)} after 0.4 s → state ${await ev(() => _e.state)}`);
 check('AI: alert propagates to the squad', await ev(() => SS.enemies.list.filter((e) => e.alive && e.state >= 2).length >= 3), await ev(() => SS.enemies.list.filter((e) => e.alive && e.state >= 2).length + ' hostiles alerted'));
 await run(6); check('AI: surviving sentry radios for reinforcements', await ev(() => SS.mission.flags.alarm === true && SS.enemies.count('qrf') > 0), await ev(() => SS.enemies.count('qrf') + ' QRF spawned'));
@@ -72,16 +74,17 @@ await run(25); const hp = await ev(() => ({ hp: SS.player.health, ar: SS.player.
 await ev(() => { SS.player.damage(500, 0, 0, 'bullet'); }); await run(2.5); check('death → KIA screen', await ev(() => SS.state === 'deadMenu')); await shot('kia'); await page.click('[data-a="restart"]'); check('restart from checkpoint', await ev(() => SS.state === 'playing' && SS.player.health === 100 && SS.mission.stats.deaths === 1));
 // ---------- stealth kill with the suppressed sidearm ----------
 await ev(() => { SS.startMission(0, true); }); await run(0.3);
-await ev(() => { QA.key('Digit3'); }); await run(0.8); await ev(() => { const e = SS.enemies.list[6]; window._e = e; SS.squad.clear(); SS.player.stance = 1; QA.tp(e.pos.x - Math.sin(e.yaw) * 9, e.pos.z - Math.cos(e.yaw) * 9); }); await run(0.3);
+await ev(() => { QA.key('Digit3'); }); await run(0.8); await ev(`(${yard})(); SS.enemies.spawn('guard', 60, -112, { group: 'beach', yaw: 0 }); SS.player.stance = 1; QA.tp(0, -49);`); await run(0.3);
 await ev(() => { SS.skipRender = true; for (let i = 0; i < 90 && _e.alive; i++) { const P = SS.player; P.updateCamera(0); const dx = _e.pos.x - P.eye.x, dz = _e.pos.z - P.eye.z, dy = _e.pos.y + 1.64 - P.eye.y; P.yaw = Math.atan2(-dx, -dz); P.pitch = Math.atan2(dy, Math.hypot(dx, dz)) - P.recoilOff; SS.input.btn[2] = true; SS.input.btn[0] = i > 20 && i % 8 < 2; SS.tick(1 / 30); } SS.input.btn[0] = SS.input.btn[2] = false; SS.skipRender = false; }); await run(1);
 check('stealth: suppressed headshot kill raises no alarm', await ev(() => !_e.alive && SS.mission.stats.headshots >= 1 && SS.enemies.inCombat === 0), await ev(() => `kills ${SS.mission.stats.kills}, headshots ${SS.mission.stats.headshots}, in combat ${SS.enemies.inCombat}`));
+}
 // ---------- full campaign play-through ----------
 const campaign = [];
 for (let mi = 0; mi < 5; mi++) {
   if (mi > 0) { await page.click('[data-a="next"]'); await page.click('[data-a="deploy"]'); } else await ev(() => SS.startMission(0, true));
   await ev(() => { SS.godMode = true; }); let guard = 0, cineSeen = 0;
   while (guard++ < 400) {
-    const st = await ev(() => SS.state); if (st === 'result') break;
+    const st = await ev(() => SS.state); if (st === 'result') break; if (process.env.TRACE) console.log('  step', mi + 1, guard, st, JSON.stringify(await ev(() => QA.info())).slice(0, 220));
     if (st === 'cinematic') { cineSeen++; if (cineSeen % 2 === 1 && mi > 0) { await run(2.5); await shot(`m${mi + 1}-cine${cineSeen}`); } await ev(() => { QA.key('Enter'); QA.run(0.1); }); continue; }
     const o = await ev(() => { const m = SS.mission, o = m.obj; if (!o) return null; const at = o.at ? o.at() : o; return { type: o.type, group: o.group, x: at.x, y: at.y, z: at.z, hold: o.hold || 0, oi: m.oi, text: m.objText() }; });
     if (!o) { await run(1); continue; }

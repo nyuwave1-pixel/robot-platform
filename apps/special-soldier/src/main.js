@@ -18,6 +18,7 @@ import { Cine } from './game/cinematics.js';
 import { Hud } from './ui/hud.js';
 import { Menu } from './ui/menu.js';
 import { clamp } from './core/util.js';
+import { makeSoldier, makeAPC, makeHeli, PALETTE, HOT } from './game/models.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
 const step = (pct, text) => new Promise((r) => { $('loadBar').style.width = pct + '%'; $('loadText').textContent = text; setTimeout(r, 30); });
@@ -27,7 +28,8 @@ G.applySettings = () => {
   const s = G.settings, r = G.renderer, pr = G.pixelRatio(); r.setPixelRatio(pr); r.setSize(innerWidth, innerHeight, false); G.post.resize(innerWidth, innerHeight, pr);
   r.shadowMap.enabled = s.shadows && s.quality !== 'low'; const ms = s.quality === 'ultra' ? 4096 : s.quality === 'high' ? 2048 : 1024; if (G.sky.sun.shadow.mapSize.x !== ms) { G.sky.sun.shadow.mapSize.set(ms, ms); if (G.sky.sun.shadow.map) { G.sky.sun.shadow.map.dispose(); G.sky.sun.shadow.map = null; } }
   G.sky.sun.castShadow = r.shadowMap.enabled; G.camera.aspect = innerWidth / innerHeight; G.camera.far = s.quality === 'low' ? 1500 : 3200; if (G.state !== 'playing') G.camera.fov = s.fov; G.camera.updateProjectionMatrix(); G.audio.setVolume();
-  G.scene.traverse((o) => { if (o.material && o.isMesh) o.material.needsUpdate = true; });
+  if (G._shadowState !== undefined && G._shadowState !== r.shadowMap.enabled) G.scene.traverse((o) => { if (o.material && o.isMesh) o.material.needsUpdate = true; }); // shadow toggle needs new shader variants; nothing else does
+  G._shadowState = r.shadowMap.enabled;
 };
 
 async function boot() {
@@ -43,7 +45,9 @@ async function boot() {
   await step(75, 'OPERATORS · WEAPONS · AI'); G.player = new Player(); G.weapons = new Weapons(); G.enemies = new Enemies(); G.squad = new Squad(); G.gear = new Gear(); G.mission = new MissionSys(); G.cine = new Cine();
   await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
   G.applySettings(); addEventListener('resize', G.applySettings);
-  r.compile(G.scene, G.camera);
+  // shader warm-up: put one of every late-spawned material in view so first use never hitches mid-combat
+  { const warm = new THREE.Group(); for (const k of Object.keys(PALETTE)) warm.add(makeSoldier(k)); warm.add(makeAPC(), makeHeli(), new THREE.Mesh(G.fx.nadeGeo, G.fx.nadeMat), new THREE.Mesh(G.fx.nadeGeo, HOT), new THREE.Mesh(G.fx.nadeGeo, new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 1 })));
+    G.scene.add(warm); G.weapons.root.visible = true; r.compile(G.scene, G.camera); G.scene.remove(warm); G.weapons.root.visible = false; }
   await step(100, 'READY'); $('loading').style.display = 'none';
   G.toMenu(); last = performance.now(); requestAnimationFrame(frame);
 }

@@ -50,3 +50,16 @@ export async function dbg3({ page, sim, shot }) {
   console.log(await page.evaluate(() => { SS.skipRender = true; const out = [], P = SS.player; const orig = SS.enemies.hitTest.bind(SS.enemies); SS.enemies.hitTest = (o, d, max) => { const r = orig(o, d, max); const e = QA.nearest('beach'); out.push(`hitTest o=${o.toArray().map((v) => v.toFixed(1))} d=${d.toArray().map((v) => v.toFixed(3))} max=${max.toFixed(1)} -> ${r ? r.zone + '@' + r.t.toFixed(1) : null} | enemy ${e.pos.toArray().map((v) => v.toFixed(1))} alive=${e.alive} crouch=${e.crouch.toFixed(2)}`); return r; };
     SS.input.btn[2] = true; for (let i = 0; i < 14; i++) { const e = QA.nearest('beach'); QA.aim(e); SS.input.btn[0] = i > 8; SS.tick(1 / 30); } return out.slice(0, 6).join('\n'); }));
 }
+export async function m4({ page, sim, shot }) {
+  await page.evaluate(HELPERS); await page.evaluate(() => { SS.save.progress = 5; SS.godMode = true; SS.startMission(3, true); const m = SS.mission; while (m.oi < 4) m.advance(); const s = SS.POI.server; QA.tp(s.x, s.z, -60); });
+  for (let i = 0; i < 30; i++) { const t0 = Date.now(); const r = await Promise.race([page.evaluate(() => { const t = QA.fight(null, 1); return JSON.stringify({ t, n: SS.enemies.count(), def: SS.mission.defT.toFixed(1), st: SS.state, oi: SS.mission.oi, nades: SS.fx.nades.length, bullets: SS.fx.bullets.length }); }), new Promise((r) => setTimeout(() => r('HANG'), 20000))]); console.log(i, Date.now() - t0, 'ms', r); if (r === 'HANG') break; await page.evaluate(() => QA.run(1)); }
+}
+export async function prof({ page }) {
+  await page.evaluate(HELPERS); await page.evaluate(() => { SS.save.progress = 5; SS.godMode = true; SS.startMission(3, true); const m = SS.mission; while (m.oi < 4) m.advance(); const s = SS.POI.server; QA.tp(s.x, s.z, -60);
+    window.PROF = {}; const wrap = (obj, name, label) => { const f = obj[name].bind(obj); obj[name] = (...a) => { const t = performance.now(); const r = f(...a); const d = performance.now() - t; const p = PROF[label] || (PROF[label] = { max: 0, sum: 0, n: 0 }); p.max = Math.max(p.max, d); p.sum += d; p.n++; return r; }; };
+    for (const k of ['player', 'weapons', 'gear', 'enemies', 'squad', 'fx', 'mission', 'cine', 'world', 'sky', 'hud']) wrap(SS[k], 'update', k);
+    wrap(SS.world, 'raycast', 'raycast'); wrap(SS.world, 'near', 'near'); wrap(SS.world, 'moveCircle', 'moveCircle'); wrap(SS.fx, 'explode', 'explode'); wrap(SS.enemies, 'findCover', 'findCover'); wrap(SS.enemies, 'perceive', 'perceive'); wrap(SS.squad, 'regroup', 'regroup'); wrap(SS.audio, 'play', 'audio.play'); wrap(SS.hud, 'toast', 'toast'); wrap(SS.hud, 'radio', 'radio'); });
+  for (let i = 0; i < 14; i++) { const r = await Promise.race([page.evaluate(() => { QA.fight(null, 2); return 1; }), new Promise((r) => setTimeout(() => r('HANG'), 25000))]); if (r === 'HANG') { console.log('HANG at chunk', i); break; } }
+  const cdp = await page.context().newCDPSession(page); // PROF is readable even while the page is busy? no — so read what we can
+  console.log(await Promise.race([page.evaluate(() => Object.entries(PROF).filter(([, p]) => p.max > 30).map(([k, p]) => `${k}: max ${p.max.toFixed(0)} ms, total ${p.sum.toFixed(0)} ms, calls ${p.n}`).join('\n') || 'nothing over 30 ms'), new Promise((r) => setTimeout(() => r('page still busy'), 60000))]));
+}
