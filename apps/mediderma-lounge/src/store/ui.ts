@@ -4,13 +4,15 @@ import type { ModeId, RoutineStep, ZoneId } from "../data/devices";
 import type { ExpKey } from "../data/game";
 
 export type Screen = "splash" | "intro" | "create" | "game";
-export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth";
+export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame";
 export type GameMode = "explore" | "care" | "edit" | "cinematic" | "photo";
-export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo";
+export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo" | "game";
 
 export interface Customer {
   id: string; type: string; name: string;
-  state: "enter" | "wait" | "toBed" | "care" | "toPay" | "pay" | "leave";
+  state: "enter" | "wait" | "toBed" | "care" | "toStation" | "auto" | "toPay" | "pay" | "leave";
+  /** 직원 자동 케어 스테이션 번호 */
+  station?: number;
   seat: number; stars: number; t: number;
 }
 
@@ -45,6 +47,7 @@ interface UIState {
   mode: GameMode;
   near: ZoneKey | null;
   nearCustomer: string | null;
+  nearPet: string | null;
   toasts: { id: number; text: string }[];
   care: CareSession | null;
   customers: Customer[];
@@ -71,6 +74,7 @@ export const useUI = create<UIState>((set, get) => ({
   mode: "explore",
   near: null,
   nearCustomer: null,
+  nearPet: null,
   toasts: [],
   care: null,
   customers: [],

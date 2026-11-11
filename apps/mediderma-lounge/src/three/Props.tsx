@@ -259,6 +259,66 @@ export function FurnitureMesh({ type, accent = "#f9d5dc" }: { type: string; acce
         <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[0.02, 0.02, 0.5, 8]} /><meshStandardMaterial color={gold} metalness={0.85} roughness={0.25} /></mesh>
         <mesh position={[0, 0.015, 0]}><cylinderGeometry args={[0.2, 0.22, 0.03, 20]} /><meshStandardMaterial color={gold} metalness={0.85} roughness={0.25} /></mesh>
       </group>);
+    case "armchair":
+      return <Sofa color="#e3d8f6" seats={1} />;
+    case "coffeetable":
+      return (<group>
+        <mesh position={[0, 0.4, 0]} castShadow><cylinderGeometry args={[0.55, 0.55, 0.05, 36]} /><meshStandardMaterial color="#fffdfb" roughness={0.12} /></mesh>
+        {[0, 1, 2].map((i) => <mesh key={i} position={[Math.cos(i * 2.094) * 0.32, 0.19, Math.sin(i * 2.094) * 0.32]}><cylinderGeometry args={[0.018, 0.018, 0.38, 8]} /><meshStandardMaterial color={gold} metalness={0.85} roughness={0.25} /></mesh>)}
+        <mesh position={[0.12, 0.47, 0.05]} castShadow><boxGeometry args={[0.3, 0.035, 0.22]} /><meshStandardMaterial color="#f29bb1" roughness={0.6} /></mesh>
+      </group>);
+    case "bookshelf":
+      return (<group>
+        <mesh position={[0, 0.9, 0]} castShadow><boxGeometry args={[1.1, 1.8, 0.32]} /><meshStandardMaterial color="#fffaf4" roughness={0.6} /></mesh>
+        {[0.35, 0.8, 1.25].map((y, r) => (
+          <group key={y} position={[0, y, 0.03]}>
+            <mesh><boxGeometry args={[1.0, 0.4, 0.28]} /><meshStandardMaterial color="#f3e3d3" roughness={0.9} /></mesh>
+            {Array.from({ length: 9 }).map((_, i) => (
+              <mesh key={i} position={[-0.42 + i * 0.105, -0.02 + ((i * 3 + r) % 3) * 0.012, 0.1]} castShadow>
+                <boxGeometry args={[0.07, 0.3 + ((i + r) % 3) * 0.03, 0.2]} />
+                <meshStandardMaterial color={["#f29bb1", "#d9cff2", "#fff3d6", "#c9a66b", "#bfe8d6", "#ffffff"][(i + r * 2) % 6]} roughness={0.7} />
+              </mesh>
+            ))}
+          </group>
+        ))}
+      </group>);
+    case "diffuser":
+      return (<group>
+        <mesh position={[0, 0.3, 0]} castShadow><cylinderGeometry args={[0.16, 0.2, 0.6, 20]} /><meshStandardMaterial color="#fffaf4" roughness={0.5} /></mesh>
+        <mesh position={[0, 0.68, 0]} castShadow><cylinderGeometry args={[0.07, 0.09, 0.16, 16]} /><meshPhysicalMaterial color="#f6d9c2" transparent opacity={0.7} roughness={0.08} /></mesh>
+        {[0, 1, 2, 3, 4].map((i) => <mesh key={i} position={[Math.cos(i * 1.26) * 0.03, 0.92, Math.sin(i * 1.26) * 0.03]} rotation={[Math.cos(i * 1.26) * 0.25, 0, Math.sin(i * 1.26) * 0.25]}><cylinderGeometry args={[0.005, 0.005, 0.5, 5]} /><meshStandardMaterial color="#8a6a4a" roughness={0.9} /></mesh>)}
+      </group>);
+    case "petbed":
+      return (<group>
+        <mesh position={[0, 0.09, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.36, 0.1, 12, 32]} /><meshStandardMaterial color="#f6bccb" roughness={0.95} /></mesh>
+        <mesh position={[0, 0.07, 0]} scale={[1, 0.25, 1]}><sphereGeometry args={[0.36, 20, 12]} /><meshStandardMaterial color="#fff6ee" roughness={1} /></mesh>
+      </group>);
+    case "cattower":
+      return (<group>
+        <mesh position={[0, 0.04, 0]} castShadow><boxGeometry args={[0.8, 0.08, 0.8]} /><meshStandardMaterial color="#f3e6d0" roughness={0.95} /></mesh>
+        {[[-0.2, 0.7], [0.2, 1.25]].map(([x, h]) => <mesh key={x} position={[x, h / 2, 0]} castShadow><cylinderGeometry args={[0.07, 0.07, h, 14]} /><meshStandardMaterial color="#d8c3a0" roughness={1} /></mesh>)}
+        <mesh position={[-0.2, 0.74, 0]} castShadow><cylinderGeometry args={[0.3, 0.3, 0.07, 24]} /><meshStandardMaterial color="#f6bccb" roughness={0.95} /></mesh>
+        <mesh position={[0.2, 1.29, 0]} castShadow><cylinderGeometry args={[0.28, 0.28, 0.07, 24]} /><meshStandardMaterial color="#e3d8f6" roughness={0.95} /></mesh>
+        <mesh position={[0.2, 1.05, 0.3]}><sphereGeometry args={[0.05, 10, 8]} /><meshStandardMaterial color="#f29bb1" /></mesh>
+        <mesh position={[0.2, 1.17, 0.3]}><cylinderGeometry args={[0.003, 0.003, 0.2, 4]} /><meshStandardMaterial color="#8a6a4a" /></mesh>
+      </group>);
+    case "partition":
+      return (<group>
+        {[-1, 0, 1].map((i) => (
+          <group key={i} position={[i * 0.62, 0, Math.abs(i) * 0.12]} rotation={[0, -i * 0.35, 0]}>
+            <mesh position={[0, 0.9, 0]} castShadow><boxGeometry args={[0.6, 1.8, 0.04]} /><meshStandardMaterial color="#e9d3ae" roughness={0.9} /></mesh>
+            <mesh position={[0, 0.9, 0.022]}><planeGeometry args={[0.5, 1.6]} /><meshStandardMaterial color="#f6e7c8" roughness={1} /></mesh>
+          </group>
+        ))}
+      </group>);
+    case "aquarium":
+      return (<group>
+        <mesh position={[0, 0.4, 0]} castShadow><boxGeometry args={[1.2, 0.8, 0.5]} /><meshStandardMaterial color="#1b1719" roughness={0.4} /></mesh>
+        <mesh position={[0, 1.1, 0]}><boxGeometry args={[1.16, 0.6, 0.46]} /><meshPhysicalMaterial color="#7fd3ee" transparent opacity={0.42} roughness={0.03} emissive="#3aa7d0" emissiveIntensity={0.35} /></mesh>
+        {["#ff9a5c", "#f29bb1", "#ffd95c", "#ff9a5c"].map((c, i) => <mesh key={i} position={[-0.4 + i * 0.26, 0.98 + (i % 2) * 0.18, (i % 2 ? 0.08 : -0.08)]} scale={[1.6, 1, 0.5]}><sphereGeometry args={[0.04, 8, 8]} /><meshStandardMaterial color={c} emissive={c} emissiveIntensity={0.3} /></mesh>)}
+        <mesh position={[0, 1.42, 0]}><boxGeometry args={[1.2, 0.05, 0.5]} /><meshStandardMaterial color="#1b1719" roughness={0.4} /></mesh>
+        <pointLight position={[0, 1.1, 0.4]} intensity={1.5} distance={3} color="#8fdcf5" />
+      </group>);
     default:
       return <mesh position={[0, 0.25, 0]}><boxGeometry args={[0.5, 0.5, 0.5]} /><meshStandardMaterial color={accent} /></mesh>;
   }

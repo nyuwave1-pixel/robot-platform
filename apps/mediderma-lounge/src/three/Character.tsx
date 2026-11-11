@@ -130,7 +130,9 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
     aline: { len: (waistY - d.leg) + d.leg * 0.5, r: d.shoulder * 1.6 },
     sheath: { len: (waistY - d.leg) + d.leg * 0.52, r: d.shoulder * 1.02 },
     gown: { len: waistY - 0.06, r: d.shoulder * 1.9 },
+    pants: { len: (waistY - d.leg) + d.leg * 0.06, r: waistR * 1.18 },
   }[cut];
+  const pantsColor = cut === "pants" ? (outfit.id === "fit-suit" ? col : acc) : null;
   const topY = d.leg + d.torso;
   const R = d.head;
   const faceW = look.face === "oval" ? 0.94 : look.face === "soft" ? 1.0 : 1.06;
@@ -146,13 +148,20 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
   const gold = "#d8b468";
 
   return (
-    <group ref={root}>
+    <group ref={root} scale={look.height ?? 1}>
       {/* ── 다리 ── */}
       {[-1, 1].map((s) => (
         <group key={s} ref={s < 0 ? legL : legR} position={[s * hip, d.leg, 0]}>
-          <mesh position={[0, -d.leg / 2, 0]} castShadow material={skinMat}>
-            <cylinderGeometry args={[d.limb * 1.05, d.limb * 0.8, d.leg, 12]} />
-          </mesh>
+          {pantsColor ? (
+            <mesh position={[0, -d.leg / 2, 0]} castShadow>
+              <cylinderGeometry args={[d.limb * 1.25, d.limb * 1.0, d.leg, 12]} />
+              <meshStandardMaterial color={pantsColor} roughness={0.7} />
+            </mesh>
+          ) : (
+            <mesh position={[0, -d.leg / 2, 0]} castShadow material={skinMat}>
+              <cylinderGeometry args={[d.limb * 1.05, d.limb * 0.8, d.leg, 12]} />
+            </mesh>
+          )}
           <mesh position={[0, -d.leg + d.limb * 0.5, d.limb * 0.45]} scale={[1, 0.7, 1.55]} castShadow>
             <sphereGeometry args={[d.limb * 1.15, 14, 10]} />
             <meshStandardMaterial color={shoe} roughness={0.35} metalness={shoe === gold ? 0.6 : 0} />
@@ -201,7 +210,7 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
                 <meshStandardMaterial color={col} roughness={0.6} />
               </mesh>
             )}
-            {cut === "sheath" && (
+            {(cut === "sheath" || cut === "pants") && (
               <mesh position={[0, -d.arm * 0.22, 0]} castShadow>
                 <cylinderGeometry args={[d.limb * 0.98, d.limb * 0.9, d.arm * 0.5, 10]} />
                 <meshStandardMaterial color={col} roughness={0.6} />
@@ -438,6 +447,41 @@ function Hair({ style, R, mat, swayRef, k, bodyLen }: { style: string; R: number
         </>
       );
       break;
+    case "hair-pixie":
+      back = shell(0.5);
+      break;
+    case "hair-space":
+      back = shell(0.56);
+      extra = [-1, 1].map((s) => (
+        <mesh key={s} material={mat} position={[s * R * 0.62, R * 0.98, -R * 0.05]} castShadow>
+          <sphereGeometry args={[R * 0.34, 14, 12]} />
+        </mesh>
+      ));
+      break;
+    case "hair-braid":
+      back = shell(0.6);
+      extra = (
+        <group position={[R * 0.92, -R * 0.15, R * 0.2]} rotation={[0.15, 0, -0.08]}>
+          {chain(7, R * 0.27, [0, -R * 0.36, R * 0.02], "b")}
+          <mesh position={[0, -R * 2.5, R * 0.14]}><sphereGeometry args={[R * 0.1, 8, 8]} /><meshStandardMaterial color="#ef86a8" /></mesh>
+        </group>
+      );
+      break;
+    case "hair-hime":
+      back = shell(0.8);
+      extra = (
+        <>
+          <mesh material={mat} position={[0, -longLen / 2, -R * 0.52]} scale={[1.02, 1, 0.4]} castShadow>
+            <capsuleGeometry args={[R * 0.94, longLen, 4, 14]} />
+          </mesh>
+          {[-1, 1].map((s) => (
+            <mesh key={s} material={mat} position={[s * R * 0.9, -R * 0.35, R * 0.42]} castShadow>
+              <boxGeometry args={[R * 0.3, R * 1.1, R * 0.34]} />
+            </mesh>
+          ))}
+        </>
+      );
+      break;
     default:
       back = shell(0.74);
   }
@@ -510,6 +554,32 @@ function HeadAccessory({ id, R }: { id: string | null; R: number }) {
             <meshStandardMaterial color="#fff2c8" metalness={0.6} roughness={0.1} emissive="#ffd98a" emissiveIntensity={0.5} />
           </mesh>
         ))}
+      </group>
+    );
+  if (id === "acc-headband")
+    return (
+      <mesh position={[0, R * 0.12, R * 0.12]} rotation={[0.25, 0, 0]}>
+        <torusGeometry args={[R * 1.1, R * 0.06, 8, 32, Math.PI]} />
+        <meshStandardMaterial color={c} roughness={0.35} />
+      </mesh>
+    );
+  if (id === "acc-glasses")
+    return (
+      <group position={[0, -R * 0.04, R * 0.97]}>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * R * 0.37, 0, -Math.abs(s) * R * 0.03]} rotation={[0, s * 0.35, 0]}>
+            <torusGeometry args={[R * 0.25, R * 0.022, 8, 24]} />
+            <meshStandardMaterial color={c} metalness={0.8} roughness={0.25} />
+          </mesh>
+        ))}
+        <mesh position={[0, R * 0.02, R * 0.02]}><boxGeometry args={[R * 0.24, R * 0.03, R * 0.03]} /><meshStandardMaterial color={c} metalness={0.8} roughness={0.25} /></mesh>
+      </group>
+    );
+  if (id === "acc-cap")
+    return (
+      <group position={[0, R * 0.36, 0]} rotation={[-0.12, 0, 0]}>
+        <mesh castShadow><sphereGeometry args={[R * 1.14, 22, 12, 0, Math.PI * 2, 0, Math.PI * 0.42]} /><meshStandardMaterial color={c} roughness={0.8} side={THREE.DoubleSide} /></mesh>
+        <mesh position={[0, R * 0.28, R * 1.2]} rotation={[0.12, 0, 0]} scale={[1, 0.08, 0.8]} castShadow><sphereGeometry args={[R * 0.7, 16, 8]} /><meshStandardMaterial color={c} roughness={0.8} /></mesh>
       </group>
     );
   return null;

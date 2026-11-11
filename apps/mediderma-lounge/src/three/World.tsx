@@ -15,6 +15,7 @@ import { layout, type Layout } from "./layout";
 import { lieOrigin, Lying } from "./lie";
 import { Care3D } from "./Care3D";
 import { Customers, npcPos } from "./Customers";
+import { PetActor, petPos } from "./Pet";
 
 const lerp = THREE.MathUtils.lerp;
 /** 카메라가 바라보는 지점 — 피사계 심도의 초점 */
@@ -103,7 +104,9 @@ function Scene({ q }: { q: "low" | "high" }) {
   const careMode = useUI((s) => (s.care && s.care.phase === "step" ? s.care.steps[s.care.step]?.mode ?? null : null));
   const friend = DEMO_FRIENDS.find((f) => f.id === visiting);
   const level = friend ? friend.level : lounge.level;
-  const L = useMemo(() => layout(level), [level]);
+  const stations = friend ? 0 : lounge.stations ?? 0;
+  const pets = useGame((s) => s.pets);
+  const L = useMemo(() => layout(level, stations), [level, stations]);
 
   // 라운지 크기가 바뀌면 플레이어를 입구 근처로
   useEffect(() => {
@@ -132,11 +135,13 @@ function Scene({ q }: { q: "low" | "high" }) {
         selected={mode === "edit" ? selected : null}
         activeMode={careMode}
         quality={q}
+        stations={stations}
         onFloor={onFloor}
         onFurniture={mode === "edit" && !friend ? (uid) => useUI.setState({ selected: uid }) : undefined}
       />
       <Player L={L} />
       {friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
+      {!friend && pets.map((p, i) => <PetActor key={p.id} pet={p} L={L} seed={i} />)}
       {hasCare && !friend && <Care3D L={L} />}
       <ZoneMarkers L={L} hidden={mode !== "explore" || !!friend} />
       <CameraRig L={L} />
@@ -225,8 +230,10 @@ function Player({ L }: { L: Layout }) {
       if (!ui.visiting) for (const z of L.zones) { const dd = Math.hypot(z.x - p.x, z.z - p.z); if (dd < best) { best = dd; near = z.key; } }
       let nc: string | null = null, bc = 1.7;
       for (const id in npcPos) { const n = npcPos[id]; if (n.state !== "wait") continue; const dd = Math.hypot(n.x - p.x, n.z - p.z); if (dd < bc) { bc = dd; nc = id; } }
-      const key = `${near}|${nc}`;
-      if (key !== lastNear.current) { lastNear.current = key; useUI.setState({ near: near as never, nearCustomer: nc }); }
+      let np: string | null = null, bp = 1.1;
+      if (!ui.visiting) for (const id in petPos) { const dd = Math.hypot(petPos[id].x - p.x, petPos[id].z - p.z); if (dd < bp) { bp = dd; np = id; } }
+      const key = `${near}|${nc}|${np}`;
+      if (key !== lastNear.current) { lastNear.current = key; useUI.setState({ near: near as never, nearCustomer: nc, nearPet: np }); }
     } else if (ui.mode === "care" && ui.care && ui.care.subject !== "player") {
       // 고객 케어를 마치면 침대 옆에서 다시 시작
       p.x = L.bed.x + 0.2; p.z = L.bed.z + 1.5; input.playerYaw = Math.PI;

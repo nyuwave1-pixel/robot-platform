@@ -24,6 +24,7 @@ function doAction() {
   else if (z === "reception") ui.set({ panel: "customers" });
   else if (z === "vanity") ui.set({ panel: "character" });
   else if (z === "photo") ui.set({ mode: "photo", near: null });
+  else if (z === "game") ui.toast(useGame.getState().settings.lang === "ko" ? "미니게임은 곧 열려요" : "Mini-game opening soon");
 }
 
 export function Hud() {
@@ -55,7 +56,7 @@ export function Hud() {
   }, []);
 
   const explore = mode === "explore";
-  const zoneLabel: Record<ZoneKey, string> = { shelf: t("zone.shelf"), device: t("zone.device"), reception: t("zone.reception"), vanity: t("zone.vanity"), photo: t("zone.photo") };
+  const zoneLabel: Record<ZoneKey, string> = { shelf: t("zone.shelf"), device: t("zone.device"), reception: t("zone.reception"), vanity: t("zone.vanity"), photo: t("zone.photo"), game: t("zone.game") };
   const action = nearCustomer ? t("action.consult") : near ? zoneLabel[near] : null;
 
   return (

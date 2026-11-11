@@ -5,7 +5,7 @@
 import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, QUESTS, STAGES, STARTER_FASHION, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
+import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, QUESTS, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
 import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
@@ -14,6 +14,8 @@ export interface Look {
   skin: string; hairColor: string; eyeColor: string; lipColor: string;
   face: string; eyes: string; brows: string; pose: string;
   hair: string; outfit: string;
+  /** 키 배율 0.92~1.08 */
+  height?: number;
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
 }
 export const DEFAULT_LOOK: Look = {
@@ -25,6 +27,8 @@ export const DEFAULT_LOOK: Look = {
 
 export interface Furniture { uid: string; type: string; x: number; z: number; rot: number }
 export interface Post { id: string; author: string; country?: string; mine: boolean; text: string; tag: string; img?: string; hue?: number; likes: number; liked: boolean; comments: { who: string; text: string }[]; t: number; demo?: boolean }
+export interface Pet { id: string; type: string; name: string; affection: number; lastPet: string }
+export interface Friend { code: string; name: string }
 export interface Regular { name: string; type: string; visits: number; lastStars: number }
 
 type Currency = "coin" | "star" | "gem";
@@ -44,7 +48,11 @@ export interface GameState {
   ownedFashion: string[];
   ownedInterior: string[];
   storage: Record<string, number>; // 보관 중인 가구 수량
-  lounge: { level: number; furniture: Furniture[]; floor: string; wall: string; light: string };
+  lounge: { level: number; furniture: Furniture[]; floor: string; wall: string; light: string; stations: number };
+  pets: Pet[];
+  friendCode: string;
+  invitedBy: Friend | null;
+  friends: Friend[];
   stats: Record<string, number>;
   daily: { date: string; stats: Record<string, number> };
   modesUsed: ModeId[];
@@ -80,6 +88,14 @@ export interface GameState {
   follow: (id: string) => void;
   visitFriend: (id: string) => boolean;
   claim: (q: Quest) => boolean;
+  adoptPet: (type: string, name: string) => boolean;
+  petPet: (id: string) => { star: boolean } | null;
+  feedPet: (id: string) => boolean;
+  buyStation: (maxStations: number) => boolean;
+  autoServe: (r: { name: string; type: string; stars: number; coins: number; lp: number }) => void;
+  acceptInvite: (code: string, name: string) => boolean;
+  addFriend: (code: string, name: string) => "ok" | "self" | "dup" | "bad";
+  miniReward: (moves: number) => number;
   setSettings: (p: Partial<GameState["settings"]>) => void;
   reset: () => void;
 }
@@ -98,7 +114,11 @@ const fresh = () => ({
   ownedFashion: [...STARTER_FASHION],
   ownedInterior: ["floor-cream", "wall-cream", "light-warm"],
   storage: { plant: 1, flower: 1 } as Record<string, number>,
-  lounge: { level: 1, furniture: [] as Furniture[], floor: "floor-cream", wall: "wall-cream", light: "light-warm" },
+  lounge: { level: 1, furniture: [] as Furniture[], floor: "floor-cream", wall: "wall-cream", light: "light-warm", stations: 0 },
+  pets: [] as Pet[],
+  friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
+  invitedBy: null as Friend | null,
+  friends: [] as Friend[],
   stats: {} as Record<string, number>,
   daily: { date: today(), stats: {} as Record<string, number> },
   modesUsed: [] as ModeId[],
@@ -110,6 +130,9 @@ const fresh = () => ({
   following: [] as string[],
   settings: { lang: (typeof navigator !== "undefined" && navigator.language?.startsWith("ko") ? "ko" : "en") as Lang, quality: "auto" as const, tutorial: true },
 });
+
+/** 친구 코드: 영문 대문자·숫자 6자리 */
+export const normCode = (c: string) => { const x = (c ?? "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return x.length === 6 ? x : ""; };
 
 const pay = (s: GameState, cur: Currency, price: number): Partial<GameState> | null => {
   const key = cur === "coin" ? "coins" : cur === "star" ? "stars" : "gems";
@@ -134,7 +157,7 @@ export const useGame = create<GameState>()(
     (set, get) => ({
       ...fresh(),
 
-      startNew: (name, look) => set({ ...fresh(), settings: get().settings, started: true, name: name.trim().slice(0, 12) || "Derma", look }),
+      startNew: (name, look) => set({ ...fresh(), friendCode: get().friendCode, settings: get().settings, started: true, name: name.trim().slice(0, 12) || "Derma", look }),
       setLook: (patch) => set((s) => ({ look: { ...s.look, ...patch } })),
       addExp: (gain) => set((s) => {
         const exp = { ...s.exp };
@@ -296,8 +319,72 @@ export const useGame = create<GameState>()(
         return true;
       },
 
+      adoptPet: (type, name) => {
+        const t = PET_MAP[type]; const s = get();
+        if (!t || s.pets.length >= MAX_PETS || s.coins < t.price) return false;
+        set({ coins: s.coins - t.price, pets: [...s.pets, { id: uid(), type, name: name.trim().slice(0, 10) || (t.kind === "cat" ? "Nabi" : "Mong"), affection: 10, lastPet: "" }], exp: { ...s.exp, lounge: s.exp.lounge + 20 } });
+        return true;
+      },
+      petPet: (id) => {
+        const s = get(); const p = s.pets.find((x) => x.id === id);
+        if (!p) return null;
+        const star = p.lastPet !== today();
+        set({
+          pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.pet_affection")), lastPet: today() } : x)),
+          stars: s.stars + (star ? tune("pet.daily_star") : 0),
+          stats: { ...s.stats, petted: (s.stats.petted ?? 0) + 1 },
+        });
+        return { star };
+      },
+      feedPet: (id) => {
+        const s = get(); const cost = tune("pet.feed_cost");
+        if (!s.pets.some((x) => x.id === id) || s.coins < cost) return false;
+        set({ coins: s.coins - cost, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.feed_affection")) } : x)) });
+        return true;
+      },
+      buyStation: (maxStations) => {
+        const s = get(); const cost = STATION_COSTS[s.lounge.stations];
+        if (cost === undefined || s.lounge.stations >= maxStations || s.coins < cost) return false;
+        set({ coins: s.coins - cost, lounge: { ...s.lounge, stations: s.lounge.stations + 1 }, exp: { ...s.exp, lounge: s.exp.lounge + 30 } });
+        return true;
+      },
+      autoServe: (r) => set((s) => {
+        const ex = s.regulars.find((x) => x.name === r.name);
+        const regulars = r.stars >= tune("customer.regular_min_stars")
+          ? ex ? s.regulars.map((x) => (x === ex ? { ...x, visits: x.visits + 1, lastStars: r.stars } : x)) : [...s.regulars, { name: r.name, type: r.type, visits: 1, lastStars: r.stars }].slice(-30)
+          : s.regulars;
+        return {
+          coins: s.coins + r.coins, lp: s.lp + r.lp, regulars,
+          exp: { ...s.exp, lounge: s.exp.lounge + tune("station.auto_lounge_exp") },
+          stats: { ...s.stats, customers: (s.stats.customers ?? 0) + 1, autoServed: (s.stats.autoServed ?? 0) + 1 },
+        };
+      }),
+      acceptInvite: (code, name) => {
+        const s = get(); const c = normCode(code);
+        if (!c || s.invitedBy || c === s.friendCode) return false;
+        const f = { code: c, name: name.trim().slice(0, 12) || "Friend" };
+        set({ invitedBy: f, friends: s.friends.some((x) => x.code === c) ? s.friends : [...s.friends, f], gems: s.gems + tune("social.invite_gems") });
+        return true;
+      },
+      addFriend: (code, name) => {
+        const s = get(); const c = normCode(code);
+        if (!c) return "bad";
+        if (c === s.friendCode) return "self";
+        if (s.friends.some((x) => x.code === c)) return "dup";
+        set({ friends: [...s.friends, { code: c, name: name.trim().slice(0, 12) || `Friend ${c.slice(0, 3)}` }].slice(-50), stars: s.stars + tune("social.friend_code_stars"), exp: { ...s.exp, social: s.exp.social + 10 } });
+        return "ok";
+      },
+      miniReward: (moves) => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const played = d.stats.mini ?? 0;
+        const coins = played >= tune("minigame.daily_rewards") ? 0 : Math.max(tune("minigame.min_coins"), tune("minigame.base_coins") - Math.max(0, moves - 6) * tune("minigame.coins_per_extra_move"));
+        set({ coins: s.coins + coins, daily: { date: d.date, stats: { ...d.stats, mini: played + 1 } }, stats: { ...s.stats, miniWins: (s.stats.miniWins ?? 0) + 1 }, exp: { ...s.exp, knowledge: s.exp.knowledge + (coins ? 4 : 0) } });
+        return coins;
+      },
+
       setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
-      reset: () => set({ ...fresh(), settings: get().settings }),
+      reset: () => set({ ...fresh(), friendCode: get().friendCode, settings: get().settings }),
     }),
     {
       name: "mediderma-lounge-save-v1",

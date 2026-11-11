@@ -50,7 +50,7 @@ export const LOUNGE_LEVELS: LoungeLevel[] = [
 
 // ───────────── 커스터마이징 / 패션 ─────────────
 export const SKIN_TONES = ["#ffe4d2", "#f8d2b8", "#eebf9c", "#d9a47c", "#b97f58", "#8a5a3c"];
-export const HAIR_COLORS = ["#3a2a22", "#6b4630", "#c98f5a", "#f1d28a", "#f2a7b8", "#b9a2e8", "#1c1a1f", "#8fc5d9"];
+export const HAIR_COLORS = ["#3a2a22", "#6b4630", "#c98f5a", "#f1d28a", "#f2a7b8", "#b9a2e8", "#1c1a1f", "#8fc5d9", "#a8452f", "#e8e3dc", "#7fc8a9", "#f08a5d"];
 export const EYE_COLORS = ["#4a3326", "#2f5d8a", "#3d7a5a", "#7a4aa0", "#b0563a", "#22202a"];
 export const LIP_COLORS = ["#e98c9a", "#d9627a", "#c8483f", "#b86a58", "#f2a6a0"];
 export const FACE_SHAPES = ["round", "soft", "oval"] as const;
@@ -65,7 +65,7 @@ export interface FashionItem {
   minStage: number;
   color?: string; accent?: string;
   /** 의상 실루엣 */
-  cut?: "puff" | "aline" | "sheath" | "gown";
+  cut?: "puff" | "aline" | "sheath" | "gown" | "pants";
 }
 const F = (i: FashionItem) => i;
 export const FASHION: FashionItem[] = [
@@ -77,6 +77,10 @@ export const FASHION: FashionItem[] = [
   F({ id: "hair-long", slot: "hair", ko: "롱 스트레이트", en: "Long Straight", price: 380, currency: "coin", minStage: 2 }),
   F({ id: "hair-wave", slot: "hair", ko: "글램 웨이브", en: "Glam Wave", price: 30, currency: "star", minStage: 3 }),
   F({ id: "hair-updo", slot: "hair", ko: "시그니처 업두", en: "Signature Updo", price: 25, currency: "gem", minStage: 4 }),
+  F({ id: "hair-pixie", slot: "hair", ko: "픽시 컷", en: "Pixie Cut", price: 120, currency: "coin", minStage: 1 }),
+  F({ id: "hair-space", slot: "hair", ko: "스페이스 번", en: "Space Buns", price: 180, currency: "coin", minStage: 1 }),
+  F({ id: "hair-braid", slot: "hair", ko: "사이드 브레이드", en: "Side Braid", price: 260, currency: "coin", minStage: 2 }),
+  F({ id: "hair-hime", slot: "hair", ko: "히메 컷", en: "Hime Cut", price: 20, currency: "star", minStage: 2 }),
   // outfit
   F({ id: "fit-pastel", slot: "outfit", ko: "파스텔 퍼프 원피스", en: "Pastel Puff Dress", price: 0, currency: "coin", minStage: 1, color: "#f9c6d3", accent: "#fff8f0", cut: "puff" }),
   F({ id: "fit-lav", slot: "outfit", ko: "라벤더 리본 원피스", en: "Lavender Ribbon Dress", price: 180, currency: "coin", minStage: 1, color: "#d9cff2", accent: "#ffffff", cut: "puff" }),
@@ -84,11 +88,20 @@ export const FASHION: FashionItem[] = [
   F({ id: "fit-uniform", slot: "outfit", ko: "라운지 매니저 유니폼", en: "Lounge Manager Uniform", price: 520, currency: "coin", minStage: 3, color: "#fff8f0", accent: "#c9a66b", cut: "sheath" }),
   F({ id: "fit-black", slot: "outfit", ko: "프리미엄 블랙 드레스", en: "Premium Black Dress", price: 60, currency: "star", minStage: 4, color: "#1b1719", accent: "#c9a66b", cut: "sheath" }),
   F({ id: "fit-gown", slot: "outfit", ko: "샴페인 골드 가운", en: "Champagne Gold Gown", price: 60, currency: "gem", minStage: 5, color: "#e6cf9f", accent: "#fff6dd", cut: "gown" }),
+  F({ id: "fit-mint", slot: "outfit", ko: "민트 퍼프 원피스", en: "Mint Puff Dress", price: 160, currency: "coin", minStage: 1, color: "#bfe8d6", accent: "#ffffff", cut: "puff" }),
+  F({ id: "fit-casual", slot: "outfit", ko: "데일리 캐주얼", en: "Daily Casual", price: 200, currency: "coin", minStage: 1, color: "#ffffff", accent: "#f29bb1", cut: "pants" }),
+  F({ id: "fit-denim", slot: "outfit", ko: "데님 A라인", en: "Denim A-line", price: 280, currency: "coin", minStage: 2, color: "#7fa3d1", accent: "#ffffff", cut: "aline" }),
+  F({ id: "fit-rose", slot: "outfit", ko: "로즈 시스 드레스", en: "Rose Sheath Dress", price: 420, currency: "coin", minStage: 3, color: "#e2718d", accent: "#ffd6e0", cut: "sheath" }),
+  F({ id: "fit-suit", slot: "outfit", ko: "블랙 팬츠 수트", en: "Black Pantsuit", price: 45, currency: "star", minStage: 3, color: "#221d1f", accent: "#c9a66b", cut: "pants" }),
+  F({ id: "fit-pure", slot: "outfit", ko: "퓨어 화이트 가운", en: "Pure White Gown", price: 40, currency: "gem", minStage: 4, color: "#fffaf5", accent: "#e9d6b0", cut: "gown" }),
   // accessory (head)
   F({ id: "acc-ribbon", slot: "accessory", ko: "핑크 리본", en: "Pink Ribbon", price: 0, currency: "coin", minStage: 1, color: "#ef86a8" }),
   F({ id: "acc-flower", slot: "accessory", ko: "플라워 핀", en: "Flower Pin", price: 120, currency: "coin", minStage: 1, color: "#ffffff" }),
   F({ id: "acc-beret", slot: "accessory", ko: "크림 베레모", en: "Cream Beret", price: 260, currency: "coin", minStage: 2, color: "#f3e6d0" }),
   F({ id: "acc-tiara", slot: "accessory", ko: "골드 티아라", en: "Gold Tiara", price: 40, currency: "gem", minStage: 4, color: "#d8b468" }),
+  F({ id: "acc-headband", slot: "accessory", ko: "새틴 헤어밴드", en: "Satin Headband", price: 110, currency: "coin", minStage: 1, color: "#b9a2e8" }),
+  F({ id: "acc-glasses", slot: "accessory", ko: "라운드 안경", en: "Round Glasses", price: 150, currency: "coin", minStage: 1, color: "#d8b468" }),
+  F({ id: "acc-cap", slot: "accessory", ko: "볼캡", en: "Ball Cap", price: 170, currency: "coin", minStage: 1, color: "#f29bb1" }),
   // earrings / necklace / bag / shoes
   F({ id: "ear-pearl", slot: "earring", ko: "진주 귀걸이", en: "Pearl Earrings", price: 200, currency: "coin", minStage: 2, color: "#fdf6ee" }),
   F({ id: "ear-gold", slot: "earring", ko: "골드 드롭 귀걸이", en: "Gold Drop Earrings", price: 40, currency: "star", minStage: 3, color: "#d8b468" }),
@@ -125,6 +138,14 @@ export const INTERIOR: InteriorItem[] = [
   I({ id: "logo", ko: "브랜드 로고 사인", en: "Brand Logo Sign", price: 30, currency: "star", minLounge: 2, kind: "furniture" }),
   I({ id: "arch", ko: "플라워 아치 포토존", en: "Flower Arch Photo Zone", price: 50, currency: "star", minLounge: 2, kind: "furniture" }),
   I({ id: "goldtable", ko: "골드 사이드 테이블", en: "Gold Side Table", price: 20, currency: "gem", minLounge: 3, kind: "furniture" }),
+  I({ id: "armchair", ko: "벨벳 암체어", en: "Velvet Armchair", price: 190, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "coffeetable", ko: "마블 커피 테이블", en: "Marble Coffee Table", price: 170, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "bookshelf", ko: "뷰티 매거진 책장", en: "Magazine Bookshelf", price: 260, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "diffuser", ko: "아로마 디퓨저", en: "Aroma Diffuser", price: 90, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "petbed", ko: "펫 쿠션", en: "Pet Cushion", price: 120, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "cattower", ko: "캣 타워", en: "Cat Tower", price: 320, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "partition", ko: "라탄 파티션", en: "Rattan Partition", price: 240, currency: "coin", minLounge: 2, kind: "furniture" }),
+  I({ id: "aquarium", ko: "아쿠아리움", en: "Aquarium", price: 35, currency: "star", minLounge: 2, kind: "furniture" }),
   // themes
   I({ id: "floor-cream", ko: "크림 우드 바닥", en: "Cream Wood Floor", price: 0, currency: "coin", minLounge: 1, kind: "floor", color: "#f3e3cf", accent: "#ead6bd" }),
   I({ id: "floor-pink", ko: "핑크 마블 바닥", en: "Pink Marble Floor", price: 400, currency: "coin", minLounge: 1, kind: "floor", color: "#f9dfe4", accent: "#f3ccd4" }),
@@ -209,3 +230,29 @@ export const DEMO_POSTS = [
 ];
 
 export const MODE_ORDER: ModeId[] = ["rf", "us", "ionto"];
+
+// ───────────── 캐릭터 프리셋 (생성 화면의 빠른 선택) ─────────────
+export const LOOK_PRESETS: { id: string; ko: string; en: string; look: Record<string, string> }[] = [
+  { id: "sweet", ko: "스위트", en: "Sweet", look: { skin: "#ffe4d2", hairColor: "#6b4630", eyeColor: "#4a3326", hair: "hair-bob", face: "round", eyes: "round" } },
+  { id: "sunny", ko: "써니", en: "Sunny", look: { skin: "#eebf9c", hairColor: "#f1d28a", eyeColor: "#2f5d8a", hair: "hair-twin", face: "soft", eyes: "smile" } },
+  { id: "cocoa", ko: "코코아", en: "Cocoa", look: { skin: "#b97f58", hairColor: "#1c1a1f", eyeColor: "#4a3326", hair: "hair-bob", face: "round", eyes: "almond" } },
+  { id: "berry", ko: "베리", en: "Berry", look: { skin: "#f8d2b8", hairColor: "#f2a7b8", eyeColor: "#7a4aa0", hair: "hair-twin", face: "oval", eyes: "round" } },
+  { id: "mocha", ko: "모카", en: "Mocha", look: { skin: "#8a5a3c", hairColor: "#3a2a22", eyeColor: "#3d7a5a", hair: "hair-bob", face: "soft", eyes: "round" } },
+  { id: "luna", ko: "루나", en: "Luna", look: { skin: "#d9a47c", hairColor: "#b9a2e8", eyeColor: "#22202a", hair: "hair-twin", face: "oval", eyes: "almond" } },
+];
+
+// ───────────── 라운지 펫 ─────────────
+export interface PetType { id: string; kind: "cat" | "dog"; ko: string; en: string; color: string; accent: string; price: number }
+export const PET_TYPES: PetType[] = [
+  { id: "cat-cream", kind: "cat", ko: "크림 고양이", en: "Cream Cat", color: "#fff3e2", accent: "#f2c9a0", price: 300 },
+  { id: "cat-gray", kind: "cat", ko: "회색 고양이", en: "Gray Cat", color: "#9aa0a8", accent: "#e9ecef", price: 300 },
+  { id: "cat-black", kind: "cat", ko: "턱시도 고양이", en: "Tuxedo Cat", color: "#2a2628", accent: "#ffffff", price: 450 },
+  { id: "dog-gold", kind: "dog", ko: "골든 강아지", en: "Golden Puppy", color: "#e3b877", accent: "#f6dfb8", price: 300 },
+  { id: "dog-white", kind: "dog", ko: "화이트 강아지", en: "White Puppy", color: "#ffffff", accent: "#f3e6d8", price: 300 },
+  { id: "dog-brown", kind: "dog", ko: "초코 강아지", en: "Choco Puppy", color: "#7a5236", accent: "#d9b48a", price: 450 },
+];
+export const PET_MAP: Record<string, PetType> = Object.fromEntries(PET_TYPES.map((p) => [p.id, p]));
+export const MAX_PETS = 3;
+
+// ───────────── DERMA HOME 추가 스테이션 (n번째 증설 비용) ─────────────
+export const STATION_COSTS = [400, 900, 1800, 3200, 5000];

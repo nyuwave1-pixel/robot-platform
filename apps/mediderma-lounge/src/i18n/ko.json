@@ -215,5 +215,6 @@
   "set.resetYes": "초기화",
   "set.title": "타이틀 화면으로",
   "set.legal": "UNI&CORE, DERMA HOME, MEDIDERMA 및 제품명·이미지는 각 권리자의 자산입니다. 3D 모델은 본 프로젝트에서 직접 제작한 프로시저럴 에셋입니다.",
-  "shop.uses": "{n}회분"
+  "shop.uses": "{n}회분",
+  "zone.game": "게임 테이블"
 }

@@ -215,5 +215,6 @@
   "set.resetYes": "Reset",
   "set.title": "Back to title",
   "set.legal": "UNI&CORE, DERMA HOME, MEDIDERMA and product names / images belong to their owners. All 3D models are procedural assets authored for this project.",
-  "shop.uses": "{n} uses"
+  "shop.uses": "{n} uses",
+  "zone.game": "Game table"
 }

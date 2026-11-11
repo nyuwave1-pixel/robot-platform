@@ -14,6 +14,8 @@ import type { Furniture } from "../store/game";
 import { Label } from "./Label";
 import { layout, type Layout } from "./layout";
 import { CareBed, DermaHome, FlowerArch, FurnitureMesh, ProductBottle, Sofa, Vanity } from "./Props";
+import { Character } from "./Character";
+import { DEFAULT_LOOK } from "../store/game";
 import { fluted, glow, gradient, herringbone, marble, terrazzo, wallPanel } from "./textures";
 import type { ModeId } from "../data/devices";
 
@@ -25,6 +27,8 @@ export const SHELF_PRODUCTS = PRODUCTS.filter((p) => p.category === "스킨케�
 
 interface Props {
   level: number; floor: string; wall: string; light: string;
+  /** 추가로 설치한 DERMA HOME 스테이션 수 */
+  stations?: number;
   furniture: Furniture[];
   selected?: string | null;
   activeMode?: ModeId | null;
@@ -33,8 +37,8 @@ interface Props {
   onFurniture?: (uid: string) => void;
 }
 
-export function Lounge({ level, floor, wall, light, furniture, selected, activeMode, quality, onFloor, onFurniture }: Props) {
-  const L = useMemo(() => layout(level), [level]);
+export function Lounge({ level, floor, wall, light, stations = 0, furniture, selected, activeMode, quality, onFloor, onFurniture }: Props) {
+  const L = useMemo(() => layout(level, stations), [level, stations]);
   const wl = INTERIOR_MAP[wall] ?? INTERIOR_MAP["wall-cream"];
   const lt = INTERIOR_MAP[light] ?? INTERIOR_MAP["light-warm"];
   const dark = wall === "wall-black";
@@ -130,6 +134,38 @@ export function Lounge({ level, floor, wall, light, furniture, selected, activeM
       <CareStage L={L} dark={dark} activeMode={activeMode} />
       <Reception L={L} dark={dark} />
 
+      {/* ── 추가 DERMA HOME 스테이션 (직원 자동 케어) ── */}
+      {L.stationSpots.slice(0, L.stations).map((s, i) => (
+        <group key={i} position={[s.x, 0, s.z]}>
+          <CareBed accent={dark ? "#3a3336" : i % 2 ? "#e3d8f6" : "#d9efe4"} />
+          <group position={[-1.5, 0, -0.62]}>
+            <mesh position={[0, 0.36, 0]} castShadow><boxGeometry args={[0.6, 0.72, 0.46]} /><meshStandardMaterial map={fluted(dark ? "#1b1719" : "#fffaf4")} roughness={0.5} /></mesh>
+            <DermaHome position={[0, 0.72, 0]} rotation={[0, 0.5, 0]} scale={0.85} />
+          </group>
+          <group position={[0.1, 0, -0.85]}><Character look={STAFF_LOOKS[i % STAFF_LOOKS.length]} growth={3.6} anim="idle" seed={i + 11} /></group>
+          <Label text={`STATION ${i + 2}`} width={0.9} position={[0, 0.02, 0.75]} rotation={[-Math.PI / 2, 0, 0]} color={GOLD} />
+        </group>
+      ))}
+
+      {/* ── 게임 테이블 (미니게임) ── */}
+      <group position={[L.game.x, 0, L.game.z]}>
+        <mesh position={[0, 0.72, 0]} castShadow><cylinderGeometry args={[0.52, 0.52, 0.05, 36]} /><meshStandardMaterial map={marble("#ffffff", "#c9c1c4", "#d8b468")} roughness={0.15} /></mesh>
+        <mesh position={[0, 0.36, 0]}><cylinderGeometry args={[0.05, 0.26, 0.72, 20]} /><Gold /></mesh>
+        {[[-0.18, -0.1], [0, -0.1], [0.18, -0.1], [-0.18, 0.12], [0, 0.12], [0.18, 0.12]].map(([x, z], i) => (
+          <mesh key={i} position={[x, 0.752, z]} rotation={[0, (i - 2.5) * 0.06, 0]} castShadow>
+            <boxGeometry args={[0.13, 0.008, 0.18]} />
+            <meshStandardMaterial color={i % 3 === 0 ? "#f29bb1" : i % 3 === 1 ? "#d9cff2" : "#fff3d6"} roughness={0.5} />
+          </mesh>
+        ))}
+        {[-1, 1].map((s) => (
+          <group key={s} position={[s * 0.85, 0, -0.1]}>
+            <mesh position={[0, 0.42, 0]} castShadow><cylinderGeometry args={[0.2, 0.2, 0.1, 22]} /><meshStandardMaterial color={soft} roughness={0.9} /></mesh>
+            <mesh position={[0, 0.19, 0]}><cylinderGeometry args={[0.03, 0.15, 0.38, 12]} /><Gold /></mesh>
+          </group>
+        ))}
+        <Neon text="GAME" position={[0, 2.1, 1.1]} scale={0.6} rotation={[0, Math.PI, 0]} />
+      </group>
+
       {/* ── 대기 라운지 (CONSULTING) ── */}
       <group position={[L.sofa.x - 0.4, 0, L.sofa.z + 0.1]}>
         <mesh position={[0, 0.012, -0.9]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[1.9, 56]} /><meshStandardMaterial color={dark ? "#2e282a" : "#fdeef1"} roughness={1} /></mesh>
@@ -213,6 +249,12 @@ export function Lounge({ level, floor, wall, light, furniture, selected, activeM
     </group>
   );
 }
+
+const STAFF_LOOKS = [
+  { ...DEFAULT_LOOK, hair: "hair-pony", hairColor: "#1c1a1f", outfit: "fit-uniform", accessory: null, shoes: "shoe-white" },
+  { ...DEFAULT_LOOK, hair: "hair-bun", hairColor: "#6b4630", skin: "#eebf9c", outfit: "fit-uniform", accessory: null, shoes: "shoe-white" },
+  { ...DEFAULT_LOOK, hair: "hair-pixie", hairColor: "#c98f5a", skin: "#b97f58", outfit: "fit-uniform", accessory: "acc-glasses", shoes: "shoe-white" },
+];
 
 const windowsZ = (L: Layout) => {
   const out: number[] = [];

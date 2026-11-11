@@ -10,7 +10,7 @@ import { useUI, type Customer } from "../store/ui";
 import { Character, type Anim } from "./Character";
 import { Label } from "./Label";
 import type { Layout } from "./layout";
-import { Lying } from "./lie";
+import { Lying, LyingAt, STATION_TOP } from "./lie";
 
 /** 플레이어 근접 판정용 위치 공유 */
 export const npcPos: Record<string, { x: number; z: number; state: string }> = {};
@@ -28,7 +28,7 @@ export function Customers({ L }: { L: Layout }) {
       if (ui.screen !== "game" || ui.visiting || ui.mode === "cinematic") return;
       const now = performance.now();
       const gap = (ui.customers.length === 0 ? tune("customer.first_spawn_sec") : tune("customer.spawn_gap_sec")) * 1000;
-      if (ui.customers.length >= L.level.customers || now - lastSpawn < gap) return;
+      if (ui.customers.length >= L.level.customers + L.stations || now - lastSpawn < gap) return;
       lastSpawn = now;
       const pool = CUSTOMER_TYPES.filter((t) => t.minLounge <= g.lounge.level);
       // 단골 재방문
@@ -58,6 +58,7 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
   const leg = useRef(0);
   const prevState = useRef(c.state);
   const seat = L.seats[c.seat] ?? L.seats[0];
+  const spot = c.station !== undefined ? L.stationSpots[c.station] : undefined;
 
   useEffect(() => () => { delete npcPos[c.id]; }, [c.id]);
 
@@ -67,6 +68,7 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
     if (prevState.current !== c.state) {
       // 케어를 마치면 침대 옆에서 다시 걷기 시작
       if (prevState.current === "care") { pos.current.x = L.bed.x + 0.6; pos.current.z = L.bed.z + 1.1; }
+      if (prevState.current === "auto" && spot) { pos.current.x = spot.x - 0.3; pos.current.z = spot.z + 1.0; }
       prevState.current = c.state; timer.current = 0; leg.current = 0;
     }
     const p = pos.current;
@@ -91,7 +93,29 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
     } else if (c.state === "wait") {
       moving.current = false;
       if (g.current) g.current.rotation.y = Math.PI;
-      if (timer.current > tune("customer.patience_sec") && ui.consult !== c.id) ui.patchCustomer(c.id, { state: "leave" });
+      const game = useGame.getState();
+      // 직원 스테이션이 비어 있으면 잠시 뒤 자동 케어로 안내된다
+      if (timer.current > tune("station.auto_wait_sec") && ui.consult !== c.id && L.stations > 0) {
+        const busy = new Set(ui.customers.filter((x) => x.state === "toStation" || x.state === "auto").map((x) => x.station));
+        const free = Array.from({ length: L.stations }, (_, i) => i).find((i) => !busy.has(i));
+        if (free !== undefined) { ui.patchCustomer(c.id, { state: "toStation", station: free }); return; }
+      }
+      const patience = tune("customer.patience_sec") + (game.pets.length ? tune("pet.patience_bonus_sec") : 0);
+      if (timer.current > patience && ui.consult !== c.id) ui.patchCustomer(c.id, { state: "leave" });
+    } else if (c.state === "toStation" && spot) {
+      if (via([[p.x, aisle], [spot.x - 1.9, aisle], [spot.x - 1.9, spot.z + 1.0], [spot.x - 0.3, spot.z + 1.0]])) ui.patchCustomer(c.id, { state: "auto" });
+    } else if (c.state === "auto") {
+      moving.current = false;
+      if (timer.current > tune("station.auto_care_sec")) {
+        const game = useGame.getState();
+        // 라운지 재고의 수딩 젤을 쓰면 만족도가 한 단계 높다
+        const stocked = game.consume("soothing-gel");
+        const stars = stocked ? 4 : 3;
+        const coins = Math.round(type.pay * (tune("customer.pay_base") + stars * tune("customer.pay_per_star")) * tune("station.auto_pay_ratio"));
+        game.autoServe({ name: c.name, type: c.type, stars, coins, lp: stars });
+        ui.patchCustomer(c.id, { state: "toPay", stars });
+        ui.toast(`${c.name} +${coins}`);
+      }
     } else if (c.state === "toPay") {
       if (walkTo(L.payPoint.x, L.payPoint.z)) { if (g.current) g.current.rotation.y = 0; ui.patchCustomer(c.id, { state: "pay" }); }
     } else if (c.state === "pay") {
@@ -104,6 +128,12 @@ function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
     npcPos[c.id] = { x: p.x, z: p.z, state: c.state };
   });
 
+  if (c.state === "auto" && spot)
+    return (
+      <LyingAt bed={spot} top={STATION_TOP} growth={NPC_GROWTH}>
+        <Character look={look} growth={NPC_GROWTH} anim="lie" mood="relaxed" seed={seed} />
+      </LyingAt>
+    );
   if (c.state === "care")
     return (
       <Lying L={L} growth={NPC_GROWTH}>
