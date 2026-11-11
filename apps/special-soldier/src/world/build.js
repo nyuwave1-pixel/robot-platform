@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { mulberry, fbm, TAU } from '../core/util.js';
 import { MAT, FAC_Y, FAC_H, FLATS } from './world.js';
+import { geometry as assetGeo } from '../game/assets.js';
 
 export const POI = {
   landing: { x: 0, z: 329 }, trailhead: { x: 0, z: 236 }, comms: { x: -140, z: 150 }, waterfall: { x: 190, z: 150 },
@@ -18,12 +19,12 @@ const inFlat = (x, z, pad = 8) => FLATS.some((f) => x > f.x0 - pad && x < f.x1 +
 
 export function buildIsland() {
   const W = G.world, H = (x, z) => W.heightAt(x, z), rnd = mulberry(1337);
-  const sandbags = (x, z, len, alongX = true) => { const y = H(x, z) - 0.15; alongX ? W.box(x, y, z, len, 1.15, 0.8, MAT.sand, { mat: 'sand', kind: 'cover' }) : W.box(x, y, z, 0.8, 1.15, len, MAT.sand, { mat: 'sand', kind: 'cover' }); };
-  const crate = (x, z, s = 1.1, y) => W.box(x, y ?? H(x, z) - 0.05, z, s, s, s, MAT.wood, { mat: 'wood', hp: 70, kind: 'crate' });
+  const sandbags = (x, z, len, alongX = true) => { const y = H(x, z) - 0.15; alongX ? W.box(x, y, z, len, 1.15, 0.8, MAT.sand, { mat: 'sand', kind: 'cover', geo: 'P_sandbags' }) : W.box(x, y, z, 0.8, 1.15, len, MAT.sand, { mat: 'sand', kind: 'cover', geo: 'P_sandbags', rot90: true }); };
+  const crate = (x, z, s = 1.1, y) => W.box(x, y ?? H(x, z) - 0.05, z, s, s, s, MAT.wood, { mat: 'wood', hp: 70, kind: 'crate', geo: 'P_crate' });
   const ammoBox = (x, z, y) => { const yy = y ?? H(x, z); W.box(x, yy, z, 0.9, 0.5, 0.6, MAT.olive, { mat: 'metal', kind: 'cover' }); W.interactables.push({ x, y: yy + 0.5, z, r: 2.4, label: 'RESUPPLY AMMO', repeat: 20, act: () => G.weapons.resupply() }); };
-  const barrel = (x, z, y) => W.box(x, y ?? H(x, z) - 0.05, z, 0.75, 1.15, 0.75, MAT.red, { mat: 'metal', hp: 25, kind: 'barrel', explosive: 6 });
+  const barrel = (x, z, y) => W.box(x, y ?? H(x, z) - 0.05, z, 0.75, 1.15, 0.75, MAT.red, { mat: 'metal', hp: 25, kind: 'barrel', explosive: 6, geo: 'P_barrel' });
   const lamp = (x, z, h = 6, light = false) => { const y = H(x, z); W.box(x, y, z, 0.18, h, 0.18, MAT.dark, { noCol: true }); const b = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), MAT.lamp); b.position.set(x, y + h, z); W.group.add(b); if (light) { const p = new THREE.PointLight(0xffe2a0, 60, 38, 1.8); p.position.set(x, y + h - 0.3, z); W.group.add(p); } };
-  const container = (x, z, m, alongX = true, y) => W.box(x, y ?? H(x, z) - 0.1, z, alongX ? 6.1 : 2.5, 2.6, alongX ? 2.5 : 6.1, m, { mat: 'metal', kind: 'cover' });
+  const container = (x, z, m, alongX = true, y) => W.box(x, y ?? H(x, z) - 0.1, z, alongX ? 6.1 : 2.5, 2.6, alongX ? 2.5 : 6.1, m, { mat: 'metal', kind: 'cover', geo: 'P_container', rot90: !alongX, tint: m === MAT.rust ? [1.35, 0.62, 0.4] : m === MAT.blue ? [0.5, 0.8, 1.3] : [0.78, 0.86, 0.56] });
   const truck = (x, z, alongX = true) => {
     const y = H(x, z), L = 6.4, Wd = 2.5, g = new THREE.Group(); g.position.set(x, y, z); if (!alongX) g.rotation.y = Math.PI / 2;
     const part = (px, py, pz, sx, sy, sz, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(px, py, pz); b.castShadow = true; g.add(b); return b; };
@@ -229,13 +230,13 @@ function buildVegetation(rnd) {
   for (let i = 0; i < 420; i++) { const x = (rnd() - 0.5) * 900, z = (rnd() - 0.5) * 900, h = W.heightAt(x, z); if (h < -1.5 || inFlat(x, z, 3)) continue; rocks.push({ x, y: h - 0.3, z, r: rnd() * 6, s: 0.5 + rnd() * rnd() * 3.2, tx: rnd(), tz: rnd() }); }
   for (let i = 0; i < 9000; i++) { const x = (rnd() - 0.5) * 820, z = (rnd() - 0.5) * 820, h = W.heightAt(x, z); if (h < 2.6 || inFlat(x, z, 1)) continue; ferns.push({ x, y: h - 0.05, z, r: rnd() * 6, s: 0.6 + rnd() * 1.1 }); }
   const bark = new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 1 }), leaf = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x1f5a22, roughness: 0.9, side: THREE.DoubleSide }), 0.012), palmLeaf = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x3c7a2c, roughness: 0.85, side: THREE.DoubleSide }), 0.018), fernMat = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x2c6a26, roughness: 0.9, side: THREE.DoubleSide }), 0.12);
-  const tg = new THREE.CylinderGeometry(0.22, 0.42, 9, 6); tg.translate(0, 4.5, 0);
+  const tg = assetGeo('Tree', 'trunk') || (() => { const g = new THREE.CylinderGeometry(0.22, 0.42, 9, 6); g.translate(0, 4.5, 0); return g; })();
   const cg = (() => { const a = new THREE.IcosahedronGeometry(3.4, 1); a.scale(1, 0.7, 1); a.translate(0, 9.6, 0); const b = new THREE.IcosahedronGeometry(2.5, 0); b.scale(1, 0.6, 1); b.translate(1.4, 7.2, 0.8); const c = new THREE.IcosahedronGeometry(2.2, 0); c.scale(1, 0.6, 1); c.translate(-1.2, 11.2, -0.6); return mergeGeo([a, b, c]); })();
-  place(new THREE.InstancedMesh(tg, bark, trunks.length), trunks); place(new THREE.InstancedMesh(cg, leaf, trunks.length), trunks);
+  place(new THREE.InstancedMesh(tg, bark, trunks.length), trunks); place(new THREE.InstancedMesh(assetGeo('Tree', 'canopy') || cg, leaf, trunks.length), trunks);
   const pg = new THREE.CylinderGeometry(0.16, 0.3, 8.5, 6); pg.translate(0, 4.25, 0);
   const pl = (() => { const gs = []; for (let i = 0; i < 7; i++) { const f = new THREE.PlaneGeometry(0.9, 4.4, 1, 4); f.translate(0, 2.2, 0); const p = f.attributes.position; for (let k = 0; k < p.count; k++) { const yy = p.getY(k); p.setZ(k, -yy * yy * 0.09); } f.rotateX(1.05); f.rotateY((i / 7) * TAU); f.translate(0, 8.4, 0); gs.push(f); } return mergeGeo(gs); })();
-  place(new THREE.InstancedMesh(pg, bark, palms.length), palms); place(new THREE.InstancedMesh(pl, palmLeaf, palms.length), palms);
-  place(new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), MAT.rock, rocks.length), rocks);
+  place(new THREE.InstancedMesh(assetGeo('Palm', 'trunk') || pg, bark, palms.length), palms); place(new THREE.InstancedMesh(assetGeo('Palm', 'canopy') || pl, palmLeaf, palms.length), palms);
+  place(new THREE.InstancedMesh(assetGeo('Rock') || new THREE.DodecahedronGeometry(1, 0), MAT.rock, rocks.length), rocks);
   const fg = (() => { const gs = []; for (let i = 0; i < 7; i++) { const f = new THREE.BufferGeometry(), a = (i / 7) * TAU, hgt = 0.7 + (i % 3) * 0.22; f.setAttribute('position', new THREE.Float32BufferAttribute([-0.09, 0, 0, 0.09, 0, 0, 0, hgt, 0.34], 3)); f.setAttribute('normal', new THREE.Float32BufferAttribute([0, 0.8, -0.6, 0, 0.8, -0.6, 0, 0.8, -0.6], 3)); f.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0.5, 1], 2)); f.rotateY(a); f.translate(Math.sin(a) * 0.1, 0, Math.cos(a) * 0.1); gs.push(f); } return mergeGeo(gs); })();
   const fm = new THREE.InstancedMesh(fg, fernMat, ferns.length); place(fm, ferns); fm.castShadow = false;
   // tree + big rock collisions

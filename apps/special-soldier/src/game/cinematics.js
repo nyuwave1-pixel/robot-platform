@@ -7,12 +7,13 @@ import { makeBoat, makeSoldier, poseSoldier } from './models.js';
 import { waveHeight } from '../world/sky.js';
 
 const _p = new THREE.Vector3(), _l = new THREE.Vector3();
-const SEATS = [[0.75, 1.5], [-0.75, 1.5], [0.75, 0.1], [-0.75, 0.1], [0.75, -0.9], [-0.3, -2.4]];
+import { ASSETS } from './assets.js';
+const SEATS_OLD = [[0.75, 1.5], [-0.75, 1.5], [0.75, 0.1], [-0.75, 0.1], [0.75, -0.9], [-0.3, -2.4]], SEATS_NEW = [[1.02, 2.5], [-1.02, 2.5], [1.02, 1.1], [-1.02, 1.1], [1.02, -0.3], [0, -1.75]];
 export class Cine {
   constructor() {
     this.active = false; this.showSquad = false; this.shots = []; this.i = 0; this.t = 0; this.total = 0;
     this.boat = makeBoat(); this.boat.rotation.y = Math.PI; G.scene.add(this.boat); this.crew = [];
-    SEATS.forEach(([x, z], i) => { const s = makeSoldier('squad'); s.position.set(x, 0.62, z); s.rotation.y = i === 5 ? 0 : x > 0 ? -0.5 : 0.5; poseSoldier(s, { sit: true }); if (i === 5) { poseSoldier(s, {}); s.position.y = 0.5; } this.boat.add(s); this.crew.push(s); });
+    const NEW = ASSETS.ready; this.draft = NEW ? 0.3 : 0; (NEW ? SEATS_NEW : SEATS_OLD).forEach(([x, z], i) => { const s = makeSoldier('squad'); s.position.set(x, NEW ? 0.7 : 0.62, z); s.rotation.y = i === 5 ? 0 : x > 0 ? (NEW ? -1.25 : -0.5) : NEW ? 1.25 : 0.5; poseSoldier(s, { sit: true }); if (i === 5) { poseSoldier(s, {}); s.position.y = NEW ? 0.6 : 0.5; } this.boat.add(s); this.crew.push(s); });
     this.boatPos = new THREE.Vector3(0, 0, 640); this.boatSpeed = 0; this.menuA = 0;
   }
   /** shots: [{dur, from, to, look | cam(k), fov, text, radio, start(), update(k,dt)}] */
@@ -38,9 +39,9 @@ export class Cine {
   // ---- boat ----
   updateBoat(dt) {
     const b = this.boat; if (!b.visible) return; const p = this.boatPos, t = G.time, ground = G.world.heightAt(p.x, p.z);
-    if (this.beached) { b.position.set(p.x, Math.max(ground + 0.12, waveHeight(p.x, p.z, t) * 0.15 - 0.1), p.z); b.rotation.set(0.04, Math.PI + 0.12, 0.03); return; }
+    if (this.beached) { b.position.set(p.x, Math.max(ground + 0.12, waveHeight(p.x, p.z, t) * 0.15 - 0.1) - this.draft, p.z); b.rotation.set(0.04, Math.PI + 0.12, 0.03); return; }
     const w = waveHeight(p.x, p.z, t) * 0.55, wf = waveHeight(p.x, p.z - 3, t), wb = waveHeight(p.x, p.z + 3, t), wl = waveHeight(p.x - 1.5, p.z, t), wr = waveHeight(p.x + 1.5, p.z, t), sp = this.boatSpeed;
-    b.position.set(p.x, Math.max(w + 0.05 + sp * 0.006, ground + 0.15), p.z); b.rotation.set((wf - wb) * 0.09 - sp * 0.006 + Math.sin(t * 7) * 0.004 * sp * 0.1, Math.PI, (wl - wr) * 0.12, 'YXZ');
+    b.position.set(p.x, Math.max(w + 0.05 + sp * 0.006, ground + 0.15) - this.draft, p.z); b.rotation.set((wf - wb) * 0.09 - sp * 0.006 + Math.sin(t * 7) * 0.004 * sp * 0.1, Math.PI, (wl - wr) * 0.12, 'YXZ');
     if (sp > 2 && Math.random() < dt * 40) { const fx = G.fx; fx.puff(p.x + (Math.random() - 0.5) * 1.6, 0.3, p.z + 4.6 + Math.random() * 2, 0xeaf4ff, 0.8, 1.1, 0.22, (Math.random() - 0.5) * 2, 1.4, sp * 0.25, false, 3, 2.6); if (Math.random() < 0.5) fx.puff(p.x + (Math.random() < 0.5 ? -1.4 : 1.4), 0.5, p.z - 3.4, 0xf2f8ff, 0.45, 0.6, 0.3, (Math.random() - 0.5) * 5, 2.6, 2, false, 8, 2); }
   }
   placeBoat(beached) { this.boat.visible = beached; this.beached = beached; this.boatSpeed = 0; if (beached) { this.boatPos.set(3.2, 0, 331.5); this.crew.forEach((c, i) => (c.visible = i === 5 || i === 4)); } }

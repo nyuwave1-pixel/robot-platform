@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { clamp, damp, lerp } from '../core/util.js';
 import { WEAPONS } from '../config/weapons.js';
+import { ASSETS, rebuild } from './assets.js';
+import { GUN_MAT } from './models.js';
 
 const M = (c, r = 0.6, m = 0.4) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
 const mGun = M(0x1c1e20, 0.45, 0.7), mPoly = M(0x2b2d2a, 0.8, 0.1), mTan = M(0x6a5c44, 0.8, 0.1), mSleeve = M(0x3d4630, 0.95, 0), mGlove = M(0x15171a, 0.9, 0), mLens = new THREE.MeshStandardMaterial({ color: 0x203040, roughness: 0.1, metalness: 0.9, emissive: 0x081828 });
@@ -22,7 +24,20 @@ const SHAPE = { // per-weapon view model proportions (metres): body length, barr
 };
 function box(g, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(x, y, z); g.add(b); return b; }
 function cyl(g, r, len, x, y, z, m) { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), m); c.rotation.x = Math.PI / 2; c.position.set(x, y, z); g.add(c); return c; }
+const FP_GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5, metalness: 0.25 });
+function gunFromAsset(id) {
+  const src = rebuild('W_' + id, FP_GUN_MAT, (n, m, kept) => (kept ? null : m.color.clone().multiplyScalar(2.4).addScalar(0.012))); if (!src) return null; // lifted so the dark finish still reads at night
+  const g = new THREE.Group(); src.rotation.y = Math.PI; g.add(src); g.updateMatrixWorld(true); // Blender model points +Z; the view model looks down -Z
+  const at = (n) => { const o = src.getObjectByName(n); return o ? o.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(); };
+  const mz = at('muzzle'), st = at('sight'), gp = at('gripL');
+  g.userData.sightY = st.y; g.userData.muzzle = mz; g.userData.len = -mz.z; g.userData.grip2 = gp.add(new THREE.Vector3(0, -0.01, 0));
+  g.userData.mag = src.getObjectByName('mag') || null; const pump = src.getObjectByName('pump'); if (pump && pump.children.length) { g.userData.pump = pump; g.userData.pumpZ = pump.position.z; }
+  if (g.userData.mag && !g.userData.mag.children.length) g.userData.mag = null;
+  g.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+  return g;
+}
 export function buildGun(id) {
+  if (ASSETS.ready) { const a = gunFromAsset(id); if (a) return a; }
   const s = SHAPE[id], g = new THREE.Group(); let sightY = 0.055;
   if (s.pistol) { box(g, 0.032, 0.04, s.L, 0, 0.02, -s.L / 2, s.body); box(g, 0.03, 0.11, 0.045, 0, -0.05, -0.03, mPoly).rotation.x = 0.2; cyl(g, 0.017, s.B, 0, 0.022, -s.L - s.B / 2, mGun); box(g, 0.008, 0.012, 0.008, 0, 0.046, -s.L + 0.01, mGun); box(g, 0.02, 0.012, 0.008, 0, 0.046, -0.015, mGun); sightY = 0.052; g.userData.grip2 = new THREE.Vector3(0.0, -0.06, -0.02); }
   else {
@@ -49,7 +64,7 @@ export class Weapons {
     this.flashLight = new THREE.PointLight(0xffb060, 0, 22, 1.6); G.camera.add(this.flashLight); this.flashLight.position.set(0.2, -0.1, -1);
     // arms
     this.armR = new THREE.Group(); this.armL = new THREE.Group();
-    for (const a of [this.armR, this.armL]) { box(a, 0.075, 0.075, 0.46, 0, 0, 0.3, mSleeve); box(a, 0.07, 0.055, 0.1, 0, 0, 0.03, mGlove); this.root.add(a); }
+    for (const a of [this.armR, this.armL]) { const arm = ASSETS.ready ? rebuild('Arm', new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9 })) : null; if (arm) { arm.rotation.y = Math.PI; arm.traverse((o) => { if (o.isMesh) o.castShadow = false; }); a.add(arm); } else { box(a, 0.075, 0.075, 0.46, 0, 0, 0.3, mSleeve); box(a, 0.07, 0.055, 0.1, 0, 0, 0.03, mGlove); } this.root.add(a); }
     this.grenades = 4; this.reset();
   }
   reset() { this.cool = 0; this.reloading = false; this.reloadT = 0; this.switchT = 0; this.pending = -1; this.bloom = 0; this.kick = 0; this.kickRot = 0; this.burstLeft = 0; this.sprintOut = 0; this.swayX = this.swayY = 0; this.triggerHeld = false; this.pumpT = 0; this.shotsSince = 0; this.lastShot = -9; this.throwT = 0; }
@@ -117,7 +132,7 @@ export class Weapons {
     m.position.set(lerp(hipX, 0, ea) + this.swayX + Math.cos(p.bob) * 0.012 * bobK - sprintK * 0.06, lerp(-0.15, -sy, ea) + this.swayY + Math.abs(Math.sin(p.bob)) * 0.014 * bobK - lower * 0.22 - sprintK * 0.05 - p.landed * 0.1, lerp(-0.4, -0.24, ea) + this.kick + (this.pumpT > 0 ? 0.03 * Math.sin((this.pumpT / (60 / w.rpm)) * Math.PI) : 0));
     m.rotation.set(this.kickRot * (1 - ea * 0.6) - lower * 0.9 - sprintK * 0.25, sprintK * 0.7 + this.swayX * 2, -this.swayX * 3 + sprintK * 0.25 + (this.reloading ? Math.sin(G.time * 9) * 0.03 : 0));
     if (m.userData.mag) m.userData.mag.visible = !(this.reloading && this.reloadT / w.reload > 0.35 && this.reloadT / w.reload < 0.75);
-    if (m.userData.pump) m.userData.pump.position.z = -SHAPE.shotgun.L - 0.12 + (this.pumpT > 0 ? Math.sin((this.pumpT / (60 / w.rpm)) * Math.PI) * 0.09 : 0);
+    if (m.userData.pump) { const k = this.pumpT > 0 ? Math.sin((this.pumpT / (60 / w.rpm)) * Math.PI) * 0.09 : 0; if (m.userData.pumpZ !== undefined) m.userData.pump.position.z = m.userData.pumpZ - k; else m.userData.pump.position.z = -SHAPE.shotgun.L - 0.12 + k; }
     const scoped = w.scope && a > 0.92; this.root.visible = !scoped && !G.gear.droneActive && G.state !== 'cinematic'; this.scoped = scoped;
     // arms follow the gun
     const pistol = w.slot === 'sidearm'; _o.set(0, pistol ? -0.07 : -0.1, pistol ? -0.02 : -0.06).applyEuler(m.rotation).add(m.position); this.armR.position.copy(_o); this.armR.quaternion.setFromUnitVectors(_zf, _d.set(0.3, -0.42, 0.25).sub(_o).normalize());

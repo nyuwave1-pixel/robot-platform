@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { G } from '../core/ctx.js';
 import { clamp, lerp, smooth, fbm, mulberry } from '../core/util.js';
+import { geometry as assetGeo } from '../game/assets.js';
 
 export const SIZE = 1200, N = 240, CELL = SIZE / N;
 export const FAC_Y = -60, FAC_H = 4.2;
@@ -61,6 +62,7 @@ export function initMaterials() {
   MAT.lamp = new THREE.MeshStandardMaterial({ color: 0xfff2c0, emissive: 0xffe9a0, emissiveIntensity: 3 });
   MAT.redLamp = new THREE.MeshStandardMaterial({ color: 0xff2a1a, emissive: 0xff2010, emissiveIntensity: 4 });
   MAT.screen = new THREE.MeshStandardMaterial({ color: 0x10301a, emissive: 0x30ff80, emissiveIntensity: 1.6 });
+  MAT.prop = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.1 });
   MAT.fence = new THREE.MeshStandardMaterial({ color: 0x70787a, transparent: true, opacity: 0.45, roughness: 0.6, metalness: 0.7, side: THREE.DoubleSide });
 }
 
@@ -179,7 +181,8 @@ export class World {
   // ---- prop factory -------------------------------------------------------
   /** Box prop. y = bottom. opts: {mat (surface name), hp, kind, noCol, dynamic, thin, pass, seeThrough, onDestroy} */
   box(x, y, z, sx, sy, sz, material, opts = {}) {
-    const m = new THREE.Mesh(boxGeo, material); m.position.set(x, y + sy / 2, z); m.scale.set(sx, sy, sz); m.castShadow = !opts.noShadow; m.receiveShadow = true;
+    const ag = opts.geo ? assetGeo(opts.geo) : null; // Blender prop modelled in a unit cube → scaled to the collider
+    const m = new THREE.Mesh(ag || boxGeo, ag ? MAT.prop : material); if (ag && opts.tint) m.userData.tint = opts.tint; m.position.set(x, y + sy / 2, z); if (ag && opts.rot90) { m.rotation.y = Math.PI / 2; m.scale.set(sz, sy, sx); } else m.scale.set(sx, sy, sz); m.castShadow = !opts.noShadow; m.receiveShadow = true;
     const dynamic = opts.dynamic || opts.hp !== undefined;
     if (dynamic) this.group.add(m); else this.statics.push(m);
     if (opts.noCol) return { mesh: m };
@@ -196,7 +199,7 @@ export class World {
   /** Merge all static boxes per material → a handful of draw calls (GPU batching / HLOD stand-in). */
   finalize() {
     const by = new Map();
-    for (const m of this.statics) { m.updateMatrix(); const g = boxGeo.clone().applyMatrix4(m.matrix); const uv = g.attributes.uv; const s = Math.max(m.scale.x, m.scale.z) / 4, t = m.scale.y / 4; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * Math.max(1, s), uv.getY(i) * Math.max(1, t)); if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(g); }
+    for (const m of this.statics) { m.updateMatrix(); const g = m.geometry.clone().applyMatrix4(m.matrix); if (!g.attributes.color && m.material === MAT.prop) continue; if (m.userData.tint) { const c = g.attributes.color, t = m.userData.tint; for (let i = 0; i < c.count; i++) c.setXYZ(i, c.getX(i) * t[0], c.getY(i) * t[1], c.getZ(i) * t[2]); } const uv = g.attributes.uv; const s = Math.max(m.scale.x, m.scale.z) / 4, t = m.scale.y / 4; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * Math.max(1, s), uv.getY(i) * Math.max(1, t)); if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(g); }
     for (const [mat, geos] of by) { const mesh = new THREE.Mesh(mergeGeometries(geos), mat); mesh.castShadow = !mat.transparent; mesh.receiveShadow = true; this.group.add(mesh); geos.forEach((g) => g.dispose()); }
     this.staticCount = this.statics.length; this.statics.length = 0;
   }

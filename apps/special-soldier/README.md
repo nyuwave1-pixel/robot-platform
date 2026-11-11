@@ -5,7 +5,7 @@
 
 > **이 빌드가 무엇이고 무엇이 아닌지**
 > - 엔진: **Three.js r170 + Vite** (개발 환경에 Unreal Engine 5가 없어 UE5 프로젝트는 컴파일/실행 검증이 불가능했습니다).
-> - 모든 3D 모델·텍스처·사운드는 **코드로 생성한 임시(placeholder) 에셋**입니다. AAA 최종 품질이 아닙니다 → [`docs/ASSET_LIST.md`](docs/ASSET_LIST.md)
+> - 캐릭터·총기·차량·식생·소품 모델은 **Blender 5.3으로 제작**했습니다(텍스처·리깅 없음). 건물·지형·텍스처·사운드는 코드로 생성한 임시 에셋입니다. AAA 최종 품질이 아닙니다 → [`docs/ASSET_LIST.md`](docs/ASSET_LIST.md)
 > - UE5 본 제작으로 옮기기 위한 설계는 [`docs/UE5_ARCHITECTURE.md`](docs/UE5_ARCHITECTURE.md) 에 있으며, **설계 문서일 뿐 구현물이 아닙니다.**
 > - 멀티플레이어는 구현되어 있지 않습니다(메뉴에 설계 상태만 표시).
 
@@ -54,6 +54,7 @@ Windows 데스크톱 빌드(Electron 래퍼)는 [`docs/TECHNICAL.md` §9](docs/T
 
 ## 문서
 
+- [`docs/BLENDER.md`](docs/BLENDER.md) — Blender 5.3 에셋 파이프라인, `.blend` 여는 법, 다시 빌드하는 법
 - [`docs/TECHNICAL.md`](docs/TECHNICAL.md) — 아키텍처, 시스템별 설계, DPS 모델, 확장 방법
 - [`docs/UE5_ARCHITECTURE.md`](docs/UE5_ARCHITECTURE.md) — UE5 본 제작 이행 설계
 - [`docs/ASSET_LIST.md`](docs/ASSET_LIST.md) — 임시 에셋 목록과 교체 대상

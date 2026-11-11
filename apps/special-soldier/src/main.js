@@ -18,6 +18,7 @@ import { Cine } from './game/cinematics.js';
 import { Hud } from './ui/hud.js';
 import { Menu } from './ui/menu.js';
 import { clamp } from './core/util.js';
+import { loadAssets, ASSETS } from './game/assets.js';
 import { makeSoldier, makeAPC, makeHeli, PALETTE, HOT } from './game/models.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
@@ -39,6 +40,7 @@ async function boot() {
   const r = (G.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' })); r.info.autoReset = false; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace;
   G.scene = new THREE.Scene(); G.camera = new THREE.PerspectiveCamera(G.settings.fov, innerWidth / innerHeight, 0.06, 3200); G.scene.add(G.camera);
   G.input = new Input(canvas); G.audio = new AudioSys();
+  await step(14, 'BLENDER ASSETS'); await loadAssets();
   await step(20, 'TERRAIN — 1.2 KM ISLAND HEIGHTFIELD'); initMaterials(); G.world = new World();
   await step(40, 'SKY · OCEAN · WEATHER'); G.sky = new Sky(); G.post = new Post(); G.fx = new FX();
   await step(55, 'ZONES 01–05 — STRUCTURES & VEGETATION'); buildIsland();
@@ -101,6 +103,6 @@ function tick(dt) {
   G.audio.listener(G.camera);
   if (!G.skipRender) { G.stats = { calls: G.renderer.info.render.calls, tris: G.renderer.info.render.triangles }; G.renderer.info.reset(); G.post.render(dt); } G.input.endFrame();
 }
-G.tick = tick; G.POI = POI; G.THREE = THREE;
+G.tick = tick; G.POI = POI; G.THREE = THREE; G.assets = ASSETS;
 window.SS = G;
 boot().catch((e) => { console.error(e); $('loadText').textContent = 'BOOT FAILED: ' + e.message; });

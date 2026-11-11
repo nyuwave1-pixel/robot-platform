@@ -1,6 +1,7 @@
 // Procedural placeholder character / vehicle models (soldier, RHIB assault boat, helicopter, APC).
 // These stand in for skeletal meshes + Control Rig animation in the UE5 production build.
 import * as THREE from 'three';
+import { ASSETS, rebuild, geometry } from './assets.js';
 
 const cache = new Map();
 const mat = (c, r = 0.9, m = 0) => { const k = c + '_' + r + '_' + m; if (!cache.has(k)) cache.set(k, new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m })); return cache.get(k); };
@@ -17,7 +18,32 @@ export const PALETTE = {
   boss:   { cloth: 0x1a0c0c, vest: 0x5a1010, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
 };
 /** Returns a group (origin at feet, facing +Z) with userData.parts for animation. */
+const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0.05 });
+const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.25 });
+export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0.55 });
+const KIT = { // headgear / armour set and weapon per soldier type (nodes modelled in Blender)
+  squad: { acc: ['acc_helmet', 'acc_nvg'], gun: 'm4' }, guard: { acc: ['acc_cap'], gun: 'kr5' }, assault: { acc: ['acc_helmet'], gun: 'm4' }, sniper: { acc: ['acc_hood'], gun: 'bolt' },
+  heavy: { acc: ['acc_helmet', 'acc_heavy'], gun: 'lmg' }, elite: { acc: ['acc_helmet', 'acc_visor'], gun: 'arx' }, boss: { acc: ['acc_beret', 'acc_visor', 'acc_heavy'], gun: 'lmg' },
+};
+const templates = new Map(), C = (h) => new THREE.Color(h);
+function soldierTemplate(kind) {
+  if (templates.has(kind)) return templates.get(kind);
+  const p = PALETTE[kind], kit = KIT[kind], col = { cloth: C(p.cloth), vest: C(p.vest), skin: C(p.skin), helmet: C(p.helmet), boots: C(0x0b0b0c), gear: C(0x16171a), accent: C(0x8a1010) };
+  const glow = p.visor ? new THREE.MeshStandardMaterial({ color: 0x111111, emissive: p.visor, emissiveIntensity: 2.5 }) : null;
+  const g = rebuild('Soldier', CHAR_MAT, (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n));
+  const gg = geometry('W_' + kit.gun); if (gg) { const one = new THREE.Mesh(gg, GUN_MAT); one.castShadow = true; g.getObjectByName('gun').add(one); }
+  templates.set(kind, g); return g;
+}
+function soldierFromAsset(kind, scale) {
+  const g = soldierTemplate(kind).clone(true); g.scale.setScalar(scale);
+  const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
+  const n = (k) => g.getObjectByName(k);
+  g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
+  return g;
+}
+function vehicleFromAsset(name) { const g = rebuild(name, VEH_MAT); const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; o.castShadow = true; } }); g.userData.parts = { meshes }; return g; }
 export function makeSoldier(kind, scale = 1) {
+  if (ASSETS.ready) return soldierFromAsset(kind, scale);
   const p = PALETTE[kind], g = new THREE.Group(), body = new THREE.Group(); g.add(body);
   const cl = mat(p.cloth), vs = mat(p.vest, 0.8), sk = mat(p.skin, 0.7), hm = mat(p.helmet, 0.6, 0.2), bt = mat(0x111111), gm = mat(0x18191b, 0.5, 0.6);
   const legL = new THREE.Group(), legR = new THREE.Group(); legL.position.set(0.12, 0.92, 0); legR.position.set(-0.12, 0.92, 0);
@@ -46,6 +72,7 @@ export function poseSoldier(g, { walk = 0, moveK = 0, crouch = 0, aim = 0, sit =
   g.rotation.x = -dead * 1.5; g.position.y += 0;
 }
 export function makeBoat() {
+  if (ASSETS.ready) return vehicleFromAsset('Boat');
   const g = new THREE.Group(), hull = mat(0x1a1d1f, 0.7, 0.1), tube = mat(0x24282a, 0.9), mt = mat(0x2a2c2e, 0.5, 0.6);
   part(g, 2.3, 0.5, 7.6, 0, 0.25, 0, hull); part(g, 1.5, 0.45, 1.8, 0, 0.3, 4.3, hull).rotation.x = -0.25;
   for (const sx of [-1, 1]) { const t = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 8, 10), tube); t.rotation.x = Math.PI / 2; t.position.set(sx * 1.25, 0.62, 0.2); t.castShadow = true; g.add(t); const n = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.38, 1.9, 10), tube); n.rotation.x = Math.PI / 2; n.rotation.z = sx * 0.55; n.position.set(sx * 0.72, 0.66, 4.9); g.add(n); }
@@ -55,6 +82,7 @@ export function makeBoat() {
   return g;
 }
 export function makeHeli() {
+  if (ASSETS.ready) { const h = vehicleFromAsset('Heli'); h.userData.rotor = h.getObjectByName('rotor'); h.userData.tail = h.getObjectByName('tail'); h.userData.light = h.getObjectByName('light'); return h; }
   const g = new THREE.Group(), body = mat(0x23282a, 0.6, 0.3), dk = mat(0x121416, 0.5, 0.5), gl = mat(0x30404a, 0.15, 0.7);
   part(g, 2.4, 2.2, 6.5, 0, 2.2, 0, body); part(g, 2.0, 1.4, 2.2, 0, 2.3, 4.0, gl).rotation.x = 0.25; part(g, 0.7, 0.8, 7, 0, 2.8, -6.2, body); part(g, 0.15, 2.2, 1.2, 0, 3.8, -9.3, body); part(g, 2.6, 0.12, 0.8, 0, 3.0, -9.2, body);
   part(g, 1.6, 0.6, 3, 0, 3.6, 0, dk); for (const sx of [-1.3, 1.3]) { part(g, 0.12, 0.12, 4.5, sx, 0.35, 0.4, dk); part(g, 0.08, 0.9, 0.08, sx, 0.8, 1.6, dk); part(g, 0.08, 0.9, 0.08, sx, 0.8, -0.8, dk); }
@@ -65,6 +93,7 @@ export function makeHeli() {
   return g;
 }
 export function makeAPC() {
+  if (ASSETS.ready) { const v = vehicleFromAsset('APC'); v.userData.parts.turret = v.getObjectByName('turret'); return v; }
   const g = new THREE.Group(), ol = mat(0x3a4030, 0.8, 0.2), dk = mat(0x15171a, 0.9), gm = mat(0x1a1b1d, 0.5, 0.6);
   part(g, 3, 1.4, 6.6, 0, 1.35, 0, ol); part(g, 2.6, 0.5, 5.2, 0, 2.2, -0.3, ol); part(g, 3, 0.8, 1.2, 0, 1.15, 3.5, ol).rotation.x = 0.5;
   for (const sx of [-1.5, 1.5]) for (const z of [-2.3, -0.8, 0.8, 2.3]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.45, 12), dk); w.rotation.z = Math.PI / 2; w.position.set(sx, 0.62, z); w.castShadow = true; g.add(w); }
