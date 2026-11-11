@@ -126,7 +126,10 @@ def decide(approval_id: int, approve: bool, by: str) -> dict:
 
 def _approvals_file():
     from . import core
-    return core.DATA / "approvals.json"
+    import os
+    from pathlib import Path
+
+    return Path(os.environ["ENGINE_APPROVALS_FILE"]) if os.environ.get("ENGINE_APPROVALS_FILE") else core.DATA / "approvals.json"
 
 
 def dump_approvals() -> None:
@@ -146,6 +149,12 @@ def restore_approvals() -> int:
         if s.scalars(select(ApprovalRequest)).first():
             return 0
         rows = json.loads(f.read_text())
+        # A fresh database has no products yet; add a stub for each one the approvals point at
+        # (sync_products fills in the details later) so the foreign key holds on PostgreSQL.
+        have = set(s.scalars(select(Product.id)))
+        for pid in sorted({r["product_id"] for r in rows if r["product_id"]} - have):
+            s.add(Product(id=pid, source="approvals-mirror", source_ref=pid, name=pid, url="", active=False))
+        s.flush()
         for r in rows:
             s.add(ApprovalRequest(id=r["id"], product_id=r["product_id"], target=r["target"], change=r["change"], protected=r["protected"], status=r["status"], decided_by=r.get("decided_by")))
         return len(rows)

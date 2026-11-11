@@ -1,73 +1,58 @@
 [
   {
     "id": 1,
-    "product_id": "T-AMP",
-    "target": "seo_metadata",
-    "change": {
-      "title": "New title"
-    },
-    "protected": false,
-    "status": "approved",
-    "decided_by": "admin"
-  },
-  {
-    "id": 2,
-    "product_id": "T-AMP",
-    "target": "product",
-    "change": {
-      "price": 10,
-      "title": "x"
-    },
-    "protected": true,
-    "status": "pending",
-    "decided_by": null
-  },
-  {
-    "id": 3,
-    "product_id": "UC-US-449",
+    "product_id": "UC-US-441",
     "target": "site_seo",
     "change": {
-      "seoTitle": "13.5% Vitamin C Ampoule | UNI&CORE",
       "faq": {
-        "q": "Can I use it every day?",
-        "a": "Yes, most people use it daily after cleansing."
+        "q": "How is a powder wash different from a gel cleanser?",
+        "a": "A powder wash stays dry until you add water, so the enzymes are activated fresh with each use. It lathers into a creamy foam and rinses clean."
       }
     },
     "protected": false,
     "status": "applied",
-    "decided_by": "tester"
+    "decided_by": "admin"
+  },
+  {
+    "id": 2,
+    "product_id": "UC-US-445",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "When should I use a sheet mask in my routine?",
+        "a": "After cleansing and toner, before your ampoule and moisturizer. Leave the sheet on for 10–20 minutes, remove it, then pat in the remaining essence and continue with the rest of your routine."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "owner-via-chat"
+  },
+  {
+    "id": 3,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "Is the enzyme powder wash good for travel?",
+        "a": "Yes. Each wash comes in its own 1 g single-use pouch, so the powder stays dry and fresh and there is no liquid to spill. A box holds 30 pouches."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "owner-via-chat"
   },
   {
     "id": 4,
     "product_id": "UC-US-449",
     "target": "site_seo",
     "change": {
-      "seoTitle": "Skin whitening serum | UNI&CORE"
+      "faq": {
+        "q": "Should I use vitamin C serum in the morning or at night?",
+        "a": "Either works. Many people apply vitamin C in the morning and follow with sunscreen, then keep stronger actives such as retinol for the evening. Apply 2 pumps after cleansing, before your cream."
+      }
     },
     "protected": false,
-    "status": "rejected",
-    "decided_by": "publish-validator: 금지 표현 포함 (whitening/cure/treat/guarantee 등)"
-  },
-  {
-    "id": 5,
-    "product_id": "UC-US-449",
-    "target": "site_seo",
-    "change": {
-      "price": 1
-    },
-    "protected": true,
-    "status": "approved",
-    "decided_by": "tester"
-  },
-  {
-    "id": 6,
-    "product_id": "UC-US-449",
-    "target": "site_seo",
-    "change": {
-      "seoTitle": "Pending title | UNI&CORE"
-    },
-    "protected": false,
-    "status": "pending",
-    "decided_by": null
+    "status": "applied",
+    "decided_by": "owner-via-chat"
   }
 ]

@@ -78,3 +78,13 @@ curl -u admin:$ENGINE_ADMIN_PASSWORD -H "Content-Type: text/csv" --data-binary @
 - 제품 사진은 프로모션 사이트의 공식 사진을 크기만 맞춰 그대로 씁니다(자르기·보정·AI 재생성 없음).
 - 문구는 `creatives/copy.json` 에만 있으며, 사이트에 이미 있는 사실만 허용합니다(가격·할인·평점·리뷰·임상 수치 금지, 테스트로 검증).
 - Canva / Higgsfield API는 계속 `waiting_connection` 으로 보고됩니다. Canva AI 생성은 제품 사진을 다른 병으로 바꿔 그려 사용하지 않습니다.
+
+## 운영 DB (PostgreSQL / Supabase)
+
+기본은 로컬 SQLite(`data/engine.db`)입니다. `DATABASE_URL` 을 PostgreSQL 주소로 주면 그대로 PostgreSQL을 씁니다. `postgres://`, `postgresql://` 로 시작하는 주소(Supabase가 주는 형식)도 자동으로 맞춰 읽습니다.
+
+1. Supabase 프로젝트의 Connect → **Session pooler** 주소를 복사합니다(GitHub Actions는 IPv4라서 Direct 주소가 아니라 pooler 주소를 써야 합니다).
+2. GitHub 저장소 Settings → Secrets → Actions 에 `ENGINE_DATABASE_URL` 로 저장합니다. 주소는 채팅이나 저장소 파일에 쓰지 않습니다.
+3. 첫 실행 때 21개 테이블이 자동 생성되고, `data/approvals.json` 의 승인 기록이 복원됩니다.
+
+2026-11-11 PostgreSQL 16에서 `python -m engine daily` 전체를 실행해 확인했습니다(제품 60, 이미지 232, 키워드 269, 페이지 15, 승인 4).

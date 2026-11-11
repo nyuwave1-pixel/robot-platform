@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-10",
+  "date": "2026-11-11",
   "products": 60,
   "product_images": 232,
   "keywords": 269,
@@ -24,51 +24,42 @@
       "error": "",
       "result": null
     },
-    "publish": {
-      "status": "success",
-      "attempts": 1,
-      "error": "",
-      "result": {
-        "applied": 1,
-        "rejected_by_validator": 0,
-        "protected_left_for_manual": 0,
-        "file": "unincore-promotion/src/content/seo-overrides.json"
-      }
-    },
-    "connections": {
-      "status": "success",
-      "attempts": 1,
-      "error": "",
-      "result": {
-        "gemini": "pending",
-        "google_search_console": "pending",
-        "ga4": "pending",
-        "naver_search_advisor": "pending",
-        "canva": "pending",
-        "higgsfield": "pending",
-        "amazon_ads": "pending",
-        "unincore_shop": "connected"
-      }
-    },
-    "gemini_content": {
-      "status": "failed",
-      "attempts": 1,
-      "error": "Gemini 402: prepayment credits depleted (5/5 calls failed)",
-      "result": {
-        "analyzed": 0,
-        "attempted": 5
-      }
-    },
     "performance": {
       "status": "waiting_connection",
       "attempts": 1,
       "error": "미연결: google_search_console, amazon_ads. 성과 데이터는 수집되지 않았습니다 (CSV 업로드로 대체 가능)",
       "result": null
     },
+    "publish": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "applied": 0,
+        "rejected_by_validator": 0,
+        "protected_left_for_manual": 0,
+        "file": null
+      }
+    },
     "creatives": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "rendered": 9,
+        "posts": 9,
+        "provider": "engine (template, no AI)",
+        "waiting_connection": [
+          "canva",
+          "higgsfield"
+        ],
+        "cost": 0
+      }
+    },
+    "gemini_content": {
       "status": "waiting_connection",
       "attempts": 1,
-      "error": "미연결: canva, higgsfield. 영상 작업 사양만 대기열에 저장했습니다",
+      "error": "GEMINI_API_KEY 미연결: 이미지 분석 작업을 대기열에 저장했습니다",
       "result": null
     },
     "discover_keywords": {
@@ -83,7 +74,7 @@
     },
     "seo_audit": {
       "status": "success",
-      "attempts": 2,
+      "attempts": 1,
       "error": "",
       "result": {
         "site": "https://promotion.unincore.com",
@@ -99,9 +90,24 @@
         "categories": 9,
         "products_found": 60,
         "synced": 60,
-        "created": 60,
-        "updated": 0,
+        "created": 57,
+        "updated": 3,
         "new_images": 232
+      }
+    },
+    "connections": {
+      "status": "success",
+      "attempts": 1,
+      "error": "",
+      "result": {
+        "gemini": "pending",
+        "google_search_console": "pending",
+        "ga4": "pending",
+        "naver_search_advisor": "pending",
+        "canva": "pending",
+        "higgsfield": "pending",
+        "amazon_ads": "pending",
+        "unincore_shop": "connected"
       }
     }
   },

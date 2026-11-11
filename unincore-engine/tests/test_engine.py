@@ -2,7 +2,9 @@
 import os
 import tempfile
 
-os.environ["DATABASE_URL"] = f"sqlite:///{tempfile.mkdtemp()}/test.db"
+_TMP = tempfile.mkdtemp()
+os.environ["DATABASE_URL"] = f"sqlite:///{_TMP}/test.db"
+os.environ["ENGINE_APPROVALS_FILE"] = f"{_TMP}/approvals.json"  # never touch the real mirror in data/
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -187,7 +189,8 @@ def test_approvals_mirror_roundtrip():
     import json
     from engine import imports
     imports.dump_approvals()
-    rows = json.loads((core.DATA / "approvals.json").read_text())
+    rows = json.loads(imports._approvals_file().read_text())
+    assert imports._approvals_file() != core.DATA / "approvals.json"
     assert rows and {"id", "status", "change", "protected"} <= set(rows[0])
     assert imports.restore_approvals() == 0  # database already has rows: never overwritten
 

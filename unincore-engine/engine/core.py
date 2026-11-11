@@ -17,11 +17,15 @@ from .models import AutomationJob, AutomationSchedule, Base, SystemLog, now
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 DATABASE_URL = os.environ.get("DATABASE_URL") or f"sqlite:///{DATA / 'engine.db'}"
+# Hosted Postgres (Supabase, Neon …) hands out postgres:// or postgresql:// URLs; use the psycopg 3 driver for both.
+for _prefix in ("postgres://", "postgresql://"):
+    if DATABASE_URL.startswith(_prefix):
+        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len(_prefix):]
 USER_AGENT = "UNICORE-SEO-Engine/0.1 (+https://promotion.unincore.com; brand-owned tool)"
 PROMO_SITE = os.environ.get("PROMO_SITE", "https://promotion.unincore.com")
 SHOP_SITE = os.environ.get("SHOP_SITE", "https://us.unincore.com")
 
-_engine = create_engine(DATABASE_URL, future=True)
+_engine = create_engine(DATABASE_URL, future=True, pool_pre_ping=True)
 SessionLocal = sessionmaker(_engine, expire_on_commit=False)
 
 # Directive §09 daily plan (Asia/Seoul). `job` is the engine job that implements the step.
