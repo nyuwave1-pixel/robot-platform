@@ -77,3 +77,18 @@ Blender: 정면 −Y, 위 +Z, 미터. glTF로 내보내면 정면 +Z, 위 +Y.
 클라우드 세션은 사용자 PC의 Blender에 직접 접속할 수 없어서, 같은 버전인 `bpy 5.3.0`(Blender를 파이썬 모듈로 빌드한 공식 패키지)을
 Linux에서 헤드리스로 실행해 만들었습니다. 같은 스크립트가 PC의 Blender 5.3에서도 그대로 돌아가도록 작성되어 있지만,
 **Windows의 Blender에서 실행해 본 것은 아닙니다.**
+
+## v0.7 — 병사 종류별 캐릭터 키트와 거리 LOD
+
+| 종류 | Blender 노드 | 위장 패턴 |
+|---|---|---|
+| 아군 분대 | `acc_helmet` `acc_nvg` `acc_pack` | multi (다색) |
+| SENTRY 경계병 | `acc_cap` `acc_shades` `acc_guard` (쉬마그, 선글라스, 어깨 무전기, 진압봉, 손전등) | khaki |
+| ASSAULT 돌격병 | `acc_helmet` `acc_mask` `acc_assault` `acc_pack` (발라클라바, 밀폐 고글, 가슴 나이프, 섬광탄, 로프) | urban (디지털) |
+| SNIPER 저격수 | `acc_hood` `acc_ghillie` (길리 스트립 70개, 드래그백, 거리측정기) | woodland |
+| HEAVY 중화기병 | `acc_helmet` `acc_heavy` `acc_shield` `acc_jugg` (방폭 안면 실드, 목 보호대, 탄약 배낭+급탄 슈트, 상완 장갑) | solid |
+| COBRA ELITE | `acc_helmet` `acc_visor` `acc_gasmask` `acc_elite` (방독면, 이중 안테나 무전 팩, 어깨 장갑, 상태 LED) | tiger |
+| COMMANDER VIPER | `acc_beret` `acc_visor` `acc_heavy` `acc_boss` `acc_cigar` (롱코트 자락, 금색 견장·식서, 약장, 시가) | solid |
+
+- `Asm.detail(True)` 로 추가한 부품은 `<노드>__d` 자식으로 내보내지고, 게임은 카메라에서 34 m(줌 배율 반영) 넘으면 숨긴다(`lodSoldier`). 측정값: 병사 1인 근거리 약 1.3–1.7만 → 원거리 0.76–0.96만 tris. 총기의 레일 톱니·M-LOK 등도 같은 방식.
+- 위장 패턴은 `detailMap('camo:<style>')` 절차 생성이며 종류마다 재질 1개를 공유한다.

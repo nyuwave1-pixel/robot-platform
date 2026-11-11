@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { clamp, angDiff, damp, TAU } from '../core/util.js';
 import { DIFFICULTY } from '../core/save.js';
-import { makeSoldier, makeAPC, poseSoldier, HOT } from './models.js';
+import { makeSoldier, makeAPC, poseSoldier, lodSoldier, HOT } from './models.js';
 import { raySphere } from './fx.js';
 import { TUNE } from '../ui/tune.js';
 
@@ -209,6 +209,7 @@ export class Enemies {
       // ---- animation ----
       e.moveK = damp(e.moveK, moving ? 1 : 0, 8, dt); e.walk += speed * dt * 2.6 * e.moveK;
       const aim = e.state >= ST.COMBAT && e.tgt ? clamp(Math.atan2(e.tgt.pos.y + 1.1 - e.pos.y - 1.4, Math.max(2, e.dist || 10)), -0.6, 0.6) : -0.25;
+      lodSoldier(e.model, e.pos.distanceTo(G.camera.position) * G.camera.fov / 75); // scoped view keeps the detail
       poseSoldier(e.model, { walk: e.walk, moveK: e.moveK, crouch: e.crouch, aim });
       e.model.position.copy(e.pos); e.model.rotation.set(0, e.yaw, 0);
     }

@@ -17,8 +17,10 @@ def M():
 def rail(a, g, y0, y1, z, m, w=0.021):
     a.box(g, (w, abs(y1 - y0), 0.006), (0, (y0 + y1) / 2, z), m, bevel=0.001)
     n = max(2, int(abs(y1 - y0) / 0.02))
+    was = a.detail_on; a.detail(True)
     for i in range(n):
         a.box(g, (w + 0.002, 0.006, 0.005), (0, y0 + (y1 - y0) * (i + 0.5) / n, z + 0.005), m, bevel=0.001)
+    a.detail(was)
 
 
 def optic(a, kind, y, z, m):
@@ -65,6 +67,7 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
     a.box('root', (0.003, L * 0.3, 0.02), (0.0235, -L * 0.5, 0.004), m['steel'], bevel=0.001)  # ejection port
     a.cyl('root', 0.006, 0.02, (0.026, -L * 0.2, 0.0), m['steel'], rot=(0, H, 0), n=10)
     rail(a, 'root', 0.0, -L, 0.029, m['steel'])
+    a.detail(True)
     # receiver furniture: charging handle, bolt carrier in the port, dust cover hinge, forward assist, selector, mag release, pins
     a.box('root', (0.05, 0.02, 0.008), (0, -0.005, 0.03), m['steel'], bevel=0.002); a.box('root', (0.012, 0.03, 0.008), (0, -0.02, 0.03), m['steel'], bevel=0.002)
     a.cyl('root', 0.003, L * 0.32, (0.0245, -L * 0.5, -0.008), m['steel'], rot=(H, 0, 0), n=6)
@@ -78,6 +81,7 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
     for i in range(5):
         a.box('root', (0.032, 0.004, 0.012), (0, -0.036 + i * 0.002, -0.07 - i * 0.012), m['rubber'], rot=(0.3, 0, 0), bevel=0.001)  # grip texture
     a.cyl('root', 0.007, 0.008, (-0.026, 0.005, -0.01), m['steel'], rot=(0, H, 0), n=10)  # rear QD sling socket
+    a.detail(False)
     # barrel + handguard
     y_m = -L - B
     a.cyl('root', barrel_r * (1.5 if heavy else 1), B, (0, -L - B / 2, 0.002), m['steel'], rot=(H, 0, 0), n=14)
@@ -86,8 +90,10 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
         rail(a, 'root', -L, -L - hg, hg_r + 0.001, m['steel'], 0.018)
         for i in range(5):
             a.box('root', (hg_r * 2 + 0.002, 0.018, 0.008), (0, -L - hg * (0.14 + i * 0.18), 0.002), m['steel'], bevel=0.002)  # vent slots
+            a.detail(True)
             for sz in (-1, 1):
                 a.box('root', (hg_r * 1.45, 0.02, 0.006), (0, -L - hg * (0.14 + i * 0.18), 0.002 + sz * hg_r * 0.68), m['steel'], bevel=0.001)  # M-LOK slots, upper / lower flats
+        a.detail(False)
         a.cyl('root', hg_r + 0.0015, 0.012, (0, -L - 0.006, 0.002), m['steel'], rot=(H, 0, 0), n=12, bevel=0.002)  # barrel nut
         a.cyl('root', 0.006, 0.008, (-hg_r - 0.002, -L - hg * 0.8, 0.002), m['steel'], rot=(0, H, 0), n=10)  # front QD socket
         if hg >= 0.19 and not pump:  # laser/illuminator on the top rail, weapon light + pressure-pad cable on the side
@@ -105,10 +111,12 @@ def long_gun(name, L=0.2, B=0.3, hg=0.24, body='steel', stock='m4', mag=(0.19, 0
         a.cyl('root', 0.019, 0.17, (0, y_m - 0.075, 0.002), m['steel'], rot=(H, 0, 0), n=18, bevel=0.003); y_m -= 0.16
     else:
         a.cyl('root', barrel_r + 0.004, 0.045, (0, y_m + 0.01, 0.002), m['steel'], rot=(H, 0, 0), n=8, bevel=0.002)
+        a.detail(True)
         for i in range(3):  # flash-hider ports + crush washer
             an = i * math.pi * 2 / 3 + H
             a.box('root', (0.004, 0.024, 0.004), (math.cos(an) * (barrel_r + 0.0035), y_m + 0.004, 0.002 + math.sin(an) * (barrel_r + 0.0035)), m['rubber'], bevel=0)
         a.cyl('root', barrel_r + 0.0055, 0.004, (0, y_m + 0.034, 0.002), m['steel'], rot=(H, 0, 0), n=10)
+        a.detail(False)
     a.box('root', (0.018, 0.02, 0.022), (0, -L - min(hg, B) * 0.92, 0.012), m['steel'], bevel=0.003)  # gas block
     # grip + trigger
     a.box('root', (0.03, 0.042, 0.1), (0, -0.018, -0.1), m['poly'], rot=(0.3, 0, 0), bevel=0.008)

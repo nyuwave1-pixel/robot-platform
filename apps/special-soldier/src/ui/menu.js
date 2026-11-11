@@ -39,7 +39,7 @@ export class Menu {
     this.screen = 'main'; const p = G.save.progress;
     this.open(`<div class="title"><div class="kicker">INTERNATIONAL SPECIAL OPERATIONS COMMAND · SQUAD 07</div><h1>SPECIAL<br><span>SOLDIER</span></h1><div class="sub">OPERATION: ISLAND INVASION</div></div>
       <nav>${MAIN.map(([a, t, d], i) => `<button data-a="${a}"><em>0${i + 1}</em><b>${t}</b><small>${d}</small></button>`).join('')}</nav>
-      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.6 · THREE.JS / WEBGL2 · MODELS: BLENDER 5.3 · TEXTURES & AUDIO: PROCEDURAL PLACEHOLDERS</div></div>`, 'main');
+      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.7 · THREE.JS / WEBGL2 · MODELS: BLENDER 5.3 · TEXTURES & AUDIO: PROCEDURAL PLACEHOLDERS</div></div>`, 'main');
   }
   campaign() {
     const p = G.save.progress;

@@ -24,7 +24,7 @@ export async function loadAssets() {
 }
 /** Direct mesh primitives of a node (not those of child pivots). */
 export const NODES = new Set(['body', 'legL', 'legR', 'upper', 'head', 'arms', 'gun', 'eye', 'mag', 'pump', 'rotor', 'tail', 'light', 'turret', 'trunk', 'canopy', 'muzzle', 'sight', 'gripL', 'acc_helmet', 'acc_nvg', 'acc_cap', 'acc_beret', 'acc_hood', 'acc_visor', 'acc_heavy']);
-const isNode = (c) => NODES.has(clean(c.name));
+const isNode = (c) => { const n = clean(c.name); return NODES.has(n) || n.endsWith('__d') || n.startsWith('acc_'); }; // '__d' = detail (LOD) child, 'acc_' = optional kit set
 function ownMeshes(node) { const out = node.isMesh ? [node] : []; for (const c of node.children) if (c.isMesh && !isNode(c)) out.push(c); return out; }
 function withColor(geo, color, matrix) {
   const g = geo.index ? geo.toNonIndexed() : geo.clone(); const ao = g.attributes.color || null; // COLOR_0 = ambient occlusion baked in Blender
@@ -34,18 +34,18 @@ function withColor(geo, color, matrix) {
   const n = g.attributes.position.count, c = new Float32Array(n * 3); for (let i = 0; i < n; i++) { const k = ao ? ao.getX(i) : 1; c[i * 3] = color.r * k; c[i * 3 + 1] = color.g * k; c[i * 3 + 2] = color.b * k; } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
 }
 /** Merge a node's primitives into one vertex-coloured geometry. colorOf(materialName, material) → THREE.Color | null (null = keep as separate mesh). */
-export function mergeNode(node, colorOf, deep = false, pick = null) {
+export function mergeNode(node, colorOf, deep = false, pick = null, noDetail = false) {
   const buckets = new Map(), geos = [], keep = [], inv = new THREE.Matrix4().copy(node.matrixWorld).invert(), list = deep ? [] : ownMeshes(node);
-  if (deep) node.traverse((m) => { if (m.isMesh) list.push(m); });
+  if (deep) node.traverse((m) => { if (m.isMesh && !(noDetail && (clean(m.name).endsWith('__d') || (m.parent && clean(m.parent.name).endsWith('__d'))))) list.push(m); });
   for (const m of list) { const col = colorOf(m.material.name, m.material); if (!col) { keep.push(m); continue; } const g = withColor(m.geometry, col, m === node ? null : new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld)); geos.push(g); if (pick) { const k = pick(m.material.name, m.material); if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(g); } }
   return { geo: !pick && geos.length ? mergeGeometries(geos) : null, parts: [...buckets].map(([key, list]) => ({ key, geo: mergeGeometries(list) })), keep };
 }
 const linear = (m) => m.color.clone();
 /** One merged, vertex-coloured geometry for a whole asset (props, vegetation parts, vehicles' static bodies). */
-export function geometry(name, child, tint) {
-  const key = `${name}/${child || ''}`; if (geoCache.has(key)) return geoCache.get(key);
+export function geometry(name, child, tint, noDetail = false) {
+  const key = `${name}/${child || ''}/${noDetail ? 'b' : ''}`; if (geoCache.has(key)) return geoCache.get(key);
   const r = roots.get(name); if (!r) return null; const node = child ? find(r, child) : r; if (!node) return null; r.updateMatrixWorld(true);
-  const { geo } = mergeNode(node, (n, m) => (tint ? linear(m).multiply(tint) : linear(m)), true); geoCache.set(key, geo); return geo;
+  const { geo } = mergeNode(node, (n, m) => (tint ? linear(m).multiply(tint) : linear(m)), true, null, noDetail); geoCache.set(key, geo); return geo;
 }
 const geoCache = new Map();
 

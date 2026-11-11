@@ -10,12 +10,12 @@ function part(parent, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(G1, m);
 export const HOT = new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 5, 5), fog: false, toneMapped: false });
 export const PALETTE = {
   squad:  { cloth: 0x5c5c42, vest: 0x45452f, skin: 0x8a6a50, helmet: 0x45452f, nvg: true }, // multi-terrain camo, coyote plate carrier
-  guard:  { cloth: 0x5a5a4a, vest: 0x2a2a26, skin: 0x8a6a50, helmet: 0x1a1a1a, cap: true },
-  assault:{ cloth: 0x3a3a3c, vest: 0x161618, skin: 0x8a6a50, helmet: 0x222224 },
+  guard:  { cloth: 0x6e6448, vest: 0x34301f, skin: 0x8a6a50, helmet: 0x1a1a1a, cap: true },
+  assault:{ cloth: 0x4a4c52, vest: 0x1c1d20, skin: 0x8a6a50, helmet: 0x222224 },
   sniper: { cloth: 0x3f4a2c, vest: 0x2c3420, skin: 0x7a5a44, helmet: 0x3a4428, hood: true },
   heavy:  { cloth: 0x2a2a2a, vest: 0x4a1a14, skin: 0x8a6a50, helmet: 0x101010, bulky: true },
-  elite:  { cloth: 0x101216, vest: 0x1c1e24, skin: 0x8a6a50, helmet: 0x0c0c0e, visor: 0xff3020 },
-  boss:   { cloth: 0x1a0c0c, vest: 0x5a1010, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
+  elite:  { cloth: 0x23262e, vest: 0x14151a, skin: 0x8a6a50, helmet: 0x0c0c0e, visor: 0xff3020 },
+  boss:   { cloth: 0x2c1010, vest: 0x5a1010, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
 };
 /** Returns a group (origin at feet, facing +Z) with userData.parts for animation. */
 /** Tileable micro-detail normal map (fabric weave / cast metal / paint) generated once on a canvas. */
@@ -31,15 +31,23 @@ export function detailNormal(kind, repeat) {
 /** Tileable albedo multiplier (vertex colour × this): 'camo' = three-tone disruptive pattern, 'grunge' = dirt, streaks and edge scratches. UVs are in metres. */
 export function detailMap(kind, perMetre) {
   if (typeof document === 'undefined') return null;
+  const style = kind.split(':')[1] || 'multi'; kind = kind.split(':')[0];
   const S = 256, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d'), img = g.createImageData(S, S);
-  let seed = kind === 'camo' ? 4242 : 977; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  let seed = kind === 'camo' ? 4242 + style.length * 131 : 977; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
   const G = 16, grid = new Float32Array(G * G * 3); for (let i = 0; i < grid.length; i++) grid[i] = rnd();
   const noise = (x, y, ch, f) => { const fx = (x / S) * G * f, fy = (y / S) * G * f, x0 = Math.floor(fx), y0 = Math.floor(fy), u = fx - x0, v = fy - y0, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v), at = (a, b) => grid[((((b % G) + G) % G) * G + (((a % G) + G) % G)) * 3 + ch]; return (at(x0, y0) * (1 - su) + at(x0 + 1, y0) * su) * (1 - sv) + (at(x0, y0 + 1) * (1 - su) + at(x0 + 1, y0 + 1) * su) * sv; };
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { let v;
     if (kind === 'camo') { // multi-terrain pattern: tan base, green and brown macro blotches, dark and pale micro elements (RGB multiplier / 1.3)
-      const a = noise(x, y, 0, 0.5) + noise(x, y, 1, 1) * 0.5, b = noise(x + 90, y + 40, 2, 0.5) + noise(x, y, 0, 2) * 0.25, m = noise(x + 31, y + 77, 1, 4), m2 = noise(x + 150, y + 9, 2, 4);
-      let t = a > 0.9 ? [0.8, 0.95, 0.62] : b > 0.74 ? [0.82, 0.66, 0.5] : a < 0.5 ? [1.22, 1.16, 0.98] : [1.0, 1.0, 0.92];
-      if (m > 0.74) t = [0.46, 0.47, 0.42]; else if (m2 > 0.76) t = [1.3, 1.26, 1.12]; else if (m2 < 0.2) t = [0.7, 0.82, 0.56];
+      const q = style === 'urban' ? 6 : 1, X = Math.floor(x / q) * q, Y = Math.floor(y / q) * q; // 'urban' is a pixelated (digital) pattern
+      const a = noise(X, Y, 0, 0.5) + noise(X, Y, 1, 1) * 0.5, b = noise(X + 90, Y + 40, 2, 0.5) + noise(X, Y, 0, 2) * 0.25, m = noise(X + 31, Y + 77, 1, 4), m2 = noise(X + 150, Y + 9, 2, 4);
+      let t;
+      if (style === 'khaki') t = a > 0.88 ? [0.8, 0.76, 0.64] : b > 0.76 ? [1.16, 1.12, 0.98] : [1, 1, 1];
+      else if (style === 'urban') t = a > 0.88 ? [0.48, 0.5, 0.54] : a < 0.5 ? [1.26, 1.26, 1.28] : b > 0.72 ? [0.74, 0.76, 0.8] : [1, 1, 1.02];
+      else if (style === 'woodland') t = a > 0.9 ? [0.34, 0.35, 0.3] : b > 0.72 ? [0.9, 0.62, 0.4] : a < 0.52 ? [1.2, 1.26, 0.82] : [0.8, 1.0, 0.6];
+      else if (style === 'tiger') { const st = noise(x, y * 4, 0, 0.5) + noise(x, y * 2, 1, 2) * 0.3; t = st > 0.82 ? [0.3, 0.3, 0.34] : st < 0.46 ? [1.28, 1.24, 1.2] : [0.9, 0.9, 0.95]; }
+      else if (style === 'solid') t = a > 0.92 ? [0.8, 0.8, 0.8] : m > 0.8 ? [1.12, 1.12, 1.12] : [1, 1, 1];
+      else { t = a > 0.9 ? [0.8, 0.95, 0.62] : b > 0.74 ? [0.82, 0.66, 0.5] : a < 0.5 ? [1.22, 1.16, 0.98] : [1.0, 1.0, 0.92];
+        if (m > 0.74) t = [0.46, 0.47, 0.42]; else if (m2 > 0.76) t = [1.3, 1.26, 1.12]; else if (m2 < 0.2) t = [0.7, 0.82, 0.56]; }
       const n = 0.95 + rnd() * 0.1, i = (y * S + x) * 4; for (let k = 0; k < 3; k++) img.data[i + k] = Math.max(0, Math.min(255, (t[k] * n / 1.3) * 255)); img.data[i + 3] = 255; continue; }
     else { const d = noise(x, y, 0, 0.5) * 0.6 + noise(x, y, 1, 2) * 0.3 + noise(x, y * 0.2, 2, 4) * 0.25; v = 0.98 - Math.max(0, d - 0.5) * 0.9 + (rnd() - 0.5) * 0.06; if (rnd() < 0.0016) v = 1.35; }
     const i = (y * S + x) * 4, k = Math.max(0, Math.min(255, v * 238)); img.data[i] = img.data[i + 1] = img.data[i + 2] = k; img.data[i + 3] = 255; }
@@ -53,17 +61,26 @@ CLOTH_MAT.color.setScalar(1.3); // the camo map stores multiplier / 1.3
 const CHAR_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.86, metalness: 0.02, normalMap: detailNormal('fabric', 45), normalScale: NS(0.3) });
 const VEH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.35, map: detailMap('grunge', 0.45), normalMap: detailNormal('paint', 6), normalScale: NS(0.35) });
 export const GUN_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.42, metalness: 0.7, map: detailMap('grunge', 5), normalMap: detailNormal('metal', 30), normalScale: NS(0.3) });
-const KIT = { // headgear / armour set and weapon per soldier type (nodes modelled in Blender)
-  squad: { acc: ['acc_helmet', 'acc_nvg'], gun: 'm4' }, guard: { acc: ['acc_cap'], gun: 'kr5' }, assault: { acc: ['acc_helmet'], gun: 'm4' }, sniper: { acc: ['acc_hood'], gun: 'bolt' },
-  heavy: { acc: ['acc_helmet', 'acc_heavy'], gun: 'lmg' }, elite: { acc: ['acc_helmet', 'acc_visor'], gun: 'arx' }, boss: { acc: ['acc_beret', 'acc_visor', 'acc_heavy'], gun: 'lmg' },
+const KIT = { // headgear / armour / character kit and weapon per soldier type (nodes modelled in Blender), camo = cloth pattern
+  squad:   { acc: ['acc_helmet', 'acc_nvg', 'acc_pack'], gun: 'm4', camo: 'multi' },
+  guard:   { acc: ['acc_cap', 'acc_shades', 'acc_guard'], gun: 'kr5', camo: 'khaki' },
+  assault: { acc: ['acc_helmet', 'acc_mask', 'acc_assault', 'acc_pack'], gun: 'm4', camo: 'urban' },
+  sniper:  { acc: ['acc_hood', 'acc_ghillie'], gun: 'bolt', camo: 'woodland' },
+  heavy:   { acc: ['acc_helmet', 'acc_heavy', 'acc_shield', 'acc_jugg'], gun: 'lmg', camo: 'solid' },
+  elite:   { acc: ['acc_helmet', 'acc_visor', 'acc_gasmask', 'acc_elite'], gun: 'arx', camo: 'tiger' },
+  boss:    { acc: ['acc_beret', 'acc_visor', 'acc_heavy', 'acc_boss', 'acc_cigar'], gun: 'lmg', camo: 'solid' },
 };
+const cloths = new Map(), clothMat = (style) => { if (!cloths.has(style)) { const m = CLOTH_MAT.clone(); m.map = detailMap('camo:' + style, 1.5); cloths.set(style, m); } return cloths.get(style); };
+export const LOD_NEAR = 34; // metres: beyond this the '__d' detail nodes (pouches, straps, rail teeth…) are hidden
+/** Distance LOD for a soldier built from the Blender asset (no-op for the procedural fallback). */
+export function lodSoldier(g, dist) { const d = g.userData.detail; if (!d) return; const near = dist < (g.userData.lodNear ? LOD_NEAR + 4 : LOD_NEAR); if (near === g.userData.lodNear) return; g.userData.lodNear = near; for (const o of d) o.visible = near; }
 const templates = new Map(), C = (h) => new THREE.Color(h);
 function soldierTemplate(kind) {
   if (templates.has(kind)) return templates.get(kind);
   const p = PALETTE[kind], kit = KIT[kind], col = { cloth: C(p.cloth), vest: C(p.vest), skin: C(p.skin), helmet: C(p.helmet), boots: C(0x0b0b0c), gear: C(0x16171a), accent: C(0x8a1010) };
   const glow = p.visor ? new THREE.MeshStandardMaterial({ color: 0x111111, emissive: p.visor, emissiveIntensity: 2.5 }) : null;
-  const g = rebuild('Soldier', (n) => (n === 'cloth' || n === 'vest' ? CLOTH_MAT : CHAR_MAT), (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n));
-  const gg = geometry('W_' + kit.gun); if (gg) { const one = new THREE.Mesh(gg, GUN_MAT); one.castShadow = true; g.getObjectByName('gun').add(one); }
+  const cm = clothMat(kit.camo); const g = rebuild('Soldier', (n) => (n === 'cloth' || n === 'vest' ? cm : CHAR_MAT), (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n.replace(/__d$/, '')));
+  const gg = geometry('W_' + kit.gun, null, null, true), gd = geometry('W_' + kit.gun, 'root__d'); if (gg) { const one = new THREE.Mesh(gg, GUN_MAT); one.castShadow = true; g.getObjectByName('gun').add(one); if (gd) { const two = new THREE.Mesh(gd, GUN_MAT); two.name = 'gun__d'; g.getObjectByName('gun').add(two); } }
   templates.set(kind, g); return g;
 }
 function soldierFromAsset(kind, scale) {
@@ -71,6 +88,7 @@ function soldierFromAsset(kind, scale) {
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
   const n = (k) => g.getObjectByName(k);
   g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
+  const detail = []; g.traverse((o) => { if (o.name.endsWith('__d')) { detail.push(o); o.traverse((m) => { if (m.isMesh) m.castShadow = false; }); } }); g.userData.detail = detail; g.userData.lodNear = true;
   return g;
 }
 function vehicleFromAsset(name) { const g = rebuild(name, VEH_MAT); const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; o.castShadow = true; } }); g.userData.parts = { meshes }; return g; }

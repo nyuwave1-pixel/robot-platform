@@ -70,6 +70,11 @@ class Asm:
         self.pivots = {'root': Vector((0, 0, 0))}
         self.parents = {}
         self.markers = []
+        self.detail_on = False
+
+    def detail(self, on=True):
+        """Pieces added while on go to a '<group>__d' child node that the game hides at distance (LOD)."""
+        self.detail_on = on
 
     def pivot(self, group, loc, parent='root'):
         self.groups.setdefault(group, [])
@@ -82,6 +87,11 @@ class Asm:
     def _add(self, group, me, M, material):
         me.transform(M)
         me.materials.append(material)
+        if self.detail_on:
+            dg = group + '__d'
+            if dg not in self.pivots:
+                self.pivot(dg, self.pivots.get(group, Vector((0, 0, 0))), group)
+            group = dg
         self.groups.setdefault(group, []).append(me)
         return me
 

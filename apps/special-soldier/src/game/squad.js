@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { clamp, angDiff, damp } from '../core/util.js';
-import { makeSoldier, poseSoldier } from './models.js';
+import { makeSoldier, poseSoldier, lodSoldier } from './models.js';
 import { raySphere } from './fx.js';
 import { ST } from './enemies.js';
 
@@ -38,6 +38,7 @@ export class Squad {
         else if ((m.pauseT -= dt) <= 0 && Math.abs(angDiff(wantYaw, m.yaw)) < 0.25) { m.burst = 2 + (Math.random() * 3 | 0); m.shotT = 0; } }
       m.yaw += clamp(angDiff(wantYaw, m.yaw), -6 * dt, 6 * dt);
       m.crouch = damp(m.crouch, (fighting && speed === 0) || (P.stance > 0 && speed === 0) ? 1 : 0, 7, dt); m.moveK = damp(m.moveK, speed > 0 ? 1 : 0, 8, dt); m.walk += speed * dt * 2.4;
+      lodSoldier(m.model, m.pos.distanceTo(G.camera.position) * G.camera.fov / 75);
       poseSoldier(m.model, { walk: m.walk, moveK: m.moveK, crouch: m.crouch * 0.8, aim: fighting ? 0 : -0.35 });
       m.model.position.copy(m.pos); m.model.rotation.set(0, m.yaw, 0); m.model.visible = !G.cine.active || G.cine.showSquad;
     }

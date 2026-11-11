@@ -136,3 +136,17 @@ export async function kit({ page, sim, shot }) {
   }
   console.log('presets', day, await page.evaluate(() => SS.sky.presetName));
 }
+
+// v0.7: every soldier type side by side (character kits), plus near/far triangle counts for the LOD
+export async function types({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; SS.sky.set('dawn', true); SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-20, 318); SS.player.yaw = 0; SS.player.pitch = -0.1; for (const m of SS.squad.list) m.model.visible = false; });
+  await sim(0.4);
+  const place = (kinds, dist, gap) => page.evaluate(([kinds, dist, gap]) => { const P = SS.player; for (const e of (window.__e || [])) { SS.scene.remove(e.model); e.model.visible = false; const i = SS.enemies.list.indexOf(e); if (i >= 0) SS.enemies.list.splice(i, 1); } window.__e = kinds.map((k, i) => { const x = P.pos.x + (i - (kinds.length - 1) / 2) * gap, z = P.pos.z - dist; const e = SS.enemies.spawn(k, x, z, { yaw: 0 }); e.model.rotation.set(0, 0, 0); return e; }); for (const m of SS.squad.list) m.model.visible = false; }, [kinds, dist, gap]);
+  await place(['guard', 'assault', 'sniper'], 2.6, 1.15); await shot('T1-guard-assault-sniper');
+  await place(['heavy', 'elite', 'boss'], 2.9, 1.3); await shot('T2-heavy-elite-boss');
+  await place(['guard', 'assault', 'sniper', 'heavy', 'elite', 'boss'], 2.6, 1.1);
+  await page.evaluate(() => { for (const e of window.__e) e.model.rotation.y = Math.PI; SS.player.pitch = -0.1; }); await shot('T3-backs');
+  console.log('tris near/far', await page.evaluate(() => { const out = {}; const tris = (g) => { let n = 0; g.traverse((o) => { let v = true; for (let p = o; p && p !== g.parent; p = p.parent) if (!p.visible) v = false; if (o.isMesh && v) n += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; }); return Math.round(n); };
+    for (const e of [...window.__e, { kind: 'squad', model: SS.squad.list[0].model }]) { const d = e.model.userData.detail, vis = e.model.visible; e.model.visible = true; for (const o of d) o.visible = true; const near = tris(e.model); for (const o of d) o.visible = false; out[e.kind] = [near, tris(e.model)]; for (const o of d) o.visible = true; e.model.visible = vis; } return JSON.stringify(out); }));
+}
