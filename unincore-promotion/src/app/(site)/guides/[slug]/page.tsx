@@ -6,7 +6,8 @@ import { GUIDES, ROUTINE_GUIDE } from "@/content/guides";
 import { getProducts } from "@/lib/cms";
 import { abs, breadcrumbLd, faqLd, pageMetadata } from "@/lib/seo";
 import { toAmazonProduct } from "@/lib/visibility";
-import { AmazonButton } from "@/components/site/AmazonButton";
+import { AmazonCta } from "@/components/landing/AmazonCta";
+import { LANDING } from "@/content/landing";
 import { JsonLd } from "@/components/site/JsonLd";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -52,7 +53,7 @@ export default async function GuidePage({ params }: Props) {
 
   return (
     <>
-      <article>
+      <article className="guide">
         <header className="bg-cream">
           <div className="container-site max-w-4xl py-16 sm:py-24">
             <nav aria-label="Breadcrumb" className="text-xs text-ink-mute">
@@ -69,7 +70,7 @@ export default async function GuidePage({ params }: Props) {
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">{g.intro}</p>
             {first && (
               <div className="mt-8">
-                <AmazonButton product={toAmazonProduct(first)} location="guide" />
+                <AmazonCta product={toAmazonProduct(first)} location="guide" size="md" />
               </div>
             )}
           </div>
@@ -86,15 +87,15 @@ export default async function GuidePage({ params }: Props) {
                 ))}
                 {p && (
                   <div className="mt-8 flex flex-col gap-6 rounded-[28px] bg-white p-6 ring-1 ring-ink/5 sm:flex-row sm:items-center">
-                    <Link href={`/products/${p.slug}`} className="relative block aspect-[4/5] w-32 shrink-0 overflow-hidden rounded-2xl" aria-label={p.name}>
-                      <Image src={p.heroImage || `/og/${p.slug}`} alt={`UNI&CORE ${p.name}, ${p.size}`} fill sizes="128px" className="object-cover" />
+                    <Link href={`/products/${p.slug}`} className="relative block aspect-square w-32 shrink-0 overflow-hidden rounded-2xl bg-white ring-1 ring-ink/5" aria-label={p.name}>
+                      <Image src={LANDING[p.key].shot.src} alt={`UNI&CORE ${p.name}, ${p.size}`} fill sizes="128px" className="object-contain" />
                     </Link>
                     <div>
                       <p className="text-[11px] uppercase tracking-widest text-ink-mute">{p.keyIngredient}</p>
                       <p className="mt-1 font-display text-2xl leading-tight">UNI&amp;CORE {p.name}</p>
                       <p className="mt-1 text-sm text-ink-soft">{p.size}</p>
                       <div className="mt-4 flex flex-wrap items-center gap-4">
-                        <AmazonButton product={toAmazonProduct(p)} location="guide" />
+                        <AmazonCta product={toAmazonProduct(p)} location="guide" label="Shop on" size="sm" />
                         <Link href={`/products/${p.slug}`} className="text-xs font-semibold uppercase tracking-widest underline underline-offset-4">Details</Link>
                       </div>
                     </div>

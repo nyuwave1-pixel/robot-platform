@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "@/lib/perf";
+import { lazyPoster } from "@/lib/lazyPoster";
 import type { Film } from "@/data/videos";
 
 /**
@@ -9,8 +10,11 @@ import type { Film } from "@/data/videos";
  * Sources are attached only when the film comes near the viewport, playback
  * pauses off screen, and reduced-motion visitors see the poster only.
  */
-export function FilmLayer({ film, className = "", label }: { film: Film; className?: string; label?: string }) {
+/** `eager`: first-screen films keep their poster in the HTML (it is the LCP image). */
+export function FilmLayer({ film, className = "", label, eager = false }: { film: Film; className?: string; label?: string; eager?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => (eager ? undefined : lazyPoster(ref.current, film.poster)), [film, eager]);
 
   useEffect(() => {
     const v = ref.current;
@@ -42,7 +46,7 @@ export function FilmLayer({ film, className = "", label }: { film: Film; classNa
     <video
       ref={ref}
       className={`pointer-events-none h-full w-full object-cover ${className}`}
-      poster={film.poster}
+      poster={eager ? film.poster : undefined}
       muted
       loop
       playsInline

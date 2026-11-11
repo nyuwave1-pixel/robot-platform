@@ -25,7 +25,16 @@ USER_AGENT = "UNICORE-SEO-Engine/0.1 (+https://promotion.unincore.com; brand-own
 PROMO_SITE = os.environ.get("PROMO_SITE", "https://promotion.unincore.com")
 SHOP_SITE = os.environ.get("SHOP_SITE", "https://us.unincore.com")
 
+# On a shared PostgreSQL (e.g. a Supabase project that already has its own tables) keep every engine
+# table in its own schema so nothing collides with, or is exposed alongside, the existing ones.
+DB_SCHEMA = os.environ.get("ENGINE_DB_SCHEMA") or None
+if DB_SCHEMA and not DB_SCHEMA.replace("_", "").isalnum():
+    raise ValueError("ENGINE_DB_SCHEMA must be letters, digits and underscores")
 _engine = create_engine(DATABASE_URL, future=True, pool_pre_ping=True)
+if DB_SCHEMA and _engine.dialect.name == "postgresql":
+    _engine = _engine.execution_options(schema_translate_map={None: DB_SCHEMA})
+else:
+    DB_SCHEMA = None
 SessionLocal = sessionmaker(_engine, expire_on_commit=False)
 
 # Directive §09 daily plan (Asia/Seoul). `job` is the engine job that implements the step.
@@ -44,6 +53,11 @@ DEFAULT_SCHEDULE = [
 
 def init_db() -> None:
     DATA.mkdir(exist_ok=True)
+    if DB_SCHEMA:
+        from sqlalchemy import text
+
+        with _engine.begin() as c:
+            c.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{DB_SCHEMA}"'))
     Base.metadata.create_all(_engine)
     with session() as s:
         have = set(s.scalars(select(AutomationSchedule.job_name)))

@@ -18,6 +18,8 @@ jobs:
     env:
       # Optional. Without DATABASE_URL each run starts from an empty SQLite file (no history).
       DATABASE_URL: ${{ secrets.ENGINE_DATABASE_URL }}
+      # Engine tables live in their own schema, apart from the other tables in the shared Supabase project.
+      ENGINE_DB_SCHEMA: seo_engine
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
       - uses: actions/checkout@v4

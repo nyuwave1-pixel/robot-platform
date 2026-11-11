@@ -17,7 +17,7 @@ const ALL = [{ slug: ROUTINE_GUIDE.slug, h1: ROUTINE_GUIDE.h1, description: ROUT
 
 export default function GuidesIndex() {
   return (
-    <>
+    <div className="guide">
       <section className="bg-cream">
         <div className="container-site max-w-4xl py-16 sm:py-24">
           <p className="eyebrow">Guides</p>
@@ -56,6 +56,6 @@ export default function GuidesIndex() {
           ]),
         ]}
       />
-    </>
+    </div>
   );
 }

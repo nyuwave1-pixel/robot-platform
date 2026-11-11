@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { lazyPoster } from "@/lib/lazyPoster";
 import type { BrandFilm as Film } from "@/data/videos";
 import { track } from "@/lib/analytics";
 import type { AmazonProduct } from "@/components/site/AmazonButton";
@@ -11,6 +12,17 @@ import type { AmazonProduct } from "@/components/site/AmazonButton";
  */
 export function BrandFilm({ film, product, className = "" }: { film: Film; product?: AmazonProduct; className?: string }) {
   const played = useRef(false);
+  const wide = useRef<HTMLVideoElement>(null);
+  const tall = useRef<HTMLVideoElement>(null);
+  // Only the variant shown at this breakpoint ever fetches its poster.
+  useEffect(() => {
+    const a = lazyPoster(wide.current, film.poster);
+    const b = lazyPoster(tall.current, film.verticalPoster);
+    return () => {
+      a();
+      b();
+    };
+  }, [film]);
   const onPlay = () => {
     if (played.current) return;
     played.current = true;
@@ -20,8 +32,8 @@ export function BrandFilm({ film, product, className = "" }: { film: Film; produ
     <div className={className}>
       <video
         className="hidden aspect-video w-full rounded-[28px] bg-night object-cover ring-1 ring-champagne/20 md:block"
+        ref={wide}
         src={film.src}
-        poster={film.poster}
         controls
         playsInline
         preload="none"
@@ -30,8 +42,8 @@ export function BrandFilm({ film, product, className = "" }: { film: Film; produ
       />
       <video
         className="mx-auto block aspect-[9/16] w-full max-w-[380px] rounded-[28px] bg-night object-cover ring-1 ring-champagne/20 md:hidden"
+        ref={tall}
         src={film.vertical}
-        poster={film.verticalPoster}
         controls
         playsInline
         preload="none"

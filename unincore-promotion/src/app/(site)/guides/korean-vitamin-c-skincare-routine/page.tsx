@@ -4,7 +4,8 @@ import Link from "next/link";
 import { getProducts } from "@/lib/cms";
 import { abs, breadcrumbLd, faqLd, pageMetadata } from "@/lib/seo";
 import { toAmazonProduct } from "@/lib/visibility";
-import { AmazonButton } from "@/components/site/AmazonButton";
+import { AmazonCta } from "@/components/landing/AmazonCta";
+import { LANDING } from "@/content/landing";
 import { JsonLd } from "@/components/site/JsonLd";
 import type { ProductKey } from "@/content/types";
 
@@ -103,7 +104,7 @@ export default async function GuidePage() {
 
   return (
     <>
-      <article>
+      <article className="guide">
         <header className="bg-cream">
           <div className="container-site max-w-4xl py-16 sm:py-24">
             <nav aria-label="Breadcrumb" className="text-xs text-ink-mute">
@@ -121,7 +122,7 @@ export default async function GuidePage() {
             </p>
             {ampoule && (
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <AmazonButton product={toAmazonProduct(ampoule)} location="guide">Shop the routine on Amazon</AmazonButton>
+                <AmazonCta product={toAmazonProduct(ampoule)} location="guide" label="Shop the routine on" size="md" />
                 <a href="#steps" className="text-xs font-semibold uppercase tracking-widest underline underline-offset-4">Jump to the steps</a>
               </div>
             )}
@@ -152,8 +153,8 @@ export default async function GuidePage() {
                 if (!p) return null;
                 return (
                   <li key={s.key} className="grid items-center gap-8 rounded-[32px] bg-white p-6 ring-1 ring-ink/5 sm:p-10 md:grid-cols-[260px_1fr]">
-                    <Link href={`/products/${p.slug}`} className="relative mx-auto block aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-3xl" aria-label={p.name}>
-                      <Image src={p.heroImage || `/og/${p.slug}`} alt={`UNI&CORE ${p.name}, ${p.size}`} fill sizes="260px" className="object-cover" />
+                    <Link href={`/products/${p.slug}`} className="relative mx-auto block aspect-square w-full max-w-[260px] overflow-hidden rounded-3xl bg-white ring-1 ring-ink/5" aria-label={p.name}>
+                      <Image src={LANDING[p.key].shot.src} alt={`UNI&CORE ${p.name}, ${p.size}`} fill sizes="260px" className="object-contain" />
                     </Link>
                     <div>
                       <p className="eyebrow">{s.step}</p>
@@ -163,7 +164,7 @@ export default async function GuidePage() {
                       ))}
                       <p className="mt-4 text-sm"><strong className="font-semibold">When:</strong> {s.when}</p>
                       <div className="mt-6 flex flex-wrap items-center gap-4">
-                        <AmazonButton product={toAmazonProduct(p)} location="guide" />
+                        <AmazonCta product={toAmazonProduct(p)} location="guide" label="Shop on" size="md" />
                         <Link href={`/products/${p.slug}`} className="text-xs font-semibold uppercase tracking-widest underline underline-offset-4">
                           {p.shortName} details
                         </Link>

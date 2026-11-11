@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { prefersReducedMotion, renderTier } from "@/lib/perf";
 import type { Film } from "@/data/videos";
+import { lazyPoster } from "@/lib/lazyPoster";
 
 /**
  * A pinned, full-screen film controlled by scroll (desktop): scrolling moves the
@@ -30,6 +31,7 @@ export function ScrubFilm({
   const section = useRef<HTMLElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const bar = useRef<HTMLDivElement>(null);
+  useEffect(() => lazyPoster(video.current, film.poster), [film]);
   const [step, setStep] = useState(-1);
   const [mode, setMode] = useState<"poster" | "scrub" | "loop">("poster");
 
@@ -107,7 +109,6 @@ export function ScrubFilm({
         <video
           ref={video}
           className="absolute inset-0 h-full w-full object-cover"
-          poster={film.poster}
           muted
           playsInline
           preload="none"

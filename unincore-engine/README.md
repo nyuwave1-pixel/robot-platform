@@ -85,6 +85,9 @@ curl -u admin:$ENGINE_ADMIN_PASSWORD -H "Content-Type: text/csv" --data-binary @
 
 1. Supabase 프로젝트의 Connect → **Session pooler** 주소를 복사합니다(GitHub Actions는 IPv4라서 Direct 주소가 아니라 pooler 주소를 써야 합니다).
 2. GitHub 저장소 Settings → Secrets → Actions 에 `ENGINE_DATABASE_URL` 로 저장합니다. 주소는 채팅이나 저장소 파일에 쓰지 않습니다.
-3. 첫 실행 때 21개 테이블이 자동 생성되고, `data/approvals.json` 의 승인 기록이 복원됩니다.
+3. `ENGINE_DB_SCHEMA=seo_engine` 을 함께 줍니다(워크플로에는 이미 들어 있음). 엔진 테이블이 전부 `seo_engine` 스키마 안에만 만들어져, 같은 프로젝트의 기존 `public` 테이블(`products`, `product_images` 등 이름이 겹치는 것 포함)과 섞이지 않습니다. 이 스키마는 Supabase 공개 API에 노출되지 않습니다.
+4. 첫 실행 때 21개 테이블이 자동 생성되고, `data/approvals.json` 의 승인 기록이 복원됩니다.
 
-2026-11-11 PostgreSQL 16에서 `python -m engine daily` 전체를 실행해 확인했습니다(제품 60, 이미지 232, 키워드 269, 페이지 15, 승인 4).
+Supabase 프로젝트 `qeabsjyglethzkwlkmaw`(nyuwave1-pixel's Project)에는 2026-11-11 빈 `seo_engine` 스키마를 만들어 두었습니다.
+
+2026-11-11 PostgreSQL 16에서 `python -m engine daily` 전체를 실행해 확인했습니다. 이름이 겹치는 `public.products` 가 이미 있는 DB에서도 별도 스키마로 정상 동작합니다(제품 60, 이미지 232, 키워드 269, 페이지 15, 승인 4).

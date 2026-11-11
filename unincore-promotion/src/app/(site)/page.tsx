@@ -91,7 +91,7 @@ export default async function HomePage() {
       {/* 01 HERO */}
       <section id="hero" className="relative isolate overflow-hidden bg-night text-ivory lg:flex lg:min-h-[calc(100svh-104px)] lg:flex-col">
         <div className="absolute inset-0 -z-20 opacity-40" aria-hidden>
-          <FilmLayer film={FILMS["brand-intro"]} />
+          <FilmLayer film={FILMS["brand-intro"]} eager />
         </div>
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_70%_45%,rgba(233,185,77,.22),rgba(8,7,6,0)_70%)]" aria-hidden />
         <ShaderStage shader="gold" className="-z-10" />
