@@ -168,7 +168,7 @@ function buildFacility() {
     const fl = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 + 1, 0.3, z1 - z0 + 1), MAT.dark); fl.position.set(ox + (x0 + x1) / 2, y - 0.15, oz + (z0 + z1) / 2); fl.receiveShadow = true; W.statics.push(fl);
     const cl = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 + 1, 0.3, z1 - z0 + 1), MAT.concrete); cl.position.set(ox + (x0 + x1) / 2, y + h + 0.15, oz + (z0 + z1) / 2); W.statics.push(cl);
   };
-  const light = (x, z, red, on) => { const [wx, wz] = L(x, z); const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.35), red ? MAT.redLamp : MAT.lamp); m.position.set(wx, y + h - 0.06, wz); W.group.add(m); if (on) { const p = new THREE.PointLight(red ? 0xff3020 : 0xdfeaff, red ? 30 : 46, 26, 1.7); p.position.set(wx, y + h - 0.5, wz); W.group.add(p); if (red) W.animated.push((dt, t) => { p.intensity = 18 + Math.sin(t * 5 + x) * 14; }); } };
+  const light = (x, z, red, on) => { const [wx, wz] = L(x, z); const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.35), red ? MAT.redLamp : MAT.lamp); m.position.set(wx, y + h - 0.06, wz); W.group.add(m); if (on) { const p = new THREE.PointLight(red ? 0xff3020 : 0xdfeaff, red ? 90 : 170, 30, 1.6); p.position.set(wx, y + h - 0.5, wz); W.group.add(p); if (red) W.animated.push((dt, t) => { p.intensity = 60 + Math.sin(t * 5 + x) * 40; }); } };
   // A: elevator hall  (z 8 → -16)
   room(-8, -16, 8, 8, { n: [[-2.5, 2.5]] }); light(0, -4, false, true); light(-5, 4, true, false);
   { const [px, pz] = L(0, 4); const pad = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 4), MAT.metal); pad.position.set(px, y + 0.05, pz); W.group.add(pad); }

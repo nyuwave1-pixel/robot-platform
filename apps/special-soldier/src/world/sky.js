@@ -15,7 +15,7 @@ export const PRESETS = {
   night:    { top: C(0x050a18), bot: C(0x16263c), fog: C(0x0d1826), dens: 0.0036, sun: C(0x9fbcff), sunI: 1.7, hemi: 1.15,  dir: [-0.3, 0.36, -0.88], rain: 0,    wind: 0.6, storm: 0, stars: 1, night: 1,    exp: 1.5, label: '04:30 · NIGHT · CLEAR' },
   dawn:     { top: C(0x24364e), bot: C(0xc98a5a), fog: C(0x7d8a90), dens: 0.0085, sun: C(0xffc890), sunI: 1.6,  hemi: 0.8,  dir: [0.8, 0.22, 0.4],   rain: 0.35, wind: 0.9, storm: 0, stars: 0.15, night: 0.45, exp: 1.0, label: '05:40 · DAWN · FOG / LIGHT RAIN' },
   storm:    { top: C(0x2a3138), bot: C(0x59646a), fog: C(0x566067), dens: 0.006, sun: C(0xcfd8e0), sunI: 1.5,  hemi: 1.0,  dir: [0.3, 0.8, 0.3],    rain: 1,    wind: 1.8, storm: 1, stars: 0, night: 0.15, exp: 0.95, label: '09:10 · DAY · THUNDERSTORM' },
-  facility: { top: C(0x000000), bot: C(0x000000), fog: C(0x050607), dens: 0.012, sun: C(0x000000), sunI: 0,    hemi: 0.32, dir: [0, 1, 0],          rain: 0,    wind: 0,   storm: 0, stars: 0, night: 0.8,  exp: 1.1, label: 'SUBLEVEL 3 · EMERGENCY POWER' },
+  facility: { top: C(0x1c2228), bot: C(0x000000), fog: C(0x0a0c0e), dens: 0.009, sun: C(0x000000), sunI: 0,    hemi: 1.0, dir: [0, 1, 0],          rain: 0,    wind: 0,   storm: 0, stars: 0, night: 0.8,  exp: 1.1, label: 'SUBLEVEL 3 · EMERGENCY POWER' },
   dusk:     { top: C(0x1a1c34), bot: C(0xd0603a), fog: C(0x5a4a50), dens: 0.0048, sun: C(0xff9a60), sunI: 1.8,  hemi: 0.75, dir: [-0.85, 0.2, -0.3], rain: 0.5,  wind: 1.5, storm: 1, stars: 0.25, night: 0.4, exp: 1.0, label: '18:50 · DUSK · STORM FRONT' },
 };
 export function waveHeight(x, z, t) { return Math.sin(x * 0.045 + t * 0.9) * 0.45 + Math.sin(z * 0.06 + t * 1.15 + 1.3) * 0.38 + Math.sin((x + z) * 0.11 + t * 1.7) * 0.16; }
