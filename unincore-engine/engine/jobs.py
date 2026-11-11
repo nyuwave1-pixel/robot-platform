@@ -376,6 +376,30 @@ def render_creatives(out_dir=None, site_images=None) -> list[dict]:
     return json.loads(r.stdout.strip().splitlines()[-1])
 
 
+POST_CHANNELS = {"pinterest_pin": ("pinterest", "Pinterest"), "instagram_post": ("instagram", "Instagram"), "story": ("instagram", "Instagram Story")}
+
+
+def build_posts(out_dir=None) -> list[dict]:
+    """Posting kit for each rendered image: title, caption, hashtags and a UTM-tagged link. Copy comes from copy.json only."""
+    copy = json.loads((CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
+    out_dir = out_dir or core.DATA / "creatives"
+    posts = []
+    for pid, c in copy["products"].items():
+        tags = ["#unincore", "#koreanskincare", "#vitaminc"] + ["#" + re.sub(r"[^a-z0-9]", "", w) for w in c.get("tags", [])]
+        for fmt in CREATIVE_FORMATS:
+            source, channel = POST_CHANNELS[fmt]
+            link = f"{core.PROMO_SITE}/products/{c['slug']}?utm_source={source}&utm_medium=social&utm_campaign=vitac_always_on&utm_content={fmt}"
+            caption = f"{c['headline']} by UNI&CORE. {c['sub']}. " + " · ".join(c["points"]) + f". {copy['cta']}."
+            posts.append({"product_id": pid, "channel": channel, "format": fmt, "image": f"{c['slug']}-{fmt}.png", "title": f"UNI&CORE {c['headline']}"[:100], "caption": caption, "hashtags": tags, "link": link})
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "posts.json").write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    md = ["# 홍보 이미지 게시용 문구", "", "이미지마다 제목·본문·해시태그·링크입니다. 문구는 `creatives/copy.json`에서만 만들어지며 사이트에 있는 사실만 씁니다. 링크에는 유입 경로 표시(UTM)가 붙어 있습니다.", ""]
+    for x in posts:
+        md += [f"## {x['channel']} · {x['image']}", "", f"- 제목: {x['title']}", f"- 본문: {x['caption']}", f"- 해시태그: {' '.join(x['hashtags'])}", f"- 링크: {x['link']}", ""]
+    (out_dir / "posts.md").write_text("\n".join(md), encoding="utf-8")
+    return posts
+
+
 def creatives() -> dict:
     """Render template creatives locally. Canva/Higgsfield stay waiting until their APIs are connected."""
     from .models import CreativeAsset
@@ -393,7 +417,8 @@ def creatives() -> dict:
             row = s.scalars(select(CreativeAsset).where(CreativeAsset.url == rel)).first()
             if not row:
                 s.add(CreativeAsset(product_id=x["product_id"] if x["product_id"] in have else None, provider="engine", format=x["format"], url=rel, status="rendered", cost=0))
-    return {"rendered": len(files), "provider": "engine (template, no AI)", "waiting_connection": missing, "cost": 0}
+    posts = build_posts()
+    return {"rendered": len(files), "posts": len(posts), "provider": "engine (template, no AI)", "waiting_connection": missing, "cost": 0}
 
 
 def performance() -> dict:

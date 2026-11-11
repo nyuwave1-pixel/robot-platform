@@ -65,10 +65,14 @@ def test_unconnected_api_is_never_reported_as_success():
         assert j.status == "waiting_connection", name
 
 
+jobs._real_build_posts = jobs.build_posts
+
+
 def test_creatives_render_locally_and_keep_canva_higgsfield_waiting(monkeypatch, tmp_path):
     f = tmp_path / "x-pinterest_pin.png"
     f.write_bytes(b"png")
     monkeypatch.setattr(jobs, "render_creatives", lambda: [{"product_id": "UC-US-449", "format": "pinterest_pin", "file": str(f)}])
+    monkeypatch.setattr(jobs, "build_posts", lambda: jobs.__dict__["_real_build_posts"](tmp_path))
     j = core.run_job("creatives", jobs.JOBS["creatives"])
     assert j.status == "success"
     assert j.result["rendered"] == 1 and j.result["provider"].startswith("engine")
@@ -186,3 +190,14 @@ def test_approvals_mirror_roundtrip():
     rows = json.loads((core.DATA / "approvals.json").read_text())
     assert rows and {"id", "status", "change", "protected"} <= set(rows[0])
     assert imports.restore_approvals() == 0  # database already has rows: never overwritten
+
+
+def test_posting_kit_has_utm_links_and_compliant_captions(tmp_path):
+    from engine.publish import BANNED
+
+    posts = jobs.build_posts(tmp_path)
+    assert len(posts) == 9 and (tmp_path / "posts.md").exists() and (tmp_path / "posts.json").exists()
+    for x in posts:
+        assert x["link"].startswith(core.PROMO_SITE + "/products/") and "utm_source=" in x["link"] and "utm_campaign=" in x["link"]
+        assert len(x["title"]) <= 100 and not BANNED.search(x["caption"] + " ".join(x["hashtags"]))
+        assert all(t.startswith("#") and " " not in t for t in x["hashtags"])
