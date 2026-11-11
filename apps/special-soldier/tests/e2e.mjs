@@ -35,7 +35,7 @@ check('settings persist to storage', await ev(() => JSON.parse(localStorage.getI
 await page.click('nav [data-a="weapons"]'); await page.click('[data-a="wsel"][data-v="smg"]'); check('armory: locked weapon cannot be equipped', (await page.locator('[data-a="equip"]').count()) === 0); await page.click('[data-a="wsel"][data-v="pistol"]'); const dps = await page.textContent('.dps'); check('armory: DPS panel', /BURST DPS\s*200/.test(dps), dps.replace(/\s+/g, ' ').slice(0, 80)); await page.click('.panel header [data-a="main"]');
 await page.click('nav [data-a="campaign"]'); check('campaign: missions 2–5 locked on a new profile', (await page.locator('.mcard.locked').count()) === 4); await page.click('[data-a="brief"][data-v="0"]'); await shot('briefing-m1');
 // ---------- mission 1 with the real intro cinematic ----------
-await page.click('[data-a="deploy"]'); check('deploy → boat cinematic', await ev(() => SS.state === 'cinematic' && SS.cine.active));
+await page.click('[data-a="deploy"]'); await page.waitForFunction(() => SS.state === 'cinematic', null, { timeout: 8000 }).catch(() => {}); check('deploy → boat cinematic (no intro video present → real-time)', await ev(() => SS.state === 'cinematic' && SS.cine.active));
 await run(8); await shot('cine-front'); await run(12); await shot('cine-rear'); await run(16);
 check('cinematic → first-person landing', await ev(() => SS.state === 'playing' && SS.mission.oi === 0), JSON.stringify(await ev(() => QA.info().pos)));
 await run(0.5); await shot('m1-landing');
@@ -84,7 +84,7 @@ for (let mi = 0; mi < 5; mi++) {
   if (mi > 0) { await page.click('[data-a="next"]'); await page.click('[data-a="deploy"]'); } else await ev(() => SS.startMission(0, true));
   await ev(() => { SS.godMode = true; }); let guard = 0, cineSeen = 0;
   while (guard++ < 400) {
-    const st = await ev(() => SS.state); if (st === 'result') break; if (process.env.TRACE) console.log('  step', mi + 1, guard, st, JSON.stringify(await ev(() => QA.info())).slice(0, 220));
+    const st = await ev(() => SS.state); if (st === 'result') break; if (st === 'video') { await page.waitForTimeout(300); guard--; continue; } if (process.env.TRACE) console.log('  step', mi + 1, guard, st, JSON.stringify(await ev(() => QA.info())).slice(0, 220));
     if (st === 'cinematic') { cineSeen++; if (cineSeen % 2 === 1 && mi > 0) { await run(2.5); await shot(`m${mi + 1}-cine${cineSeen}`); } await ev(() => { QA.key('Enter'); QA.run(0.1); }); continue; }
     const o = await ev(() => { const m = SS.mission, o = m.obj; if (!o) return null; const at = o.at ? o.at() : o; return { type: o.type, group: o.group, x: at.x, y: at.y, z: at.z, hold: o.hold || 0, oi: m.oi, text: m.objText() }; });
     if (!o) { await run(1); continue; }

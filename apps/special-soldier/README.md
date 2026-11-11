@@ -54,6 +54,7 @@ Windows 데스크톱 빌드(Electron 래퍼)는 [`docs/TECHNICAL.md` §9](docs/T
 
 ## 문서
 
+- [`docs/FLOW_PROMPTS.md`](docs/FLOW_PROMPTS.md) — Google Flow(Veo) 프롬프트 팩, 만든 영상을 미션 인트로로 넣는 법
 - [`docs/BLENDER.md`](docs/BLENDER.md) — Blender 5.3 에셋 파이프라인, `.blend` 여는 법, 다시 빌드하는 법
 - [`docs/TECHNICAL.md`](docs/TECHNICAL.md) — 아키텍처, 시스템별 설계, DPS 모델, 확장 방법
 - [`docs/UE5_ARCHITECTURE.md`](docs/UE5_ARCHITECTURE.md) — UE5 본 제작 이행 설계

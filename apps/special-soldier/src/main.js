@@ -60,7 +60,8 @@ G.startMission = (i, skipIntro = false) => {
   G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); const d = MISSIONS[i]; G.player.frozen = false;
   const go = () => { G.state = 'playing'; G.mission.begin(); if (!G.test) G.input.lock(); if (i === 0) G.hud.radio('REAPER: Feet wet. Move up the beach — quiet.'); G.player.updateCamera(0); };
   if (skipIntro) return go();
-  if (d.intro === 'boat') G.cine.playBoatIntro(go); else G.cine.play(d.intro, go, { showSquad: true });
+  const realtime = () => { if (d.intro === 'boat') G.cine.playBoatIntro(go); else G.cine.play(d.intro, go, { showSquad: true }); };
+  playIntroVideo(i, go, realtime);
 };
 G.pause = () => { if (G.state !== 'playing') return; G.state = 'paused'; G.input.unlock(); G.audio.hush(); G.menu.pause(); };
 G.resume = () => { if (G.state !== 'paused') return; G.menu.hide(); G.state = 'playing'; if (!G.test) G.input.lock(); };
@@ -75,6 +76,21 @@ G.onMissionComplete = () => {
   s.stats.kills += st.kills; s.stats.headshots += st.headshots; s.stats.shots += st.shots; s.stats.hits += st.hits; s.stats.deaths += st.deaths; s.stats.time += st.time; storeSave(s);
   G.state = 'result'; G.lastResult = res; G.input.unlock(); G.audio.hush(); G.audio.stopLoops(); G.hud.show(false); G.player.frozen = false; G.menu.result(res);
 };
+
+// Optional pre-rendered intro (e.g. made in Google Flow / Veo): drop video/m1-intro.mp4 … m5-intro.mp4 (or .webm)
+// into public/ and it replaces that mission's real-time cinematic. No file → the real-time cinematic plays.
+function playIntroVideo(i, done, fallback) {
+  const v = $('introVideo'), tries = [`./video/m${i + 1}-intro.mp4`, `./video/m${i + 1}-intro.webm`]; let k = 0, settled = false, started = false, timer = 0; G.state = 'video'; G.hud.show(false); G.post.fade = G.post.fadeTarget = 1; // black while probing for a file
+  const wrapDone = done, wrapFb = fallback; done = () => { G.hud.show(true); G.post.fadeTarget = 0; wrapDone(); }; fallback = () => { G.hud.show(true); wrapFb(); };
+  const cleanup = () => { clearTimeout(timer); v.oncanplay = v.onerror = v.onended = null; removeEventListener('keydown', skip); v.onclick = null; v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; };
+  const finish = (fn) => { if (settled) return; settled = true; cleanup(); fn(); };
+  const skip = (e) => { if (!e.code || e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape') finish(done); };
+  const next = () => { if (k >= tries.length) return finish(fallback); v.src = tries[k++]; v.load(); clearTimeout(timer); timer = setTimeout(next, 700); };
+  v.onerror = next;
+  v.oncanplay = () => { clearTimeout(timer); if (settled || started) return; started = true; v.style.display = 'block'; v.volume = G.settings.volume; v.play().catch(() => finish(fallback)); addEventListener('keydown', skip); v.onclick = skip; };
+  v.onended = () => finish(done);
+  next();
+}
 
 // ---------------- frame loop ----------------
 let last = 0, deadT = 0, deathKind = '', ambT = 0, acc = 0;

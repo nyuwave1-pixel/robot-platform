@@ -5,6 +5,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block}
 button{font:inherit;color:inherit;letter-spacing:.12em;cursor:pointer;background:rgba(20,24,20,.75);border:1px solid rgba(207,214,212,.25);padding:.6em 1.2em;text-transform:uppercase;transition:.12s}
 button:hover{background:rgba(93,107,60,.55);border-color:var(--sil)}button.primary{background:var(--red);border-color:var(--red);color:#fff}button.primary:hover{background:#ff5347}
 button.on{background:var(--ol);border-color:var(--sil);color:#fff}.locked,.dim{opacity:.4}.locked{cursor:not-allowed}
+#introVideo{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;display:none;z-index:18;cursor:pointer}
 /* loading */
 #loading{position:fixed;inset:0;background:#060807;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:50}
 #loading h1{font-size:54px;letter-spacing:.3em;color:#fff}#loading h1 span{color:var(--red)}#loading div{width:320px;height:3px;background:#222}#loading i{display:block;height:100%;width:0;background:var(--red);transition:width .2s}

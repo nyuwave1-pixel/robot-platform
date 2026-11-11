@@ -72,3 +72,9 @@ export async function look({ page, sim, shot }) {
   await page.evaluate(() => { SS.startMission(4, true); SS.noTarget = true; QA.tp(150, -270); SS.player.yaw = -1.2; SS.input.btn[2] = false; }); await sim(1.0); await shot('L4-air');
   await page.evaluate(() => SS.toMenu()); await sim(1.5); await shot('L5-menu');
 }
+export async function video({ page }) {
+  const st = () => page.evaluate(() => SS.state + '|' + getComputedStyle(document.getElementById('introVideo')).display);
+  await page.evaluate(() => SS.startMission(0)); await page.waitForTimeout(1800); console.log('m1 with file   :', await st());
+  await page.waitForTimeout(4000); console.log('after it ends  :', await st());
+  await page.evaluate(() => { SS.toMenu(); SS.startMission(1); }); await page.waitForTimeout(2500); console.log('m2 without file:', await st());
+}
