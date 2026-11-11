@@ -48,7 +48,7 @@ interface Props {
 export function Character({ look, growth, anim = "idle", mood = "smile", glow = 0, sparkle, seed = 0, movingRef, rank = 0 }: Props) {
   const rk = rank > 0 ? RANKS[Math.min(rank, RANKS.length) - 1] : null;
   /** 등급 뷰티 연출 강도 0..1 (게임 판타지 연출이며 제품 효능 표현이 아니다) */
-  const beauty = Math.min(1, rank / 10);
+  const beauty = Math.sqrt(Math.min(1, rank / 10));
   const rankCol = rk ? (rk.n === 10 ? "#2a2226" : rk.color) : "#ffffff";
   const d = bodyDims(growth);
   const stage = Math.round(growth);
@@ -142,9 +142,9 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
   const pantsColor = cut === "pants" ? (outfit.id === "fit-suit" ? col : acc) : null;
   const topY = d.leg + d.torso;
   const R = d.head;
-  const faceW = look.face === "oval" ? 0.94 : look.face === "soft" ? 1.0 : 1.06;
+  const faceW = (look.face === "oval" ? 0.94 : look.face === "soft" ? 1.0 : 1.06) * (1 - beauty * 0.05);
   const faceH = look.face === "oval" ? 1.06 : look.face === "soft" ? 1.02 : 0.98;
-  const eyeR = R * 0.2 * d.eye * (1 + beauty * 0.14);
+  const eyeR = R * 0.2 * d.eye * (1 + beauty * 0.3);
   const eyeY = -R * lerp(0.08, 0.0, d.k);
   const eyeX = R * lerp(0.4, 0.34, d.k);
   const eyeSx = look.eyes === "almond" ? 1.2 : 1;
@@ -350,36 +350,36 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
                   <meshBasicMaterial color="#ffffff" />
                 </mesh>
                 {/* 등급 뷰티 연출: 아이섀도 → 속눈썹 → 홍채 광채 → 별빛 하이라이트 */}
-                {rank >= 2 && (
-                  <mesh position={[0, eyeR * 0.5, -0.001]} scale={[1.25, 1, 1]}>
+                {rank >= 1 && (
+                  <mesh position={[0, eyeR * 0.5, -0.001]} scale={[1.3, 1.15, 1]}>
                     <circleGeometry args={[eyeR * 1.02, 24, 0, Math.PI]} />
-                    <meshBasicMaterial color={rk!.n === 10 ? "#c9a66b" : rk!.color} transparent opacity={0.28 + beauty * 0.3} depthWrite={false} />
+                    <meshBasicMaterial color={rk!.n === 10 ? "#c9a66b" : rk!.color} transparent opacity={0.35 + beauty * 0.45} depthWrite={false} />
                   </mesh>
                 )}
                 {rank >= 1 && (
                   <mesh position={[0, eyeR * 0.1, 0.007]} scale={[1.1 + d.k * 0.12, 1.08, 1]}>
-                    <ringGeometry args={[eyeR * 0.97, eyeR * (1.07 + beauty * 0.1), 28, 1, 0.15, Math.PI - 0.3]} />
+                    <ringGeometry args={[eyeR * 0.97, eyeR * (1.1 + beauty * 0.2), 28, 1, 0.1, Math.PI - 0.2]} />
                     <meshBasicMaterial color="#1c1210" />
                   </mesh>
                 )}
-                {rank >= 3 && Array.from({ length: rank >= 6 ? 4 : 2 }, (_, i) => {
-                  const a = (s > 0 ? 0.35 : Math.PI - 0.35) + (s > 0 ? 1 : -1) * i * 0.3;
+                {rank >= 1 && Array.from({ length: rank >= 6 ? 5 : rank >= 3 ? 4 : 2 }, (_, i) => {
+                  const a = (s > 0 ? 0.25 : Math.PI - 0.25) + (s > 0 ? 1 : -1) * i * 0.28;
                   return (
                     <mesh key={i} position={[Math.cos(a) * eyeR * 1.2, Math.sin(a) * eyeR * 1.2 + eyeR * 0.1, 0.007]} rotation={[0, 0, a - Math.PI / 2]}>
-                      <coneGeometry args={[eyeR * 0.07, eyeR * (0.3 + beauty * 0.2), 4]} />
+                      <coneGeometry args={[eyeR * 0.09, eyeR * (0.3 + beauty * 0.4), 4]} />
                       <meshBasicMaterial color="#1c1210" />
                     </mesh>
                   );
                 })}
-                {rank >= 5 && (
+                {rank >= 3 && (
                   <mesh position={[0, -eyeR * 0.3, 0.0055]}>
                     <ringGeometry args={[eyeR * 0.38, eyeR * 0.6, 24, 1, Math.PI * 1.15, Math.PI * 0.7]} />
-                    <meshBasicMaterial color="#fff6d8" transparent opacity={0.55} />
+                    <meshBasicMaterial color="#fff6d8" transparent opacity={0.5 + beauty * 0.4} />
                   </mesh>
                 )}
-                {rank >= 7 && (
+                {rank >= 5 && (
                   <mesh position={[-eyeR * 0.05, eyeR * 0.05, 0.009]} rotation={[0, 0, Math.PI / 4]}>
-                    <circleGeometry args={[eyeR * 0.13, 4]} />
+                    <circleGeometry args={[eyeR * (0.12 + beauty * 0.08), 4]} />
                     <meshBasicMaterial color="#fffbe6" />
                   </mesh>
                 )}
@@ -399,23 +399,30 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           </mesh>
           {/* 입 */}
           <mesh position={[0, -R * (0.36 + d.k * 0.06), R * 0.9]} rotation={[0.25, 0, Math.PI]} scale={[1, mood === "happy" ? 1.3 : 1, 1]}>
-            <torusGeometry args={[R * (0.11 - d.k * 0.015), R * (0.022 + d.k * 0.012) * (1 + beauty * 0.45), 8, 16, Math.PI]} />
+            <torusGeometry args={[R * (0.11 - d.k * 0.015), R * (0.022 + d.k * 0.012) * (1 + beauty * 0.9), 8, 16, Math.PI]} />
             <meshStandardMaterial color={look.lipColor} roughness={0.35 - beauty * 0.25} emissive={look.lipColor} emissiveIntensity={beauty * 0.25} />
           </mesh>
-          {rank >= 4 && (
+          {/* 윗입술 (큐피드 보우) */}
+          {rank >= 2 && [-1, 1].map((s) => (
+            <mesh key={s} position={[s * R * 0.035, -R * (0.345 + d.k * 0.06), R * 0.915]} scale={[1.5, 0.75, 0.6]}>
+              <sphereGeometry args={[R * (0.022 + beauty * 0.014), 10, 8]} />
+              <meshStandardMaterial color={look.lipColor} roughness={0.35 - beauty * 0.25} emissive={look.lipColor} emissiveIntensity={beauty * 0.25} />
+            </mesh>
+          ))}
+          {rank >= 2 && (
             <mesh position={[R * 0.025, -R * (0.385 + d.k * 0.06), R * 0.925]}>
               <sphereGeometry args={[R * 0.012, 6, 6]} />
               <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
             </mesh>
           )}
           {/* 광대 하이라이트 · 뷰티 젬 */}
-          {rank >= 6 && [-1, 1].map((s) => (
+          {rank >= 3 && [-1, 1].map((s) => (
             <mesh key={s} position={[s * R * 0.5, -R * 0.12, R * 0.84]} rotation={[0, s * 0.55, s * 0.5]} scale={[1.6, 0.6, 1]}>
               <circleGeometry args={[R * 0.07, 14]} />
-              <meshBasicMaterial color="#ffffff" transparent opacity={0.22 + beauty * 0.12} depthWrite={false} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.25 + beauty * 0.25} depthWrite={false} />
             </mesh>
           ))}
-          {rank >= 8 && (
+          {rank >= 6 && (
             <mesh position={[R * 0.5, -R * 0.02, R * 0.86]} rotation={[0, 0.5, Math.PI / 4]}>
               <octahedronGeometry args={[R * 0.028]} />
               <meshStandardMaterial color="#fff2c8" emissive="#ffd98a" emissiveIntensity={0.9} metalness={0.5} roughness={0.1} />
@@ -424,8 +431,8 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           {/* 블러셔 */}
           {[-1, 1].map((s) => (
             <mesh key={s} position={[s * R * 0.56, -R * 0.24, R * 0.79]} rotation={[0.1, s * 0.62, 0]}>
-              <circleGeometry args={[R * (0.17 - d.k * 0.03), 18]} />
-              <meshBasicMaterial color={makeup} transparent opacity={0.42 + glow * 0.15 + beauty * 0.12} depthWrite={false} />
+              <circleGeometry args={[R * (0.17 - d.k * 0.03) * (1 + beauty * 0.25), 18]} />
+              <meshBasicMaterial color={makeup} transparent opacity={0.42 + glow * 0.15 + beauty * 0.3} depthWrite={false} />
             </mesh>
           ))}
 
