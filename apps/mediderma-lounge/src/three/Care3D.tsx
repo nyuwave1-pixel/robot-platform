@@ -25,7 +25,7 @@ export function zonePoints(L: Layout, growth: number): Record<ZoneId, THREE.Vect
   const topY = d.leg + d.torso;
   return {
     forehead: w(0, d.headY + R * 0.5, R * 0.86),
-    cheek: w(-R * 0.55, d.headY - R * 0.22, R * 0.8),
+    cheek: w(-R * 0.6, d.headY - R * 0.4, R * 0.72),
     jaw: w(-R * 0.15, d.headY - R * 0.72, R * 0.68),
     neck: w(0, topY + d.neck * 0.5 - 0.02, d.limb * 1.4),
     scalp: w(-R * 0.2, d.headY + R * 0.98, R * 0.45),

@@ -1,5 +1,6 @@
 /** 메뉴 패널: 캐릭터 · 라운지 · 상점/도감 · 소셜 · 퀘스트 · 프로필 · 성장 · 고객 · 설정 · 상담 */
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { MODES, ROUTINES } from "../data/devices";
 import {
   BROWS, CUSTOMER_TYPES, DEMO_FRIENDS, EXP_KEYS, EXP_META, EYE_COLORS, EYE_SHAPES, FACE_SHAPES, FASHION, FASHION_MAP, HAIR_COLORS, INTERIOR, LIP_COLORS,
@@ -281,7 +282,8 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
   const [all, setAll] = useState(false);
   const routines = ROUTINES.filter((r) => r.steps.some((s) => s.products.includes(p.id)));
   const Row = ({ k, v }: { k: string; v?: string | null }) => (v ? <div className="flex gap-2 border-b border-ink/5 py-1.5 text-[11px]"><span className="w-20 shrink-0 font-bold text-ink/50">{k}</span><span className="min-w-0 flex-1 text-ink/80">{v}</span></div> : null);
-  return (
+  // 시트의 backdrop-filter 가 fixed 기준을 바꾸므로 body 로 포털
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4" onClick={onClose}>
       <div className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-4 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex gap-3">
@@ -322,7 +324,8 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
           <button className="btn-primary flex-1 !py-2.5 text-xs" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

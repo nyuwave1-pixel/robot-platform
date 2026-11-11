@@ -130,6 +130,7 @@ function Player({ L }: { L: Layout }) {
   const lying = mode === "care" && careSubject === "player";
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const lastNear = useRef("");
+  const lastView = useRef("");
 
   useFrame((state, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05);
@@ -184,10 +185,11 @@ function Player({ L }: { L: Layout }) {
     } else if (ui.mode === "care" && ui.care && ui.care.subject !== "player") {
       // 고객 케어를 마치면 침대 옆에서 다시 시작
       p.x = L.bed.x + 0.2; p.z = L.bed.z + 1.5; input.playerYaw = Math.PI;
-    } else if (ui.mode === "photo" || ui.mode === "cinematic") {
-      // 카메라를 바라본다
-      input.playerYaw = input.cam.yaw;
     }
+    // 꾸미기·포토·성장 화면에 들어갈 때 한 번 카메라를 바라본다 (이후에는 드래그로 360° 돌려 볼 수 있다)
+    const view = ui.mode === "photo" || ui.mode === "cinematic" ? ui.mode : ui.panel === "character" || ui.panel === "growth" ? ui.panel : "";
+    if (view && view !== lastView.current) input.playerYaw = input.cam.yaw;
+    lastView.current = view;
     movingRef.current = moving;
     input.moving = moving;
     if (g.current && !lying) {
@@ -286,10 +288,15 @@ function CameraRig({ L }: { L: Layout }) {
       const dress = ui.panel === "character" || ui.panel === "growth";
       const photo = ui.mode === "photo" || dress;
       const narrow = camera instanceof THREE.PerspectiveCamera && camera.aspect < 0.8;
-      const dist = photo ? (d.height * 1.25 + 0.9) * (dress && narrow ? 1.7 : 1) : c.dist;
+      const dist = photo ? (d.height * 1.25 + 0.9) * (dress ? (narrow ? 1.7 : 1.25) : 1) : c.dist * (narrow ? 1.4 : 1);
       const pitch = photo ? 0.12 : c.pitch;
       wantT.set(p.x, dress && narrow ? -d.height * 0.25 : d.height * (photo ? 0.68 : 0.7), p.z);
       want.set(p.x + Math.sin(c.yaw) * Math.cos(pitch) * dist, wantT.y + Math.sin(pitch) * dist, p.z + Math.cos(c.yaw) * Math.cos(pitch) * dist);
+      if (dress && !narrow) {
+        // 오른쪽 패널에 가리지 않게 캐릭터를 화면 왼쪽으로
+        const ox = Math.cos(c.yaw) * dist * 0.2, oz = -Math.sin(c.yaw) * dist * 0.2;
+        wantT.x += ox; wantT.z += oz; want.x += ox; want.z += oz;
+      }
       // 카메라가 벽 밖으로 나가지 않게 (벽·입구 프레임에 가리지 않도록)
       want.x = THREE.MathUtils.clamp(want.x, -L.w / 2 + 0.35, L.w / 2 - 0.35);
       want.z = THREE.MathUtils.clamp(want.z, -L.d / 2 + 0.35, L.d / 2 - 0.35);

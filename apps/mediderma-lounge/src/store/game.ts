@@ -116,6 +116,18 @@ const pay = (s: GameState, cur: Currency, price: number): Partial<GameState> | n
   return { [key]: s[key] - price } as Partial<GameState>;
 };
 
+/** 저장소를 못 쓰는 환경(시크릿 모드·용량 초과)에서도 게임이 죽지 않게 감싼다. */
+const mem = new Map<string, string>();
+export const saveStatus = { ok: true };
+const safeStorage: Storage = {
+  get length() { return mem.size; },
+  clear: () => mem.clear(),
+  key: () => null,
+  getItem: (k) => { try { return localStorage.getItem(k); } catch { saveStatus.ok = false; return mem.get(k) ?? null; } },
+  setItem: (k, v) => { try { localStorage.setItem(k, v); saveStatus.ok = true; } catch { saveStatus.ok = false; mem.set(k, v); } },
+  removeItem: (k) => { try { localStorage.removeItem(k); } catch { mem.delete(k); } },
+};
+
 export const useGame = create<GameState>()(
   persist(
     (set, get) => ({
@@ -310,18 +322,6 @@ export const useGame = create<GameState>()(
     },
   ),
 );
-
-/** 저장소를 못 쓰는 환경(시크릿 모드·용량 초과)에서도 게임이 죽지 않게 감싼다. */
-const mem = new Map<string, string>();
-export const saveStatus = { ok: true };
-const safeStorage: Storage = {
-  get length() { return mem.size; },
-  clear: () => mem.clear(),
-  key: () => null,
-  getItem: (k) => { try { return localStorage.getItem(k); } catch { saveStatus.ok = false; return mem.get(k) ?? null; } },
-  setItem: (k, v) => { try { localStorage.setItem(k, v); saveStatus.ok = true; } catch { saveStatus.ok = false; mem.set(k, v); } },
-  removeItem: (k) => { try { localStorage.removeItem(k); } catch { mem.delete(k); } },
-};
 
 export const totalExp = (s: Pick<GameState, "exp">) => EXP_KEYS.reduce((a, k) => a + s.exp[k], 0);
 export const levelOf = (total: number) => Math.floor(total / 60) + 1;
