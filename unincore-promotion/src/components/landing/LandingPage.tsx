@@ -1,9 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { ArrowUpRight, Atom, CirclesThree, Drop, Leaf, Plant, Scales, Star } from "@phosphor-icons/react/dist/ssr";
 import type { ProductContent } from "@/content/types";
 import { LANDING, ROUTINE, TRADEMARK, type LandingContent, type Review } from "@/content/landing";
 import type { ProductKey } from "@/content/types";
+import { GUIDES, ROUTINE_GUIDE } from "@/content/guides";
 import { isPromoActive } from "@/lib/promo";
 import { toAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
@@ -142,6 +144,8 @@ function Reviews({ items, photos }: { items: Review[]; photos: { src: string; na
 export function LandingPage({ product: p, all }: { product: ProductContent; all: ProductContent[] }) {
   const c: LandingContent = LANDING[p.key];
   const ap = toAmazonProduct(p);
+  // Up to three guides: the ones that feature this product, then the routine guide.
+  const guides = [...GUIDES.filter((g) => g.products.includes(p.key)).map(({ slug, h1 }) => ({ slug, h1 })), { slug: ROUTINE_GUIDE.slug, h1: ROUTINE_GUIDE.h1 }].slice(0, 3);
   const promoInitial = isPromoActive(p.promotion);
   const theme = {
     "--acc": c.theme.acc,
@@ -399,6 +403,23 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
                 </div>
               </div>
             </Block>
+
+            {/* Related guides: internal links for readers who want the how-to, and for search engines */}
+            {guides.length > 0 && (
+              <Block id="guides">
+                <Heading title="Guides for this step" accent="Guides" />
+                <ul className="mt-7 grid gap-3">
+                  {guides.map((g) => (
+                    <li key={g.slug}>
+                      <Link href={`/guides/${g.slug}`} className="paper group flex items-center justify-between gap-4 rounded-[18px] px-5 py-4 transition-shadow hover:shadow-[0_0_0_1.5px_rgb(var(--acc-ink)/0.5)]">
+                        <span className="font-sans text-[16px] font-semibold leading-snug tracking-[-0.01em] text-body">{g.h1}</span>
+                        <ArrowUpRight aria-hidden size={18} className="shrink-0 text-body-mute transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
 
             <footer className="mt-16 border-t border-body/10 pt-6 text-[13px] leading-relaxed text-body-mute">
               <p>{c.disclaimer}</p>

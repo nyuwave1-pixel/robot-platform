@@ -204,3 +204,23 @@ def test_posting_kit_has_utm_links_and_compliant_captions(tmp_path):
         assert x["link"].startswith(core.PROMO_SITE + "/products/") and "utm_source=" in x["link"] and "utm_campaign=" in x["link"]
         assert len(x["title"]) <= 100 and not BANNED.search(x["caption"] + " ".join(x["hashtags"]))
         assert all(t.startswith("#") and " " not in t for t in x["hashtags"])
+
+
+def test_dashboard_shows_promo_images_and_serves_only_safe_png_names(monkeypatch, tmp_path):
+    from engine.models import CreativeAsset
+
+    d = core.DATA / "creatives"
+    d.mkdir(parents=True, exist_ok=True)
+    name = "zz-test-pinterest_pin.png"
+    (d / name).write_bytes(b"\x89PNG\r\n")
+    try:
+        with core.session() as s:
+            s.add(CreativeAsset(product_id=None, provider="engine", format="pinterest_pin", url=f"data/creatives/{name}", status="rendered", cost=0))
+        c = TestClient(app)
+        html = c.get("/").text
+        assert f"/creatives/{name}" in html and "Top Keywords" in html and "미측정" in html
+        assert c.get(f"/creatives/{name}").status_code == 200
+        for bad in ("..%2Fengine.db", "posts.json", "x.PNG", ".hidden.png"):
+            assert c.get(f"/creatives/{bad}").status_code == 404, bad
+    finally:
+        (d / name).unlink()

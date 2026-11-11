@@ -254,6 +254,63 @@ export const GUIDES: Guide[] = [
     published: "2026-11-10",
     updated: "2026-11-10",
   },
+  {
+    slug: "vitamin-c-for-sensitive-skin",
+    title: "Vitamin C for Sensitive Skin: How to Start | UNI&CORE",
+    description:
+      "New to vitamin C or easily irritated? How to patch test, how often to start, what to pair it with, and a gentle cleanse-to-serum routine.",
+    h1: "Vitamin C for Sensitive Skin: How to Start",
+    intro:
+      "Vitamin C can fit into a sensitive-skin routine, but how you introduce it matters. Start slowly, change one thing at a time, and let your skin set the pace.",
+    keywords: ["vitamin C for sensitive skin", "vitamin C serum sensitive skin", "how to start vitamin C serum", "patch test vitamin C serum", "gentle vitamin C routine"],
+    sections: [
+      {
+        heading: "Patch test before the first full use",
+        paragraphs: [
+          "Apply a small amount to a discreet area, such as the inner forearm or behind the ear, and wait a day. If the area stays comfortable, move on to your face. Skip any new product on skin that is already irritated or broken.",
+        ],
+      },
+      {
+        heading: "Start slowly and build up",
+        paragraphs: [
+          "Begin with a few applications a week rather than every day, and add days as your skin stays comfortable. A brief tingle can happen with pure vitamin C (ascorbic acid); lasting redness, stinging or itching is a sign to stop and rinse.",
+          "Introduce one new product at a time. If you start vitamin C the same week as a new exfoliant or retinol, you won't know which one your skin is reacting to.",
+        ],
+      },
+      {
+        heading: "Keep the rest of the routine gentle",
+        paragraphs: [
+          "Use a mild cleanser, a simple moisturizer and, in the morning, a broad-spectrum sunscreen. Many people keep vitamin C for the morning and stronger actives such as retinol or exfoliating acids for the evening, so each has its own slot.",
+          "A buffer step can help: applying a hydrating toner first puts a light layer between your skin and the serum while you get used to it.",
+        ],
+      },
+      {
+        heading: "A gentle first step: a low-pH enzyme cleanser",
+        product: "wash",
+        paragraphs: [
+          "The UNI&CORE Vita C Enzyme Powder Wash uses low-irritation enzymes at a mildly acidic pH of 5–5.5, close to the skin's own barrier, and comes in single-use 1 g pouches. If your skin is reactive, patch test first.",
+        ],
+      },
+      {
+        heading: "How UNI&CORE suggests starting the Vita C 13.5 ampoule",
+        product: "ampoule",
+        paragraphs: [
+          "The UNI&CORE Vita C 13.5 Super Brightening Ampoule contains 13.5% pure vitamin C (ascorbic acid) with glutathione, hyaluronic acid, panthenol and a calming complex. For sensitive skin, the brand suggests prepping with a toner before the ampoule for the first two weeks, then trying it directly after cleansing.",
+          "Use 2 pumps for the whole face, avoid the eye area, and follow with your cream. Patch test first and stop if irritation occurs.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "Can sensitive skin use vitamin C?", a: "Often yes, with a slow start. Patch test, begin with a few uses a week, and stop if you notice lasting redness, stinging or itching. If you have a skin condition, ask a dermatologist first." },
+      { q: "How do I patch test a vitamin C serum?", a: "Apply a small amount to the inner forearm or behind the ear and wait a day. If the area stays comfortable, try it on your face." },
+      { q: "How often should I use vitamin C when starting out?", a: "Start with a few times a week and build toward daily use as your skin stays comfortable. Follow your product's directions." },
+      { q: "Should I use a toner before vitamin C?", a: "It can help while your skin adjusts. For the Vita C 13.5 ampoule, UNI&CORE suggests a toner first for the first two weeks if your skin is sensitive." },
+      { q: "Where can I buy the UNI&CORE vitamin C ampoule?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
+    ],
+    products: ["wash", "ampoule"],
+    published: "2026-11-11",
+    updated: "2026-11-11",
+  },
 ];
 
 export const ROUTINE_GUIDE = {

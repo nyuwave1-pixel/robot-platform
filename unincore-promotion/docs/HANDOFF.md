@@ -142,7 +142,7 @@ python3 scripts/films/build_product_loops.py
 - 성능(새 디자인 이전): Lighthouse 모바일 홈 86–87, 데스크톱 97, SEO 100
 - 관리자/CMS 제거 → 완전 정적 사이트, 오류 화면 자동 복구
 - 2026-11-10: 드라이브 v2 디자인 반영. 제품 페이지 3개를 아마존 리스팅형 랜딩으로 교체(전후 사진, 리스팅 이미지, 크리에이터 영상, 아마존 5성 리뷰, 할인 상자, 7일 루틴). 제품 페이지에는 FAQ 영역과 FAQ 구조화 데이터가 없음(요청 사항)
-- 가이드 6개(/guides)와 푸터 링크는 유지
+- 가이드 7개(/guides). 상단 메뉴·푸터·제품 페이지 하단에서 연결
 - 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-11 라이브: 홈 83, 앰플 87, SEO 100
 - `unincore-engine/`: 매일 점검·키워드·홍보 이미지 렌더링·승인 요청(`python -m engine propose/approvals/approve/publish`)
 

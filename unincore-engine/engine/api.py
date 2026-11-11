@@ -10,7 +10,7 @@ import secrets
 from pathlib import Path
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import func, select
@@ -18,7 +18,7 @@ from sqlalchemy import func, select
 from . import core, imports
 from .jobs import JOBS
 from .models import (
-    ApiConnection, ApprovalRequest, AutomationJob, AutomationSchedule, ImageJob, Keyword, Product,
+    ApiConnection, ApprovalRequest, AutomationJob, AutomationSchedule, CreativeAsset, ImageJob, Keyword, Product,
     ProductImage, SeoAuditLog, SeoPage, VideoJob,
 )
 
@@ -30,7 +30,7 @@ tpl = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), 
 # Directive §16 phases with their real state. Update only when the phase actually runs end to end.
 PHASES = [
     (1, "사이트 · 제품 데이터 분석", "done", "us.unincore.com 60개 제품 수집, promotion 사이트 감사"),
-    (2, "통합 DB · 관리자 대시보드", "partial", "21개 테이블, 읽기 전용 대시보드. 편집 UI·권한 관리는 미구현"),
+    (2, "통합 DB · 관리자 대시보드", "partial", "21개 테이블(PostgreSQL 검증), 대시보드에서 작업 실행·승인·홍보 이미지·게시 문구·키워드 확인. 편집 UI·권한 관리는 미구현"),
     (3, "Gemini 이미지 분석 · 키워드", "waiting", "키 인증 확인. 생성 호출은 Gemini 선불 크레딧 소진(402)으로 미검증. 키워드는 제품명 시드 + CSV 가져오기"),
     (4, "Google · Naver SEO 엔진", "partial", "promotion 사이트 감사·메타 백업 동작. 서치 콘솔 API 미연결"),
     (5, "Canva · Higgsfield 연동", "partial", "자체 템플릿 렌더러로 제품당 3종 홍보 이미지 생성(실제 사진·검증 문구, AI 미사용). Canva/Higgsfield API는 미연결 대기"),
@@ -52,7 +52,18 @@ def guard(request: Request, cred: HTTPBasicCredentials | None = Depends(basic)) 
         raise HTTPException(401, "auth required", headers={"WWW-Authenticate": "Basic"})
 
 
+def _posts() -> dict:
+    """Posting kit written by the creatives job, keyed by image file name."""
+    import json
+
+    f = core.DATA / "creatives" / "posts.json"
+    if not f.exists():
+        return {}
+    return {x["image"]: x for x in json.loads(f.read_text(encoding="utf-8"))}
+
+
 def summary() -> dict:
+    posts = _posts()
     with core.session() as s:
         n = lambda m, *w: s.scalar(select(func.count()).select_from(m).where(*w)) or 0  # noqa: E731
         last = {}
@@ -80,12 +91,28 @@ def summary() -> dict:
             "pages": [{"url": p.url, "status": p.status_code, "issues": p.issue_count} for p in s.scalars(select(SeoPage).order_by(SeoPage.url))],
             "approvals": [{"id": a.id, "product_id": a.product_id, "target": a.target, "change": a.change, "protected": a.protected, "status": a.status} for a in s.scalars(select(ApprovalRequest).order_by(ApprovalRequest.id.desc()).limit(30))],
             "phases": [{"n": a, "name": b, "state": c, "note": d} for a, b, c, d in PHASES],
+            "creatives": [{"product_id": c.product_id, "format": c.format, "provider": c.provider, "status": c.status, "file": Path(c.url or "").name, "post": posts.get(Path(c.url or "").name)} for c in s.scalars(select(CreativeAsset).where(CreativeAsset.provider == "engine").order_by(CreativeAsset.product_id, CreativeAsset.format))],
+            # Search volume is not measured: shown as "미측정", never estimated.
+            "top_keywords": [{"keyword": k.keyword, "product_id": k.product_id, "intent": k.intent, "source": k.source, "priority": k.priority} for k in s.scalars(select(Keyword).order_by(Keyword.priority.desc(), Keyword.keyword).limit(40))],
         }
 
 
 @app.get("/", response_class=HTMLResponse, dependencies=[Depends(guard)])
 def dashboard():
     return tpl.get_template("dashboard.html").render(**summary())
+
+
+@app.get("/creatives/{name}", dependencies=[Depends(guard)])
+def creative_file(name: str):
+    """Serve a rendered promo image. Only plain PNG names inside data/creatives are allowed."""
+    import re
+
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_.-]*\.png", name):
+        raise HTTPException(404, "not found")
+    f = core.DATA / "creatives" / name
+    if not f.is_file():
+        raise HTTPException(404, "not found")
+    return FileResponse(f, media_type="image/png")
 
 
 @app.get("/api/summary", dependencies=[Depends(guard)])

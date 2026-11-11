@@ -22,6 +22,7 @@ th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)
 img.p{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:8px}
 a{color:var(--gold)}code{color:var(--mute);font-size:12px}
 .note{color:var(--mute);font-size:12px;margin-top:10px}
+.cgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.cr img{width:100%;border-radius:10px;display:block;background:#fff}.cr .k{margin-top:10px}.cap{font-size:12px;color:var(--mute);margin:6px 0 0;overflow-wrap:anywhere}.cap b{color:var(--ivory)}
 button{background:transparent;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:12px;cursor:pointer;margin:2px 0}button:hover{background:rgba(233,185,77,.12)}.applied,.approved{color:var(--ok)}.rejected{color:var(--bad)}
 </style>
 </head>
@@ -62,6 +63,27 @@ button{background:transparent;color:var(--gold);border:1px solid var(--line);bor
 </table></div>
 <p class="note">승인된 요청은 <code>publish</code> 작업이 검증 후 사이트 파일에 반영합니다. 보호 항목(가격·성분·인증·임상)은 자동 반영되지 않습니다.</p>
 
+<h2>Promo Images ({{ creatives|length }})</h2>
+<div class="cgrid">
+{% for c in creatives %}<div class="card cr">
+<a href="/creatives/{{ c.file }}" target="_blank" rel="noopener"><img src="/creatives/{{ c.file }}" alt="{{ c.product_id }} {{ c.format }}" loading="lazy"></a>
+<div class="k">{{ c.product_id }} · {{ c.format }}</div>
+{% if c.post %}<p class="cap"><b>{{ c.post.channel }}</b> · {{ c.post.title }}</p>
+<p class="cap">{{ c.post.caption }}</p>
+<p class="cap">{{ c.post.hashtags|join(" ") }}</p>
+<p class="cap"><a href="{{ c.post.link }}" target="_blank" rel="noopener">UTM 링크</a> <button type="button" onclick="copyPost(this)" data-text="{{ c.post.title }}&#10;&#10;{{ c.post.caption }}&#10;&#10;{{ c.post.hashtags|join(' ') }}&#10;{{ c.post.link }}">문구 복사</button></p>{% endif %}
+</div>
+{% else %}<div class="card">아직 만든 홍보 이미지가 없습니다. <code>creatives</code> 작업을 실행하세요.</div>{% endfor %}
+</div>
+<p class="note">실제 제품 사진과 사이트에 있는 문구만으로 만든 이미지입니다(AI 생성 아님). 게시는 자동으로 하지 않습니다.</p>
+
+<h2>Top Keywords</h2>
+<div class="scroll"><table><tr><th>키워드</th><th>제품</th><th>의도</th><th>출처</th><th>우선순위(자체)</th><th>검색량</th></tr>
+{% for k in top_keywords %}<tr><td>{{ k.keyword }}</td><td><code>{{ k.product_id or "" }}</code></td><td>{{ k.intent or "" }}</td><td>{{ k.source }}</td><td>{{ k.priority }}</td><td><span class="b waiting">미측정</span></td></tr>
+{% else %}<tr><td colspan="6">키워드가 없습니다.</td></tr>{% endfor %}
+</table></div>
+<p class="note">전체 목록: <code>GET /api/keywords</code>. 검색량은 Search Console·Amazon 데이터가 연결되기 전까지 표시하지 않습니다.</p>
+
 <h2>SEO Pages (promotion.unincore.com)</h2>
 <div class="scroll"><table><tr><th>URL</th><th>HTTP</th><th>이슈</th></tr>
 {% for p in pages %}<tr><td><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.url }}</a></td><td>{{ p.status }}</td><td>{{ p.issues }}</td></tr>{% endfor %}
@@ -75,6 +97,7 @@ button{background:transparent;color:var(--gold);border:1px solid var(--line);bor
 </div>
 <script>
 async function post(u){const r=await fetch(u,{method:"POST"});const t=await r.text();if(!r.ok)alert(t);location.reload()}
+function copyPost(b){navigator.clipboard.writeText(b.dataset.text).then(()=>{const t=b.textContent;b.textContent="복사됨";setTimeout(()=>b.textContent=t,1200)})}
 function decide(id,a){post(`/api/approvals/${id}/${a}`)}
 function run(j){if(confirm(j+" 작업을 지금 실행할까요?"))post(`/api/jobs/${j}/run`)}
 </script></body></html>
