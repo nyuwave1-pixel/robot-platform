@@ -479,3 +479,184 @@ def wall_panels():
         a.box('root', (0.05, 1.0, 0.4), (-0.45 + k * 0.1, 0, 0.3), r, bevel=0.01, seg=1)
     out.append(a)
     return out
+
+
+# ---------------------------------------------------------------- interiors, port and beach (v0.5)
+def interior_props():
+    """Furniture / equipment modelled in a unit cube (the game scales each to its collider)."""
+    out = []
+    st = mat('i_steel', (0.22, 0.23, 0.24), 0.5, 0.7); dk = mat('i_dark', (0.06, 0.065, 0.07), 0.6, 0.4); wh = mat('i_white', (0.7, 0.72, 0.72), 0.5, 0.1)
+    grn = mat('i_led_green', (0.2, 1.6, 0.5), 0.4); amb = mat('i_led_amber', (1.8, 1.1, 0.2), 0.4); scr = mat('i_screen', (0.15, 0.9, 0.5), 0.3); ol = mat('i_olive', (0.2, 0.23, 0.14), 0.8, 0.2)
+    # desk / lab bench: top, legs, drawer unit, monitor, keyboard
+    a = Asm('P_desk')
+    a.box('root', (1.0, 1.0, 0.08), (0, 0, 0.46), wh, bevel=0.01, seg=1)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            a.box('root', (0.04, 0.08, 0.92), (sx * 0.47, sy * 0.44, -0.04), st, bevel=0.004, seg=1)
+    a.box('root', (0.94, 0.06, 0.06), (0, 0.44, -0.3), st, bevel=0.004, seg=1); a.box('root', (0.94, 0.9, 0.04), (0, 0, -0.38), st, bevel=0.004, seg=1)
+    a.box('root', (0.22, 0.8, 0.6), (0.33, 0, 0.12), dk, bevel=0.01, seg=1)
+    for k in range(3):
+        a.box('root', (0.2, 0.82, 0.02), (0.33, 0, -0.05 + k * 0.17), st, bevel=0.002, seg=1)
+    out.append(a)
+    # server rack: frame, vented door, blade rows with status LEDs
+    a = Asm('P_rack')
+    a.box('root', (1.0, 0.98, 1.0), (0, 0, 0), dk, bevel=0.006, seg=1)
+    for k in range(12):
+        z = -0.42 + k * 0.076
+        a.box('root', (0.86, 1.0, 0.055), (0, 0, z), st, bevel=0.003, seg=1)
+        for sy in (-1, 1):
+            a.box('root', (0.05, 0.004, 0.02), (-0.33, sy * 0.502, z), grn if (k * 7 + sy) % 5 else amb, bevel=0, seg=1)
+            a.box('root', (0.05, 0.004, 0.02), (-0.24, sy * 0.502, z), grn, bevel=0, seg=1)
+    for sx in (-1, 1):
+        a.box('root', (0.05, 1.01, 1.0), (sx * 0.475, 0, 0), dk, bevel=0.004, seg=1)
+    a.box('root', (1.0, 1.0, 0.04), (0, 0, 0.48), st, bevel=0.004, seg=1)
+    out.append(a)
+    # tall cabinet / gas-cylinder locker
+    a = Asm('P_cabinet'); bl = mat('i_blue', (0.12, 0.2, 0.34), 0.6, 0.3)
+    a.box('root', (1.0, 1.0, 1.0), (0, 0, 0), bl, bevel=0.01, seg=1)
+    for sx in (-0.25, 0.25):
+        a.box('root', (0.46, 0.03, 0.92), (sx, -0.5, 0), bl, bevel=0.006, seg=1); a.box('root', (0.03, 0.05, 0.12), (sx * 0.2, -0.53, 0), st, bevel=0.004, seg=1)
+    for k in range(4):
+        a.box('root', (0.7, 0.01, 0.02), (0, -0.52, 0.3 + k * 0.04), dk, bevel=0, seg=1)
+    a.box('root', (0.3, 0.012, 0.16), (0, -0.52, 0.1), mat('i_hazard', (0.9, 0.7, 0.1), 0.6), bevel=0, seg=1)
+    out.append(a)
+    # generator: skid, engine housing with louvres, exhaust, control panel
+    a = Asm('P_generator')
+    a.box('root', (1.0, 0.94, 0.16), (0, 0, -0.42), st, bevel=0.01, seg=1)
+    a.box('root', (0.94, 0.9, 0.72), (0, 0, 0.04), ol, bevel=0.03, seg=1)
+    for k in range(8):
+        a.box('root', (0.36, 0.92, 0.035), (-0.22, 0, -0.2 + k * 0.07), dk, bevel=0.004, seg=1)
+    a.box('root', (0.22, 0.02, 0.3), (0.3, -0.46, 0.1), dk, bevel=0.004, seg=1); a.box('root', (0.06, 0.03, 0.04), (0.3, -0.47, 0.18), amb, bevel=0, seg=1)
+    a.cyl('root', 0.05, 0.3, (0.3, 0.2, 0.5), st, n=10); a.cyl('root', 0.07, 0.08, (0.3, 0.2, 0.46), st, n=10)
+    a.cyl('root', 0.16, 0.5, (-0.1, 0, 0.44), st, rot=(0, H, 0), n=12, bevel=0.01)
+    out.append(a)
+    # fuel tank: horizontal cylinder on saddles with ladder and hatch
+    a = Asm('P_tank'); tw = mat('i_tank', (0.75, 0.76, 0.74), 0.5, 0.2)
+    a.cyl('root', 0.42, 0.9, (0, 0, 0.05), tw, rot=(H, 0, 0), n=20, bevel=0.03)
+    for sy in (-0.45, 0.45):
+        a.sphere('root', 0.42, (0, sy, 0.05), tw, scale=(1, 0.25, 1), seg=16)
+    for sy in (-0.28, 0.28):
+        a.box('root', (0.7, 0.1, 0.4), (0, sy, -0.3), st, bevel=0.01, seg=1)
+    a.cyl('root', 0.1, 0.08, (0, 0, 0.5), st, n=12)
+    for k in range(6):
+        a.limb('root', (0.4, -0.05, -0.45 + k * 0.17), (0.4, 0.07, -0.45 + k * 0.17), 0.01, 0.01, st, n=4)
+    a.box('root', (0.02, 0.5, 0.2), (0.43, 0, 0.1), mat('i_hazard', (0.9, 0.7, 0.1), 0.6), bevel=0, seg=1)
+    out.append(a)
+    # operator console: sloped desk with screens and keys
+    a = Asm('P_console')
+    a.box('root', (1.0, 0.9, 0.6), (0, 0.05, -0.2), st, bevel=0.01, seg=1)
+    a.box('root', (0.96, 0.5, 0.06), (0, -0.2, 0.14), dk, rot=(0.35, 0, 0), bevel=0.006, seg=1)
+    a.box('root', (0.96, 0.1, 0.4), (0, 0.38, 0.3), dk, bevel=0.01, seg=1)
+    for sx in (-0.3, 0.02, 0.33):
+        a.box('root', (0.28, 0.012, 0.28), (sx, 0.325, 0.3), scr, bevel=0, seg=1)
+    for k in range(10):
+        a.box('root', (0.05, 0.03, 0.012), (-0.4 + k * 0.088, -0.25, 0.165), wh if k % 3 else amb, rot=(0.35, 0, 0), bevel=0, seg=1)
+    out.append(a)
+    # bunk bed
+    a = Asm('P_bunk'); blanket = mat('i_blanket', (0.2, 0.24, 0.16), 0.95)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            a.box('root', (0.03, 0.06, 1.0), (sx * 0.48, sy * 0.46, 0), st, bevel=0.003, seg=1)
+    for z in (-0.25, 0.3):
+        a.box('root', (0.96, 0.94, 0.05), (0, 0, z), st, bevel=0.004, seg=1); a.box('root', (0.92, 0.88, 0.16), (0, 0, z + 0.1), blanket, bevel=0.03, seg=1)
+        a.box('root', (0.18, 0.7, 0.1), (-0.36, 0, z + 0.2), wh, bevel=0.03, seg=1)
+    out.append(a)
+    # ammo crate with handles and latches
+    a = Asm('P_ammo')
+    a.box('root', (1.0, 1.0, 0.8), (0, 0, -0.1), ol, bevel=0.02, seg=1); a.box('root', (1.02, 1.02, 0.2), (0, 0, 0.4), ol, bevel=0.02, seg=1)
+    for sx in (-0.3, 0.3):
+        a.box('root', (0.06, 0.03, 0.2), (sx, -0.51, 0.22), st, bevel=0.004, seg=1)
+    for sx in (-1, 1):
+        a.box('root', (0.03, 0.4, 0.06), (sx * 0.52, 0, 0.1), dk, bevel=0.006, seg=1)
+    a.box('root', (0.5, 0.012, 0.16), (0, -0.505, -0.1), mat('i_stencil', (0.75, 0.72, 0.4), 0.7), bevel=0, seg=1)
+    out.append(a)
+    # concrete jersey barrier
+    a = Asm('P_barrier'); cc = mat('i_conc', (0.5, 0.5, 0.47), 0.92)
+    a.box('root', (1.0, 1.0, 0.25), (0, 0, -0.375), cc, bevel=0.02, seg=1)
+    a.box('root', (1.0, 0.7, 0.75), (0, 0, 0.125), cc, bevel=0.03, taper=(1, 0.35), seg=1)
+    for sx in (-0.3, 0.3):
+        a.box('root', (0.22, 0.72, 0.1), (sx, 0, -0.1), mat('i_hazred', (0.6, 0.08, 0.05), 0.7), rot=(0, 0.6, 0), bevel=0, seg=1)
+    out.append(a)
+    return out
+
+
+def hedgehog():
+    """Czech hedgehog anti-landing obstacle (three crossed I-beams), ~1.6 m."""
+    a = Asm('Hedgehog'); r = mat('hedgehog_rust', (0.3, 0.16, 0.1), 0.85, 0.3)
+    for rot in ((0.62, 0, 0.0), (0.62, 0, 2.09), (0.62, 0, 4.19)):
+        a.box('root', (0.14, 0.14, 2.0), (0, 0, 0.72), r, rot=rot, bevel=0.01, seg=1)
+        a.box('root', (0.22, 0.03, 2.0), (0, 0, 0.72), r, rot=rot, bevel=0.004, seg=1)
+    a.cyl('root', 0.2, 0.12, (0, 0, 0.72), r, n=8)
+    return a
+
+
+def crane():
+    """Port tower crane: 18 m lattice mast, 26 m jib towards +Y (the water side in game), counter-jib, cab, hook."""
+    a = Asm('Crane')
+    yl = mat('crane_yellow', (0.75, 0.52, 0.08), 0.6, 0.3); st = mat('crane_steel', (0.12, 0.125, 0.13), 0.5, 0.7); gl = mat('crane_glass', (0.06, 0.1, 0.13), 0.1, 0.6); cw = mat('crane_cw', (0.4, 0.4, 0.38), 0.9)
+    w = 0.6
+    cs = [(-w, -w), (w, -w), (w, w), (-w, w)]
+    for x, y in cs:
+        a.limb('root', (x, y, 0), (x, y, 18.0), 0.07, 0.07, yl, n=6)
+    for s in range(9):
+        z0, z1 = s * 2.0, s * 2.0 + 2.0
+        for i in range(4):
+            (x0, y0), (x1, y1) = cs[i], cs[(i + 1) % 4]
+            a.limb('root', (x0, y0, z1), (x1, y1, z1), 0.03, 0.03, yl, n=4)
+            a.limb('root', (x0, y0, z0), (x1, y1, z1), 0.025, 0.025, yl, n=4)
+    a.box('root', (2.4, 2.4, 0.5), (0, 0, 0.25), cw, bevel=0.04, seg=1)
+    a.cyl('root', 0.9, 0.5, (0, 0, 18.25), st, n=16, bevel=0.03)
+    a.box('root', (1.3, 1.5, 1.5), (1.0, 0.3, 17.6), yl, bevel=0.06, seg=1); a.box('root', (1.32, 1.0, 0.8), (1.0, 0.75, 17.8), gl, bevel=0.03, seg=1)  # cab
+    # jib (triangular truss) from y=-5 to y=21
+    for (x, z) in ((-0.5, 18.6), (0.5, 18.6), (0.0, 19.6)):
+        a.limb('root', (x, -5.0, z), (x, 21.0, z), 0.05, 0.05, yl, n=6)
+    for k in range(13):
+        y0, y1 = -5.0 + k * 2.0, -3.0 + k * 2.0
+        a.limb('root', (-0.5, y0, 18.6), (0.0, y1, 19.6), 0.022, 0.022, yl, n=4); a.limb('root', (0.5, y0, 18.6), (0.0, y1, 19.6), 0.022, 0.022, yl, n=4)
+        a.limb('root', (-0.5, y1, 18.6), (0.5, y1, 18.6), 0.022, 0.022, yl, n=4)
+    a.limb('root', (0, 0, 18.5), (0, 0, 23.0), 0.09, 0.07, yl, n=6)  # tower head
+    a.limb('root', (0, 0, 23.0), (0, 14.0, 19.6), 0.02, 0.02, st, n=4); a.limb('root', (0, 0, 23.0), (0, -4.5, 19.6), 0.02, 0.02, st, n=4)  # pendants
+    a.box('root', (1.4, 1.6, 1.3), (0, -4.2, 18.0), cw, bevel=0.04, seg=1)  # counterweight
+    a.box('root', (0.8, 0.9, 0.35), (0, 15.0, 18.4), st, bevel=0.03, seg=1)  # trolley
+    a.limb('root', (0, 15.0, 18.3), (0, 15.0, 9.0), 0.012, 0.012, st, n=4); a.box('root', (0.3, 0.3, 0.5), (0, 15.0, 8.8), st, bevel=0.04, seg=1)
+    return a
+
+
+def cargo_ship():
+    """96 m coastal freighter. Bow at -Y, superstructure aft (+Y). Origin: keel centre; deck at z=9."""
+    a = Asm('CargoShip')
+    hull = mat('ship_hull', (0.06, 0.07, 0.09), 0.6, 0.3); red = mat('ship_red', (0.4, 0.07, 0.05), 0.7, 0.2); deck = mat('ship_deck', (0.2, 0.25, 0.2), 0.85); wh = mat('ship_white', (0.72, 0.74, 0.73), 0.55, 0.1)
+    gl = mat('ship_glass', (0.04, 0.07, 0.09), 0.1, 0.6); st = mat('ship_steel', (0.2, 0.21, 0.22), 0.5, 0.6)
+    secs = [(-48.0, 0.3, 4.5), (-43.0, 4.5, 1.5), (-36.0, 8.6, 0.3), (-20.0, 10.0, 0.0), (36.0, 10.0, 0.0), (46.0, 8.8, 0.8), (48.0, 7.0, 2.5)]
+    for z0, z1, m, wk in ((0.0, 3.2, red, 0.86), (3.2, 9.0, hull, 1.0)):  # boot-topping band + topsides
+        verts, faces = [], []
+        for y, hw, rise in secs:
+            lo = max(z0, rise) if z0 == 0.0 else z0
+            verts += [(-hw * (wk if z0 == 0 else 1), y, z1 if z0 else 3.2), (-hw * wk * (0.55 if z0 == 0 else 1.0), y, lo), (hw * wk * (0.55 if z0 == 0 else 1.0), y, lo), (hw * (wk if z0 == 0 else 1), y, z1 if z0 else 3.2)]
+        for i in range(len(secs) - 1):
+            for j in range(3):
+                p = i * 4 + j; faces.append((p, p + 1, p + 5, p + 4))
+        faces.append((0, 1, 2, 3)); n = len(secs) * 4; faces.append((n - 4, n - 3, n - 2, n - 1))
+        a.mesh('root', verts, faces, m, smooth=0.6)
+    dv = [(-hw, y, 9.0) for y, hw, _ in secs] + [(hw, y, 9.0) for y, hw, _ in reversed(secs)]
+    a.mesh('root', dv, [tuple(range(len(dv)))], deck, smooth=0.3)
+    for sx in (-1, 1):  # bulwarks
+        a.tube('root', [(sx * hw * 0.99, y, 9.6) for y, hw, _ in secs], 0.12, hull, res=2, bevel_res=1)
+    for k in range(4):  # hatch coamings forward of the house
+        a.box('root', (13.0, 12.0, 1.2), (0, -34.0 + k * 14.5, 9.6), st, bevel=0.08, seg=1)
+    # superstructure aft
+    a.box('root', (16.0, 16.0, 3.4), (0, 33.0, 10.7), wh, bevel=0.1, seg=1); a.box('root', (15.0, 13.0, 3.2), (0, 33.5, 14.0), wh, bevel=0.1, seg=1); a.box('root', (17.5, 8.0, 3.0), (0, 31.5, 17.1), wh, bevel=0.1, seg=1)
+    a.box('root', (17.6, 0.1, 1.3), (0, 27.46, 17.5), gl, bevel=0.0, seg=1)  # bridge windows
+    for z in (11.2, 14.4):
+        for k in range(7):
+            a.box('root', (0.9, 0.08, 0.7), (-6.0 + k * 2.0, 25.0 if z < 12 else 26.96, z), gl, bevel=0.0, seg=1)
+    a.cyl('root', 1.6, 5.0, (0, 37.5, 21.0), red, n=16, bevel=0.1, scale=(1, 1.5, 1)); a.cyl('root', 1.65, 0.8, (0, 37.5, 22.6), hull, n=16, scale=(1, 1.5, 1))  # funnel
+    a.limb('root', (0, 31.0, 18.6), (0, 31.0, 25.0), 0.15, 0.08, wh, n=8); a.box('root', (5.0, 0.15, 0.15), (0, 31.0, 23.5), wh, bevel=0.02, seg=1)  # mast + yard
+    a.cyl('root', 0.6, 0.25, (0, 31.0, 22.0), wh, n=12)
+    for y in (-27.0, 2.0):  # deck cranes
+        a.limb('root', (0, y, 9.0), (0, y, 19.0), 0.6, 0.45, wh, n=10); a.limb('root', (0, y, 18.0), (0, y - 12.0, 22.0), 0.3, 0.15, wh, n=8); a.box('root', (1.6, 1.6, 1.4), (0, y, 19.5), wh, bevel=0.08, seg=1)
+    for sx in (-1, 1):  # lifeboats, anchors
+        a.sphere('root', 1.0, (sx * 8.6, 36.0, 15.2), mat('ship_orange', (0.85, 0.3, 0.05), 0.6), scale=(0.8, 2.6, 0.9), seg=12)
+        a.box('root', (0.2, 1.4, 1.8), (sx * 5.2, -44.5, 6.4), st, bevel=0.03, seg=1)
+    a.limb('root', (0, -46.5, 9.0), (0, -46.5, 13.0), 0.12, 0.08, wh, n=6)  # jackstaff
+    return a

@@ -21,7 +21,7 @@ export function buildIsland() {
   const W = G.world, H = (x, z) => W.heightAt(x, z), rnd = mulberry(1337);
   const sandbags = (x, z, len, alongX = true) => { const y = H(x, z) - 0.15; alongX ? W.box(x, y, z, len, 1.15, 0.8, MAT.sand, { mat: 'sand', kind: 'cover', geo: 'P_sandbags' }) : W.box(x, y, z, 0.8, 1.15, len, MAT.sand, { mat: 'sand', kind: 'cover', geo: 'P_sandbags', rot90: true }); };
   const crate = (x, z, s = 1.1, y) => W.box(x, y ?? H(x, z) - 0.05, z, s, s, s, MAT.wood, { mat: 'wood', hp: 70, kind: 'crate', geo: 'P_crate' });
-  const ammoBox = (x, z, y) => { const yy = y ?? H(x, z); W.box(x, yy, z, 0.9, 0.5, 0.6, MAT.olive, { mat: 'metal', kind: 'cover' }); W.interactables.push({ x, y: yy + 0.5, z, r: 2.4, label: 'RESUPPLY AMMO', repeat: 20, act: () => G.weapons.resupply() }); };
+  const ammoBox = (x, z, y) => { const yy = y ?? H(x, z); W.box(x, yy, z, 0.9, 0.5, 0.6, MAT.olive, { mat: 'metal', kind: 'cover', geo: 'P_ammo' }); W.interactables.push({ x, y: yy + 0.5, z, r: 2.4, label: 'RESUPPLY AMMO', repeat: 20, act: () => G.weapons.resupply() }); };
   const barrel = (x, z, y) => W.box(x, y ?? H(x, z) - 0.05, z, 0.75, 1.15, 0.75, MAT.red, { mat: 'metal', hp: 25, kind: 'barrel', explosive: 6, geo: 'P_barrel' });
   const lamp = (x, z, h = 6, light = false) => { const y = H(x, z), k = h / 6, model = W.addStatic('LampPost', x, y, z, 1, k, 1, 0, null, true); if (!model) W.box(x, y, z, 0.18, h, 0.18, MAT.dark, { noCol: true });
     const b = new THREE.Mesh(new THREE.SphereGeometry(model ? 0.13 : 0.28, 8, 6), MAT.lamp); b.position.set(x, y + (model ? 5.9 * k : h), z + (model ? 0.95 : 0)); W.group.add(b); if (light) { const p = new THREE.PointLight(0xffe2a0, 60, 38, 1.8); p.position.set(x, y + h - 0.4, z + (model ? 0.95 : 0)); W.group.add(p); } };
@@ -70,11 +70,11 @@ export function buildIsland() {
   POI.beachTower = tower(10, 284); tower(-70, 292); radar(72, 292);
   crate(-38, 301); crate(-36.6, 301.4); crate(52, 293); barrel(54, 294.5); barrel(-30, 298); ammoBox(-41, 296.5);
   lamp(-40, 298, 5, true); lamp(44, 296, 5, true);
-  for (let i = 0; i < 9; i++) { const x = -90 + i * 22 + rnd() * 6, z = 322 + rnd() * 10, y = H(x, z); W.box(x, y - 0.2, z, 0.25, 1.3, 0.25, MAT.rust, { noCol: true }); W.box(x, y + 0.5, z, 1.8, 0.2, 0.2, MAT.rust, { noCol: true }); } // beach obstacles
+  for (let i = 0; i < 9; i++) { const x = -90 + i * 22 + rnd() * 6, z = 322 + rnd() * 10, y = H(x, z); if (!W.addStatic('Hedgehog', x, y - 0.12, z, 1, 1, 1, rnd() * 6, null, true)) { W.box(x, y - 0.2, z, 0.25, 1.3, 0.25, MAT.rust, { noCol: true }); W.box(x, y + 0.5, z, 1.8, 0.2, 0.2, MAT.rust, { noCol: true }); } } // beach obstacles
   // ================= ZONE 02 — JUNGLE: comms station, waterfall, cave =================
   { const c = POI.comms, y = H(c.x, c.z);
     building(c.x - 14, c.z + 8, 10, 8, 3.2, MAT.concrete, { e: [[c.z + 6.8, c.z + 9.2]] });
-    W.box(c.x - 16, y, c.z + 6, 1, 1.4, 3, MAT.metal, { mat: 'metal' }); const scr = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.7, 2), MAT.screen); scr.position.set(c.x - 15.45, y + 1.2, c.z + 6); W.group.add(scr);
+    W.box(c.x - 16, y, c.z + 6, 1, 1.4, 3, MAT.metal, { mat: 'metal', geo: 'P_console', rot90: true }); const scr = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.7, 2), MAT.screen); scr.position.set(c.x - 15.45, y + 1.2, c.z + 6); W.group.add(scr);
     // lattice tower (visual) + collider core
     const tg = new THREE.Group(); tg.position.set(c.x, y, c.z);
     const mg = assetGeo('CommsTower');
@@ -85,7 +85,7 @@ export function buildIsland() {
     const bl = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 6), MAT.redLamp); bl.position.y = 34.3; tg.add(bl); W.group.add(tg);
     POI.commsTower = { group: tg, col: W.addCollider({ min: new THREE.Vector3(c.x - 1.3, y, c.z - 1.3), max: new THREE.Vector3(c.x + 1.3, y + 30, c.z + 1.3), mat: 'metal', noStand: true }) };
     W.animated.push((dt, t) => { bl.visible = Math.sin(t * 4) > 0; });
-    W.box(c.x + 8, y, c.z - 6, 3, 2.2, 2, MAT.olive, { mat: 'metal', kind: 'cover' }); // generator
+    W.box(c.x + 8, y, c.z - 6, 3, 2.2, 2, MAT.olive, { mat: 'metal', kind: 'cover', geo: 'P_generator' }); // generator
     sandbags(c.x + 18, c.z + 22, 7); sandbags(c.x - 4, c.z + 26, 6); sandbags(c.x + 24, c.z + 4, 6, false); sandbags(c.x + 6, c.z + 14, 4);
     crate(c.x + 6, c.z + 5); crate(c.x + 7.3, c.z + 5.2); barrel(c.x + 10, c.z - 3); ammoBox(c.x - 8, c.z + 3); tower(c.x + 26, c.z + 26); lamp(c.x + 4, c.z + 10, 6, true);
   }
@@ -104,19 +104,19 @@ export function buildIsland() {
   { const y = 16;
     W.walls(-120, -185, 120, 0, y, 3.2, MAT.concrete, { s: [[-6, 6]], n: [[-6, 6]], e: [[-154, -146]] }, 0.8);
     for (const [tx, tz] of [[-112, -8], [112, -8], [-112, -177], [112, -177]]) tower(tx, tz, 7);
-    sandbags(-10, -10, 6); sandbags(11, -12, 6); sandbags(0, -26, 8); W.box(-7.5, y, 2, 1, 1.2, 1, MAT.red, {}); W.box(7.5, y, 2, 1, 1.2, 1, MAT.red, {});
+    sandbags(-10, -10, 6); sandbags(11, -12, 6); sandbags(0, -26, 8); W.box(-8.5, y, 2, 3, 1.1, 0.8, MAT.red, { geo: 'P_barrier', kind: 'cover' }); W.box(8.5, y, 2, 3, 1.1, 0.8, MAT.red, { geo: 'P_barrier', kind: 'cover' });
     // barracks ×2
     building(62, -40, 26, 12, 3.4, MAT.olive, { w: [[-41.5, -38.5]], n: [[55, 58]] }); building(62, -72, 26, 12, 3.4, MAT.olive, { w: [[-73.5, -70.5]] });
-    for (const bz of [-40, -72]) for (let i = 0; i < 4; i++) W.box(54 + i * 5.5, y, bz + 3.6, 2, 0.6, 1, MAT.dark, { mat: 'metal' });
+    for (const bz of [-40, -72]) for (let i = 0; i < 4; i++) W.box(54 + i * 5.5, y, bz + 3.6, 2, 1.7, 1, MAT.dark, { mat: 'metal', geo: 'P_bunk' });
     // armory / warehouse
     building(-72, -48, 30, 20, 5, MAT.metal, { e: [[-51, -45]], s: [[-80, -76]] }, { surf: 'metal', roof: MAT.rust });
     for (let i = 0; i < 6; i++) crate(-82 + (i % 3) * 7, -54 + ((i / 3) | 0) * 7, 1.4, y); crate(-82, -54, 1.2, y + 1.4); barrel(-62, -41, y); barrel(-61, -42.2, y); ammoBox(-66, -55, y);
-    W.box(-70, y, -48, 4, 1.1, 1.2, MAT.dark, { mat: 'metal', kind: 'cover' });
+    W.box(-70, y, -48, 4, 1.1, 1.2, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' });
     // HQ: two rooms, windows, intel terminal
     building(0, -132, 28, 18, 4, MAT.concrete, { s: [[-10, -6], [-2, 2], [6, 10]], e: [[-131, -128]], w: [[-136, -133]] });
     W.box(0, y, -134, 0.4, 4, 9, MAT.concrete, {}); // partition (leaves gaps both ends)
     glass(-8, y, -123, 4, 4, 0.3); glass(8, y, -123, 4, 4, 0.3); // HQ front windows (breakable)
-    W.box(8, y, -138, 5, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover' }); W.box(-7, y, -136, 3, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover' });
+    W.box(8, y, -138, 5, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' }); W.box(-7, y, -136, 3, 1, 1.4, MAT.dark, { mat: 'metal', kind: 'cover', geo: 'P_desk' });
     const scr = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.1), MAT.screen); scr.position.set(8, y + 1.6, -138.5); W.group.add(scr);
     POI.intel = { x: 8, y: y + 1.2, z: -137 };
     // comms hut + radar, motor pool
@@ -154,13 +154,14 @@ export function buildIsland() {
     ammoBox(205, -310, y); barrel(170, -284, y);
     // runway cover + parked vehicles + fuel
     truck(80, -280); truck(150, -312, false); container(100, -280, MAT.rust, true, y); container(60, -312, MAT.blue, true, y); container(130, -280, MAT.olive, true, y); sandbags(110, -305, 8); sandbags(85, -300, 6, false); sandbags(140, -296, 6, false);
-    W.box(0, y, -300, 6, 3.4, 6, MAT.white, { mat: 'metal', hp: 120, kind: 'tank', explosive: 10 }); barrel(6, -296, y); barrel(7, -297.4, y);
+    W.box(0, y, -300, 6, 3.4, 6, MAT.white, { mat: 'metal', hp: 120, kind: 'tank', explosive: 10, geo: 'P_tank' }); barrel(6, -296, y); barrel(7, -297.4, y);
     for (let i = 0; i < 8; i++) lamp(-40 + i * 40, -278, 5, i === 2 || i === 6);
     // port: quay, cranes, cargo ship
     const py = 2.2; for (let i = 0; i < 5; i++) container(10 + i * 9, -368 - (i % 2) * 4, [MAT.rust, MAT.blue, MAT.olive][i % 3], i % 2 === 0, py); container(19, -368, MAT.blue, true, py + 2.6);
-    W.box(100, py, -372, 1.2, 18, 1.2, MAT.rust, {}); W.box(100, py + 18, -380, 1.6, 1.2, 26, MAT.rust, { noCol: true }); lamp(40, -356, 7, true); lamp(100, -356, 7);
-    const hull = W.box(55, -1.5, -452, 96, 9, 20, MAT.dark, { mat: 'metal' }); W.box(88, 7.5, -452, 16, 10, 16, MAT.white, { mat: 'metal' }); W.box(88, 17.5, -452, 6, 3, 6, MAT.red, { noCol: true });
-    for (let i = 0; i < 9; i++) W.box(14 + i * 7, 7.5, -452 + ((i % 3) - 1) * 5, 6.1, 2.6 * (1 + (i % 2)), 2.5, [MAT.rust, MAT.blue, MAT.olive, MAT.red][i % 4], { mat: 'metal' });
+    if (W.addStatic('Crane', 100, py, -372, 1, 1, 1, 0, null, true)) W.box(100, py, -372, 1.4, 18, 1.4, MAT.rust, { hidden: true, mat: 'metal' }); else { W.box(100, py, -372, 1.2, 18, 1.2, MAT.rust, {}); W.box(100, py + 18, -380, 1.6, 1.2, 26, MAT.rust, { noCol: true }); } lamp(40, -356, 7, true); lamp(100, -356, 7);
+    const ship = W.addStatic('CargoShip', 55, -1.5, -452, 1, 1, 1, -Math.PI / 2, null, true), sh = ship ? { mat: 'metal', hidden: true } : { mat: 'metal' }; // Blender freighter: bow towards -X, house aft at x=88
+    W.box(55, -1.5, -452, 96, 9, 20, MAT.dark, sh); W.box(88, 7.5, -452, 16, 10, 16, MAT.white, sh); if (!ship) W.box(88, 17.5, -452, 6, 3, 6, MAT.red, { noCol: true });
+    for (let i = 0; i < 9; i++) W.box(18 + i * 6.6, 8.7, -452 + ((i % 3) - 1) * 4.2, 6.1, 2.6 * (1 + (i % 2)), 2.5, [MAT.rust, MAT.blue, MAT.olive, MAT.red][i % 4], { mat: 'metal', geo: 'P_container', tint: [[1.35, 0.62, 0.4], [0.5, 0.8, 1.3], [0.78, 0.86, 0.56], [1.5, 0.35, 0.3]][i % 4] });
     W.box(55, 1.6, -432, 60, 0.6, 22, MAT.concrete, {}); // pier
   }
   buildFacility();
@@ -182,7 +183,7 @@ function buildFacility() {
   // A: elevator hall  (z 8 → -16)
   room(-8, -16, 8, 8, { n: [[-2.5, 2.5]] }); light(0, -4, false, true); light(-5, 4, true, false);
   { const [px, pz] = L(0, 4); const pad = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 4), MAT.metal); pad.position.set(px, y + 0.05, pz); W.group.add(pad); }
-  W.box(...ins(L(-5, -10), y), 2.4, 1.1, 1.2, DM, { mat: 'metal', kind: 'cover' }); W.box(...ins(L(5, -12), y), 1.2, 1.1, 2.4, DM, { mat: 'metal', kind: 'cover' });
+  W.box(...ins(L(-5, -10), y), 2.4, 1.1, 1.2, DM, { mat: 'metal', kind: 'cover', geo: 'P_ammo' }); W.box(...ins(L(5, -12), y), 1.2, 1.1, 2.4, DM, { mat: 'metal', kind: 'cover', geo: 'P_ammo', rot90: true });
   // B: corridor with cameras
   room(-2.5, -46, 2.5, -16, { n: [[-2.5, 2.5]], s: [[-2.5, 2.5]] }); light(0, -24, true, true); light(0, -38, true, false);
   POI.cameras = [];
@@ -194,17 +195,17 @@ function buildFacility() {
   // C: laboratory with glass partitions
   room(-14, -76, 14, -46, { s: [[-2.5, 2.5]], n: [[-2.5, 2.5]], e: [[-63, -59]] }); light(-7, -55, false, true); light(7, -68, false, true); light(0, -61, true, false);
   for (const gx of [-9, -5, 5, 9]) W.box(...ins(L(gx, -61), y), 3.9, h - 0.4, 0.2, MAT.glass, { mat: 'glass', hp: 8, kind: 'glass', seeThrough: true, noShadow: true });
-  for (const [tx, tz, sx, sz] of [[-8, -53, 5, 1.4], [8, -53, 5, 1.4], [-8, -69, 5, 1.4], [6, -70, 1.4, 5], [0, -56, 1.4, 3]]) W.box(...ins(L(tx, tz), y), sx, 1.05, sz, WM, { mat: 'metal', kind: 'cover' });
-  for (const [tx, tz] of [[-12, -72], [12, -49]]) W.box(...ins(L(tx, tz), y), 1.4, 2.6, 1.4, MAT.blue, { mat: 'metal', kind: 'cover' });
+  for (const [tx, tz, sx, sz] of [[-8, -53, 5, 1.4], [8, -53, 5, 1.4], [-8, -69, 5, 1.4], [6, -70, 1.4, 5], [0, -56, 1.4, 3]]) W.box(...ins(L(tx, tz), y), sx, 1.05, sz, WM, { mat: 'metal', kind: 'cover', geo: 'P_desk', rot90: sz > sx });
+  for (const [tx, tz] of [[-12, -72], [12, -49]]) W.box(...ins(L(tx, tz), y), 1.4, 2.6, 1.4, MAT.blue, { mat: 'metal', kind: 'cover', geo: 'P_cabinet' });
   // F: bio vault (east of lab)
   room(14, -70, 34, -52, { w: [[-63, -59]] }, DM); light(24, -61, true, true);
   { const [vx, vz] = L(29, -61); W.box(vx, y, vz, 1.6, 1.0, 1.6, MAT.metal, { mat: 'metal' }); const s = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 12), new THREE.MeshStandardMaterial({ color: 0x60ff90, emissive: 0x30ff60, emissiveIntensity: 2.5, transparent: true, opacity: 0.85 })); s.position.set(vx, y + 1.5, vz); W.group.add(s); POI.sample = { x: vx - 1.4, y: y + 1.2, z: vz, mesh: s }; }
-  for (const [tx, tz] of [[19, -56], [19, -66], [26, -55]]) W.box(...ins(L(tx, tz), y), 1.5, 1.3, 1.5, MAT.olive, { mat: 'metal', kind: 'cover' });
+  for (const [tx, tz] of [[19, -56], [19, -66], [26, -55]]) W.box(...ins(L(tx, tz), y), 1.5, 1.3, 1.5, MAT.olive, { mat: 'metal', kind: 'cover', geo: 'P_ammo' });
   // D: corridor, E: server room
   room(-2.5, -90, 2.5, -76, { n: [[-2.5, 2.5]], s: [[-2.5, 2.5]] }); light(0, -83, true, true);
   room(-13, -118, 13, -90, { s: [[-2.5, 2.5]] }, DM); light(-6, -98, false, true); light(6, -110, true, true);
-  for (const rx of [-9, -4.5, 4.5, 9]) for (const rz of [-97, -105]) { const [wx, wz] = L(rx, rz); W.box(wx, y, wz, 1.1, 2.7, 4.6, DM, { mat: 'metal', kind: 'cover' }); const s = new THREE.Mesh(new THREE.BoxGeometry(1.14, 2.2, 0.06), MAT.screen); s.position.set(wx, y + 1.4, wz + 2.31); W.group.add(s); }
-  { const [tx, tz] = L(4, -116); W.box(tx, y, tz, 3, 1.1, 1, MAT.metal, { mat: 'metal' }); const s = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1, 0.1), MAT.screen); s.position.set(tx, y + 1.8, tz - 0.3); W.group.add(s); POI.server = { x: tx, y: y + 1.3, z: tz + 1.3 }; }
+  for (const rx of [-9, -4.5, 4.5, 9]) for (const rz of [-97, -105]) { const [wx, wz] = L(rx, rz); W.box(wx, y, wz, 1.1, 2.7, 4.6, DM, { mat: 'metal', kind: 'cover', geo: 'P_rack', rot90: true }); const s = new THREE.Mesh(new THREE.BoxGeometry(1.14, 2.2, 0.06), MAT.screen); s.position.set(wx, y + 1.4, wz + 2.31); W.group.add(s); }
+  { const [tx, tz] = L(4, -116); W.box(tx, y, tz, 3, 1.1, 1, MAT.metal, { mat: 'metal', geo: 'P_console' }); const s = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1, 0.1), MAT.screen); s.position.set(tx, y + 1.8, tz - 0.3); W.group.add(s); POI.server = { x: tx, y: y + 1.3, z: tz + 1.3 }; }
   { const [ex, ez] = L(-9, -114); const pad = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 4), MAT.metal); pad.position.set(ex, y + 0.05, ez); W.group.add(pad); POI.exitLift = { x: ex, y: y + 1, z: ez }; }
   POI.facSpawn = { x: ox, y, z: oz + 4 }; POI.facL = L;
 }

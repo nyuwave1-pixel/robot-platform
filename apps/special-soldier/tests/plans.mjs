@@ -95,3 +95,11 @@ export async function structs({ page, sim, shot }) {
   await view(1, -112, 178, 2.45, 0.5, 'S4-comms');       // comms mast
   console.log(await page.evaluate(() => JSON.stringify({ assets: SS.assets.count, draws: SS.stats.calls, tris: SS.stats.tris })));
 }
+export async function structs2({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const view = async (mi, x, z, yaw, pitch, name, y) => { await page.evaluate(([mi, x, z, yaw, pitch, y]) => { if (SS.mission.idx !== mi || SS.state !== 'playing') { SS.startMission(mi, true); SS.noTarget = true; SS.godMode = true; } QA.tp(x, z, y); SS.player.yaw = yaw; SS.player.pitch = pitch; }, [mi, x, z, yaw, pitch, y ?? null]); await sim(0.6); await shot(name); };
+  await view(4, 60, -372, 0.0, 0.18, 'U1-port');                          // ship + crane from the quay
+  await page.evaluate(() => { const L = SS.POI.facL; SS.startMission(3, true); SS.noTarget = true; SS.godMode = true; const [x, z] = L(-1, -93); QA.tp(x, z, -60); SS.player.yaw = 0.25; SS.player.pitch = 0.02; }); await sim(0.6); await shot('U2-servers');
+  await page.evaluate(() => { const L = SS.POI.facL; const [x, z] = L(-2, -49); QA.tp(x, z, -60); SS.player.yaw = 0.5; SS.player.pitch = -0.05; }); await sim(0.6); await shot('U3-lab');
+  await view(0, -20, 334, -0.4, 0.0, 'U4-beach');
+}

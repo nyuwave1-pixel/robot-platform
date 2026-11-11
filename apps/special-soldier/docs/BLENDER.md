@@ -7,7 +7,7 @@ Blender에서 바로 열 수 있는 `.blend`, 그리고 Cycles 렌더 이미지�
 |---|---|
 | `tools/blender/lib.py` | 모델링 헬퍼(베벨 박스, 원기둥, 림, 스윕 튜브, 로프트 메시, 피벗 계층) |
 | `tools/blender/weapons.py` | 총기 10종 + 1인칭 팔 |
-| `tools/blender/models.py` | 병사, 침투 보트, 헬기, APC, 나무, 야자수, 바위, 소품 4종, **트럭, 감시탑, 통신탑, 레이더, 가로등, 벽·지붕 패널 4종 (v0.4)** |
+| `tools/blender/models.py` | 병사, 침투 보트, 헬기, APC, 나무, 야자수, 바위, 소품 4종, **트럭, 감시탑, 통신탑, 레이더, 가로등, 벽·지붕 패널 4종 (v0.4)**, **실내 소품 9종(책상·서버랙·캐비닛·발전기·탱크·콘솔·침상·탄약상자·바리케이드), 대전차 장애물, 항만 크레인, 화물선 (v0.5)** |
 | `tools/blender/build.py` | 전체 빌드 → GLB / .blend / 렌더 |
 | `blender/special_soldier_assets.blend` | **결과물. Blender 5.3에서 열어 수정 가능** |
 | `src/assets/assets.glb` | 게임이 로드하는 파일(번들에 인라인) |
