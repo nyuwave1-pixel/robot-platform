@@ -90,3 +90,15 @@ MIT — 자유롭게 사용 가능
 ---
 
 **지금 시작하세요!** 🚀
+
+## 🎮 apps/mediderma-lounge — MEDIDERMA LOUNGE (3D 뷰티 소셜 시뮬레이션 게임)
+
+UNI&CORE 제품 · DERMA HOME 디바이스 · 메디더마 라운지를 소재로 한 브라우저 3D 게임 MVP. 이 플랫폼과 별개의 독립 Vite 앱입니다.
+
+```bash
+cd apps/mediderma-lounge
+npm install
+npm run dev   # http://localhost:3200
+```
+
+자세한 내용은 [apps/mediderma-lounge/README.md](apps/mediderma-lounge/README.md) 와 `apps/mediderma-lounge/docs/` 참조.
