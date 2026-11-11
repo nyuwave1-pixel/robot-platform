@@ -366,9 +366,9 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
             </Block>
 
             {/* Special savings on Amazon */}
-            <Block>
+            <div className="lp-offer">
               <SavingsBox product={ap} initialActive={promoInitial} ctaLabel={c.ctaLabel} />
-            </Block>
+            </div>
 
             {/* 7-day glow routine, the end card: product name, photo and Amazon button only */}
             <Block hideSticky>

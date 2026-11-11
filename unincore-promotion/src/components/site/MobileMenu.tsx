@@ -15,7 +15,7 @@ export function MobileMenu({ products }: { products: { slug: string; shortName: 
     };
   }, [open]);
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         aria-expanded={open}
@@ -43,6 +43,11 @@ export function MobileMenu({ products }: { products: { slug: string; shortName: 
             <li>
               <Link href="/#routine" className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
                 3-Step Routine
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides" className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
+                Guides
               </Link>
             </li>
           </ul>

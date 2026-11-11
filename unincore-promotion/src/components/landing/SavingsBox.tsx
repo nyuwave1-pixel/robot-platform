@@ -16,6 +16,9 @@ import { rich } from "./rich";
 export function SavingsBox({ product, initialActive, ctaLabel }: { product: AmazonProduct & { promotion: Promotion }; initialActive: boolean; ctaLabel: string }) {
   const active = usePromoActive(product.promotion, initialActive);
   const p = product.promotion;
+  // No confirmed Amazon offer yet: render nothing instead of the placeholder line. It comes back by itself
+  // once the promotion in products.ts is enabled and inside its dates.
+  if (!active) return null;
   return (
     <div className="glass-offer overflow-hidden rounded-[28px] px-7 py-9 sm:px-9 sm:py-10">
       <p className="relative inline-flex rounded-[8px] bg-amazon-ink px-2.5 py-1 text-[12px] font-bold text-white">{SAVINGS.tag}</p>

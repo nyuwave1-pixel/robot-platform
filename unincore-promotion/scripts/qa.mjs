@@ -85,7 +85,8 @@ for (const p of PRODUCTS) {
   await page.waitForTimeout(400);
   const links = await page.$$eval("a[data-cta]", (as) => as.map((a) => ({ href: a.href, asin: a.dataset.asin, target: a.target, loc: a.dataset.cta })));
   const own = links.filter((l) => l.asin === p.asin);
-  check(`${p.key}: hero/final/sticky CTAs present`, ["hero", "final", "sticky", "offer"].every((loc) => own.some((l) => l.loc === loc)), own.map((l) => l.loc).join(","));
+  check(`${p.key}: hero/final/sticky CTAs present`, ["hero", "final", "sticky"].every((loc) => own.some((l) => l.loc === loc)), own.map((l) => l.loc).join(","));
+  check(`${p.key}: savings box hidden while no promotion is live`, !(await page.evaluate(() => document.body.innerText.includes("promotion details will be shown here"))) && !own.some((l) => l.loc === "offer"));
   check(`${p.key}: all own CTAs go to amazon.com/${p.asin}`, own.length > 0 && own.every((l) => l.href.includes(p.asin) && new URL(l.href).hostname.endsWith("amazon.com")));
   check(`${p.key}: CTAs open in a new tab`, own.every((l) => l.target === "_blank"));
   // Korea sales figures come from the brand's own Amazon US listing images (landing.ts). No other product may show them.
@@ -129,12 +130,15 @@ await popup.close();
   const tp = await tctx.newPage();
   const tagReqs = [];
   tp.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) tagReqs.push(Date.now()); });
+  const tStart = Date.now();
   await tp.goto(BASE + "/", { waitUntil: "load" });
   await tp.waitForTimeout(600);
   const before = tagReqs.length;
+  // On a slow first load the 3 s timer can fire before we look; only then is an early request acceptable.
+  const slowLoad = Date.now() - tStart > 2500;
   await tp.mouse.move(200, 300);
   await tp.waitForTimeout(800);
-  check("gtag.js waits for the first interaction, then loads", before === 0 && tagReqs.length === 1, `${before}/${tagReqs.length}`);
+  check("gtag.js waits for the first interaction, then loads", (before === 0 || slowLoad) && tagReqs.length === 1, `${before}/${tagReqs.length}${slowLoad ? " (slow load)" : ""}`);
   const idle = await tctx.newPage();
   const idleReqs = [];
   idle.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) idleReqs.push(1); });

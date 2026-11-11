@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export function NavLinks({ products }: { products: { slug: string; shortName: string }[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Products" className="hidden items-center gap-7 md:flex">
+    <nav aria-label="Main" className="hidden items-center gap-6 whitespace-nowrap lg:flex xl:gap-7">
       {products.map((p) => {
         const href = `/products/${p.slug}`;
         const on = pathname === href;
@@ -24,6 +24,15 @@ export function NavLinks({ products }: { products: { slug: string; shortName: st
           </Link>
         );
       })}
+      <Link
+        href="/guides"
+        aria-current={pathname.startsWith("/guides") ? "page" : undefined}
+        className={`relative text-[13.5px] font-medium transition-colors after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[1.5px] after:rounded-full after:transition-opacity ${
+          pathname.startsWith("/guides") ? "text-[#16150F] after:bg-[#16150F] after:opacity-100" : "text-[#4A4943] after:opacity-0 hover:text-[#16150F]"
+        }`}
+      >
+        Guides
+      </Link>
     </nav>
   );
 }

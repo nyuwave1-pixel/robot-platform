@@ -953,3 +953,7 @@
   .lp-thumbs { scroll-snap-type: x proximity; }
   .lp-thumbs > * { scroll-snap-align: start; }
 }
+
+/* Savings box wrapper: takes section spacing only while the box is rendered. */
+.lp-offer:not(:empty) { margin-top: 5rem; }
+@media (min-width: 640px) { .lp-offer:not(:empty) { margin-top: 6rem; } }
