@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { product } from "@/data/product";
 import { useDict, useLocale } from "@/i18n/context";
 import { purchaseLinks } from "@/lib/purchase";
+import { track } from "@/lib/track";
 
 const CHAPTERS: { id: string; label: string }[] = [
   { id: "birthday", label: "Skin Has a Birthday" },
@@ -61,8 +62,8 @@ export default function Chrome() {
       <div className={`sticky-cta ${showCta ? "show" : ""}`} aria-hidden={!showCta}>
         <div className="sticky-cta-text">{product.name} {product.volume.g} g<small>{product.subtitle}</small></div>
         <div className="sticky-cta-btns">
-          <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }} data-region={links.primary.region}>{links.primary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}</a>
-          {links.secondary && <a className="btn btn-outline sticky-cta-alt" href={links.secondary.href} target="_blank" rel="noopener" style={{ minHeight: 44 }} data-region={links.secondary.region} title={links.secondary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}>{links.secondary.region === "kr" ? t.ui.buy.krShort : t.ui.buy.usShort}</a>}
+          <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }} data-region={links.primary.region} onClick={() => track("buy_click", { placement: "sticky", region: links.primary.region, locale })}>{links.primary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}</a>
+          {links.secondary && <a className="btn btn-outline sticky-cta-alt" href={links.secondary.href} target="_blank" rel="noopener" style={{ minHeight: 44 }} data-region={links.secondary.region} title={links.secondary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us} onClick={() => track("buy_click", { placement: "sticky", region: links.secondary!.region, locale })}>{links.secondary.region === "kr" ? t.ui.buy.krShort : t.ui.buy.usShort}</a>}
         </div>
       </div>
     </>
