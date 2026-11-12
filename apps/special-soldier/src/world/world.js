@@ -6,7 +6,7 @@ import { G } from '../core/ctx.js';
 import { clamp, lerp, smooth, fbm, mulberry } from '../core/util.js';
 import { geometry as assetGeo } from '../game/assets.js';
 import { detailMap } from '../game/models.js';
-import { photoMat, splatTerrain } from './textures.js';
+import { photoMat, splatTerrain, propPhoto } from './textures.js';
 
 export const SIZE = 1200, N = 240, CELL = SIZE / N;
 export const FAC_Y = -60, FAC_H = 4.2;
@@ -65,7 +65,7 @@ export function initMaterials() {
   MAT.lamp = new THREE.MeshStandardMaterial({ color: 0xfff2c0, emissive: 0xffe9a0, emissiveIntensity: 3 });
   MAT.redLamp = new THREE.MeshStandardMaterial({ color: 0xff2a1a, emissive: 0xff2010, emissiveIntensity: 4 });
   MAT.screen = new THREE.MeshStandardMaterial({ color: 0x10301a, emissive: 0x30ff80, emissiveIntensity: 1.6 });
-  MAT.prop = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.78, metalness: 0.1, map: detailMap('grunge', 1.5) });
+  MAT.prop = propPhoto(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.78, metalness: 0.1, map: detailMap('grunge', 1.5) }));
   MAT.fence = new THREE.MeshStandardMaterial({ color: 0x70787a, transparent: true, opacity: 0.45, roughness: 0.6, metalness: 0.7, side: THREE.DoubleSide });
 }
 
@@ -213,7 +213,10 @@ export class World {
   /** Merge all static boxes per material → a handful of draw calls (GPU batching / HLOD stand-in). */
   finalize() {
     const by = new Map();
-    for (const m of this.statics) { m.updateMatrix(); const g = m.geometry.clone().applyMatrix4(m.matrix); if (!g.attributes.color && m.material === MAT.prop) continue; if (m.userData.tint) { const c = g.attributes.color, t = m.userData.tint; for (let i = 0; i < c.count; i++) c.setXYZ(i, c.getX(i) * t[0], c.getY(i) * t[1], c.getZ(i) * t[2]); } const uv = g.attributes.uv; const s = Math.max(m.scale.x, m.scale.z) / 4, t = m.scale.y / 4; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * Math.max(1, s), uv.getY(i) * Math.max(1, t)); if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(g); }
+    for (const m of this.statics) { m.updateMatrix(); const g = m.geometry.clone().applyMatrix4(m.matrix); if (!g.attributes.color && m.material === MAT.prop) continue; if (m.userData.tint) { const c = g.attributes.color, t = m.userData.tint; for (let i = 0; i < c.count; i++) c.setXYZ(i, c.getX(i) * t[0], c.getY(i) * t[1], c.getZ(i) * t[2]); } const uv = g.attributes.uv; if (m.material === MAT.prop && !g.index) { const p = g.attributes.position; // Blender props: re-project UVs in world metres after scaling (unit-cube props are stretched to their collider)
+        for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), ux = p.getX(i + 1) - ax, uy = p.getY(i + 1) - ay, uz = p.getZ(i + 1) - az, vx = p.getX(i + 2) - ax, vy = p.getY(i + 2) - ay, vz = p.getZ(i + 2) - az, nx = Math.abs(uy * vz - uz * vy), ny = Math.abs(uz * vx - ux * vz), nz = Math.abs(ux * vy - uy * vx);
+          for (let k = i; k < i + 3; k++) { const x = p.getX(k), y = p.getY(k), z = p.getZ(k); if (nx >= ny && nx >= nz) uv.setXY(k, z, y); else if (ny >= nz) uv.setXY(k, x, z); else uv.setXY(k, x, y); } } }
+      else { const s = Math.max(m.scale.x, m.scale.z) / 4, t = m.scale.y / 4; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * Math.max(1, s), uv.getY(i) * Math.max(1, t)); } if (!by.has(m.material)) by.set(m.material, []); by.get(m.material).push(g); }
     for (const [mat, geos] of by) { const mesh = new THREE.Mesh(mergeGeometries(geos), mat); mesh.castShadow = !mat.transparent; mesh.receiveShadow = true; this.group.add(mesh); geos.forEach((g) => g.dispose()); }
     this.staticCount = this.statics.length; this.statics.length = 0;
   }

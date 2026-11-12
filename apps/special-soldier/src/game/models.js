@@ -2,6 +2,7 @@
 // These stand in for skeletal meshes + Control Rig animation in the UE5 production build.
 import * as THREE from 'three';
 import { ASSETS, rebuild, geometry } from './assets.js';
+import { fabricPhoto, photoDetail } from '../world/textures.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cache = new Map();
@@ -72,7 +73,8 @@ const KIT = { // headgear / armour / character kit and weapon per soldier type (
   elite:   { acc: ['acc_helmet', 'acc_visor', 'acc_gasmask', 'acc_elite'], gun: 'arx', camo: 'tiger' },
   boss:    { acc: ['acc_beret', 'acc_visor', 'acc_heavy', 'acc_boss', 'acc_cigar'], gun: 'lmg', camo: 'solid' },
 };
-const cloths = new Map(), clothMat = (style) => { if (!cloths.has(style)) { const m = CLOTH_MAT.clone(); m.map = detailMap('camo:' + style, 1.5); cloths.set(style, m); } return cloths.get(style); };
+const cloths = new Map(), clothMat = (style) => { if (!cloths.has(style)) { const m = fabricPhoto(CLOTH_MAT.clone()); m.map = detailMap('camo:' + style, 1.5); cloths.set(style, m); } return cloths.get(style); };
+photoDetail(VEH_MAT, 'paint', 0.6, 0.5); photoDetail(GUN_MAT, 'gun', 4, 0.35); // photo steel / worn paint instead of procedural grunge
 export const LOD_NEAR = 34; // metres: beyond this the '__d' detail nodes (pouches, straps, rail teeth…) are hidden
 /** Distance LOD for a soldier built from the Blender asset (no-op for the procedural fallback). */
 export function lodSoldier(g, dist) { const l = g.userData.lod; if (!l) return; const near = dist < (g.userData.lodNear ? LOD_NEAR + 4 : LOD_NEAR); if (near === g.userData.lodNear) return; g.userData.lodNear = near; for (const o of l.full) o.visible = near; for (const o of l.detail) o.visible = near; for (const o of l.base) o.visible = !near; }

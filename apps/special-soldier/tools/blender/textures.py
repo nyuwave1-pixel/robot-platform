@@ -10,7 +10,9 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.pat
 OUT = os.path.join(ROOT, 'src', 'assets', 'tex'); CACHE = os.environ.get('TEX_CACHE', os.path.join(HERE, '.cache'))
 SETS = {  # game name → (Poly Haven asset id, also write a tint-normalised copy)
     'sand': ('coast_sand_01', True), 'grass': ('forrest_ground_01', True), 'rock': ('rock_face', True),
-    'concrete': ('concrete_floor_02', True), 'rust': ('rusty_metal_02', False), 'wood': ('brown_planks_03', False), 'metal': ('corrugated_iron', False),
+    'concrete': ('concrete_floor_02', True), 'rust': ('rusty_metal_02', True), 'wood': ('brown_planks_03', True), 'metal': ('corrugated_iron', False),
+    # model surfaces (v0.9): cloth weave, gun steel, painted equipment, tree bark
+    'fabric': ('denim_fabric', True), 'gun': ('metal_plate', True), 'paint': ('rusty_painted_metal', True), 'bark': ('bark_brown_02', True),
 }
 SIZE = int(os.environ.get('TEX_SIZE', 512))
 
