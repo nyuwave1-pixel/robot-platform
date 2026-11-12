@@ -54,7 +54,7 @@ export interface Messages {
     /** 구매 버튼 — 한국/미국 사이트 */
     buy: { kr: string; us: string; krShort: string; usShort: string };
     /** 상단 띠 배너(런칭 프로모션) */
-    promo: { badge: string; text: string; textShort: string; open: string; live: string; cta: string; close: string };
+    promo: { badge: string; text: string; textShort: string; open: string; live: string; cta: string; ctaKr: string; ctaUs: string; ctaKrShort: string; ctaUsShort: string; close: string };
   };
   seo: { title: string; description: string; keywords: string[]; ogAlt: string };
   jsonld: {
@@ -126,6 +126,10 @@ export const ko: Messages = {
       open: "11월 10일(화) 오후 3시 오픈",
       live: "프로모션 진행 중",
       cta: "구매하기",
+      ctaKr: "한국 구매하기",
+      ctaUs: "US 사이트 가기",
+      ctaKrShort: "한국",
+      ctaUsShort: "USA",
       close: "배너 닫기",
     },
   },
