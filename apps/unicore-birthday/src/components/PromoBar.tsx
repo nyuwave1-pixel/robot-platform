@@ -2,13 +2,15 @@
 import { useEffect, useState } from "react";
 import { product } from "@/data/product";
 import { promo } from "@/data/promo";
-import { useDict } from "@/i18n/context";
+import { useDict, useLocale } from "@/i18n/context";
+import { purchaseLinks } from "@/lib/purchase";
 
 const KEY = "uc.promoClosed.v1";
 
 /** 상단 띠 배너 — 런칭 프로모션 안내 + 구매 페이지 연결. 닫으면 세션 동안 숨김 */
 export default function PromoBar() {
   const t = useDict();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState(false);
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function PromoBar() {
   const close = () => { setOpen(false); try { sessionStorage.setItem(KEY, "1"); } catch {} };
   return (
     <div className="promo-bar" role="region" aria-label={p.badge}>
-      <a className="promo-bar-link" href={product.urls.purchase} target="_blank" rel="noopener">
+      <a className="promo-bar-link" href={purchaseLinks(locale).primary.href} target="_blank" rel="noopener">
         <span className="promo-bar-badge">{p.badge}</span>
         <span className="promo-bar-text">
           <b>{p.text}</b>

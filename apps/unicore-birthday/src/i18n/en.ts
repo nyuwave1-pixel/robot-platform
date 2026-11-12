@@ -218,6 +218,7 @@ export const en: Messages = {
     lineupAlt: "UNI&CORE skincare guide — 6-step routine",
     introAria: "Intro film", introStart: "Start {brand}", introSkipAria: "Skip intro video",
     guideNote: "The brand films are presented in Korean.",
+    buy: { kr: "Buy now (Korea)", us: "Buy now (USA)", krShort: "Korea", usShort: "USA" },
     promo: {
       badge: "LAUNCH 4+2",
       text: "Buy 4, get 2 free · 6 jars for KRW 1,100,000 (26% off KRW 1,494,000)",

@@ -218,6 +218,7 @@ export const zh: Messages = {
     lineupAlt: "UNI&CORE 护肤指南 — 6步流程",
     introAria: "片头影片", introStart: "开始体验 {brand}", introSkipAria: "跳过片头影片",
     guideNote: "品牌影片以韩语呈现。",
+    buy: { kr: "购买 (韩国官网)", us: "购买 (美国官网)", krShort: "韩国", usShort: "美国" },
     promo: {
       badge: "上市纪念 4+2",
       text: "买4赠2 · 共6瓶 1,100,000韩元 (原价 1,494,000韩元 · 26% 优惠)",
