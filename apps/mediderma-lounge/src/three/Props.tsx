@@ -225,13 +225,19 @@ export function ProductBottle({ p, s = 1, ...props }: { p: Product; s?: number }
 
 // ───────────── 가구 ─────────────
 /** Blender 로 만든 가구 (tools/blender/build_assets.py --furniture). 조명은 코드가 덧붙인다. */
-const FURN_GLB = ["plant", "flower", "mirror", "lamp", "coffeetable", "bookshelf", "cattower", "petbed", "diffuser", "goldtable", "display"];
+const FURN_GLB = ["plant", "flower", "mirror", "lamp", "coffeetable", "bookshelf", "cattower", "petbed", "diffuser", "goldtable", "display", "rug", "partition", "aquarium"];
 export function FurnitureMesh({ type, accent = "#f9d5dc" }: { type: string; accent?: string }) {
   if (!FURN_GLB.includes(type)) return <FurnitureFallback type={type} accent={accent} />;
   return (
     <group>
       <Model url={`./models/furn_${type}.glb`} fallback={<FurnitureFallback type={type} accent={accent} />} />
       {type === "lamp" && <pointLight position={[0, 1.6, 0]} intensity={2.2} distance={4.5} color="#ffdca8" />}
+      {type === "aquarium" && (
+        <>
+          <mesh position={[0, 1.12, 0]}><boxGeometry args={[1.15, 0.56, 0.45]} /><meshPhysicalMaterial color="#7fd3ee" transparent opacity={0.32} roughness={0.03} emissive="#3aa7d0" emissiveIntensity={0.3} depthWrite={false} /></mesh>
+          <pointLight position={[0, 1.1, 0.4]} intensity={1.5} distance={3} color="#8fdcf5" />
+        </>
+      )}
     </group>
   );
 }
@@ -390,6 +396,9 @@ export function Sofa({ color = "#f6bccb", seats = 3 }: { color?: string; seats?:
 }
 
 export function Vanity() {
+  return <Model url="./models/furn_vanity.glb" fallback={<VanityFallback />} />;
+}
+function VanityFallback() {
   return (
     <group>
       <mesh position={[0, 0.72, 0]} castShadow><boxGeometry args={[1.3, 0.06, 0.5]} /><meshStandardMaterial color="#fffaf4" roughness={0.4} /></mesh>
@@ -409,6 +418,14 @@ export function Vanity() {
 }
 
 export function FlowerArch() {
+  return (
+    <group>
+      <Model url="./models/furn_arch.glb" fallback={<FlowerArchFallback />} />
+      <Label text="MEDIDERMA" width={1.3} position={[0, 1.55, -0.48]} color="#c9a66b" />
+    </group>
+  );
+}
+function FlowerArchFallback() {
   const cols = ["#f29bb1", "#ffd0dc", "#ffffff", "#d9cff2", "#fbe1a8"];
   return (
     <group>
@@ -422,7 +439,6 @@ export function FlowerArch() {
           </mesh>
         );
       })}
-      <Label text="MEDIDERMA" width={1.3} position={[0, 1.55, -0.48]} color="#c9a66b" />
     </group>
   );
 }

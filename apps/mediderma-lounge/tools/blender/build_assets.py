@@ -397,13 +397,13 @@ def curtain(y0, y1, n=11, r=0.24, wave=0.0, curl=0.0, spread=1.0):
 
 def hair_bob():
     reset(); scalp(-0.25); bangs()
-    curtain(0.98, -0.78, n=15, r=0.25, curl=0.45, spread=0.3)
+    curtain(1.085, -0.78, n=15, r=0.25, curl=0.45, spread=0.3)
     export("hair_bob")
 
 
 def hair_pixie():
     reset(); scalp(-0.2); bangs(xs=(-0.6, -0.3, 0.0, 0.3, 0.6), low=0.5, sweep=0.5, r=0.18)
-    curtain(0.98, -0.42, n=13, r=0.22, curl=0.3, spread=0.2)
+    curtain(1.085, -0.42, n=13, r=0.22, curl=0.3, spread=0.2)
     for s in (-1, 1):
         lock([(s * 0.85, 0.5, 0.5), (s * 1.02, 0.1, 0.45), (s * 0.98, -0.3, 0.5)], [0.16, 0.14, 0.03])
     export("hair_pixie")
@@ -690,7 +690,144 @@ def furn_display():
     export("furn_display")
 
 
-FURNITURE = (furn_plant, furn_flower, furn_mirror, furn_lamp, furn_coffeetable, furn_bookshelf, furn_cattower, furn_petbed, furn_diffuser, furn_goldtable, furn_display)
+def furn_vanity():
+    """화장대: 서랍 · 골드 다리 · 조명 전구가 달린 원형 거울 · 스툴 · 화장품."""
+    reset()
+    box((1.3, 0.5, 0.05), (0, 0, 0.725), mat("marble", "#fffaf4", rough=0.25), bevel=0.012)
+    box((1.2, 0.44, 0.2), (0, 0, 0.6), mat("vanity_body", "#fbe1e6", rough=0.6), bevel=0.012)
+    for x in (-0.3, 0.3):
+        box((0.54, 0.012, 0.14), (x, -0.224, 0.6), CREAM(), bevel=0.006)
+        ball(0.02, (x, -0.24, 0.6), GOLD(), seg=10)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cyl(0.018, 0.5, (sx * 0.56, sy * 0.19, 0.25), GOLD(), r2=0.026, verts=12)
+    cyl(0.44, 0.04, (0, 0.2, 1.25), GOLD(), rot=(math.pi / 2, 0, 0), verts=48, bevel=0.008)
+    cyl(0.38, 0.012, (0, 0.176, 1.25), mat("mirror", "#e3eef8", metallic=0.96, rough=0.05), rot=(math.pi / 2, 0, 0), verts=48)
+    cyl(0.02, 0.2, (0, 0.2, 0.83), GOLD(), verts=12)
+    bulb = mat("bulb", "#fff6dc", rough=0.4, emission=2.0)
+    for i in range(10):
+        a = i / 10 * math.tau
+        ball(0.032, (math.cos(a) * 0.47, 0.17, 1.25 + math.sin(a) * 0.47), bulb, seg=10)
+    # 스툴
+    cyl(0.2, 0.09, (0, -0.55, 0.42), PINK(), verts=28, bevel=0.03)
+    for i in range(3):
+        a = i * math.tau / 3
+        cyl(0.014, 0.4, (math.cos(a) * 0.13, -0.55 + math.sin(a) * 0.13, 0.19), GOLD(), verts=10)
+    # 화장품 (형태만 있는 소품, 실제 제품 아님)
+    cyl(0.03, 0.12, (-0.45, 0.05, 0.81), LAV(), verts=14, bevel=0.006)
+    cyl(0.04, 0.06, (-0.33, 0.1, 0.78), CREAM(), verts=16, bevel=0.008)
+    cyl(0.015, 0.09, (0.42, 0.08, 0.795), GOLD(), verts=10)
+    box((0.16, 0.1, 0.02), (0.3, -0.05, 0.76), PINK(), bevel=0.006)
+    export("furn_vanity")
+
+
+def furn_arch():
+    """플라워 아치 포토존: 바닥 원판 · 배경 · 아치 프레임 · 겹꽃 · 잎."""
+    reset()
+    cyl(1.25, 0.03, (0, 0, 0.015), mat("stage", "#fff6ec", rough=0.9), verts=64, bevel=0.008)
+    box((2.3, 0.03, 2.5), (0, 0.5, 1.25), mat("backdrop", "#fbe1e6", rough=1), bevel=0.01)
+    cols = ["#f29bb1", "#ffd0dc", "#ffffff", "#d9cff2", "#fbe1a8"]
+    n = 26
+    for i in range(n):
+        a = i / (n - 1) * math.pi
+        x, z = math.cos(a) * 1.12, 0.3 + math.sin(a) * 1.95
+        if i < n - 1:
+            a2 = (i + 1) / (n - 1) * math.pi
+            lock([(x, z, -0.42), (math.cos(a2) * 1.12, 0.3 + math.sin(a2) * 1.95, -0.42)], [0.03, 0.03], material=GOLD())
+        y = 0.42 - ((i * 7) % 5) * 0.035
+        r = 0.11 + ((i * 3) % 4) * 0.022
+        m = mat(f"flower{i % 5}", cols[i % 5], rough=0.7)
+        ball(r * 0.55, (x, y, z), m, seg=8)  # 꽃 중심
+        for k in range(5):  # 꽃잎
+            b = k * math.tau / 5 + i
+            ball(r * 0.62, (x + math.cos(b) * r * 0.55, y - 0.02, z + math.sin(b) * r * 0.55), m, scale=(1, 0.5, 1), seg=8)
+        if i % 2 == 0:
+            leaf((x * 1.08, z + 0.02, -y + 0.06), 0.11, a, 0.9, LEAF(i), notch=False)
+    export("furn_arch")
+
+
+def furn_rug():
+    """라운드 러그: 물결 테두리 + 고리 무늬 + 술."""
+    reset()
+    import bmesh
+    bm = bmesh.new()
+    n = 96
+    c = bm.verts.new((0, 0, 0.014))
+    ring = [bm.verts.new((math.cos(i / n * math.tau) * (1.2 + 0.04 * math.cos(i / n * math.tau * 16)), math.sin(i / n * math.tau) * (1.2 + 0.04 * math.cos(i / n * math.tau * 16)), 0.012)) for i in range(n)]
+    for i in range(n):
+        bm.faces.new((c, ring[i], ring[(i + 1) % n]))
+    me = bpy.data.meshes.new("rug"); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new("rug", me); bpy.context.collection.objects.link(o)
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    mod = o.modifiers.new("solid", "SOLIDIFY"); mod.thickness = 0.014
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    finish(o, mat("rug", "#fbe1e6", rough=1))
+    for R, m in ((1.0, CREAM()), (0.7, mat("rug_ring", "#f6bccb", rough=1)), (0.4, CREAM())):
+        bpy.ops.mesh.primitive_torus_add(major_radius=R, minor_radius=0.02, major_segments=64, minor_segments=6, location=(0, 0, 0.012))
+        bpy.context.object.scale = (1, 1, 0.35)
+        finish(bpy.context.object, m)
+    export("furn_rug")
+
+
+def furn_partition():
+    """라탄 3단 파티션: 골드 프레임 + 격자 짜임."""
+    reset()
+    rattan = mat("rattan", "#e9d3ae", rough=0.9)
+    weave = mat("weave", "#f6e7c8", rough=1)
+    for i in (-1, 0, 1):
+        bpy.ops.object.empty_add(location=(i * 0.62, -abs(i) * 0.12, 0))
+        pivot = bpy.context.object
+        pivot.rotation_euler = (0, 0, i * 0.35)
+        parts = []
+        for sx in (-1, 1):
+            parts.append(box((0.04, 0.04, 1.8), (sx * 0.28, 0, 0.9), rattan, bevel=0.01))
+        for z in (0.06, 0.9, 1.78):
+            parts.append(box((0.6, 0.04, 0.04), (0, 0, z), rattan, bevel=0.01))
+        parts.append(box((0.52, 0.012, 1.68), (0, 0.004, 0.9), weave, bevel=0))
+        for k in range(9):  # 격자
+            x = -0.24 + k * 0.06
+            parts.append(box((0.012, 0.02, 1.68), (x, 0, 0.9), rattan, bevel=0, rot=(0, 0.12 if k % 2 else -0.12, 0)))
+        for k in range(12):
+            parts.append(box((0.52, 0.02, 0.012), (0, 0, 0.14 + k * 0.14), rattan, bevel=0))
+        for p in parts:
+            p.parent = pivot
+        ball(0.03, (i * 0.62 + 0.27, -abs(i) * 0.12, 1.84), GOLD(), seg=10)
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in list(bpy.data.objects):
+        if o.type == "EMPTY":
+            for ch in o.children:
+                m = ch.matrix_world.copy(); ch.parent = None; ch.matrix_world = m
+            bpy.data.objects.remove(o)
+    export("furn_partition")
+
+
+def furn_aquarium():
+    """아쿠아리움: 수납장 · 수조 프레임 · 모래 · 돌 · 수초 · 물고기. 물(반투명)과 조명은 게임 코드가 그린다."""
+    reset()
+    dark = mat("cabinet", "#1b1719", rough=0.4)
+    box((1.2, 0.5, 0.8), (0, 0, 0.4), dark, bevel=0.015)
+    for x in (-0.3, 0.3):
+        box((0.54, 0.012, 0.66), (x, -0.252, 0.4), mat("cabinet_door", "#2a2527", rough=0.35), bevel=0.006)
+        cyl(0.008, 0.16, (x - 0.2 * (1 if x > 0 else -1), -0.265, 0.45), GOLD(), verts=8)
+    box((1.2, 0.5, 0.05), (0, 0, 1.425), dark, bevel=0.01)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            box((0.025, 0.025, 0.6), (sx * 0.585, sy * 0.235, 1.1), dark, bevel=0.004)
+    box((1.14, 0.44, 0.05), (0, 0, 0.825), mat("sand", "#f3e3c8", rough=1), bevel=0.01)
+    for x, y, r in ((-0.35, 0.05, 0.09), (-0.22, -0.02, 0.06), (0.3, 0.06, 0.1), (0.42, -0.04, 0.05)):
+        ball(r, (x, y, 0.86 + r * 0.4), mat("rock", "#9a9aa3", rough=0.9), scale=(1.2, 1, 0.7), seg=12)
+    for i, x in enumerate((-0.45, -0.1, 0.12, 0.38, 0.5)):
+        for k in range(3):
+            lock([(x + k * 0.02, 0.85, 0.02 * k), (x + 0.03 * math.sin(i + k), 1.05, 0.03), (x + 0.05 * math.cos(i * 2 + k), 1.18 + k * 0.05, 0.0)], [0.012, 0.014, 0.004], material=LEAF(i + k))
+    for i, (x, y, z, c) in enumerate(((-0.4, -0.08, 0.98, "#ff9a5c"), (-0.14, 0.08, 1.16, "#f29bb1"), (0.12, -0.08, 1.02, "#ffd95c"), (0.38, 0.08, 1.2, "#ff9a5c"), (0.0, 0.0, 1.28, "#8fd3f0"))):
+        m = mat(f"fish{i}", c, rough=0.4)
+        ball(0.045, (x, y, z), m, scale=(1.6, 0.5, 1), seg=12)
+        cyl(0.03, 0.05, (x - 0.085, y, z), m, rot=(0, math.pi / 2, 0), verts=3, r2=0.002)
+        ball(0.007, (x + 0.045, y - 0.016, z + 0.012), DARK(), seg=6)
+    export("furn_aquarium")
+
+
+FURNITURE = (furn_plant, furn_flower, furn_mirror, furn_lamp, furn_coffeetable, furn_bookshelf, furn_cattower, furn_petbed, furn_diffuser, furn_goldtable, furn_display, furn_vanity, furn_arch, furn_rug, furn_partition, furn_aquarium)
 
 
 if __name__ == "__main__" and "--furniture" in sys.argv:
