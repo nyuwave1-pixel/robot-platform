@@ -313,6 +313,63 @@ export const GUIDES: Guide[] = [
     published: "2026-11-11",
     updated: "2026-11-11",
   },
+  {
+    slug: "skincare-routine-for-dull-skin",
+    title: "Skincare Routine for Dull Skin: Vitamin C Steps | UNI&CORE",
+    description:
+      "Why skin looks dull and a simple routine to bring back the glow: gentle exfoliating cleanse, hydration, a vitamin C serum and daily sunscreen.",
+    h1: "A Skincare Routine for Dull, Tired-Looking Skin",
+    intro:
+      "Dull skin usually comes down to a few everyday things: buildup on the surface, low hydration and sun exposure. A short, consistent routine addresses all three without overdoing it.",
+    keywords: ["skincare routine for dull skin", "how to brighten dull skin", "dull skin vitamin C", "exfoliating cleanser for dull skin", "glowing skin routine"],
+    sections: [
+      {
+        heading: "Why skin looks dull",
+        paragraphs: [
+          "When dead skin cells build up, the surface reflects light less evenly and looks flat. Dehydration makes it worse, and so does daily sun exposure without protection. Late nights and stress don't help either, but your routine can take care of the surface, the moisture and the protection.",
+        ],
+      },
+      {
+        heading: "Step 1: Cleanse with gentle exfoliation",
+        product: "wash",
+        paragraphs: [
+          "Gentle, regular exfoliation clears the buildup that makes skin look flat. Moderation matters: over-exfoliating can leave skin dry and tight, which looks dull too.",
+          "The UNI&CORE Vita C Enzyme Powder Wash uses papain, bromelain and lipase enzymes with vitamin C at a mildly acidic pH of 5–5.5, so it cleanses and gently exfoliates in one step. Each wash is a single 1 g pouch.",
+        ],
+      },
+      {
+        heading: "Step 2: Add hydration",
+        product: "mask",
+        paragraphs: [
+          "Well-hydrated skin looks smoother and reflects light better. A sheet mask is an easy way to give skin a concentrated dose of moisture a few times a week.",
+          "The UNI&CORE Vita C Super Brightening Mask carries an essence with 2% pure vitamin C and glutathione on a 100% TENCEL™ sheet. Leave it on for 10–20 minutes, then pat the remaining essence in.",
+        ],
+      },
+      {
+        heading: "Step 3: A vitamin C serum, then sunscreen",
+        product: "ampoule",
+        paragraphs: [
+          "Vitamin C is a go-to ingredient for brighter-looking skin. Apply it on clean skin before moisturizer, and in the morning finish with a broad-spectrum sunscreen.",
+          "The UNI&CORE Vita C 13.5 Super Brightening Ampoule contains 13.5% pure vitamin C (ascorbic acid) with glutathione. In a 7-day human application test with 21 adults (SKINMED Co., Ltd. Clinical Trial Centre), skin glow improved by 35.6%. Individual results may vary.",
+        ],
+      },
+      {
+        heading: "Give it time",
+        paragraphs: [
+          "Change one thing at a time and stay consistent. Tone and glow tend to build over several weeks, and if your skin feels irritated, scale back before adding anything new.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "What causes dull skin?", a: "Common causes include a buildup of dead skin cells, dehydration and sun exposure. Lack of sleep and stress can also make skin look tired." },
+      { q: "How often should I exfoliate dull skin?", a: "Gently and in moderation. A mild enzyme cleanser made for everyday use can be enough; stronger exfoliants are usually used a few times a week. Scale back if skin feels tight or irritated." },
+      { q: "Does vitamin C help dull skin?", a: "Vitamin C is widely used for brighter-looking skin. Apply it after cleansing and before moisturizer, and use sunscreen in the morning." },
+      { q: "Where can I buy UNI&CORE vitamin C skincare?", a: "On Amazon.com through the official UNI&CORE listings. Use the Shop on Amazon buttons in this guide." },
+    ],
+    products: ["wash", "mask", "ampoule"],
+    published: "2026-11-12",
+    updated: "2026-11-12",
+  },
 ];
 
 export const ROUTINE_GUIDE = {
