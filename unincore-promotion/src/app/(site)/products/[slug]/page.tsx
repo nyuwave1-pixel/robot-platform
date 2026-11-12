@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DEFAULT_PRODUCTS } from "@/content/products";
 import { getProductBySlug, getProducts } from "@/lib/cms";
-import { breadcrumbLd, pageMetadata, productLd } from "@/lib/seo";
+import { breadcrumbLd, landingVideoLd, pageMetadata, productLd } from "@/lib/seo";
+import { LANDING } from "@/content/landing";
 import { publicView } from "@/lib/visibility";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -37,13 +38,14 @@ export default async function ProductPage({ params }: Props) {
   const product = publicView(raw);
   const all = await getProducts();
 
-  // FAQ and video structured data were dropped with those sections: the JYT plan has neither.
+  // No FAQ section on these pages (client plan), so no FAQPage. The creator videos get VideoObject data.
   const ld: unknown[] = [
     productLd(product),
     breadcrumbLd([
       { name: "Home", path: "/" },
       { name: product.shortName, path: `/products/${product.slug}` },
     ]),
+    ...landingVideoLd(LANDING[product.key], product.name),
   ];
 
   return (

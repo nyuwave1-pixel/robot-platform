@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getProducts } from "@/lib/cms";
-import { abs } from "@/lib/seo";
+import { abs, landingImages } from "@/lib/seo";
 import { GUIDES } from "@/content/guides";
+import { LANDING } from "@/content/landing";
 
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -14,11 +15,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.9,
-      images: [p.heroImage, p.packshotWhite, p.visualImage, `/og/${p.slug}`].filter((x): x is string => Boolean(x)).map(abs),
+      images: [...landingImages(LANDING[p.key]), `/og/${p.slug}`].map(abs),
     })),
     { url: abs("/guides"), lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
     { url: abs("/guides/korean-vitamin-c-skincare-routine"), lastModified: now, changeFrequency: "monthly" as const, priority: 0.8 },
-    ...GUIDES.map((g) => ({ url: abs(`/guides/${g.slug}`), lastModified: new Date(g.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
+    ...GUIDES.map((g) => ({
+      url: abs(`/guides/${g.slug}`),
+      lastModified: new Date(g.updated),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      images: [`/og/${g.slug}`, ...g.products.map((k) => LANDING[k].shot.src)].map(abs),
+    })),
     ...["/contact", "/privacy", "/terms", "/disclaimer"].map((path) => ({ url: abs(path), lastModified: now, changeFrequency: "yearly" as const, priority: 0.2 })),
   ];
 }

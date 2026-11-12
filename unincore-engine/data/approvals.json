@@ -54,5 +54,16 @@
     "protected": false,
     "status": "applied",
     "decided_by": "owner-via-chat"
+  },
+  {
+    "id": 5,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "seoTitle": "Vitamin C Enzyme Powder Cleanser | UNI&CORE Korean Face Wash"
+    },
+    "protected": false,
+    "status": "pending",
+    "decided_by": null
   }
 ]

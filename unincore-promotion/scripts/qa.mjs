@@ -74,6 +74,7 @@ for (const path of ["/", ...PRODUCTS.map((p) => `/products/${p.slug}`), "/privac
   }
   check(`${path} JSON-LD parses`, ldOk, types.join(", "));
   if (path.startsWith("/products/")) {
+    check(`${path} has VideoObject for each creator video`, types.filter((t) => t === "VideoObject").length >= 3);
     check(`${path} has Product + BreadcrumbList schema, no FAQPage`, ["Product", "BreadcrumbList"].every((t) => types.includes(t)) && !types.includes("FAQPage"));
   }
   if (path === "/") check("home has Organization + WebSite schema", types.includes("Organization") && types.includes("WebSite"));
@@ -177,6 +178,7 @@ await gpcCtx.close();
 // ---------- technical ----------
 const sm = await (await fetch(`${BASE}/sitemap.xml`)).text();
 check("sitemap.xml lists home + 3 products", PRODUCTS.every((p) => sm.includes(`${SITE}/products/${p.slug}`)) && sm.includes(`<loc>${SITE}/</loc>`));
+check("sitemap has image entries for products and guides", (sm.match(/<image:loc>/g) || []).length >= 40 && sm.includes("/landing/amz/"));
 const rb = await (await fetch(`${BASE}/robots.txt`)).text();
 check("robots.txt allows crawling and points to sitemap", rb.includes("Allow: /") && rb.includes(`Sitemap: ${SITE}/sitemap.xml`));
 check("no admin area", (await fetch(`${BASE}/admin`)).status === 404);

@@ -1,6 +1,33 @@
 import type { Metadata } from "next";
 import { SITE } from "@/content/site";
 import type { ProductContent } from "@/content/types";
+import { LANDING, type LandingContent } from "@/content/landing";
+
+/** Images the product landing page actually shows: the white-background shot, the key-benefit image and the listing gallery. */
+export function landingImages(c: LandingContent): string[] {
+  const gallery = c.gallery.flatMap((g) => (g.kind === "image" ? [g.src] : g.kind === "beforeAfter" ? [g.before, g.after].filter((x): x is string => Boolean(x)) : []));
+  return [...new Set([c.shot.src, c.hero.src, ...gallery])];
+}
+
+/** "0:29" → "PT0M29S" */
+const isoDuration = (d: string) => {
+  const [m, s] = d.split(":").map(Number);
+  return `PT${m || 0}M${s || 0}S`;
+};
+
+/** Creator videos on a product landing page. They were added to this site on 2026-11-10. */
+export function landingVideoLd(c: LandingContent, productName: string) {
+  return c.ugc.map((v) => ({
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: v.caption,
+    description: `${v.caption}. A creator video about UNI&CORE ${productName}.`,
+    thumbnailUrl: [abs(v.poster)],
+    contentUrl: abs(v.video),
+    uploadDate: "2026-11-10",
+    duration: isoDuration(v.duration),
+  }));
+}
 
 export const abs = (path: string) => (path.startsWith("http") ? path : `${SITE.url}${path.startsWith("/") ? "" : "/"}${path}`);
 
@@ -83,7 +110,7 @@ export function productLd(p: ProductContent) {
     "@id": `${url}#product`,
     name: p.name,
     description: p.seo.description,
-    image: [p.packshotWhite, p.heroImage, p.visualImage].filter((x): x is string => Boolean(x)).map(abs).concat(p.heroImage ? [] : [abs(`/og/${p.slug}`)]),
+    image: landingImages(LANDING[p.key]).slice(0, 10).map(abs),
     brand: { "@type": "Brand", name: SITE.name },
     sku: p.asin,
     category: "Beauty > Skin Care",
