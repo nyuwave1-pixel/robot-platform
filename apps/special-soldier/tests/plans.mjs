@@ -150,3 +150,11 @@ export async function types({ page, sim, shot }) {
   console.log('tris,draws near | tris,draws far', await page.evaluate(() => { const out = {}; const tris = (g) => { let n = 0; g.traverse((o) => { let v = true; for (let p = o; p && p !== g.parent; p = p.parent) if (!p.visible) v = false; if (o.isMesh && v) n += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; }); return Math.round(n); };
     for (const e of [...window.__e, { kind: 'squad', model: SS.squad.list[0].model }]) { const l = e.model.userData.lod, vis = e.model.visible, set = (n) => { for (const o of l.full) o.visible = n; for (const o of l.detail) o.visible = n; for (const o of l.base) o.visible = !n; }, draws = () => { let n = 0; e.model.traverse((o) => { let v = true; for (let p = o; p && p !== e.model.parent; p = p.parent) if (!p.visible) v = false; if (o.isMesh && v) n++; }); return n; }; e.model.visible = true; set(true); const near = [tris(e.model), draws()]; set(false); out[e.kind] = [...near, tris(e.model), draws()]; set(true); e.model.visible = vis; } return JSON.stringify(out); }));
 }
+
+// mission 05 pre-rendered intro: plays (which file), then hands over to gameplay; mission 02 still uses the real-time cinematic
+export async function video5({ page, shot }) {
+  const st = () => page.evaluate(() => { const v = document.getElementById('introVideo'); return SS.state + '|' + getComputedStyle(v).display + '|' + (v.currentSrc || '').split('/').pop() + '|t=' + v.currentTime.toFixed(1); });
+  await page.evaluate(() => SS.startMission(4)); await page.waitForTimeout(3000); console.log('m5 after 3 s :', await st()); await shot('X-video5');
+  await page.waitForTimeout(6000); console.log('m5 after 9 s :', await st());
+  await page.evaluate(() => { SS.toMenu(); SS.startMission(1); }); await page.waitForTimeout(2500); console.log('m2 (no file) :', await st());
+}
