@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { DEMO_FRIENDS, INTERIOR_MAP, POSES, QUESTS, RANKS, STAGES } from "../data/game";
 import { claimableCount, earnedStage, levelOf, questClaimed, questValue, totalExp, useGame } from "../store/game";
 import { input, useUI, type ZoneKey } from "../store/ui";
+import { PHRASES, say, usePlaza } from "../net/plaza";
 import { openCare } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, type IconName } from "./Icon";
@@ -44,7 +45,9 @@ export function Hud() {
   const near = useUI((s) => s.near);
   const nearCustomer = useUI((s) => s.nearCustomer);
   const nearPet = useUI((s) => s.nearPet);
-  const visiting = useUI((s) => s.visiting);
+  const visitingFriend = useUI((s) => s.visiting);
+  const world = useUI((s) => s.world);
+  const visiting = visitingFriend || world;
   const set = useUI((s) => s.set);
   const open = useUI((s) => s.open);
   const total = totalExp(g);
@@ -114,7 +117,8 @@ export function Hud() {
       )}
 
       {/* 친구 라운지 방문 중 */}
-      {visiting && explore && <VisitBanner />}
+      {visitingFriend && explore && <VisitBanner />}
+      {world === "plaza" && explore && <PlazaBar />}
 
       {/* 상호작용 버튼 */}
       {explore && !panel && action && (
@@ -146,6 +150,34 @@ export function Hud() {
         </nav>
       )}
       <Overlays />
+    </>
+  );
+}
+
+/** 월드 광장: 접속 상태 · 인사말 · 돌아가기 */
+function PlazaBar() {
+  const t = useT();
+  const status = usePlaza((s) => s.status);
+  const n = usePlaza((s) => s.ids.length);
+  const mySay = usePlaza((s) => s.mySay);
+  const mySayAt = usePlaza((s) => s.mySayAt);
+  const [, tick] = useState(0);
+  const talking = mySay >= 0 && Date.now() - mySayAt < 4000;
+  useEffect(() => { if (!talking) return; const id = setTimeout(() => tick((x) => x + 1), 4100); return () => clearTimeout(id); }, [talking, mySayAt]);
+  return (
+    <>
+      <div className="absolute left-1/2 top-[64px] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-4 pr-1.5 text-cream shadow-lg backdrop-blur">
+        <span className={`h-2 w-2 rounded-full ${status === "online" ? "bg-emerald-400" : status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
+        <p className="whitespace-nowrap text-xs font-bold">WORLD PLAZA · {status === "online" ? t("plaza.online", { n: n + 1 }) : status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
+        <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
+      </div>
+      {talking && <p className="pointer-events-none absolute left-1/2 top-[38%] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-4 py-2 text-sm font-black text-white shadow-lg">{t(`plaza.say.${mySay}`)}</p>}
+      <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-30 flex w-full max-w-xl -translate-x-1/2 flex-col items-center gap-1.5 px-2">
+        <p className="rounded-full bg-white/75 px-3 py-1 text-[12px] font-semibold text-ink/65 backdrop-blur">{t("plaza.hint")}</p>
+        <div className="flex flex-wrap justify-center gap-1.5 rounded-3xl bg-white/90 p-1.5 shadow-[0_8px_30px_rgba(231,154,174,0.35)] backdrop-blur">
+          {Array.from({ length: PHRASES }, (_, i) => <button key={i} className="chip" onClick={() => say(i)}>{t(`plaza.say.${i}`)}</button>)}
+        </div>
+      </div>
     </>
   );
 }

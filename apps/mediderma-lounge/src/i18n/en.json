@@ -290,5 +290,19 @@
   "set.giftPh": "Enter code",
   "set.giftOk": "Redeem",
   "set.giftUsed": "Code already used",
-  "set.giftBad": "Unknown code"
+  "set.giftBad": "Unknown code",
+  "plaza.title": "WORLD PLAZA",
+  "plaza.enter": "Go to World Plaza",
+  "plaza.back": "Back to my lounge",
+  "plaza.online": "{n} online",
+  "plaza.connecting": "Connecting…",
+  "plaza.offline": "Offline · exploring solo",
+  "plaza.hint": "Collect sparkles for coins. New ones appear every 2 minutes.",
+  "plaza.desc": "An outdoor plaza where you walk and greet other players.",
+  "plaza.say.0": "Hello!",
+  "plaza.say.1": "Nice to meet you",
+  "plaza.say.2": "Let's walk together",
+  "plaza.say.3": "Visit my lounge",
+  "plaza.say.4": "Love your style",
+  "plaza.say.5": "See you again"
 }

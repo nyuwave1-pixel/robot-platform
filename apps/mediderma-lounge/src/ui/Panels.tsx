@@ -167,6 +167,8 @@ function LoungePanel() {
       ) : <p className="mt-3 text-center text-sm font-bold text-gold">★ {t("lounge.max")}</p>}
       <button className="btn-dark mt-3 w-full" onClick={() => useUI.setState({ panel: null, mode: "edit", selected: null })}><Icon n="sofa" /> {t("edit.title")}</button>
       <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ panel: "shop", shopTab: "interior" })}><Icon n="shop" /> INTERIOR SHOP</button>
+      <button className="btn-primary mt-2 w-full" onClick={() => useUI.setState({ panel: null, world: "plaza", visiting: null, customers: [], mode: "explore", near: null, nearCustomer: null, nearPet: null })}><Icon n="sparkle" /> {t("plaza.enter")}</button>
+      <p className="mt-1 text-center text-[12px] text-ink/50">{t("plaza.desc")}</p>
       <div className="mt-2 grid grid-cols-2 gap-2">
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "pets" })}>♥ {t("pet.title")} ({g.pets.length})</button>
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "minigame" })}><Icon n="sparkle" /> {t("mini.title")}</button>

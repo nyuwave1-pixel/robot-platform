@@ -11,6 +11,7 @@ import { DEFAULT_LOOK, earnedStage, useGame, type Look } from "../store/game";
 import { input, useUI } from "../store/ui";
 import { bodyDims, Character } from "./Character";
 import { Lounge } from "./Lounge";
+import { Plaza, PLAZA_R, plazaLayout } from "./Plaza";
 import { layout, type Layout } from "./layout";
 import { lieOrigin, Lying } from "./lie";
 import { Care3D } from "./Care3D";
@@ -98,6 +99,7 @@ function Fx() {
 function Scene({ q }: { q: "low" | "high" }) {
   const lounge = useGame((s) => s.lounge);
   const visiting = useUI((s) => s.visiting);
+  const world = useUI((s) => s.world);
   const mode = useUI((s) => s.mode);
   const selected = useUI((s) => s.selected);
   const hasCare = useUI((s) => !!s.care);
@@ -106,14 +108,15 @@ function Scene({ q }: { q: "low" | "high" }) {
   const level = friend ? friend.level : lounge.level;
   const stations = friend ? 0 : lounge.stations ?? 0;
   const pets = useGame((s) => s.pets);
-  const L = useMemo(() => layout(level, stations), [level, stations]);
+  const L = useMemo(() => (world === "plaza" ? plazaLayout() : layout(level, stations)), [level, stations, world]);
 
   // 라운지 크기가 바뀌면 플레이어를 입구 근처로
   useEffect(() => {
     input.playerPos.x = THREE.MathUtils.clamp(input.playerPos.x, -L.w / 2 + 1, L.w / 2 - 1);
     input.playerPos.z = THREE.MathUtils.clamp(input.playerPos.z, -L.d / 2 + 1, L.d / 2 - 1);
     if (friend) { input.playerPos.x = 0; input.playerPos.z = L.d / 2 - 2; }
-  }, [L, friend]);
+    if (world === "plaza") { input.playerPos.x = 0; input.playerPos.z = 8.5; input.playerYaw = Math.PI; input.cam.yaw = 0; input.moveTarget = null; }
+  }, [L, friend, world]);
 
   const onFloor = (x: number, z: number) => {
     const ui = useUI.getState();
@@ -123,6 +126,16 @@ function Scene({ q }: { q: "low" | "high" }) {
       input.moveTarget = { x, z };
     }
   };
+
+  if (world === "plaza")
+    return (
+      <>
+        <Plaza onFloor={onFloor} />
+        <Player L={L} />
+        <CameraRig L={L} />
+        <Director />
+      </>
+    );
 
   return (
     <>
@@ -218,7 +231,8 @@ function Player({ L }: { L: Layout }) {
         nx = THREE.MathUtils.clamp(nx, -L.w / 2 + r, L.w / 2 - r);
         nz = THREE.MathUtils.clamp(nz, -L.d / 2 + r, L.d / 2 - r);
         const obs = ui.visiting ? [] : L.obstacles;
-        for (const o of [...obs, ...furniture.filter((f) => f.type !== "rug").map((f) => ({ x: f.x, z: f.z, r: 0.42 }))]) {
+        if (ui.world === "plaza") { const rr = Math.hypot(nx, nz); if (rr > PLAZA_R) { nx *= PLAZA_R / rr; nz *= PLAZA_R / rr; } }
+        for (const o of [...obs, ...(ui.world ? [] : furniture.filter((f) => f.type !== "rug").map((f) => ({ x: f.x, z: f.z, r: 0.42 })))]) {
           const dx = nx - o.x, dz = nz - o.z, dd = Math.hypot(dx, dz), min = o.r + r;
           if (dd < min && dd > 0.0001) { nx = o.x + (dx / dd) * min; nz = o.z + (dz / dd) * min; }
         }
@@ -228,11 +242,11 @@ function Player({ L }: { L: Layout }) {
       }
       // 근처 존/고객 감지
       let near: string | null = null, best = 1.9;
-      if (!ui.visiting) for (const z of L.zones) { const dd = Math.hypot(z.x - p.x, z.z - p.z); if (dd < best) { best = dd; near = z.key; } }
+      if (!ui.visiting && !ui.world) for (const z of L.zones) { const dd = Math.hypot(z.x - p.x, z.z - p.z); if (dd < best) { best = dd; near = z.key; } }
       let nc: string | null = null, bc = 1.7;
-      for (const id in npcPos) { const n = npcPos[id]; if (n.state !== "wait") continue; const dd = Math.hypot(n.x - p.x, n.z - p.z); if (dd < bc) { bc = dd; nc = id; } }
+      if (!ui.world) for (const id in npcPos) { const n = npcPos[id]; if (n.state !== "wait") continue; const dd = Math.hypot(n.x - p.x, n.z - p.z); if (dd < bc) { bc = dd; nc = id; } }
       let np: string | null = null, bp = 1.1;
-      if (!ui.visiting) for (const id in petPos) { const dd = Math.hypot(petPos[id].x - p.x, petPos[id].z - p.z); if (dd < bp) { bp = dd; np = id; } }
+      if (!ui.visiting && !ui.world) for (const id in petPos) { const dd = Math.hypot(petPos[id].x - p.x, petPos[id].z - p.z); if (dd < bp) { bp = dd; np = id; } }
       const key = `${near}|${nc}|${np}`;
       if (key !== lastNear.current) { lastNear.current = key; useUI.setState({ near: near as never, nearCustomer: nc, nearPet: np }); }
     } else if (ui.mode === "care" && ui.care && ui.care.subject !== "player") {

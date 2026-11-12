@@ -109,6 +109,8 @@ export interface GameState {
   clearRankNotice: () => void;
   /** 선물 코드 등록: 받은 BEAUTY COIN (0 = 없는 코드, -1 = 이미 사용) */
   redeem: (code: string) => number;
+  /** 광장 반짝이 1개 획득 (하루 한도 있음) */
+  plazaCollect: () => { coins: number; star: boolean };
   setSettings: (p: Partial<GameState["settings"]>) => void;
   reset: () => void;
 }
@@ -405,6 +407,16 @@ export const useGame = create<GameState>()(
         return coins;
       },
       clearRankNotice: () => set({ rankNotice: null }),
+      plazaCollect: () => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const n = d.stats.sparkle ?? 0;
+        if (n >= tune("plaza.daily_sparkles")) return { coins: 0, star: false };
+        const coins = tune("plaza.sparkle_coins");
+        const star = (n + 1) % tune("plaza.sparkles_per_star") === 0;
+        set({ coins: s.coins + coins, stars: s.stars + (star ? 1 : 0), exp: { ...s.exp, social: s.exp.social + 1 }, daily: { date: d.date, stats: { ...d.stats, sparkle: n + 1 } }, stats: { ...s.stats, sparkles: (s.stats.sparkles ?? 0) + 1 } });
+        return { coins, star };
+      },
       redeem: (code) => {
         const s = get();
         const key = code.trim().toUpperCase();

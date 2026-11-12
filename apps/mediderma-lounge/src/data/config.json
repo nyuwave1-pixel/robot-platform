@@ -401,5 +401,28 @@
       "step": 100,
       "note": "공식몰 표시가 몇 원당 게임 PV 1 인가 (안내서 예시: 10만원 ≈ 100PV)"
     }
+  },
+  "plaza": {
+    "sparkle_coins": {
+      "value": 8,
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "note": "광장 반짝이 1개당 BEAUTY COIN"
+    },
+    "sparkles_per_star": {
+      "value": 5,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "note": "반짝이 몇 개마다 SOCIAL STAR 1개"
+    },
+    "daily_sparkles": {
+      "value": 40,
+      "min": 5,
+      "max": 200,
+      "step": 5,
+      "note": "하루에 보상을 받는 반짝이 수"
+    }
   }
 }

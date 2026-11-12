@@ -290,5 +290,19 @@
   "set.giftPh": "코드 입력",
   "set.giftOk": "등록",
   "set.giftUsed": "이미 사용한 코드예요",
-  "set.giftBad": "없는 코드예요"
+  "set.giftBad": "없는 코드예요",
+  "plaza.title": "WORLD PLAZA",
+  "plaza.enter": "월드 광장 가기",
+  "plaza.back": "내 라운지로",
+  "plaza.online": "{n}명 접속 중",
+  "plaza.connecting": "연결 중…",
+  "plaza.offline": "오프라인 · 혼자 둘러보는 중",
+  "plaza.hint": "반짝이를 모으면 코인을 받아요. 2분마다 새로 생겨요.",
+  "plaza.desc": "다른 플레이어와 함께 걷고 인사하는 야외 광장이에요.",
+  "plaza.say.0": "안녕하세요!",
+  "plaza.say.1": "반가워요",
+  "plaza.say.2": "같이 걸어요",
+  "plaza.say.3": "라운지 놀러 오세요",
+  "plaza.say.4": "스타일 멋져요",
+  "plaza.say.5": "또 만나요"
 }

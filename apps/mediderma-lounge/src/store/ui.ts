@@ -54,6 +54,8 @@ interface UIState {
   consult: string | null;
   selected: string | null; // 편집 중 가구 uid
   visiting: string | null; // 방문 중인 데모 친구 id
+  /** 라운지 밖 월드 (null = 내 라운지) */
+  world: null | "plaza";
   cine: { from: number; to: number } | null;
   growthView: number | null; // 연출 중 표시 성장값
   flash: number;
@@ -81,6 +83,7 @@ export const useUI = create<UIState>((set, get) => ({
   consult: null,
   selected: null,
   visiting: null,
+  world: null,
   cine: null,
   growthView: null,
   flash: 0,
