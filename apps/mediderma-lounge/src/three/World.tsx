@@ -130,7 +130,7 @@ function Scene({ q }: { q: "low" | "high" }) {
   if (world === "plaza")
     return (
       <>
-        <Plaza onFloor={onFloor} />
+        <Plaza onFloor={onFloor} quality={q} />
         <Player L={L} />
         <CameraRig L={L} />
         <Director />

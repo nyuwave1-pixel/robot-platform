@@ -423,6 +423,76 @@
       "max": 200,
       "step": 5,
       "note": "하루에 보상을 받는 반짝이 수"
+    },
+    "visit_daily": {
+      "value": 10,
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "note": "하루에 방문 혜택을 받을 수 있는 라운지 수"
+    },
+    "host_daily": {
+      "value": 30,
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "note": "내 라운지 방문 보상을 받는 하루 한도"
+    },
+    "host_lp": {
+      "value": 2,
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "note": "내 라운지에 방문객 1명당 LOUNGE POINT"
+    },
+    "heart_daily": {
+      "value": 10,
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "note": "하트를 받아 SOCIAL STAR 가 오르는 하루 한도"
+    },
+    "petal_secs": {
+      "value": 30,
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "note": "꽃잎 잡기 한 판 시간(초)"
+    },
+    "petal_coin": {
+      "value": 3,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "note": "꽃잎 1개당 BEAUTY COIN"
+    },
+    "petal_max": {
+      "value": 90,
+      "min": 10,
+      "max": 500,
+      "step": 10,
+      "note": "꽃잎 잡기 한 판 최대 보상"
+    },
+    "petal_daily": {
+      "value": 3,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "note": "하루에 보상을 받는 꽃잎 잡기 판 수"
+    },
+    "wish_min": {
+      "value": 20,
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "note": "소원 분수 최소 보상(BEAUTY COIN)"
+    },
+    "wish_max": {
+      "value": 80,
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "note": "소원 분수 최대 보상(BEAUTY COIN)"
     }
   }
 }

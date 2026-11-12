@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { MODES, ROUTINES } from "../data/devices";
 import {
   BROWS, CUSTOMER_TYPES, DEMO_FRIENDS, EXP_KEYS, EXP_META, EYE_COLORS, EYE_SHAPES, FACE_SHAPES, FASHION, FASHION_MAP, HAIR_COLORS, INTERIOR, LIP_COLORS,
-  LOUNGE_LEVELS, POSES, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
+  LOUNGE_LEVELS, POSES, PROMOS, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
 } from "../data/game";
 import { MALL_URL, PRODUCTS, PRODUCT_MAP, RARITY_COLOR, productImage, usesOf, type Product } from "../data/products";
 import { levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
@@ -169,6 +169,13 @@ function LoungePanel() {
       <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ panel: "shop", shopTab: "interior" })}><Icon n="shop" /> INTERIOR SHOP</button>
       <button className="btn-primary mt-2 w-full" onClick={() => useUI.setState({ panel: null, world: "plaza", visiting: null, customers: [], mode: "explore", near: null, nearCustomer: null, nearPet: null })}><Icon n="sparkle" /> {t("plaza.enter")}</button>
       <p className="mt-1 text-center text-[12px] text-ink/50">{t("plaza.desc")}</p>
+      <div className="mt-3 rounded-2xl bg-cream p-3">
+        <p className="text-xs font-black text-ink">{t("plaza.promoTitle")}</p>
+        <p className="mt-0.5 text-[12px] leading-relaxed text-ink/55">{t("plaza.promoDesc")}</p>
+        <div className="mt-2 flex flex-col gap-1.5">
+          {PROMOS.map((p) => <button key={p.id} className={`chip text-left ${g.promo === p.id ? "chip-on" : ""}`} onClick={() => g.setPromo(g.promo === p.id ? 0 : p.id)}>{L(p)}</button>)}
+        </div>
+      </div>
       <div className="mt-2 grid grid-cols-2 gap-2">
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "pets" })}>♥ {t("pet.title")} ({g.pets.length})</button>
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "minigame" })}><Icon n="sparkle" /> {t("mini.title")}</button>

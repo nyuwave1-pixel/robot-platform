@@ -830,7 +830,218 @@ def furn_aquarium():
 FURNITURE = (furn_plant, furn_flower, furn_mirror, furn_lamp, furn_coffeetable, furn_bookshelf, furn_cattower, furn_petbed, furn_diffuser, furn_goldtable, furn_display, furn_vanity, furn_arch, furn_rug, furn_partition, furn_aquarium)
 
 
-if __name__ == "__main__" and "--furniture" in sys.argv:
+# ───────────── WORLD PLAZA ─────────────
+STONE = lambda: mat("stone", "#fffaf4", rough=0.38)
+WOOD = lambda: mat("wood", "#b98b63", rough=0.7)
+IRON = lambda: mat("iron", "#3a3236", rough=0.45, metallic=0.6)
+
+
+def scallop(R, depth, n, loc, material, amp=0.06):
+    """물결 테두리가 있는 원반 (분수 수반)."""
+    import bmesh
+    bm = bmesh.new()
+    seg = n * 8
+    top = [bm.verts.new((math.cos(i / seg * math.tau) * (R + amp * R * math.cos(i / seg * math.tau * n)), math.sin(i / seg * math.tau) * (R + amp * R * math.cos(i / seg * math.tau * n)), depth / 2)) for i in range(seg)]
+    bot = [bm.verts.new((v.co.x * 0.55, v.co.y * 0.55, -depth / 2)) for v in top]
+    for i in range(seg):
+        j = (i + 1) % seg
+        bm.faces.new((top[i], top[j], bot[j], bot[i]))
+    bm.faces.new(bot[::-1])
+    inner = [bm.verts.new((v.co.x * 0.9, v.co.y * 0.9, depth / 2)) for v in top]
+    for i in range(seg):
+        j = (i + 1) % seg
+        bm.faces.new((top[j], top[i], inner[i], inner[j]))
+    low = [bm.verts.new((v.co.x * 0.8, v.co.y * 0.8, depth * 0.1)) for v in inner]
+    for i in range(seg):
+        j = (i + 1) % seg
+        bm.faces.new((inner[j], inner[i], low[i], low[j]))
+    bm.faces.new(low)
+    me = bpy.data.meshes.new("scallop"); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new("scallop", me); bpy.context.collection.objects.link(o)
+    o.location = loc
+    bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+    bpy.ops.object.shade_smooth()
+    o.data.materials.append(material)
+    return o
+
+
+def plaza_fountain():
+    """3단 분수. 물은 게임 코드가 그린다 (수면 높이: 0.5 · 1.42 · 2.12)."""
+    reset()
+    for r, z, h in ((2.75, 0.06, 0.12), (2.55, 0.18, 0.12)):  # 계단
+        cyl(r, h, (0, 0, z), STONE(), verts=64, bevel=0.02)
+    cyl(2.3, 0.42, (0, 0, 0.45), STONE(), verts=64, bevel=0.03)
+    torus(2.3, 0.07, (0, 0, 0.66), GOLD())
+    for i in range(12):  # 바깥 벽 장식 패널
+        a = i * math.tau / 12
+        box((0.7, 0.05, 0.22), (math.cos(a) * 2.31, math.sin(a) * 2.31, 0.45), mat("stone_pink", "#fbe1e6", rough=0.45), bevel=0.02, rot=(0, 0, a + math.pi / 2))
+    cyl(0.42, 0.9, (0, 0, 0.95), STONE(), r2=0.26, verts=24, bevel=0.02)
+    for z in (0.62, 1.2):
+        torus(0.36 if z < 1 else 0.28, 0.045, (0, 0, z), GOLD())
+    scallop(1.25, 0.3, 8, (0, 0, 1.42), mat("stone_pink", "#fbe1e6", rough=0.45))
+    cyl(0.2, 0.6, (0, 0, 1.8), STONE(), r2=0.14, verts=20)
+    scallop(0.7, 0.2, 6, (0, 0, 2.12), STONE())
+    cyl(0.07, 0.3, (0, 0, 2.32), GOLD(), verts=12)
+    ball(0.14, (0, 0, 2.52), GOLD(), seg=16)
+    for i in range(6):  # 꼭대기 장식 잎
+        a = i * math.tau / 6
+        ball(0.07, (math.cos(a) * 0.14, math.sin(a) * 0.14, 2.4), GOLD(), scale=(1, 1, 1.6), seg=8)
+    export("plaza_fountain")
+
+
+def plaza_tree():
+    """벚나무. 재질 foliage · foliage2 를 게임이 분홍/초록으로 바꾼다."""
+    reset()
+    bark = mat("bark", "#a98467", rough=1)
+    lock([(0, 0, 0), (0.05, 0.9, 0.02), (-0.04, 1.8, 0.0), (0.02, 2.5, 0.03)], [0.3, 0.2, 0.16, 0.1], material=bark, res=3)
+    f1 = mat("foliage", "#f6bccb", rough=0.9)
+    f2 = mat("foliage2", "#fbd3dd", rough=0.9)
+    tips = []
+    for i in range(6):
+        a = i * math.tau / 6 + 0.3
+        r = 0.95 + (i % 2) * 0.25
+        tip = (math.cos(a) * r, 2.25 + (i % 3) * 0.28, math.sin(a) * r)
+        tips.append(tip)
+        lock([(0, 1.7, 0), (tip[0] * 0.5, 2.05, tip[2] * 0.5), tip], [0.11, 0.08, 0.04], material=bark)
+    for i, t in enumerate(tips + [(0, 3.05, 0), (0.3, 2.7, 0.3), (-0.35, 2.75, -0.25)]):
+        for k in range(4):
+            dx, dz = math.cos(k * 1.9 + i) * 0.38, math.sin(k * 1.9 + i) * 0.38
+            ball(0.5 + ((i + k) % 3) * 0.1, G(t[0] + dx, t[1] + 0.25 + (k % 2) * 0.22, t[2] + dz), f1 if (i + k) % 2 else f2, scale=(1, 1, 0.82), seg=8)
+    export("plaza_tree")
+
+
+def plaza_bench():
+    reset()
+    for sx in (-1, 1):
+        lock([(sx * 0.72, 0, 0.22), (sx * 0.72, 0.42, 0.22), (sx * 0.72, 0.46, -0.2), (sx * 0.72, 0.95, -0.3)], [0.03, 0.03, 0.03, 0.025], material=IRON())
+        lock([(sx * 0.72, 0, -0.2), (sx * 0.72, 0.44, -0.2)], [0.03, 0.03], material=IRON())
+        lock([(sx * 0.72, 0.44, 0.22), (sx * 0.72, 0.66, 0.2), (sx * 0.72, 0.64, -0.22)], [0.022, 0.03, 0.022], material=IRON())
+    for i in range(4):  # 좌판
+        box((1.6, 0.1, 0.03), (0, -0.19 + i * 0.125, 0.46), WOOD(), bevel=0.008)
+    for i in range(3):  # 등받이
+        box((1.6, 0.03, 0.1), (0, 0.235 + i * 0.03, 0.62 + i * 0.13), WOOD(), bevel=0.008, rot=(-0.22, 0, 0))
+    export("plaza_bench")
+
+
+def plaza_lamp():
+    reset()
+    cyl(0.2, 0.14, (0, 0, 0.07), IRON(), r2=0.14, verts=20, bevel=0.01)
+    cyl(0.06, 3.0, (0, 0, 1.6), IRON(), r2=0.04, verts=14)
+    for z in (0.5, 2.6):
+        torus(0.07, 0.025, (0, 0, z), GOLD())
+    glow = mat("lantern", "#fff3d6", rough=0.4, emission=3.0)
+    for sx in (-1, 1):
+        lock([(0, 2.9, 0), (sx * 0.25, 3.15, 0), (sx * 0.5, 3.0, 0)], [0.03, 0.025, 0.02], material=IRON())
+        ball(0.16, (sx * 0.5, 0, 2.8), glow, scale=(1, 1, 1.25), seg=16)
+        cyl(0.17, 0.04, (sx * 0.5, 0, 3.0), IRON(), r2=0.05, verts=14)
+        cyl(0.08, 0.03, (sx * 0.5, 0, 2.6), GOLD(), verts=12)
+    ball(0.07, (0, 0, 3.14), GOLD(), seg=12)
+    export("plaza_lamp")
+
+
+def plaza_gate():
+    """광장 입구 아치: 기둥 2개 + 골드 아치 + 꽃 장식 (배경판 없음)."""
+    reset()
+    for sx in (-1, 1):
+        cyl(0.34, 0.3, (sx * 2.4, 0, 0.15), STONE(), verts=24, bevel=0.02)
+        cyl(0.22, 3.0, (sx * 2.4, 0, 1.8), STONE(), r2=0.18, verts=24)
+        for z in (0.36, 3.26):
+            torus(0.22, 0.05, (sx * 2.4, 0, z), GOLD())
+        ball(0.2, (sx * 2.4, 0, 3.5), GOLD(), seg=14)
+    cols = ["#f29bb1", "#ffd0dc", "#ffffff", "#d9cff2", "#fbe1a8"]
+    n = 21
+    for i in range(n):
+        a = i / (n - 1) * math.pi
+        x, z = math.cos(a) * 2.4, 3.3 + math.sin(a) * 1.5
+        if i < n - 1:
+            a2 = (i + 1) / (n - 1) * math.pi
+            lock([(x, z, 0), (math.cos(a2) * 2.4, 3.3 + math.sin(a2) * 1.5, 0)], [0.07, 0.07], material=GOLD())
+        m = mat(f"flower{i % 5}", cols[i % 5], rough=0.7)
+        r = 0.2 + (i % 3) * 0.04
+        ball(r * 0.55, (x, -0.1, z), m, seg=6)
+        for k in range(5):
+            b = k * math.tau / 5 + i
+            ball(r * 0.6, (x + math.cos(b) * r * 0.55, -0.08, z + math.sin(b) * r * 0.55), m, scale=(1, 0.5, 1), seg=6)
+        if i % 2 == 0:
+            leaf((x * 1.05, z + 0.05, 0.16), 0.2, a, 0.9, LEAF(i), notch=False)
+    export("plaza_gate")
+
+
+def plaza_stage():
+    """미니게임 무대: 원형 단 + 리본 기둥 4개 + 깃발 줄."""
+    reset()
+    cyl(2.4, 0.16, (0, 0, 0.08), mat("stage_base", "#fbe1e6", rough=0.6), verts=64, bevel=0.03)
+    cyl(2.1, 0.06, (0, 0, 0.19), STONE(), verts=64, bevel=0.015)
+    torus(2.4, 0.04, (0, 0, 0.16), GOLD())
+    for k in range(8):  # 바닥 별 무늬
+        a = k * math.tau / 8
+        box((1.6, 0.08, 0.012), (math.cos(a) * 0.9, math.sin(a) * 0.9, 0.225), mat("stage_star", "#f6bccb" if k % 2 else "#e3d8f6", rough=0.6), bevel=0, rot=(0, 0, a))
+    cols = ["#f29bb1", "#d9cff2", "#fbe1a8", "#bfe8d6"]
+    posts = []
+    for i in range(4):
+        a = i * math.tau / 4 + math.pi / 4
+        x, y = math.cos(a) * 2.2, math.sin(a) * 2.2
+        posts.append((x, y))
+        cyl(0.05, 2.4, (x, y, 1.2), STONE(), verts=12)
+        ball(0.11, (x, y, 2.45), GOLD(), seg=12)
+    for i in range(4):  # 깃발 줄
+        (x1, y1), (x2, y2) = posts[i], posts[(i + 1) % 4]
+        lock([(x1, 2.35, -y1), ((x1 + x2) / 2, 2.05, -(y1 + y2) / 2), (x2, 2.35, -y2)], [0.012, 0.012, 0.012], material=GOLD())
+        for k in range(1, 6):
+            t = k / 6
+            fx, fy = x1 + (x2 - x1) * t, y1 + (y2 - y1) * t
+            fz = 2.35 - 0.3 * math.sin(t * math.pi)
+            bpy.ops.mesh.primitive_cone_add(radius1=0.1, radius2=0.0, depth=0.22, vertices=3, location=(fx, fy, fz - 0.12), rotation=(math.pi, 0, math.atan2(y2 - y1, x2 - x1)))
+            f = bpy.context.object; f.scale = (1, 0.15, 1)
+            finish(f, mat(f"flag{(i + k) % 4}", cols[(i + k) % 4], rough=0.7))
+    export("plaza_stage")
+
+
+def plaza_stall():
+    """라운지 홍보 부스: 카운터 + 줄무늬 차양 + 간판 자리. 재질 awning 을 게임이 바꾼다."""
+    reset()
+    box((1.8, 0.7, 0.9), (0, 0, 0.45), STONE(), bevel=0.02)
+    box((1.9, 0.8, 0.06), (0, 0, 0.93), mat("marble", "#fffdfb", rough=0.2), bevel=0.012)
+    box((1.6, 0.02, 0.5), (0, -0.36, 0.48), mat("stall_panel", "#fbe1e6", rough=0.6), bevel=0.01)
+    for sx in (-1, 1):
+        cyl(0.035, 2.3, (sx * 0.86, 0.3, 1.15), GOLD(), verts=12)
+        cyl(0.035, 2.0, (sx * 0.86, -0.36, 1.0), GOLD(), verts=12)
+    aw, aw2 = mat("awning", "#f29bb1", rough=0.8), mat("awning2", "#ffffff", rough=0.8)
+    for i in range(8):
+        x = -0.875 + i * 0.25
+        box((0.25, 0.95, 0.03), (x, -0.05, 2.14), aw if i % 2 else aw2, bevel=0, rot=(0.32, 0, 0))
+        ball(0.125, (x, -0.52, 1.96), aw if i % 2 else aw2, scale=(1, 0.2, 0.7), seg=10)
+    box((1.5, 0.04, 0.34), (0, 0.32, 2.45), mat("sign", "#1b1719", rough=0.5), bevel=0.015)
+    for x in (-0.6, 0.0, 0.6):  # 카운터 위 소품
+        cyl(0.05, 0.16, (x, 0.05, 1.04), mat("stall_panel", "#fbe1e6", rough=0.6), verts=14, bevel=0.01)
+    export("plaza_stall")
+
+
+def plaza_bed():
+    """꽃밭: 낮은 돌 테두리 + 흙 + 꽃."""
+    reset()
+    cyl(0.9, 0.18, (0, 0, 0.09), STONE(), verts=32, bevel=0.03)
+    cyl(0.78, 0.04, (0, 0, 0.18), mat("soil", "#5a4636", rough=1), verts=32)
+    cols = ["#f29bb1", "#ffd0dc", "#ffffff", "#d9cff2", "#fbe1a8", "#ff9db5"]
+    for i in range(10):
+        a = i * 2.39996
+        r = 0.12 + 0.6 * math.sqrt(i / 10)
+        x, y = math.cos(a) * r, math.sin(a) * r
+        h = 0.34 + (i % 3) * 0.08
+        cyl(0.012, h - 0.18, (x, y, 0.18 + (h - 0.18) / 2), LEAF(1), verts=6)
+        ball(0.075, (x, y, h + 0.02), mat(f"tulip{i % 6}", cols[i % 6], rough=0.5), scale=(1, 1, 1.25), seg=8)
+        if i % 3 == 0:
+            leaf((x * 1.1, 0.26, -y * 1.1), 0.1, -a, 1.0, LEAF(i), notch=False)
+    export("plaza_bed")
+
+
+PLAZA = (plaza_fountain, plaza_tree, plaza_bench, plaza_lamp, plaza_gate, plaza_stage, plaza_stall, plaza_bed)
+
+
+if __name__ == "__main__" and "--plaza" in sys.argv:
+    for f in PLAZA:
+        f()
+elif __name__ == "__main__" and "--furniture" in sys.argv:
     for f in FURNITURE:
         f()
 elif __name__ == "__main__" and "--hair" in sys.argv:
@@ -846,4 +1057,6 @@ elif __name__ == "__main__":
     for f in (hair_bob, hair_pixie, hair_twin, hair_bun, hair_space, hair_pony, hair_updo, hair_braid, hair_long, hair_wave, hair_hime):
         f()
     for f in FURNITURE:
+        f()
+    for f in PLAZA:
         f()

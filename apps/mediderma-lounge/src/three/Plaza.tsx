@@ -5,7 +5,7 @@ import { Billboard, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { tune } from "../data/config";
 import { DEMO_FRIENDS } from "../data/game";
-import { joinPlaza, leavePlaza, remotes, sparkleSpots, usePlaza, SLOT_MS, type Remote } from "../net/plaza";
+import { joinPlaza, leavePlaza, postScore, remotes, sparkleSpots, usePlaza, SLOT_MS, type Remote } from "../net/plaza";
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { input, useUI } from "../store/ui";
 import { useT } from "../i18n";
@@ -15,47 +15,105 @@ import { Model } from "./Model";
 import { layout, type Layout } from "./layout";
 
 export const PLAZA_R = 13.5;
+const STAGE = { x: 7.4, z: 5.4, r: 2.4 };
+const STALL = { x: -7.6, z: 5.2 };
 /** 광장용 레이아웃: 플레이어·카메라 코드가 라운지와 같은 모양의 값을 읽는다 */
 export function plazaLayout(): Layout {
   const base = layout(1, 0);
-  const obstacles = [{ x: 0, z: 0, r: 2.3 }, ...TREES.map((t) => ({ x: t[0], z: t[1], r: 0.55 })), ...LAMPS.map((t) => ({ x: t[0], z: t[1], r: 0.3 }))];
+  const obstacles = [
+    { x: 0, z: 0, r: 2.95 }, { x: STALL.x, z: STALL.z, r: 1.1 },
+    ...TREES.map((t) => ({ x: t[0], z: t[1], r: 0.5 })), ...LAMPS.map((t) => ({ x: t[0], z: t[1], r: 0.28 })),
+    ...BENCHES.map((t) => ({ x: t[0], z: t[1], r: 0.75 })), ...BEDS.map((t) => ({ x: t[0], z: t[1], r: 0.95 })),
+  ];
   return { ...base, w: PLAZA_R * 2 + 2, d: PLAZA_R * 2 + 2, zones: [], obstacles, stations: 0, stationSpots: [] };
 }
-const TREES: [number, number, number][] = [[-9, -8, 1.2], [9, -8, 1.1], [-11.5, 2, 1.0], [11.5, 3, 1.25], [-8.5, 9, 1.1], [8.5, 9, 1.0], [-5.5, -11, 0.9], [5.5, -11, 0.95]];
-const LAMPS: [number, number][] = [[-4.5, -4.5], [4.5, -4.5], [-4.5, 4.5], [4.5, 4.5]];
-const BENCHES: [number, number, number][] = [[-6.2, 0, Math.PI / 2], [6.2, 0, -Math.PI / 2], [0, -6.2, 0]];
+const TREES: [number, number, number][] = [[-9.5, -8, 1.15], [9.5, -8, 1.05], [-12, 1, 1.0], [12, 0.5, 1.2], [-9.5, 9, 1.1], [10.8, 9.2, 1.0], [-5.6, -11.3, 0.9], [5.6, -11.3, 0.95], [-4.8, 12.0, 1.0], [5.2, 12.0, 1.05]];
+const LAMPS: [number, number][] = [[-4.6, -4.6], [4.6, -4.6], [-4.6, 4.6], [4.6, 4.6]];
+const BENCHES: [number, number, number][] = [[-6.4, -1.2, Math.PI / 2], [6.4, -1.2, -Math.PI / 2], [0, -6.6, 0], [-2.6, 9.6, Math.PI]];
+const BEDS: [number, number][] = [[-3.4, -9.6], [3.4, -9.6], [-10.6, -3.6], [10.6, -3.8]];
 
-export function Plaza({ onFloor }: { onFloor: (x: number, z: number) => void }) {
+/** 동심원과 방사선 무늬가 있는 광장 돌바닥 */
+function usePaving() {
+  return useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 1024;
+    const g = c.getContext("2d")!;
+    g.fillStyle = "#fbeee6"; g.fillRect(0, 0, 1024, 1024);
+    g.translate(512, 512);
+    const tones = ["#fbeee6", "#f8e4dc", "#fdf3ec", "#f6dfe0"];
+    for (let ring = 20; ring >= 1; ring--) {
+      const r0 = (ring - 1) * 25.6, r1 = ring * 25.6, n = Math.max(8, ring * 6);
+      for (let i = 0; i < n; i++) {
+        g.beginPath();
+        g.arc(0, 0, r1, (i / n) * Math.PI * 2, ((i + 1) / n) * Math.PI * 2);
+        g.arc(0, 0, r0, ((i + 1) / n) * Math.PI * 2, (i / n) * Math.PI * 2, true);
+        g.closePath();
+        g.fillStyle = tones[(i * 7 + ring * 3) % 4];
+        g.fill();
+        g.strokeStyle = "rgba(190,150,130,0.35)"; g.lineWidth = 1.2; g.stroke();
+      }
+    }
+    for (const [r, w] of [[128, 5], [256, 4], [384, 4], [505, 7]] as const) { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.strokeStyle = "#d9b88a"; g.lineWidth = w; g.stroke(); }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    return t;
+  }, []);
+}
+
+export function Plaza({ onFloor, quality = "high" }: { onFloor: (x: number, z: number) => void; quality?: "low" | "high" }) {
+  const hi = quality === "high";
   useEffect(() => { joinPlaza(); return () => leavePlaza(); }, []);
-  const click = (e: ThreeEvent<MouseEvent>) => { if (e.delta > 6) return; e.stopPropagation(); onFloor(e.point.x, e.point.z); };
+  const paving = usePaving();
+  const click = (e: ThreeEvent<MouseEvent>) => { if (e.delta > 6) return; e.stopPropagation(); usePlaza.setState({ target: null }); onFloor(e.point.x, e.point.z); };
+  // 가까이 있는 시설 감지
+  const last = useRef<string | null>(null);
+  useFrame(() => {
+    const p = input.playerPos;
+    const near = Math.hypot(p.x - STAGE.x, p.z - STAGE.z) < STAGE.r + 0.6 ? "stage" : Math.hypot(p.x - STALL.x, p.z - STALL.z) < 2.6 ? "stall" : Math.hypot(p.x, p.z) < 4.2 ? "fountain" : null;
+    if (near !== last.current) { last.current = near; usePlaza.setState({ near }); }
+  });
   return (
     <group>
-      <hemisphereLight args={["#fff8f2", "#f3d9e2", 0.75]} />
-      <directionalLight position={[8, 14, 6]} intensity={1.35} color="#fff3e0" castShadow shadow-mapSize={[1024, 1024]} shadow-camera-left={-16} shadow-camera-right={16} shadow-camera-top={16} shadow-camera-bottom={-16} />
-      {/* 바닥: 잔디 → 광장 돌바닥 → 분수 둘레 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow><circleGeometry args={[40, 48]} /><meshStandardMaterial color="#cfe8c4" roughness={1} /></mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow onClick={click}><circleGeometry args={[PLAZA_R + 0.6, 64]} /><meshStandardMaterial color="#fbeee6" roughness={0.85} /></mesh>
-      {[PLAZA_R + 0.3, 9, 5].map((r) => (
-        <mesh key={r} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}><ringGeometry args={[r - 0.09, r, 72]} /><meshStandardMaterial color="#e8c9a0" roughness={0.6} metalness={0.3} /></mesh>
+      <hemisphereLight args={["#fff8f2", "#f3d9e2", 0.78]} />
+      <directionalLight position={[8, 14, 6]} intensity={1.4} color="#fff3e0" castShadow={hi} shadow-mapSize={[2048, 2048]} shadow-bias={-0.0004} shadow-camera-left={-16} shadow-camera-right={16} shadow-camera-top={16} shadow-camera-bottom={-16} />
+      {/* 잔디 언덕 → 광장 돌바닥 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]} receiveShadow><circleGeometry args={[46, 48]} /><meshStandardMaterial color="#cfe8c4" roughness={1} /></mesh>
+      {[[-22, -16, 9], [20, -20, 11], [26, 8, 8], [-26, 10, 10], [0, -30, 12], [4, 28, 9]].map(([x, z, r], i) => (
+        <mesh key={i} position={[x, -r * 0.72, z]}><sphereGeometry args={[r, 24, 16]} /><meshStandardMaterial color={i % 2 ? "#c2e0b6" : "#d6ecca"} roughness={1} /></mesh>
       ))}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}><ringGeometry args={[2.4, 5, 64]} /><meshStandardMaterial color="#fbdfe6" roughness={0.9} /></mesh>
-      <Fountain />
-      {TREES.map(([x, z, s], i) => <Tree key={i} x={x} z={z} s={s} pink={i % 3 === 0} />)}
-      {LAMPS.map(([x, z], i) => (
-        <group key={i} position={[x, 0, z]} scale={1.25}>
-          <Model url="./models/furn_lamp.glb" />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow onClick={click}><circleGeometry args={[PLAZA_R + 0.6, 72]} /><meshStandardMaterial map={paving} roughness={0.8} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}><ringGeometry args={[PLAZA_R + 0.5, PLAZA_R + 0.85, 72]} /><meshStandardMaterial color="#fffaf4" roughness={0.5} /></mesh>
+
+      <Model url="./models/plaza_fountain.glb" fallback={<mesh position={[0, 0.25, 0]}><cylinderGeometry args={[2.3, 2.3, 0.5, 32]} /><meshStandardMaterial color="#fffaf4" /></mesh>} />
+      <Water />
+      {TREES.map(([x, z, s], i) => (
+        <group key={i} position={[x, 0, z]} rotation={[0, i * 1.3, 0]} scale={s * 1.35}>
+          <Model url="./models/plaza_tree.glb" tint={i % 3 === 1 ? { foliage: { color: "#8cc592" }, foliage2: { color: "#a9d8a4" } } : undefined} />
         </group>
       ))}
-      {BENCHES.map(([x, z, r], i) => <group key={i} position={[x, 0, z]} rotation={[0, r, 0]}><Model url="./models/sofa_2.glb" tint={{ fabric: { color: i === 2 ? "#e3d8f6" : "#f6bccb" } }} /></group>)}
-      {/* 입구 아치와 간판 */}
-      <group position={[0, 0, -12.4]}>
-        {[-1, 1].map((s) => <mesh key={s} position={[s * 2.2, 1.6, 0]} castShadow><cylinderGeometry args={[0.16, 0.2, 3.2, 16]} /><meshStandardMaterial color="#fffaf4" roughness={0.4} /></mesh>)}
-        <mesh position={[0, 3.2, 0]}><torusGeometry args={[2.2, 0.14, 12, 40, Math.PI]} /><meshStandardMaterial color="#c9a66b" metalness={0.85} roughness={0.25} /></mesh>
-        {Array.from({ length: 15 }, (_, i) => { const a = (i / 14) * Math.PI; return <mesh key={i} position={[Math.cos(a) * 2.2, 3.2 + Math.sin(a) * 2.2, 0.12]} castShadow><sphereGeometry args={[0.22 + (i % 3) * 0.04, 10, 8]} /><meshStandardMaterial color={["#f29bb1", "#ffd0dc", "#ffffff", "#d9cff2", "#fbe1a8"][i % 5]} roughness={0.7} /></mesh>; })}
-        <Label text="WORLD PLAZA" width={3} position={[0, 3.3, 0.3]} color="#c9a66b" />
+      {LAMPS.map(([x, z], i) => (
+        <group key={i} position={[x, 0, z]} rotation={[0, Math.atan2(x, z) + Math.PI / 2, 0]}>
+          <Model url="./models/plaza_lamp.glb" />
+          {hi && i < 2 && <pointLight position={[0, 2.8, 0]} intensity={1.6} distance={7} color="#ffe6b8" />}
+        </group>
+      ))}
+      {BENCHES.map(([x, z, r], i) => <group key={i} position={[x, 0, z]} rotation={[0, r, 0]}><Model url="./models/plaza_bench.glb" /></group>)}
+      {BEDS.map(([x, z], i) => <group key={i} position={[x, 0, z]} rotation={[0, i, 0]}><Model url="./models/plaza_bed.glb" /></group>)}
+      <group position={[0, 0, -12.6]}>
+        <Model url="./models/plaza_gate.glb" />
+        <Label text="WORLD PLAZA" width={3.2} position={[0, 2.5, 0.05]} color="#c9a66b" />
       </group>
-      {[-1, 1].map((s) => <group key={s} position={[s * 3.2, 0, -11.8]}><Model url="./models/furn_flower.glb" scale={1.2} /></group>)}
-      {[[-10, -3], [10, -2.5], [-3, 11], [3.4, 11.2]].map(([x, z], i) => <group key={i} position={[x, 0, z]}><Model url="./models/furn_plant.glb" scale={1.4} /></group>)}
+      {/* 미니게임 무대 */}
+      <group position={[STAGE.x, 0, STAGE.z]}>
+        <Model url="./models/plaza_stage.glb" />
+        <Billboard position={[0, 3.0, 0]}><Label text="PETAL CATCH" width={2.2} color="#d66e8c" bg="rgba(255,255,255,0.9)" size={150} weight={800} spacing={0.04} /></Billboard>
+      </group>
+      <PetalGame />
+      {/* 라운지 홍보 부스 */}
+      <group position={[STALL.x, 0, STALL.z]} rotation={[0, Math.atan2(-STALL.x, -STALL.z), 0]}>
+        <Model url="./models/plaza_stall.glb" />
+        <Label text="LOUNGE PROMO" width={1.35} position={[0, 2.45, -0.35]} rotation={[0, Math.PI, 0]} color="#f6d9a6" size={150} weight={800} spacing={0.04} />
+      </group>
       <SparkleHunt />
       <Remotes />
       <Guides />
@@ -63,30 +121,62 @@ export function Plaza({ onFloor }: { onFloor: (x: number, z: number) => void }) 
   );
 }
 
-function Fountain() {
-  const water = useRef<THREE.Mesh>(null!);
-  useFrame(({ clock }) => { if (water.current) water.current.position.y = 0.42 + Math.sin(clock.elapsedTime * 1.6) * 0.012; });
+/** 분수의 물 (3단 수면 + 물줄기 반짝임) */
+function Water() {
+  const g = useRef<THREE.Group>(null!);
+  useFrame(({ clock }) => { if (g.current) g.current.position.y = Math.sin(clock.elapsedTime * 1.6) * 0.012; });
+  const m = <meshStandardMaterial color="#9fdcf0" roughness={0.06} metalness={0.25} transparent opacity={0.82} />;
   return (
-    <group>
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow><cylinderGeometry args={[2.2, 2.35, 0.5, 48]} /><meshStandardMaterial color="#fffaf4" roughness={0.35} /></mesh>
-      <mesh position={[0, 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[2.2, 0.07, 10, 64]} /><meshStandardMaterial color="#c9a66b" metalness={0.85} roughness={0.25} /></mesh>
-      <mesh ref={water} position={[0, 0.42, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.08, 48]} /><meshStandardMaterial color="#9fdcf0" roughness={0.08} metalness={0.2} transparent opacity={0.85} /></mesh>
-      <mesh position={[0, 0.95, 0]} castShadow><cylinderGeometry args={[0.22, 0.38, 1.1, 20]} /><meshStandardMaterial color="#fffaf4" roughness={0.35} /></mesh>
-      <mesh position={[0, 1.52, 0]} castShadow><cylinderGeometry args={[1.0, 0.3, 0.16, 32]} /><meshStandardMaterial color="#fbe1e6" roughness={0.35} /></mesh>
-      <mesh position={[0, 1.6, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.92, 32]} /><meshStandardMaterial color="#9fdcf0" roughness={0.08} transparent opacity={0.85} /></mesh>
-      <mesh position={[0, 1.95, 0]}><sphereGeometry args={[0.2, 16, 12]} /><meshStandardMaterial color="#c9a66b" metalness={0.85} roughness={0.25} /></mesh>
-      <Sparkles count={40} scale={[2.6, 2.2, 2.6]} position={[0, 1.6, 0]} size={3} speed={0.9} color="#dff6ff" opacity={0.9} />
+    <group ref={g}>
+      <mesh position={[0, 0.6, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.22, 48]} />{m}</mesh>
+      <mesh position={[0, 1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.02, 32]} />{m}</mesh>
+      <mesh position={[0, 2.18, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.55, 24]} />{m}</mesh>
+      {[[1.6, 1.15, 0.5], [0.8, 0.85, 1.85]].map(([r, h, y], i) => (
+        <mesh key={i} position={[0, y, 0]}><cylinderGeometry args={[r * 0.62, r, h, 24, 1, true]} /><meshStandardMaterial color="#cfefff" transparent opacity={0.16} roughness={0.1} side={THREE.DoubleSide} depthWrite={false} /></mesh>
+      ))}
+      <Sparkles count={60} scale={[3.4, 2.6, 3.4]} position={[0, 1.6, 0]} size={3.2} speed={1.1} color="#e6f8ff" opacity={0.95} />
     </group>
   );
 }
 
-function Tree({ x, z, s, pink }: { x: number; z: number; s: number; pink: boolean }) {
-  const c = pink ? ["#f6bccb", "#fbd3dd", "#f29bb1"] : ["#8cc592", "#a5d6a0", "#6fae7b"];
+// ───────────── 미니게임: 꽃잎 잡기 ─────────────
+/** 무대 근처에 떠 있는 꽃잎을 제한 시간 동안 걸어서 모은다. 끝나면 점수를 광장에 알린다. */
+function PetalGame() {
+  const active = usePlaza((s) => !!s.game);
+  const group = useRef<THREE.Group>(null!);
+  const spots = useRef<{ x: number; z: number }[]>([]);
+  const spawn = () => { const a = Math.random() * Math.PI * 2, r = 0.8 + Math.random() * 4.4; return { x: STAGE.x + Math.cos(a) * r, z: STAGE.z + Math.sin(a) * r }; };
+  useEffect(() => { if (active) spots.current = Array.from({ length: 7 }, spawn); }, [active]);
+  useFrame(({ clock }) => {
+    const st = usePlaza.getState();
+    if (!st.game) return;
+    if (Date.now() >= st.game.end) {
+      const score = st.game.score;
+      usePlaza.setState({ game: null });
+      const coins = useGame.getState().petalReward(score);
+      postScore(score);
+      const ko = useGame.getState().settings.lang === "ko";
+      useUI.getState().toast(`PETAL CATCH ${score}${coins ? `  +${coins} BEAUTY COIN` : ko ? " · 오늘 보상은 다 받았어요" : " · daily reward used"}`);
+      return;
+    }
+    const p = input.playerPos;
+    spots.current.forEach((s, i) => {
+      if (Math.hypot(s.x - p.x, s.z - p.z) < 0.7) {
+        spots.current[i] = spawn();
+        usePlaza.setState({ game: { end: st.game!.end, score: usePlaza.getState().game!.score + 1 } });
+      }
+      const m = group.current?.children[i];
+      if (m) { m.position.set(spots.current[i].x, 0.6 + Math.sin(clock.elapsedTime * 3 + i) * 0.12, spots.current[i].z); m.rotation.y = clock.elapsedTime * 2 + i; m.rotation.z = Math.sin(clock.elapsedTime * 2 + i) * 0.4; }
+    });
+  });
+  if (!active) return null;
   return (
-    <group position={[x, 0, z]} scale={s}>
-      <mesh position={[0, 0.9, 0]} castShadow><cylinderGeometry args={[0.16, 0.24, 1.8, 10]} /><meshStandardMaterial color="#a98467" roughness={1} /></mesh>
-      {[[0, 2.5, 0, 1.15], [-0.7, 2.1, 0.2, 0.8], [0.7, 2.15, -0.2, 0.85], [0.1, 3.2, 0.1, 0.75]].map(([px, py, pz, r], i) => (
-        <mesh key={i} position={[px, py, pz]} castShadow><sphereGeometry args={[r, 14, 12]} /><meshStandardMaterial color={c[i % 3]} roughness={0.9} /></mesh>
+    <group ref={group}>
+      {Array.from({ length: 7 }, (_, i) => (
+        <mesh key={i} scale={[1, 0.25, 0.7]}>
+          <sphereGeometry args={[0.26, 12, 8]} />
+          <meshStandardMaterial color={i % 2 ? "#ff9db5" : "#ffd0dc"} emissive="#ff7fa5" emissiveIntensity={0.7} roughness={0.4} />
+        </mesh>
       ))}
     </group>
   );
@@ -120,9 +210,14 @@ function RemoteAvatar({ r }: { r: Remote }) {
     g.current.rotation.y += dy * Math.min(1, dt * 10);
   });
   return (
-    <group ref={g} position={[r.rx, 0, r.rz]}>
+    <group ref={g} position={[r.rx, 0, r.rz]} onClick={(e) => { if (e.delta > 6) return; e.stopPropagation(); usePlaza.setState({ target: r.id, list: false }); }}>
       <Character look={r.look} growth={r.stage} anim="idle" movingRef={moving} rank={r.rank} seed={r.id.length} />
       <NameTag name={r.name} rank={r.rank} y={1.25 + r.stage * 0.2} say={r.say} sayAt={r.sayAt} />
+      {r.promo > 0 && (
+        <Billboard position={[0, 1.62 + r.stage * 0.2, 0]}>
+          <Label text="LOUNGE PROMO" width={0.9} color="#ffffff" bg="rgba(201,166,107,0.95)" size={150} weight={800} spacing={0.02} />
+        </Billboard>
+      )}
     </group>
   );
 }

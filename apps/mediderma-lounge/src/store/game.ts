@@ -5,7 +5,7 @@
 import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, QUESTS, RANKS, rankFor, type PV, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
+import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, PROMOS, QUESTS, RANKS, rankFor, type PV, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
 import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
@@ -57,6 +57,8 @@ export interface GameState {
   rank: number;
   /** 방금 오른 등급 (안내를 띄운 뒤 지운다) */
   rankNotice: number | null;
+  /** 월드 광장에 걸어 둔 라운지 홍보 (0 = 없음) */
+  promo: number;
   pets: Pet[];
   friendCode: string;
   invitedBy: Friend | null;
@@ -111,6 +113,17 @@ export interface GameState {
   redeem: (code: string) => number;
   /** 광장 반짝이 1개 획득 (하루 한도 있음) */
   plazaCollect: () => { coins: number; star: boolean };
+  setPromo: (id: number) => void;
+  /** 다른 사람 라운지의 방문 혜택 받기 (라운지마다 하루 한 번). 받은 혜택 또는 null */
+  plazaVisit: (owner: string, promo: number) => { coins: number; stars: number } | null;
+  /** 내 라운지에 방문객이 왔을 때 (LOUNGE POINT) */
+  plazaHosted: () => number;
+  /** 하트를 받았을 때. SOCIAL STAR 가 올랐으면 true */
+  plazaHeart: () => boolean;
+  /** 소원 분수 (하루 한 번). 받은 코인, 이미 빌었으면 0 */
+  plazaWish: () => number;
+  /** 꽃잎 잡기 보상 */
+  petalReward: (score: number) => number;
   setSettings: (p: Partial<GameState["settings"]>) => void;
   reset: () => void;
 }
@@ -133,6 +146,7 @@ const fresh = () => ({
   pv: { buy: 0, use: 0, cust: 0 } as PV,
   rank: 0,
   rankNotice: null as number | null,
+  promo: 0,
   pets: [] as Pet[],
   friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
   invitedBy: null as Friend | null,
@@ -416,6 +430,49 @@ export const useGame = create<GameState>()(
         const star = (n + 1) % tune("plaza.sparkles_per_star") === 0;
         set({ coins: s.coins + coins, stars: s.stars + (star ? 1 : 0), exp: { ...s.exp, social: s.exp.social + 1 }, daily: { date: d.date, stats: { ...d.stats, sparkle: n + 1 } }, stats: { ...s.stats, sparkles: (s.stats.sparkles ?? 0) + 1 } });
         return { coins, star };
+      },
+      setPromo: (id) => set({ promo: PROMOS.some((p) => p.id === id) ? id : 0 }),
+      plazaVisit: (owner, promo) => {
+        const s = get();
+        const p = PROMOS.find((x) => x.id === promo);
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const key = `visit:${owner}`;
+        if (!p || !owner || owner === s.friendCode || d.stats[key] || (d.stats.visits ?? 0) >= tune("plaza.visit_daily")) return null;
+        set({ coins: s.coins + p.coins, stars: s.stars + p.stars, exp: { ...s.exp, social: s.exp.social + 3 }, daily: { date: d.date, stats: { ...d.stats, [key]: 1, visits: (d.stats.visits ?? 0) + 1 } }, stats: { ...s.stats, plazaVisits: (s.stats.plazaVisits ?? 0) + 1 } });
+        return { coins: p.coins, stars: p.stars };
+      },
+      plazaHosted: () => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const n = d.stats.hosted ?? 0;
+        const lp = n >= tune("plaza.host_daily") ? 0 : tune("plaza.host_lp");
+        set({ lp: s.lp + lp, followers: s.followers + (lp ? 1 : 0), exp: { ...s.exp, lounge: s.exp.lounge + (lp ? 2 : 0) }, daily: { date: d.date, stats: { ...d.stats, hosted: n + 1 } }, stats: { ...s.stats, plazaGuests: (s.stats.plazaGuests ?? 0) + 1 } });
+        return lp;
+      },
+      plazaHeart: () => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const n = d.stats.hearts ?? 0;
+        const ok = n < tune("plaza.heart_daily");
+        set({ stars: s.stars + (ok ? 1 : 0), daily: { date: d.date, stats: { ...d.stats, hearts: n + 1 } }, stats: { ...s.stats, hearts: (s.stats.hearts ?? 0) + 1 } });
+        return ok;
+      },
+      plazaWish: () => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        if (d.stats.wish) return 0;
+        const lo = tune("plaza.wish_min"), hi = Math.max(lo, tune("plaza.wish_max"));
+        const coins = lo + Math.floor(Math.random() * (hi - lo + 1));
+        set({ coins: s.coins + coins, daily: { date: d.date, stats: { ...d.stats, wish: 1 } } });
+        return coins;
+      },
+      petalReward: (score) => {
+        const s = get();
+        const d = s.daily.date === today() ? s.daily : { date: today(), stats: {} as Record<string, number> };
+        const n = d.stats.petal ?? 0;
+        const coins = n >= tune("plaza.petal_daily") ? 0 : Math.min(tune("plaza.petal_max"), Math.max(0, Math.floor(score)) * tune("plaza.petal_coin"));
+        set({ coins: s.coins + coins, exp: { ...s.exp, social: s.exp.social + (coins ? 4 : 0) }, daily: { date: d.date, stats: { ...d.stats, petal: n + 1 } }, stats: { ...s.stats, petalBest: Math.max(s.stats.petalBest ?? 0, Math.floor(score)) } });
+        return coins;
       },
       redeem: (code) => {
         const s = get();

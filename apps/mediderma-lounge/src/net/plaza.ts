@@ -21,6 +21,8 @@ export const PHRASES = 6;
 
 export interface Remote {
   id: string; name: string; look: Look; stage: number; rank: number;
+  /** 라운지 홍보 번호 (0 = 없음) 와 그 라운지 주인의 친구 코드 */
+  promo: number; code: string;
   x: number; z: number; yaw: number; moving: boolean;
   /** 화면에 그리는 보간 위치 */
   rx: number; rz: number;
@@ -28,8 +30,23 @@ export interface Remote {
 }
 export const remotes = new Map<string, Remote>();
 
-interface PlazaState { status: "off" | "connecting" | "online" | "offline"; ids: string[]; mySay: number; mySayAt: number }
-export const usePlaza = create<PlazaState>(() => ({ status: "off", ids: [], mySay: -1, mySayAt: 0 }));
+export type PlazaSpot = null | "fountain" | "stage" | "stall";
+interface PlazaState {
+  status: "off" | "connecting" | "online" | "offline"; ids: string[]; mySay: number; mySayAt: number;
+  /** 가까이 있는 광장 시설 */
+  near: PlazaSpot;
+  /** 진행 중인 꽃잎 잡기 */
+  game: null | { end: number; score: number };
+  /** 이번 접속 동안의 꽃잎 잡기 최고 기록들 */
+  board: { name: string; s: number }[];
+  /** 선택한 다른 플레이어 · 홍보 목록 열림 */
+  target: string | null; list: boolean;
+}
+export const usePlaza = create<PlazaState>(() => ({ status: "off", ids: [], mySay: -1, mySayAt: 0, near: null, game: null, board: [], target: null, list: false }));
+function addScore(name: string, s: number) {
+  const board = [...usePlaza.getState().board.filter((b) => b.name !== name || b.s > s), { name, s }].sort((a, b) => b.s - a.s);
+  usePlaza.setState({ board: board.filter((b, i) => board.findIndex((x) => x.name === b.name) === i).slice(0, 5) });
+}
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const hex = (v: unknown, d: string) => (typeof v === "string" && HEX.test(v) ? v : d);
@@ -75,7 +92,7 @@ export function joinPlaza() {
   }
   const ch = channel;
   ch.on("presence", { event: "sync" }, () => {
-    const st = ch.presenceState() as Record<string, { name?: unknown; look?: unknown; stage?: unknown; rank?: unknown; x?: unknown; z?: unknown }[]>;
+    const st = ch.presenceState() as Record<string, { name?: unknown; look?: unknown; stage?: unknown; rank?: unknown; promo?: unknown; code?: unknown; x?: unknown; z?: unknown }[]>;
     const now = Date.now();
     const alive = new Set<string>();
     for (const id of Object.keys(st)) {
@@ -86,6 +103,7 @@ export function joinPlaza() {
       const x = num(m.x, -14, 14), z = num(m.z, -14, 14, 8);
       remotes.set(id, {
         id, name: cleanName(m.name), look: cleanLook(m.look), stage: Math.round(num(m.stage, 1, 5, 1)), rank: Math.round(num(m.rank, 0, 10)),
+        promo: Math.round(num(m.promo, 0, 9)), code: typeof m.code === "string" && /^[A-Z0-9]{6}$/.test(m.code) ? m.code : "",
         x: old?.x ?? x, z: old?.z ?? z, yaw: old?.yaw ?? 0, moving: old?.moving ?? false, rx: old?.rx ?? x, rz: old?.rz ?? z,
         say: old?.say ?? -1, sayAt: old?.sayAt ?? 0, seen: now,
       });
@@ -104,11 +122,21 @@ export function joinPlaza() {
     r.say = Math.round(num(payload.i, 0, PHRASES - 1)); r.sayAt = Date.now();
     sync();
   });
+  ch.on("broadcast", { event: "heart" }, ({ payload }) => {
+    if (payload?.to !== myId) return;
+    const got = useGame.getState().plazaHeart();
+    notify?.("heart", cleanName(payload.name), got ? 1 : 0);
+  });
+  ch.on("broadcast", { event: "visit" }, ({ payload }) => {
+    if (payload?.to !== myId) return;
+    notify?.("visit", cleanName(payload.name), useGame.getState().plazaHosted());
+  });
+  ch.on("broadcast", { event: "score" }, ({ payload }) => addScore(cleanName(payload?.name), Math.round(num(payload?.s, 0, 999))));
   ch.subscribe((status) => {
     if (status === "SUBSCRIBED") {
       usePlaza.setState({ status: "online" });
       const s = useGame.getState();
-      void ch.track({ name: s.name, look: { ...s.look, hideRank: undefined }, stage: s.stage, rank: s.look.hideRank ? 0 : s.rank, x: input.playerPos.x, z: input.playerPos.z });
+      void ch.track({ name: s.name, look: { ...s.look, hideRank: undefined }, stage: s.stage, rank: s.look.hideRank ? 0 : s.rank, promo: s.promo, code: s.friendCode, x: input.playerPos.x, z: input.playerPos.z });
     } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
       if (usePlaza.getState().status !== "off") usePlaza.setState({ status: "offline" });
     }
@@ -128,13 +156,29 @@ export function say(i: number) {
   if (channel && usePlaza.getState().status === "online") void channel.send({ type: "broadcast", event: "say", payload: { id: myId, i } });
 }
 
+/** 다른 사람이 보낸 하트·방문 알림을 화면에 띄우는 함수 (HUD 가 등록한다) */
+let notify: ((kind: "heart" | "visit", name: string, n: number) => void) | null = null;
+export const onPlazaNotice = (f: typeof notify) => { notify = f; };
+const online = () => !!channel && usePlaza.getState().status === "online";
+export function sendHeart(to: string) {
+  if (online()) void channel!.send({ type: "broadcast", event: "heart", payload: { to, name: useGame.getState().name } });
+}
+export function sendVisit(to: string) {
+  if (online()) void channel!.send({ type: "broadcast", event: "visit", payload: { to, name: useGame.getState().name } });
+}
+export function postScore(s: number) {
+  const name = useGame.getState().name;
+  addScore(name, s);
+  if (online()) void channel!.send({ type: "broadcast", event: "score", payload: { name, s } });
+}
+
 export function leavePlaza() {
   if (timer) clearInterval(timer);
   timer = null;
   const ch = channel, cl = client;
   channel = null; client = null;
   remotes.clear();
-  usePlaza.setState({ status: "off", ids: [], mySay: -1 });
+  usePlaza.setState({ status: "off", ids: [], mySay: -1, near: null, game: null, target: null, list: false });
   try { if (ch) void ch.unsubscribe(); cl?.disconnect(); } catch { /* 이미 끊긴 연결 */ }
 }
 

@@ -287,3 +287,12 @@ export function rankFor(pv: PV) {
   for (const k of RANKS) if (gtvOf(pv) >= k.gtv && pv.cust >= k.stv && pv.use >= k.plv) r = k.n; else break;
   return r;
 }
+
+// ───────────── 라운지 홍보 (월드 광장에서 보이는 방문 혜택) ─────────────
+/** 자유 문구 대신 정해진 혜택 중에서 고른다. 혜택은 게임이 지급하며 홍보한 사람의 재화는 줄지 않는다. */
+export interface Promo { id: number; ko: string; en: string; coins: number; stars: number }
+export const PROMOS: Promo[] = [
+  { id: 1, ko: "첫 방문 선물 · BEAUTY COIN 30", en: "Welcome gift · 30 BEAUTY COIN", coins: 30, stars: 0 },
+  { id: 2, ko: "방문 감사 · SOCIAL STAR 2", en: "Thank-you · 2 SOCIAL STAR", coins: 0, stars: 2 },
+  { id: 3, ko: "더블 혜택 · COIN 15 + STAR 1", en: "Double treat · 15 COIN + 1 STAR", coins: 15, stars: 1 },
+];

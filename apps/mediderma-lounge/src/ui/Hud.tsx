@@ -1,9 +1,9 @@
 /** 메인 HUD: 상단 프로필·재화, 하단 내비게이션, 상호작용 버튼, 조이스틱, 모드별 툴바 */
 import { useEffect, useRef, useState } from "react";
-import { DEMO_FRIENDS, INTERIOR_MAP, POSES, QUESTS, RANKS, STAGES } from "../data/game";
+import { DEMO_FRIENDS, INTERIOR_MAP, POSES, PROMOS, QUESTS, RANKS, STAGES } from "../data/game";
 import { claimableCount, earnedStage, levelOf, questClaimed, questValue, totalExp, useGame } from "../store/game";
 import { input, useUI, type ZoneKey } from "../store/ui";
-import { PHRASES, say, usePlaza } from "../net/plaza";
+import { PHRASES, onPlazaNotice, remotes, say, sendHeart, sendVisit, usePlaza } from "../net/plaza";
 import { openCare } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, type IconName } from "./Icon";
@@ -154,24 +154,103 @@ export function Hud() {
   );
 }
 
-/** 월드 광장: 접속 상태 · 인사말 · 돌아가기 */
+/** 월드 광장: 접속 상태 · 시설 행동 · 미니게임 · 순위표 · 플레이어 카드 · 인사말 */
 function PlazaBar() {
   const t = useT();
-  const status = usePlaza((s) => s.status);
-  const n = usePlaza((s) => s.ids.length);
-  const mySay = usePlaza((s) => s.mySay);
-  const mySayAt = usePlaza((s) => s.mySayAt);
+  const L = useL();
+  const g = useGame();
+  const pz = usePlaza();
   const [, tick] = useState(0);
-  const talking = mySay >= 0 && Date.now() - mySayAt < 4000;
-  useEffect(() => { if (!talking) return; const id = setTimeout(() => tick((x) => x + 1), 4100); return () => clearTimeout(id); }, [talking, mySayAt]);
+  const talking = pz.mySay >= 0 && Date.now() - pz.mySayAt < 4000;
+  useEffect(() => { if (!talking) return; const id = setTimeout(() => tick((x) => x + 1), 4100); return () => clearTimeout(id); }, [talking, pz.mySayAt]);
+  // 꽃잎 잡기 남은 시간 표시
+  useEffect(() => { if (!pz.game) return; const id = setInterval(() => tick((x) => x + 1), 250); return () => clearInterval(id); }, [!!pz.game]);
+  // 다른 사람이 보낸 하트·방문 알림
+  useEffect(() => {
+    onPlazaNotice((kind, name, n) => useUI.getState().toast(kind === "heart" ? t("plaza.gotHeart", { name }) + (n ? "  +1 SOCIAL STAR" : "") : t("plaza.gotVisit", { name }) + (n ? `  +${n} LOUNGE POINT` : "")));
+    return () => onPlazaNotice(null);
+  }, [t]);
+  const today = new Date().toISOString().slice(0, 10);
+  const daily = g.daily.date === today ? g.daily.stats : {};
+  const target = pz.target ? remotes.get(pz.target) : null;
+  const promo = target ? PROMOS.find((p) => p.id === target.promo) : null;
+  const visited = target ? !!daily[`visit:${target.code}`] : false;
+  const shops = pz.ids.map((id) => remotes.get(id)).filter((r): r is NonNullable<typeof r> => !!r && r.promo > 0);
+  const toast = (s: string) => useUI.getState().toast(s);
+  const act = () => {
+    if (pz.near === "fountain") { const c = g.plazaWish(); toast(c ? `${t("plaza.wishDone")}  +${c} BEAUTY COIN` : t("plaza.wishUsed")); }
+    else if (pz.near === "stage") usePlaza.setState({ game: { end: Date.now() + tune("plaza.petal_secs") * 1000, score: 0 } });
+    else if (pz.near === "stall") usePlaza.setState({ list: true, target: null });
+  };
+  const label = pz.near === "fountain" ? (daily.wish ? null : t("plaza.wish")) : pz.near === "stage" ? t("plaza.petalStart") : pz.near === "stall" ? t("plaza.promoList") : null;
   return (
     <>
       <div className="absolute left-1/2 top-[64px] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-4 pr-1.5 text-cream shadow-lg backdrop-blur">
-        <span className={`h-2 w-2 rounded-full ${status === "online" ? "bg-emerald-400" : status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
-        <p className="whitespace-nowrap text-xs font-bold">WORLD PLAZA · {status === "online" ? t("plaza.online", { n: n + 1 }) : status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
+        <span className={`h-2 w-2 rounded-full ${pz.status === "online" ? "bg-emerald-400" : pz.status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
+        <p className="whitespace-nowrap text-xs font-bold">WORLD PLAZA · {pz.status === "online" ? t("plaza.online", { n: pz.ids.length + 1 }) : pz.status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
         <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
       </div>
-      {talking && <p className="pointer-events-none absolute left-1/2 top-[38%] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-4 py-2 text-sm font-black text-white shadow-lg">{t(`plaza.say.${mySay}`)}</p>}
+
+      {/* 꽃잎 잡기 순위표 */}
+      {pz.board.length > 0 && !pz.game && (
+        <div className="absolute right-2 top-[112px] z-10 w-40 rounded-2xl bg-white/85 p-2 shadow backdrop-blur">
+          <p className="text-[12px] font-black tracking-wider text-pink-deep">PETAL CATCH TOP</p>
+          {pz.board.map((b, i) => <p key={b.name} className="flex justify-between text-[12px] font-bold text-ink/70"><span className="truncate">{i + 1}. {b.name}</span><span>{b.s}</span></p>)}
+        </div>
+      )}
+      {pz.game && (
+        <div className="absolute left-1/2 top-[112px] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-5 py-2 text-center text-white shadow-lg">
+          <p className="text-[12px] font-bold tracking-wider">PETAL CATCH · {Math.max(0, Math.ceil((pz.game.end - Date.now()) / 1000))}s</p>
+          <p className="text-2xl font-black leading-tight">{pz.game.score}</p>
+        </div>
+      )}
+      {talking && <p className="pointer-events-none absolute left-1/2 top-[38%] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-4 py-2 text-sm font-black text-white shadow-lg">{t(`plaza.say.${pz.mySay}`)}</p>}
+
+      {/* 시설 행동 버튼 */}
+      {label && !pz.game && !target && !pz.list && (
+        <button onClick={act} className="absolute bottom-[150px] left-1/2 z-20 -translate-x-1/2 animate-bounce rounded-full bg-pink-deep px-6 py-3 text-sm font-black text-white shadow-lg shadow-pink-deep/40">{label}</button>
+      )}
+
+      {/* 선택한 플레이어 카드 */}
+      {target && (
+        <div className="absolute bottom-[150px] left-1/2 z-30 w-[min(92%,22rem)] -translate-x-1/2 rounded-3xl bg-white/95 p-4 shadow-xl backdrop-blur">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-base font-black text-ink">{target.name}</p>
+              <p className="text-[12px] font-bold text-ink/50">STAGE {target.stage}{target.rank > 0 ? ` · ${RANKS[target.rank - 1].code}` : ""}</p>
+            </div>
+            <button aria-label="close" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/5 text-sm text-ink" onClick={() => usePlaza.setState({ target: null })}>✕</button>
+          </div>
+          {promo ? (
+            <div className="mt-2 rounded-2xl bg-gradient-to-br from-pink-soft to-lav/70 p-3">
+              <p className="text-[12px] font-black tracking-wider text-gold">LOUNGE PROMO</p>
+              <p className="mt-0.5 text-sm font-black text-ink">{L(promo)}</p>
+              <button disabled={visited || !target.code} className="btn-primary mt-2 w-full !py-2 text-xs disabled:opacity-40"
+                onClick={() => { const r = g.plazaVisit(target.code, target.promo); if (r) { sendVisit(target.id); toast(`${t("plaza.visited", { name: target.name })}${r.coins ? `  +${r.coins} COIN` : ""}${r.stars ? `  +${r.stars} STAR` : ""}`); } else toast(t("plaza.visitLimit")); }}>
+                {visited ? t("plaza.visitedToday") : t("plaza.visit")}
+              </button>
+            </div>
+          ) : <p className="mt-2 text-[12px] text-ink/50">{t("plaza.noPromo")}</p>}
+          <button className="btn-ghost mt-2 w-full !py-2 text-xs" onClick={() => { sendHeart(target.id); toast(t("plaza.sentHeart", { name: target.name })); }}>♥ {t("plaza.heart")}</button>
+        </div>
+      )}
+
+      {/* 라운지 홍보 목록 */}
+      {pz.list && (
+        <div className="absolute bottom-[150px] left-1/2 z-30 max-h-[45%] w-[min(92%,22rem)] -translate-x-1/2 overflow-y-auto rounded-3xl bg-white/95 p-4 shadow-xl backdrop-blur">
+          <div className="flex items-center justify-between"><p className="text-sm font-black text-ink">{t("plaza.promoList")}</p>
+            <button aria-label="close" className="flex h-8 w-8 items-center justify-center rounded-full bg-ink/5 text-sm text-ink" onClick={() => usePlaza.setState({ list: false })}>✕</button></div>
+          {shops.length === 0 && <p className="mt-2 text-[12px] text-ink/50">{t("plaza.promoEmpty")}</p>}
+          {shops.map((r) => (
+            <button key={r.id} className="mt-2 block w-full rounded-2xl bg-cream p-2.5 text-left" onClick={() => usePlaza.setState({ target: r.id, list: false })}>
+              <p className="truncate text-xs font-black text-ink">{r.name}</p>
+              <p className="text-[12px] font-bold text-pink-deep">{L(PROMOS.find((p) => p.id === r.promo) ?? PROMOS[0])}</p>
+            </button>
+          ))}
+          <p className="mt-3 text-[12px] leading-relaxed text-ink/45">{g.promo ? `${t("plaza.myPromo")}: ${L(PROMOS.find((p) => p.id === g.promo) ?? PROMOS[0])}` : t("plaza.promoHow")}</p>
+        </div>
+      )}
+
       <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-30 flex w-full max-w-xl -translate-x-1/2 flex-col items-center gap-1.5 px-2">
         <p className="rounded-full bg-white/75 px-3 py-1 text-[12px] font-semibold text-ink/65 backdrop-blur">{t("plaza.hint")}</p>
         <div className="flex flex-wrap justify-center gap-1.5 rounded-3xl bg-white/90 p-1.5 shadow-[0_8px_30px_rgba(231,154,174,0.35)] backdrop-blur">

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { tune } from "../src/data/config";
+import { PROMOS } from "../src/data/game";
 import { cleanLook, cleanName, sparkleSpots } from "../src/net/plaza";
 import { DEFAULT_LOOK, useGame } from "../src/store/game";
 
@@ -42,5 +43,40 @@ describe("월드 광장", () => {
     for (let i = per; i < cap + 5; i++) g().plazaCollect();
     expect(g().coins).toBe(c + cap * tune("plaza.sparkle_coins"));
     expect(g().plazaCollect()).toEqual({ coins: 0, star: false });
+  });
+  it("라운지 방문 혜택은 라운지마다 하루 한 번, 내 라운지는 받을 수 없다", () => {
+    const c = g().coins, st = g().stars;
+    expect(g().plazaVisit("ABC123", 1)).toEqual({ coins: PROMOS[0].coins, stars: PROMOS[0].stars });
+    expect(g().coins).toBe(c + PROMOS[0].coins);
+    expect(g().plazaVisit("ABC123", 1)).toBeNull();
+    expect(g().plazaVisit("ZZZ999", 2)).toEqual({ coins: 0, stars: 2 });
+    expect(g().stars).toBe(st + 2);
+    expect(g().plazaVisit(g().friendCode, 1)).toBeNull();
+    expect(g().plazaVisit("QQQ111", 99)).toBeNull();
+    for (let i = 0; i < 20; i++) g().plazaVisit(`AAA${100 + i}`, 3);
+    expect(g().daily.stats.visits).toBe(tune("plaza.visit_daily"));
+  });
+  it("방문객·하트 보상에는 하루 한도가 있다", () => {
+    expect(g().plazaHosted()).toBe(tune("plaza.host_lp"));
+    for (let i = 0; i < tune("plaza.host_daily") + 3; i++) g().plazaHosted();
+    expect(g().plazaHosted()).toBe(0);
+    const st = g().stars;
+    for (let i = 0; i < tune("plaza.heart_daily") + 4; i++) g().plazaHeart();
+    expect(g().stars).toBe(st + tune("plaza.heart_daily"));
+  });
+  it("소원 분수는 하루 한 번, 꽃잎 잡기 보상은 상한과 하루 판 수 제한이 있다", () => {
+    const w = g().plazaWish();
+    expect(w).toBeGreaterThanOrEqual(tune("plaza.wish_min"));
+    expect(w).toBeLessThanOrEqual(tune("plaza.wish_max"));
+    expect(g().plazaWish()).toBe(0);
+    expect(g().petalReward(5)).toBe(5 * tune("plaza.petal_coin"));
+    expect(g().petalReward(9999)).toBe(tune("plaza.petal_max"));
+    for (let i = 2; i < tune("plaza.petal_daily"); i++) g().petalReward(1);
+    expect(g().petalReward(10)).toBe(0);
+    expect(g().stats.petalBest).toBe(9999);
+  });
+  it("홍보는 정해진 혜택만 고를 수 있다", () => {
+    g().setPromo(2); expect(g().promo).toBe(2);
+    g().setPromo(77); expect(g().promo).toBe(0);
   });
 });
