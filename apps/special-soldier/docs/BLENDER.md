@@ -98,3 +98,11 @@ Linux에서 헤드리스로 실행해 만들었습니다. 같은 스크립트가
 - `python3 tools/blender/textures.py` 가 Poly Haven(CC0, 계정·API 키 불필요)에서 모래·숲바닥·암석·콘크리트·녹슨 철·목재·골함석 7종을 받아 Blender 이미지 파이프라인으로 512 px 색상/노멀 JPEG와 지형용 색조 정규화 맵을 만든다 → `src/assets/tex/` (1.3 MB, 출처는 `CREDITS.txt`).
 - 지형은 정점 속성 `splat`(모래·풀·암석·콘크리트 가중치)으로 4종을 섞고 정점 색이 색조를 준다(`src/world/textures.js`). 박스 재질(`MAT.concrete/dark/metal/wood/sand/rust/rock`)은 사진 세트를 쓴다.
 - Blender 모델(병사·소품·나무)의 표면은 여전히 정점 색 + 절차 생성 디테일 맵이다.
+
+## v0.9 — Blender 모델에도 사진 텍스처
+
+- 추가 세트(Poly Haven CC0): 직물(`denim_fabric`), 총기 강철(`metal_plate`), 도장 금속(`rusty_painted_metal`), 나무껍질(`bark_brown_02`), 그리고 목재·녹의 색조 정규화 맵. `src/assets/tex/` 합계 2.3 MB.
+- 소품·구조물(`MAT.prop`): Blender 재질 이름으로 표면 분류(`surfaceClass`: 콘크리트 / 도장 금속 / 목재 / 녹)를 정점 속성 `cls`에 넣고, 셰이더가 해당 사진의 색상 배율과 노멀을 고른다. 정적 배치 시 UV를 월드 미터 단위로 다시 투영한다.
+- 병사: 위장 패턴 아래에 실제 직조 질감(색상 배율 + 노멀). 장구류는 UV (0,0)의 중립 텍셀을 써서 직물 질감이 묻지 않는다.
+- 총기·차량·나무 줄기: 절차 생성 그런지 대신 사진 세트.
+- 위장 무늬 자체, 피부, 나뭇잎은 여전히 절차 생성/정점 색이다(CC0 위장 원단 사진은 Poly Haven에 없음).

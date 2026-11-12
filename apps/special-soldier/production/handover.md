@@ -1,4 +1,4 @@
-# 핸드오버 카드 — v0.8
+# 핸드오버 카드 — v0.9
 
 > 형식 출처: `donchitos/claude-code-game-studios` 의 handover card(통과한 것 / 아직 깨진 것 / 추정한 것을 나눠 적는다).
 
