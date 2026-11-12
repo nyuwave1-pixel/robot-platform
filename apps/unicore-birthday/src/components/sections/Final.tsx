@@ -9,6 +9,7 @@ import { useQualityTier, useReducedMotion } from "@/lib/env";
 import s from "./sections.module.css";
 import { useDict, useLocale } from "@/i18n/context";
 import { purchaseLinks } from "@/lib/purchase";
+import { track } from "@/lib/track";
 
 const GoldParticles = dynamic(() => import("@/features/scenes/GoldParticles"), { ssr: false });
 
@@ -47,8 +48,8 @@ export default function Final() {
             <p className={`headline-ko ${s.finalKo}`}>{t.copy.s12.ko}</p>
             <span className="caption">{t.copy.s12.name}</span>
             <div className={s.ctas}>
-              <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" data-region={links.primary.region}>{label(links.primary.region)}</a>
-              {links.secondary && <a className="btn btn-outline" href={links.secondary.href} target="_blank" rel="noopener" data-region={links.secondary.region}>{label(links.secondary.region)}</a>}
+              <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" data-region={links.primary.region} onClick={() => track("buy_click", { placement: "final", region: links.primary.region, locale })}>{label(links.primary.region)}</a>
+              {links.secondary && <a className="btn btn-outline" href={links.secondary.href} target="_blank" rel="noopener" data-region={links.secondary.region} onClick={() => track("buy_click", { placement: "final", region: links.secondary!.region, locale })}>{label(links.secondary.region)}</a>}
               <a className="btn btn-ghost" href="#how-to-use">{t.copy.s12.cta2}</a>
               <a className="btn btn-ghost" href={product.urls.brand} target="_blank" rel="noopener">{t.copy.s12.cta3}</a>
             </div>
