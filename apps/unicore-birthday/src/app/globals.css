@@ -184,17 +184,21 @@ html:not([lang="ko"]) .headline-ko b { font-weight: 600; }
 /* ---------- promo strip banner (top, fixed) ---------- */
 :root { --promo-h: 0px; }
 html[data-promo="on"] { --promo-h: 44px; }
-.promo-bar { position: fixed; left: 0; right: 0; top: 0; z-index: 1210; height: calc(44px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); display: flex; align-items: stretch; background: linear-gradient(90deg, #2a1c10 0%, #120d0a 40%, #120d0a 60%, #2a1c10 100%); border-bottom: 1px solid rgba(229,197,141,.45); box-shadow: 0 8px 30px rgba(0,0,0,.45); animation: promoIn .6s var(--ease-cinematic) both; }
+.promo-bar { position: fixed; left: 0; right: 0; top: 0; z-index: 1210; height: calc(44px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); display: flex; align-items: stretch; justify-content: center; background: linear-gradient(90deg, #2a1c10 0%, #120d0a 40%, #120d0a 60%, #2a1c10 100%); border-bottom: 1px solid rgba(229,197,141,.45); box-shadow: 0 8px 30px rgba(0,0,0,.45); animation: promoIn .6s var(--ease-cinematic) both; }
 .promo-bar::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-metal), transparent); }
-.promo-bar-link { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 0 56px 0 max(16px, env(safe-area-inset-left, 0px)); color: var(--ivory); text-decoration: none; }
+.promo-bar-link { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 0 0 0 max(16px, env(safe-area-inset-left, 0px)); color: var(--ivory); text-decoration: none; }
+.promo-bar-ctas { flex: none; display: flex; align-items: center; gap: 14px; padding: 0 56px 0 16px; }
+.promo-bar-cta-short { display: none; }
 .promo-bar-badge { flex: none; font: 700 11px/1 var(--font-kr); letter-spacing: .04em; color: #1a120c; background: linear-gradient(135deg, #f3dfb4, var(--gold-metal) 55%, var(--gold)); padding: 6px 9px 5px 11px; border-radius: 3px; }
 .promo-bar-text { min-width: 0; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 400 13px/1 var(--font-kr); letter-spacing: -.005em; }
 .promo-bar-text b { font-weight: 600; color: var(--gold-metal); }
 .promo-bar-short { display: none; }
 .promo-bar-when { color: rgba(244,239,231,.72); }
 .promo-bar-when::before { content: "·"; margin-right: 10px; color: var(--gold-deep); }
-.promo-bar-cta { flex: none; font: 600 12px/1 var(--font-ui); letter-spacing: .14em; color: var(--gold-metal); border-bottom: 1px solid rgba(229,197,141,.5); padding-bottom: 2px; transition: color .3s, border-color .3s; }
-.promo-bar-link:hover .promo-bar-cta { color: var(--ivory); border-color: var(--ivory); }
+.promo-bar-cta { flex: none; font: 600 12px/1 var(--font-kr); letter-spacing: .02em; color: var(--gold-metal); border-bottom: 1px solid rgba(229,197,141,.5); padding-bottom: 2px; text-decoration: none; white-space: nowrap; transition: color .3s, border-color .3s; }
+.promo-bar-cta[data-region="us"] { color: #f3dfb4; }
+.promo-bar-cta:hover { color: var(--ivory); border-color: var(--ivory); }
+html[lang="en"] .promo-bar-cta { font-family: var(--font-ui); letter-spacing: .1em; }
 .promo-bar-close { position: absolute; right: max(6px, env(safe-area-inset-right, 0px)); top: env(safe-area-inset-top, 0px); width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; color: rgba(244,239,231,.6); font: 300 24px/1 var(--font-ui); cursor: pointer; }
 .promo-bar-close:hover { color: var(--ivory); }
 html[lang="en"] .promo-bar-badge { font-family: var(--font-ui); letter-spacing: .22em; font-size: 10px; }
@@ -202,12 +206,15 @@ html[lang="en"] .promo-bar-badge { font-family: var(--font-ui); letter-spacing: 
 /* 띠 배너가 보일 때 상단 고정 컨트롤을 아래로 */
 html[data-promo="on"] .lang-switch, html[data-promo="on"] .sound-toggle { top: calc(16px + var(--promo-h) + env(safe-area-inset-top, 0px)); }
 @media (max-width: 767px) {
-  .promo-bar-link { gap: 10px; padding-right: 48px; justify-content: flex-start; }
+  .promo-bar-link { flex: 1 1 auto; gap: 10px; padding-right: 0; justify-content: flex-start; }
+  .promo-bar-ctas { gap: 10px; padding: 0 44px 0 10px; }
+  .promo-bar-cta-full { display: none; } .promo-bar-cta-short { display: inline; }
+  .promo-bar-when { display: none; }
   .promo-bar-badge { display: none; }
   .promo-bar-text { font-size: 12px; gap: 6px; }
   .promo-bar-text > b:first-child { display: none; }
   .promo-bar-short { display: inline; }
   .promo-bar-when::before { margin-right: 6px; }
-  .promo-bar-cta { font-size: 11px; letter-spacing: .08em; }
+  .promo-bar-cta { font-size: 11.5px; letter-spacing: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .promo-bar { animation: none; } }
