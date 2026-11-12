@@ -92,3 +92,9 @@ Linux에서 헤드리스로 실행해 만들었습니다. 같은 스크립트가
 
 - `Asm.detail(True)` 로 추가한 부품은 `<노드>__d` 자식으로 내보내지고, 게임은 카메라에서 34 m(줌 배율 반영) 넘으면 숨긴다(`lodSoldier`). 측정값: 병사 1인 근거리 약 1.3–1.7만 → 원거리 0.76–0.96만 tris. 총기의 레일 톱니·M-LOK 등도 같은 방식.
 - 위장 패턴은 `detailMap('camo:<style>')` 절차 생성이며 종류마다 재질 1개를 공유한다.
+
+## v0.8 — 무료 CC0 사진 텍스처 (Poly Haven)
+
+- `python3 tools/blender/textures.py` 가 Poly Haven(CC0, 계정·API 키 불필요)에서 모래·숲바닥·암석·콘크리트·녹슨 철·목재·골함석 7종을 받아 Blender 이미지 파이프라인으로 512 px 색상/노멀 JPEG와 지형용 색조 정규화 맵을 만든다 → `src/assets/tex/` (1.3 MB, 출처는 `CREDITS.txt`).
+- 지형은 정점 속성 `splat`(모래·풀·암석·콘크리트 가중치)으로 4종을 섞고 정점 색이 색조를 준다(`src/world/textures.js`). 박스 재질(`MAT.concrete/dark/metal/wood/sand/rust/rock`)은 사진 세트를 쓴다.
+- Blender 모델(병사·소품·나무)의 표면은 여전히 정점 색 + 절차 생성 디테일 맵이다.
