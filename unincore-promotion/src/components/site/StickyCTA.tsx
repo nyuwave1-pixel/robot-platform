@@ -10,8 +10,12 @@ import { AmazonLogo } from "@/components/landing/AmazonLogo";
  * Mobile-only bottom bar. Appears after the gallery and its button scroll away
  * and hides while the final CTA or footer is on screen, so it never covers the
  * content it repeats. Desktop doesn't need it: the gallery button stays pinned.
+ *
+ * With a `label` (the product landing pages) it is one full-width Amazon button, the same size and
+ * design as the desktop one (JYT revision 2, item 7). Without it, the older compact bar with the
+ * product thumbnail and name.
  */
-export function StickyCTA({ product, promoInitial, image, title }: { product: AmazonProduct; promoInitial: boolean; image?: string; title?: string }) {
+export function StickyCTA({ product, promoInitial, image, title, label }: { product: AmazonProduct; promoInitial: boolean; image?: string; title?: string; label?: string }) {
   const [show, setShow] = useState(false);
   const promo = usePromoActive(product.promotion, promoInitial);
 
@@ -45,6 +49,12 @@ export function StickyCTA({ product, promoInitial, image, title }: { product: Am
       className={`fixed inset-x-0 bottom-0 z-50 px-3 transition duration-500 ease-out lg:hidden ${show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[130%] opacity-0"}`}
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
     >
+      {label ? (
+        <AmazonButton product={product} location="sticky" className="amz-btn mx-auto flex w-full max-w-xl shadow-[inset_0_0_0_1px_rgb(196_85_0/0.55),inset_0_1px_0_rgb(255_255_255/0.6),0_14px_30px_-12px_rgb(120_60_0/0.55)]">
+          <span>{promo && product.promotion ? `${product.promotion.discountPct}% off on` : label}</span>
+          <AmazonLogo title="Amazon" smile="currentColor" />
+        </AmazonButton>
+      ) : (
       <div className="glass-bar mx-auto flex max-w-xl items-center gap-3 rounded-[20px] p-2 pl-2.5">
         {image && (
           <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[12px] bg-[#F5F5F1]">
@@ -60,6 +70,7 @@ export function StickyCTA({ product, promoInitial, image, title }: { product: Am
           <AmazonLogo title="Amazon" smile="currentColor" />
         </AmazonButton>
       </div>
+      )}
     </div>
   );
 }

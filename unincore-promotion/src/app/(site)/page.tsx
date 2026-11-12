@@ -108,7 +108,7 @@ export default async function HomePage() {
             </h1>
             <p className="vc-hero-sub mt-6 max-w-md text-lg leading-relaxed text-ivory/75">{BRAND.hero.sub}</p>
             <div className="vc-hero-actions mt-9 flex flex-wrap gap-3">
-              <a href="#ritual" className="btn-ghost-light" data-magnetic>
+              <a href="#wash" className="btn-ghost-light" data-magnetic>
                 Explore the collection
               </a>
             </div>
@@ -192,50 +192,7 @@ export default async function HomePage() {
         </ScrollProgress>
       </section>
 
-      {/* 03 THREE-STEP RITUAL — pinned horizontal scroll on desktop, vertical on mobile */}
-      <section id="ritual" className="vc-ritual relative overflow-hidden bg-cream" data-hscroll>
-        <div className="vc-ritual-track flex flex-col gap-6 px-5 py-20 sm:px-8 lg:h-[100svh] lg:w-max lg:flex-row lg:items-center lg:gap-10 lg:py-0 lg:pl-[max(32px,calc((100vw-1240px)/2))] lg:pr-[20vw]" data-hscroll-track>
-          <div className="max-w-md shrink-0 lg:w-[34vw]">
-            <p className="eyebrow">The 3-Step Ritual</p>
-            <h2 className="h-section mt-4">Cleanse. Mask. Brighten.</h2>
-            <p className="mt-5 text-ink-soft">{BRAND.intro.reveal} Use all three together, or start with the step your skin needs most.</p>
-            <p className="mt-8 hidden text-[11px] font-semibold uppercase tracking-[0.28em] text-ink-mute lg:block" aria-hidden>
-              Scroll →
-            </p>
-          </div>
-          {products.map((p, i) => {
-            const s = SCENES[p.key];
-            return (
-              <article key={p.key} className="vc-ritual-card relative grid shrink-0 overflow-hidden rounded-[32px] bg-ivory p-6 ring-1 ring-ink/5 sm:grid-cols-[0.9fr_1fr] sm:gap-8 sm:p-8 lg:w-[min(64vw,820px)]">
-                <span className="relative block aspect-[4/5] overflow-hidden rounded-[24px]">
-                  <Image src={p.heroImage || ""} alt={p.name} fill sizes="(max-width:1024px) 80vw, 360px" className="object-cover" />
-                </span>
-                <div className="mt-6 flex flex-col sm:mt-0">
-                  <p className="font-display text-6xl leading-none text-champagne sm:text-7xl" aria-hidden>
-                    0{i + 1}
-                  </p>
-                  <p className="eyebrow mt-4">
-                    {s.step} · {s.verb}
-                  </p>
-                  <h3 className="mt-2 text-3xl leading-tight sm:text-4xl">{p.name}</h3>
-                  <p className="mt-2 text-sm text-ink-mute">{p.size}</p>
-                  <p className="mt-4 text-ink-soft">{p.howTo.map((h) => h.text).slice(-2).join(" ")}</p>
-                  <div className="mt-auto flex flex-wrap gap-2 pt-6">
-                    <a href={`#${p.key}`} className="btn-ghost !min-h-[44px] !px-5 !text-[11px]">
-                      {s.discover}
-                    </a>
-                    <BuyButton p={p} location="ritual" label="Shop on Amazon" className="btn-amazon !min-h-[44px] !px-5 !text-[11px]" />
-                  </div>
-                </div>
-                {i < products.length - 1 && <span className="vc-liquid-link hidden lg:block" aria-hidden />}
-              </article>
-            );
-          })}
-        </div>
-        <div className="vc-ritual-progress hidden lg:block" aria-hidden>
-          <span />
-        </div>
-      </section>
+      {/* 03 THREE-STEP RITUAL: removed 2026-11-12 at the client's request. Links that pointed to it now open the first product scene (#wash). */}
 
       {/* 04 PRODUCT 01 — ENZYME POWDER WASH: powder meets water, turns into foam */}
       {wash && (
@@ -439,7 +396,7 @@ export default async function HomePage() {
             ))}
           </ul>
           <p className="mt-10 text-center">
-            <a href="#ritual" className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne underline underline-offset-4">
+            <a href="#wash" className="text-xs font-semibold uppercase tracking-[0.2em] text-champagne underline underline-offset-4">
               Explore all products
             </a>
           </p>

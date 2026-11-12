@@ -53,11 +53,14 @@ export interface LandingContent {
   hero: { src: string; alt: string };
   banner: string[];
   gallery: GalleryItem[];
-  lead: { eyebrow: string; big: string; text: string };
+  /** note: the small source line under the figure (JYT revision 2, item 1). */
+  lead: { eyebrow: string; big: string; text: string; note?: string };
   title: string;
   result: { title: string; highlight: string; sub: string; stats: Stat[]; /** Photo shown with the result figures. */ image: string; imageAlt: string };
   /** One card per concern, each with a skin close-up cropped from the brand's own Amazon images. */
   concerns: { title: string; text: string; image: string; alt: string }[];
+  /** Width / height of the concern photos, so the client's photos are shown whole. */
+  concernRatio: number;
   /** Vertical creator videos from the brand's US Amazon listings. */
   ugc: { caption: string; video: string; poster: string; duration: string }[];
   /** Line under the UGC heading. */
@@ -106,14 +109,15 @@ export const SAVINGS = {
   note: "Offer details may change depending on the current Amazon promotion.",
 };
 
+// Revision 2, item 5: laid out like the client's "Complete your vitamin glow routine" reference, no Amazon buttons.
 export const ROUTINE = {
   eyebrow: "7-Day Glow Routine",
-  title: "Start your 7-day glow today",
+  title: "Complete your 7-day glow routine",
   accent: "7-day glow",
   items: [
-    { key: "wash" as const, name: "Enzyme Powder Cleanser" },
-    { key: "mask" as const, name: "Vitamin C Sheet Mask" },
-    { key: "ampoule" as const, name: "13.5 Ampoule Serum" },
+    { key: "wash" as const, name: "Enzyme Powder Cleanser", note: "Gentle cleanse" },
+    { key: "mask" as const, name: "Vitamin C Sheet Mask", note: "Daily radiance" },
+    { key: "ampoule" as const, name: "13.5 Ampoule Serum", note: "Brightening care" },
   ],
 };
 
@@ -145,7 +149,7 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       { id: "amz-8", label: "On skin", kind: "image", src: "/landing/amz/listing/ampoule-8.webp", alt: "Model holding the Vita C 13.5 ampoule with a swipe of serum on her cheek" },
       { id: "amz-9", label: "Ingredient list", kind: "image", src: "/landing/amz/listing/ampoule-9.webp", alt: "Full ingredient list of the Vita C 13.5 Super Brightening Ampoule, made in Korea" },
     ],
-    lead: { eyebrow: "Korea's best-selling vitamin C ampoule", big: "100,000+", text: "bottles sold in Korea, now on Amazon US" },
+    lead: { eyebrow: "Korea's best-selling vitamin C ampoule", big: "100,000+", text: "bottles sold in Korea, now on Amazon US", note: "100,000+ sold in Korea, March 2023 – September 2026" },
     title: "UNI&CORE Vita C 13.5 Ampoule Serum",
     result: {
       title: "Visible results in",
@@ -160,12 +164,13 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       ],
     },
     concerns: [
-      { title: "Dullness", text: "Tired, flat-looking skin", image: "/landing/amz/concern/dull.webp", alt: "Close-up of dull-looking skin around the nose" },
-      { title: "Uneven tone", text: "Patchy, uneven-looking color", image: "/landing/amz/concern/uneven.webp", alt: "Close-up of a cheek with patchy, uneven-looking color" },
-      // Freckled cheek: freestocks.org on Flickr, CC0 (flickr.com/photos/135396164@N05/29047364532).
-      { title: "Dark spots", text: "The look of spots and sun marks", image: "/landing/amz/concern/dark-spots-2.webp", alt: "Close-up of a cheek with scattered brown spots" },
-      { title: "Post-blemish marks", text: "Marks left after breakouts", image: "/landing/amz/concern/marks.webp", alt: "Close-up of a cheek with small red marks" },
+      { title: "Dullness", text: "Tired, flat-looking skin", image: "/landing/amz/concern/ampoule-1.webp", alt: "Close-up of an eye and cheek with dull, tired-looking skin" },
+      { title: "Uneven tone", text: "Patchy, uneven-looking color", image: "/landing/amz/concern/ampoule-2.webp", alt: "Close-up of a cheek with patchy, uneven-looking color" },
+      { title: "Dark spots", text: "The look of spots and sun marks", image: "/landing/amz/concern/ampoule-3.webp", alt: "Close-up of a cheek with scattered brown spots" },
+      { title: "Post-blemish marks", text: "Marks left after breakouts", image: "/landing/amz/concern/ampoule-4.webp", alt: "Close-up of a cheek with small marks left after breakouts" },
     ],
+    // Photos cut from the client's Skin Concern image for this page (revision 2, item 2); shown whole at this ratio.
+    concernRatio: 4 / 3,
     ugcNote: "The rest of the Vita C routine, filmed by creators",
     ugc: [
       { caption: "Step 1: How to use the Vita C Enzyme Powder Wash", video: "/landing/amz/video/wash-2.mp4", poster: "/landing/amz/video/wash-2.webp", duration: "0:29" },
@@ -273,7 +278,7 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       { id: "amz-8", label: "On skin", kind: "image", src: "/landing/amz/listing/mask-8.webp", alt: "Model wearing the black sheet mask, which holds essence close to skin" },
       { id: "amz-9", label: "Ingredient list", kind: "image", src: "/landing/amz/listing/mask-9.webp", alt: "Full ingredient list of the Vita C Super Brightening Mask, made in Korea" },
     ],
-    lead: { eyebrow: "Korea's best-selling vitamin C sheet mask", big: "10M+", text: "sold in Korea, now on Amazon US" },
+    lead: { eyebrow: "Korea's best-selling vitamin C sheet mask", big: "10M+", text: "sold in Korea, now on Amazon US", note: "10,000,000+ sold in Korea, March 2023 – September 2026" },
     title: "UNI&CORE Vita C Super Brightening Mask, 5 Sheets",
     result: {
       title: "Visible glow in",
@@ -288,11 +293,13 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       ],
     },
     concerns: [
-      { title: "Dullness", text: "Skin that looks tired after a long week", image: "/landing/amz/concern/dull.webp", alt: "Close-up of dull-looking skin around the nose" },
-      { title: "Dehydration", text: "Tight, dry-feeling skin", image: "/landing/amz/concern/rough.webp", alt: "Close-up of dry, flaky-looking skin" },
-      { title: "Uneven tone", text: "Patchy, uneven-looking color", image: "/landing/amz/concern/uneven.webp", alt: "Close-up of a cheek with patchy, uneven-looking color" },
-      { title: "Rough texture", text: "Skin that feels less smooth", image: "/landing/amz/concern/texture.webp", alt: "Close-up of a cheek with visible pores and uneven texture" },
+      { title: "Dullness", text: "Skin that looks tired after a long week", image: "/landing/amz/concern/mask-1.webp", alt: "Close-up of an eye and cheek with dull, tired-looking skin" },
+      { title: "Dehydration", text: "Tight, dry-feeling skin", image: "/landing/amz/concern/mask-2.webp", alt: "Close-up of dry, flaky-looking skin" },
+      { title: "Uneven tone", text: "Patchy, uneven-looking color", image: "/landing/amz/concern/mask-3.webp", alt: "Close-up of a cheek with patchy, uneven-looking color" },
+      { title: "Rough texture", text: "Skin that feels less smooth", image: "/landing/amz/concern/mask-4.webp", alt: "Close-up of a cheek with visible pores and uneven texture" },
     ],
+    // Photos cut from the client's Skin Concern image for this page (revision 2, item 2); shown whole at this ratio.
+    concernRatio: 3 / 2,
     ugcNote: "Real people, real routines",
     ugc: [
       { caption: "My 20-minute vitamin C sheet mask experience", video: "/landing/amz/video/mask-2.mp4", poster: "/landing/amz/video/mask-2.webp", duration: "0:44" },
@@ -404,11 +411,13 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       ],
     },
     concerns: [
-      { title: "Dull surface", text: "Buildup that makes skin look flat", image: "/landing/amz/concern/dull.webp", alt: "Close-up of dull-looking skin around the nose" },
-      { title: "Rough texture", text: "Skin that feels bumpy or uneven", image: "/landing/amz/concern/rough.webp", alt: "Close-up of rough, flaky-looking skin" },
-      { title: "Clogged-looking pores", text: "Pores that look congested", image: "/landing/amz/concern/pores.webp", alt: "Close-up of visible pores on the nose" },
-      { title: "Excess oil", text: "Shine by midday", image: "/landing/amz/concern/oil.webp", alt: "Close-up of shiny, oily-looking skin" },
+      { title: "Dull surface", text: "Buildup that makes skin look flat", image: "/landing/amz/concern/wash-1.webp", alt: "Close-up of dull-looking skin around the nose" },
+      { title: "Rough texture", text: "Skin that feels bumpy or uneven", image: "/landing/amz/concern/wash-2.webp", alt: "Close-up of rough, flaky-looking skin" },
+      { title: "Clogged-looking pores", text: "Pores that look congested", image: "/landing/amz/concern/wash-3.webp", alt: "Close-up of a cheek with clogged-looking pores" },
+      { title: "Excess oil", text: "Shine by midday", image: "/landing/amz/concern/wash-4.webp", alt: "Close-up of shiny, oily-looking skin on the nose" },
     ],
+    // Photos cut from the client's Skin Concern image for this page (revision 2, item 2); shown whole at this ratio.
+    concernRatio: 2 / 1,
     ugcNote: "Real people, real routines",
     ugc: [
       { caption: "How to use the Vita C Enzyme Powder Wash", video: "/landing/amz/video/wash-2.mp4", poster: "/landing/amz/video/wash-2.webp", duration: "0:29" },
