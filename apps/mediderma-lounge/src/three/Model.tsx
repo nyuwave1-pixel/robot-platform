@@ -19,7 +19,7 @@ function load(url: string) {
 
 export interface Tint { color?: string; emissive?: string; emissiveIntensity?: number; roughness?: number }
 
-export function Model({ url, tint, fallback, ...props }: { url: string; tint?: Record<string, Tint>; fallback?: ReactNode } & JSX.IntrinsicElements["group"]) {
+export function Model({ url, tint, fallback, materials, ...props }: { url: string; tint?: Record<string, Tint>; fallback?: ReactNode; /** 재질 이름 → 통째로 바꿔 끼울 재질 (캐릭터 피부처럼 공유 재질을 쓸 때) */ materials?: Record<string, THREE.Material> } & JSX.IntrinsicElements["group"]) {
   const [src, setSrc] = useState<THREE.Group | null>(null);
   useEffect(() => { let on = true; load(url).then((s) => { if (on) setSrc(s); }); return () => { on = false; }; }, [url]);
   const tintKey = JSON.stringify(tint ?? {});
@@ -31,6 +31,7 @@ export function Model({ url, tint, fallback, ...props }: { url: string; tint?: R
       if (!m.isMesh) return;
       m.castShadow = true; m.receiveShadow = true;
       const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((mt) => {
+        if (materials?.[mt.name]) return materials[mt.name];
         const t = tint?.[mt.name];
         if (!t) return mt;
         const n = (mt as THREE.MeshStandardMaterial).clone();
@@ -44,7 +45,7 @@ export function Model({ url, tint, fallback, ...props }: { url: string; tint?: R
     });
     return o;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src, tintKey]);
+  }, [src, tintKey, materials]);
   if (!obj) return <group {...props}>{fallback}</group>;
   return <group {...props}><primitive object={obj} /></group>;
 }

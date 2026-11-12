@@ -9,6 +9,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sparkles } from "@react-three/drei";
 import * as THREE from "three";
+import { Model } from "./Model";
 import { FASHION_MAP, STAGES, RANKS } from "../data/game";
 import type { Look } from "../store/game";
 
@@ -73,6 +74,7 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
   skinMat.emissive.set(look.skin).lerp(new THREE.Color("#ff9f9f"), 0.35);
   skinMat.emissiveIntensity = 0.16 + glow * 0.22 + beauty * 0.08;
   skinMat.roughness = 0.55 - beauty * 0.15;
+  const skinMats = useMemo(() => ({ skin: skinMat }), [skinMat]);
   const hairMat = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.42, metalness: 0.05, side: THREE.DoubleSide }), []);
   hairMat.color.set(look.hairColor);
   hairMat.emissive.set(look.hairColor);
@@ -169,10 +171,13 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
               <cylinderGeometry args={[d.limb * 1.05, d.limb * 0.8, d.leg, 12]} />
             </mesh>
           )}
-          <mesh position={[0, -d.leg + d.limb * 0.5, d.limb * 0.45]} scale={[1, 0.7, 1.55]} castShadow>
-            <sphereGeometry args={[d.limb * 1.15, 14, 10]} />
-            <meshStandardMaterial color={shoe} roughness={0.35} metalness={shoe === gold ? 0.6 : 0} />
-          </mesh>
+          <Model url="./models/char_shoe.glb" position={[0, -d.leg, 0]} scale={[s * d.limb, d.limb, d.limb]} tint={{ shoe: { color: shoe } }}
+            fallback={
+              <mesh position={[0, 0.5, 0.45]} scale={[1, 0.7, 1.55]} castShadow>
+                <sphereGeometry args={[1.15, 14, 10]} />
+                <meshStandardMaterial color={shoe} roughness={0.35} metalness={shoe === gold ? 0.6 : 0} />
+              </mesh>
+            } />
         </group>
       ))}
 
@@ -183,10 +188,13 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           <meshStandardMaterial color={col} roughness={0.6} side={THREE.DoubleSide} />
         </mesh>
         {(cut === "puff" || cut === "aline" || cut === "gown") && (
-          <mesh position={[0, waistY - skirt.len + 0.012, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[skirt.r * 0.995, 0.014, 8, 40]} />
-            <meshStandardMaterial color={acc} roughness={0.4} metalness={cut === "gown" ? 0.7 : 0} />
-          </mesh>
+          <Model url="./models/char_hem.glb" position={[0, waistY - skirt.len + 0.012, 0]} scale={[skirt.r, skirt.r * 1.3, skirt.r]} tint={{ accent: { color: acc } }}
+            fallback={
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.995, 0.05, 8, 40]} />
+                <meshStandardMaterial color={acc} roughness={0.4} />
+              </mesh>
+            } />
         )}
         <mesh position={[0, (waistY + topY) / 2, 0]} castShadow>
           <cylinderGeometry args={[chestR, waistR, topY - waistY, 24]} />
@@ -202,10 +210,13 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
           <meshStandardMaterial color={stage >= 4 ? gold : acc} metalness={stage >= 4 ? 0.75 : 0} roughness={0.3} />
         </mesh>
         {cut !== "gown" && cut !== "sheath" && (
-          <mesh position={[0, topY - 0.02, chestR * 0.9]} scale={[1.6, 1, 0.5]}>
-            <sphereGeometry args={[0.03 + d.k * 0.004, 10, 8]} />
-            <meshStandardMaterial color={acc} />
-          </mesh>
+          <Model url="./models/char_bow.glb" position={[0, topY - 0.035, chestR * 0.98]} scale={0.05 + d.k * 0.008} tint={{ accent: { color: acc } }}
+            fallback={
+              <mesh scale={[1, 0.6, 0.3]}>
+                <sphereGeometry args={[0.9, 10, 8]} />
+                <meshStandardMaterial color={acc} />
+              </mesh>
+            } />
         )}
 
         {/* ── 팔 ── */}
@@ -226,9 +237,12 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
             <mesh position={[0, -d.arm / 2, 0]} castShadow material={skinMat}>
               <cylinderGeometry args={[d.limb * 0.86, d.limb * 0.7, d.arm, 10]} />
             </mesh>
-            <mesh position={[0, -d.arm, 0]} castShadow material={skinMat}>
-              <sphereGeometry args={[d.limb * 0.95, 12, 10]} />
-            </mesh>
+            <Model url="./models/char_hand.glb" position={[0, -d.arm + d.limb * 0.5, 0]} scale={[-s * d.limb * 0.8, d.limb * 0.8, d.limb * 0.8]} materials={skinMats}
+              fallback={
+                <mesh position={[0, -0.6, 0]} castShadow material={skinMat}>
+                  <sphereGeometry args={[1.2, 12, 10]} />
+                </mesh>
+              } />
             {nail && (
               <mesh position={[0, -d.arm - d.limb * 0.7, d.limb * 0.3]}>
                 <sphereGeometry args={[d.limb * 0.42, 8, 6]} />
@@ -300,8 +314,10 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
 
         {/* ── 머리 ── */}
         <group ref={headG} position={[0, d.headY, 0]}>
-          <mesh castShadow scale={[faceW, faceH, 0.98]} material={skinMat}>
-            <sphereGeometry args={[R, 36, 28]} />
+          <Model url="./models/char_head.glb" scale={[R * faceW, R * faceH, R * 0.98]} materials={skinMats}
+            fallback={<mesh castShadow material={skinMat}><sphereGeometry args={[1, 36, 28]} /></mesh>} />
+          <mesh visible={false}>
+            <sphereGeometry args={[R, 4, 4]} />
           </mesh>
           {/* 귀 + 귀걸이 */}
           {[-1, 1].map((s) => (

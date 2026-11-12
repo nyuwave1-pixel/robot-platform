@@ -213,8 +213,118 @@ def sofa(seats):
     export(f"sofa_{seats}")
 
 
+# ───────────── 캐릭터 파츠 ─────────────
+# 게임의 캐릭터는 체형·성장·의상을 코드로 조합하므로 통짜 모델이 아니라 "단위 크기 파츠"로 만든다.
+# 게임이 각 파츠를 체형 치수로 스케일하고 재질(skin · shoe · accent)을 캐릭터 색으로 바꾼다.
+SKIN = lambda: mat("skin", "#f6d2c0", rough=0.55)
+
+
+def deform(o, fn):
+    for v in o.data.vertices:
+        v.co.x, v.co.y, v.co.z = fn(v.co.x, v.co.y, v.co.z)
+
+
+def char_head():
+    """반지름 1 머리. 위쪽은 구 그대로(눈·볼 데칼이 얹히는 면), 아래로 갈수록 턱선이 갸름해지고 귀가 붙는다."""
+    reset()
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=48, ring_count=32)
+    o = bpy.context.object
+
+    def chin(x, y, z):
+        if z > -0.35:
+            return x, y, z
+        t = (-0.35 - z) / 0.65
+        return x * (1 - 0.24 * t ** 1.3), y * (1 - 0.1 * t), z - 0.05 * t * t
+    deform(o, chin)
+    finish(o, SKIN())
+    for s in (-1, 1):
+        ear = ball(0.2, (s * 0.96, 0.06, -0.08), SKIN(), scale=(0.4, 0.75, 1), seg=16)
+        ear.rotation_euler = (0, 0, s * 0.25)
+    export("char_head")
+
+
+def char_hand():
+    """손목이 원점, 아래(-Z)로 늘어진 손. 손바닥 + 엄지 + 손가락 마디 홈."""
+    reset()
+    palm = ball(1, (0, 0, -0.55), SKIN(), scale=(0.9, 0.58, 1.15), seg=20)
+    ball(0.42, (0.62, -0.28, -0.3), SKIN(), scale=(0.75, 0.75, 1.35), seg=14).rotation_euler = (0.2, -0.5, 0)
+    for i in range(4):  # 손가락 끝
+        ball(0.26, (-0.5 + i * 0.33, -0.02, -1.5 - (0.12 if i in (1, 2) else 0)), SKIN(), scale=(0.85, 0.9, 1.5), seg=12)
+    export("char_hand")
+
+
+def char_shoe():
+    """발목 아래 바닥 중앙이 원점. 메리제인: 둥근 앞코 + 밑창 + 발등 스트랩 + 단추. 단위 = 팔다리 반지름."""
+    reset()
+    shoe = mat("shoe", "#ef9ab0", rough=0.3)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1.15, segments=28, ring_count=16, location=(0, -0.45, 0.52))
+    o = bpy.context.object
+    o.scale = (1, 1.55, 0.72)
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
+    # 바닥을 평평하게, 앞코를 살짝 올린다
+    deform(o, lambda x, y, z: (x * (1 - 0.12 * max(0, -y - 0.9)), y, max(z, 0.1)))
+    finish(o, shoe)
+    bpy.ops.mesh.primitive_cylinder_add(radius=1.19, depth=0.14, vertices=32, location=(0, -0.45, 0.07))
+    sole = bpy.context.object
+    sole.scale = (1, 1.55, 1)
+    finish(sole, mat("sole", "#fff6f0", rough=0.5), bevel=0.04, segs=2)
+    bpy.ops.mesh.primitive_torus_add(major_radius=1.0, minor_radius=0.11, major_segments=28, minor_segments=8, location=(0, -0.05, 0.98))
+    finish(bpy.context.object, shoe)
+    ball(0.16, (1.02, -0.1, 0.98), GOLD(), seg=10)
+    export("char_shoe")
+
+
+def char_hem():
+    """반지름 1 치맛단 러플. 12개의 물결 주름이 있는 띠."""
+    reset()
+    import bmesh
+    bm = bmesh.new()
+    n, waves = 144, 12
+    top, bot = [], []
+    for i in range(n):
+        a = i / n * math.tau
+        w = math.sin(a * waves)
+        top.append(bm.verts.new((math.cos(a) * 0.985, math.sin(a) * 0.985, 0.05)))
+        r = 1.03 + 0.05 * w
+        bot.append(bm.verts.new((math.cos(a) * r, math.sin(a) * r, -0.05 - 0.012 * w)))
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((top[i], top[j], bot[j], bot[i]))
+    me = bpy.data.meshes.new("hem")
+    bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new("hem", me)
+    bpy.context.collection.objects.link(o)
+    bpy.context.view_layer.objects.active = o
+    o.select_set(True)
+    mod = o.modifiers.new("solid", "SOLIDIFY"); mod.thickness = 0.03
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    finish(o, mat("accent", "#ffffff", rough=0.45))
+    export("char_hem")
+
+
+def char_bow():
+    """가슴 리본. 폭 약 2 단위, 중심이 원점, 정면은 -Y."""
+    reset()
+    acc = mat("accent", "#ffffff", rough=0.45)
+    for s in (-1, 1):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.5, segments=20, ring_count=12, location=(s * 0.55, 0, 0))
+        o = bpy.context.object
+        o.scale = (1, 0.38, 0.8)
+        bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
+        deform(o, lambda x, y, z: (x, y, z * (0.3 + 0.7 * min(1, abs(x) / 0.8))))
+        finish(o, acc)
+        bpy.ops.mesh.primitive_cone_add(radius1=0.2, radius2=0.06, depth=0.7, vertices=12, location=(s * 0.22, 0, -0.42), rotation=(0, s * 0.45, 0))
+        t = bpy.context.object
+        t.scale = (1, 0.35, 1)
+        finish(t, acc)
+    ball(0.2, (0, -0.05, 0), acc, scale=(1, 0.8, 1), seg=14)
+    export("char_bow")
+
+
 if __name__ == "__main__":
     derma_home()
     care_bed()
     for n in (1, 2, 3):
         sofa(n)
+    for f in (char_head, char_hand, char_shoe, char_hem, char_bow):
+        f()
