@@ -16,17 +16,23 @@ export function Splash() {
   const started = useGame((s) => s.started);
   const name = useGame((s) => s.name);
   const set = useUI((s) => s.set);
+  const [video, setVideo] = useState(true);
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#fde7ee] via-cream to-[#f3e6ff] px-6 text-center">
+      {/* 타이틀 영상 (Blender 렌더, tools/blender/render_intro.py). 못 불러오면 그라데이션 배경만 보인다 */}
+      {video && (
+        <video className="pointer-events-none absolute inset-0 h-full w-full object-cover" src="./video/intro.mp4" poster="./video/intro.jpg" autoPlay muted loop playsInline onError={() => setVideo(false)} />
+      )}
+      {video && <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/55 via-white/35 to-white/75" />}
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-pink-soft/70 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-lav/70 blur-3xl" />
       <div className="relative h-56 w-56 sm:h-64 sm:w-64">
         <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} rank={started && !useGame.getState().look.hideRank ? useGame.getState().rank : 0} auto />
       </div>
-      <p className="mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
-      <h1 className="mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">MEDIDERMA <span className="text-pink-deep">LOUNGE</span></h1>
-      <p className="mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.</p>
-      <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
+      <p className="relative mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
+      <h1 className="relative mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">MEDIDERMA <span className="text-pink-deep">LOUNGE</span></h1>
+      <p className="relative mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.</p>
+      <div className="relative mt-8 flex w-full max-w-xs flex-col gap-3">
         {started && (
           <button className="btn-primary" onClick={() => set({ screen: "game" })}>{t("splash.continue", { name })}</button>
         )}
