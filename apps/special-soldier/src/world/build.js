@@ -226,7 +226,12 @@ function swayMaterial(mat, amp) {
 }
 function buildVegetation(rnd) {
   const W = G.world, dummy = new THREE.Object3D();
-  const place = (mesh, list) => { list.forEach((p, i) => { dummy.position.set(p.x, p.y, p.z); dummy.rotation.set(p.tx || 0, p.r, p.tz || 0); dummy.scale.setScalar(p.s); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }); mesh.count = list.length; mesh.instanceMatrix.needsUpdate = true; mesh.castShadow = true; mesh.receiveShadow = true; mesh.frustumCulled = false; W.group.add(mesh); };
+  const CELL = 160, cells = (list) => { const m = new Map(); for (const p of list) { const k = Math.floor(p.x / CELL) + ',' + Math.floor(p.z / CELL); if (!m.has(k)) m.set(k, []); m.get(k).push(p); } return [...m.values()]; };
+  /** One InstancedMesh per 160 m cell (frustum-culled; `near` > 0 also hides cells farther than that from the camera). */
+  const place = (proto, all, near = 0) => { const out = []; for (const list of cells(all)) { const mesh = new THREE.InstancedMesh(proto.geometry, proto.material, list.length);
+    list.forEach((p, i) => { dummy.position.set(p.x, p.y, p.z); dummy.rotation.set(p.tx || 0, p.r, p.tz || 0); dummy.scale.setScalar(p.s); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }); mesh.instanceMatrix.needsUpdate = true; mesh.castShadow = proto.castShadow !== false; mesh.receiveShadow = true; mesh.computeBoundingSphere(); mesh.frustumCulled = true; W.group.add(mesh); out.push(mesh); }
+    if (near) W.animated.push(() => { const c = G.camera.position; for (const m of out) { const b = m.boundingSphere; m.visible = Math.hypot(b.center.x - c.x, b.center.z - c.z) < near + b.radius; } });
+    W.vegCells = (W.vegCells || 0) + out.length; return out; };
   // jungle trees
   const trunks = [], palms = [], rocks = [], ferns = [];
   for (let i = 0; i < 5200; i++) {
@@ -250,7 +255,7 @@ function buildVegetation(rnd) {
   place(new THREE.InstancedMesh(assetGeo('Palm', 'trunk') || pg, bark, palms.length), palms); place(new THREE.InstancedMesh(assetGeo('Palm', 'canopy') || pl, palmLeaf, palms.length), palms);
   place(new THREE.InstancedMesh(assetGeo('Rock') || new THREE.DodecahedronGeometry(1, 0), MAT.rock, rocks.length), rocks);
   const fg = (() => { const gs = []; for (let i = 0; i < 7; i++) { const f = new THREE.BufferGeometry(), a = (i / 7) * TAU, hgt = 0.7 + (i % 3) * 0.22; f.setAttribute('position', new THREE.Float32BufferAttribute([-0.09, 0, 0, 0.09, 0, 0, 0, hgt, 0.34], 3)); f.setAttribute('normal', new THREE.Float32BufferAttribute([0, 0.8, -0.6, 0, 0.8, -0.6, 0, 0.8, -0.6], 3)); f.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0.5, 1], 2)); f.rotateY(a); f.translate(Math.sin(a) * 0.1, 0, Math.cos(a) * 0.1); gs.push(f); } return mergeGeo(gs); })();
-  const fm = new THREE.InstancedMesh(fg, fernMat, ferns.length); place(fm, ferns); fm.castShadow = false;
+  const fm = new THREE.InstancedMesh(fg, fernMat, 1); fm.castShadow = false; place(fm, ferns, 130); // ground cover only near the camera
   // tree + big rock collisions
   for (const t of trunks) W.addCollider({ min: new THREE.Vector3(t.x - 0.3, t.y, t.z - 0.3), max: new THREE.Vector3(t.x + 0.3, t.y + 8, t.z + 0.3), mat: 'wood', noStand: true, kind: 'tree' });
   for (const t of palms) W.addCollider({ min: new THREE.Vector3(t.x - 0.22, t.y, t.z - 0.22), max: new THREE.Vector3(t.x + 0.22, t.y + 7, t.z + 0.22), mat: 'wood', noStand: true, kind: 'tree' });

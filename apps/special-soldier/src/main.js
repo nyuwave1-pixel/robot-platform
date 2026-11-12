@@ -32,6 +32,8 @@ G.applySettings = () => {
   G.sky.sun.castShadow = r.shadowMap.enabled; G.camera.aspect = innerWidth / innerHeight; G.camera.far = s.quality === 'low' ? 1500 : 3200; if (G.state !== 'playing') G.camera.fov = s.fov; G.camera.updateProjectionMatrix(); G.audio.setVolume();
   if (G._shadowState !== undefined && G._shadowState !== r.shadowMap.enabled) G.scene.traverse((o) => { if (o.material && o.isMesh) o.material.needsUpdate = true; }); // shadow toggle needs new shader variants; nothing else does
   G._shadowState = r.shadowMap.enabled;
+  const tm = G.world && G.world.terrain && G.world.terrain.material; // low quality: terrain reads 4 textures instead of 8
+  if (tm && tm.defines) { const far = s.quality !== 'low'; if ((tm.defines.SPLAT_FAR !== undefined) !== far) { if (far) tm.defines.SPLAT_FAR = 1; else delete tm.defines.SPLAT_FAR; tm.needsUpdate = true; } }
 };
 
 async function boot() {

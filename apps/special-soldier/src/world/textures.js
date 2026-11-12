@@ -25,12 +25,17 @@ export function splatTerrain(mat, tiles) {
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 splat; varying vec4 vSplat; varying vec2 vTuv; uniform float uTiles;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvSplat = splat; vTuv = uv * uTiles;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vSplat; varying vec2 vTuv; uniform sampler2D tSand, tGrass, tRock, tConc;')
       .replace('#include <map_fragment>', `#include <map_fragment>
-        vec2 fUv = vTuv * 0.137; // second, larger octave hides the tiling at distance
+        #ifdef SPLAT_FAR
+        vec2 fUv = vTuv * 0.137; // second, larger octave hides the tiling at distance (8 texture reads)
         vec3 sp = (texture2D(tSand, vTuv).rgb + texture2D(tSand, fUv).rgb) * vSplat.x + (texture2D(tGrass, vTuv).rgb + texture2D(tGrass, fUv).rgb) * vSplat.y
                 + (texture2D(tRock, vTuv * 0.5).rgb + texture2D(tRock, fUv).rgb) * vSplat.z + (texture2D(tConc, vTuv).rgb + texture2D(tConc, fUv).rgb) * vSplat.w;
-        diffuseColor.rgb *= sp * 0.8;`); // 1.6 (storage scale) / 2 octaves
+        diffuseColor.rgb *= sp * 0.8; // 1.6 (storage scale) / 2 octaves
+        #else
+        diffuseColor.rgb *= (texture2D(tSand, vTuv).rgb * vSplat.x + texture2D(tGrass, vTuv).rgb * vSplat.y + texture2D(tRock, vTuv * 0.5).rgb * vSplat.z + texture2D(tConc, vTuv).rgb * vSplat.w) * 1.6; // low quality: 4 reads
+        #endif`);
   };
-  mat.customProgramCacheKey = () => 'terrain-splat';
+  mat.defines = { ...(mat.defines || {}), SPLAT_FAR: 1 };
+  mat.customProgramCacheKey = () => 'terrain-splat' + (mat.defines.SPLAT_FAR !== undefined ? '2' : '1');
   return mat;
 }
 

@@ -72,6 +72,8 @@ export class Weapons {
   equip(loadout) {
     for (const s of this.slots) this.root.remove(s.model);
     this.slots = [loadout.primary, loadout.secondary, loadout.sidearm].map((id) => { const w = WEAPONS[id], model = buildGun(id); model.visible = false; this.root.add(model); return { id, w, model, mag: w.mag, reserve: w.reserve, mode: w.modes[0] }; });
+    // weapon layer: the gun and arms are drawn into the nearest slice of the depth range, so they never clip into walls (water, glass and particles still sort correctly)
+    const near = (r) => r.getContext().depthRange(0, 0.06), full = (r) => r.getContext().depthRange(0, 1); this.root.traverse((o) => { if (o.isMesh || o.isSprite) { o.onBeforeRender = near; o.onAfterRender = full; } });
     this.cur = 0; this.grenades = 4; this.reset(); this.show();
   }
   get slot() { return this.slots[this.cur]; }
