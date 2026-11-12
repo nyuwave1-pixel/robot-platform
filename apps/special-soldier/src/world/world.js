@@ -6,6 +6,7 @@ import { G } from '../core/ctx.js';
 import { clamp, lerp, smooth, fbm, mulberry } from '../core/util.js';
 import { geometry as assetGeo } from '../game/assets.js';
 import { detailMap } from '../game/models.js';
+import { photoMat, splatTerrain } from './textures.js';
 
 export const SIZE = 1200, N = 240, CELL = SIZE / N;
 export const FAC_Y = -60, FAC_H = 4.2;
@@ -47,16 +48,17 @@ function canvasTex(base, vary, opts = {}) {
 const std = (tex, o = {}) => new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, metalness: 0, ...o });
 export const MAT = {};
 export function initMaterials() {
-  MAT.concrete = std(canvasTex([128, 126, 120], 0.22, { seed: 1, panels: true }));
-  MAT.dark = std(canvasTex([58, 60, 62], 0.25, { seed: 2, panels: true }), { roughness: 0.75 });
-  MAT.metal = std(canvasTex([82, 88, 86], 0.18, { seed: 3, panels: true }), { roughness: 0.5, metalness: 0.6 });
+  // photo textures: Poly Haven CC0, processed in Blender (tools/blender/textures.py)
+  MAT.concrete = photoMat('conc', { color: 0xb8b6b0 }, 2);
+  MAT.dark = photoMat('conc', { color: 0x5a5c60, roughness: 0.75 }, 2);
+  MAT.metal = photoMat('metal', { color: 0x9aa4a2, roughness: 0.5, metalness: 0.6 }, 2);
   MAT.olive = std(canvasTex([70, 78, 50], 0.3, { seed: 4, camo: true }), { roughness: 0.8 });
-  MAT.wood = std(canvasTex([118, 88, 52], 0.25, { seed: 5, planks: true }));
-  MAT.sand = std(canvasTex([176, 160, 118], 0.2, { seed: 6 }));
-  MAT.rust = std(canvasTex([120, 62, 38], 0.3, { seed: 8, panels: true }), { roughness: 0.7, metalness: 0.3 });
+  MAT.wood = photoMat('wood', { color: 0xc8b090 }, 2);
+  MAT.sand = photoMat('sand', { color: 0xe6d8b4 }, 2);
+  MAT.rust = photoMat('rust', { roughness: 0.7, metalness: 0.3 }, 2);
   MAT.blue = std(canvasTex([44, 70, 110], 0.25, { seed: 9, panels: true }), { roughness: 0.6, metalness: 0.3 });
   MAT.red = std(canvasTex([150, 40, 34], 0.25, { seed: 10 }), { roughness: 0.6 });
-  MAT.rock = std(canvasTex([92, 90, 84], 0.35, { seed: 11 }));
+  MAT.rock = photoMat('rock', { color: 0xb0aca4 }, 2);
   MAT.rubber = new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: 0.95 });
   MAT.white = std(canvasTex([200, 205, 205], 0.1, { seed: 12, panels: true }), { roughness: 0.5 });
   MAT.glass = new THREE.MeshStandardMaterial({ color: 0x9fd0e0, transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0.6 });
@@ -92,7 +94,7 @@ export class World {
   }
   buildTerrain() {
     const geo = new THREE.PlaneGeometry(SIZE, SIZE, N, N); geo.rotateX(-Math.PI / 2);
-    const pos = geo.attributes.position, col = new Float32Array(pos.count * 3), c = new THREE.Color();
+    const pos = geo.attributes.position, col = new Float32Array(pos.count * 3), spl = new Float32Array(pos.count * 4), c = new THREE.Color();
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i), h = this.heights[i]; pos.setY(i, h);
       const slope = Math.abs(rawHeight(x + 3, z) - h) + Math.abs(rawHeight(x, z + 3) - h);
@@ -101,10 +103,11 @@ export class World {
       if (h < 0.4) c.multiplyScalar(0.7);
       for (const f of FLATS) { const d = flatDist(f, x, z); if (d < 6) { const k = f.kind === 'air' ? 0.2 : f.kind === 'comms' ? 0.34 : 0.4; c.lerp(new THREE.Color(k + n * 0.05, k + n * 0.05, k + n * 0.04), 1 - d / 6); } }
       col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+      let wS = smooth(3.4, 2.0, h), wR = (1 - wS) * smooth(2.6, 4.2, slope), wC = 0; for (const f of FLATS) { const d = flatDist(f, x, z); if (d < 6) wC = Math.max(wC, 1 - d / 6); }
+      wS *= 1 - wC; wR *= 1 - wC; spl[i * 4] = wS; spl[i * 4 + 1] = Math.max(0, 1 - wS - wR - wC); spl[i * 4 + 2] = wR; spl[i * 4 + 3] = wC;
     }
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.computeVertexNormals();
-    const detail = canvasTex([205, 205, 205], 0.22, { seed: 21 }); detail.repeat.set(160, 160);
-    this.terrain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, map: detail, roughness: 0.95 }));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setAttribute('splat', new THREE.BufferAttribute(spl, 4)); geo.computeVertexNormals();
+    this.terrain = new THREE.Mesh(geo, splatTerrain(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }), SIZE / 2.5)); // one photo tile ≈ 2.5 m
     this.terrain.receiveShadow = true; this.group.add(this.terrain);
   }
   // ---- collision ----------------------------------------------------------
