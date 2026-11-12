@@ -51,6 +51,8 @@ export interface Messages {
     lineupAlt: string;
     introAria: string; introStart: string; introSkipAria: string; // introStart: {brand}
     guideNote: string;
+    /** 구매 버튼 — 한국/미국 사이트 */
+    buy: { kr: string; us: string; krShort: string; usShort: string };
     /** 상단 띠 배너(런칭 프로모션) */
     promo: { badge: string; text: string; textShort: string; open: string; live: string; cta: string; close: string };
   };
@@ -116,6 +118,7 @@ export const ko: Messages = {
     lineupAlt: "유니앤코어 스킨케어 가이드 — 6단계 루틴",
     introAria: "인트로 영상", introStart: "{brand} 시작하기", introSkipAria: "인트로 영상 건너뛰기",
     guideNote: "",
+    buy: { kr: "제품 구매하기 (한국)", us: "USA 사이트에서 구매하기", krShort: "한국 구매", usShort: "USA 구매" },
     promo: {
       badge: "출시기념 4+2",
       text: "4개 구매 시 2개 증정 · 총 6개 1,100,000원 (정가 1,494,000원 · 26% 할인)",

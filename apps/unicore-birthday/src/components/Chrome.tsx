@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { product } from "@/data/product";
-import { useDict } from "@/i18n/context";
+import { useDict, useLocale } from "@/i18n/context";
+import { purchaseLinks } from "@/lib/purchase";
 
 const CHAPTERS: { id: string; label: string }[] = [
   { id: "birthday", label: "Skin Has a Birthday" },
@@ -46,7 +47,8 @@ export default function Chrome() {
     const lenis = (window as Window & { __lenis?: { scrollTo: (t: HTMLElement, o?: object) => void } }).__lenis;
     if (lenis) lenis.scrollTo(el, { duration: 1.4 }); else el.scrollIntoView({ behavior: "smooth" });
   };
-  const purchase = product.urls.purchase || "#how-to-use";
+  const locale = useLocale();
+  const links = purchaseLinks(locale);
   return (
     <>
       <nav className="rail" aria-label={t.ui.chapters}>
@@ -58,7 +60,10 @@ export default function Chrome() {
       </nav>
       <div className={`sticky-cta ${showCta ? "show" : ""}`} aria-hidden={!showCta}>
         <div className="sticky-cta-text">{product.name} {product.volume.g} g<small>{product.subtitle}</small></div>
-        <a className="btn btn-primary" href={purchase} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }}>{t.copy.s12.cta1}</a>
+        <div className="sticky-cta-btns">
+          <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }} data-region={links.primary.region}>{links.primary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}</a>
+          {links.secondary && <a className="btn btn-outline sticky-cta-alt" href={links.secondary.href} target="_blank" rel="noopener" style={{ minHeight: 44 }} data-region={links.secondary.region} title={links.secondary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}>{links.secondary.region === "kr" ? t.ui.buy.krShort : t.ui.buy.usShort}</a>}
+        </div>
       </div>
     </>
   );
