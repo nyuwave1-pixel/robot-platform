@@ -1,6 +1,6 @@
 # UNI&CORE VITA C 프로모션 사이트: 작업 인수인계
 
-최종 업데이트: 2026-11-05 · 기준 커밋 `def408e` 이후
+최종 업데이트: 2026-11-12 · 기준 커밋 `772fdea` 이후 (라이브 배포본과 같음)
 
 ## 1. 한눈에 보기
 
@@ -9,11 +9,13 @@
 | 사이트 | https://promotion.unincore.com |
 | 성격 | VITA C 3종 → **Amazon.com 구매로 보내는 정적 랜딩 사이트** (관리자/CMS 없음) |
 | 제품 | Vita C Enzyme Powder Wash · Vita C Super Brightening Mask · Vita C 13.5 Super Brightening Ampoule |
-| 코드 | GitHub `nyuwave1-pixel/robot-platform`, 브랜치 `claude/awesome-gauss-5kqwk2`, 폴더 `unincore-promotion/` (PR #2, Draft) |
+| 코드 | GitHub `nyuwave1-pixel/robot-platform`, 브랜치 `claude/awesome-gauss-5kqwk2` (PR #2, Draft). 사이트 `unincore-promotion/`, SEO 엔진 `unincore-engine/`, 매일 실행 워크플로 `.github/workflows/unincore-engine-daily.yml` |
 | 호스팅 | Netlify 프로젝트 `unincore-promotion` (siteId `4a3fa453-4eb7-4f23-9855-816a3cc62589`, 팀 nyuwave1) |
 | 도메인 | 후이즈 DNS: `promotion` CNAME → `unincore-promotion.netlify.app` · HTTPS Let's Encrypt 자동 |
 | 분석 | GA4 `G-QDK6Q436G5` (계정 387197170 / 속성 527901588, us.unincore.com 쇼핑몰과 같은 속성) |
 | 검색 등록 | Google Search Console(HTML 파일) · 네이버 서치어드바이저(메타 태그) 완료 |
+| 엔진 DB | 기본은 로컬 SQLite. 운영용은 Supabase 프로젝트 `qeabsjyglethzkwlkmaw` 의 `seo_engine` 스키마(빈 상태로 준비됨). 접속 주소는 GitHub Secret `ENGINE_DATABASE_URL` 로만 보관 |
+| 배포 | 자동 배포 없음. Netlify에 수동 배포하며, 배포는 매번 담당자 승인 후에만 진행 |
 
 ## 2. 다른 PC에서 시작하기
 
@@ -33,8 +35,8 @@ npm run dev            # http://localhost:3100
 ### 방법 B: 압축 파일로 받기
 
 ```bash
-unzip unincore-promotion.zip
-cd unincore-promotion
+unzip unincore-platform_20261112.zip
+cd unincore-platform/unincore-promotion
 npm install
 npm run dev            # http://localhost:3100
 ```
@@ -45,11 +47,30 @@ npm run dev            # http://localhost:3100
 
 ```bash
 npm run typecheck      # 타입 검사
-npm test               # 단위 테스트 (22개)
+npm test               # 단위 테스트 (24개)
 NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5 npm run build
 npm start              # 다른 터미널에서 ↓
-npm run qa             # Playwright E2E 115개 → qa-artifacts/qa-report.md
+npm run qa             # Playwright E2E 124개 → qa-artifacts/qa-report.md
 ```
+
+### SEO 엔진 (`unincore-engine/`)
+
+필요한 것: **Python 3.12 이상**. 홍보 이미지를 다시 만들려면 Node.js + Playwright(`npm i playwright && npx playwright install chromium`)도 필요합니다.
+
+```bash
+cd unincore-engine
+pip install -r requirements.txt
+python -m pytest -q                 # 테스트 15개
+python -m engine daily              # 하루치 작업 전체 (연결 점검 → 제품 동기화 → SEO 점검 → 키워드 → 홍보 이미지 → 리포트)
+python -m engine approvals          # 승인 요청 목록
+python -m engine propose UC-US-449 '{"seoTitle":"… | UNI&CORE"}'   # 승인 요청 올리기
+python -m engine approve 5 && python -m engine publish             # 승인 → 사이트 파일(seo-overrides.json) 반영
+ENGINE_ADMIN_PASSWORD=원하는비밀번호 uvicorn engine.api:app --port 8100   # 대시보드 http://localhost:8100 (사용자 admin)
+```
+
+- 연결되지 않은 API(Gemini 크레딧, Canva, Higgsfield, Search Console, Amazon Ads)는 성공으로 처리하지 않고 "연결 대기"로 기록합니다.
+- API 키는 환경 변수로만 넣습니다(`GEMINI_API_KEY` 등). 저장소나 문서에 적지 않습니다.
+- 자세한 내용은 `unincore-engine/README.md`.
 
 ## 3. 폴더 구조
 
