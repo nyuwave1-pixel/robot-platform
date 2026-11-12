@@ -41,7 +41,7 @@ export function MobileMenu({ products }: { products: { slug: string; shortName: 
               </li>
             ))}
             <li>
-              <Link href="/#routine" className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
+              <Link href="/#wash" className="block border-b border-black/[0.07] py-5 font-serif text-[26px] font-medium tracking-[-0.01em] text-[#191A17]">
                 3-Step Routine
               </Link>
             </li>

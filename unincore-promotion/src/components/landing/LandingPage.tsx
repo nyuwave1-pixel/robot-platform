@@ -173,10 +173,12 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
             <section aria-label={c.lead.eyebrow} className="glass glass-live overflow-hidden rounded-[28px] px-7 pb-7 pt-6 sm:px-9 sm:pb-9 sm:pt-8">
               <div aria-hidden className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(closest-side,rgb(var(--acc-glow)/0.7),transparent)]" />
               <p className="relative text-[14px] font-semibold text-acc-ink">{c.lead.eyebrow}</p>
-              <p className="serif serif-xl chrome relative mt-2 pb-1 text-[clamp(68px,8.4vw,116px)] font-semibold leading-[0.92] tracking-[-0.03em]">
+              {/* pb/-mb: the chrome fill is painted over the box only, so the box reaches below the baseline for the "p" of pH */}
+              <p className="serif serif-xl chrome relative -mb-[0.16em] mt-2 pb-[0.2em] text-[clamp(68px,8.4vw,116px)] font-semibold leading-[0.92] tracking-[-0.03em]">
                 <Fig value={c.lead.big} />
               </p>
               <p className="relative mt-4 max-w-[36ch] text-[17px] leading-snug text-body-soft">{rich(c.lead.text)}</p>
+              {c.lead.note && <p className="relative mt-3 text-[11px] leading-snug tracking-[0.01em] text-body-mute">{c.lead.note}</p>}
             </section>
 
             {/* The Amazon listing's key-benefit image, the product name under it in the same glass card */}
@@ -218,7 +220,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
               <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
                 {c.concerns.map((x) => (
                   <li key={x.title} className="paper overflow-hidden rounded-[22px] p-2">
-                    <div className="relative aspect-[5/4] overflow-hidden rounded-[16px] bg-body/5">
+                    <div className="relative overflow-hidden rounded-[16px] bg-body/5" style={{ aspectRatio: c.concernRatio }}>
                       <Image src={x.image} alt={x.alt} fill sizes="(min-width: 1024px) 280px, 50vw" className="object-cover" />
                     </div>
                     <div className="px-2.5 pb-3 pt-4 sm:px-3">
@@ -374,34 +376,40 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
               <SavingsBox product={ap} initialActive={promoInitial} ctaLabel={c.ctaLabel} />
             </div>
 
-            {/* 7-day glow routine, the end card: product name, photo and Amazon button only */}
+            {/* 7-day glow routine (revision 2, item 5): the three steps side by side on white, like the client's
+                reference. No Amazon buttons; each product opens its own page. The page's last Amazon button follows. */}
             <Block hideSticky>
               <Heading title={ROUTINE.title} accent={ROUTINE.accent} />
-              <ul className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
-                {ROUTINE.items.map((r) => {
+              <ol className="mt-8 grid grid-cols-3 gap-1.5 rounded-[28px] bg-white px-2 pb-6 pt-3 shadow-[0_0_0_1px_rgb(22_21_15/0.04),0_24px_48px_-32px_rgb(var(--acc-deep)/0.45)] sm:gap-4 sm:px-5 sm:pb-8 sm:pt-5">
+                {ROUTINE.items.map((r, i) => {
                   const prod = all.find((x) => x.key === r.key);
                   if (!prod) return null;
                   const current = r.key === p.key;
+                  const body = (
+                    <>
+                      <ProductShot k={r.key} sizes="(min-width: 640px) 180px, 30vw" className="aspect-square w-full rounded-[16px] transition-transform duration-300 ease-out group-hover:-translate-y-1" />
+                      <span className="mt-2 inline-flex rounded-[8px] bg-[rgb(var(--acc))] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#16150F] sm:text-[12px]">Step {i + 1}</span>
+                      <span className="mt-2.5 block px-0.5 font-sans text-[14.5px] font-bold leading-[1.15] tracking-[-0.02em] text-body sm:text-[19px]">{r.name}</span>
+                      <span className="mt-1 block text-[12.5px] leading-snug text-body-mute sm:text-[14px]">{r.note}</span>
+                    </>
+                  );
                   return (
-                    <li
-                      key={r.key}
-                      className={`paper flex items-center gap-4 rounded-[20px] p-2.5 sm:h-full sm:flex-col sm:items-stretch sm:gap-0 ${current ? "!bg-[rgb(var(--acc-tint)/0.45)] !shadow-[0_0_0_1.5px_rgb(var(--acc-ink)/0.7),0_18px_36px_-24px_rgb(var(--acc-deep)/0.5)]" : ""}`}
-                    >
-                      <ProductShot k={r.key} sizes="(min-width: 640px) 190px, 96px" className="aspect-square w-24 shrink-0 rounded-[14px] sm:w-full" />
-                      <div className="flex min-w-0 flex-1 flex-col gap-3 sm:px-1 sm:pb-1 sm:pt-4">
-                        <h3 className="font-sans text-[17px] font-semibold leading-[1.2] tracking-[-0.015em] text-body sm:flex sm:min-h-[2.4em] sm:items-center sm:justify-center sm:text-center">{r.name}</h3>
-                        <AmazonCta product={toAmazonProduct(prod)} location={current ? "routine" : "related"} label="Shop on" size="sm" className="w-full sm:mt-auto" />
-                      </div>
+                    <li key={r.key} className="text-center">
+                      {current ? (
+                        <div className="flex flex-col items-center" aria-current="page">
+                          {body}
+                        </div>
+                      ) : (
+                        <Link href={`/products/${prod.slug}`} className="group flex flex-col items-center rounded-[18px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-body">
+                          {body}
+                        </Link>
+                      )}
                     </li>
                   );
                 })}
-              </ul>
-              <div className="glass mt-6 rounded-[28px] p-2.5">
-                <ProductShot k={p.key} sizes="(min-width: 1024px) 560px, 100vw" className="aspect-[4/3] rounded-[20px]" />
-                <div className="relative p-2 pt-3">
-                  <AmazonCta product={ap} location="final" label={c.ctaLabel} className="w-full" />
-                </div>
-              </div>
+              </ol>
+              {/* Revision 2, item 3: the large product photo that sat here is removed; its Amazon button stays. */}
+              <AmazonCta product={ap} location="final" label={c.ctaLabel} className="mt-6 w-full" />
             </Block>
 
             {/* Related guides: internal links for readers who want the how-to, and for search engines */}
@@ -429,7 +437,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
         </div>
       </div>
 
-      <StickyCTA product={ap} promoInitial={promoInitial} image={c.shot.src} title={c.shortTitle} />
+      <StickyCTA product={ap} promoInitial={promoInitial} label={c.ctaLabel} />
     </div>
   );
 }
