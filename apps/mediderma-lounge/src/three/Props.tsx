@@ -224,7 +224,18 @@ export function ProductBottle({ p, s = 1, ...props }: { p: Product; s?: number }
 }
 
 // ───────────── 가구 ─────────────
+/** Blender 로 만든 가구 (tools/blender/build_assets.py --furniture). 조명은 코드가 덧붙인다. */
+const FURN_GLB = ["plant", "flower", "mirror", "lamp", "coffeetable", "bookshelf", "cattower", "petbed", "diffuser", "goldtable", "display"];
 export function FurnitureMesh({ type, accent = "#f9d5dc" }: { type: string; accent?: string }) {
+  if (!FURN_GLB.includes(type)) return <FurnitureFallback type={type} accent={accent} />;
+  return (
+    <group>
+      <Model url={`./models/furn_${type}.glb`} fallback={<FurnitureFallback type={type} accent={accent} />} />
+      {type === "lamp" && <pointLight position={[0, 1.6, 0]} intensity={2.2} distance={4.5} color="#ffdca8" />}
+    </group>
+  );
+}
+function FurnitureFallback({ type, accent = "#f9d5dc" }: { type: string; accent?: string }) {
   switch (type) {
     case "plant":
       return (<group>

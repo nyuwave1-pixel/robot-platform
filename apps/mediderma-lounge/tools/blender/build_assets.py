@@ -383,25 +383,27 @@ def curtain(y0, y1, n=11, r=0.24, wave=0.0, curl=0.0, spread=1.0):
         a = math.radians(-100 + 200 * i / (n - 1))  # 0 = 정후방
         sx, sz = math.sin(a), -math.cos(a)
         pts, rad = [], []
-        for j in range(5):
-            t = j / 4
+        for j in range(6):
+            t = j / 5
             y = y0 + (y1 - y0) * t
             w = wave * math.sin(t * 9 + i * 1.7) * (0.3 + t)
-            rr = (1.02 + 0.1 * spread * t - curl * max(0, t - 0.7) * 1.2) + w
+            # 머리 위쪽에서는 두피 곡면을 따라 흐르고, 아래에서는 늘어진다
+            surf = math.sqrt(max(1.1 ** 2 - max(y, 0) ** 2, 0.04))
+            rr = min(surf, 1.02 + 0.1 * spread * t) - curl * max(0, t - 0.7) * 1.2 + w
             pts.append((sx * rr, y, sz * rr * 0.96))
-            rad.append(r * (1 - 0.15 * t) if j < 4 else 0.06)
+            rad.append(0.06 if j == 5 else r * (0.45 + 0.55 * min(1, t * 3)) * (1 - 0.15 * t))
         lock(pts, rad)
 
 
 def hair_bob():
     reset(); scalp(-0.25); bangs()
-    curtain(0.35, -0.78, n=13, r=0.26, curl=0.5)
+    curtain(0.98, -0.78, n=15, r=0.25, curl=0.45, spread=0.3)
     export("hair_bob")
 
 
 def hair_pixie():
     reset(); scalp(-0.2); bangs(xs=(-0.6, -0.3, 0.0, 0.3, 0.6), low=0.5, sweep=0.5, r=0.18)
-    curtain(0.3, -0.42, n=11, r=0.2, curl=0.3)
+    curtain(0.98, -0.42, n=13, r=0.22, curl=0.3, spread=0.2)
     for s in (-1, 1):
         lock([(s * 0.85, 0.5, 0.5), (s * 1.02, 0.1, 0.45), (s * 0.98, -0.3, 0.5)], [0.16, 0.14, 0.03])
     export("hair_pixie")
@@ -505,7 +507,196 @@ def hair_hime():
     long_tail("hair_hime_sway", n=13)
 
 
-if __name__ == "__main__" and "--hair" in sys.argv:
+# ───────────── 라운지 가구 ─────────────
+# 게임 치수(미터) 그대로, 바닥 중앙이 원점. 조명과 글자, 반투명 유리는 게임 코드가 덧붙인다.
+CREAM = lambda: mat("cream", "#fffaf4", rough=0.5)
+LEAF = lambda i=0: mat(f"leaf{i % 2}", "#6fae7b" if i % 2 else "#8cc592", rough=0.6)
+PINK = lambda: mat("pink", "#f6bccb", rough=0.85)
+LAV = lambda: mat("lav", "#e3d8f6", rough=0.85)
+
+
+def leaf(pos, size, yaw, pitch, material, notch=True):
+    """몬스테라 잎: 납작한 타원 + 끝이 뾰족하고 가장자리에 홈이 있다. pos 는 게임 좌표."""
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=20, ring_count=10)
+    o = bpy.context.object
+
+    def shape(x, y, z):
+        r = math.hypot(x, y)
+        k = 1 - 0.45 * max(0, y) ** 2  # 끝으로 갈수록 좁아진다
+        cut = 0.82 + 0.18 * math.cos(math.atan2(y, x) * 7) if notch and r > 0.6 else 1
+        return x * k * cut, y * 1.25 * cut, z * 0.05 + 0.12 * (x * x)
+    deform(o, shape)
+    o.scale = (size, size, size)
+    o.location = G(*pos)
+    o.rotation_euler = (pitch, 0, yaw)
+    return finish(o, material)
+
+
+def furn_plant():
+    reset()
+    cyl(0.15, 0.4, (0, 0, 0.2), CREAM(), r2=0.2, bevel=0.01)
+    torus(0.2, 0.018, (0, 0, 0.4), GOLD())
+    cyl(0.185, 0.02, (0, 0, 0.385), mat("soil", "#5a4636", rough=1))
+    for i in range(9):
+        a = i * 2.4
+        h = 0.62 + (i % 4) * 0.19
+        r = 0.2 + (i % 3) * 0.06
+        tip = (math.cos(a) * r, h, math.sin(a) * r)
+        lock([(0, 0.38, 0), (math.cos(a) * r * 0.4, h * 0.75, math.sin(a) * r * 0.4), tip], [0.012, 0.01, 0.008], material=LEAF(1))
+        leaf(tip, 0.2 + (i % 3) * 0.03, -a + math.pi / 2, 0.6 + (i % 2) * 0.3, LEAF(i))
+    export("furn_plant")
+
+
+def furn_flower():
+    reset()
+    cyl(0.2, 0.72, (0, 0, 0.36), CREAM(), r2=0.16, bevel=0.012)
+    torus(0.17, 0.012, (0, 0, 0.72), GOLD())
+    ball(0.11, (0, 0, 0.82), mat("vase", "#e9f3ff", rough=0.12), scale=(1, 1, 1.15), seg=20)
+    cyl(0.06, 0.1, (0, 0, 0.95), mat("vase", "#e9f3ff", rough=0.12), r2=0.08)
+    cols = ["#f29bb1", "#ffd0dc", "#fff0b8", "#f2a7b8", "#d9cff2", "#ff9db5", "#ffe6a8"]
+    for i, c in enumerate(cols):
+        a = i * 0.9
+        r = 0.05 + (i % 3) * 0.045
+        top = (math.cos(a) * r, 1.16 + (i % 3) * 0.08, math.sin(a) * r)
+        lock([(0, 0.9, 0), (top[0] * 0.5, 1.05, top[2] * 0.5), top], [0.008, 0.007, 0.006], material=LEAF(1))
+        ball(0.055, G(top[0], top[1] + 0.05, top[2]), mat(f"tulip{i}", c, rough=0.5), scale=(1, 1, 1.45), seg=14)
+        leaf((top[0] * 0.6, 1.02, top[2] * 0.6), 0.09, -a, 1.1, LEAF(i), notch=False)
+    export("furn_flower")
+
+
+def furn_mirror():
+    reset()
+    glass = mat("mirror", "#dfeaf5", metallic=0.96, rough=0.05)
+    box((0.8, 0.06, 1.5), (0, 0, 0.75), GOLD(), bevel=0.012)
+    cyl(0.4, 0.06, (0, 0, 1.5), GOLD(), rot=(math.pi / 2, 0, 0), verts=48, bevel=0.01)
+    box((0.68, 0.02, 1.42), (0, -0.026, 0.77), glass, bevel=0.0)
+    cyl(0.34, 0.02, (0, -0.023, 1.48), glass, rot=(math.pi / 2, 0, 0), verts=48)
+    for s in (-1, 1):
+        box((0.06, 0.34, 0.04), (s * 0.3, 0, 0.02), GOLD(), bevel=0.01)
+    export("furn_mirror")
+
+
+def furn_lamp():
+    reset()
+    cyl(0.2, 0.035, (0, 0, 0.018), GOLD(), bevel=0.008)
+    cyl(0.014, 1.5, (0, 0, 0.78), GOLD(), verts=12)
+    ball(0.035, (0, 0, 1.52), GOLD(), seg=12)
+    shade = mat("shade", "#fff3df", rough=0.8, emission=1.2)
+    cyl(0.27, 0.34, (0, 0, 1.66), shade, r2=0.15, verts=36)
+    torus(0.27, 0.008, (0, 0, 1.49), GOLD())
+    torus(0.15, 0.008, (0, 0, 1.83), GOLD())
+    export("furn_lamp")
+
+
+def furn_coffeetable():
+    reset()
+    cyl(0.55, 0.045, (0, 0, 0.4), mat("marble", "#fffdfb", rough=0.12), verts=48, bevel=0.012)
+    torus(0.55, 0.012, (0, 0, 0.378), GOLD())
+    for i in range(3):
+        a = i * math.tau / 3
+        cyl(0.016, 0.42, (math.cos(a) * 0.36, math.sin(a) * 0.36, 0.19), GOLD(), rot=(math.sin(a) * 0.18, -math.cos(a) * 0.18, 0), verts=12)
+    torus(0.3, 0.008, (0, 0, 0.12), GOLD())
+    box((0.3, 0.22, 0.03), (0.12, -0.05, 0.44), PINK(), bevel=0.006)
+    box((0.26, 0.19, 0.025), (0.13, -0.04, 0.468), LAV(), bevel=0.006, rot=(0, 0, 0.3))
+    ball(0.05, (-0.2, 0.08, 0.47), CREAM(), scale=(1, 1, 1.2), seg=14)
+    ball(0.03, (-0.2, 0.08, 0.56), mat("tulip0", "#f29bb1", rough=0.5), seg=10)
+    export("furn_coffeetable")
+
+
+def furn_bookshelf():
+    reset()
+    w, h, d = 1.1, 1.8, 0.32
+    box((w, 0.02, h), (0, d / 2 - 0.01, h / 2), mat("shelf_back", "#f3e3d3", rough=0.9), bevel=0)
+    for s in (-1, 1):
+        box((0.04, d, h), (s * (w / 2 - 0.02), 0, h / 2), CREAM(), bevel=0.008)
+    for z in (0.02, 0.5, 0.95, 1.4, 1.78):
+        box((w, d, 0.04), (0, 0, z), CREAM(), bevel=0.008)
+    cols = ["#f29bb1", "#d9cff2", "#fff3d6", "#c9a66b", "#bfe8d6", "#ffffff", "#f6bccb"]
+    for r, z0 in enumerate((0.54, 0.99, 1.44)):
+        x = -0.47
+        i = 0
+        while x < 0.3:
+            t = 0.05 + ((i * 7 + r * 3) % 4) * 0.012
+            hh = 0.27 + ((i * 5 + r) % 4) * 0.025
+            box((t, 0.2, hh), (x + t / 2, -0.03, z0 - 0.02 + hh / 2), mat(f"book{(i + r * 2) % 7}", cols[(i + r * 2) % 7], rough=0.7), bevel=0.004)
+            x += t + 0.006
+            i += 1
+        box((0.05, 0.2, 0.3), (0.36, -0.03, z0 + 0.12), mat(f"book{r}", cols[r], rough=0.7), bevel=0.004, rot=(0, -0.35, 0))
+    ball(0.07, (0.3, -0.03, 0.14), CREAM(), scale=(1, 1, 1.3), seg=14)
+    box((0.3, 0.2, 0.18), (-0.25, -0.02, 0.13), PINK(), bevel=0.02)
+    export("furn_bookshelf")
+
+
+def furn_cattower():
+    reset()
+    rope = mat("rope", "#d8c3a0", rough=1)
+    box((0.8, 0.8, 0.08), (0, 0, 0.04), mat("carpet", "#f3e6d0", rough=1), bevel=0.02)
+    for x, hgt in ((-0.2, 0.7), (0.2, 1.25)):
+        cyl(0.07, hgt, (x, 0, hgt / 2), rope, verts=20)
+        for k in range(int(hgt / 0.1)):
+            bpy.ops.mesh.primitive_torus_add(major_radius=0.074, minor_radius=0.016, major_segments=16, minor_segments=5, location=(x, 0, 0.12 + k * 0.1))
+            finish(bpy.context.object, rope)
+    for x, z, m in ((-0.2, 0.74, PINK()), (0.2, 1.29, LAV())):
+        cyl(0.3, 0.06, (x, 0, z), m, verts=32, bevel=0.02)
+        torus(0.27, 0.05, (x, 0, z + 0.05), m)
+    box((0.36, 0.36, 0.3), (-0.2, 0, 0.23), mat("carpet", "#f3e6d0", rough=1), bevel=0.04)
+    cyl(0.1, 0.02, (-0.2, -0.185, 0.23), DARK(), rot=(math.pi / 2, 0, 0), verts=20)
+    cyl(0.003, 0.2, (0.2, -0.3, 1.17), mat("string", "#8a6a4a", rough=1), verts=6)
+    ball(0.05, (0.2, -0.3, 1.05), mat("tulip0", "#f29bb1", rough=0.5), seg=12)
+    export("furn_cattower")
+
+
+def furn_petbed():
+    reset()
+    torus(0.36, 0.11, (0, 0, 0.1), PINK())
+    ball(0.36, (0, 0, 0.07), mat("cushion", "#fff6ee", rough=1), scale=(1, 1, 0.25), seg=24)
+    for i in range(12):
+        a = i * math.tau / 12
+        ball(0.012, (math.cos(a) * 0.36, math.sin(a) * 0.36, 0.21), GOLD(), seg=8)
+    ball(0.05, (0.12, -0.05, 0.16), LAV(), scale=(1.6, 1, 0.8), seg=12)
+    export("furn_petbed")
+
+
+def furn_diffuser():
+    reset()
+    cyl(0.2, 0.6, (0, 0, 0.3), CREAM(), r2=0.16, bevel=0.012)
+    torus(0.165, 0.01, (0, 0, 0.6), GOLD())
+    ball(0.085, (0, 0, 0.68), mat("amber", "#f6d9c2", rough=0.1), scale=(1, 1, 0.95), seg=18)
+    cyl(0.035, 0.06, (0, 0, 0.77), GOLD(), verts=16)
+    for i in range(6):
+        a = i * math.tau / 6
+        lock([(0, 0.78, 0), (math.cos(a) * 0.05, 0.95, math.sin(a) * 0.05), (math.cos(a) * 0.11, 1.12, math.sin(a) * 0.11)], [0.005, 0.005, 0.005], material=mat("reed", "#8a6a4a", rough=1))
+    export("furn_diffuser")
+
+
+def furn_goldtable():
+    reset()
+    cyl(0.32, 0.028, (0, 0, 0.5), mat("marble", "#fff6ec", rough=0.2), verts=40, bevel=0.008)
+    torus(0.32, 0.012, (0, 0, 0.5), GOLD())
+    cyl(0.02, 0.48, (0, 0, 0.25), GOLD(), verts=12)
+    ball(0.045, (0, 0, 0.27), GOLD(), seg=12)
+    cyl(0.22, 0.03, (0, 0, 0.015), GOLD(), r2=0.2, verts=32, bevel=0.006)
+    export("furn_goldtable")
+
+
+def furn_display():
+    reset()
+    cyl(0.5, 0.8, (0, 0, 0.4), CREAM(), verts=48, bevel=0.015)
+    for z in (0.15, 0.65):
+        torus(0.502, 0.008, (0, 0, z), GOLD())
+    cyl(0.53, 0.03, (0, 0, 0.815), GOLD(), verts=48, bevel=0.006)
+    cyl(0.2, 0.26, (0, 0, 0.96), mat("riser", "#ffffff", rough=0.4), verts=32, bevel=0.012)
+    torus(0.2, 0.006, (0, 0, 1.09), GOLD())
+    export("furn_display")
+
+
+FURNITURE = (furn_plant, furn_flower, furn_mirror, furn_lamp, furn_coffeetable, furn_bookshelf, furn_cattower, furn_petbed, furn_diffuser, furn_goldtable, furn_display)
+
+
+if __name__ == "__main__" and "--furniture" in sys.argv:
+    for f in FURNITURE:
+        f()
+elif __name__ == "__main__" and "--hair" in sys.argv:
     for f in (hair_bob, hair_pixie, hair_twin, hair_bun, hair_space, hair_pony, hair_updo, hair_braid, hair_long, hair_wave, hair_hime):
         f()
 elif __name__ == "__main__":
@@ -516,4 +707,6 @@ elif __name__ == "__main__":
     for f in (char_head, char_hand, char_shoe, char_hem, char_bow):
         f()
     for f in (hair_bob, hair_pixie, hair_twin, hair_bun, hair_space, hair_pony, hair_updo, hair_braid, hair_long, hair_wave, hair_hime):
+        f()
+    for f in FURNITURE:
         f()
