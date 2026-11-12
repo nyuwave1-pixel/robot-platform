@@ -2,6 +2,7 @@
 // These stand in for skeletal meshes + Control Rig animation in the UE5 production build.
 import * as THREE from 'three';
 import { ASSETS, rebuild, geometry } from './assets.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const cache = new Map();
 const mat = (c, r = 0.9, m = 0) => { const k = c + '_' + r + '_' + m; if (!cache.has(k)) cache.set(k, new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m })); return cache.get(k); };
@@ -52,6 +53,7 @@ export function detailMap(kind, perMetre) {
     else { const d = noise(x, y, 0, 0.5) * 0.6 + noise(x, y, 1, 2) * 0.3 + noise(x, y * 0.2, 2, 4) * 0.25; v = 0.98 - Math.max(0, d - 0.5) * 0.9 + (rnd() - 0.5) * 0.06; if (rnd() < 0.0016) v = 1.35; }
     const i = (y * S + x) * 4, k = Math.max(0, Math.min(255, v * 238)); img.data[i] = img.data[i + 1] = img.data[i + 2] = k; img.data[i + 3] = 255; }
   g.putImageData(img, 0, 0);
+  if (kind === 'camo') { g.fillStyle = 'rgb(227,227,227)'; for (const [x, y] of [[0, 0], [S - 4, 0], [0, S - 4], [S - 4, S - 4]]) g.fillRect(x, y, 4, 4); } // neutral texel at uv (0,0): non-cloth parts share the camo material (one draw call per node)
   if (kind === 'grunge') { g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1; for (let i = 0; i < 26; i++) { const x = rnd() * S, y = rnd() * S, l = 4 + rnd() * 18, a = rnd() * 6.28; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); } }
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(perMetre, perMetre); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
@@ -73,14 +75,18 @@ const KIT = { // headgear / armour / character kit and weapon per soldier type (
 const cloths = new Map(), clothMat = (style) => { if (!cloths.has(style)) { const m = CLOTH_MAT.clone(); m.map = detailMap('camo:' + style, 1.5); cloths.set(style, m); } return cloths.get(style); };
 export const LOD_NEAR = 34; // metres: beyond this the '__d' detail nodes (pouches, straps, rail teeth…) are hidden
 /** Distance LOD for a soldier built from the Blender asset (no-op for the procedural fallback). */
-export function lodSoldier(g, dist) { const d = g.userData.detail; if (!d) return; const near = dist < (g.userData.lodNear ? LOD_NEAR + 4 : LOD_NEAR); if (near === g.userData.lodNear) return; g.userData.lodNear = near; for (const o of d) o.visible = near; }
+export function lodSoldier(g, dist) { const l = g.userData.lod; if (!l) return; const near = dist < (g.userData.lodNear ? LOD_NEAR + 4 : LOD_NEAR); if (near === g.userData.lodNear) return; g.userData.lodNear = near; for (const o of l.full) o.visible = near; for (const o of l.detail) o.visible = near; for (const o of l.base) o.visible = !near; }
 const templates = new Map(), C = (h) => new THREE.Color(h);
 function soldierTemplate(kind) {
   if (templates.has(kind)) return templates.get(kind);
   const p = PALETTE[kind], kit = KIT[kind], col = { cloth: C(p.cloth), vest: C(p.vest), skin: C(p.skin), helmet: C(p.helmet), boots: C(0x0b0b0c), gear: C(0x16171a), accent: C(0x8a1010) };
   const glow = p.visor ? new THREE.MeshStandardMaterial({ color: 0x111111, emissive: p.visor, emissiveIntensity: 2.5 }) : null;
-  const cm = clothMat(kit.camo); const g = rebuild('Soldier', (n) => (n === 'cloth' || n === 'vest' ? cm : CHAR_MAT), (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n.replace(/__d$/, '')));
-  const gg = geometry('W_' + kit.gun, null, null, true), gd = geometry('W_' + kit.gun, 'root__d'); if (gg) { const one = new THREE.Mesh(gg, GUN_MAT); one.castShadow = true; g.getObjectByName('gun').add(one); if (gd) { const two = new THREE.Mesh(gd, GUN_MAT); two.name = 'gun__d'; g.getObjectByName('gun').add(two); } }
+  const cm = clothMat(kit.camo); const g = rebuild('Soldier', cm, (n, m, kept) => (kept ? (n === 'visor' && glow) || null : col[n] || null), (n) => n.startsWith('acc_') && !kit.acc.includes(n.replace(/__d$/, '')), (n) => n !== 'cloth' && n !== 'vest');
+  // LOD without extra draw calls: each node gets a 'full' mesh (base + detail merged) and a 'base' mesh; only one is visible
+  const dn = []; g.traverse((o) => { if (o.name.endsWith('__d')) dn.push(o); });
+  for (const D of dn) { const P = D.parent, dm = D.children.find((c) => c.isMesh && c.material === cm), bm = P.children.find((c) => c.isMesh && c.material === cm); if (!dm) continue;
+    if (bm) { const dg = dm.geometry.clone(); D.updateMatrix(); dg.applyMatrix4(D.matrix); const full = new THREE.Mesh(mergeGeometries([bm.geometry, dg]), cm); full.name = 'lodFull'; full.castShadow = full.receiveShadow = true; P.add(full); bm.name = 'lodBase'; bm.visible = false; D.remove(dm); } else dm.name = 'lodFull'; }
+  const gb = geometry('W_' + kit.gun, null, null, true), gf = geometry('W_' + kit.gun); if (gf) { const full = new THREE.Mesh(gf, GUN_MAT); full.name = 'lodFull'; full.castShadow = true; g.getObjectByName('gun').add(full); if (gb) { const base = new THREE.Mesh(gb, GUN_MAT); base.name = 'lodBase'; base.castShadow = true; base.visible = false; g.getObjectByName('gun').add(base); } }
   templates.set(kind, g); return g;
 }
 function soldierFromAsset(kind, scale) {
@@ -88,7 +94,7 @@ function soldierFromAsset(kind, scale) {
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
   const n = (k) => g.getObjectByName(k);
   g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
-  const detail = []; g.traverse((o) => { if (o.name.endsWith('__d')) { detail.push(o); o.traverse((m) => { if (m.isMesh) m.castShadow = false; }); } }); g.userData.detail = detail; g.userData.lodNear = true;
+  const lod = { full: [], base: [], detail: [] }; g.traverse((o) => { if (o.name === 'lodFull') lod.full.push(o); else if (o.name === 'lodBase') lod.base.push(o); else if (o.name.endsWith('__d')) lod.detail.push(o); }); g.userData.lod = lod; g.userData.lodNear = true;
   return g;
 }
 function vehicleFromAsset(name) { const g = rebuild(name, VEH_MAT); const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; o.castShadow = true; } }); g.userData.parts = { meshes }; return g; }
