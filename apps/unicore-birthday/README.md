@@ -36,6 +36,8 @@ SKIP_ASSETS=1 npm run dev   # 영상 없이 UI만 볼 때
 ## 방문·클릭 집계
 - **Vercel Web Analytics** — `src/components/Analytics.tsx` 에서 항상 마운트. Vercel 대시보드 → 프로젝트 `unicore-birthday-cream` → Analytics 탭 → Enable 후 **새 배포가 한 번 있어야** `/_vercel/insights/script.js` 가 활성화됩니다. (Hobby 플랜은 페이지뷰만, 커스텀 이벤트는 Pro)
 - **GA4** — `NEXT_PUBLIC_GA_ID` 설정 시 `@next/third-parties` 로 gtag 로드.
+  - 프로덕션 값: `G-G9P9NKZVXB` (www.unincore.com 과 **같은 속성**). 구매 버튼으로 본 사이트로 넘어간 방문이 같은 세션으로 이어져 벌스데이 → 구매 흐름을 한 속성에서 볼 수 있습니다. GA4 보고서에서 `호스트 이름 = birthday.unincore.com` 으로 걸러 보세요.
+  - 별도 속성으로 분리하려면 Vercel 환경변수 값을 새 ID로 바꾸고 이 디렉터리에 변경을 커밋해 재빌드합니다.
 - 이벤트는 `src/lib/track.ts` 의 `track()` 한 곳에서 두 곳에 동시에 전송:
   - `buy_click { placement: final|sticky|promo_bar, region: kr|us, locale }`
   - `promo_bar_close { locale }`
