@@ -497,6 +497,7 @@ export function Character({ look, growth, anim = "idle", mood = "smile", glow = 
 }
 
 function Hair({ style, R, mat, swayRef, k, bodyLen }: { style: string; R: number; mat: THREE.Material; swayRef: React.RefObject<THREE.Group>; k: number; bodyLen: number }) {
+  const mats = useMemo(() => ({ hair: mat }), [mat]);
   // 얼굴이 보이도록 앞쪽 일부가 열린 쉘
   const shell = (len: number, key = "s") => (
     <mesh key={key} material={mat} castShadow>
@@ -635,15 +636,21 @@ function Hair({ style, R, mat, swayRef, k, bodyLen }: { style: string; R: number
     default:
       back = shell(0.74);
   }
+  // Blender 로 만든 헤어 (tools/blender/build_assets.py). 못 불러오면 위의 코드 형상이 대신 보인다.
+  const id = HAIR_MODELS.includes(style) ? style.replace("hair-", "") : "bob";
+  const swaying = HAIR_SWAY.includes(id);
+  const long = id === "long" || id === "wave" || id === "hime";
   return (
     <group>
-      {cap}
-      {back}
-      {bangs}
-      <group ref={swayRef}>{extra}</group>
+      <Model url={`./models/hair_${id}.glb`} scale={R} materials={mats} fallback={<group scale={1 / R}>{cap}{back}{bangs}{!swaying && extra}</group>} />
+      <group ref={swayRef}>
+        {swaying && <Model url={`./models/hair_${id}_sway.glb`} scale={long ? [R, longLen, R] : R} materials={mats} fallback={<group scale={long ? [1 / R, 1 / longLen, 1 / R] : 1 / R}>{extra}</group>} />}
+      </group>
     </group>
   );
 }
+const HAIR_MODELS = ["hair-bob", "hair-pixie", "hair-twin", "hair-bun", "hair-space", "hair-pony", "hair-updo", "hair-braid", "hair-long", "hair-wave", "hair-hime"];
+const HAIR_SWAY = ["twin", "pony", "braid", "long", "wave", "hime"];
 
 function HeadAccessory({ id, R }: { id: string | null; R: number }) {
   if (!id) return null;

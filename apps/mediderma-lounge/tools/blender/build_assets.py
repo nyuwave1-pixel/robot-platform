@@ -321,10 +321,199 @@ def char_bow():
     export("char_bow")
 
 
-if __name__ == "__main__":
+# ───────────── 헤어 ─────────────
+# 반지름 1 머리 기준(원점 = 머리 중심). 재질 "hair" 를 게임이 머리색 재질로 바꿔 끼운다.
+# hair_<스타일>.glb 는 머리에 고정된 부분, hair_<스타일>_sway.glb 는 걸을 때 흔들리는 부분이다.
+# 긴 머리(long · wave · hime)의 sway 는 세로 길이 1 로 만들고 게임이 체형에 맞춰 세로로 늘린다.
+HAIR = lambda: mat("hair", "#6b4630", rough=0.42)
+TIE = lambda: mat("tie", "#ef86a8", rough=0.4)
+
+
+def G(x, y, z):
+    """게임 좌표(x 오른쪽, y 위, z 정면) → Blender 좌표."""
+    return (x, -z, y)
+
+
+def lock(pts, radii, material=None, res=2):
+    """머리카락 한 가닥: 게임 좌표 점들을 지나는 굵기가 변하는 튜브."""
+    cu = bpy.data.curves.new("lock", "CURVE")
+    cu.dimensions = "3D"; cu.bevel_depth = 1.0; cu.bevel_resolution = res; cu.resolution_u = 4; cu.use_fill_caps = True
+    sp = cu.splines.new("BEZIER")
+    sp.bezier_points.add(len(pts) - 1)
+    for bp, p, r in zip(sp.bezier_points, pts, radii):
+        bp.co = G(*p); bp.radius = max(r, 0.025)
+        bp.handle_left_type = bp.handle_right_type = "AUTO"
+    o = bpy.data.objects.new("lock", cu)
+    bpy.context.collection.objects.link(o)
+    bpy.ops.object.select_all(action="DESELECT")
+    o.select_set(True); bpy.context.view_layer.objects.active = o
+    bpy.ops.object.convert(target="MESH")
+    bpy.ops.object.shade_smooth()
+    o.data.materials.append(material or HAIR())
+    return o
+
+
+def scalp(cut, hairline=lambda gx: 0.6 - 0.32 * gx * gx):
+    """얼굴 쪽이 열린 두피 쉘. cut 아래와 헤어라인 아래 정면을 잘라낸다."""
+    import bmesh
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1.085, segments=32, ring_count=20)
+    o = bpy.context.object
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    dead = [v for v in bm.verts if v.co.z < cut or (-v.co.y > 0.2 and v.co.z < hairline(v.co.x))]
+    bmesh.ops.delete(bm, geom=dead, context="VERTS")
+    bm.to_mesh(o.data); bm.free()
+    mod = o.modifiers.new("solid", "SOLIDIFY"); mod.thickness = 0.07; mod.offset = 1
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    return finish(o, HAIR())
+
+
+def bangs(xs=(-0.62, -0.36, -0.12, 0.12, 0.36, 0.62), low=0.4, sweep=0.0, r=0.2):
+    for x in xs:
+        lock([(x * 0.55, 1.0, 0.3), (x * 0.9 + sweep * 0.2, 0.82, 0.8), (x + sweep * 0.45, low + abs(x) * 0.12, 1.0 - abs(x) * 0.2)], [r, r * 1.05, 0.04])
+
+
+def sides(length, r=0.2):
+    for s in (-1, 1):
+        lock([(s * 0.7, 0.8, 0.45), (s * 1.0, 0.25, 0.35), (s * 1.0, -length, 0.28)], [r, r * 1.1, 0.05])
+
+
+def curtain(y0, y1, n=11, r=0.24, wave=0.0, curl=0.0, spread=1.0):
+    """뒤통수를 감싸는 가닥들 (귀 뒤에서 귀 뒤까지). y0 → y1 로 내려온다."""
+    for i in range(n):
+        a = math.radians(-100 + 200 * i / (n - 1))  # 0 = 정후방
+        sx, sz = math.sin(a), -math.cos(a)
+        pts, rad = [], []
+        for j in range(5):
+            t = j / 4
+            y = y0 + (y1 - y0) * t
+            w = wave * math.sin(t * 9 + i * 1.7) * (0.3 + t)
+            rr = (1.02 + 0.1 * spread * t - curl * max(0, t - 0.7) * 1.2) + w
+            pts.append((sx * rr, y, sz * rr * 0.96))
+            rad.append(r * (1 - 0.15 * t) if j < 4 else 0.06)
+        lock(pts, rad)
+
+
+def hair_bob():
+    reset(); scalp(-0.25); bangs()
+    curtain(0.35, -0.78, n=13, r=0.26, curl=0.5)
+    export("hair_bob")
+
+
+def hair_pixie():
+    reset(); scalp(-0.2); bangs(xs=(-0.6, -0.3, 0.0, 0.3, 0.6), low=0.5, sweep=0.5, r=0.18)
+    curtain(0.3, -0.42, n=11, r=0.2, curl=0.3)
+    for s in (-1, 1):
+        lock([(s * 0.85, 0.5, 0.5), (s * 1.02, 0.1, 0.45), (s * 0.98, -0.3, 0.5)], [0.16, 0.14, 0.03])
+    export("hair_pixie")
+
+
+def hair_twin():
+    reset(); scalp(-0.3); bangs(); sides(0.35, 0.17)
+    for s in (-1, 1):
+        ball(0.17, G(s * 1.12, 0.38, -0.1), TIE(), seg=12)
+    export("hair_twin")
+    reset()
+    for s in (-1, 1):
+        lock([(s * 1.05, 0.4, -0.1), (s * 1.45, 0.25, -0.12), (s * 1.6, -0.6, -0.08), (s * 1.5, -1.5, -0.02), (s * 1.62, -1.85, 0.05)], [0.14, 0.36, 0.34, 0.24, 0.04])
+        lock([(s * 1.1, 0.35, -0.2), (s * 1.3, -0.2, -0.3), (s * 1.38, -1.3, -0.22)], [0.12, 0.26, 0.04])
+    export("hair_twin_sway")
+
+
+def hair_bun():
+    reset(); scalp(-0.3); bangs(); sides(0.3, 0.15)
+    ball(0.46, G(0, 1.14, -0.2), HAIR(), scale=(1, 1, 0.9), seg=20)
+    torus(0.34, 0.09, G(0, 1.2, -0.2), HAIR())
+    torus(0.3, 0.05, G(0, 0.95, -0.2), TIE())
+    export("hair_bun")
+
+
+def hair_space():
+    reset(); scalp(-0.3); bangs(); sides(0.3, 0.15)
+    for s in (-1, 1):
+        ball(0.36, G(s * 0.62, 1.0, -0.05), HAIR(), seg=18)
+        torus(0.24, 0.045, G(s * 0.55, 0.8, -0.05), TIE(), rot=(0, s * 0.5, 0))
+    export("hair_space")
+
+
+def hair_pony():
+    reset(); scalp(-0.3); bangs(); sides(0.3, 0.15)
+    torus(0.2, 0.07, G(0, 0.72, -0.98), TIE(), rot=(0.9, 0, 0))
+    export("hair_pony")
+    reset()
+    lock([(0, 0.75, -0.95), (0, 0.8, -1.45), (0, 0.1, -1.6), (0, -0.9, -1.4), (0, -1.3, -1.2)], [0.18, 0.36, 0.34, 0.22, 0.04])
+    for s in (-1, 1):
+        lock([(s * 0.05, 0.75, -1.0), (s * 0.25, 0.4, -1.5), (s * 0.28, -0.7, -1.38)], [0.12, 0.24, 0.04])
+    export("hair_pony_sway")
+
+
+def hair_updo():
+    reset(); scalp(-0.3); bangs(xs=(-0.6, -0.3, 0.0, 0.3, 0.6), low=0.52, sweep=0.35); sides(0.75, 0.15)
+    ball(0.5, G(0, 0.55, -0.98), HAIR(), scale=(1.15, 0.9, 0.95), seg=20)
+    for a in (0.5, 1.2, 1.9):
+        torus(0.36, 0.085, G(0, 0.55, -1.02), HAIR(), rot=(0.9, a, 0))
+    torus(0.52, 0.025, G(0, 0.55, -0.9), GOLD(), rot=(0.9, 0, 0))
+    export("hair_updo")
+
+
+def hair_braid():
+    reset(); scalp(-0.3); bangs(sweep=-0.25); sides(0.3, 0.15)
+    export("hair_braid")
+    reset()
+    for i in range(8):
+        y = -0.2 - i * 0.33
+        r = 0.27 * (1 - i * 0.055)
+        for s in (-1, 1):
+            ball(r, G(0.95 + s * r * 0.42 * (1 if i % 2 else -1), y, 0.25), HAIR(), scale=(0.85, 0.85, 1.1), seg=14)
+    ball(0.13, G(0.95, -2.85, 0.27), TIE(), seg=12)
+    lock([(0.95, -2.85, 0.27), (0.98, -3.1, 0.3), (0.9, -3.35, 0.34)], [0.14, 0.16, 0.03])
+    export("hair_braid_sway")
+
+
+def long_tail(name, wave=0.0, n=11):
+    """세로 길이 1 로 만든 긴 뒷머리 (게임이 세로로 늘린다)."""
+    reset()
+    curtain(0.0, -1.0, n=n, r=0.27, wave=wave, spread=0.6)
+    for i in range(6):  # 안쪽을 메우는 가닥
+        x = -0.6 + i * 0.24
+        lock([(x, 0.0, -0.85), (x * 1.05, -0.5, -0.95), (x * 1.1, -0.97, -0.9)], [0.3, 0.3, 0.06])
+    export(name)
+
+
+def hair_long():
+    reset(); scalp(-0.3); bangs(); sides(0.95, 0.18)
+    export("hair_long")
+    long_tail("hair_long_sway")
+
+
+def hair_wave():
+    reset(); scalp(-0.3); bangs(xs=(-0.6, -0.3, 0.0, 0.3, 0.6), low=0.5, sweep=0.4)
+    for s in (-1, 1):
+        lock([(s * 0.7, 0.8, 0.45), (s * 1.08, 0.2, 0.35), (s * 0.95, -0.4, 0.4), (s * 1.12, -0.9, 0.3), (s * 0.98, -1.3, 0.36)], [0.2, 0.24, 0.22, 0.2, 0.05])
+    export("hair_wave")
+    long_tail("hair_wave_sway", wave=0.09)
+
+
+def hair_hime():
+    reset(); scalp(-0.3)
+    for i in range(9):  # 일자 앞머리
+        x = -0.68 + i * 0.17
+        lock([(x * 0.6, 1.0, 0.3), (x * 0.95, 0.8, 0.82), (x, 0.36, 1.0 - abs(x) * 0.22)], [0.15, 0.15, 0.12])
+    for s in (-1, 1):  # 볼 옆 단발 가닥
+        for dz in (0.2, 0.42):
+            lock([(s * 0.75, 0.75, dz + 0.1), (s * 1.0, 0.2, dz), (s * 1.0, -0.72, dz)], [0.16, 0.17, 0.15])
+    export("hair_hime")
+    long_tail("hair_hime_sway", n=13)
+
+
+if __name__ == "__main__" and "--hair" in sys.argv:
+    for f in (hair_bob, hair_pixie, hair_twin, hair_bun, hair_space, hair_pony, hair_updo, hair_braid, hair_long, hair_wave, hair_hime):
+        f()
+elif __name__ == "__main__":
     derma_home()
     care_bed()
     for n in (1, 2, 3):
         sofa(n)
     for f in (char_head, char_hand, char_shoe, char_hem, char_bow):
+        f()
+    for f in (hair_bob, hair_pixie, hair_twin, hair_bun, hair_space, hair_pony, hair_updo, hair_braid, hair_long, hair_wave, hair_hime):
         f()
