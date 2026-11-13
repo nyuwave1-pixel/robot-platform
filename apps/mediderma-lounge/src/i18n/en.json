@@ -297,7 +297,7 @@
   "plaza.online": "{n} online",
   "plaza.connecting": "Connecting…",
   "plaza.offline": "Offline · exploring solo",
-  "plaza.hint": "Tap a player to send hearts and trade lounge visit perks.",
+  "plaza.hint": "Tap a player to send a heart and visit their lounge.",
   "plaza.desc": "An outdoor plaza where you walk and greet other players.",
   "plaza.say.0": "Hello!",
   "plaza.say.1": "Nice to meet you",
@@ -323,5 +323,9 @@
   "plaza.heart": "Send a heart",
   "plaza.sentHeart": "Sent a heart to {name}",
   "plaza.gotHeart": "{name} sent you a heart",
-  "plaza.gotVisit": "{name} visited your lounge"
+  "plaza.gotVisit": "{name} visited your lounge",
+  "plaza.goLounge": "Visit lounge",
+  "plaza.perkOnVisit": "Visit the lounge to receive this perk.",
+  "plaza.toPlaza": "To plaza",
+  "plaza.shopNote": "The lounge as it was when you met in the plaza."
 }

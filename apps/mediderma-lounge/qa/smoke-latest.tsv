@@ -1,5 +1,5 @@
 boots	pass	canvas=1 errors=0
-responds	pass	moved=0.43m
+responds	pass	moved=0.57m
 care	pass	phase=result
 station	pass	stations=1
 pet	pass	pets=1

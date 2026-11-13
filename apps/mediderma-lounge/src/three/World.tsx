@@ -104,9 +104,11 @@ function Scene({ q }: { q: "low" | "high" }) {
   const selected = useUI((s) => s.selected);
   const hasCare = useUI((s) => !!s.care);
   const careMode = useUI((s) => (s.care && s.care.phase === "step" ? s.care.steps[s.care.step]?.mode ?? null : null));
+  const shop = useUI((s) => s.shop);
   const friend = DEMO_FRIENDS.find((f) => f.id === visiting);
-  const level = friend ? friend.level : lounge.level;
-  const stations = friend ? 0 : lounge.stations ?? 0;
+  const away = !!friend || !!shop;
+  const level = shop ? shop.lounge.level : friend ? friend.level : lounge.level;
+  const stations = away ? 0 : lounge.stations ?? 0;
   const pets = useGame((s) => s.pets);
   const L = useMemo(() => (world === "plaza" ? plazaLayout() : layout(level, stations)), [level, stations, world]);
 
@@ -114,9 +116,9 @@ function Scene({ q }: { q: "low" | "high" }) {
   useEffect(() => {
     input.playerPos.x = THREE.MathUtils.clamp(input.playerPos.x, -L.w / 2 + 1, L.w / 2 - 1);
     input.playerPos.z = THREE.MathUtils.clamp(input.playerPos.z, -L.d / 2 + 1, L.d / 2 - 1);
-    if (friend) { input.playerPos.x = 0; input.playerPos.z = L.d / 2 - 2; }
+    if (away) { input.playerPos.x = 0; input.playerPos.z = L.d / 2 - 3.6; input.playerYaw = Math.PI; input.cam.yaw = 0; input.moveTarget = null; }
     if (world === "plaza") { input.playerPos.x = 0; input.playerPos.z = 8.5; input.playerYaw = Math.PI; input.cam.yaw = 0; input.moveTarget = null; }
-  }, [L, friend, world]);
+  }, [L, away, world]);
 
   const onFloor = (x: number, z: number) => {
     const ui = useUI.getState();
@@ -141,22 +143,22 @@ function Scene({ q }: { q: "low" | "high" }) {
     <>
       <Lounge
         level={level}
-        floor={friend ? friend.floor : lounge.floor}
-        wall={friend ? friend.wall : lounge.wall}
-        light={lounge.light}
-        furniture={friend ? FRIEND_FURNITURE : lounge.furniture}
+        floor={shop ? shop.lounge.floor : friend ? friend.floor : lounge.floor}
+        wall={shop ? shop.lounge.wall : friend ? friend.wall : lounge.wall}
+        light={shop ? shop.lounge.light : lounge.light}
+        furniture={shop ? shop.lounge.furniture : friend ? FRIEND_FURNITURE : lounge.furniture}
         selected={mode === "edit" ? selected : null}
         activeMode={careMode}
         quality={q}
         stations={stations}
         onFloor={onFloor}
-        onFurniture={mode === "edit" && !friend ? (uid) => useUI.setState({ selected: uid }) : undefined}
+        onFurniture={mode === "edit" && !away ? (uid) => useUI.setState({ selected: uid }) : undefined}
       />
       <Player L={L} />
-      {friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
-      {!friend && pets.map((p, i) => <PetActor key={p.id} pet={p} L={L} seed={i} />)}
-      {hasCare && !friend && <Care3D L={L} />}
-      <ZoneMarkers L={L} hidden={mode !== "explore" || !!friend} />
+      {shop ? <ShopHost shop={shop} /> : friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
+      {!away && pets.map((p, i) => <PetActor key={p.id} pet={p} L={L} seed={i} />)}
+      {hasCare && !away && <Care3D L={L} />}
+      <ZoneMarkers L={L} hidden={mode !== "explore" || away} />
       <CameraRig L={L} />
       <Director />
     </>
@@ -167,6 +169,15 @@ const FRIEND_FURNITURE = [
   { uid: "f1", type: "plant", x: -3, z: 1, rot: 0 }, { uid: "f2", type: "rug", x: 0, z: 0.5, rot: 0 },
   { uid: "f3", type: "lamp", x: 3, z: 1.5, rot: 0 }, { uid: "f4", type: "flower", x: -1.5, z: -1.5, rot: 0 }, { uid: "f5", type: "display", x: 1.5, z: -1, rot: 0 },
 ];
+
+/** 방문한 라운지의 주인 (접속 당시 모습 그대로 손을 흔든다) */
+function ShopHost({ shop }: { shop: NonNullable<ReturnType<typeof useUI.getState>["shop"]> }) {
+  return (
+    <group position={[0, 0, 0.5]}>
+      <Character look={shop.look} growth={shop.stage} anim="wave" mood="happy" seed={5} rank={shop.rank} />
+    </group>
+  );
+}
 
 function FriendHost({ friend }: { friend: (typeof DEMO_FRIENDS)[number] }) {
   const look: Look = { ...DEFAULT_LOOK, hair: friend.hair, hairColor: friend.hairColor, outfit: friend.outfit, skin: friend.skin, accessory: friend.stage >= 4 ? "acc-tiara" : "acc-flower" };

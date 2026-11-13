@@ -8,8 +8,8 @@
  */
 import { RealtimeClient, type RealtimeChannel } from "@supabase/realtime-js";
 import { create } from "zustand";
-import { FASHION_MAP } from "../data/game";
-import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
+import { FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS } from "../data/game";
+import { DEFAULT_LOOK, useGame, type Furniture, type Look } from "../store/game";
 import { input } from "../store/ui";
 
 /** 공개(publishable) 키다. 브라우저에 노출되도록 만들어진 값이라 비밀이 아니다. */
@@ -23,6 +23,8 @@ export interface Remote {
   id: string; name: string; look: Look; stage: number; rank: number;
   /** 라운지 홍보 번호 (0 = 없음) 와 그 라운지 주인의 친구 코드 */
   promo: number; code: string;
+  /** 그 플레이어의 라운지 꾸밈 (방문할 때 그대로 재현한다) */
+  lounge: LoungeSnap;
   x: number; z: number; yaw: number; moving: boolean;
   /** 화면에 그리는 보간 위치 */
   rx: number; rz: number;
@@ -65,6 +67,23 @@ export function cleanLook(v: unknown): Look {
     shoes: item(o.shoes, null), makeup: item(o.makeup, null), nail: item(o.nail, null),
   };
 }
+export interface LoungeSnap { level: number; floor: string; wall: string; light: string; furniture: Furniture[] }
+const theme = (v: unknown, kind: string, d: string) => (typeof v === "string" && INTERIOR_MAP[v]?.kind === kind ? v : d);
+/** 다른 사람이 보낸 라운지 꾸밈도 아는 값만 받아들이고, 가구는 방 안쪽 좌표로 제한한다 */
+export function cleanLounge(v: unknown): LoungeSnap {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const level = Math.round(Math.min(LOUNGE_LEVELS.length, Math.max(1, typeof o.level === "number" && isFinite(o.level) ? o.level : 1)));
+  const L = LOUNGE_LEVELS[level - 1];
+  const furniture: Furniture[] = [];
+  for (const f of Array.isArray(o.furniture) ? o.furniture.slice(0, MAX_FURNITURE) : []) {
+    const q = (f && typeof f === "object" ? f : {}) as Record<string, unknown>;
+    if (typeof q.type !== "string" || INTERIOR_MAP[q.type]?.kind !== "furniture") continue;
+    const n = (x: unknown, lim: number) => (typeof x === "number" && isFinite(x) ? Math.min(lim, Math.max(-lim, x)) : 0);
+    furniture.push({ uid: `v${furniture.length}`, type: q.type, x: n(q.x, L.w / 2 - 0.6), z: n(q.z, L.d / 2 - 0.6), rot: n(q.rot, 7) });
+  }
+  return { level, floor: theme(o.floor, "floor", "floor-cream"), wall: theme(o.wall, "wall", "wall-cream"), light: theme(o.light, "light", "light-warm"), furniture };
+}
+export const MAX_FURNITURE = 40;
 export const cleanName = (v: unknown) => (typeof v === "string" ? v.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 12) : "") || "GUEST";
 const num = (v: unknown, lo: number, hi: number, d = 0) => (typeof v === "number" && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
 
@@ -92,7 +111,7 @@ export function joinPlaza() {
   }
   const ch = channel;
   ch.on("presence", { event: "sync" }, () => {
-    const st = ch.presenceState() as Record<string, { name?: unknown; look?: unknown; stage?: unknown; rank?: unknown; promo?: unknown; code?: unknown; x?: unknown; z?: unknown }[]>;
+    const st = ch.presenceState() as Record<string, { name?: unknown; look?: unknown; stage?: unknown; rank?: unknown; promo?: unknown; code?: unknown; lounge?: unknown; x?: unknown; z?: unknown }[]>;
     const now = Date.now();
     const alive = new Set<string>();
     for (const id of Object.keys(st)) {
@@ -103,7 +122,7 @@ export function joinPlaza() {
       const x = num(m.x, -14, 14), z = num(m.z, -14, 14, 8);
       remotes.set(id, {
         id, name: cleanName(m.name), look: cleanLook(m.look), stage: Math.round(num(m.stage, 1, 5, 1)), rank: Math.round(num(m.rank, 0, 10)),
-        promo: Math.round(num(m.promo, 0, 9)), code: typeof m.code === "string" && /^[A-Z0-9]{6}$/.test(m.code) ? m.code : "",
+        promo: Math.round(num(m.promo, 0, 9)), code: typeof m.code === "string" && /^[A-Z0-9]{6}$/.test(m.code) ? m.code : "", lounge: old?.lounge ?? cleanLounge(m.lounge),
         x: old?.x ?? x, z: old?.z ?? z, yaw: old?.yaw ?? 0, moving: old?.moving ?? false, rx: old?.rx ?? x, rz: old?.rz ?? z,
         say: old?.say ?? -1, sayAt: old?.sayAt ?? 0, seen: now,
       });
@@ -136,7 +155,8 @@ export function joinPlaza() {
     if (status === "SUBSCRIBED") {
       usePlaza.setState({ status: "online" });
       const s = useGame.getState();
-      void ch.track({ name: s.name, look: { ...s.look, hideRank: undefined }, stage: s.stage, rank: s.look.hideRank ? 0 : s.rank, promo: s.promo, code: s.friendCode, x: input.playerPos.x, z: input.playerPos.z });
+      void ch.track({ name: s.name, look: { ...s.look, hideRank: undefined }, stage: s.stage, rank: s.look.hideRank ? 0 : s.rank, promo: s.promo, code: s.friendCode, x: input.playerPos.x, z: input.playerPos.z,
+        lounge: { level: s.lounge.level, floor: s.lounge.floor, wall: s.lounge.wall, light: s.lounge.light, furniture: s.lounge.furniture.slice(0, MAX_FURNITURE).map((f) => ({ type: f.type, x: +f.x.toFixed(2), z: +f.z.toFixed(2), rot: +f.rot.toFixed(2) })) } });
     } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
       if (usePlaza.getState().status !== "off") usePlaza.setState({ status: "offline" });
     }

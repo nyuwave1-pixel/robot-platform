@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import type { ModeId, RoutineStep, ZoneId } from "../data/devices";
 import type { ExpKey } from "../data/game";
+import type { Furniture, Look } from "./game";
 
 export type Screen = "splash" | "intro" | "create" | "game";
 export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank";
@@ -56,6 +57,8 @@ interface UIState {
   visiting: string | null; // 방문 중인 데모 친구 id
   /** 라운지 밖 월드 (null = 내 라운지) */
   world: null | "plaza";
+  /** 광장에서 만난 플레이어의 라운지를 방문 중일 때 그 스냅샷 */
+  shop: null | { name: string; code: string; look: Look; stage: number; rank: number; lounge: { level: number; floor: string; wall: string; light: string; furniture: Furniture[] } };
   cine: { from: number; to: number } | null;
   growthView: number | null; // 연출 중 표시 성장값
   flash: number;
@@ -84,6 +87,7 @@ export const useUI = create<UIState>((set, get) => ({
   selected: null,
   visiting: null,
   world: null,
+  shop: null,
   cine: null,
   growthView: null,
   flash: 0,

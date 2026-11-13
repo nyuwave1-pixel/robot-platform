@@ -225,12 +225,16 @@ function PlazaBar() {
             <div className="mt-2 rounded-2xl bg-gradient-to-br from-pink-soft to-lav/70 p-3">
               <p className="text-[12px] font-black tracking-wider text-gold">LOUNGE PROMO</p>
               <p className="mt-0.5 text-sm font-black text-ink">{L(promo)}</p>
-              <button disabled={visited || !target.code} className="btn-primary mt-2 w-full !py-2 text-xs disabled:opacity-40"
-                onClick={() => { const r = g.plazaVisit(target.code, target.promo); if (r) { sendVisit(target.id); toast(`${t("plaza.visited", { name: target.name })}${r.coins ? `  +${r.coins} COIN` : ""}${r.stars ? `  +${r.stars} STAR` : ""}`); } else toast(t("plaza.visitLimit")); }}>
-                {visited ? t("plaza.visitedToday") : t("plaza.visit")}
-              </button>
+              <p className="mt-1 text-[12px] font-bold text-ink/50">{visited ? t("plaza.visitedToday") : t("plaza.perkOnVisit")}</p>
             </div>
           ) : <p className="mt-2 text-[12px] text-ink/50">{t("plaza.noPromo")}</p>}
+          <button className="btn-primary mt-2 w-full !py-2 text-xs" onClick={() => {
+            // 접속이 끊기기 전에 혜택과 방문 알림을 처리하고 상대 라운지로 이동한다
+            const r = promo && !visited ? g.plazaVisit(target.code, target.promo) : null;
+            sendVisit(target.id);
+            if (r) toast(`${t("plaza.visited", { name: target.name })}${r.coins ? `  +${r.coins} COIN` : ""}${r.stars ? `  +${r.stars} STAR` : ""}`);
+            useUI.setState({ shop: { name: target.name, code: target.code, look: target.look, stage: target.stage, rank: target.rank, lounge: target.lounge }, visiting: "shop", world: null, customers: [], near: null, nearCustomer: null, nearPet: null });
+          }}><Icon n="lounge" /> {t("plaza.goLounge")}</button>
           <button className="btn-ghost mt-2 w-full !py-2 text-xs" onClick={() => { sendHeart(target.id); toast(t("plaza.sentHeart", { name: target.name })); }}>♥ {t("plaza.heart")}</button>
         </div>
       )}
@@ -264,8 +268,19 @@ function PlazaBar() {
 function VisitBanner() {
   const t = useT();
   const visiting = useUI((s) => s.visiting);
+  const shop = useUI((s) => s.shop);
   const f = DEMO_FRIENDS.find((x) => x.id === visiting);
   const [liked, setLiked] = useState(false);
+  if (shop)
+    return (
+      <div className="absolute bottom-6 left-1/2 z-30 flex w-[92%] max-w-md -translate-x-1/2 items-center gap-2 rounded-3xl bg-white/90 p-3 shadow-xl backdrop-blur">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-black text-ink">{t("visit.title", { name: shop.name })}</p>
+          <p className="text-[12px] text-ink/50">{t("plaza.shopNote")}</p>
+        </div>
+        <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ shop: null, visiting: null, world: "plaza" })}>{t("plaza.toPlaza")}</button>
+      </div>
+    );
   if (!f) return null;
   return (
     <div className="absolute bottom-6 left-1/2 z-30 flex w-[92%] max-w-md -translate-x-1/2 items-center gap-2 rounded-3xl bg-white/90 p-3 shadow-xl backdrop-blur">

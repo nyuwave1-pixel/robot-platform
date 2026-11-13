@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { tune } from "../src/data/config";
 import { PROMOS } from "../src/data/game";
-import { cleanLook, cleanName, sparkleSpots } from "../src/net/plaza";
+import { MAX_FURNITURE, cleanLook, cleanLounge, cleanName, sparkleSpots } from "../src/net/plaza";
 import { DEFAULT_LOOK, useGame } from "../src/store/game";
 
 const g = () => useGame.getState();
@@ -78,5 +78,19 @@ describe("월드 광장", () => {
   it("홍보는 정해진 혜택만 고를 수 있다", () => {
     g().setPromo(2); expect(g().promo).toBe(2);
     g().setPromo(77); expect(g().promo).toBe(0);
+  });
+  it("다른 사람의 라운지 꾸밈은 아는 값만, 방 안쪽 좌표로만 받아들인다", () => {
+    const l = cleanLounge({ level: 99, floor: "wall-lav", wall: "wall-lav", light: "x", furniture: [
+      { type: "plant", x: 2, z: 1, rot: 0.5 }, { type: "nope", x: 0, z: 0 }, { type: "wall-pink", x: 0, z: 0 }, { type: "rug", x: 9999, z: -9999, rot: "a" }, null, "x",
+    ] });
+    expect(l.level).toBe(5);
+    expect(l.floor).toBe("floor-cream");
+    expect(l.wall).toBe("wall-lav");
+    expect(l.light).toBe("light-warm");
+    expect(l.furniture.map((f) => f.type)).toEqual(["plant", "rug"]);
+    expect(Math.abs(l.furniture[1].x)).toBeLessThan(20);
+    expect(l.furniture[1].rot).toBe(0);
+    expect(cleanLounge(undefined)).toEqual({ level: 1, floor: "floor-cream", wall: "wall-cream", light: "light-warm", furniture: [] });
+    expect(cleanLounge({ furniture: Array.from({ length: 200 }, () => ({ type: "plant", x: 0, z: 0, rot: 0 })) }).furniture.length).toBe(MAX_FURNITURE);
   });
 });

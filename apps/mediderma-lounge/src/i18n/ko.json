@@ -297,7 +297,7 @@
   "plaza.online": "{n}명 접속 중",
   "plaza.connecting": "연결 중…",
   "plaza.offline": "오프라인 · 혼자 둘러보는 중",
-  "plaza.hint": "플레이어를 누르면 하트와 라운지 방문 혜택을 주고받을 수 있어요.",
+  "plaza.hint": "플레이어를 누르면 하트를 보내고 그 사람의 라운지에 놀러 갈 수 있어요.",
   "plaza.desc": "다른 플레이어와 함께 걷고 인사하는 야외 광장이에요.",
   "plaza.say.0": "안녕하세요!",
   "plaza.say.1": "반가워요",
@@ -323,5 +323,9 @@
   "plaza.heart": "하트 보내기",
   "plaza.sentHeart": "{name} 님에게 하트를 보냈어요",
   "plaza.gotHeart": "{name} 님이 하트를 보냈어요",
-  "plaza.gotVisit": "{name} 님이 내 라운지를 방문했어요"
+  "plaza.gotVisit": "{name} 님이 내 라운지를 방문했어요",
+  "plaza.goLounge": "라운지 방문하기",
+  "plaza.perkOnVisit": "라운지를 방문하면 이 혜택을 받아요.",
+  "plaza.toPlaza": "광장으로",
+  "plaza.shopNote": "광장에서 만났을 때의 라운지 모습이에요."
 }
