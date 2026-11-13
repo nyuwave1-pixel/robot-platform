@@ -491,7 +491,7 @@ const en: Dict = {
     title: "Virtual Future Skin Simulation",
     desc: "A virtual image in which a visual effect that makes skin texture and tone appear more even is applied in stages to the skin area of your current photo.",
     disclaimer: "This is a virtual simulation and does not guarantee actual improvement.",
-    notPrediction: "It is not a prediction of actual changes in your skin and does not represent improvement figures for each period. Face shape and facial features are not altered.",
+    notPrediction: "It is not a prediction of actual changes in your skin and does not represent improvement figures for each period. Face shape and facial features are not altered. The effect is intentionally exaggerated so the difference is easy to see.",
     current: "CURRENT SKIN",
     currentLabel: "Current skin (original)",
     w4: "4 WEEKS",

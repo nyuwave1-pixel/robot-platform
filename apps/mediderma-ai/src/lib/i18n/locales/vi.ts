@@ -491,7 +491,7 @@ const vi: Dict = {
     title: "Mô phỏng ảo làn da tương lai",
     desc: "Đây là hình ảnh ảo, trong đó hiệu ứng thị giác giúp bề mặt da và màu da trông đồng đều hơn được áp dụng theo từng giai đoạn lên vùng da trong ảnh hiện tại.",
     disclaimer: "Đây là mô phỏng ảo và không bảo đảm kết quả cải thiện thực tế.",
-    notPrediction: "Đây không phải dự đoán về thay đổi thực tế của da và không thể hiện mức cải thiện theo từng giai đoạn. Hình dáng khuôn mặt và các đường nét không bị thay đổi.",
+    notPrediction: "Đây không phải dự đoán về thay đổi thực tế của da và không thể hiện mức cải thiện theo từng giai đoạn. Hình dáng khuôn mặt và các đường nét không bị thay đổi. Hiệu ứng được cố ý làm mạnh hơn để dễ thấy sự khác biệt.",
     current: "CURRENT SKIN",
     currentLabel: "Tình trạng da hiện tại (ảnh gốc)",
     w4: "4 WEEKS",

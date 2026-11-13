@@ -13,7 +13,7 @@ import { compareResults, similarityTransform } from "../../src/lib/analysis/comp
 import { buildCarePlan } from "../../src/lib/care/recommend";
 import { PRODUCTS, PRODUCT_ORDER, ROUTINES } from "../../src/lib/care/knowledge";
 import { analyzeNormalized } from "../../src/lib/analysis/engine";
-import { simulate } from "../../src/lib/analysis/simulate";
+import { simRegion, simulate } from "../../src/lib/analysis/simulate";
 import { CANONICAL, FACE_ZONES } from "../../src/lib/analysis/zones";
 import type { AnalysisResult, SurveyAnswers, ZoneResult } from "../../src/lib/analysis/types";
 
@@ -282,14 +282,22 @@ describe("analysis engine (synthetic face)", () => {
   it("simulation changes only skin pixels and never the geometry inputs", () => {
     const o = base.visual;
     const sim = simulate(o, "12weeks");
-    let changedOutside = 0, changedInside = 0;
+    const region = simRegion(o);
+    let changedOutside = 0, changedInside = 0, nonSkin = 0;
     for (let i = 0; i < o.zoneMap.length; i++) {
       const d = Math.abs(sim[4 * i] - o.rgba[4 * i]) + Math.abs(sim[4 * i + 1] - o.rgba[4 * i + 1]) + Math.abs(sim[4 * i + 2] - o.rgba[4 * i + 2]);
-      if (d > 1) (o.zoneMap[i] ? changedInside++ : changedOutside++);
+      if (d > 1) (region[i] > 0 ? changedInside++ : changedOutside++);
+      if (region[i] > 0 && !o.skinMask[i]) nonSkin++;
     }
     expect(changedInside).toBeGreaterThan(1000);
-    // 경계 페더링(σ=5px) 범위를 넘는 바깥 픽셀은 바뀌지 않는다
-    expect(changedOutside / o.zoneMap.length).toBeLessThan(0.02);
+    // 적용 영역 밖과 피부가 아닌 픽셀(눈·입·머리카락·배경)은 바뀌지 않는다
+    expect(changedOutside).toBe(0);
+    expect(nonSkin).toBe(0);
+    // 12주 연출은 원본과 뚜렷하게 달라야 하고, 4주 < 8주 < 12주 순으로 강해진다
+    const diff = (x: Uint8ClampedArray) => { let t = 0; for (let i = 0; i < x.length; i += 4) t += Math.abs(x[i] - o.rgba[i]); return t; };
+    const d4 = diff(simulate(o, "4weeks")), d8 = diff(simulate(o, "8weeks")), d12 = diff(sim);
+    expect(d4).toBeLessThan(d8);
+    expect(d8).toBeLessThan(d12);
     expect(sim.length).toBe(o.rgba.length);
   });
 });
