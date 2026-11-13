@@ -6,7 +6,7 @@ import type { Queryable } from "./platform.ts";
 import { can, requireAdmin, ROLE_LABEL, type AdminRole } from "./auth.ts";
 import { imageStore, signedImagePath, verifyImageSignature } from "./storage.ts";
 import {
-  eventBySlug, settingsOf, policyOf, phaseOf, phoneHash, normOrder, charCount, purgeStaleUploads,
+  eventBySlug, settingsOf, policyOf, phaseOf, phoneHash, normOrder, normMember, charCount, purgeStaleUploads,
   REVIEW_STATUS_LABEL, REWARD_STATUS_LABEL, REWARD_TYPE_LABEL, SKIN_TYPES, USAGE_PERIODS, DEFAULT_SETTINGS, type PromoEvent,
 } from "./public.ts";
 
@@ -108,6 +108,7 @@ function reviewWhere(a: PromoActor, eventId: number, f: URLSearchParams): Where 
     const digits = term.replace(/\D/g, "");
     const ors: string[] = [];
     params.push("%" + term.replace(/[%_\\]/g, "\\$&") + "%"); const like = "$" + params.length;
+    const mem = normMember(term); if (mem.length >= 3) { params.push("%" + mem + "%"); ors.push(`r.member_login_id ILIKE $${params.length}`); }
     ors.push(`r.applicant_name ILIKE ${like}`, `r.application_number ILIKE ${like}`, `r.order_number ILIKE ${like}`, `r.review_title ILIKE ${like}`, `r.member_login_id ILIKE ${like}`);
     if (PHONE_RE.test(digits)) { params.push(phoneHash(digits)); ors.push(`r.phone_hash = $${params.length}`); }
     else if (digits.length === 4) { params.push(digits); ors.push(`r.phone_last4 = $${params.length}`); }
@@ -394,7 +395,7 @@ export async function editReview(a: PromoActor, id: number, b: any) {
     }
     if (b.orderNumber !== undefined) { const v = s(b.orderNumber, 80); const n = normOrder(v); put("order_number", v || null, "주문번호"); put("order_number_norm", n.length >= 6 ? n : null, "주문번호정규화"); }
     if (typeof b.memberClaimed === "boolean") put("member_claimed", b.memberClaimed, "회원 여부");
-    if (b.memberLoginId !== undefined) put("member_login_id", s(b.memberLoginId, 60) || null, "회원 아이디");
+    if (b.memberLoginId !== undefined) put("member_login_id", normMember(b.memberLoginId) || null, "회원번호");
     if (b.distributorCode !== undefined) put("distributor_code", s(b.distributorCode, 40).toUpperCase().replace(/[^A-Z0-9_-]/g, "") || null, "총판 코드");
     if (b.postalCode !== undefined) { const v = String(b.postalCode || "").replace(/\D/g, "").slice(0, 5); if (v && v.length !== 5) fail(400, "VALIDATION", "우편번호 5자리를 확인해 주세요."); put("postal_code", v || null, "우편번호"); }
     if (b.address !== undefined) { const v = String(b.address || "").trim().slice(0, 220); put("address_enc", v ? encrypt(v) : null, "주소"); }
@@ -677,11 +678,11 @@ export async function exportRows(a: PromoActor, f: URLSearchParams) {
       rw.reward_status AS rw_status, rw.carrier AS rw_carrier, rw.tracking_number AS rw_tracking, rw.delivered_at AS rw_delivered
       ${REVIEW_FROM} WHERE ${wh.sql} ORDER BY r.id DESC LIMIT 5000`, wh.params);
   const kst = (v: any) => v ? new Date(new Date(v).getTime() + 9 * 3600e3).toISOString().slice(0, 16).replace("T", " ") : "";
-  const header = ["접수번호", "접수일시", "이름", "휴대폰", "회원 여부", "회원 아이디", "주문번호·구매정보", "우편번호", "주소", "후기 제목", "후기 내용", "제품 만족도", "사용 경험", "피부 타입", "사용 기간", "추천 이유",
+  const header = ["접수번호", "접수일시", "이름", "휴대폰", "회원번호", "우편번호", "주소", "후기 제목", "후기 내용", "제품 만족도", "사용 경험", "피부 타입", "사용 기간", "추천 이유",
     "사용 전 사진", "사용 후 사진", "검토 상태", "검토 사유", "우수 후기 순위", "우수 후기 확정", "참가 보상(프로틴 쉐이크)", "참가 보상 택배사", "참가 보상 운송장", "참가 보상 완료일",
     "추가 보상(벌스데이 크림)", "추가 보상 택배사", "추가 보상 운송장", "추가 보상 완료일", "마케팅 활용 동의", "총판 코드", "확인 대상", "확인 사유", "테스트", "관리자 메모"];
   const data = rows.map((r) => [r.application_number, kst(r.submitted_at), r.purged_at ? "(파기됨)" : r.applicant_name, r.purged_at ? "" : fmtPhone(tryDecrypt(r.phone_enc)),
-    r.member_claimed ? "회원" : "비회원", r.member_login_id || "", r.order_number || "", r.postal_code || "", tryDecrypt(r.address_enc).replace(/\n/g, " "),
+    r.member_login_id || "", r.postal_code || "", tryDecrypt(r.address_enc).replace(/\n/g, " "),
     r.review_title, r.review_content, r.rating, r.rating_experience ?? "", r.skin_type || "", r.usage_period || "", r.recommend_reason || "",
     r.has_before ? "제출" : "미제출", r.has_after ? "제출" : "미제출", REVIEW_STATUS_LABEL[r.review_status], r.status_reason || "", r.winner_rank ?? "", r.winner_status === "CONFIRMED" ? "확정" : r.winner_rank ? "선정" : "",
     r.rp_status ? REWARD_STATUS_LABEL[r.rp_status] : "", r.rp_carrier || "", r.rp_tracking || "", kst(r.rp_delivered),

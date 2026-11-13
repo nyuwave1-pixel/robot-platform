@@ -40,7 +40,7 @@ async function call<T>(method: string, path: string, body?: unknown, headers: Re
 
 export const getConfig = () => call<EventConfig>("GET", "/config");
 export const submitReview = (payload: unknown) => call<SubmitResult>("POST", "/submit", payload);
-export const lookupReview = (applicationNumber: string, phone: string) => call<LookupResult>("POST", "/lookup", { applicationNumber, phone });
+export const lookupReview = (phone: string) => call<LookupResult>("POST", "/lookup", { phone });
 export const reviseReview = (payload: unknown) => call<{ applicationNumber: string; reviewStatusLabel: string }>("POST", "/revise", payload);
 export const deleteUpload = (u: Uploaded) => call<{ deleted: boolean }>("DELETE", `/uploads/${u.uploadId}`, undefined, { "x-br-upload-token": u.token }).catch(() => ({ deleted: false }));
 

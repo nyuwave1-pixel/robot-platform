@@ -8,10 +8,10 @@ import s from "./review.module.css";
 
 type Values = {
   rating: number; ratingExperience: number; title: string; content: string; skinType: string; usagePeriod: string; recommendReason: string;
-  name: string; phone: string; memberClaimed: "" | "Y" | "N"; memberLoginId: string; orderNumber: string; postalCode: string; address1: string; address2: string;
+  name: string; phone: string; memberNumber: string; postalCode: string; address1: string; address2: string;
 };
-const EMPTY: Values = { rating: 0, ratingExperience: 0, title: "", content: "", skinType: "", usagePeriod: "", recommendReason: "", name: "", phone: "", memberClaimed: "", memberLoginId: "", orderNumber: "", postalCode: "", address1: "", address2: "" };
-const DRAFT_KEY = "uc-review-draft-v1";
+const EMPTY: Values = { rating: 0, ratingExperience: 0, title: "", content: "", skinType: "", usagePeriod: "", recommendReason: "", name: "", phone: "", memberNumber: "", postalCode: "", address1: "", address2: "" };
+const DRAFT_KEY = "uc-review-draft-v2";
 const STEPS = ["후기 작성", "사진 올리기", "정보 입력 · 동의"] as const;
 /** 오류가 난 항목이 어느 단계에 있는지 */
 const STEP_OF: Record<string, number> = { rating: 0, ratingExperience: 0, title: 0, content: 0, imageBefore: 1, imageAfter: 1 };
@@ -95,8 +95,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
     if (target === 2) {
       if (count(v.name) < 2) e.name = "이름을 입력해 주세요.";
       if (!/^01[016789]\d{7,8}$/.test(v.phone.replace(/\D/g, ""))) e.phone = "휴대폰 번호를 정확히 입력해 주세요.";
-      if (!v.memberClaimed) e.memberClaimed = "유니앤코어 회원 여부를 선택해 주세요.";
-      if (config.requireOrderNumber && count(v.orderNumber) < 4) e.orderNumber = "주문번호 또는 구매 정보(구매처·구매일)를 입력해 주세요.";
+      if (v.memberNumber.replace(/[^A-Za-z0-9]/g, "").length < 4) e.memberNumber = "유니앤코어 회원번호를 정확히 입력해 주세요.";
       if (config.requireAddress) {
         if (v.postalCode.replace(/\D/g, "").length !== 5) e.postalCode = "우편번호 5자리를 입력해 주세요.";
         if (count(v.address1) < 5) e.address1 = "사은품을 받으실 주소를 입력해 주세요.";
@@ -146,7 +145,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
     try {
       const d = new URLSearchParams(window.location.search).get("d") || sessionStorage.getItem("uc-review-dist") || "";
       const result = await submitReview({
-        name: v.name, phone: v.phone, memberClaimed: v.memberClaimed === "Y", memberLoginId: v.memberLoginId, orderNumber: v.orderNumber,
+        name: v.name, phone: v.phone, memberNumber: v.memberNumber,
         title: v.title, content: v.content, rating: v.rating, ratingExperience: v.ratingExperience || null, skinType: v.skinType, usagePeriod: v.usagePeriod, recommendReason: v.recommendReason,
         postalCode: v.postalCode, address1: v.address1, address2: v.address2,
         consents: Object.fromEntries(config.consents.map((c) => [c.type, !!agree[c.type]])), consentVersion: config.consentVersion,
@@ -247,17 +246,10 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
             <input id="name" className={s.input} value={v.name} maxLength={40} onChange={(e) => set("name", e.target.value)} autoComplete="name" placeholder="받으시는 분 이름" enterKeyHint="next" {...inv("name")} />{err("name")}</div>
           <div className={s.field} id="f-phone"><label className={s.label} htmlFor="phone">휴대폰 번호<em>필수</em></label>
             <input id="phone" className={s.input} value={v.phone} onChange={(e) => set("phone", fmtPhone(e.target.value))} type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="010-0000-0000" enterKeyHint="next" {...inv("phone")} />{err("phone")}
-            <p className={s.hint}>당첨 안내와 사은품 배송 연락, 접수 확인에 사용됩니다.</p></div>
-          <div className={s.field} id="f-memberClaimed"><div className={s.label}>유니앤코어 회원이신가요?<em>필수</em></div>
-            <div className={s.choice} role="radiogroup" aria-label="유니앤코어 회원 여부">
-              <button type="button" role="radio" aria-checked={v.memberClaimed === "Y"} className={v.memberClaimed === "Y" ? s.choiceOn : s.choiceBtn} onClick={() => set("memberClaimed", "Y")}>네, 회원이에요</button>
-              <button type="button" role="radio" aria-checked={v.memberClaimed === "N"} className={v.memberClaimed === "N" ? s.choiceOn : s.choiceBtn} onClick={() => set("memberClaimed", "N")}>아니요</button>
-            </div>{err("memberClaimed")}
-            {v.memberClaimed === "Y" && <input className={s.input} style={{ marginTop: 10 }} value={v.memberLoginId} maxLength={60} onChange={(e) => set("memberLoginId", e.target.value)} placeholder="회원 아이디 (선택)" aria-label="유니앤코어 회원 아이디" autoCapitalize="none" autoCorrect="off" />}
-          </div>
-          <div className={s.field} id="f-orderNumber"><label className={s.label} htmlFor="order">구매 정보 또는 주문번호{config.requireOrderNumber ? <em>필수</em> : <i>선택</i>}</label>
-            <input id="order" className={s.input} value={v.orderNumber} maxLength={80} onChange={(e) => set("orderNumber", e.target.value)} placeholder="주문번호 또는 구매처 · 구매일" autoComplete="off" enterKeyHint="next" {...inv("orderNumber")} />{err("orderNumber")}
-            <p className={s.hint}>유니앤코어 공식몰 주문 내역의 주문번호를 입력해 주세요. 모르시면 구매처와 구매일을 적어 주세요.</p></div>
+            <p className={s.hint}>당첨 안내와 사은품 배송 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.</p></div>
+          <div className={s.field} id="f-memberNumber"><label className={s.label} htmlFor="member">유니앤코어 회원번호<em>필수</em></label>
+            <input id="member" className={s.input} value={v.memberNumber} maxLength={30} onChange={(e) => set("memberNumber", e.target.value.replace(/[^A-Za-z0-9-]/g, ""))} placeholder="회원번호 입력" autoComplete="off" autoCapitalize="characters" autoCorrect="off" enterKeyHint="next" {...inv("memberNumber")} />{err("memberNumber")}
+            <p className={s.hint}>이 이벤트는 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.</p></div>
           <div className={s.field} id="f-postalCode"><div className={s.label}>사은품 받으실 주소{config.requireAddress ? <em>필수</em> : <i>선택</i>}</div>
             <div className={s.postRow}>
               <input className={s.input} value={v.postalCode} onChange={(e) => set("postalCode", e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" placeholder="우편번호" aria-label="우편번호" autoComplete="postal-code" {...inv("postalCode")} />

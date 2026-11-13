@@ -99,7 +99,7 @@ const CONTENT = "벌스데이 크림을 4주 동안 아침저녁으로 사용했
 async function payload(v: Visitor, over: Record<string, unknown> = {}, withImages = true) {
   const cfg = (await v.call("GET", "/config")).data;
   const images = withImages ? { before: await v.upload("BEFORE", jpeg(800, 600, phoneSeq)), after: await v.upload("AFTER", jpeg(900, 700, phoneSeq + 7000)) } : {};
-  return { name: "김유니", phone: nextPhone(), memberClaimed: true, memberLoginId: "uni" + phoneSeq, orderNumber: "ORD-2026-" + phoneSeq, title: "피부가 달라졌어요", content: CONTENT,
+  return { name: "김유니", phone: nextPhone(), memberNumber: "UC" + (700000 + phoneSeq), title: "피부가 달라졌어요", content: CONTENT,
     rating: 5, ratingExperience: 4, skinType: "건성", usagePeriod: "2~4주", recommendReason: "보습감이 좋아서", postalCode: "06774", address1: "서울 서초구 양재대로2길 100-30", address2: "2층",
     consents: { PRIVACY_COLLECT: true, EVENT_PROCESSING: true, GIFT_SHIPPING: true, MARKETING_USE: false }, consentVersion: cfg.consentVersion, images, ...over };
 }
@@ -257,8 +257,8 @@ test("접수: 필수 항목·동의·글자 수·사진 검증 후 접수 번호
   };
   await fail({ name: "김" }, "VALIDATION", "name");
   await fail({ phone: "02-123-4567" }, "VALIDATION", "phone");
-  await fail({ memberClaimed: undefined }, "VALIDATION", "memberClaimed");
-  await fail({ orderNumber: "" }, "VALIDATION", "orderNumber");
+  await fail({ memberNumber: "" }, "VALIDATION", "memberNumber");
+  await fail({ memberNumber: "12" }, "VALIDATION", "memberNumber");
   await fail({ content: "너무 짧아요" }, "VALIDATION", "content");
   await fail({ content: "가".repeat(2001) }, "VALIDATION", "content");
   await fail({ rating: 0 }, "VALIDATION", "rating");
@@ -290,7 +290,7 @@ test("접수: 필수 항목·동의·글자 수·사진 검증 후 접수 번호
   assert.equal(reuse.error.code, "IMAGE_EXPIRED");
 });
 
-test("중복 접수 방지: 같은 휴대폰(표기 달라도)·동시 요청 차단, 같은 주문번호는 관리자 확인 대상", async () => {
+test("중복 접수 방지: 같은 휴대폰(표기 달라도)·동시 요청 차단, 같은 회원번호는 관리자 확인 대상", async () => {
   const a = await submit();
   const v = new Visitor();
   const again = await v.call("POST", "/submit", await payload(v, { phone: a.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3"), name: "다른이름" }));
@@ -302,10 +302,10 @@ test("중복 접수 방지: 같은 휴대폰(표기 달라도)·동시 요청 �
   assert.equal(rs.filter((r) => r.status === 201).length, 1, JSON.stringify(rs.map((r) => r.status)));
   assert.equal(rs.filter((r) => r.status === 409 && r.error.code === "DUPLICATE").length, 4);
   assert.equal(Number((await sql(`SELECT count(*) AS n FROM birthday_reviews WHERE phone_last4 = $1`, [phone.slice(-4)]))[0].n), 1);
-  // 같은 주문번호·다른 번호 → 접수는 되지만 확인 대상
-  const b = await submit({ orderNumber: a.p.orderNumber, memberLoginId: "other-id" });
+  // 같은 회원번호(표기만 다름)·다른 휴대폰 → 접수는 되지만 확인 대상
+  const b = await submit({ memberNumber: String(a.p.memberNumber).toLowerCase().replace("uc", "uc-") });
   const fb = (await sql(`SELECT duplicate_flag, duplicate_reason FROM birthday_reviews WHERE id = $1`, [b.id]))[0];
-  assert.equal(fb.duplicate_flag, true); assert.match(fb.duplicate_reason, /같은 주문번호/);
+  assert.equal(fb.duplicate_flag, true); assert.match(fb.duplicate_reason, /같은 회원번호/);
   assert.equal((await sql(`SELECT duplicate_flag FROM birthday_reviews WHERE id = $1`, [a.id]))[0].duplicate_flag, false);
 });
 
@@ -457,15 +457,17 @@ test("후기 검토: 승인 시 참가 보상(프로틴 쉐이크) 자동 등록
   // 수정 요청 → 참여자가 다시 제출 → 검토 대기
   const b = await submit();
   assert.equal((await HQ.p("POST", `/reviews/${b.id}/status`, { status: "REVISION_REQUESTED", reason: "사용 후 사진이 흐립니다. 다시 올려 주세요." })).status, 200);
-  const look = await b.v.call("POST", "/lookup", { applicationNumber: b.no, phone: b.phone });
+  const look = await b.v.call("POST", "/lookup", { phone: b.phone });
+  assert.equal(look.data.applicationNumber, b.no); assert.equal(look.data.name, "김*니", "휴대폰 번호만으로 조회되므로 이름은 일부만 표시");
   assert.equal(look.data.canRevise, true); assert.match(look.data.statusReason, /흐립니다/); assert.equal(look.data.review.title, "피부가 달라졌어요");
-  assert.equal((await b.v.call("POST", "/lookup", { applicationNumber: b.no, phone: "01099998888" })).status, 404, "휴대폰 번호가 다르면 조회 불가");
+  assert.equal((await b.v.call("POST", "/lookup", { phone: "01099998888" })).status, 404, "접수하지 않은 번호는 조회 불가");
   const newAfter = await b.v.upload("AFTER", jpeg(1000, 800, 4242));
-  const rev = await b.v.call("POST", "/revise", { applicationNumber: b.no, phone: b.phone, title: "다시 씁니다", content: CONTENT + " 사진을 다시 찍어 올립니다.", rating: 4, images: { after: newAfter } });
+  assert.equal((await b.v.call("POST", "/revise", { phone: b.phone, memberNumber: "UC000000", title: "남이 고침", content: CONTENT, rating: 1 })).error.code, "MEMBER_MISMATCH", "재제출은 회원번호가 맞아야 함");
+  const rev = await b.v.call("POST", "/revise", { phone: b.phone, memberNumber: b.p.memberNumber, title: "다시 씁니다", content: CONTENT + " 사진을 다시 찍어 올립니다.", rating: 4, images: { after: newAfter } });
   assert.equal(rev.status, 200, JSON.stringify(rev.json)); assert.equal(rev.data.reviewStatus, "PENDING");
   assert.equal(Number((await sql(`SELECT count(*) AS n FROM birthday_review_images WHERE review_id = $1 AND deleted_at IS NULL`, [b.id]))[0].n), 2);
   assert.equal((await sql(`SELECT width FROM birthday_review_images WHERE review_id = $1 AND image_type = 'AFTER' AND deleted_at IS NULL`, [b.id]))[0].width, 1000);
-  assert.equal((await b.v.call("POST", "/revise", { applicationNumber: b.no, phone: b.phone, title: "또 수정", content: CONTENT, rating: 4 })).error.code, "NOT_REVISABLE");
+  assert.equal((await b.v.call("POST", "/revise", { phone: b.phone, memberNumber: b.p.memberNumber, title: "또 수정", content: CONTENT, rating: 4 })).error.code, "NOT_REVISABLE");
 
   // 메모·후보
   assert.equal((await OPS.p("POST", `/reviews/${a.id}/memo`, { memo: "사진 선명, 후보 검토" })).status, 200);
@@ -526,7 +528,7 @@ test("우수 후기 3명 선정: 인원·순위 제한, 동시 선정에도 3명
   assert.equal(fin.confirmed, true); assert.equal(fin.winners.length, 3);
   W = fin.winners.map((x: any) => ({ id: x.id, no: x.applicationNumber, phone: list.find((l) => l.id === x.id)!.phone }));
   // 참여자 조회: 확정 후에만 당첨 사실이 보인다
-  const lk = await new Visitor().call("POST", "/lookup", { applicationNumber: W[0].no, phone: W[0].phone });
+  const lk = await new Visitor().call("POST", "/lookup", { phone: W[0].phone });
   assert.equal(lk.data.isWinner, true); assert.equal(lk.data.rewards.length, 2);
   // 설정: 이미 3명 선정된 상태에서 인원을 2로 줄일 수 없다
   assert.equal((await HQ.p("PATCH", "/event", { settings: { winnerCount: 2 } })).error.code, "WINNERS_EXCEED");
@@ -579,12 +581,12 @@ test("사은품 지급: 상태 흐름·배송 정보·운송장 필수, 같은 �
   const c = (await HQ.p("GET", "/dashboard")).data.cards;
   assert.equal(c.winners, 3); assert.equal(c.winnersConfirmed, true); assert.equal(c.creamDelivered, 1); assert.equal(c.creamWaiting, 2);
   assert.equal(c.shakeDelivered, 1); assert.ok(c.shakeWaiting >= 3); assert.ok(c.total >= c.photosDone); assert.ok(c.today >= 1);
-  const lk = await new Visitor().call("POST", "/lookup", { applicationNumber: W[0].no, phone: W[0].phone });
+  const lk = await new Visitor().call("POST", "/lookup", { phone: W[0].phone });
   assert.deepEqual(lk.data.rewards.map((r: any) => r.status), ["DELIVERED", "DELIVERED"]); assert.equal(lk.data.rewards[0].trackingNumber, "6123-4567-8901");
 });
 
-test("검색·필터·엑셀: 이름·휴대폰·접수번호·주문번호·날짜·상태·사진·지급 상태, 엑셀은 권한자만", async () => {
-  const a = await submit({ name: "홍길순", orderNumber: "UNI-778899-AB", memberClaimed: false, rating: 3 });
+test("검색·필터·엑셀: 이름·휴대폰·접수번호·회원번호·날짜·상태·사진·지급 상태, 엑셀은 권한자만", async () => {
+  const a = await submit({ name: "홍길순", memberNumber: "KR-778899", rating: 3 });
   const find = async (qs: string) => (await HQ.p("GET", "/reviews?" + qs)).data;
   assert.equal((await find("q=" + encodeURIComponent("홍길순"))).items[0].id, a.id);
   assert.equal((await find("q=" + a.phone)).total, 1);
@@ -595,7 +597,7 @@ test("검색·필터·엑셀: 이름·휴대폰·접수번호·주문번호·날
   assert.equal((await find("q=" + encodeURIComponent("' OR 1=1 --"))).total, 0, "SQL 주입 무해화");
   const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
   assert.ok((await find(`from=${today}&to=${today}`)).total >= 1); assert.equal((await find("from=2030-01-01")).total, 0);
-  assert.ok((await find("member=N")).items.every((x: any) => !x.memberClaimed));
+  assert.equal((await find("q=" + encodeURIComponent("kr 778899"))).items[0].id, a.id, "회원번호는 표기가 달라도 검색");
   assert.ok((await find("status=PENDING")).items.every((x: any) => x.reviewStatus === "PENDING"));
   assert.equal((await find("winner=Y")).total, 3);
   assert.ok((await find("photos=BOTH")).items.every((x: any) => x.hasBefore && x.hasAfter));
@@ -608,7 +610,7 @@ test("검색·필터·엑셀: 이름·휴대폰·접수번호·주문번호·날
   assert.equal(x.status, 200); assert.match(x.headers.get("content-type") || "", /spreadsheetml/); assert.match(x.headers.get("content-disposition") || "", /birthday-review-.*\.xlsx/);
   const XLSX = await import("xlsx");
   const rows: any[] = XLSX.utils.sheet_to_json(XLSX.read(x.bytes, { type: "buffer" }).Sheets["후기 이벤트 참여자"]);
-  assert.equal(rows.length, 1); assert.equal(rows[0]["이름"], "홍길순"); assert.equal(String(rows[0]["휴대폰"]).replace(/-/g, ""), a.phone); assert.equal(rows[0]["주문번호·구매정보"], "UNI-778899-AB");
+  assert.equal(rows.length, 1); assert.equal(rows[0]["이름"], "홍길순"); assert.equal(String(rows[0]["휴대폰"]).replace(/-/g, ""), a.phone); assert.equal(rows[0]["회원번호"], "KR778899");
   assert.equal(rows[0]["검토 상태"], "검토 대기"); assert.equal(rows[0]["사용 전 사진"], "제출");
   assert.ok((await sql(`SELECT 1 FROM promotion_admin_logs WHERE action_type = 'export.reviews'`)).length, "내보내기 기록");
   // 수식 주입 방지
@@ -660,7 +662,7 @@ test("참여자 정보 수정·재참여 예외 승인·개인정보 파기", as
   assert.equal(pr.review_content, "(파기됨)"); assert.ok(pr.purged_at);
   assert.ok(paths.every((p: string) => !files.has(p)), "사진 파일도 삭제");
   assert.equal((await HQ.p("GET", `/reviews/${b.id}`)).data.images.length, 0);
-  assert.equal((await b.v.call("POST", "/lookup", { applicationNumber: b.no, phone: b.phone })).status, 404);
+  assert.equal((await b.v.call("POST", "/lookup", { phone: b.phone })).data.applicationNumber, re.data.applicationNumber, "파기된 접수는 조회되지 않고 재참여 접수만 조회");
   assert.ok(!(await HQ.p("GET", "/reviews?limit=200")).data.items.some((x: any) => x.id === b.id), "기본 목록에서 제외");
   // 지급 진행 중이면 파기 불가
   const rid = (await sql(`SELECT id FROM birthday_review_rewards WHERE review_id = $1`, [a.id]))[0].id;

@@ -218,7 +218,7 @@ export default function ReviewEvent() {
         <section className={s.section} id="lookup" aria-labelledby="lookup-title">
           <p className={s.eyebrow}>MY ENTRY</p>
           <h2 id="lookup-title" className={s.titleKoBig}>내 접수 확인</h2>
-          <p className={s.titleKo}>접수 번호와 휴대폰 번호로 검토 상태와 사은품 지급 현황을 확인하세요.</p>
+          <p className={s.titleKo}>접수하신 휴대폰 번호로 검토 상태와 사은품 지급 현황을 확인하세요.</p>
           <Lookup config={config} />
         </section>
 
@@ -257,7 +257,7 @@ function Complete({ result, onLookup }: { result: SubmitResult; onLookup: () => 
           <div><dt>접수 번호</dt><dd className={s.receiptNo}>{result.applicationNumber}<button type="button" onClick={copy} aria-live="polite">{copied ? "복사됨" : "복사"}</button></dd></div>
           <div><dt>접수 날짜</dt><dd>{kDate(result.submittedAt)}</dd></div>
         </dl>
-        <p className={s.keepNote}>접수 번호를 캡처하거나 적어 두세요. 접수 번호와 휴대폰 번호로 신청 내용과 지급 현황을 확인하실 수 있습니다.</p>
+        <p className={s.keepNote}>접수하신 휴대폰 번호로 언제든지 신청 내용과 지급 현황을 확인하실 수 있습니다.</p>
 
         <section className={s.completeRewards} aria-label="참여 보상 안내">
           <div><small>모든 정상 참여자</small><p><b>{result.rewards.participation.productName}</b>를 드립니다.</p></div>
@@ -275,7 +275,7 @@ function Complete({ result, onLookup }: { result: SubmitResult; onLookup: () => 
 
 /* ---------- 내 접수 확인 + 수정 요청 재제출 ---------- */
 function Lookup({ config }: { config: EventConfig | null }) {
-  const [no, setNo] = useState(""); const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(""); const [member, setMember] = useState("");
   const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   const [res, setRes] = useState<LookupResult | null>(null);
   const [title, setTitle] = useState(""); const [content, setContent] = useState(""); const [rating, setRating] = useState(5);
@@ -285,13 +285,13 @@ function Lookup({ config }: { config: EventConfig | null }) {
 
   const find = async (e?: React.FormEvent) => {
     e?.preventDefault(); setBusy(true); setError(""); setSaved("");
-    try { const r = await lookupReview(no.trim().toUpperCase(), phone); setRes(r); if (r.review) { setTitle(r.review.title); setContent(r.review.content); setRating(r.review.rating); } }
+    try { const r = await lookupReview(phone); setRes(r); if (r.review) { setTitle(r.review.title); setContent(r.review.content); setRating(r.review.rating); } }
     catch (x) { setRes(null); setError((x as ApiError).message); } finally { setBusy(false); }
   };
   const resend = async () => {
     setBusy(true); setError("");
     try {
-      const r = await reviseReview({ applicationNumber: no.trim().toUpperCase(), phone, title, content, rating, ratingExperience: res?.review?.ratingExperience ?? null,
+      const r = await reviseReview({ phone, memberNumber: member, title, content, rating, ratingExperience: res?.review?.ratingExperience ?? null,
         images: { ...(before.uploaded ? { before: { uploadId: before.uploaded.uploadId, token: before.uploaded.token } } : {}), ...(after.uploaded ? { after: { uploadId: after.uploaded.uploadId, token: after.uploaded.token } } : {}) } });
       setSaved(`다시 제출했습니다. 현재 상태: ${r.reviewStatusLabel}`); setBefore(emptyPhoto); setAfter(emptyPhoto); await find();
     } catch (x) { setError((x as ApiError).message); } finally { setBusy(false); }
@@ -300,8 +300,6 @@ function Lookup({ config }: { config: EventConfig | null }) {
   return (
     <div className={s.lookup}>
       <form onSubmit={find} className={s.lookupForm}>
-        <label className={s.label} htmlFor="lk-no">접수 번호</label>
-        <input id="lk-no" className={s.input} value={no} onChange={(e) => setNo(e.target.value)} placeholder="BD000000-00000" autoCapitalize="characters" autoComplete="off" required />
         <label className={s.label} htmlFor="lk-phone">휴대폰 번호</label>
         <input id="lk-phone" className={s.input} value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^\d-]/g, "").slice(0, 13))} type="tel" inputMode="numeric" placeholder="010-0000-0000" autoComplete="tel-national" required />
         <button className={s.btnGhost} disabled={busy}>{busy ? "확인 중…" : "접수 내용 확인"}</button>
@@ -322,6 +320,7 @@ function Lookup({ config }: { config: EventConfig | null }) {
           {res.canRevise && config && (
             <div className={s.revise}>
               <p className={s.label}>후기를 수정해 다시 제출해 주세요</p>
+              <input className={s.input} value={member} maxLength={30} onChange={(e) => setMember(e.target.value.replace(/[^A-Za-z0-9-]/g, ""))} placeholder="본인 확인: 유니앤코어 회원번호" aria-label="유니앤코어 회원번호" autoComplete="off" />
               <input className={s.input} value={title} maxLength={config.titleMaxChars} onChange={(e) => setTitle(e.target.value)} aria-label="후기 제목" />
               <textarea className={s.textarea} rows={7} value={content} onChange={(e) => setContent(e.target.value)} aria-label="후기 내용" />
               <div className={s.counter}><b>{n.toLocaleString()}</b> / {config.maxChars.toLocaleString()}자 <i>(최소 {config.minChars}자)</i></div>

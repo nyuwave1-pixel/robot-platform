@@ -179,12 +179,11 @@
   // =========================================================
   function peopleTable(items, compact) {
     if (!items.length) return '<div class="tablewrap"><div class="empty">조건에 맞는 참여자가 없습니다.</div></div>';
-    return '<div class="tablewrap"><table><thead><tr><th>접수번호</th><th>접수일</th><th>이름</th><th>휴대폰</th><th>회원 여부</th><th>주문번호</th><th>후기 제목</th><th>사진</th><th>별점</th><th>검토 상태</th><th>우수 후기</th><th>참가 보상<br>프로틴 쉐이크</th><th>추가 보상<br>벌스데이 크림</th>' + (compact ? '' : '<th>총판</th>') + '<th>관리</th></tr></thead><tbody>' +
+    return '<div class="tablewrap"><table><thead><tr><th>접수번호</th><th>접수일</th><th>이름</th><th>휴대폰</th><th>회원번호</th><th>후기 제목</th><th>사진</th><th>별점</th><th>검토 상태</th><th>우수 후기</th><th>참가 보상<br>프로틴 쉐이크</th><th>추가 보상<br>벌스데이 크림</th>' + (compact ? '' : '<th>총판</th>') + '<th>관리</th></tr></thead><tbody>' +
       items.map(function (x) {
         return '<tr data-id="' + x.id + '"><td class="arch" style="font-size:11.5px">' + E(x.applicationNumber) + (x.isTest ? ' <span class="pm-b pm-test">테스트</span>' : '') + (x.flagged ? ' <span class="pm-b pm-flag" title="' + E(x.flagReason || '') + '">확인 필요</span>' : '') + '</td>' +
           '<td>' + dt(x.submittedAt) + '</td><td><b>' + E(x.name) + '</b></td><td>' + E(x.phone) + '</td>' +
-          '<td>' + (x.memberClaimed ? '회원' + (x.memberLoginId ? ' <span class="pm-mut">' + E(x.memberLoginId) + '</span>' : '') : '<span class="pm-mut">비회원</span>') + '</td>' +
-          '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">' + E(x.orderNumber || '—') + '</td>' +
+          '<td>' + E(x.memberLoginId || '—') + '</td>' +
           '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis">' + E(x.title) + '</td>' +
           '<td><span class="pm-ph"><span class="' + (x.hasBefore ? 'y' : '') + '">BEFORE</span><span class="' + (x.hasAfter ? 'y' : '') + '">AFTER</span></span></td>' +
           '<td>' + stars(x.rating) + '</td><td>' + rsBadge(x.reviewStatus) + '</td>' +
@@ -197,9 +196,8 @@
   function vPeople() {
     var f = F.people, sel = function (k, opts) { return '<select data-f="' + k + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (f[k] === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>'; };
     root.innerHTML = shell('이벤트 참여자 관리', 'Participants', (has('promo.export') ? '<button class="btn" id="pmX">엑셀 다운로드</button>' : '') + '<button class="btn" id="pmRf">새로고침</button>'); bindShell();
-    body('<div class="filters pm-noprint"><input type="text" data-f="q" placeholder="이름 · 휴대폰 번호 · 접수번호 · 주문번호 검색" value="' + E(f.q) + '">' +
+    body('<div class="filters pm-noprint"><input type="text" data-f="q" placeholder="이름 · 휴대폰 번호 · 회원번호 · 접수번호 검색" value="' + E(f.q) + '">' +
       '<input type="date" data-f="from" value="' + E(f.from) + '" title="접수일 시작"><input type="date" data-f="to" value="' + E(f.to) + '" title="접수일 끝">' +
-      sel('member', [['', '회원 여부 전체'], ['Y', '유니앤코어 회원'], ['N', '비회원']]) +
       sel('status', [['', '검토 상태 전체']].concat(Object.keys(RS).map(function (k) { return [k, RS[k]]; }))) +
       sel('winner', [['', '우수 후기 전체'], ['Y', '선정'], ['N', '미선정']]) +
       sel('photos', [['', '사진 제출 전체'], ['BOTH', '전·후 모두 제출'], ['PARTIAL', '1장만 제출'], ['NONE', '미제출']]) +
@@ -270,8 +268,8 @@
         (st.reason ? '<span class="pm-mut" style="font-size:12.5px">사유: ' + E(st.reason) + '</span>' : '') + '</div><div class="pm-acts">' + (acts.join('') || '<span class="pm-mut" style="font-size:12.5px">조회 권한만 있는 계정입니다.</span>') + '</div>' +
         (d.winner ? '<div class="pm-mut" style="font-size:12.5px;margin-top:10px">선정 사유: ' + E(d.winner.note || '—') + ' · ' + E(d.winner.selectedBy) + ' · ' + dt(d.winner.selectedAt) + '</div>' : '') + '</div>' +
       '<div class="pm-card"><h3>고객 정보</h3><dl class="pm-kv"><dt>이름</dt><dd>' + E(c.name) + '</dd><dt>연락처</dt><dd>' + E(c.phone) + '</dd>' +
-        '<dt>회원 ID</dt><dd>' + (c.memberClaimed ? E(c.memberLoginId || '(아이디 미입력)') + ' <span class="pm-mut">· 본인 입력' + (c.memberVerified ? ' · 회원 확인됨' : ' · 쇼핑몰 회원 DB 미대조') + '</span>' : '비회원') + '</dd>' +
-        '<dt>주문 번호</dt><dd>' + E(c.orderNumber || '—') + '</dd><dt>신청 일자</dt><dd>' + dt(d.submittedAt) + '</dd><dt>접수 번호</dt><dd>' + E(d.applicationNumber) + '</dd>' +
+        '<dt>회원번호</dt><dd>' + E(c.memberLoginId || '—') + ' <span class="pm-mut">· 본인 입력' + (c.memberVerified ? ' · 회원 확인됨' : ' · 공식몰 회원 DB 미대조') + '</span></dd>' +
+        '<dt>신청 일자</dt><dd>' + dt(d.submittedAt) + '</dd><dt>접수 번호</dt><dd>' + E(d.applicationNumber) + '</dd>' +
         '<dt>배송 주소</dt><dd>' + (c.address ? '(' + E(c.postalCode || '') + ') ' + E(c.address) : '—') + '</dd><dt>유입 총판</dt><dd>' + E(c.distributorCode || '직접 유입') + '</dd>' +
         '<dt>보유 기한</dt><dd>' + E(d.retentionUntil ? String(d.retentionUntil).slice(0, 10) : '—') + ' 까지</dd></dl></div>' +
       '<div class="pm-card"><h3>후기 정보</h3><dl class="pm-kv" style="margin-bottom:12px"><dt>후기 제목</dt><dd><b>' + E(r.title) + '</b></dd><dt>제품 만족도</dt><dd>' + stars(r.rating) + '</dd><dt>사용 경험</dt><dd>' + stars(r.ratingExperience) + '</dd>' +
@@ -284,7 +282,7 @@
         return '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid #F0EEEA"><b style="min-width:150px">' + E(x.productName) + ' × ' + x.quantity + '</b><span class="pm-mut" style="font-size:12px">' + E(x.typeLabel) + '</span>' + wsBadge(x) +
           (x.trackingNumber ? '<span class="pm-mut" style="font-size:12px">' + E(x.carrier || '') + ' ' + E(x.trackingNumber) + '</span>' : '') + '</div>'; }).join('') + '<div style="margin-top:10px"><span class="pm-link" data-a="gorewards">사은품 지급 관리에서 처리 →</span></div>'
         : '<span class="pm-mut" style="font-size:13px">아직 지급 대상이 아닙니다. 후기를 승인하면 프로틴 쉐이크 지급 대상으로 자동 등록됩니다.</span>') + '</div>' +
-      (d.related.length ? '<div class="pm-card"><h3>같은 휴대폰·주문번호의 다른 접수</h3>' + d.related.map(function (x) { return '<div style="padding:6px 0;font-size:13px"><span class="pm-link" data-rel="' + x.id + '">' + E(x.applicationNumber) + '</span> · ' + E(x.name) + ' · ' + rsBadge(x.reviewStatus) + ' <span class="pm-mut">' + (x.samePhone ? '같은 휴대폰 ' : '') + (x.sameOrder ? '같은 주문번호' : '') + '</span></div>'; }).join('') + '</div>' : '') +
+      (d.related.length ? '<div class="pm-card"><h3>같은 휴대폰의 다른 접수</h3>' + d.related.map(function (x) { return '<div style="padding:6px 0;font-size:13px"><span class="pm-link" data-rel="' + x.id + '">' + E(x.applicationNumber) + '</span> · ' + E(x.name) + ' · ' + rsBadge(x.reviewStatus) + ' <span class="pm-mut">' + (x.samePhone ? '같은 휴대폰 ' : '') + (x.sameOrder ? '같은 주문번호' : '') + '</span></div>'; }).join('') + '</div>' : '') +
       '<div class="pm-card"><h3>동의 기록</h3>' + d.consents.map(function (x) { var n = { PRIVACY_COLLECT: '개인정보 수집·이용', EVENT_PROCESSING: '이벤트 운영·당첨자 확인', GIFT_SHIPPING: '사은품 배송', MARKETING_USE: '후기·사진 마케팅 활용(선택)' }[x.type];
         return '<div style="font-size:13px;padding:5px 0">' + (x.agreed ? '✓' : '—') + ' ' + n + ' <span class="pm-mut">· ' + (x.agreed ? '동의' : '미동의') + ' · 문서 버전 ' + E(x.version) + ' · ' + dt(x.agreedAt) + '</span></div>'; }).join('') + '</div>' +
       '<div class="pm-card"><h3>상태 변경 이력 · 처리 담당자</h3>' + (d.logs.length ? d.logs.map(logRow).join('') : '<span class="pm-mut">이력이 없습니다.</span>') + '</div></div>';
@@ -298,7 +296,7 @@
       approve: function () { status('APPROVED'); },
       pending: function () { status('PENDING'); },
       reject: function () { ask('후기 반려', '반려하면 참가 보상(프로틴 쉐이크) 지급 대상에서 제외됩니다. 사유는 참여자의 접수 확인 화면에 표시됩니다.', [{ k: 'reason', label: '반려 사유', type: 'textarea', required: true }], '반려', true).then(function (v) { if (v) status('REJECTED', v.reason); }); },
-      revise: function () { ask('수정 요청', '참여자가 접수 번호와 휴대폰 번호로 접수 확인 화면에 들어와 후기·사진을 다시 제출할 수 있습니다.', [{ k: 'reason', label: '수정 요청 내용', type: 'textarea', required: true, placeholder: '예) 사용 후 사진이 흐립니다. 밝은 곳에서 다시 찍어 올려 주세요.' }], '수정 요청').then(function (v) { if (v) status('REVISION_REQUESTED', v.reason); }); },
+      revise: function () { ask('수정 요청', '참여자가 휴대폰 번호로 접수 확인 화면에 들어와 후기·사진을 다시 제출할 수 있습니다.', [{ k: 'reason', label: '수정 요청 내용', type: 'textarea', required: true, placeholder: '예) 사용 후 사진이 흐립니다. 밝은 곳에서 다시 찍어 올려 주세요.' }], '수정 요청').then(function (v) { if (v) status('REVISION_REQUESTED', v.reason); }); },
       cand: function () { run(api('POST', '/reviews/' + d.id + '/candidate', { on: !st.isCandidate }), st.isCandidate ? '후보에서 해제했습니다' : '우수 후기 후보로 등록했습니다', again); },
       unflag: function () { ask('중복·부정 참여 확인 완료', E(st.flagReason || ''), [{ k: 'reason', label: '확인 내용', type: 'textarea', required: true, placeholder: '예) 가족이 각각 구매한 것으로 확인' }], '확인 완료').then(function (v) { if (v) run(api('POST', '/reviews/' + d.id + '/flag', { action: 'CLEAR', reason: v.reason }), '확인 완료로 처리했습니다', again); }); },
       flag: function () { ask('확인 대상으로 표시', '중복·부정 참여가 의심되는 접수로 표시합니다. 확인을 마치기 전에는 우수 후기로 선정할 수 없습니다.', [{ k: 'reason', label: '사유', type: 'textarea', required: true }], '표시').then(function (v) { if (v) run(api('POST', '/reviews/' + d.id + '/flag', { action: 'FLAG', reason: v.reason }), '확인 대상으로 표시했습니다', again); }); },
@@ -306,10 +304,9 @@
       unwin: function () { ask('우수 후기 선정 취소', '추가 보상(퍼스트 벌스데이 크림) 지급 대상에서 제외됩니다. 참가 보상(프로틴 쉐이크)은 유지됩니다.', [{ k: 'reason', label: '취소 사유', type: 'textarea', required: true }], '선정 취소', true).then(function (v) { if (v) run(api('POST', '/winners/' + d.winner.id + '/cancel', { reason: v.reason }), '선정을 취소했습니다', again); }); },
       memo: function () { run(api('POST', '/reviews/' + d.id + '/memo', { memo: dr.querySelector('#pmMemo').value }), '메모를 저장했습니다'); },
       edit: function () { ask('참여자 정보 수정', '수정 내용과 사유는 변경 이력에 기록됩니다. 발송 전인 사은품의 수령 정보도 함께 바뀝니다.', [
-        { k: 'name', label: '이름', value: c.name, required: true }, { k: 'phone', label: '휴대폰 번호', value: c.phone, required: true }, { k: 'orderNumber', label: '주문번호·구매 정보', value: c.orderNumber || '' },
-        { k: 'memberLoginId', label: '회원 아이디', value: c.memberLoginId || '' }, { k: 'postalCode', label: '우편번호', value: c.postalCode || '' }, { k: 'address', label: '배송 주소', type: 'textarea', value: c.address || '', max: 220 },
+        { k: 'name', label: '이름', value: c.name, required: true }, { k: 'phone', label: '휴대폰 번호', value: c.phone, required: true }, { k: 'memberLoginId', label: '회원번호', value: c.memberLoginId || '' }, { k: 'postalCode', label: '우편번호', value: c.postalCode || '' }, { k: 'address', label: '배송 주소', type: 'textarea', value: c.address || '', max: 220 },
         { k: 'distributorCode', label: '유입 총판 코드', value: c.distributorCode || '' }, { k: 'reason', label: '수정 사유', type: 'textarea', required: true }], '저장').then(function (v) { if (v) run(api('PATCH', '/reviews/' + d.id, v), '참여자 정보를 수정했습니다', again); }); },
-      purge: function () { ask('개인정보 삭제 및 파기', '이름·연락처·주소·주문번호·후기 내용·사진 파일이 <b>영구 삭제</b>되며 되돌릴 수 없습니다. 접수 번호와 처리 이력만 남습니다.', [{ k: 'reason', label: '파기 사유', type: 'textarea', required: true, placeholder: '예) 본인 삭제 요청 / 보유 기간 만료' }, { k: 'confirm', label: '확인을 위해 접수 번호를 입력하세요', required: true, placeholder: d.applicationNumber }], '영구 삭제', true).then(function (v) {
+      purge: function () { ask('개인정보 삭제 및 파기', '이름·연락처·주소·회원번호·후기 내용·사진 파일이 <b>영구 삭제</b>되며 되돌릴 수 없습니다. 접수 번호와 처리 이력만 남습니다.', [{ k: 'reason', label: '파기 사유', type: 'textarea', required: true, placeholder: '예) 본인 삭제 요청 / 보유 기간 만료' }, { k: 'confirm', label: '확인을 위해 접수 번호를 입력하세요', required: true, placeholder: d.applicationNumber }], '영구 삭제', true).then(function (v) {
         if (!v) return; if (v.confirm.toUpperCase() !== d.applicationNumber) return say('접수 번호가 일치하지 않습니다', true); run(api('POST', '/reviews/' + d.id + '/purge', { reason: v.reason }), '개인정보를 파기했습니다', again); }); },
       gorewards: function () { closeDrawer(); F.rewards.q = d.applicationNumber; F.rewards.type = ''; nav('rewards'); }
     };
@@ -513,7 +510,7 @@
         '<div><div class="pm-card"><h3>후기 작성 기준</h3><div class="pm-form"><label>최소 글자 수</label><input type="number" name="minChars" min="0" max="1000" value="' + s.minChars + '"' + dis + '><label>최대 글자 수</label><input type="number" name="maxChars" min="50" max="5000" value="' + s.maxChars + '"' + dis + '>' +
           '<label>제목 최대 글자 수</label><input type="number" name="titleMaxChars" min="10" max="120" value="' + s.titleMaxChars + '"' + dis + '>' +
           '<label>사진 제출 필수</label>' + chk('requireImages', s.requireImages) + '<div class="pm-hint">끄면 사용 전·후 사진 없이도 참여할 수 있습니다.</div>' +
-          '<label>주문번호 필수</label>' + chk('requireOrderNumber', s.requireOrderNumber) + '<label>배송 주소 수집</label>' + chk('requireAddress', s.requireAddress) + '<div class="pm-hint">끄면 주소를 받지 않고, 지급 단계에서 「사은품 지급 관리」에 직접 입력합니다.</div>' +
+          '<label>배송 주소 수집</label>' + chk('requireAddress', s.requireAddress) + '<div class="pm-hint">끄면 주소를 받지 않고, 지급 단계에서 「사은품 지급 관리」에 직접 입력합니다.</div>' +
           '<label>사진 최대 용량(MB)</label><input type="number" name="maxImageMb" min="0.5" max="5" step="0.5" value="' + (s.maxImageBytes / 1048576).toFixed(1) + '"' + dis + '><label>사진 최대 해상도(px)</label><input type="number" name="maxImagePixels" min="800" max="12000" value="' + s.maxImagePixels + '"' + dis + '></div></div>' +
           '<div class="pm-card"><h3>개인정보</h3><div class="pm-form"><label>보유 기간(일)</label><input type="number" name="retentionDays" min="30" max="1825" value="' + s.retentionDays + '"' + dis + '><div class="pm-hint">이벤트 종료일(없으면 접수일)부터 계산합니다. 동의 문서의 보유 기간 문구에 그대로 반영됩니다.</div>' +
           '<label>동의 문서 버전</label><input type="text" name="consentVersion" value="' + E(s.consentVersion) + '"' + dis + '><div class="pm-hint">동의 문구가 바뀌면 버전을 올려 주세요. 참여자가 동의한 버전이 접수마다 기록됩니다.</div></div></div></div></div>' +
@@ -529,7 +526,7 @@
       if (canSet) $('#pmEv').onsubmit = function (e) {
         e.preventDefault(); var f = this.elements, iso = function (v) { return v ? new Date(v).toISOString() : null; };
         run(api('PATCH', '/event', { eventName: f.eventName.value, eventStatus: f.eventStatus.value, startDate: iso(f.startDate.value), endDate: iso(f.endDate.value),
-          settings: { minChars: f.minChars.value, maxChars: f.maxChars.value, titleMaxChars: f.titleMaxChars.value, requireImages: f.requireImages.checked, requireOrderNumber: f.requireOrderNumber.checked, requireAddress: f.requireAddress.checked,
+          settings: { minChars: f.minChars.value, maxChars: f.maxChars.value, titleMaxChars: f.titleMaxChars.value, requireImages: f.requireImages.checked, requireAddress: f.requireAddress.checked,
             maxImageMb: f.maxImageMb.value, maxImagePixels: f.maxImagePixels.value, winnerCount: f.winnerCount.value, retentionDays: f.retentionDays.value, consentVersion: f.consentVersion.value },
           rewardPolicy: { participation: { productName: f.pName.value, quantity: f.pQty.value }, winner: { productName: f.wName.value, quantity: f.wQty.value }, winnersAlsoGetParticipation: f.both.checked } }), '이벤트 설정을 저장했습니다 — 이벤트 페이지에 바로 반영됩니다', vEvent);
       };

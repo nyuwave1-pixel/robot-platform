@@ -1,6 +1,6 @@
 // 벌스데이 크림 구매 후기 이벤트 — 고객(공개) 측 서비스: 이벤트 설정, 사진 업로드, 접수, 접수 조회, 수정 요청 재제출
 import { createHash } from "node:crypto";
-import { q, q1, tx, fail, s, int, hmac, encrypt, decrypt, randomToken, sha256, rateLimit, ipHash, normPhone, PHONE_RE, allowedOrigins, testOrigins } from "./core.ts";
+import { q, q1, tx, fail, s, int, maskName, hmac, encrypt, decrypt, randomToken, sha256, rateLimit, ipHash, normPhone, PHONE_RE, allowedOrigins, testOrigins } from "./core.ts";
 import type { Queryable } from "./platform.ts";
 import { sanitizeImage, ImageError } from "./imagesafe.ts";
 import { imageStore } from "./storage.ts";
@@ -61,7 +61,7 @@ export function consentDocs(st: EventSettings) {
   return [
     { type: "PRIVACY_COLLECT", required: true, title: "이벤트 참여를 위한 개인정보 수집 및 이용 동의",
       purpose: "구매 후기 이벤트 참여 접수, 본인 확인, 중복 참여 확인",
-      items: "이름, 휴대폰 번호, 유니앤코어 회원 여부(회원 아이디), 구매 정보(주문번호), 후기 내용, 사용 전·후 사진",
+      items: "이름, 휴대폰 번호, 유니앤코어 회원번호, 후기 내용, 사용 전·후 사진",
       retention: keep, refusal: refuse },
     { type: "EVENT_PROCESSING", required: true, title: "이벤트 운영 및 당첨자 확인을 위한 개인정보 처리 동의",
       purpose: "후기 검토, 우수 후기 선정, 당첨자 확인 및 개별 연락",
@@ -94,6 +94,8 @@ export function publicConfig(ev: PromoEvent) {
 
 // ---- 공통 ----
 export const phoneHash = (digits: string) => hmac("promo-phone", digits);
+/** 회원번호: 공백·하이픈을 빼고 영문 대문자·숫자만 남긴다 (표기가 달라도 같은 번호로 본다) */
+export const normMember = (v: unknown) => String(v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 30);
 export const normOrder = (v: string) => v.toUpperCase().replace(/[^A-Z0-9가-힣]/g, "");
 export const charCount = (v: string) => [...v].length;
 const cleanText = (v: unknown, max: number) => String(v ?? "").replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").trim().slice(0, max * 4);
@@ -165,11 +167,11 @@ function validateInput(b: any, st: EventSettings): ReviewInput {
   if (charCount(name) < 2 || charCount(name) > 40) fields.name = "이름을 2자 이상 입력해 주세요.";
   const phone = normPhone(b.phone);
   if (!PHONE_RE.test(phone)) fields.phone = "휴대폰 번호를 정확히 입력해 주세요. (예: 010-1234-5678)";
-  const memberClaimed = b.memberClaimed === true;
-  if (typeof b.memberClaimed !== "boolean") fields.memberClaimed = "유니앤코어 회원 여부를 선택해 주세요.";
-  const memberLoginId = memberClaimed ? cleanText(b.memberLoginId, 60).slice(0, 60) : "";
-  const orderNumber = cleanText(b.orderNumber, 80).slice(0, 80);
-  if (st.requireOrderNumber && charCount(orderNumber) < 4) fields.orderNumber = "주문번호 또는 구매 정보(구매처·구매일)를 입력해 주세요.";
+  // 유니앤코어 회원만 참여 — 회원번호 필수. (공식몰 회원 DB 와 자동 대조는 하지 않으며, 관리자가 회원번호로 확인한다)
+  const memberClaimed = true;
+  const memberLoginId = normMember(b.memberNumber ?? b.memberLoginId);
+  if (memberLoginId.length < 4) fields.memberNumber = "유니앤코어 회원번호를 정확히 입력해 주세요.";
+  const orderNumber = "";
   const t = validateReviewText(b, st, fields);
   const skinType = (SKIN_TYPES as readonly string[]).includes(String(b.skinType)) ? String(b.skinType) : "";
   const usagePeriod = (USAGE_PERIODS as readonly string[]).includes(String(b.usagePeriod)) ? String(b.usagePeriod) : "";
@@ -247,7 +249,7 @@ export async function submitReview(req: Request, b: any, isTest: boolean) {
     }
     if (v.memberLoginId) {
       const m = await q1<{ n: string }>(`SELECT count(*) AS n FROM birthday_reviews WHERE event_id = $1 AND lower(member_login_id) = lower($2) AND purged_at IS NULL`, [ev.id, v.memberLoginId], c);
-      if (Number(m?.n || 0) > 0) reasons.push(`같은 회원 아이디로 접수된 후기 ${m!.n}건`);
+      if (Number(m?.n || 0) > 0) reasons.push(`같은 회원번호로 접수된 후기 ${m!.n}건`);
     }
     if (ip) {
       const i = await q1<{ n: string }>(`SELECT count(*) AS n FROM birthday_reviews WHERE event_id = $1 AND ip_hash = $2 AND submitted_at > now() - interval '7 days'`, [ev.id, ip], c);
@@ -291,11 +293,14 @@ export async function submitReview(req: Request, b: any, isTest: boolean) {
 }
 
 // ---- 접수 조회 (접수 번호 + 휴대폰 번호가 모두 맞을 때만) ----
-async function findOwn(b: any, c?: Queryable, lock = false) {
-  const no = s(b.applicationNumber, 30).toUpperCase(), phone = normPhone(b.phone);
-  if (!/^BD\d{6}-\d{5,}$/.test(no) || !PHONE_RE.test(phone)) fail(400, "VALIDATION", "접수 번호와 휴대폰 번호를 정확히 입력해 주세요.");
-  const r = await q1<any>(`SELECT * FROM birthday_reviews WHERE application_number = $1 AND phone_hash = $2 AND purged_at IS NULL${lock ? " FOR UPDATE" : ""}`, [no, phoneHash(phone)], c);
-  if (!r) fail(404, "NOT_FOUND", "일치하는 접수 내역이 없습니다. 접수 번호와 휴대폰 번호를 다시 확인해 주세요.");
+/** 내 접수 찾기 — 휴대폰 번호로 조회(같은 번호의 가장 최근 접수). needMember=true 면 회원번호도 일치해야 한다 */
+async function findOwn(b: any, c?: Queryable, lock = false, needMember = false) {
+  const phone = normPhone(b.phone);
+  if (!PHONE_RE.test(phone)) fail(400, "VALIDATION", "휴대폰 번호를 정확히 입력해 주세요.");
+  const ev = await eventBySlug(EVENT_SLUG, c);
+  const r = await q1<any>(`SELECT * FROM birthday_reviews WHERE event_id = $1 AND phone_hash = $2 AND purged_at IS NULL ORDER BY entry_no DESC LIMIT 1${lock ? " FOR UPDATE" : ""}`, [ev.id, phoneHash(phone)], c);
+  if (!r) fail(404, "NOT_FOUND", "이 휴대폰 번호로 접수된 내역이 없습니다. 번호를 다시 확인해 주세요.");
+  if (needMember && normMember(b.memberNumber) !== String(r.member_login_id || "")) fail(403, "MEMBER_MISMATCH", "회원번호가 접수 내용과 일치하지 않습니다.");
   return r;
 }
 export async function lookup(req: Request, b: any) {
@@ -306,7 +311,7 @@ export async function lookup(req: Request, b: any) {
   const imgs = await q<any>(`SELECT image_type FROM birthday_review_images WHERE review_id = $1 AND deleted_at IS NULL`, [r.id]);
   const showReason = ["REJECTED", "REVISION_REQUESTED"].includes(r.review_status);
   return {
-    applicationNumber: r.application_number, name: r.applicant_name, submittedAt: r.submitted_at,
+    applicationNumber: r.application_number, name: maskName(r.applicant_name || ""), submittedAt: r.submitted_at,
     reviewStatus: r.review_status, reviewStatusLabel: REVIEW_STATUS_LABEL[r.review_status],
     statusReason: showReason ? r.status_reason || "" : "",
     canRevise: r.review_status === "REVISION_REQUESTED",
@@ -333,7 +338,7 @@ export async function revise(req: Request, b: any) {
   const refs = imageRefs(b);
   const replaced: string[] = [];
   const out = await tx(async (c) => {
-    const r = await findOwn(b, c, true);
+    const r = await findOwn(b, c, true, true);
     if (Number(r.event_id) !== ev.id) fail(404, "NOT_FOUND", "일치하는 접수 내역이 없습니다.");
     if (r.review_status !== "REVISION_REQUESTED") fail(409, "NOT_REVISABLE", "수정 요청을 받은 후기만 다시 제출할 수 있습니다.");
     for (const type of ["BEFORE", "AFTER"] as const) {
