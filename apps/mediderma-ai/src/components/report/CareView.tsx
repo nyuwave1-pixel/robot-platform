@@ -3,10 +3,10 @@ import { useRef, useState } from "react";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
-import { COMMON_CAUTIONS, CONTRAINDICATIONS, GUIDE_VIDEO, LINKS, ROUTINES, TECH_CHAPTER, TECH_TRACK, type ProductId, type RoutineId, type Technology, type VideoChapter } from "@/lib/care/knowledge";
+import { COMMON_CAUTIONS, CONTRAINDICATIONS, GUIDE_VIDEO, LINKS, PRODUCTS, ROUTINES, TECH_CHAPTER, TECH_TRACK, type ProductId, type RoutineId, type Technology, type VideoChapter } from "@/lib/care/knowledge";
 import type { CategoryScores } from "@/lib/analysis/types";
 import GuideVideo, { type GuideVideoHandle } from "./GuideVideo";
-import type { CarePlan } from "@/lib/care/recommend";
+import type { CarePlan, ProductReason } from "@/lib/care/recommend";
 import type { CareRecommendation } from "@/lib/analysis/types";
 
 const TECH_COLOR = { rf: "text-amber-300 border-amber-300/40", ultrasonic: "text-scan2 border-scan2/40", iontophoresis: "text-violet-300 border-violet-300/40", general: "text-silver border-silver/40" } as const;
@@ -93,6 +93,16 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
     return names;
   };
   const products = plan.products.filter((p) => config.products[p]?.enabled);
+  const reasonText = (r: ProductReason) =>
+    r.type === "observation"
+      ? fmt(t.care.reasonObservation, { zone: t.zones[r.zone], metric: t.metrics[r.metric].name, value: r.value })
+      : r.type === "survey"
+        ? fmt(t.care.reasonSurvey, { item: t.care.surveyItems[r.key as keyof typeof t.care.surveyItems] ?? r.key })
+        : r.type === "goal"
+          ? fmt(t.care.reasonGoal, { item: t.survey.goals[r.key as keyof typeof t.survey.goals] ?? r.key })
+          : r.type === "routine"
+            ? t.care.reasonRoutine
+            : t.care.reasonGuide;
   return (
     <section className="space-y-6" data-testid="care-view">
       <div>
@@ -107,6 +117,29 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
         </div>
       )}
       {plan.rednessNotice && <p role="note" className="rounded-xl border border-rose-400/40 bg-rose-400/10 p-4 text-xs leading-relaxed text-rose-100">{t.care.rednessNotice}</p>}
+
+      {!plan.deviceBlocked && (
+        <div className="rounded-2xl border border-line bg-ink/60 p-5" data-testid="device-how">
+          <h3 className="text-sm font-semibold tracking-wide text-silver">{t.care.deviceHowTitle}</h3>
+          <p className="mt-1 text-xs text-silver/70">{t.care.deviceHowDesc}</p>
+          <ol className="mt-3 grid gap-2 sm:grid-cols-5">
+            {t.care.deviceSteps.map((d, i) => (
+              <li key={i} className="rounded-xl border border-line p-3 text-xs leading-relaxed text-silver">
+                <span className="mb-1 block font-display text-lg text-scan2">{String(i + 1).padStart(2, "0")}</span>
+                {d}
+              </li>
+            ))}
+          </ol>
+          {techs.length > 0 && (
+            <p className="mt-3 text-xs text-silver">
+              {t.care.myFunctions}:{" "}
+              {techs.map((tech) => (
+                <span key={tech} className={`ml-1 inline-block rounded-full border px-2 py-0.5 text-[10px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</span>
+              ))}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* 기능별 추천 */}
       <div>
@@ -247,28 +280,75 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
         </div>
       </div>
 
-      {/* 추천 제품 */}
-      <div>
+      {/* 추천 제품 — 공식 스킨케어 가이드 순서 */}
+      <div data-testid="products">
         <h3 className="text-sm font-semibold tracking-wide text-silver">{t.care.productsTitle}</h3>
         <p className="mt-1 text-xs text-silver/70">{t.care.productsDesc}</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <a
-              key={p}
-              href={config.products[p].url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => track("product_click", { product: p })}
-              data-testid={`product-${p}`}
-              className="group rounded-2xl border border-line bg-gradient-to-b from-white/[0.05] to-transparent p-4 transition hover:border-scan"
-            >
-              <p className="text-sm font-semibold group-hover:text-scan2">{t.kb.products[p].name}</p>
-              <p className="mt-1 text-xs leading-relaxed text-silver">{t.kb.products[p].how}</p>
-              {usedIn(p).length > 0 && <p className="mt-2 text-[11px] text-silver/70">{t.care.usedIn}: {usedIn(p).join(" / ")}</p>}
-              <p className="mt-3 text-xs text-scan2">{t.care.viewProduct} ↗</p>
-            </a>
-          ))}
+        <div className="mt-3 rounded-xl border border-line bg-ink/60 p-3" data-testid="guide-order">
+          <p className="text-[11px] font-semibold tracking-wide text-silver">{t.care.guideOrderTitle}</p>
+          <ol className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-silver">
+            {products.map((p, i) => (
+              <li key={p} className="flex items-center gap-1.5">
+                {i > 0 && <span aria-hidden className="text-silver/40">→</span>}
+                <span className="rounded-full border border-line px-2 py-0.5">
+                  <span className="text-scan2">{t.care.guideSteps[PRODUCTS[p].step]}</span> · {t.kb.products[p].name}
+                </span>
+              </li>
+            ))}
+          </ol>
         </div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((p) => {
+            const kb = t.kb.products[p];
+            const reasons = plan.productReasons[p] ?? [];
+            return (
+              <article key={p} data-testid={`product-card-${p}`} className="flex flex-col rounded-2xl border border-line bg-gradient-to-b from-white/[0.05] to-transparent p-4">
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                  <span className="rounded-full border border-scan2/40 px-2 py-0.5 tracking-wide text-scan2">{t.care.guideSteps[PRODUCTS[p].step]}</span>
+                  <span className="rounded-full border border-line px-2 py-0.5 text-silver">{t.care.when[PRODUCTS[p].when]}</span>
+                  {kb.fn && <span className="rounded-full border border-line px-2 py-0.5 text-silver">{kb.fn}</span>}
+                </div>
+                <p className="mt-2 text-sm font-semibold">{kb.name}</p>
+                <p className="mt-0.5 text-xs italic text-silver/80">“{kb.tagline}”</p>
+                {reasons.length > 0 && (
+                  <div className="mt-3" data-testid={`product-why-${p}`}>
+                    <p className="text-[11px] font-semibold text-silver">{t.care.productWhy}</p>
+                    <ul className="mt-1 space-y-1 text-xs text-silver">
+                      {reasons.map((r, i) => (
+                        <li key={i} className="flex gap-1.5">
+                          <span aria-hidden className="text-scan2">•</span>
+                          <span>{reasonText(r)}{r.type === "routine" && usedIn(p).length > 0 ? ` (${usedIn(p).join(" / ")})` : ""}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div className="mt-3">
+                  <p className="text-[11px] font-semibold text-silver">{t.care.productPoints}</p>
+                  <ul className="mt-1 space-y-0.5 text-xs leading-relaxed text-silver/90">
+                    {kb.points.map((pt, i) => <li key={i}>– {pt}</li>)}
+                  </ul>
+                </div>
+                <div className="mt-3">
+                  <p className="text-[11px] font-semibold text-silver">{t.care.productHow}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-silver/90">{kb.how}</p>
+                </div>
+                {PRODUCTS[p].hasHumanTest && <p className="mt-3 text-[11px] leading-relaxed text-silver/60">{t.care.humanTest}</p>}
+                <a
+                  href={config.products[p].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => track("product_click", { product: p })}
+                  data-testid={`product-${p}`}
+                  className="mt-auto pt-3 text-xs text-scan2 hover:underline"
+                >
+                  {t.care.viewProduct} ↗
+                </a>
+              </article>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-silver/60">{t.care.productSource}</p>
       </div>
 
       {/* 체험 CTA */}

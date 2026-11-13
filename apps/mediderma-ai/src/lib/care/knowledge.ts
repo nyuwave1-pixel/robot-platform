@@ -21,19 +21,47 @@ export const TECHNOLOGIES: { id: Technology; source: string }[] = [
   { id: "iontophoresis", source: "S1" },
 ];
 
-export type ProductId = "ampoule" | "mask" | "cream" | "mist" | "tonerPad" | "boostingGel" | "device";
+export type ProductId =
+  | "cleansingOil" | "powderWash" | "tonerPad" | "ampoule" | "glutaAmpoule" | "mask" | "cream" | "birthdayCream" | "mist" | "sunscreen" | "boostingGel" | "device";
+
+/** 공식 상세페이지의 "유니앤코어 스킨케어 가이드" 단계 (+ 클렌징 루틴, 디바이스 케어) */
+export type GuideStep = "cleanse1" | "cleanse2" | "tone" | "brighten" | "firm" | "sag" | "protect" | "sun" | "deviceGel" | "device";
+/** 제품 상세페이지가 직접 언급하는 고민을 이 앱의 관찰·설문 항목에 대응시킨 태그 */
+export type ConcernTag = "pigment" | "tone" | "texture" | "pore" | "wrinkle" | "firmness" | "redness" | "dryness" | "sensitive" | "neck";
+
+export interface ProductMeta {
+  officialNameKo: string;
+  url: string;
+  step: GuideStep;
+  /** 상세페이지에 표기된 기능성화장품 구분 (없으면 null) */
+  functional: "whitening" | "whitening_wrinkle" | null;
+  /** 상세페이지에 인체적용시험 결과가 게재되어 있는지 (수치는 앱에 옮기지 않고 공식몰로 안내한다) */
+  hasHumanTest: boolean;
+  concerns: ConcernTag[];
+  /** 낮/밤 사용 (공식 가이드의 해·달 표기 기준, 표기가 없으면 both) */
+  when: "day" | "night" | "both";
+}
 
 const SHOP = "https://www.unincore.com/shopping/search/view.do?productSeq=";
-/** 공식몰에서 상품명·URL 을 확인한 상품만 등록한다 (가격은 변동되므로 저장하지 않는다). */
-export const PRODUCTS: Record<ProductId, { officialNameKo: string; url: string }> = {
-  ampoule: { officialNameKo: "비타씨 13.5 수퍼 화이트닝 앰플 30g", url: SHOP + "50" },
-  mask: { officialNameKo: "비타씨 수퍼 브라이트닝 마스크 5매", url: SHOP + "40" },
-  cream: { officialNameKo: "딥 리페어 액티베이팅 뉴트리션 크림 30ml", url: SHOP + "27" },
-  mist: { officialNameKo: "하이드레이팅 스킨 베리어 세럼 미스트 50ml", url: SHOP + "37" },
-  tonerPad: { officialNameKo: "데일리 카밍 토너 패드 180ml (70매)", url: SHOP + "43" },
-  boostingGel: { officialNameKo: "수딩 앤 모이스트 케어 부스팅 젤 250ml", url: SHOP + "61" },
-  device: { officialNameKo: "더마-HOME (가격문의)", url: SHOP + "492" },
+/**
+ * 공식몰 상세페이지(이미지)를 2026-11-13 에 판독해 확인한 상품만 등록한다 [S4].
+ * 가격은 변동되므로 저장하지 않는다. 배열 순서 = 공식 스킨케어 가이드 순서.
+ */
+export const PRODUCTS: Record<ProductId, ProductMeta> = {
+  cleansingOil: { officialNameKo: "퓨어 비타 라이스 클렌징 오일 150ml", url: SHOP + "330", step: "cleanse1", functional: null, hasHumanTest: false, concerns: ["pore"], when: "night" },
+  powderWash: { officialNameKo: "비타씨 엔자임 파우더 워시", url: SHOP + "213", step: "cleanse2", functional: null, hasHumanTest: false, concerns: ["texture", "pore"], when: "both" },
+  tonerPad: { officialNameKo: "데일리 카밍 토너 패드 180ml (70매)", url: SHOP + "43", step: "tone", functional: null, hasHumanTest: true, concerns: ["redness", "sensitive", "dryness"], when: "both" },
+  ampoule: { officialNameKo: "비타씨 13.5 수퍼 화이트닝 앰플 30g", url: SHOP + "50", step: "brighten", functional: "whitening", hasHumanTest: true, concerns: ["pigment", "tone"], when: "both" },
+  glutaAmpoule: { officialNameKo: "비타 씨 글루타글로우 수퍼 브라이트닝 앰플 30g", url: SHOP + "135", step: "brighten", functional: "whitening", hasHumanTest: false, concerns: ["tone", "pigment"], when: "both" },
+  mask: { officialNameKo: "비타씨 수퍼 브라이트닝 마스크 5매", url: SHOP + "40", step: "brighten", functional: "whitening", hasHumanTest: false, concerns: ["tone"], when: "both" },
+  cream: { officialNameKo: "딥 리페어 액티베이팅 뉴트리션 크림 30ml", url: SHOP + "27", step: "firm", functional: "whitening_wrinkle", hasHumanTest: true, concerns: ["firmness", "dryness", "wrinkle"], when: "both" },
+  birthdayCream: { officialNameKo: "퍼스트 벌스데이 크림 50g", url: SHOP + "507", step: "sag", functional: null, hasHumanTest: true, concerns: ["wrinkle", "firmness", "neck"], when: "both" },
+  mist: { officialNameKo: "하이드레이팅 스킨 베리어 세럼 미스트 50ml", url: SHOP + "37", step: "protect", functional: null, hasHumanTest: true, concerns: ["dryness"], when: "both" },
+  sunscreen: { officialNameKo: "하이드레이팅 래디언스 선크림 SPF50 PA+++30ml", url: SHOP + "33", step: "sun", functional: null, hasHumanTest: false, concerns: [], when: "day" },
+  boostingGel: { officialNameKo: "수딩 앤 모이스트 케어 부스팅 젤 250ml", url: SHOP + "61", step: "deviceGel", functional: null, hasHumanTest: false, concerns: ["redness", "sensitive", "dryness"], when: "both" },
+  device: { officialNameKo: "더마-HOME (가격문의)", url: SHOP + "492", step: "device", functional: null, hasHumanTest: false, concerns: [], when: "both" },
 };
+export const PRODUCT_ORDER = Object.keys(PRODUCTS) as ProductId[];
 
 export const LINKS = {
   freeTrial: "https://dermahome.unincore.com/experience/",

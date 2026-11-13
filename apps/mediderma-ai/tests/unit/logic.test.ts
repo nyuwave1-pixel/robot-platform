@@ -11,7 +11,7 @@ import { DEFAULT_CONFIG, mergeConfig } from "../../src/lib/appConfig";
 import { DEFAULT_CALIBRATION, toIndex } from "../../src/lib/analysis/calibration";
 import { compareResults, similarityTransform } from "../../src/lib/analysis/compare";
 import { buildCarePlan } from "../../src/lib/care/recommend";
-import { PRODUCTS, ROUTINES } from "../../src/lib/care/knowledge";
+import { PRODUCTS, PRODUCT_ORDER, ROUTINES } from "../../src/lib/care/knowledge";
 import { analyzeNormalized } from "../../src/lib/analysis/engine";
 import { simulate } from "../../src/lib/analysis/simulate";
 import { CANONICAL, FACE_ZONES } from "../../src/lib/analysis/zones";
@@ -33,7 +33,8 @@ describe("i18n resources", () => {
     it(`${name}: same placeholders as ko`, () => expect(placeholders(dict)).toEqual(placeholders(ko)));
     it(`${name}: simulation disclaimer present and no empty strings`, () => {
       expect(dict.sim.disclaimer.length).toBeGreaterThan(10);
-      expect(JSON.stringify(dict)).not.toContain('""');
+      // kb.products.*.fn 은 기능성 표기가 없는 상품에서 의도적으로 빈 문자열이다
+      expect(JSON.stringify(dict).replace(/"fn":""/g, "")).not.toContain('""');
     });
   }
   it("knowledge base text exists for every routine step and direction", () => {
@@ -171,6 +172,36 @@ describe("care recommendation", () => {
     }
     expect(p.recommendations.find((r) => r.id === "eye_gentle")?.technology).toBe("general");
     expect(p.products).toContain("mist");
+  });
+  it("product recommendations carry reasons tied to the user's own result and follow the official guide order", () => {
+    const pig = FACE_ZONES.map((z) => zone(z.id, z.id.includes("cheek") ? { pigmentVisibility: 70 } : {}));
+    const a = buildCarePlan(result({ zones: pig }), survey());
+    expect(a.products).toContain("ampoule");
+    expect(a.productReasons.ampoule?.some((r) => r.type === "observation" && r.metric === "pigmentVisibility")).toBe(true);
+    expect(a.products).not.toContain("birthdayCream");
+    const b = buildCarePlan(result({}), survey({ sensitivity: 3, dryness: 3, goals: ["wrinkle_firming"] }));
+    expect(b.productReasons.tonerPad?.some((r) => r.type === "survey" && r.key === "sensitivity")).toBe(true);
+    expect(b.productReasons.birthdayCream?.some((r) => r.type === "goal")).toBe(true);
+    for (const plan of [a, b]) {
+      // 모든 추천 제품에 근거가 있고, 공식 가이드 순서를 따른다
+      for (const id of plan.products) expect(plan.productReasons[id]?.length).toBeGreaterThan(0);
+      const idx = plan.products.map((id) => PRODUCT_ORDER.indexOf(id));
+      expect(idx).toEqual([...idx].sort((x, y) => x - y));
+      expect(plan.products).toContain("sunscreen");
+      // 같은 미백 단계 제품은 2개까지만
+      expect(plan.products.filter((id) => PRODUCTS[id].step === "brighten").length).toBeLessThanOrEqual(2);
+    }
+    // 기기 금기 → 디바이스는 빠지고 스킨케어 제품만
+    const c = buildCarePlan(result({ zones: pig }), survey({ deviceContraindication: true }));
+    expect(c.products).not.toContain("device");
+    expect(c.products.length).toBeGreaterThan(0);
+  });
+  it("every product has official copy in every locale", () => {
+    for (const id of PRODUCT_ORDER) {
+      expect(ko.kb.products[id].points.length).toBe(3);
+      expect(ko.kb.products[id].how.length).toBeGreaterThan(10);
+      expect(Object.keys(ko.care.guideSteps)).toContain(PRODUCTS[id].step);
+    }
   });
   it("high redness shows the expert-consult notice and prefers soothing", () => {
     const p = buildCarePlan(result({ cat: { rednessVisibility: 75, wrinkleVisibility: 80 } }), survey());

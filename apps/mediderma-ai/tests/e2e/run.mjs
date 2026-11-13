@@ -216,6 +216,13 @@ await check("C01", "케어 추천: 근거·주의사항·공식 링크", async (
   assert((await care.locator('[data-testid^="routine-"]').count()) >= 1, "no routine");
   const hrefs = await care.locator('a[data-testid^="product-"]').evaluateAll((as) => as.map((a) => a.href));
   assert(hrefs.length >= 3 && hrefs.every((h) => h.startsWith("https://www.unincore.com/shopping/search/view.do?productSeq=")), "product links: " + hrefs.join(","));
+  // 제품마다 "내 결과와의 연결" 근거가 있고, 공식 가이드 순서·더마홈 사용법 5단계가 표시된다
+  const cards = await care.locator('[data-testid^="product-card-"]').count();
+  const whys = await care.locator('[data-testid^="product-why-"]').count();
+  assert(cards === hrefs.length && whys === cards, `product reasons ${whys}/${cards}`);
+  assert((await care.locator('[data-testid="guide-order"] li').count()) === cards, "guide order");
+  assert((await care.locator('[data-testid="device-how"] ol li').count()) === 5, "device how-to steps");
+  assert(await care.locator('[data-testid="product-sunscreen"]').count(), "sunscreen missing");
   const trial = await P.getAttribute('[data-testid="trial-cta"]', "href");
   assert(trial === "https://dermahome.unincore.com/experience/", "trial " + trial);
   return `추천 ${await care.locator('[data-testid^="rec-"]').count()}개, 제품 링크 ${hrefs.length}개`;
