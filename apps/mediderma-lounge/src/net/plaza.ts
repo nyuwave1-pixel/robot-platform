@@ -1,0 +1,217 @@
+/**
+ * WORLD PLAZA 실시간 멀티플레이.
+ * Supabase Realtime 의 공개 채널(Presence + Broadcast)만 쓴다. 데이터베이스에는 아무것도 저장하지 않는다.
+ *  - presence: 접속자와 그 캐릭터 외형(이름·룩·성장 단계·등급)
+ *  - broadcast "pos": 위치·방향 (움직일 때만 초당 6번, 서 있을 때는 2초마다 한 번)
+ *  - broadcast "say": 정해진 인사말 번호 (자유 채팅 없음)
+ * 연결에 실패해도 광장은 혼자서 동작한다.
+ */
+import { RealtimeClient, type RealtimeChannel } from "@supabase/realtime-js";
+import { create } from "zustand";
+import { FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS } from "../data/game";
+import { DEFAULT_LOOK, useGame, type Furniture, type Look } from "../store/game";
+import { input } from "../store/ui";
+
+/** 공개(publishable) 키다. 브라우저에 노출되도록 만들어진 값이라 비밀이 아니다. */
+const URL = "wss://qeabsjyglethzkwlkmaw.supabase.co/realtime/v1";
+const KEY = "sb_publishable_JfbgxhQtx1cnSIdEmXPDvA_3tg9pk0-";
+const ROOM = "mdl-plaza-1";
+export const MAX_REMOTE = 24;
+export const PHRASES = 6;
+
+export interface Remote {
+  id: string; name: string; look: Look; stage: number; rank: number;
+  /** 라운지 홍보 번호 (0 = 없음) 와 그 라운지 주인의 친구 코드 */
+  promo: number; code: string;
+  /** 그 플레이어의 라운지 꾸밈 (방문할 때 그대로 재현한다) */
+  lounge: LoungeSnap;
+  x: number; z: number; yaw: number; moving: boolean;
+  /** 화면에 그리는 보간 위치 */
+  rx: number; rz: number;
+  say: number; sayAt: number; seen: number;
+}
+export const remotes = new Map<string, Remote>();
+
+export type PlazaSpot = null | "fountain" | "stage" | "stall";
+interface PlazaState {
+  status: "off" | "connecting" | "online" | "offline"; ids: string[]; mySay: number; mySayAt: number;
+  /** 가까이 있는 광장 시설 */
+  near: PlazaSpot;
+  /** 진행 중인 꽃잎 잡기 */
+  game: null | { end: number; score: number };
+  /** 이번 접속 동안의 꽃잎 잡기 최고 기록들 */
+  board: { name: string; s: number }[];
+  /** 선택한 다른 플레이어 · 홍보 목록 열림 */
+  target: string | null; list: boolean;
+}
+export const usePlaza = create<PlazaState>(() => ({ status: "off", ids: [], mySay: -1, mySayAt: 0, near: null, game: null, board: [], target: null, list: false }));
+function addScore(name: string, s: number) {
+  const board = [...usePlaza.getState().board.filter((b) => b.name !== name || b.s > s), { name, s }].sort((a, b) => b.s - a.s);
+  usePlaza.setState({ board: board.filter((b, i) => board.findIndex((x) => x.name === b.name) === i).slice(0, 5) });
+}
+
+const HEX = /^#[0-9a-f]{6}$/i;
+const hex = (v: unknown, d: string) => (typeof v === "string" && HEX.test(v) ? v : d);
+const item = (v: unknown, d: string | null) => (typeof v === "string" && FASHION_MAP[v] ? v : d);
+const word = (v: unknown, d: string) => (typeof v === "string" && /^[a-z-]{1,16}$/.test(v) ? v : d);
+/** 다른 사람이 보낸 외형을 그대로 믿지 않고, 아는 값만 받아들인다 */
+export function cleanLook(v: unknown): Look {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const D = DEFAULT_LOOK;
+  return {
+    skin: hex(o.skin, D.skin), hairColor: hex(o.hairColor, D.hairColor), eyeColor: hex(o.eyeColor, D.eyeColor), lipColor: hex(o.lipColor, D.lipColor),
+    face: word(o.face, D.face), eyes: word(o.eyes, D.eyes), brows: word(o.brows, D.brows), pose: "stand",
+    hair: item(o.hair, D.hair)!, outfit: item(o.outfit, D.outfit)!,
+    height: typeof o.height === "number" ? Math.min(1.08, Math.max(0.92, o.height)) : 1,
+    accessory: item(o.accessory, null), earring: item(o.earring, null), necklace: item(o.necklace, null), bag: item(o.bag, null),
+    shoes: item(o.shoes, null), makeup: item(o.makeup, null), nail: item(o.nail, null),
+  };
+}
+export interface LoungeSnap { level: number; floor: string; wall: string; light: string; furniture: Furniture[] }
+const theme = (v: unknown, kind: string, d: string) => (typeof v === "string" && INTERIOR_MAP[v]?.kind === kind ? v : d);
+/** 다른 사람이 보낸 라운지 꾸밈도 아는 값만 받아들이고, 가구는 방 안쪽 좌표로 제한한다 */
+export function cleanLounge(v: unknown): LoungeSnap {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const level = Math.round(Math.min(LOUNGE_LEVELS.length, Math.max(1, typeof o.level === "number" && isFinite(o.level) ? o.level : 1)));
+  const L = LOUNGE_LEVELS[level - 1];
+  const furniture: Furniture[] = [];
+  for (const f of Array.isArray(o.furniture) ? o.furniture.slice(0, MAX_FURNITURE) : []) {
+    const q = (f && typeof f === "object" ? f : {}) as Record<string, unknown>;
+    if (typeof q.type !== "string" || INTERIOR_MAP[q.type]?.kind !== "furniture") continue;
+    const n = (x: unknown, lim: number) => (typeof x === "number" && isFinite(x) ? Math.min(lim, Math.max(-lim, x)) : 0);
+    furniture.push({ uid: `v${furniture.length}`, type: q.type, x: n(q.x, L.w / 2 - 0.6), z: n(q.z, L.d / 2 - 0.6), rot: n(q.rot, 7) });
+  }
+  return { level, floor: theme(o.floor, "floor", "floor-cream"), wall: theme(o.wall, "wall", "wall-cream"), light: theme(o.light, "light", "light-warm"), furniture };
+}
+export const MAX_FURNITURE = 40;
+export const cleanName = (v: unknown) => (typeof v === "string" ? v.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 12) : "") || "GUEST";
+const num = (v: unknown, lo: number, hi: number, d = 0) => (typeof v === "number" && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+
+let client: RealtimeClient | null = null;
+let channel: RealtimeChannel | null = null;
+let timer: ReturnType<typeof setInterval> | null = null;
+let myId = "";
+let last = { x: 0, z: 0, yaw: 0, t: 0 };
+
+function sync() {
+  usePlaza.setState({ ids: [...remotes.keys()] });
+}
+
+export function joinPlaza() {
+  if (channel) return;
+  const g = useGame.getState();
+  myId = `${g.friendCode || "GUEST0"}-${Math.random().toString(36).slice(2, 7)}`;
+  usePlaza.setState({ status: "connecting", ids: [] });
+  try {
+    client = new RealtimeClient(URL, { params: { apikey: KEY, eventsPerSecond: 8 } });
+    channel = client.channel(ROOM, { config: { broadcast: { self: false }, presence: { key: myId } } });
+  } catch {
+    usePlaza.setState({ status: "offline" });
+    return;
+  }
+  const ch = channel;
+  ch.on("presence", { event: "sync" }, () => {
+    const st = ch.presenceState() as Record<string, { name?: unknown; look?: unknown; stage?: unknown; rank?: unknown; promo?: unknown; code?: unknown; lounge?: unknown; x?: unknown; z?: unknown }[]>;
+    const now = Date.now();
+    const alive = new Set<string>();
+    for (const id of Object.keys(st)) {
+      if (id === myId || alive.size >= MAX_REMOTE) continue;
+      const m = st[id][0] ?? {};
+      alive.add(id);
+      const old = remotes.get(id);
+      const x = num(m.x, -14, 14), z = num(m.z, -14, 14, 8);
+      remotes.set(id, {
+        id, name: cleanName(m.name), look: cleanLook(m.look), stage: Math.round(num(m.stage, 1, 5, 1)), rank: Math.round(num(m.rank, 0, 10)),
+        promo: Math.round(num(m.promo, 0, 9)), code: typeof m.code === "string" && /^[A-Z0-9]{6}$/.test(m.code) ? m.code : "", lounge: old?.lounge ?? cleanLounge(m.lounge),
+        x: old?.x ?? x, z: old?.z ?? z, yaw: old?.yaw ?? 0, moving: old?.moving ?? false, rx: old?.rx ?? x, rz: old?.rz ?? z,
+        say: old?.say ?? -1, sayAt: old?.sayAt ?? 0, seen: now,
+      });
+    }
+    for (const id of [...remotes.keys()]) if (!alive.has(id)) remotes.delete(id);
+    sync();
+  });
+  ch.on("broadcast", { event: "pos" }, ({ payload }) => {
+    const r = remotes.get(String(payload?.id));
+    if (!r) return;
+    r.x = num(payload.x, -14, 14); r.z = num(payload.z, -14, 14); r.yaw = num(payload.y, -7, 7); r.moving = !!payload.m; r.seen = Date.now();
+  });
+  ch.on("broadcast", { event: "say" }, ({ payload }) => {
+    const r = remotes.get(String(payload?.id));
+    if (!r) return;
+    r.say = Math.round(num(payload.i, 0, PHRASES - 1)); r.sayAt = Date.now();
+    sync();
+  });
+  ch.on("broadcast", { event: "heart" }, ({ payload }) => {
+    if (payload?.to !== myId) return;
+    const got = useGame.getState().plazaHeart();
+    notify?.("heart", cleanName(payload.name), got ? 1 : 0);
+  });
+  ch.on("broadcast", { event: "visit" }, ({ payload }) => {
+    if (payload?.to !== myId) return;
+    notify?.("visit", cleanName(payload.name), useGame.getState().plazaHosted());
+  });
+  ch.on("broadcast", { event: "score" }, ({ payload }) => addScore(cleanName(payload?.name), Math.round(num(payload?.s, 0, 999))));
+  ch.subscribe((status) => {
+    if (status === "SUBSCRIBED") {
+      usePlaza.setState({ status: "online" });
+      const s = useGame.getState();
+      void ch.track({ name: s.name, look: { ...s.look, hideRank: undefined }, stage: s.stage, rank: s.look.hideRank ? 0 : s.rank, promo: s.promo, code: s.friendCode, x: input.playerPos.x, z: input.playerPos.z,
+        lounge: { level: s.lounge.level, floor: s.lounge.floor, wall: s.lounge.wall, light: s.lounge.light, furniture: s.lounge.furniture.slice(0, MAX_FURNITURE).map((f) => ({ type: f.type, x: +f.x.toFixed(2), z: +f.z.toFixed(2), rot: +f.rot.toFixed(2) })) } });
+    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+      if (usePlaza.getState().status !== "off") usePlaza.setState({ status: "offline" });
+    }
+  });
+  timer = setInterval(() => {
+    if (usePlaza.getState().status !== "online" || !channel) return;
+    const p = input.playerPos, now = Date.now();
+    const moved = Math.hypot(p.x - last.x, p.z - last.z) > 0.02 || Math.abs(input.playerYaw - last.yaw) > 0.05;
+    if (!moved && now - last.t < 2000) return;
+    last = { x: p.x, z: p.z, yaw: input.playerYaw, t: now };
+    void channel.send({ type: "broadcast", event: "pos", payload: { id: myId, x: +p.x.toFixed(2), z: +p.z.toFixed(2), y: +input.playerYaw.toFixed(2), m: input.moving } });
+  }, 160);
+}
+
+export function say(i: number) {
+  usePlaza.setState({ mySay: i, mySayAt: Date.now() });
+  if (channel && usePlaza.getState().status === "online") void channel.send({ type: "broadcast", event: "say", payload: { id: myId, i } });
+}
+
+/** 다른 사람이 보낸 하트·방문 알림을 화면에 띄우는 함수 (HUD 가 등록한다) */
+let notify: ((kind: "heart" | "visit", name: string, n: number) => void) | null = null;
+export const onPlazaNotice = (f: typeof notify) => { notify = f; };
+const online = () => !!channel && usePlaza.getState().status === "online";
+export function sendHeart(to: string) {
+  if (online()) void channel!.send({ type: "broadcast", event: "heart", payload: { to, name: useGame.getState().name } });
+}
+export function sendVisit(to: string) {
+  if (online()) void channel!.send({ type: "broadcast", event: "visit", payload: { to, name: useGame.getState().name } });
+}
+export function postScore(s: number) {
+  const name = useGame.getState().name;
+  addScore(name, s);
+  if (online()) void channel!.send({ type: "broadcast", event: "score", payload: { name, s } });
+}
+
+export function leavePlaza() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  const ch = channel, cl = client;
+  channel = null; client = null;
+  remotes.clear();
+  usePlaza.setState({ status: "off", ids: [], mySay: -1, near: null, game: null, target: null, list: false });
+  try { if (ch) void ch.unsubscribe(); cl?.disconnect(); } catch { /* 이미 끊긴 연결 */ }
+}
+
+// ───────────── 광장 이벤트: 반짝이 모으기 ─────────────
+/** 2분마다 모두에게 같은 자리에 생기는 반짝이 (시간 슬롯을 씨앗으로 쓴다) */
+export const SLOT_MS = 120_000;
+export function sparkleSpots(slot: number, n = 10) {
+  let s = (slot * 2654435761) >>> 0;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const out: { x: number; z: number }[] = [];
+  while (out.length < n) {
+    const a = rnd() * Math.PI * 2, r = 3.2 + rnd() * 9.3;
+    out.push({ x: +(Math.cos(a) * r).toFixed(2), z: +(Math.sin(a) * r).toFixed(2) });
+  }
+  return out;
+}
