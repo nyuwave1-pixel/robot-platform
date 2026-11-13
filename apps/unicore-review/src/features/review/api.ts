@@ -26,7 +26,7 @@ const NETWORK = "네트워크 연결이 원활하지 않습니다. 연결 상태
 async function call<T>(method: string, path: string, body?: unknown, headers: Record<string, string> = {}): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(reviewEvent.apiBase + path, {
+    res = await fetch(reviewEvent.apiBase + "/public" + path, {
       method, mode: "cors", credentials: "omit", cache: "no-store",
       headers: { ...(method === "GET" ? {} : { "x-br-csrf": "1" }), ...(body !== undefined ? { "content-type": "application/json" } : {}), ...headers },
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -48,7 +48,7 @@ export const deleteUpload = (u: Uploaded) => call<{ deleted: boolean }>("DELETE"
 export function uploadPhoto(type: "BEFORE" | "AFTER", blob: Blob, filename: string, onProgress: (pct: number) => void): { promise: Promise<Uploaded>; abort: () => void } {
   const xhr = new XMLHttpRequest();
   const promise = new Promise<Uploaded>((resolve, reject) => {
-    xhr.open("POST", `${reviewEvent.apiBase}/uploads?type=${type}`);
+    xhr.open("POST", `${reviewEvent.apiBase}/public/uploads?type=${type}`);
     xhr.setRequestHeader("x-br-csrf", "1");
     xhr.setRequestHeader("content-type", blob.type || "image/jpeg");
     xhr.setRequestHeader("x-br-filename", encodeURIComponent(filename.slice(0, 80)));

@@ -15,8 +15,6 @@ export default function Footer() {
             <a href="#ingredients">{t.ui.footerLinks.ingredients}</a>
             <a href="#how-to-use">{t.ui.footerLinks.howto}</a>
             <a href={product.urls.brand} target="_blank" rel="noopener">{t.ui.footerLinks.brand}</a>
-            {/* 구매 후기 이벤트(한국어 페이지 전용) */}
-            {t.seoView.path === "/" && <a href="/review" style={{ color: "var(--gold-metal)" }}>구매 후기 이벤트</a>}
           </nav>
         </div>
         <p style={{ margin: 0 }}>

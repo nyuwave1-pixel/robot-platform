@@ -86,7 +86,7 @@ export default function ReviewEvent() {
   return (
     <div className={s.page}>
       <header className={s.top}>
-        <a href="/" className={s.brand} aria-label="UNI&CORE 1ST BIRTHDAY CREAM 브랜드 페이지로">UNI&amp;CORE</a>
+        <a href={E.brandSite} className={s.brand} aria-label="UNI&CORE 1ST BIRTHDAY CREAM 브랜드 페이지로">UNI&amp;CORE</a>
         <a href="#lookup" className={s.topLink}>내 접수 확인</a>
       </header>
 
@@ -194,7 +194,7 @@ export default function ReviewEvent() {
           )}
           <Reveal className={s.center}>
             <button type="button" className={s.btnGold} onClick={() => toForm("product")}>{E.productCta}</button>
-            <a className={s.textLink} href="/" onClick={() => track("review_brand_link", {})}>제품 이야기 자세히 보기 →</a>
+            <a className={s.textLink} href={E.brandSite} onClick={() => track("review_brand_link", {})}>제품 이야기 자세히 보기 →</a>
           </Reveal>
         </section>
 
@@ -245,7 +245,7 @@ function Complete({ result, onLookup }: { result: SubmitResult; onLookup: () => 
   const copy = async () => { try { await navigator.clipboard.writeText(result.applicationNumber); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* 길게 눌러 복사 */ } };
   return (
     <div className={s.page}>
-      <header className={s.top}><a href="/" className={s.brand}>UNI&amp;CORE</a></header>
+      <header className={s.top}><a href={E.brandSite} className={s.brand}>UNI&amp;CORE</a></header>
       <main className={s.complete}>
         <div className={s.burst} aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ "--a": `${(360 / 28) * i}deg`, "--d": `${90 + (i % 5) * 34}px`, animationDelay: `${(i % 7) * 0.05}s` } as React.CSSProperties} />)}</div>
         <div className={s.seal} aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" /><path d="M19 33l9 9 17-19" /></svg></div>
@@ -265,7 +265,7 @@ function Complete({ result, onLookup }: { result: SubmitResult; onLookup: () => 
           <p className={s.completeNote}>당첨 결과는 개별 연락을 통해 안내됩니다. 사은품은 관리자 확인 후 순서대로 발송됩니다.</p>
         </section>
         <div className={s.completeBtns}>
-          <a className={s.btnGold} href="/">브랜드 스토리 보러 가기</a>
+          <a className={s.btnGold} href={E.brandSite}>브랜드 스토리 보러 가기</a>
           <button type="button" className={s.btnGhost} onClick={onLookup}>내 접수 확인하기</button>
         </div>
       </main>

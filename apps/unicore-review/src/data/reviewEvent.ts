@@ -1,12 +1,13 @@
 /**
- * 구매 후기 이벤트(/review) 카피·설정. 화면 문구는 이 파일만 수정합니다.
- * 접수 기준(글자 수·사진 필수 여부·기간·보상 상품명)은 더마홈 어드민 > 프로모션 관리에서 바꾸며,
+ * 구매 후기 이벤트 카피·설정. 화면 문구는 이 파일만 수정합니다.
+ * 접수 기준(글자 수·사진 필수 여부·기간·보상 상품명)은 관리자 화면(/admin) > 벌스데이 크림 후기 이벤트에서 바꾸며,
  * 페이지는 접수 API(/config)의 값을 우선 사용하고 아래 값은 API 응답 전의 기본 표시용입니다.
  */
 export const reviewEvent = {
-  /** 접수 API — 더마홈(dermahome.unincore.com) Netlify Functions. 로컬 검수 시 NEXT_PUBLIC_REVIEW_API 로 교체 */
-  apiBase: (process.env.NEXT_PUBLIC_REVIEW_API || "https://dermahome.unincore.com/api/birthday-review").replace(/\/$/, ""),
-  path: "/review",
+  /** 접수 API — Supabase Edge Function. 로컬 검수 시 NEXT_PUBLIC_REVIEW_API 로 교체 (backend: npm run serve) */
+  apiBase: (process.env.NEXT_PUBLIC_REVIEW_API || "https://qeabsjyglethzkwlkmaw.supabase.co/functions/v1/birthday-review").replace(/\/$/, ""),
+  /** 브랜드 페이지 (제품 이야기) */
+  brandSite: "https://birthday.unincore.com",
   hero: {
     en: "YOUR SKIN HAS A BIRTHDAY.",
     ko: "나의 피부가 다시 맞이하는 특별한 생일",
