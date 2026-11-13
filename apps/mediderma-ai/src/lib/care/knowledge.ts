@@ -6,6 +6,7 @@
  *  [S2] https://derma-partners.unincore.com/guide.html — 사용 5단계 · FAQ · 사용하면 안 되는 경우
  *  [S3] 더마홈 가이드북 PDF (derma-partners.unincore.com/download/dermahome-guidebook.pdf) 5·7쪽
  *  [S4] https://www.unincore.com/ 공식몰 상품 상세 (productSeq)
+ *  [S5] https://www.youtube.com/watch?v=iRa1JqPJznk — 공식 채널 사용 가이드 영상 (구성만 확인, 음성 미분석)
  *
  * 규칙: 여기에는 공식 자료에 있는 기능·시간·순서·제품만 담는다. 공식 자료에 없는 효능·수치·기능을 추가하지 않는다.
  * 문구는 i18n 리소스(kb.*)에 있으며, 한국어 문구는 공식 표현을 따른다.
@@ -122,6 +123,37 @@ export const ROUTINES: Record<RoutineId, Routine> = {
     directionAreas: ["cheek", "forehead", "jaw", "eye"],
     source: "dermahome.unincore.com · CARE GUIDE 2-2",
   },
+};
+
+/**
+ * 공식 사용법 영상 [S5] — 유니앤코어 공식 YouTube 채널 "DERMA HOME - 사용 가이드" (2026-08-14 게시, 약 35분).
+ * 구간 시작 시각은 영상의 공개 미리보기 화면(약 9초 간격)으로 구성만 확인한 대략값이다.
+ * 자막이 없고 음성은 분석하지 못했으므로, 영상의 설명 내용을 인용하거나 효능을 옮겨 적지 않는다.
+ * (확인한 구성: 목·어깨 관리 → 얼굴: 마스크 위 이온토포레시스 → 앰플 후 울트라소닉 → 크림 후 RF → 관리 전·후 모습)
+ */
+export const GUIDE_VIDEO = {
+  id: "iRa1JqPJznk",
+  url: "https://www.youtube.com/watch?v=iRa1JqPJznk",
+  chapters: [
+    { key: "neckShoulder", start: 30 },
+    { key: "faceIonto", start: 820 },
+    { key: "faceUltrasonic", start: 1324 },
+    { key: "faceRf", start: 1631 },
+    { key: "beforeAfter", start: 1939 },
+  ],
+} as const;
+export type VideoChapter = (typeof GUIDE_VIDEO.chapters)[number]["key"];
+/** 기능 → 영상 구간 */
+export const TECH_CHAPTER: Record<Technology, VideoChapter> = { iontophoresis: "faceIonto", ultrasonic: "faceUltrasonic", rf: "faceRf" };
+
+/**
+ * 기능별 '변화 추적 지표' — 공식 관리 포인트(탄력·피부결·톤 등)와 가장 가까운, 이 앱이 사진에서 관찰하는 카테고리 지수.
+ * 효능 주장이 아니라 "사용 전후에 무엇을 비교해 볼지"에 대한 안내다.
+ */
+export const TECH_TRACK: Record<Technology, ("wrinkleVisibility" | "textureUniformity" | "toneUniformity" | "pigmentVisibility" | "jawlineTexture")[]> = {
+  rf: ["wrinkleVisibility", "jawlineTexture", "textureUniformity"],
+  ultrasonic: ["textureUniformity", "toneUniformity"],
+  iontophoresis: ["toneUniformity", "pigmentVisibility", "textureUniformity"],
 };
 
 /** 관리 목표 → 우선 고려 루틴 */

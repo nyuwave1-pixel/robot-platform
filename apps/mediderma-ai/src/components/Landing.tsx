@@ -296,6 +296,7 @@ export default function Landing() {
                     </motion.li>
                   ))}
                 </ul>
+                {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver/80">{t.ai.exception}</p>}
                 <Link href="/privacy" className="mt-5 inline-block text-xs text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               <div className="mx-auto aspect-[16/10] w-full max-w-sm">

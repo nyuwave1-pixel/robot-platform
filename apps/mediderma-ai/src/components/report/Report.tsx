@@ -16,6 +16,7 @@ import { saveReportImage, saveReportPdf } from "@/lib/client/exportReport";
 import FaceMap from "./FaceMap";
 import CareView from "./CareView";
 import Simulation from "./Simulation";
+import AiInsightPanel from "./AiInsightPanel";
 
 const Face3D = dynamic(() => import("./Face3D"), { ssr: false });
 
@@ -337,7 +338,8 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
           </div>
         </section>
 
-        {plan && <CareView plan={plan} />}
+        <AiInsightPanel data={data} />
+        {plan && <CareView plan={plan} categories={a.categories} />}
         {visual && <Simulation visual={visual} />}
 
         <section className="rounded-xl border border-line bg-panel p-4">

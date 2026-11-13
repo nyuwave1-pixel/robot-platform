@@ -1,15 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
-import { COMMON_CAUTIONS, CONTRAINDICATIONS, LINKS, ROUTINES, type ProductId, type RoutineId } from "@/lib/care/knowledge";
+import { COMMON_CAUTIONS, CONTRAINDICATIONS, GUIDE_VIDEO, LINKS, ROUTINES, TECH_CHAPTER, TECH_TRACK, type ProductId, type RoutineId, type Technology, type VideoChapter } from "@/lib/care/knowledge";
+import type { CategoryScores } from "@/lib/analysis/types";
+import GuideVideo, { type GuideVideoHandle } from "./GuideVideo";
 import type { CarePlan } from "@/lib/care/recommend";
 import type { CareRecommendation } from "@/lib/analysis/types";
 
 const TECH_COLOR = { rf: "text-amber-300 border-amber-300/40", ultrasonic: "text-scan2 border-scan2/40", iontophoresis: "text-violet-300 border-violet-300/40", general: "text-silver border-silver/40" } as const;
 
-function RoutineCard({ id, focus }: { id: RoutineId; focus: CarePlan["focusAreas"] }) {
+function RoutineCard({ id, focus, onWatch }: { id: RoutineId; focus: CarePlan["focusAreas"]; onWatch: (c: VideoChapter) => void }) {
   const { t } = useI18n();
   const r = ROUTINES[id];
   const kb = t.kb.routines[id];
@@ -29,6 +31,7 @@ function RoutineCard({ id, focus }: { id: RoutineId; focus: CarePlan["focusAreas
               </p>
               <p className="text-xs text-silver">{t.care.productLabel}: {t.kb.products[s.product].name}</p>
               <p className="mt-1 text-xs leading-relaxed text-silver/90">{kb.steps[i]}</p>
+              <button onClick={() => onWatch(TECH_CHAPTER[s.technology])} data-no-export className="mt-1 text-[11px] text-scan2 underline underline-offset-4">▶ {t.care.video.watch}</button>
             </div>
           </li>
         ))}
@@ -75,8 +78,11 @@ function Reasons({ rec }: { rec: CareRecommendation }) {
   );
 }
 
-export default function CareView({ plan }: { plan: CarePlan }) {
+export default function CareView({ plan, categories }: { plan: CarePlan; categories: CategoryScores }) {
   const { t } = useI18n();
+  const video = useRef<GuideVideoHandle>(null);
+  const watch = (c: VideoChapter) => video.current?.play(c);
+  const techs = [...new Set(plan.recommendations.map((r) => r.technology).filter((x): x is Technology => x !== "general"))];
   const { config } = useApp();
   const [night, setNight] = useState<RoutineId | null>(plan.night);
   const alt = plan.night && plan.alternativeNight ? (night === plan.night ? plan.alternativeNight : plan.night) : null;
@@ -114,6 +120,9 @@ export default function CareView({ plan }: { plan: CarePlan }) {
               <p className="mt-3 text-[11px] font-semibold text-silver">{t.care.whyTitle}</p>
               <Reasons rec={rec} />
               {rec.zones.length > 0 && <p className="mt-2 text-[11px] text-silver/70">{rec.zones.map((z) => t.zones[z]).join(" · ")}</p>}
+              {rec.technology !== "general" && (
+                <button onClick={() => watch(TECH_CHAPTER[rec.technology as Technology])} data-testid={`watch-${rec.id}`} data-no-export className="mt-2 rounded-full border border-scan/40 px-3 py-1 text-[11px] text-scan2 hover:bg-scan/10">▶ {t.care.video.watch}</button>
+              )}
               <ul className="mt-2 space-y-1 border-t border-line pt-2 text-[11px] leading-relaxed text-amber-100/80">
                 {rec.cautions.map((c) => (
                   <li key={c}>⚠ {t.kb.cautions[c as keyof typeof t.kb.cautions] ?? c}</li>
@@ -140,14 +149,14 @@ export default function CareView({ plan }: { plan: CarePlan }) {
               <div>
                 <p className="mb-2 font-display text-xs tracking-[0.25em] text-scan2">{t.care.day}</p>
                 <p className="mb-2 text-xs text-silver">{t.care.dayCheck}</p>
-                <RoutineCard id={plan.day} focus={plan.focusAreas} />
+                <RoutineCard id={plan.day} focus={plan.focusAreas} onWatch={watch} />
               </div>
             )}
             {night && (
               <div>
                 <p className="mb-2 font-display text-xs tracking-[0.25em] text-scan2">{t.care.night}</p>
                 <p className="mb-2 text-xs text-silver">{t.care.nightPrep}</p>
-                <RoutineCard id={night} focus={plan.focusAreas} />
+                <RoutineCard id={night} focus={plan.focusAreas} onWatch={watch} />
                 {alt && (
                   <button
                     onClick={() => {
@@ -166,6 +175,51 @@ export default function CareView({ plan }: { plan: CarePlan }) {
           <div className="mt-4 rounded-xl border border-line bg-panel p-4 text-xs leading-relaxed text-silver">
             <p className="font-semibold text-white">{t.care.frequencyTitle}</p>
             <p className="mt-1">{t.care.frequency[plan.frequency]}</p>
+          </div>
+        </div>
+      )}
+
+      {/* 공식 사용법 영상 */}
+      {!plan.deviceBlocked && <GuideVideo ref={video} />}
+
+      {/* 사용하면 무엇이 달라지는지 — 공식 관리 포인트 ↔ 내 사진의 추적 지표 */}
+      {!plan.deviceBlocked && techs.length > 0 && (
+        <div className="rounded-2xl border border-line bg-panel p-4 sm:p-5" data-testid="track-plan">
+          <h3 className="text-base font-semibold">{t.care.track.title}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-silver">{t.care.track.desc}</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {techs.map((tech) => (
+              <div key={tech} className="rounded-xl border border-line bg-ink/60 p-3">
+                <p className={`inline-block rounded-full border px-2 py-0.5 text-[10px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</p>
+                <p className="mt-2 text-[11px] font-semibold text-silver">{t.care.track.points}</p>
+                <ul className="mt-1 flex flex-wrap gap-1">
+                  {t.care.tech[tech].tags.map((tag) => (
+                    <li key={tag} className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-silver">{tag}</li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[11px] font-semibold text-silver">{t.care.track.metrics}</p>
+                <ul className="mt-1 space-y-1 text-xs">
+                  {TECH_TRACK[tech].map((k) => (
+                    <li key={k} className="flex items-baseline justify-between gap-2">
+                      <span>{t.categories[k]}</span>
+                      <span className="tabular-nums text-silver">{t.care.track.now} <b className="text-white">{categories[k] ?? "—"}</b></span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <ol className="mt-4 grid gap-2 text-xs text-silver sm:grid-cols-2 lg:grid-cols-4">
+            {t.care.track.steps.map((s, i) => (
+              <li key={i} className="flex gap-2 rounded-lg bg-white/5 p-2.5">
+                <span className="font-display text-scan2">{i + 1}</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs" data-no-export>
+            <a href="/compare" className="text-scan2 underline underline-offset-4">{t.sim.goCompare} →</a>
+            <button onClick={() => watch("beforeAfter")} className="text-scan2 underline underline-offset-4">▶ {t.care.video.chapters.beforeAfter} (≈ {Math.floor(GUIDE_VIDEO.chapters[4].start / 60)}:{String(GUIDE_VIDEO.chapters[4].start % 60).padStart(2, "0")})</button>
           </div>
         </div>
       )}

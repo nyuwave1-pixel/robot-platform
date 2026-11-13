@@ -19,7 +19,7 @@ export function aggregate(events: StoredEvent[]) {
   const locales: Record<string, Set<string>> = {};
   const sidSucceeded = new Set<string>();
   const sidTrial = new Set<string>();
-  let started = 0, rejected = 0, succeeded = 0, failed = 0, retake = 0, trial = 0, partner = 0, saved = 0, compares = 0, sims = 0, visits = 0;
+  let started = 0, rejected = 0, succeeded = 0, failed = 0, retake = 0, trial = 0, partner = 0, saved = 0, compares = 0, sims = 0, visits = 0, aiInsights = 0, videoPlays = 0;
   for (const e of events) {
     const day = e.ts.slice(0, 10);
     (countries[e.country] ??= new Set()).add(e.sid);
@@ -42,12 +42,14 @@ export function aggregate(events: StoredEvent[]) {
       case "report_saved": saved++; inc(formats, e.props?.format); break;
       case "compare_run": compares++; break;
       case "simulation_viewed": sims++; break;
+      case "ai_insight": aiInsights++; break;
+      case "video_play": videoPlays++; break;
     }
   }
   const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 1000) / 10 : null);
   const trialConverted = [...sidTrial].filter((s) => sidSucceeded.has(s)).length;
   return {
-    totals: { visits, started, rejected, succeeded, failed, needsRetake: retake, trialClicks: trial, partnerClicks: partner, reportSaved: saved, compares, simulations: sims, productClicks: Object.values(products).reduce((a, b) => a + b, 0) },
+    totals: { visits, started, rejected, succeeded, failed, needsRetake: retake, trialClicks: trial, partnerClicks: partner, reportSaved: saved, compares, simulations: sims, aiInsights, videoPlays, productClicks: Object.values(products).reduce((a, b) => a + b, 0) },
     rates: {
       /** 업로드 성공률 = 품질 검사를 통과한 비율 */
       uploadSuccess: pct(started - rejected - failed, started),
