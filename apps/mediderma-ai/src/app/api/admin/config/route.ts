@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const store = await getStore();
-  return NextResponse.json({ config: await loadConfig(true), defaults: DEFAULT_CONFIG, history: (await store.getKV("config_history")) ?? [] });
+  return NextResponse.json({ config: await loadConfig(true), defaults: DEFAULT_CONFIG, history: (await store.getKV("config_history")) ?? [], geminiKeyPresent: Boolean(process.env.GEMINI_API_KEY), geminiModel: process.env.GEMINI_MODEL || "gemini-flash-latest" });
 }
 export async function PUT(req: Request) {
   if (!(await isAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });

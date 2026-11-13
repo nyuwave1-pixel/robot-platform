@@ -19,6 +19,12 @@ export interface AppConfig {
   links: { freeTrial: string; partners: string };
   locales: Locale[];
   retention: { sessionMinutes: number; historyDays: number };
+  /**
+   * Gemini 해설(선택 기능). 사진이 Google 로 전송되므로 기본은 꺼져 있다.
+   * enabled + paidTierConfirmed + 서버의 GEMINI_API_KEY 가 모두 있어야 동작한다 (available 은 서버가 계산해 내려준다).
+   * 무료 등급 키는 Google 이 전송 내용을 제품 개선·사람 검토에 쓸 수 있어 얼굴 사진에 사용하면 안 된다.
+   */
+  aiInsight: { enabled: boolean; paidTierConfirmed: boolean; available?: boolean };
 }
 
 export const DEFAULT_CONFIG: AppConfig = {
@@ -31,6 +37,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   links: { freeTrial: LINKS.freeTrial, partners: LINKS.partners },
   locales: [...LOCALES],
   retention: { sessionMinutes: 60, historyDays: 90 },
+  aiInsight: { enabled: false, paidTierConfirmed: false },
 };
 
 /** 저장된 부분 설정을 기본값 위에 얕게 병합 (알 수 없는 키는 버린다) */
@@ -71,6 +78,7 @@ export function mergeConfig(partial: unknown): AppConfig {
     products,
     links: { freeTrial: okUrl(p.links?.freeTrial, d.links.freeTrial), partners: okUrl(p.links?.partners, d.links.partners) },
     locales: Array.isArray(p.locales) && p.locales.length ? LOCALES.filter((l) => (p.locales as string[]).includes(l) || l === "ko") : d.locales,
+    aiInsight: { enabled: p.aiInsight?.enabled === true, paidTierConfirmed: p.aiInsight?.paidTierConfirmed === true, ...(p.aiInsight?.available === true ? { available: true } : {}) },
     retention: { sessionMinutes: num(p.retention?.sessionMinutes, d.retention.sessionMinutes, 5, 240), historyDays: num(p.retention?.historyDays, d.retention.historyDays, 1, 365) },
   };
 }

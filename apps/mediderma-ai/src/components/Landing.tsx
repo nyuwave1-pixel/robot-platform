@@ -14,6 +14,7 @@ import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
 import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
+import FaceSequence from "./fx/FaceSequence";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
@@ -171,7 +172,8 @@ export default function Landing() {
             {use3d === null ? null : use3d ? (
               <FaceScene labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} />
             ) : (
-              <FaceFallback mesh />
+              /* WebGL 을 쓰지 않는 기기: Blender 로 미리 렌더링한 이미지 시퀀스(가짜 3D) */
+              <FaceSequence mode="pointer" />
             )}
           </motion.div>
         </div>
@@ -294,6 +296,7 @@ export default function Landing() {
                     </motion.li>
                   ))}
                 </ul>
+                {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver/80">{t.ai.exception}</p>}
                 <Link href="/privacy" className="mt-5 inline-block text-xs text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               <div className="mx-auto aspect-[16/10] w-full max-w-sm">
@@ -308,7 +311,11 @@ export default function Landing() {
       <section className="relative mt-10 overflow-hidden border-t border-line/70">
         <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(79,182,255,0.25),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
-        <div className="relative mx-auto max-w-3xl px-4 py-24 text-center">
+        <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
+          {/* 스크롤에 따라 회전하는 Blender 렌더 시퀀스 */}
+          <div className="mx-auto mb-4 w-48 sm:w-60">
+            <FaceSequence mode="scroll" />
+          </div>
           <DepthText text={t.landing.ctaTitle} size="lg" className="mx-auto" />
           <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>
           <motion.div {...rise} className="mt-8 flex flex-wrap justify-center gap-4">
