@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+public/mediapipe/
+.data/
+.env*.local
+*.tsbuildinfo
+tests/e2e/out/
