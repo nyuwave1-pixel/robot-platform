@@ -131,6 +131,7 @@ const META_EVENT_MAP: Partial<Record<EventName, [standard: boolean, name: string
   view_item: [true, "ViewContent"],
   // JYT plan: Amazon button clicks are reported to Meta as "sticky_cta".
   amazon_cta_click: [false, "sticky_cta"],
+  tiktok_cta_click: [false, "tiktok_cta"],
   video_play: [false, "VideoPlay"],
   promotion_view: [false, "PromotionView"],
 };
@@ -152,7 +153,7 @@ export function contentGroup(path: string): string {
 }
 
 export interface TrackParams {
-  product?: { key: string; asin: string; name: string };
+  product?: { key: string; asin: string; name: string; shop?: { kind: string; url: string } };
   /** Destination URL for outbound clicks (Amazon). */
   url?: string;
   location?: string;
@@ -181,7 +182,7 @@ export function track(name: EventName, params: TrackParams = {}) {
     ...(params.url && { link_url: params.url, link_domain: safeHost(params.url), outbound: true }),
     ...(params.product && {
       currency: "USD",
-      items: [{ item_id: params.product.asin, item_name: params.product.name, item_brand: "UNI&CORE", item_category: "Skincare", item_category2: "Vitamin C", affiliation: "Amazon.com" }],
+      items: [{ item_id: params.product.asin, item_name: params.product.name, item_brand: "UNI&CORE", item_category: "Skincare", item_category2: params.product.shop ? "Serum Mist" : "Vitamin C", affiliation: params.product.shop ? "TikTok Shop" : "Amazon.com" }],
       product_key: params.product.key,
     }),
   };

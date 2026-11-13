@@ -11,7 +11,7 @@ import { AmazonButton } from "@/components/site/AmazonButton";
 import { PromoBadge } from "@/components/site/PromoBadge";
 import { JsonLd } from "@/components/site/JsonLd";
 import { BRAND } from "@/data/brand";
-import { SCENES, RITUAL_ORDER } from "@/data/scenes";
+import { SCENES, RITUAL_ORDER, type RitualKey } from "@/data/scenes";
 import { BRAND_FILMS, FILMS, MOTION, TEXTURE_FILM, AMBIENT_FILM } from "@/data/videos";
 import { BrandFilm } from "@/components/vitac/BrandFilm";
 import { FilmLayer } from "@/components/vitac/FilmLayer";
@@ -25,12 +25,14 @@ import { HomeStickyCTA } from "@/components/vitac/HomeStickyCTA";
 import { PageBackgroundLink, StoreCta, StoreLink } from "@/components/site/StoreLink";
 
 
+// Brand searches first (2026-11-13): the company name UNI&CORE leads the title and the description, written exactly
+// like that (client). Other spellings shoppers type ("uni and core", "unincore") live only in the structured data.
 export const metadata: Metadata = pageMetadata({
-  title: "Korean Vitamin C Skincare on Amazon | UNI&CORE VITA C",
+  title: "UNI&CORE USA | Korean Skincare, Vitamin C Serum & Mask",
   description:
-    "Shop UNI&CORE's Korean vitamin C routine on Amazon: the 13.5% vitamin C serum ampoule, a vitamin C sheet mask and an enzyme powder wash.",
+    "UNI&CORE Korean skincare in the US: 13.5% vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist.",
   path: "/",
-  keywords: ["UNI&CORE", "Korean vitamin C skincare", "Korean vitamin C serum", "K beauty vitamin C", "vitamin C skincare routine", "vitamin C serum Amazon", "vitamin C sheet mask", "enzyme powder wash", "glutathione vitamin C"],
+  keywords: ["UNI&CORE", "Uni and Core", "UNI&CORE skincare", "UNI&CORE USA", "unincore", "Korean skincare", "Korean vitamin C serum", "vitamin C sheet mask", "enzyme powder cleanser", "hydrating face mist"],
   ogImage: "/og/home",
   absoluteTitle: true,
 });
@@ -43,7 +45,7 @@ const IN_FORMULA: Record<string, string> = {
 };
 
 function byKey(products: ProductContent[]) {
-  return RITUAL_ORDER.map((k) => products.find((p) => p.key === k)).filter(Boolean) as ProductContent[];
+  return RITUAL_ORDER.map((k) => products.find((p) => p.key === k)).filter(Boolean) as (ProductContent & { key: RitualKey })[];
 }
 
 function BuyButton({ p, location, label, className = "btn-gold" }: { p: ProductContent; location: string; label: string; className?: string }) {

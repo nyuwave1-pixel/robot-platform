@@ -1,7 +1,8 @@
 import { AmazonButton, type AmazonProduct } from "@/components/site/AmazonButton";
 import { AmazonLogo } from "./AmazonLogo";
+import { TikTokShopMark } from "./TikTokShopMark";
 
-/** Amazon-orange button with the Amazon wordmark: "Shop Now on amazon". */
+/** Amazon-orange button with the Amazon wordmark: "Shop Now on amazon". A TikTok Shop product gets the black TikTok Shop button. */
 export function AmazonCta({
   product,
   location,
@@ -17,9 +18,9 @@ export function AmazonCta({
 }) {
   const sizeClass = size === "md" ? "amz-md" : size === "sm" ? "amz-sm" : "";
   return (
-    <AmazonButton product={product} location={location} className={`amz-btn ${sizeClass} ${className}`}>
+    <AmazonButton product={product} location={location} className={`amz-btn ${product.shop ? "tts" : ""} ${sizeClass} ${className}`}>
       <span>{label}</span>
-      <AmazonLogo title="Amazon" smile="currentColor" />
+      {product.shop ? <TikTokShopMark /> : <AmazonLogo title="Amazon" smile="currentColor" />}
     </AmazonButton>
   );
 }

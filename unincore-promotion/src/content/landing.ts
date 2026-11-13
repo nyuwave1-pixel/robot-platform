@@ -8,6 +8,10 @@ import type { ProductKey } from "./types";
  * Photos and videos under /public/landing/amz come from the brand's own US Amazon
  * listings (listing images, A+ content, seller videos). Nothing Korean-market and
  * nothing with TikTok branding. Anything still missing renders as a labeled slot.
+ *
+ * The serum mist is the exception: it is sold on TikTok Shop, so its page links there and
+ * its photos and videos (/public/landing/mist) come from the brand's TikTok Shop listing and
+ * its own TikTok account, @unincore_official (2026-11-13).
  */
 
 export type GalleryItem =
@@ -35,14 +39,17 @@ export interface Review {
   stars: number;
   title?: string;
   text: string;
-  /** Amazon's own label on the review, shown as is so free-product (Vine) reviews are disclosed. */
-  badge: "Verified Purchase" | "Amazon Vine Customer Review of Free Product";
+  /** The store's own label on the review, shown as is so free-product (Vine) reviews are disclosed. */
+  badge: "Verified Purchase" | "Amazon Vine Customer Review of Free Product" | "Verified purchase" | "Creator review of a free product";
 }
 
 export interface LandingContent {
   key: ProductKey;
-  /** "r g b" triplets for --acc, --acc-ink, --acc-tint, --acc-deep (+ --acc-bright: accent text on the deep color). */
-  theme: { acc: string; ink: string; tint: string; deep: string; glow: string; bright?: string };
+  /**
+   * "r g b" triplets for --acc, --acc-ink, --acc-tint, --acc-deep (+ --acc-bright: accent text on the deep color).
+   * Optional cloud, iri, veil and slot replace the warm page base (Cloud Dancer, greige) for a product that isn't Vita C.
+   */
+  theme: { acc: string; ink: string; tint: string; deep: string; glow: string; bright?: string; cloud?: string; iri?: string; veil?: string; slot?: string };
   ctaLabel: string;
   /** Name short enough for the mobile sticky bar. */
   shortTitle: string;
@@ -77,7 +84,16 @@ export interface LandingContent {
    * Real Amazon reviews, plus product photos the 5-star reviewers uploaded with them.
    * With no reviews filled in, the section shows labeled slots.
    */
-  reviews: { eyebrow: string; title: string; items: Review[]; photos: { src: string; name: string }[] };
+  reviews: {
+    eyebrow: string;
+    title: string;
+    items: Review[];
+    photos: { src: string; name: string }[];
+    /** Store the reviews come from; default Amazon.com. */
+    source?: "Amazon.com" | "TikTok Shop";
+    /** Width / height of the reviewer photos; default 3 / 4. */
+    photoRatio?: number;
+  };
   /** Step photos for How to use, one per step. */
   stepImages: string[];
   difference: {
@@ -91,6 +107,26 @@ export interface LandingContent {
   ingredients: { tag: string; name: string; text: string; image?: string; icon?: IconKey }[];
   howTo: { title: string; accent: string; steps: string[] };
   disclaimer: string;
+
+  // Optional sections, used by the serum mist page (its copy has more to say than the Vita C plans).
+  /** Heading over the concern cards; default "Made for these skin concerns". */
+  concernsHeading?: { title: string; accent: string; sub?: string };
+  /** Check list under the result figures. */
+  benefits?: { title: string; accent: string; items: string[] };
+  /** Photo cards about the formula and the texture. */
+  features?: { title: string; accent: string; items: { title: string; text: string; image: string; alt: string }[] };
+  /** Line under the Key ingredients heading. */
+  ingredientsSub?: string;
+  /** The brand and its head of R&D. */
+  maker?: { eyebrow: string; title: string; accent: string; quote: string; text: string; facts: { big: string; small: string }[] };
+  /** Heading of the routine block when this product is not one of its three steps. */
+  routineHeading?: { title: string; accent: string };
+  /** No guide covers this product, so the guides block is left out. */
+  hideGuides?: boolean;
+  /** Footer trademark line; default TRADEMARK (Amazon). */
+  trademark?: string;
+  /** White page: no blurred product photo behind it. */
+  plainBackground?: boolean;
 }
 
 /**
@@ -100,6 +136,24 @@ export interface LandingContent {
  * All three products share it, as the Vita C packaging does.
  */
 const BRAND_THEME = { acc: "253 223 54", ink: "84 68 8", tint: "250 240 200", deep: "58 47 5", glow: "244 227 145" };
+
+/**
+ * Serum mist: aqua accents from its listing photos (water, ice, the blue bottle base) on a white page.
+ * ink 10 98 128 keeps small accent text above 4.5:1 on the light field.
+ */
+const MIST_THEME = {
+  acc: "143 214 236",
+  ink: "10 98 128",
+  tint: "246 251 253",
+  deep: "8 50 70",
+  glow: "222 241 248",
+  bright: "143 214 236",
+  // A white page instead of the Vita C ivory and greige (client, 2026-11-13: first "not yellow", then "too blue, make it white").
+  cloud: "255 255 255",
+  iri: "226 234 237",
+  veil: "255 255 255",
+  slot: "232 240 243",
+};
 
 export const SAVINGS = {
   tag: "Amazon exclusive offer",
@@ -132,12 +186,12 @@ export const LANDING: Record<ProductKey, LandingContent> = {
     shot: { src: "/landing/amz/ampoule-product.webp" },
     hero: {
       src: "/landing/amz/ampoule-hero.webp",
-      alt: "13.5% Pure Vitamin C. Vita C 13.5 Super Brightening Ampoule with glutathione in a stabilized dual-layer formula. 100K+ ampoules sold in Korea. Results in 7 days.",
+      alt: "Korean vitamin C serum for face: 13.5% pure vitamin C. Vita C 13.5 Super Brightening Ampoule with glutathione in a stabilized dual-layer formula. 100K+ ampoules sold in Korea. Results in 7 days.",
     },
     banner: ["Korea's best-selling vitamin C ampoule", "100,000+ bottles sold in Korea", "Now on Amazon US", "13.5% pure vitamin C + glutathione", "+35.6% skin radiance in 7 days*"],
     gallery: [
       { id: "ba", label: "Before & After", kind: "beforeAfter", tag: "Day 0 → Day 7", beforeLabel: "Day 0", afterLabel: "Day 7", before: "/landing/amz/ampoule-before.webp", after: "/landing/amz/ampoule-after.webp", alt: "Skin before use and after 7 days of the Vita C 13.5 Ampoule" },
-      { id: "product", label: "Product", kind: "image", src: "/landing/amz/ampoule-product.webp", alt: "UNI&CORE Vita C 13.5 Ampoule Serum with its yellow texture, orange and kakadu plum" },
+      { id: "product", label: "Product", kind: "image", src: "/landing/amz/ampoule-product.webp", alt: "UNI&CORE Korean vitamin C serum, the Vita C 13.5 Ampoule, with its yellow texture, orange and kakadu plum" },
       // Amazon listing images #2-#9, in the listing order (#1 is the Product tile above).
       // Texture tile removed 2026-11-10: the photo showed an orange serum, the real texture is milky.
       { id: "amz-2", label: "13.5% vitamin C", kind: "image", src: "/landing/amz/listing/ampoule-2.webp", alt: "13.5% pure vitamin C ampoule with glutathione in a stabilized dual-layer formula. 100K+ ampoules sold in Korea, results in 7 days" },
@@ -261,12 +315,12 @@ export const LANDING: Record<ProductKey, LandingContent> = {
     shot: { src: "/landing/amz/mask-product.webp" },
     hero: {
       src: "/landing/amz/mask-hero.webp",
-      alt: "2% Pure Vitamin C. A high-strength treatment mask, not just a hydrating sheet. 10M+ mask boxes sold in Korea.",
+      alt: "Korean vitamin C sheet mask: 2% pure vitamin C. A high-strength treatment mask, not just a hydrating sheet. 10M+ mask boxes sold in Korea.",
     },
     banner: ["Korea's best-selling vitamin C sheet mask", "10M+ sold in Korea", "Now on Amazon US", "2% pure vitamin C on a 100% Tencel sheet"],
     gallery: [
       { id: "ba", label: "Before & After", kind: "beforeAfter", tag: "Before → 7 days", beforeLabel: "Before", afterLabel: "After 7 days", before: "/landing/amz/mask-before.webp", after: "/landing/amz/mask-after.webp", alt: "Skin before and after 7 days of the Vita C Brightening Mask" },
-      { id: "product", label: "Product", kind: "image", src: "/landing/amz/mask-product.webp", alt: "UNI&CORE Vita C Super Brightening Mask box, pouches and the black Tencel sheet" },
+      { id: "product", label: "Product", kind: "image", src: "/landing/amz/mask-product.webp", alt: "UNI&CORE Korean vitamin C sheet mask: the Vita C Super Brightening Mask box, pouches and the black Tencel sheet" },
       { id: "sheet", label: "Sheet", kind: "image", src: "/landing/amz/mask-sheet.webp", alt: "The essence-soaked black Tencel sheet" },
       // Amazon listing images #2-#9, in the listing order (#1 is the Product tile above).
       { id: "amz-2", label: "2% vitamin C", kind: "image", src: "/landing/amz/listing/mask-2.webp", alt: "2% pure vitamin C: a high-strength treatment mask, not just a hydrating sheet. 10M+ mask boxes sold in Korea" },
@@ -379,11 +433,11 @@ export const LANDING: Record<ProductKey, LandingContent> = {
     shot: { src: "/landing/amz/wash-product.webp" },
     hero: {
       src: "/landing/amz/wash-hero.webp",
-      alt: "Enzyme Powder Cleanser. Cleanses and gently exfoliates in one step. pH 5-5.5, daily use.",
+      alt: "Korean enzyme powder cleanser: cleanses and gently exfoliates in one step. pH 5-5.5, daily use.",
     },
     banner: ["Gentle enough for every day", "pH 5-5.5 enzyme powder cleanser", "30 single-use sachets", "Now on Amazon US"],
     gallery: [
-      { id: "foam", label: "Powder → foam", kind: "image", src: "/landing/amz/wash-powder.webp", alt: "A hand holding two sachets with the powder turning to foam in water" },
+      { id: "foam", label: "Powder → foam", kind: "image", src: "/landing/amz/wash-powder.webp", alt: "UNI&CORE enzyme powder face wash: a hand holding two sachets with the powder turning to foam in water" },
       { id: "in-use", label: "In use", kind: "image", src: "/landing/amz/wash-step3.webp", alt: "Model massaging the soft foam onto damp skin" },
       // Amazon listing images #1-#9, in the listing order.
       { id: "amz-1", label: "Product", kind: "image", src: "/landing/amz/listing/wash-1.webp", alt: "UNI&CORE Vita C Enzyme Powder Wash box with a single sachet and the powder" },
@@ -485,5 +539,176 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       ],
     },
     disclaimer: "Individual results may vary. Avoid contact with eyes. This product is a cosmetic and is not intended to diagnose, treat, cure or prevent any disease.",
+  },
+
+  // Sold on TikTok Shop (product 1732276811319186292). Copy from the client's product text (2026-11-13);
+  // images from the TikTok Shop listing and the @unincore_official TikTok account.
+  mist: {
+    key: "mist",
+    theme: MIST_THEME,
+    ctaLabel: "Shop Now on",
+    shortTitle: "Serum Mist",
+    shot: { src: "/landing/mist/product.webp" },
+    hero: {
+      src: "/landing/mist/listing-hero.webp",
+      alt: "Hydrating face mist with long-lasting hydration for 24 hours: immediate hydration improvement 174%, hydration improvement after 24 hours 56%, user satisfaction 100%. Based on internal testing.",
+    },
+    banner: ["1 million sold", "Now on TikTok Shop", "Long-lasting hydration for 24 hours*", "Copper tripeptide + CICA", "Ultra-fine serum mist"],
+    gallery: [
+      // TikTok Shop listing images #1-#4. The originals are CMYK (Japan Color 2001 Coated); they are converted to sRGB
+      // through that profile, as macOS shows them. A plain CMYK-to-RGB conversion washes them out to a pale cyan.
+      { id: "tts-1", label: "Product", kind: "image", src: "/landing/mist/listing-1.webp", alt: "UNI&CORE Korean hydrating face mist: the Hydrating Skin Barrier Serum Mist in water, with the official store, TikTok Shop exclusive deal and 2024 Korea Best Brand Awards badges" },
+      { id: "tts-2", label: "24-hour hydration", kind: "image", src: "/landing/mist/listing-2.webp", alt: "Long-lasting hydration for 24 hours: immediate hydration improvement 174%, after 24 hours 56%, user satisfaction 100%, based on internal testing" },
+      { id: "tts-3", label: "Nano technology", kind: "image", src: "/landing/mist/listing-3.webp", alt: "Advanced nano encapsulation technology: biomimetic RPI structure with 50.3 nm nano-liposomes and nano-vesicles" },
+      { id: "tts-4", label: "Key ingredients", kind: "image", src: "/landing/mist/listing-4.webp", alt: "Key ingredients: copper tripeptide, nano liposome system, soothing and revitalizing extract, CICA mild complex" },
+      // Covers of the account's photo posts. Posters are shown whole on a blurred square.
+      { id: "tt-ice", label: "On ice", kind: "image", src: "/landing/mist/gallery-5.webp", alt: "The serum mist bottle on crushed ice" },
+      { id: "tt-clouds", label: "Light as air", kind: "image", src: "/landing/mist/gallery-6.webp", alt: "The serum mist bottle among clouds" },
+      { id: "tt-recipe", label: "Glass skin recipe", kind: "image", src: "/landing/mist/gallery-7.webp", alt: "Glass skin recipe: the serum mist under water" },
+      { id: "tt-bubbles", label: "Mist to serum", kind: "image", src: "/landing/mist/gallery-8.webp", alt: "When a mist turns into a luxury serum: the bottle among water bubbles" },
+      { id: "tt-kbeauty", label: "24H calming", kind: "image", src: "/landing/mist/gallery-9.webp", alt: "K-beauty recipe: 24H calming and deep hydration with micro-peptides" },
+      { id: "tt-comfort", label: "All-day comfort", kind: "image", src: "/landing/mist/gallery-10.webp", alt: "All-day comfort, zero tightness: the bottle inside a water bubble" },
+    ],
+    // Same sales period as the ampoule and the mask (client, 2026-11-13).
+    lead: { eyebrow: "Hydrate. Barrier support. Radiant-looking skin.", big: "1 Million", text: "sold, now on TikTok Shop", note: "1 million sold in Korea, March 2023 – September 2026" },
+    plainBackground: true,
+    title: "UNI&CORE Hydrating Skin Barrier Serum Mist, 1.76 fl oz (50 ml)",
+    result: {
+      title: "Long-lasting hydration",
+      highlight: "for 24 hours",
+      sub: "Based on internal testing. Individual results may vary.",
+      image: "/landing/mist/result.webp",
+      imageAlt: "The serum mist bottle on crushed ice",
+      stats: [
+        { value: "174%", label: "Immediate hydration improvement" },
+        { value: "56%", label: "Hydration improvement after 24 hours" },
+        { value: "100%", label: "User satisfaction" },
+      ],
+    },
+    benefits: {
+      title: "What every spritz does",
+      accent: "every spritz",
+      items: [
+        "Fast absorption for the next skincare step",
+        "Quick but long-lasting hydration",
+        "Barrier-supporting care",
+        "Luxury peptide care",
+        "Leaves skin soft, smooth and naturally radiant",
+      ],
+    },
+    concernsHeading: { title: "Use it anytime", accent: "anytime", sub: "Fine enough to layer over skincare and makeup" },
+    concerns: [
+      { title: "After cleansing", text: "Moisture right after you wash", image: "/landing/mist/use-1.webp", alt: "Woman in a headband with freshly cleansed, dewy skin, eyes closed" },
+      { title: "Before skincare", text: "A hydrated base for the next step", image: "/landing/mist/use-2.webp", alt: "Woman resting her chin on her hand, skin looking fresh and dewy" },
+      { title: "Over makeup", text: "The fine mist won't disturb makeup", image: "/landing/mist/use-3.webp", alt: "Woman in full makeup misting her face from above" },
+      // A different creator from "Before skincare", calm face with eyes closed (client, 2026-11-13: no mid-sentence faces).
+      { title: "Midday hydration reset", text: "Whenever skin feels dry", image: "/landing/mist/use-midday-3.webp", alt: "Woman with eyes closed misting her face from above" },
+    ],
+    // Stills from the account's creator videos, cropped above their captions.
+    concernRatio: 4 / 5,
+    ugcNote: "From the UNI&CORE TikTok, @unincore_official",
+    ugc: [
+      { caption: "For your daily glass skin: 24H calming and deep hydration", video: "/landing/mist/video/mist-1.mp4", poster: "/landing/mist/video/mist-1.webp", duration: "0:24" },
+      { caption: "POV: you found the most hydrating facial mist", video: "/landing/mist/video/mist-2.mp4", poster: "/landing/mist/video/mist-2.webp", duration: "0:19" },
+      { caption: "The glass skin hack, before and after makeup", video: "/landing/mist/video/mist-3.mp4", poster: "/landing/mist/video/mist-3.webp", duration: "0:25" },
+      { caption: "Day 1 vs. Day 15: my skin says it all", video: "/landing/mist/video/mist-4.mp4", poster: "/landing/mist/video/mist-4.webp", duration: "0:36" },
+    ],
+    features: {
+      title: "Serum-level hydration in a mist",
+      accent: "Serum-level",
+      items: [
+        {
+          title: "Skin barrier recovery & comfort care",
+          text: "Designed to follow cleansing, it replenishes moisture right after washing and supports the skin barrier against daily environmental stress.",
+          image: "/landing/mist/feature-barrier.webp",
+          alt: "The serum mist on a stone with centella leaves",
+        },
+        {
+          title: "Ultra-fine serum mist texture",
+          text: "The micro-fine spray spreads evenly without disturbing makeup, for serum-level hydration in a lightweight mist.",
+          image: "/landing/mist/feature-texture.webp",
+          alt: "A fine mist spraying from the bottle",
+        },
+      ],
+    },
+    // From the client's TikTok Shop app screenshots (2026-11-13): 5-star reviews word for word, with the reviewers'
+    // own product photos, cropped above the app's name and star overlay. TikTok's labels are kept as disclosure
+    // ("크리에이터의 무료 상품 리뷰" = creator review of a free product, "구매 확인" = verified purchase).
+    reviews: {
+      eyebrow: "5-star reviews from TikTok Shop",
+      title: "What customers are saying",
+      source: "TikTok Shop",
+      photoRatio: 1,
+      photos: [
+        { src: "/landing/mist/review/lynette.webp", name: "LynettePirtle" },
+        { src: "/landing/mist/review/lexuss.webp", name: "Lexuss" },
+        { src: "/landing/mist/review/andrea.webp", name: "Andrea Weston" },
+      ],
+      items: [
+        {
+          name: "LynettePirtle",
+          date: "October 4, 2026",
+          stars: 5,
+          text: "My skin literally can feel the difference within seconds of spraying this on and it last all day..... this summer and winter months make my skin feel dry and irritated. This is going to be an Amazing part of my skin care routine going forward!",
+          badge: "Creator review of a free product",
+        },
+        {
+          name: "Lexuss",
+          date: "June 23, 2026",
+          stars: 5,
+          text: "This serum mist is so hydrating! My skin feels instantly refreshed and moisturized without feeling sticky. Perfect for keeping my skin comfortable throughout the day.",
+          badge: "Verified purchase",
+        },
+        {
+          name: "Andrea Weston",
+          date: "June 23, 2026",
+          stars: 5,
+          text: "The spray is incredibly fine and even. It doesn't leave large droplets on my face and feels very luxurious to use.",
+          badge: "Verified purchase",
+        },
+      ],
+    },
+    stepImages: ["/landing/mist/step-1.webp", "/landing/mist/step-pat-2.webp", "/landing/mist/step-3.webp"],
+    difference: {
+      eyebrow: "Not just hydration: Alive Nano-liposome Movement Formulation",
+      title: "Why this mist feels different",
+      accent: "feels different",
+      typical: { label: "Typical water mist", text: "Mostly water, so the fresh feeling fades as it dries.", level: 0.35 },
+      ours: { label: "O/W/O serum mist", text: "Nano liposomes and vesicles (~50 nm) keep moving and spreading across skin in a rare O/W/O multi emulsion.", level: 0.92 },
+      note: "Illustration of the formulation concept, not measured data.",
+    },
+    ingredientsSub: "A biomimetic RPI structure mimics skin's natural lipid barrier for faster absorption and long-lasting hydration.",
+    ingredients: [
+      { tag: "Premium peptide", name: "Copper Tripeptide-1 (GHK-Cu)", text: "Supports skin vitality and helps improve the look of firmness and smoothness.", image: "/landing/mist/ing-peptide.webp" },
+      { tag: "Soothing", name: "CICA Mild Complex", text: "Calms skin, keeps moisture balanced and supports barrier comfort after cleansing.", image: "/landing/mist/ing-cica.webp" },
+      { tag: "About 50 nm", name: "Nano Liposome & Vesicle", text: "Micro-sized dispersion spreads active ingredients evenly for fast-feeling absorption.", image: "/landing/mist/ing-nano-particles.webp" },
+      { tag: "Water-oil-water", name: "Rare O/W/O Multi Emulsion", text: "Delivers hydration and lipid nourishment together for long-lasting comfort.", image: "/landing/mist/ing-emulsion.webp" },
+    ],
+    howTo: {
+      title: "A few spritzes, any time of day",
+      accent: "any time",
+      steps: [
+        "Hold the bottle 20-30 cm away from your face and spray evenly.",
+        "Gently pat for enhanced absorption if desired.",
+        "Use morning, evening or throughout the day, whenever skin feels dry.",
+      ],
+    },
+    maker: {
+      eyebrow: "About UNI&CORE",
+      title: "Made with 45 years of K-beauty R&D",
+      accent: "45 years",
+      quote: "See the difference of before & after use of cosmetics.",
+      text: "UNI&CORE was founded to make the best-functioning cosmetics in the world. Our formulas are led by Dr. Cho, head of R&D, who has 45 years in cosmetics, 226 patents and has built major Korean brands found in department stores and Olive Young.",
+      facts: [
+        { big: "45 years", small: "of cosmetics R&D" },
+        { big: "226", small: "patents" },
+        { big: "Dr. Cho", small: "Head of R&D" },
+      ],
+    },
+    routineHeading: { title: "Pair it with the Vita C glow routine", accent: "Vita C glow routine" },
+    hideGuides: true,
+    trademark: "UNI&CORE. Shop on TikTok Shop. TikTok and TikTok Shop are trademarks of their respective owners.",
+    disclaimer:
+      "*Hydration results based on internal testing; individual results may vary. Net weight 1.76 fl oz (50 ml). This product is a cosmetic and is not intended to diagnose, treat, cure or prevent any disease.",
   },
 };

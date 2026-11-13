@@ -10,7 +10,7 @@
 
 export type VerificationStatus = "verified" | "pending";
 
-export type ProductKey = "ampoule" | "mask" | "wash";
+export type ProductKey = "ampoule" | "mask" | "wash" | "mist";
 export type Accent = "citrus" | "sun" | "peach";
 
 /** Ad/traffic channel used to choose an Amazon Attribution link. */
@@ -120,6 +120,11 @@ export interface ProductContent {
   asinVerified: boolean;
   amazonUrl: string;
   attribution: AttributionLinks;
+  /**
+   * Set when the product is sold on TikTok Shop instead of Amazon (the serum mist). Every
+   * "Shop on" button for the product then opens this link; Amazon links are not used.
+   */
+  shop?: { kind: "tiktok"; url: string };
 
   name: string;
   shortName: string;

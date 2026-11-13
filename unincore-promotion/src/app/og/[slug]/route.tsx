@@ -137,7 +137,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
             <div style={{ display: "flex", fontSize: 80, lineHeight: 1, marginTop: 16, fontStyle: "italic" }}>{s.headline}</div>
             <div style={{ display: "flex", fontSize: 34, marginTop: 22, color: "rgba(246,239,226,0.85)" }}>{p.name}</div>
           </div>
-          <div style={{ display: "flex", fontSize: 24, letterSpacing: 5, color: GOLD }}>SHOP ON AMAZON.COM</div>
+          <div style={{ display: "flex", fontSize: 24, letterSpacing: 5, color: GOLD }}>{p.shop ? "SHOP ON TIKTOK SHOP" : "SHOP ON AMAZON.COM"}</div>
         </div>
         <div style={{ display: "flex", width: "40%", alignItems: "center", justifyContent: "flex-end" }}>
           <Card src={img} h={470} />

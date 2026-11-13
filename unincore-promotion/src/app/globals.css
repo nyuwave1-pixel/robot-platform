@@ -117,6 +117,16 @@
   /* Pantone 2026 Cloud Dancer (matches the greige-white packaging) and the ampoule bottle's silver for metal sheen. */
   --cloud: 240 238 233;
   --iri: 202 198 190;
+  /* Wash over the light field, and the far end of empty photo slots. */
+  --veil: 251 250 246;
+  --slot-end: 223 221 208;
+}
+/* Serum mist page: plain white, also behind the header (client, 2026-11-13), with a neutral grey footer. */
+body:has(.lp-mist) {
+  background-color: #fff;
+}
+body:has(.lp-mist) footer {
+  background-color: rgb(246 247 247);
 }
 
 .lp {
@@ -178,7 +188,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgb(251 250 246 / 0.05) 0%, rgb(251 250 246 / 0.24) 48%, rgb(251 250 246 / 0.34) 100%);
+  background: linear-gradient(90deg, rgb(var(--veil) / 0.05) 0%, rgb(var(--veil) / 0.24) 48%, rgb(var(--veil) / 0.34) 100%);
 }
 .lp-orb {
   position: absolute;
@@ -226,7 +236,7 @@
 }
 @media (max-width: 1023px) {
   .lp-field-inner::after {
-    background: rgb(251 250 246 / 0.3);
+    background: rgb(var(--veil) / 0.3);
   }
 }
 
@@ -504,12 +514,40 @@
     font-size: 14.5px;
     border-radius: 10px;
   }
+  /* TikTok Shop variant (serum mist page only): TikTok black, white type, the note with its cyan and red offsets. */
+  .amz-btn.tts {
+    background: linear-gradient(180deg, #2a2a2a 0%, #111 52%, #000 100%);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.18), 0 14px 28px -16px rgb(0 0 0 / 0.85);
+  }
+  .amz-btn.tts::after {
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.16) 50%, transparent 65%);
+  }
+  .amz-btn.tts:hover {
+    filter: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.22), 0 18px 32px -16px rgb(0 0 0 / 0.95);
+  }
+  .amz-btn.tts:focus-visible {
+    outline-color: #000;
+  }
+  .tts-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .tts-note {
+    width: 1.06em;
+    height: 1.06em;
+    flex: none;
+  }
   .lp-slot {
     overflow: hidden;
     background:
       radial-gradient(90% 70% at 22% 10%, rgb(255 255 255 / 0.9), transparent 60%),
       radial-gradient(70% 60% at 90% 100%, rgb(var(--iri) / 0.45), transparent 70%),
-      linear-gradient(160deg, rgb(var(--cloud)), #dfddd0);
+      linear-gradient(160deg, rgb(var(--cloud)), rgb(var(--slot-end)));
   }
 }
 

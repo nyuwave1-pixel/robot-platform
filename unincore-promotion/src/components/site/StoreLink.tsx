@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SITE } from "@/content/site";
 import { track } from "@/lib/analytics";
 import { AmazonLogo } from "@/components/landing/AmazonLogo";
+import { TikTokShopMark } from "@/components/landing/TikTokShopMark";
 import { AmazonButton, type AmazonProduct } from "./AmazonButton";
 
 /**
@@ -84,7 +85,8 @@ export function StoreCta({ location, label = "Shop Now on", className = "" }: { 
 
 /**
  * Header button in the same orange Amazon style. On a product page it opens that
- * product's listing; everywhere else it opens UNI&CORE on Amazon.
+ * product's listing; everywhere else it opens UNI&CORE on Amazon. On the serum mist
+ * page (sold on TikTok Shop) it is the black TikTok Shop button.
  */
 export function HeaderShop({ products }: { products: (AmazonProduct & { slug: string })[] }) {
   const pathname = usePathname();
@@ -97,8 +99,15 @@ export function HeaderShop({ products }: { products: (AmazonProduct & { slug: st
     </>
   );
   return product ? (
-    <AmazonButton product={product} location="header" className={cls}>
-      {inner}
+    <AmazonButton product={product} location="header" className={product.shop ? `${cls} tts` : cls}>
+      {product.shop ? (
+        <>
+          <span>Shop on</span>
+          <TikTokShopMark />
+        </>
+      ) : (
+        inner
+      )}
     </AmazonButton>
   ) : (
     <StoreLink location="header" className={cls}>

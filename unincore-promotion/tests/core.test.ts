@@ -9,11 +9,18 @@ import overrides from "@/content/seo-overrides.json";
 
 describe("Amazon links", () => {
   it("each product link points at its own ASIN", () => {
-    for (const p of DEFAULT_PRODUCTS) {
+    const onAmazon = DEFAULT_PRODUCTS.filter((p) => !p.shop);
+    for (const p of onAmazon) {
       expect(extractAsin(p.amazonUrl)).toBe(p.asin);
       expect(validateAmazonUrl(p.amazonUrl, p.asin)).toEqual({ ok: true });
     }
-    expect(new Set(DEFAULT_PRODUCTS.map((p) => p.asin)).size).toBe(3);
+    expect(new Set(onAmazon.map((p) => p.asin)).size).toBe(3);
+  });
+
+  it("the serum mist links to its TikTok Shop listing, not Amazon", () => {
+    const mist = DEFAULT_PRODUCTS.find((p) => p.key === "mist");
+    expect(mist?.shop).toEqual({ kind: "tiktok", url: "https://vm.tiktok.com/ZP9fQ7EhYBHsH-pAk1Y/" });
+    expect(mist?.amazonUrl).toBe("");
   });
 
   it("rejects a link to another product's ASIN", () => {
@@ -61,7 +68,7 @@ describe("Promotions", () => {
     expect(isPromoActive({ ...p, discountPct: 0 }, new Date("2026-11-25T12:00:00Z"))).toBe(false);
   });
   it("ampoule stays at 20% until the 30% upgrade is confirmed", () => {
-    expect(DEFAULT_PRODUCTS.map((x) => x.promotion.discountPct)).toEqual([20, 20, 20]);
+    expect(DEFAULT_PRODUCTS.filter((x) => !x.shop).map((x) => x.promotion.discountPct)).toEqual([20, 20, 20]);
   });
   it("formats the window with the last inclusive day", () => {
     expect(formatPromoWindow(p)).toBe("Nov 19 – Nov 30");
@@ -109,8 +116,8 @@ describe("SEO uniqueness", () => {
   it("every product has a unique title and description within length limits", () => {
     const titles = DEFAULT_PRODUCTS.map((p) => p.seo.title);
     const descs = DEFAULT_PRODUCTS.map((p) => p.seo.description);
-    expect(new Set(titles).size).toBe(3);
-    expect(new Set(descs).size).toBe(3);
+    expect(new Set(titles).size).toBe(DEFAULT_PRODUCTS.length);
+    expect(new Set(descs).size).toBe(DEFAULT_PRODUCTS.length);
     for (const t of titles) expect(t.length).toBeLessThanOrEqual(60);
     for (const d of descs) expect(d.length).toBeLessThanOrEqual(160); // Google truncates longer snippets
     for (const t of titles) expect(t).toMatch(/UNI&CORE/);

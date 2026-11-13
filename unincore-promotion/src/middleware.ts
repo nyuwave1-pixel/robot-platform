@@ -6,6 +6,7 @@ const PRODUCT_ALIASES: Record<string, string> = {
   mask: "vita-c-brightening-mask",
   wash: "vita-c-enzyme-powder-wash",
   cleanser: "vita-c-enzyme-powder-wash",
+  mist: "hydrating-skin-barrier-serum-mist",
 };
 
 export function middleware(req: NextRequest) {

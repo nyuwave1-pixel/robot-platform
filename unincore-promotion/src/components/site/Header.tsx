@@ -6,8 +6,8 @@ import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
 import { HeaderShop } from "./StoreLink";
 
-/** Header menu order requested by the client (2026-11-12): ampoule, mask, then powder wash. */
-const MENU_ORDER = ["ampoule", "mask", "wash"];
+/** Header menu order requested by the client (2026-11-12): ampoule, mask, then powder wash. The serum mist (2026-11-13) comes last. */
+const MENU_ORDER = ["ampoule", "mask", "wash", "mist"];
 
 export function Header({ products: all }: { products: ProductContent[] }) {
   const products = [...all].sort((a, b) => MENU_ORDER.indexOf(a.key) - MENU_ORDER.indexOf(b.key));

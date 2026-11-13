@@ -236,10 +236,12 @@ export const AMPOULE: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "13.5% Vitamin C Serum Ampoule | UNI&CORE Korean Skincare",
+    // US search terms (Google, Amazon, TikTok and YouTube suggestions, 2026-11-13): "vitamin c serum for face",
+    // "korean vitamin c serum", "pure vitamin c serum", "brightening serum", "glutathione serum", "glass skin serum".
+    title: "Korean Vitamin C Serum for Face, 13.5% Pure | UNI&CORE USA",
     description:
-      "Korean vitamin C serum with 13.5% pure ascorbic acid and glutathione. +35.6% radiance in a 7-day test*. Shop the UNI&CORE Vita C 13.5 on Amazon.",
-    keywords: ["13.5% vitamin C serum", "vitamin C ampoule", "pure vitamin C serum", "ascorbic acid serum", "glutathione vitamin C serum", "brightening ampoule", "Korean vitamin C serum", "skin radiance serum", "UNI&CORE"],
+      "UNI&CORE 13.5% pure vitamin C serum for face with glutathione: a Korean brightening ampoule for glowing, glass skin. +35.6% radiance in 7 days*. On Amazon.",
+    keywords: ["vitamin C serum for face", "Korean vitamin C serum", "pure vitamin C serum", "brightening serum", "glutathione serum", "vitamin C ampoule", "glass skin serum", "Korean serum", "13.5% vitamin C serum", "UNI&CORE vitamin C serum", "UNI&CORE"],
   },
 };
 
@@ -433,10 +435,12 @@ export const MASK: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "Vitamin C Sheet Mask (5 Pack) | UNI&CORE Korean Face Mask",
+    // US search terms (2026-11-13): "korean sheet mask", "vitamin c sheet mask", "vitamin c face mask", "brightening
+    // sheet mask", "hydrating sheet mask", "korean face mask", "glass skin mask".
+    title: "Korean Vitamin C Sheet Mask, Brightening | UNI&CORE USA",
     description:
-      "Korean vitamin C sheet mask: 2% pure vitamin C and glutathione on a 100% TENCEL™ sheet. Brighter-looking skin in 10–20 minutes. Shop on Amazon.",
-    keywords: ["vitamin C face mask", "brightening sheet mask", "Korean vitamin C mask", "vitamin C sheet mask", "TENCEL sheet mask", "glutathione sheet mask", "hydrating face mask", "UNI&CORE"],
+      "UNI&CORE Korean vitamin C sheet mask with 2% pure vitamin C and glutathione: a brightening, hydrating face mask for glass skin. 5 TENCEL™ sheets on Amazon.",
+    keywords: ["Korean sheet mask", "vitamin C sheet mask", "vitamin C face mask", "brightening sheet mask", "hydrating sheet mask", "Korean face mask", "glass skin mask", "sheet mask", "UNI&CORE face mask", "UNI&CORE"],
   },
 };
 
@@ -629,12 +633,108 @@ export const WASH: ProductContent = {
   promotion: bfcm(20),
 
   seo: {
-    title: "Vitamin C Enzyme Powder Wash | UNI&CORE Korean Cleanser",
+    // US search terms (2026-11-13): "enzyme powder face wash", "enzyme powder cleanser", "korean face wash",
+    // "exfoliating face wash", "powder cleanser", "vitamin c cleanser", "travel face wash".
+    title: "Enzyme Powder Cleanser, Korean Face Wash | UNI&CORE USA",
     description:
-      "Korean enzyme powder cleanser with vitamin C, papain and bromelain. Low pH 5–5.5 daily exfoliation in 30 single-use packets. Shop on Amazon.",
-    keywords: ["enzyme powder wash", "enzyme face cleanser", "powder face wash", "vitamin C powder cleanser", "bromelain papain cleanser", "low pH cleanser", "foaming powder cleanser", "daily exfoliating cleanser", "UNI&CORE"],
+      "UNI&CORE Korean enzyme powder face wash with vitamin C, papain and bromelain: a gentle exfoliating cleanser, pH 5–5.5, in 30 travel-size packets. On Amazon.",
+    keywords: ["enzyme powder face wash", "enzyme powder cleanser", "Korean face wash", "exfoliating face wash", "powder cleanser", "powder face wash", "vitamin C cleanser", "enzyme cleanser", "travel face wash", "UNI&CORE"],
   },
 };
 
-/** Routine order: wash → mask → ampoule. */
-export const DEFAULT_PRODUCTS: ProductContent[] = [WASH, MASK, AMPOULE];
+/** The serum mist's TikTok Shop listing (product 1732276811319186292), link supplied by the client on 2026-11-13. */
+const MIST_TIKTOK_SHOP = "https://vm.tiktok.com/ZP9fQ7EhYBHsH-pAk1Y/";
+
+/**
+ * Hydrating Skin Barrier Serum Mist. Sold on TikTok Shop, not Amazon: no ASIN, and every
+ * "Shop" button on its page opens TikTok Shop. Copy from the client's product text (2026-11-13).
+ */
+export const MIST: ProductContent = {
+  key: "mist",
+  slug: "hydrating-skin-barrier-serum-mist",
+  published: true,
+
+  asin: "",
+  asinVerified: false,
+  amazonUrl: "",
+  attribution: {},
+  shop: { kind: "tiktok", url: MIST_TIKTOK_SHOP },
+
+  name: "Hydrating Skin Barrier Serum Mist",
+  shortName: "Serum Mist",
+  size: "1.76 fl oz (50 ml)",
+  accent: "sun",
+  routineStep: 3,
+
+  heroEyebrow: "Hydrate. Barrier Support. Radiant-looking Skin.",
+  heroHeadline: "Not just hydration: an alive nano-liposome serum mist",
+  heroSub:
+    "A serum mist with copper tripeptide-1 and CICA in nano liposomes (~50 nm) and a rare O/W/O multi emulsion, for quick but long-lasting hydration in an ultra-fine spray.",
+  tagline: "Serum-level hydration in an ultra-fine mist.",
+  keyIngredient: "Copper Tripeptide-1 (GHK-Cu)",
+  highlights: ["1 million sold", "Long-lasting hydration for 24 hours*", "Copper tripeptide-1 + CICA mild complex", "Nano liposomes in an O/W/O multi emulsion", "Use anytime, even over makeup"],
+  specs: [
+    { label: "Key ingredients", value: "Copper tripeptide-1, CICA mild complex" },
+    { label: "Net weight", value: "1.76 fl oz (50 ml)" },
+    { label: "Step", value: "Serum mist" },
+    { label: "Use", value: "After cleansing, before skincare, over makeup, midday" },
+    { label: "Made in", value: "Korea" },
+  ],
+
+  heroImage: "/landing/mist/listing-1.webp",
+  packshotWhite: "/landing/mist/product.webp",
+
+  concerns: [
+    { title: "Tight after cleansing", text: "Skin that needs moisture right after washing." },
+    { title: "Dry by midday", text: "Air conditioning, heat and long days leave skin feeling dry." },
+  ],
+  benefits: [
+    { title: "Fast absorption", text: "Ready for the next skincare step." },
+    { title: "Quick but long-lasting hydration", text: "Hydration that stays, in an ultra-fine mist." },
+    { title: "Barrier-supporting care", text: "Supports skin barrier comfort against daily environmental stress." },
+    { title: "Luxury peptide care", text: "Copper tripeptide-1 for skin vitality." },
+    { title: "Naturally radiant", text: "Leaves skin soft, smooth and naturally radiant." },
+  ],
+  claims: [],
+  claimsNote: "*Based on internal testing. Individual results may vary. This product is a cosmetic and is not intended to diagnose, treat, cure or prevent any disease.",
+  beforeAfter: [],
+  videos: [],
+  differentiators: [
+    { title: "Alive nano-liposome movement formulation", text: "Nano liposomes and nano vesicles (~50 nm) form dynamic micro-particles that keep moving and spreading across the skin surface." },
+    { title: "Rare O/W/O multi emulsion", text: "A luxury water-oil-water system that delivers hydration and lipid nourishment together." },
+    { title: "Biomimetic RPI structure", text: "Designed to mimic the skin's natural lipid barrier for faster absorption and long-lasting hydration." },
+  ],
+  ingredients: [
+    { name: "Copper Tripeptide-1", inci: "Copper Tripeptide-1", role: "Premium peptide", detail: "Known for supporting skin vitality and helping improve the appearance of firmness and smoothness.", status: "verified" },
+    { name: "CICA Mild Complex", role: "Soothing", detail: "Helps calm skin, maintain moisture balance and support barrier comfort after cleansing.", status: "verified" },
+    { name: "Nano Liposome & Vesicle", role: "Delivery", detail: "Micro-sized dispersion technology spreads active ingredients evenly across the skin for fast-feeling absorption.", status: "verified" },
+    { name: "O/W/O Multi Emulsion", role: "Long-lasting comfort", detail: "A water-oil-water system that delivers hydration and lipid nourishment at the same time.", status: "verified" },
+  ],
+  texture: {
+    title: "Ultra-fine serum mist texture",
+    text: "The micro-fine spray spreads evenly without disturbing makeup, delivering serum-level hydration in a lightweight mist.",
+    notes: ["After cleansing", "Before skincare", "Over makeup", "Midday hydration reset"],
+  },
+  howTo: [
+    { title: "Spray", text: "Hold the bottle 20-30 cm away from your face and spray evenly." },
+    { title: "Pat", text: "Gently pat for enhanced absorption if desired." },
+    { title: "Anytime", text: "Use morning, evening or throughout the day, whenever skin feels dry." },
+  ],
+  routineText: "Mist after cleansing and whenever skin feels dry.",
+  faqs: [],
+
+  // No TikTok Shop promotion is set up on this site; the page never shows a discount.
+  promotion: { enabled: false, ...BFCM_2026, discountPct: 0, headline: "", detail: "" },
+
+  seo: {
+    // US search terms (2026-11-13): "face mist", "hydrating face mist", "korean face mist", "serum mist", "spray serum",
+    // "facial mist", "face spray", "copper peptide", "glass skin", "hydrating face mist for makeup".
+    title: "Korean Hydrating Face Mist, Serum Spray | UNI&CORE USA",
+    description:
+      "UNI&CORE Korean serum mist spray with copper peptide and CICA: a hydrating face mist for glass skin, fine enough for over makeup. 24h hydration*. TikTok Shop.",
+    keywords: ["hydrating face mist", "Korean face mist", "face mist", "serum mist", "spray serum", "facial mist", "face spray", "copper peptide mist", "glass skin", "face mist for makeup", "UNI&CORE"],
+  },
+};
+
+/** Routine order: wash → mask → ampoule, then the serum mist (sold on TikTok Shop). */
+export const DEFAULT_PRODUCTS: ProductContent[] = [WASH, MASK, AMPOULE, MIST];

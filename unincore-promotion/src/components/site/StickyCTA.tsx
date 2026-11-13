@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AmazonButton, type AmazonProduct } from "./AmazonButton";
 import { usePromoActive } from "./PromoBanner";
 import { AmazonLogo } from "@/components/landing/AmazonLogo";
+import { TikTokShopMark } from "@/components/landing/TikTokShopMark";
 
 /**
  * Mobile-only bottom bar. Appears after the gallery and its button scroll away
@@ -50,9 +51,13 @@ export function StickyCTA({ product, promoInitial, image, title, label }: { prod
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
     >
       {label ? (
-        <AmazonButton product={product} location="sticky" className="amz-btn mx-auto flex w-full max-w-xl shadow-[inset_0_0_0_1px_rgb(196_85_0/0.55),inset_0_1px_0_rgb(255_255_255/0.6),0_14px_30px_-12px_rgb(120_60_0/0.55)]">
+        <AmazonButton
+          product={product}
+          location="sticky"
+          className={`amz-btn mx-auto flex w-full max-w-xl ${product.shop ? "tts shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14),0_14px_30px_-12px_rgb(0_0_0/0.6)]" : "shadow-[inset_0_0_0_1px_rgb(196_85_0/0.55),inset_0_1px_0_rgb(255_255_255/0.6),0_14px_30px_-12px_rgb(120_60_0/0.55)]"}`}
+        >
           <span>{promo && product.promotion ? `${product.promotion.discountPct}% off on` : label}</span>
-          <AmazonLogo title="Amazon" smile="currentColor" />
+          {product.shop ? <TikTokShopMark /> : <AmazonLogo title="Amazon" smile="currentColor" />}
         </AmazonButton>
       ) : (
       <div className="glass-bar mx-auto flex max-w-xl items-center gap-3 rounded-[20px] p-2 pl-2.5">
