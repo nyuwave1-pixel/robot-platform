@@ -8,6 +8,7 @@ import { clinical } from "@/data/clinical";
 import { track } from "@/lib/track";
 import { ApiError, getConfig, lookupReview, reviseReview, type EventConfig, type LookupResult, type SubmitResult } from "./api";
 import ReviewForm from "./ReviewForm";
+import BgMusic from "./BgMusic";
 import PhotoField, { emptyPhoto, type PhotoState } from "./PhotoField";
 import s from "./review.module.css";
 
@@ -107,6 +108,7 @@ export default function ReviewEvent() {
       <header className={s.top}>
         <a href={E.brandSite} className={s.brand} aria-label="UNI&CORE 1ST BIRTHDAY CREAM 브랜드 페이지로">UNI&amp;CORE</a>
         <a href="#lookup" className={s.topLink}>내 접수 확인</a>
+        <BgMusic />
       </header>
 
       <main>

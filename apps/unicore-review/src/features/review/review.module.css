@@ -376,8 +376,18 @@
   .stepper button { font-size: 13px; }
   .photoActions { gap: 6px; } .miniBtn, .miniBtnGold { padding: 0 10px; }
 }
+/* 배경 음악 버튼 — 화면 오른쪽 위에 고정 */
+.bgm { position: fixed; z-index: 950; top: calc(72px + env(safe-area-inset-top, 0px)); right: 16px; width: 46px; height: 46px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(8, 7, 6, 0.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: var(--champ); cursor: pointer; }
+.bgmOn { border-color: var(--champ); box-shadow: 0 0 18px rgba(229, 197, 141, 0.35); }
+.bgmBars { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+.bgmBars i { width: 3px; height: 4px; border-radius: 2px; background: currentColor; opacity: 0.55; }
+.bgmOn .bgmBars i { opacity: 1; animation: eq 1s ease-in-out infinite; }
+.bgmOn .bgmBars i:nth-child(2) { animation-delay: -0.35s; } .bgmOn .bgmBars i:nth-child(3) { animation-delay: -0.7s; } .bgmOn .bgmBars i:nth-child(4) { animation-delay: -0.15s; }
+.bgm:not(.bgmOn)::after { content: ""; position: absolute; width: 26px; height: 1.5px; background: currentColor; transform: rotate(-45deg); opacity: 0.8; }
+@keyframes eq { 0%, 100% { height: 4px; } 50% { height: 18px; } }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; }
+  .bgmOn .bgmBars i { animation: none; height: 12px; }
   .heroShot, .heroRing, .heroFlare, .heroSweep, .cutSweep, .hero .heroEn, .hero .badge, .hero .heroKo { animation: none !important; }
   .heroSweep, .cutSweep { display: none; }
   .cut, .cut img, .cutCap > *, .cutFrame { transition: none; clip-path: none; transform: none; opacity: 1; }
