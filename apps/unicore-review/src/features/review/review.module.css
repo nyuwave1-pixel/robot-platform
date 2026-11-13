@@ -378,6 +378,17 @@
 }
 /* 배경 음악 버튼 — 화면 오른쪽 위에 고정 */
 .bgm { position: fixed; z-index: 950; top: calc(72px + env(safe-area-inset-top, 0px)); right: 16px; width: 46px; height: 46px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(8, 7, 6, 0.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: var(--champ); cursor: pointer; }
+/* 입장 인트로 — 누르는 순간 음악과 함께 사이트가 열린다 */
+.intro { position: fixed; inset: 0; z-index: 2000; display: grid; align-content: center; justify-items: center; gap: 0; padding: 32px 26px calc(32px + env(safe-area-inset-bottom, 0px)); text-align: center; background: radial-gradient(ellipse 110% 60% at 50% 42%, rgba(58, 36, 20, 0.9) 0%, rgba(14, 10, 8, 0.94) 55%, rgba(8, 7, 6, 0.97) 100%); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); animation: fade 0.6s ease both; }
+.introGlow { position: absolute; left: 50%; top: 42%; width: min(520px, 130vw); aspect-ratio: 1; translate: -50% -50%; background: radial-gradient(circle, rgba(229, 197, 141, 0.26), transparent 62%); animation: flare 5s ease-in-out infinite; pointer-events: none; }
+.intro > :not(.introGlow) { position: relative; }
+.introBrand { margin: 0 0 22px; font: 600 14px/1 var(--font-ui); letter-spacing: 0.42em; color: var(--champ); }
+.introEn { margin: 0; font: 500 clamp(40px, 11.5vw, 68px) / 1.02 var(--font-serif); letter-spacing: 0.02em; color: transparent; background: var(--gold-grad) center / 100% 100% no-repeat; -webkit-background-clip: text; background-clip: text; font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; }
+.introKo { margin: 20px 0 40px; font-size: 18px; color: var(--dim); }
+.introBtn { min-width: min(300px, 78vw); min-height: 62px; padding: 0 34px; border: 0; border-radius: 999px; background: var(--gold-grad); color: #1a120b; font: 700 20px/1 var(--font-kr); letter-spacing: 0.04em; cursor: pointer; box-shadow: 0 0 0 0 rgba(229, 197, 141, 0.6), 0 18px 50px rgba(198, 161, 106, 0.35); animation: introPulse 2s ease-out infinite; }
+@keyframes introPulse { 0% { box-shadow: 0 0 0 0 rgba(229, 197, 141, 0.6), 0 18px 50px rgba(198, 161, 106, 0.35); } 100% { box-shadow: 0 0 0 26px rgba(229, 197, 141, 0), 0 18px 50px rgba(198, 161, 106, 0.35); } }
+.introNote { margin: 18px 0 0; font-size: 15px; color: var(--dim); }
+.introSilent { margin-top: 26px; min-height: 44px; padding: 0 16px; border: 0; background: none; color: var(--dim); font: 400 15px/1 var(--font-kr); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .bgmOn { border-color: var(--champ); box-shadow: 0 0 18px rgba(229, 197, 141, 0.35); }
 .bgmBars { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
 .bgmBars i { width: 3px; height: 4px; border-radius: 2px; background: currentColor; opacity: 0.55; }
@@ -388,6 +399,7 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; }
   .bgmOn .bgmBars i { animation: none; height: 12px; }
+  .intro, .introGlow, .introBtn { animation: none; }
   .heroShot, .heroRing, .heroFlare, .heroSweep, .cutSweep, .hero .heroEn, .hero .badge, .hero .heroKo { animation: none !important; }
   .heroSweep, .cutSweep { display: none; }
   .cut, .cut img, .cutCap > *, .cutFrame { transition: none; clip-path: none; transform: none; opacity: 1; }
