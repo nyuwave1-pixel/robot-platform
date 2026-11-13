@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>프로모션 관리 | UNI&CORE</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<style>
+  /* 더마홈 어드민과 같은 디자인 토큰·컴포넌트 */
+  :root{--ink:#1C1C1C;--sub:#5A5A54;--mut:#8A8A84;--line:#E6E4DF;--bg:#F6F5F2;--card:#fff;--accent:#C0392B;--ok:#1E7F4F;--warn:#B7791F;--info:#2A5DB0}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .arch{font-family:Archivo,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+  .side{position:fixed;top:0;left:0;bottom:0;width:232px;background:var(--ink);color:#EDECE8;display:flex;flex-direction:column;z-index:20}
+  .side .brand{padding:24px 22px 20px;border-bottom:1px solid rgba(255,255,255,.09)}
+  .side .brand b{font-family:Archivo,sans-serif;font-weight:700;letter-spacing:.15em;font-size:14px}
+  .side .brand small{display:block;margin-top:5px;font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.24em;font-family:Archivo,sans-serif;text-transform:uppercase}
+  .nav{padding:14px 12px;flex:1;overflow-y:auto}
+  .nav .grp{font-size:10px;letter-spacing:.14em;color:rgba(255,255,255,.38);padding:13px 12px 5px;text-transform:uppercase;font-weight:600}
+  .nav button{display:block;width:100%;padding:11px 12px;margin-bottom:2px;background:none;border:0;border-radius:9px;color:rgba(255,255,255,.68);font:inherit;font-size:13.5px;cursor:pointer;text-align:left}
+  .nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+  .nav button.on{background:rgba(255,255,255,.12);color:#fff;font-weight:600}
+  .side .foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.09);font-size:12px;color:rgba(255,255,255,.55);line-height:1.8}
+  .side .foot a{color:#E5C58D;cursor:pointer}
+  .main{margin-left:232px;padding:30px 34px 80px;max-width:1560px}
+  .pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:24px;flex-wrap:wrap}
+  .pagehead h1{font-size:23px;margin:0;font-weight:700;letter-spacing:-.01em}
+  .pagehead .crumb{font-size:11px;color:var(--mut);letter-spacing:.2em;font-family:Archivo,sans-serif;text-transform:uppercase;margin-bottom:6px}
+  .pagehead .acts{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .14s;color:var(--ink)}
+  .btn:hover{border-color:var(--ink)}.btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.pri{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn.danger{color:var(--accent);border-color:#EBC7C2}
+  .btn.sm{padding:6px 12px;font-size:12px;border-radius:7px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:26px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:18px 19px}
+  .kpi .l{font-size:11px;color:var(--mut);letter-spacing:.04em;margin-bottom:9px;white-space:nowrap}
+  .kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .kpi .v small{font-size:13px;color:var(--mut);font-weight:400;margin-left:3px}
+  .kpi.hot .v{color:var(--accent)}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+  .filters input[type=text],.filters select,.filters input[type=date]{padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;font-size:13px}
+  .filters input[type=text]{min-width:220px}
+  .filters .count{margin-left:auto;color:var(--mut);font-size:12.5px}
+  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:900px}
+  th{font-size:11px;letter-spacing:.04em;color:var(--mut);text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-weight:600}
+  td{padding:12px 14px;border-bottom:1px solid #F0EEEA;vertical-align:middle;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  tbody tr{cursor:pointer}tbody tr:hover{background:#FAF9F6}
+  .empty{padding:60px 20px;text-align:center;color:var(--mut)}
+  #gate{max-width:420px;margin:10vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:38px 34px;text-align:center;line-height:1.7}
+  #gate h1{font-size:20px;margin:0 0 6px}#gate p{color:var(--sub);margin:0 0 18px;font-size:13.5px}
+  #gate form{display:grid;gap:10px;text-align:left}#gate input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:15px}
+  #gate input:focus{outline:none;border-color:var(--ink)}#gate .btn{justify-content:center;padding:13px}#gate .err{color:var(--accent);font-size:13px;min-height:18px;text-align:center}
+  #gate .lnk{color:var(--info);font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}#gate .tiny{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 0}
+  #qr{display:flex;justify-content:center;margin:6px 0 10px}#qr img,#qr canvas{border:8px solid #fff}
+  @media(max-width:900px){.side{position:static;width:auto}.nav{display:flex;flex-wrap:wrap;gap:4px}.nav .grp{display:none}.nav button{width:auto}.main{margin-left:0;padding:20px 16px 70px}}
+  @media print{.side{display:none}.main{margin:0}}
+</style>
+</head>
+<body>
+<div id="gate" style="display:none"></div>
+<div id="app" style="display:none">
+  <aside class="side">
+    <div class="brand"><b>UNI&amp;CORE</b><small>Promotion Management</small></div>
+    <nav class="nav" id="nav"><div class="grp">프로모션 관리</div></nav>
+    <div class="foot"><span id="who"></span><br><a id="pw">비밀번호 변경</a> · <a id="out">로그아웃</a></div>
+  </aside>
+  <main class="main" id="view"></main>
+</div>
+<script>
+/* 접수·관리 API 주소 (Supabase Edge Function). 로컬 검수: http://localhost:3100/admin?api=http://localhost:8899/birthday-review */
+(function(){
+  var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? new URLSearchParams(location.search).get('api') : null;
+  window.PROMO_API = local || 'https://qeabsjyglethzkwlkmaw.supabase.co/functions/v1/birthday-review';
+  window.PROMO_SITE = location.origin;
+})();
+</script>
+<script src="/admin/promo.js"></script>
+<script>
+/* 관리자 로그인(개인 계정 + 2단계 인증) → 프로모션 관리 화면.
+   세션 토큰은 이 탭의 sessionStorage 에만 두고(탭을 닫으면 사라짐) 요청마다 Authorization 헤더로 보낸다. */
+(function(){
+  'use strict';
+  var API = window.PROMO_API.replace(/\/$/, '') + '/admin', TK = 'uc_promo_token', ME = null;
+  var $ = function(s){ return document.querySelector(s); };
+  var E = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var token = function(){ try { return sessionStorage.getItem(TK) || ''; } catch(e){ return ''; } };
+  var setToken = function(t){ try { if (t) sessionStorage.setItem(TK, t); else sessionStorage.removeItem(TK); } catch(e){} };
+  function api(method, path, body){
+    var h = { 'x-br-csrf': '1' }; if (token()) h.authorization = 'Bearer ' + token(); if (body !== undefined) h['content-type'] = 'application/json';
+    return fetch(API + path, { method: method, headers: h, credentials: 'omit', body: body === undefined ? undefined : JSON.stringify(body) }).then(function(r){
+      return r.json().catch(function(){ return { ok:false, error:{ message:'서버 응답을 읽지 못했습니다. ('+r.status+')' } }; }).then(function(j){
+        if (!j.ok) { var e = new Error((j.error && j.error.message) || '요청을 처리하지 못했습니다.'); e.code = j.error && j.error.code; e.status = r.status; throw e; }
+        return j.data;
+      });
+    }, function(){ throw new Error('서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.'); });
+  }
+  function gate(html){ $('#app').style.display = 'none'; var g = $('#gate'); g.style.display = 'block'; g.innerHTML = '<div class="arch" style="font-size:11px;color:#8A8A84;margin-bottom:10px">UNI&amp;CORE PROMOTION</div>' + html; return g; }
+  function err(e){ var el = $('#gate .err'); if (el) el.textContent = e.message; }
+  function busy(form, on){ var b = form.querySelector('button[type=submit]'); if (b) b.disabled = on; }
+
+  function boot(){
+    if (!token()) return api('GET', '/setup').then(function(s){ s.needsSetup ? setupView() : loginView(); }, function(e){ loginView(e.message); });
+    api('GET', '/me').then(function(me){
+      if (!me.loggedIn) { setToken(''); return loginView(); }
+      if (me.mfaEnabled && !me.mfaPassed) return mfaView(me);   // 2단계 인증은 설정한 계정에만 요구
+      ME = me; shell();
+    }, function(e){ setToken(''); loginView(e.message); });
+  }
+  function loginView(msg){
+    var g = gate('<h1>프로모션 관리</h1><p>벌스데이 크림 구매 후기 이벤트 관리자 로그인</p><form id="lf"><input name="email" type="email" placeholder="관리자 이메일" autocomplete="username" required><input name="password" type="password" placeholder="비밀번호" autocomplete="current-password" required><button class="btn pri" type="submit">로그인</button><div class="err">' + E(msg || '') + '</div></form><p class="tiny">개인 관리자 계정으로 로그인합니다. 모든 관리 작업은 활동 로그에 기록됩니다.</p>');
+    g.querySelector('#lf').onsubmit = function(ev){ ev.preventDefault(); var f = this; busy(f, true);
+      api('POST', '/login', { email: f.email.value, password: f.password.value }).then(function(r){ setToken(r.token); boot(); }, function(e){ busy(f, false); err(e); }); };
+  }
+  function setupView(){
+    var g = gate('<h1>최초 관리자 설정</h1><p>전달받은 설정 코드로 본사 최고 관리자 계정을 한 번만 만들 수 있습니다.</p><form id="sf"><input name="code" placeholder="설정 코드" autocomplete="off" required><input name="email" type="email" placeholder="관리자 이메일" autocomplete="username" required><input name="name" placeholder="이름" required><input name="password" type="password" placeholder="비밀번호 (10자 이상, 영문·숫자 포함)" autocomplete="new-password" required><button class="btn pri" type="submit">최고 관리자 만들기</button><div class="err"></div></form>');
+    g.querySelector('#sf').onsubmit = function(ev){ ev.preventDefault(); var f = this; busy(f, true);
+      api('POST', '/bootstrap', { setupCode: f.code.value.trim(), email: f.email.value, name: f.name.value, password: f.password.value }).then(function(){ loginView('계정을 만들었습니다. 로그인해 주세요.'); }, function(e){ busy(f, false); err(e); }); };
+  }
+  function mfaView(me){
+    if (me.mfaEnabled) {
+      var g = gate('<h1>2단계 인증</h1><p>인증 앱의 6자리 코드를 입력하세요.</p><form id="mf"><input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6자리 코드" required autofocus><button class="btn pri" type="submit">확인</button><div class="err"></div></form><p class="tiny"><span class="lnk" id="lo">다른 계정으로 로그인</span></p>');
+      g.querySelector('#mf').onsubmit = function(ev){ ev.preventDefault(); var f = this; busy(f, true); api('POST', '/mfa/verify', { code: f.code.value }).then(boot, function(e){ busy(f, false); err(e); }); };
+      g.querySelector('#lo').onclick = function(){ api('POST', '/logout').then(done, done); function done(){ setToken(''); boot(); } };
+      return;
+    }
+    api('POST', '/mfa/setup').then(function(s){
+      var g = gate('<h1>2단계 인증 설정</h1><p>Google Authenticator 등 인증 앱으로 QR을 스캔한 뒤 6자리 코드를 입력하세요. 설정 전에는 관리 기능을 쓸 수 없습니다.</p><div id="qr"></div><p class="tiny" style="word-break:break-all;margin-bottom:12px">직접 입력 키: ' + E(s.secret) + '</p><form id="mf"><input name="code" inputmode="numeric" maxlength="6" placeholder="6자리 코드" required><button class="btn pri" type="submit">설정 완료</button><div class="err"></div></form>');
+      try { new QRCode(g.querySelector('#qr'), { text: s.otpauth, width: 176, height: 176 }); } catch (x) {}
+      g.querySelector('#mf').onsubmit = function(ev){ ev.preventDefault(); var f = this; busy(f, true); api('POST', '/mfa/enable', { code: f.code.value }).then(boot, function(e){ busy(f, false); err(e); }); };
+    }, function(e){ setToken(''); loginView(e.message); });
+  }
+
+  // ---------- 화면 틀 ----------
+  function go(sub){ if (location.hash !== '#' + sub) location.hash = sub; else show(sub); }
+  function show(sub){
+    Array.prototype.forEach.call(document.querySelectorAll('#nav button'), function(b){ b.classList.toggle('on', b.dataset.v === sub); });
+    if (sub === 'admins' && ME.perms.indexOf('admins.manage') >= 0) return vAdmins();
+    PromoAdmin.mount($('#view'), { sub: sub, navigate: go, headers: function(){ return { authorization: 'Bearer ' + token() }; },
+      onUnauthorized: function(){ setToken(''); PromoAdmin.reset(); boot(); } });
+  }
+  function shell(){
+    $('#gate').style.display = 'none'; $('#app').style.display = 'block';
+    $('#who').textContent = ME.name + ' · ' + ME.roleLabel + (ME.distributorCode ? ' · ' + ME.distributorCode : '');
+    var nav = $('#nav'); nav.innerHTML = '<div class="grp">프로모션 관리</div>';
+    var add = function(v, label){ var b = document.createElement('button'); b.dataset.v = v; b.textContent = label; b.onclick = function(){ go(v); }; nav.appendChild(b); };
+    PromoAdmin.SUBS.forEach(function(t){ add(t[0], t[1]); });
+    if (ME.perms.indexOf('admins.manage') >= 0) { var gdiv = document.createElement('div'); gdiv.className = 'grp'; gdiv.textContent = '시스템'; nav.appendChild(gdiv); add('admins', '관리자 계정 · 권한'); }
+    $('#out').onclick = function(){ api('POST', '/logout').then(done, done); function done(){ setToken(''); PromoAdmin.reset(); location.hash = ''; boot(); } };
+    $('#pw').onclick = function(){ var c = prompt('현재 비밀번호'); if (!c) return; var n = prompt('새 비밀번호 (10자 이상, 영문·숫자 포함)'); if (!n) return; api('POST', '/password', { currentPassword: c, newPassword: n }).then(function(){ alert('비밀번호를 변경했습니다.'); }, function(e){ alert(e.message); }); };
+    window.onhashchange = function(){ show(location.hash.slice(1) || 'dash'); };
+    show(location.hash.slice(1) || 'dash');
+  }
+  // ---------- 관리자 계정·권한 ----------
+  var ROLES = [['SUPER','본사 최고 관리자'],['PROMO_MANAGER','프로모션 운영 담당'],['DISTRIBUTOR','총판 관리자'],['VIEWER','조회 전용']];
+  function dt(iso){ if (!iso) return '—'; var d = new Date(iso); var p = function(n){ return String(n).padStart(2,'0'); }; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  function vAdmins(){
+    var v = $('#view'); v.innerHTML = '<div class="pagehead"><div><div class="crumb">Admins</div><h1>관리자 계정 · 권한</h1></div></div><div class="empty">불러오는 중…</div>';
+    api('GET', '/admins').then(function(rows){
+      v.innerHTML = '<div class="pagehead"><div><div class="crumb">Admins</div><h1>관리자 계정 · 권한</h1></div></div>' +
+        '<form id="af" class="filters" style="background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px"><input type="text" name="email" placeholder="이메일" required><input type="text" name="name" placeholder="이름" required style="min-width:120px"><select name="role">' + ROLES.map(function(r){ return '<option value="'+r[0]+'">'+r[1]+'</option>'; }).join('') + '</select><input type="text" name="dist" placeholder="총판 코드 (총판 관리자만)" style="min-width:170px"><button class="btn pri" type="submit">계정 발급</button><span class="count" style="margin:0">임시 비밀번호는 한 번만 표시됩니다. 첫 로그인 후 비밀번호를 바꾸도록 안내해 주세요.</span></form>' +
+        '<div class="filters" style="font-size:12.5px;color:var(--sub);line-height:1.7"><span><b>본사 최고 관리자</b> 전체 권한 · <b>프로모션 운영 담당</b> 후기 검토·사진 확인·지급 처리 · <b>총판 관리자</b> 자기 총판 코드의 참여자 조회(연락처 가림, 사진·엑셀 불가) · <b>조회 전용</b> 전체 조회(연락처 가림)</span></div>' +
+        '<div class="tablewrap"><table><thead><tr><th>#</th><th>이름</th><th>이메일</th><th>역할</th><th>총판 코드</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody>' + rows.map(function(a){
+          return '<tr style="cursor:default"><td>'+a.id+'</td><td><b>'+E(a.name)+'</b></td><td>'+E(a.email)+'</td><td>'+E(a.roleLabel)+'</td><td>'+E(a.distributorCode||'—')+'</td><td>'+(a.active?'활성':'<span style="color:var(--accent)">비활성</span>')+'</td><td>'+dt(a.lastLoginAt)+'</td><td>' +
+            '<select data-role="'+a.id+'" style="padding:5px 8px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:12px"><option value="">역할 변경…</option>'+ROLES.map(function(r){ return '<option value="'+r[0]+'">'+r[1]+'</option>'; }).join('')+'</select> ' +
+            '<button class="btn sm" data-act="'+a.id+'" data-on="'+(a.active?'0':'1')+'">'+(a.active?'비활성화':'활성화')+'</button> <button class="btn sm" data-pw="'+a.id+'">비밀번호 초기화</button>'+(a.mfaEnabled?' <button class="btn sm" data-mfa="'+a.id+'">2단계 해제</button>':'')+'</td></tr>'; }).join('') + '</tbody></table></div>';
+      var patch = function(id, body){ return api('PATCH', '/admins/' + id, body).then(function(r){ if (r.tempPassword) prompt('임시 비밀번호 (지금만 표시됩니다 — 당사자에게 안전하게 전달하세요)', r.tempPassword); vAdmins(); }, function(e){ alert(e.message); vAdmins(); }); };
+      $('#af').onsubmit = function(ev){ ev.preventDefault(); var f = this; api('POST', '/admins', { email: f.email.value, name: f.name.value, role: f.role.value, distributorCode: f.dist.value }).then(function(r){ prompt('임시 비밀번호 (지금만 표시됩니다 — 당사자에게 안전하게 전달하세요)', r.tempPassword); vAdmins(); }, function(e){ alert(e.message); }); };
+      Array.prototype.forEach.call(v.querySelectorAll('[data-role]'), function(s){ s.onchange = function(){ if (!s.value) return; var b = { role: s.value }; if (s.value === 'DISTRIBUTOR') { b.distributorCode = prompt('총판 코드 (예: SEOUL-01)') || ''; } patch(s.dataset.role, b); }; });
+      Array.prototype.forEach.call(v.querySelectorAll('[data-act]'), function(b){ b.onclick = function(){ if (confirm(b.dataset.on === '1' ? '이 계정을 다시 활성화할까요?' : '이 계정을 비활성화할까요? 즉시 로그아웃됩니다.')) patch(b.dataset.act, { active: b.dataset.on === '1' }); }; });
+      Array.prototype.forEach.call(v.querySelectorAll('[data-pw]'), function(b){ b.onclick = function(){ if (confirm('비밀번호를 초기화하고 임시 비밀번호를 발급할까요?')) patch(b.dataset.pw, { resetPassword: true }); }; });
+      Array.prototype.forEach.call(v.querySelectorAll('[data-mfa]'), function(b){ b.onclick = function(){ if (confirm('이 계정의 2단계 인증을 해제할까요?')) patch(b.dataset.mfa, { resetMfa: true }); }; });
+    }, function(e){ v.innerHTML = '<div class="empty">' + E(e.message) + '</div>'; });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "unicore-review",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UNI&CORE 1ST BIRTHDAY CREAM — 구매 후기 이벤트 사이트 (이벤트 페이지 + 관리자 화면)",
+  "scripts": { "dev": "next dev -p 3100", "build": "next build", "start": "next start -p 3100" },
+  "dependencies": { "@next/third-parties": "^15.5.0", "@vercel/analytics": "^2.0.1", "next": "^15.5.0", "react": "^19.1.0", "react-dom": "^19.1.0" },
+  "devDependencies": { "@types/node": "^22.0.0", "@types/react": "^19.1.0", "@types/react-dom": "^19.1.0", "typescript": "^5.6.0" }
+}
