@@ -67,7 +67,8 @@ export function errorResponse(e: unknown): Response {
 export function allowedOrigins(): string[] {
   return (env("BR_ALLOWED_ORIGINS") || "https://unipromotion.unincore.com").split(",").map((x) => x.trim()).filter(Boolean);
 }
-export function testOrigins(): string[] { return (env("BR_TEST_ORIGINS") || "").split(",").map((x) => x.trim()).filter(Boolean); }
+/** 시험용 출처 — 기본값은 Vercel 기본 주소(도메인 연결 전 확인용). 여기서 온 접수는 테스트로 표시되어 통계·지급에서 빠진다 */
+export function testOrigins(): string[] { return (env("BR_TEST_ORIGINS") || "https://unicore-review.vercel.app").split(",").map((x) => x.trim()).filter(Boolean); }
 export async function readJson(req: Request, maxBytes = 64 * 1024): Promise<any> {
   const text = await req.text();
   if (text.length > maxBytes) fail(413, "TOO_LARGE", "요청이 너무 큽니다.");
