@@ -131,9 +131,6 @@ async function signIn(a: Admin, email: string, password: string) {
   const l = await a.call("POST", "/login", { email, password });
   assert.equal(l.status, 200, JSON.stringify(l.json));
   a.bearer = l.data.token;
-  const s = await a.call("POST", "/mfa/setup");
-  assert.equal(s.status, 200, JSON.stringify(s.json));
-  assert.equal((await a.call("POST", "/mfa/enable", { code: core.totpCode(s.data.secret) })).status, 200);
   return a;
 }
 async function roleAdmin(email: string, name: string, role: string, distributorCode?: string) {
@@ -144,7 +141,7 @@ async function roleAdmin(email: string, name: string, role: string, distributorC
 let OPS: Admin, DIST: Admin, VIEWER: Admin;
 
 // =====================================================================================================
-test("최초 설정·로그인·2단계 인증: 설정 코드 1회용, 비밀번호 기준, 인증 전 접근 불가, 로그인 잠금", async () => {
+test("최초 설정·로그인: 설정 코드 1회용, 비밀번호 기준, 2단계 인증은 선택(설정한 계정만 요구), 로그인 잠금", async () => {
   const anon = new Admin();
   assert.equal((await anon.call("GET", "/setup")).data.needsSetup, true);
   const acct = { email: "hq@test.example", name: "본사관리자", password: "HeadOffice2026x!" };
@@ -156,7 +153,7 @@ test("최초 설정·로그인·2단계 인증: 설정 코드 1회용, 비밀번
   assert.equal((await anon.call("POST", "/login", { email: acct.email, password: "nope" })).status, 401);
   const l = await HQ.call("POST", "/login", { email: acct.email, password: acct.password });
   assert.equal(l.status, 200); HQ.bearer = l.data.token; assert.equal(l.data.mfaEnabled, false);
-  assert.equal((await HQ.p("GET", "/reviews")).error.code, "MFA_REQUIRED", "2단계 인증 전에는 접근 불가");
+  assert.equal((await HQ.p("GET", "/reviews")).status, 200, "2단계 인증을 설정하지 않은 계정은 로그인만으로 사용");
   const s = await HQ.call("POST", "/mfa/setup");
   assert.match(s.data.otpauth, /^otpauth:\/\/totp\//);
   assert.equal((await HQ.call("POST", "/mfa/enable", { code: "000000" })).status, 401);
@@ -171,6 +168,7 @@ test("최초 설정·로그인·2단계 인증: 설정 코드 1회용, 비밀번
   // 다음 로그인은 2단계 코드 확인(verify)
   const again = new Admin(); const l2 = await again.call("POST", "/login", { email: acct.email, password: acct.password }); again.bearer = l2.data.token;
   assert.equal(l2.data.mfaEnabled, true);
+  assert.equal((await again.p("GET", "/dashboard")).error.code, "MFA_REQUIRED", "2단계 인증을 설정한 계정은 코드 확인 전 접근 불가");
   assert.equal((await again.call("POST", "/mfa/verify", { code: core.totpCode(s.data.secret) })).status, 200);
   assert.equal((await again.p("GET", "/dashboard")).status, 200);
   assert.equal((await again.call("POST", "/logout")).status, 200);

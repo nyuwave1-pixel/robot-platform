@@ -111,7 +111,7 @@
     if (!token()) return api('GET', '/setup').then(function(s){ s.needsSetup ? setupView() : loginView(); }, function(e){ loginView(e.message); });
     api('GET', '/me').then(function(me){
       if (!me.loggedIn) { setToken(''); return loginView(); }
-      if (!me.mfaPassed) return mfaView(me);
+      if (me.mfaEnabled && !me.mfaPassed) return mfaView(me);   // 2단계 인증은 설정한 계정에만 요구
       ME = me; shell();
     }, function(e){ setToken(''); loginView(e.message); });
   }
@@ -123,7 +123,7 @@
   function setupView(){
     var g = gate('<h1>최초 관리자 설정</h1><p>전달받은 설정 코드로 본사 최고 관리자 계정을 한 번만 만들 수 있습니다.</p><form id="sf"><input name="code" placeholder="설정 코드" autocomplete="off" required><input name="email" type="email" placeholder="관리자 이메일" autocomplete="username" required><input name="name" placeholder="이름" required><input name="password" type="password" placeholder="비밀번호 (10자 이상, 영문·숫자 포함)" autocomplete="new-password" required><button class="btn pri" type="submit">최고 관리자 만들기</button><div class="err"></div></form>');
     g.querySelector('#sf').onsubmit = function(ev){ ev.preventDefault(); var f = this; busy(f, true);
-      api('POST', '/bootstrap', { setupCode: f.code.value.trim(), email: f.email.value, name: f.name.value, password: f.password.value }).then(function(){ loginView('계정을 만들었습니다. 로그인한 뒤 2단계 인증을 설정해 주세요.'); }, function(e){ busy(f, false); err(e); }); };
+      api('POST', '/bootstrap', { setupCode: f.code.value.trim(), email: f.email.value, name: f.name.value, password: f.password.value }).then(function(){ loginView('계정을 만들었습니다. 로그인해 주세요.'); }, function(e){ busy(f, false); err(e); }); };
   }
   function mfaView(me){
     if (me.mfaEnabled) {
@@ -166,18 +166,18 @@
     var v = $('#view'); v.innerHTML = '<div class="pagehead"><div><div class="crumb">Admins</div><h1>관리자 계정 · 권한</h1></div></div><div class="empty">불러오는 중…</div>';
     api('GET', '/admins').then(function(rows){
       v.innerHTML = '<div class="pagehead"><div><div class="crumb">Admins</div><h1>관리자 계정 · 권한</h1></div></div>' +
-        '<form id="af" class="filters" style="background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px"><input type="text" name="email" placeholder="이메일" required><input type="text" name="name" placeholder="이름" required style="min-width:120px"><select name="role">' + ROLES.map(function(r){ return '<option value="'+r[0]+'">'+r[1]+'</option>'; }).join('') + '</select><input type="text" name="dist" placeholder="총판 코드 (총판 관리자만)" style="min-width:170px"><button class="btn pri" type="submit">계정 발급</button><span class="count" style="margin:0">임시 비밀번호는 한 번만 표시됩니다. 첫 로그인 때 2단계 인증을 설정합니다.</span></form>' +
+        '<form id="af" class="filters" style="background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px"><input type="text" name="email" placeholder="이메일" required><input type="text" name="name" placeholder="이름" required style="min-width:120px"><select name="role">' + ROLES.map(function(r){ return '<option value="'+r[0]+'">'+r[1]+'</option>'; }).join('') + '</select><input type="text" name="dist" placeholder="총판 코드 (총판 관리자만)" style="min-width:170px"><button class="btn pri" type="submit">계정 발급</button><span class="count" style="margin:0">임시 비밀번호는 한 번만 표시됩니다. 첫 로그인 후 비밀번호를 바꾸도록 안내해 주세요.</span></form>' +
         '<div class="filters" style="font-size:12.5px;color:var(--sub);line-height:1.7"><span><b>본사 최고 관리자</b> 전체 권한 · <b>프로모션 운영 담당</b> 후기 검토·사진 확인·지급 처리 · <b>총판 관리자</b> 자기 총판 코드의 참여자 조회(연락처 가림, 사진·엑셀 불가) · <b>조회 전용</b> 전체 조회(연락처 가림)</span></div>' +
-        '<div class="tablewrap"><table><thead><tr><th>#</th><th>이름</th><th>이메일</th><th>역할</th><th>총판 코드</th><th>2단계 인증</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody>' + rows.map(function(a){
-          return '<tr style="cursor:default"><td>'+a.id+'</td><td><b>'+E(a.name)+'</b></td><td>'+E(a.email)+'</td><td>'+E(a.roleLabel)+'</td><td>'+E(a.distributorCode||'—')+'</td><td>'+(a.mfaEnabled?'설정':'미설정')+'</td><td>'+(a.active?'활성':'<span style="color:var(--accent)">비활성</span>')+'</td><td>'+dt(a.lastLoginAt)+'</td><td>' +
+        '<div class="tablewrap"><table><thead><tr><th>#</th><th>이름</th><th>이메일</th><th>역할</th><th>총판 코드</th><th>상태</th><th>최근 로그인</th><th>관리</th></tr></thead><tbody>' + rows.map(function(a){
+          return '<tr style="cursor:default"><td>'+a.id+'</td><td><b>'+E(a.name)+'</b></td><td>'+E(a.email)+'</td><td>'+E(a.roleLabel)+'</td><td>'+E(a.distributorCode||'—')+'</td><td>'+(a.active?'활성':'<span style="color:var(--accent)">비활성</span>')+'</td><td>'+dt(a.lastLoginAt)+'</td><td>' +
             '<select data-role="'+a.id+'" style="padding:5px 8px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:12px"><option value="">역할 변경…</option>'+ROLES.map(function(r){ return '<option value="'+r[0]+'">'+r[1]+'</option>'; }).join('')+'</select> ' +
-            '<button class="btn sm" data-act="'+a.id+'" data-on="'+(a.active?'0':'1')+'">'+(a.active?'비활성화':'활성화')+'</button> <button class="btn sm" data-pw="'+a.id+'">비밀번호 초기화</button> <button class="btn sm" data-mfa="'+a.id+'">2단계 초기화</button></td></tr>'; }).join('') + '</tbody></table></div>';
+            '<button class="btn sm" data-act="'+a.id+'" data-on="'+(a.active?'0':'1')+'">'+(a.active?'비활성화':'활성화')+'</button> <button class="btn sm" data-pw="'+a.id+'">비밀번호 초기화</button>'+(a.mfaEnabled?' <button class="btn sm" data-mfa="'+a.id+'">2단계 해제</button>':'')+'</td></tr>'; }).join('') + '</tbody></table></div>';
       var patch = function(id, body){ return api('PATCH', '/admins/' + id, body).then(function(r){ if (r.tempPassword) prompt('임시 비밀번호 (지금만 표시됩니다 — 당사자에게 안전하게 전달하세요)', r.tempPassword); vAdmins(); }, function(e){ alert(e.message); vAdmins(); }); };
       $('#af').onsubmit = function(ev){ ev.preventDefault(); var f = this; api('POST', '/admins', { email: f.email.value, name: f.name.value, role: f.role.value, distributorCode: f.dist.value }).then(function(r){ prompt('임시 비밀번호 (지금만 표시됩니다 — 당사자에게 안전하게 전달하세요)', r.tempPassword); vAdmins(); }, function(e){ alert(e.message); }); };
       Array.prototype.forEach.call(v.querySelectorAll('[data-role]'), function(s){ s.onchange = function(){ if (!s.value) return; var b = { role: s.value }; if (s.value === 'DISTRIBUTOR') { b.distributorCode = prompt('총판 코드 (예: SEOUL-01)') || ''; } patch(s.dataset.role, b); }; });
       Array.prototype.forEach.call(v.querySelectorAll('[data-act]'), function(b){ b.onclick = function(){ if (confirm(b.dataset.on === '1' ? '이 계정을 다시 활성화할까요?' : '이 계정을 비활성화할까요? 즉시 로그아웃됩니다.')) patch(b.dataset.act, { active: b.dataset.on === '1' }); }; });
       Array.prototype.forEach.call(v.querySelectorAll('[data-pw]'), function(b){ b.onclick = function(){ if (confirm('비밀번호를 초기화하고 임시 비밀번호를 발급할까요?')) patch(b.dataset.pw, { resetPassword: true }); }; });
-      Array.prototype.forEach.call(v.querySelectorAll('[data-mfa]'), function(b){ b.onclick = function(){ if (confirm('2단계 인증을 초기화할까요? 다음 로그인 때 다시 설정합니다.')) patch(b.dataset.mfa, { resetMfa: true }); }; });
+      Array.prototype.forEach.call(v.querySelectorAll('[data-mfa]'), function(b){ b.onclick = function(){ if (confirm('이 계정의 2단계 인증을 해제할까요?')) patch(b.dataset.mfa, { resetMfa: true }); }; });
     }, function(e){ v.innerHTML = '<div class="empty">' + E(e.message) + '</div>'; });
   }
   boot();

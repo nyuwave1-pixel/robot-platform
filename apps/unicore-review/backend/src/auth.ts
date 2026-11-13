@@ -48,11 +48,11 @@ export async function currentAdmin(req: Request): Promise<Admin | null> {
   if (Date.now() - new Date(x.last_seen_at).getTime() > 5 * 60e3) await q(`UPDATE admin_sessions SET last_seen_at = now() WHERE id = $1`, [x.sid]);
   return { id: Number(x.id), email: x.email, name: x.name, role: x.role, mfa_enabled: x.mfa_enabled, mfaPassed: !!x.mfa_passed, distributor_code: x.distributor_code, sessionId: Number(x.sid) };
 }
-/** 관리자: 로그인 + 2단계 인증 통과 + 권한 */
+/** 관리자: 로그인 + 권한. 2단계 인증은 선택 사항 — 계정에 설정돼 있을 때만 통과를 요구한다 */
 export async function requireAdmin(req: Request, perm: string | null): Promise<Admin> {
   const a = await currentAdmin(req);
   if (!a) fail(401, "ADMIN_LOGIN_REQUIRED", "관리자 로그인이 필요합니다.");
-  if (!a!.mfaPassed) fail(401, "MFA_REQUIRED", "2단계 인증을 완료해 주세요.");
+  if (a!.mfa_enabled && !a!.mfaPassed) fail(401, "MFA_REQUIRED", "2단계 인증을 완료해 주세요.");
   if (perm && !can(a!.role, perm)) fail(403, "FORBIDDEN", "이 작업 권한이 없습니다.");
   return a!;
 }
