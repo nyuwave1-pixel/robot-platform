@@ -174,7 +174,7 @@ await check("F03", "손상된 이미지 → 오류 안내", async () => {
 await check("F04", "업로드 → 품질검사 → 설문 → 리포트 (전체 흐름)", async () => {
   requests.length = 0;
   assert(await runFlow(P, portrait), "flow did not reach report");
-  const score = await P.textContent('[data-testid="overall-score"]');
+  const score = await P.getAttribute('[data-testid="overall-score"]', 'data-value');
   await P.waitForSelector('[data-testid="sim-slider"]', { timeout: 60000 });
   assert(P.errors.length === 0, "page errors: " + P.errors.join(" | "));
   return `overall=${score.trim()}`;

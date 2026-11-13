@@ -14,3 +14,30 @@ body { font-family: var(--font-sans); background: #05070a; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ── 입체 텍스트 (DepthText) ─────────────────────────────── */
+.depth-text { perspective: 900px; font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.01em; }
+.depth-md { font-size: clamp(1.35rem, 2.6vw, 1.9rem); --depth: 3; }
+.depth-lg { font-size: clamp(1.8rem, 4.2vw, 3.1rem); --depth: 5; }
+.depth-xl { font-size: clamp(2.3rem, 6.4vw, 4.6rem); --depth: 7; }
+/* 글자 본체 = 압출(깊이) 레이어, ::after = 앞면(그라디언트) 레이어 */
+.depth-ch { position: relative; display: inline-block; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform, opacity;
+  color: #1b2733;
+  text-shadow: 0 1px 0 #2a3947, 0 2px 0 #223040, 0 3px 0 #1a2631, 0 calc(var(--depth) * 1px) 0 #121b24, 0 calc(var(--depth) * 1px + 6px) 14px rgba(0,0,0,0.7); }
+.depth-ch::after { content: attr(data-ch); position: absolute; left: 0; top: 0; text-shadow: none; color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #e3e9f0 48%, #93a1b0 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.depth-acc { color: #0b4f9c;
+  text-shadow: 0 1px 0 #0d5db6, 0 2px 0 #0b4f9c, 0 3px 0 #093f7d, 0 calc(var(--depth) * 1px) 0 #062a54, 0 calc(var(--depth) * 1px + 8px) 24px rgba(47,155,255,0.55), 0 0 26px rgba(79,182,255,0.35); }
+.depth-acc::after { background: linear-gradient(180deg, #ffffff 0%, #a9e3ff 42%, #3aa2ff 100%); -webkit-background-clip: text; background-clip: text; }
+
+/* ── 모션 그래픽 보조 ───────────────────────────────────── */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
+@keyframes sheen { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(320%) skewX(-18deg); } }
+.sheen { position: relative; overflow: hidden; }
+.sheen::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent); animation: sheen 3.6s ease-in-out infinite; mix-blend-mode: overlay; pointer-events: none; }
+@keyframes dash { to { stroke-dashoffset: -40; } }
+@keyframes pulse-zone { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+@keyframes orbit { to { transform: rotate(360deg); } }
+.grid-floor { background-image: linear-gradient(rgba(79,182,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(79,182,255,0.14) 1px, transparent 1px);
+  background-size: 44px 44px; transform: perspective(700px) rotateX(62deg); transform-origin: 50% 0; mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 75%); }

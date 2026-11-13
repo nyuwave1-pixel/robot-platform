@@ -41,3 +41,18 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 - Vercel: Root Directory 를 `apps/mediderma-ai` 로 지정. 통계·관리자 설정을 쓰려면 `DATABASE_URL` 필수.
 - Docker: `docker build -t mediderma-ai apps/mediderma-ai` (이 저장소에서는 빌드 검증을 하지 못했다).
 - 카메라 촬영은 HTTPS 에서만 동작한다.
+
+## 디자인 · 모션 레이어
+
+| 위치 | 기술 |
+|---|---|
+| 히어로 타이틀 | 실제 압출·베벨 3D 텍스트(`fx/Title3D`), 금속 재질 + 절차적 환경광, 포인터 추종 틸트 |
+| 히어로 얼굴 | 프레넬 림 셰이더 홀로그램 메시 + 스캔 밴드 + 궤도 링 + 영역 콜아웃 + 블룸 후처리(`FaceScene`) |
+| 섹션 헤딩 | 글자별 3D 등장 + 압출 깊이 + 강조어 발광(`fx/DepthText`, 모든 언어 지원) |
+| 기술 카드 | 기능별 GLSL 모션 그래픽 — RF 열 파동 / 초음파 간섭 / 이온 입자 흐름(`fx/ShaderCanvas`) + 3D 틸트 |
+| 진행 단계 | 스크롤 연동 진행선 + 3D 플립 등장 |
+| 개인정보 | "사진이 기기 밖으로 나가지 않음" 모션 다이어그램(SVG) |
+| CTA | 오로라 셰이더 배경 + 자석 버튼 |
+| 분석·리포트 | 스캔 궤도 링, 종합 지수 카운트업 링, 지표 막대 애니메이션 |
+
+저사양 기기·WebGL 미지원·모션 최소화 설정에서는 WebGL 캔버스를 만들지 않고 CSS/SVG 버전으로 자동 전환한다 (`lib/client/device.ts`). 3D 글꼴(helvetiker)은 three.js 배포본이며 라이선스는 `public/fonts/LICENSE`.

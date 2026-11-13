@@ -198,10 +198,17 @@ export default function AnalyzeFlow() {
           {step === "running" && (
             <div className="text-center" data-testid="running">
               <h1 className="font-display text-2xl font-light">{t.progress.title}</h1>
-              <div className="relative mx-auto mt-6 aspect-[4/5] w-56 overflow-hidden rounded-2xl border border-scan/40 bg-black shadow-glow">
+              <div className="relative mx-auto mt-10 w-56 [perspective:800px]">
+                <div aria-hidden className="absolute -inset-8 rounded-full border border-scan/40 [transform:rotateX(68deg)]" style={{ animation: "orbit 5s linear infinite" }}>
+                  <span className="absolute -top-1 left-1/2 h-2 w-2 rounded-full bg-scan2 shadow-glow" />
+                </div>
+                <div aria-hidden className="absolute -inset-14 rounded-full border border-dashed border-silver/20 [transform:rotateX(68deg)]" style={{ animation: "orbit 9s linear infinite reverse" }} />
+              <div className="relative aspect-[4/5] w-56 overflow-hidden rounded-2xl border border-scan/40 bg-black shadow-glow">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {preview && <img src={preview} alt="" className="h-full w-full object-cover opacity-70" />}
                 <div className="absolute inset-x-0 h-10 animate-[scan_1.8s_ease-in-out_infinite] bg-gradient-to-b from-transparent via-scan/60 to-transparent" />
+                <div aria-hidden className="absolute inset-0 bg-[linear-gradient(rgba(79,182,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(79,182,255,0.12)_1px,transparent_1px)] bg-[size:22px_22px]" />
+              </div>
               </div>
               <ol className="mx-auto mt-6 max-w-xs space-y-2 text-left text-sm">
                 {STAGES.map((s) => {

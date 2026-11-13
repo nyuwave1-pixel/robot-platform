@@ -25,8 +25,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <Logo />
           </Link>
           <nav className="flex items-center gap-1 text-[13px] text-silver sm:gap-3">
-            <Link href="/analyze" className="rounded px-2 py-1.5 hover:text-white">{t.nav.analyze}</Link>
-            <Link href="/compare" className="rounded px-2 py-1.5 hover:text-white">{t.nav.compare}</Link>
+            <Link href="/analyze" className="whitespace-nowrap rounded px-1.5 py-1.5 hover:text-white sm:px-2">{t.nav.analyze}</Link>
+            <Link href="/compare" className="hidden whitespace-nowrap rounded px-1.5 py-1.5 hover:text-white min-[480px]:block sm:px-2">{t.nav.compare}</Link>
             <Link href="/history" className="hidden rounded px-2 py-1.5 hover:text-white sm:block">{t.nav.history}</Link>
             <label className="sr-only" htmlFor="lang">{t.common.language}</label>
             <select

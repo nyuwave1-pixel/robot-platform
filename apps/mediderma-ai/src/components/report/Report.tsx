@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { animate, motion } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp, type CurrentAnalysis } from "@/lib/client/store";
 import { FACE_ZONES, ZONE_METRICS } from "@/lib/analysis/zones";
@@ -21,19 +22,26 @@ const Face3D = dynamic(() => import("./Face3D"), { ssr: false });
 function Ring({ value, label, sub }: { value: number | null; label: string; sub: string }) {
   const r = 54;
   const c = 2 * Math.PI * r;
+  // 카운트업 (최종값은 data-value 에 항상 있다)
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (value === null) return;
+    const ctl = animate(0, value, { duration: 1.4, ease: [0.2, 0.75, 0.2, 1], onUpdate: (v) => setShown(Math.round(v)) });
+    return () => ctl.stop();
+  }, [value]);
   return (
     <div className="flex items-center gap-4">
       <svg viewBox="0 0 128 128" className="h-28 w-28 shrink-0 -rotate-90">
         <circle cx="64" cy="64" r={r} fill="none" stroke="#1c232d" strokeWidth="8" />
-        {value !== null && <circle cx="64" cy="64" r={r} fill="none" stroke="url(#g)" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${(c * value) / 100} ${c}`} />}
+        {value !== null && <motion.circle cx="64" cy="64" r={r} fill="none" stroke="url(#g)" strokeWidth="8" strokeLinecap="round" strokeDasharray={c} initial={{ strokeDashoffset: c }} animate={{ strokeDashoffset: c - (c * value) / 100 }} transition={{ duration: 1.4, ease: [0.2, 0.75, 0.2, 1] }} style={{ filter: "drop-shadow(0 0 6px rgba(79,182,255,0.7))" }} />}
         <defs>
           <linearGradient id="g" x1="0" x2="1">
             <stop offset="0" stopColor="#4fb6ff" />
             <stop offset="1" stopColor="#ffffff" />
           </linearGradient>
         </defs>
-        <text x="64" y="64" transform="rotate(90 64 64)" textAnchor="middle" dominantBaseline="central" className="fill-white font-display text-[34px] font-light" data-testid="overall-score">
-          {value ?? "—"}
+        <text x="64" y="64" transform="rotate(90 64 64)" textAnchor="middle" dominantBaseline="central" className="fill-white font-display text-[34px] font-light" data-testid="overall-score" data-value={value ?? ""}>
+          {value === null ? "—" : shown}
         </text>
       </svg>
       <div>
@@ -52,7 +60,7 @@ function Bar({ name, value, better, hint }: { name: string; value: number | null
         <span className="tabular-nums text-silver">{value ?? "—"}<span className="ml-1 text-[10px] text-silver/50">{hint}</span></span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-line">
-        {value !== null && <div className={`h-full rounded-full ${better ? "bg-gradient-to-r from-scan to-white" : "bg-gradient-to-r from-silver/60 to-amber-300"}`} style={{ width: `${value}%` }} />}
+        {value !== null && <motion.div className={`h-full rounded-full ${better ? "bg-gradient-to-r from-scan to-white" : "bg-gradient-to-r from-silver/60 to-amber-300"}`} initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.9, ease: [0.2, 0.75, 0.2, 1] }} />}
       </div>
     </div>
   );
