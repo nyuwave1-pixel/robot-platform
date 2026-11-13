@@ -62,6 +62,21 @@ export const SCENES: Record<ProductKey, ProductScene> = {
     buyShort: "Buy Vita C 13.5",
     tone: "dark",
   },
+  // Not part of the three-step ritual on the home page; used for its share image.
+  mist: {
+    key: "mist",
+    step: "Anytime",
+    verb: "Hydrate",
+    kicker: "Hydrating Skin Barrier Serum Mist",
+    headline: "Hydration in a mist.",
+    sub: "Copper tripeptide-1 and CICA in nano liposomes, in an ultra-fine spray.",
+    discover: "Discover Serum Mist",
+    buy: "Buy Hydrating Skin Barrier Serum Mist",
+    buyShort: "Buy Serum Mist",
+    tone: "light",
+  },
 };
 
-export const RITUAL_ORDER: ProductKey[] = ["wash", "mask", "ampoule"];
+/** The three Vita C steps on the home page. The serum mist is sold on TikTok Shop and is not part of it. */
+export type RitualKey = Exclude<ProductKey, "mist">;
+export const RITUAL_ORDER: RitualKey[] = ["wash", "mask", "ampoule"];

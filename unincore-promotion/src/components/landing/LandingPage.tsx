@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { ArrowUpRight, Atom, CirclesThree, Drop, Leaf, Plant, Scales, Star } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, Atom, Check, CirclesThree, Drop, Leaf, Plant, Scales, Star } from "@phosphor-icons/react/dist/ssr";
 import type { ProductContent } from "@/content/types";
 import { LANDING, ROUTINE, TRADEMARK, type LandingContent, type Review } from "@/content/landing";
 import type { ProductKey } from "@/content/types";
@@ -65,8 +65,8 @@ function ProductShot({ k, className = "", sizes, priority = false }: { k: Produc
   );
 }
 
-/** Amazon star rating, partial stars filled to the score. */
-function Stars({ score, size = 18 }: { score: number; size?: number }) {
+/** Star rating, partial stars filled to the score: Amazon orange, or TikTok Shop's yellow. */
+function Stars({ score, size = 18, color = "#FF9900" }: { score: number; size?: number; color?: string }) {
   return (
     <span role="img" className="relative inline-flex" aria-label={`${score} out of 5 stars`}>
       <span className="flex text-body/15">
@@ -74,7 +74,7 @@ function Stars({ score, size = 18 }: { score: number; size?: number }) {
           <Star key={i} size={size} weight="fill" aria-hidden />
         ))}
       </span>
-      <span className="absolute inset-0 flex overflow-hidden text-[#FF9900]" style={{ width: `${(score / 5) * 100}%` }}>
+      <span className="absolute inset-0 flex overflow-hidden" style={{ width: `${(score / 5) * 100}%`, color }}>
         {[0, 1, 2, 3, 4].map((i) => (
           <Star key={i} size={size} weight="fill" aria-hidden className="shrink-0" />
         ))}
@@ -88,19 +88,31 @@ function Stars({ score, size = 18 }: { score: number; size?: number }) {
  * (stars, name, date, the review in their words). With no reviews filled in yet, the same
  * layout shows labeled slots so nothing is invented.
  */
-function Reviews({ items, photos }: { items: Review[]; photos: { src: string; name: string }[] }) {
+function Reviews({
+  items,
+  photos,
+  source = "Amazon.com",
+  photoRatio = 3 / 4,
+}: {
+  items: Review[];
+  photos: { src: string; name: string }[];
+  source?: "Amazon.com" | "TikTok Shop";
+  photoRatio?: number;
+}) {
+  const store = source === "TikTok Shop" ? "TikTok Shop" : "Amazon";
+  const starColor = source === "TikTok Shop" ? "#FFC21A" : "#FF9900";
   if (!items.length) {
     return (
       <div className="mt-8 space-y-3">
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map((i) => (
-            <Slot key={i} caption="Amazon review photo" className="aspect-square rounded-[20px]" compact />
+            <Slot key={i} caption={`${store} review photo`} className="aspect-square rounded-[20px]" compact />
           ))}
         </div>
         {[0, 1].map((i) => (
           <div key={i} className="paper rounded-[20px] px-6 py-5">
             <Stars score={5} size={15} />
-            <p className="mt-2 text-[14.5px] text-body-mute">Verified Amazon review will appear here.</p>
+            <p className="mt-2 text-[14.5px] text-body-mute">Verified {store} review will appear here.</p>
           </div>
         ))}
       </div>
@@ -109,10 +121,10 @@ function Reviews({ items, photos }: { items: Review[]; photos: { src: string; na
   return (
     <div className="mt-8 space-y-3">
       {photos.length > 0 && (
-        <ul className="grid grid-cols-3 gap-3" aria-label="Product photos from Amazon reviewers">
+        <ul className="grid grid-cols-3 gap-3" aria-label={`Product photos from ${store} reviewers`}>
           {photos.slice(0, 3).map((ph) => (
-            <li key={ph.src} className="relative aspect-[3/4] overflow-hidden rounded-[20px] bg-body/5">
-              <Image src={ph.src} alt={`Product photo uploaded by ${ph.name} with their 5-star Amazon review`} fill sizes="(min-width: 1024px) 190px, 33vw" className="object-cover" />
+            <li key={ph.src} className="relative overflow-hidden rounded-[20px] bg-body/5" style={{ aspectRatio: photoRatio }}>
+              <Image src={ph.src} alt={`Product photo uploaded by ${ph.name} with their 5-star ${store} review`} fill sizes="(min-width: 1024px) 190px, 33vw" className="object-cover" />
             </li>
           ))}
         </ul>
@@ -120,14 +132,16 @@ function Reviews({ items, photos }: { items: Review[]; photos: { src: string; na
       {items.map((r) => (
         <figure key={`${r.name}-${r.date}`} className="paper rounded-[20px] px-6 py-5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <Stars score={r.stars} size={15} />
+            <Stars score={r.stars} size={15} color={starColor} />
             {r.title && <span className="font-sans text-[15px] font-semibold tracking-[-0.01em] text-body">{r.title}</span>}
           </div>
           <blockquote className="mt-3 text-[15px] leading-relaxed text-body-soft">{r.text}</blockquote>
           <figcaption className="mt-3.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] text-body-mute">
             <span className="font-semibold text-body">{r.name}</span>
-            <span>Reviewed on Amazon.com, {r.date}</span>
-            <span className={r.badge === "Verified Purchase" ? "font-semibold text-[#B35900]" : ""}>{r.badge}</span>
+            <span>
+              Reviewed on {source}, {r.date}
+            </span>
+            <span className={r.badge === "Verified Purchase" ? "font-semibold text-[#B35900]" : r.badge === "Verified purchase" ? "font-semibold text-acc-ink" : ""}>{r.badge}</span>
           </figcaption>
         </figure>
       ))}
@@ -145,7 +159,10 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
   const c: LandingContent = LANDING[p.key];
   const ap = toAmazonProduct(p);
   // Up to three guides: the ones that feature this product, then the routine guide.
-  const guides = [...GUIDES.filter((g) => g.products.includes(p.key)).map(({ slug, h1 }) => ({ slug, h1 })), { slug: ROUTINE_GUIDE.slug, h1: ROUTINE_GUIDE.h1 }].slice(0, 3);
+  const guides = c.hideGuides
+    ? []
+    : [...GUIDES.filter((g) => g.products.includes(p.key)).map(({ slug, h1 }) => ({ slug, h1 })), { slug: ROUTINE_GUIDE.slug, h1: ROUTINE_GUIDE.h1 }].slice(0, 3);
+  const storeName = p.shop ? "TikTok Shop" : "Amazon";
   const promoInitial = isPromoActive(p.promotion);
   const theme = {
     "--acc": c.theme.acc,
@@ -154,11 +171,15 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
     "--acc-deep": c.theme.deep,
     "--acc-glow": c.theme.glow,
     "--acc-bright": c.theme.bright ?? c.theme.acc,
+    ...(c.theme.cloud && { "--cloud": c.theme.cloud }),
+    ...(c.theme.iri && { "--iri": c.theme.iri }),
+    ...(c.theme.veil && { "--veil": c.theme.veil }),
+    ...(c.theme.slot && { "--slot-end": c.theme.slot }),
   } as CSSProperties;
 
   return (
-    <div className="lp" style={theme}>
-      <LightField src={`/landing/${p.key}-field.webp`} />
+    <div className={`lp lp-${p.key}`} style={theme}>
+      <LightField src={c.plainBackground ? undefined : `/landing/${p.key}-field.webp`} />
       <ProductViewTracker product={ap} />
       <PromoStrip product={ap} initialActive={promoInitial} />
 
@@ -214,9 +235,26 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
               </div>
             </section>
 
-            {/* Skin concerns: one card per concern, each with its own skin close-up */}
+            {/* Benefits (serum mist): one line each, checked */}
+            {c.benefits && (
+              <Block>
+                <Heading title={c.benefits.title} accent={c.benefits.accent} />
+                <ul className="mt-7 grid gap-2.5">
+                  {c.benefits.items.map((b) => (
+                    <li key={b} className="paper flex items-center gap-3.5 rounded-[18px] px-4 py-3.5 sm:px-5 sm:py-4">
+                      <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[rgb(var(--acc))] text-[#16150F]">
+                        <Check size={16} weight="bold" />
+                      </span>
+                      <span className="text-[16px] font-semibold leading-snug tracking-[-0.01em] text-body">{rich(b)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
+
+            {/* Skin concerns: one card per concern, each with its own skin close-up (the mist: when to use it) */}
             <Block>
-              <Heading title="Made for these skin concerns" accent="skin concerns" />
+              <Heading title={c.concernsHeading?.title ?? "Made for these skin concerns"} accent={c.concernsHeading?.accent ?? "skin concerns"} sub={c.concernsHeading?.sub} />
               <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
                 {c.concerns.map((x) => (
                   <li key={x.title} className="paper overflow-hidden rounded-[22px] p-2">
@@ -245,6 +283,26 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
               </ul>
             </Block>
 
+            {/* Formula and texture cards (serum mist) */}
+            {c.features && (
+              <Block>
+                <Heading title={c.features.title} accent={c.features.accent} />
+                <ul className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
+                  {c.features.items.map((f) => (
+                    <li key={f.title} className="paper overflow-hidden rounded-[22px] p-2">
+                      <div className="relative aspect-square overflow-hidden rounded-[16px] bg-body/5">
+                        <Image src={f.image} alt={f.alt} fill sizes="(min-width: 1024px) 280px, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                      </div>
+                      <div className="px-2.5 pb-3 pt-4 sm:px-3">
+                        <h3 className="font-sans text-[18px] font-semibold leading-tight tracking-[-0.015em] text-body">{rich(f.title)}</h3>
+                        <p className="mt-2 text-[14.5px] leading-snug text-body-mute">{rich(f.text)}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
+
             {/* Clinical results (ampoule only) */}
             {c.clinical && (
               <Block>
@@ -271,9 +329,9 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
             {/* Reviews: real 5-star Amazon reviews, the reviewers' own product photos above them */}
             <Block>
               <Heading title={c.reviews.title} accent="customers" sub={c.reviews.eyebrow} />
-              <Reviews items={c.reviews.items} photos={c.reviews.photos} />
+              <Reviews items={c.reviews.items} photos={c.reviews.photos} source={c.reviews.source} photoRatio={c.reviews.photoRatio} />
               <AmazonButton product={ap} location="reviews" className="group mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-body underline decoration-body/25 underline-offset-[5px] transition hover:decoration-body">
-                Read reviews on Amazon
+                Read reviews on {storeName}
                 <ArrowUpRight size={16} weight="bold" className="transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </AmazonButton>
             </Block>
@@ -321,7 +379,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
 
             {/* Key ingredients: one card structure for photo and non-photo items */}
             <Block>
-              <Heading title="Key ingredients" accent="ingredients" />
+              <Heading title="Key ingredients" accent="ingredients" sub={c.ingredientsSub} />
               <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
                 {c.ingredients.map((ing) => {
                   const Icon = ing.icon ? ICONS[ing.icon] : null;
@@ -371,6 +429,30 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
               </ol>
             </Block>
 
+            {/* The brand and its head of R&D (serum mist) */}
+            {c.maker && (
+              <Block>
+                <div className="glass rounded-[28px] px-6 py-8 sm:px-9 sm:py-10">
+                  <div className="relative">
+                    <p className="text-[14px] font-semibold text-acc-ink">{c.maker.eyebrow}</p>
+                    <div className="mt-2">
+                      <Heading title={c.maker.title} accent={c.maker.accent} />
+                    </div>
+                    <blockquote className="serif mt-6 text-[clamp(21px,2.2vw,26px)] italic leading-snug text-body">“{c.maker.quote}”</blockquote>
+                    <p className="mt-4 text-[15px] leading-relaxed text-body-soft">{rich(c.maker.text)}</p>
+                    <dl className="mt-8 grid grid-cols-3 divide-x divide-body/10 border-t border-body/10 pt-6">
+                      {c.maker.facts.map((f) => (
+                        <div key={f.big} className="flex flex-col-reverse justify-end px-2 text-center">
+                          <dt className="mt-1.5 text-[13px] leading-snug text-body-mute">{f.small}</dt>
+                          <dd className="serif whitespace-nowrap text-[clamp(20px,2.4vw,28px)] font-semibold leading-none text-body">{f.big}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                </div>
+              </Block>
+            )}
+
             {/* Special savings on Amazon */}
             <div className="lp-offer">
               <SavingsBox product={ap} initialActive={promoInitial} ctaLabel={c.ctaLabel} />
@@ -379,7 +461,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
             {/* 7-day glow routine (revision 2, item 5): the three steps side by side on white, like the client's
                 reference. No Amazon buttons; each product opens its own page. The page's last Amazon button follows. */}
             <Block hideSticky>
-              <Heading title={ROUTINE.title} accent={ROUTINE.accent} />
+              <Heading title={c.routineHeading?.title ?? ROUTINE.title} accent={c.routineHeading?.accent ?? ROUTINE.accent} />
               <ol className="mt-8 grid grid-cols-3 gap-1.5 rounded-[28px] bg-white px-2 pb-6 pt-3 shadow-[0_0_0_1px_rgb(22_21_15/0.04),0_24px_48px_-32px_rgb(var(--acc-deep)/0.45)] sm:gap-4 sm:px-5 sm:pb-8 sm:pt-5">
                 {ROUTINE.items.map((r, i) => {
                   const prod = all.find((x) => x.key === r.key);
@@ -431,7 +513,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
 
             <footer className="mt-16 border-t border-body/10 pt-6 text-[13px] leading-relaxed text-body-mute">
               <p>{c.disclaimer}</p>
-              <p className="mt-2.5">{TRADEMARK}</p>
+              <p className="mt-2.5">{c.trademark ?? TRADEMARK}</p>
             </footer>
           </div>
         </div>

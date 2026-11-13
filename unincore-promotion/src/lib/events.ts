@@ -5,6 +5,7 @@ export const EVENTS = [
   "product_detail_view",
   "video_play",
   "amazon_cta_click",
+  "tiktok_cta_click",
   "promotion_view",
   "faq_open",
   "official_details_open",

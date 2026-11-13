@@ -44,10 +44,13 @@ export function organizationLd() {
     "@type": "Organization",
     "@id": `${SITE.url}/#organization`,
     name: SITE.name,
+    alternateName: SITE.alternateNames,
     legalName: SITE.legalName,
+    // Tells search engines which UNI&CORE this is: "uni core" alone also matches a holding company and software projects.
+    description: "UNI&CORE is a Korean skincare brand: vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist, sold in the US on Amazon and TikTok Shop.",
     url: SITE.url,
     logo: abs("/icon.svg"),
-    sameAs: [SITE.mainSite, ...SITE.social],
+    sameAs: [SITE.mainSite, "https://us.unincore.com", SITE.amazonStore, ...SITE.social],
   };
 }
 
@@ -56,7 +59,9 @@ export function websiteLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${SITE.url}/#website`,
-    name: `${SITE.name} USA`,
+    // Google shows this as the site name above each result, so it is the plain brand.
+    name: SITE.name,
+    alternateName: SITE.alternateNames,
     url: SITE.url,
     inLanguage: "en-US",
     publisher: { "@id": `${SITE.url}/#organization` },
@@ -84,14 +89,16 @@ export function productLd(p: ProductContent) {
     name: p.name,
     description: p.seo.description,
     image: [p.packshotWhite, p.heroImage, p.visualImage].filter((x): x is string => Boolean(x)).map(abs).concat(p.heroImage ? [] : [abs(`/og/${p.slug}`)]),
-    brand: { "@type": "Brand", name: SITE.name },
-    sku: p.asin,
+    // The search phrase the page is built around ("Korean Vitamin C Serum for Face, 13.5% Pure"), from its title.
+    alternateName: p.seo.title.split(" | ")[0],
+    brand: { "@type": "Brand", name: SITE.name, alternateName: SITE.alternateNames },
+    ...(p.asin && { sku: p.asin }),
     category: "Beauty > Skin Care",
     url,
     ...(p.size && { size: p.size }),
     countryOfOrigin: "KR",
     ...(p.keyIngredient && { additionalProperty: [{ "@type": "PropertyValue", name: "Key ingredient", value: p.keyIngredient }] }),
-    sameAs: [p.amazonUrl, ...(p.officialDetail ? [p.officialDetail.sourceUrl] : [])],
+    sameAs: [p.shop?.url ?? p.amazonUrl, ...(p.officialDetail ? [p.officialDetail.sourceUrl] : [])].filter(Boolean),
   };
   if (p.price) {
     data.offers = {

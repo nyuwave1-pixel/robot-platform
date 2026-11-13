@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ProductContent, VerificationStatus } from "@/content/types";
 import { ACCENT } from "@/lib/accent";
+import type { RitualKey } from "@/data/scenes";
 import { isPromoActive } from "@/lib/promo";
 import { toAmazonProduct } from "@/lib/visibility";
 import { Packshot } from "@/components/site/Packshot";
@@ -38,7 +39,7 @@ function SectionHead({ eyebrow, title, sub, center = false }: { eyebrow: string;
  * `product` must already be filtered with publicView() for public routes;
  * the admin preview passes the full product with `preview` on.
  */
-export function ProductLanding({ product: p, related, preview = false }: { product: ProductContent; related: ProductContent[]; preview?: boolean }) {
+export function ProductLanding({ product: p, related, preview = false }: { product: ProductContent & { key: RitualKey }; related: ProductContent[]; preview?: boolean }) {
   const a = ACCENT[p.accent];
   const ap = toAmazonProduct(p);
   const promoInitial = isPromoActive(p.promotion);

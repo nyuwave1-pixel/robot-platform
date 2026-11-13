@@ -14,5 +14,5 @@ export function publicView(p: ProductContent): ProductContent {
 
 /** Minimal product shape sent to client components. */
 export function toAmazonProduct(p: ProductContent) {
-  return { key: p.key, asin: p.asin, name: p.name, amazonUrl: p.amazonUrl, attribution: p.attribution, promotion: p.promotion };
+  return { key: p.key, asin: p.asin, name: p.name, amazonUrl: p.amazonUrl, attribution: p.attribution, promotion: p.promotion, shop: p.shop };
 }
