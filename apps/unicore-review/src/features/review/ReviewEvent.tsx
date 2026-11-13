@@ -18,25 +18,6 @@ const kDay = (iso: string) => new Intl.DateTimeFormat("ko-KR", { year: "numeric"
 /** 골드 입자 — 서버·클라이언트가 같은 값을 내도록 순번으로 위치를 정한다 */
 const DUST = Array.from({ length: 22 }, (_, i) => ({ left: (i * 37 + 11) % 100, top: (i * 53 + 7) % 100, size: 2 + (i % 4), delay: (i * 0.7) % 9, dur: 9 + (i % 6) * 2 }));
 
-const shot = (name: string) => ({ src: `/media/model/${name}-900.webp`, srcSet: `/media/model/${name}-900.webp 900w, /media/model/${name}-1600.webp 1600w` });
-
-/** 섹션 사이 풀블리드 모델 컷 — 화면에 들어오면 프레임이 열리며 줌아웃, 빛이 한 번 지나간다 */
-function ModelCut({ name, alt, eyebrow, en, ko, pos = "50% 30%" }: { name: string; alt: string; eyebrow: string; en: React.ReactNode; ko: string; pos?: string }) {
-  return (
-    <Reveal className={s.cut}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img {...shot(name)} sizes="(max-width: 760px) 100vw, 760px" alt={alt} loading="lazy" decoding="async" width={1600} height={2000} style={{ objectPosition: pos }} />
-      <span className={s.cutSweep} aria-hidden="true" />
-      <span className={s.cutFrame} aria-hidden="true" />
-      <div className={s.cutCap}>
-        <p className={s.cutEyebrow}>{eyebrow}</p>
-        <p className={s.cutEn}>{en}</p>
-        <p className={s.cutKo}>{ko}</p>
-      </div>
-    </Reveal>
-  );
-}
-
 function Reveal({ children, className = "", as: Tag = "div" }: { children: React.ReactNode; className?: string; as?: "div" | "section" | "li" }) {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -114,23 +95,20 @@ export default function ReviewEvent() {
       <main>
         {/* ===== SECTION 01. HERO ===== */}
         <section className={s.hero} ref={hero} aria-labelledby="hero-title">
-          <div className={s.heroVisual}>
-            <div className={s.heroShot} ref={jar}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...shot("gold-hero")} sizes="(max-width: 680px) 100vw, 680px" alt="UNI&CORE 1ST BIRTHDAY CREAM 을 손에 올려 보이는 모델" fetchPriority="high" decoding="async" width={1600} height={2000} />
-            </div>
-            <span className={s.heroRing} aria-hidden="true" />
-            <span className={`${s.heroRing} ${s.heroRing2}`} aria-hidden="true" />
-            <span className={s.heroFlare} aria-hidden="true" />
-            <span className={s.heroSweep} aria-hidden="true" />
-            <span className={s.heroShade} aria-hidden="true" />
-          </div>
           <div className={s.dust} aria-hidden="true">{DUST.map((d, i) => <i key={i} style={{ left: `${d.left}%`, top: `${d.top}%`, width: d.size, height: d.size, animationDelay: `${d.delay}s`, animationDuration: `${d.dur}s` }} />)}</div>
+          <div className={s.heroGlow} aria-hidden="true" />
           <div className={s.heroCopy}>
             <p className={s.badge}>{E.hero.badge}</p>
             <h1 id="hero-title" className={s.heroEn}>YOUR SKIN HAS<br />A BIRTHDAY.</h1>
             <p className={s.heroKo}>{E.hero.ko}</p>
             <p className={s.heroProduct}>{E.hero.product}<br /><b>{E.hero.badge}</b></p>
+          </div>
+          <div className={s.jarStage}>
+            <div className={s.jar} ref={jar}>
+              <video className={s.jarVideo} autoPlay muted loop playsInline preload="metadata" poster="/media/product/spotlight_jar_poster.webp" aria-label="UNI&CORE 1ST BIRTHDAY CREAM 50g 제품">
+                <source src="/media/product/spotlight_jar_720.mp4" type="video/mp4" />
+              </video>
+            </div>
           </div>
           <div className={s.heroText}>
             <p className={s.heroLead}>{E.hero.lead}</p>
@@ -168,8 +146,6 @@ export default function ReviewEvent() {
           </div>
         </section>
 
-        <ModelCut name="glow-close" pos="50% 26%" alt="UNI&CORE 1ST BIRTHDAY CREAM 을 얼굴 옆에 든 모델" eyebrow="SKIN RE:BIRTH" en={<>EVERY DAY,<br />A NEW BIRTHDAY.</>} ko="매일 바르는 순간이, 피부의 기념일이 되도록" />
-
         {/* ===== SECTION 03. HOW TO PARTICIPATE ===== */}
         <section className={`${s.section} ${s.sectionAlt}`} aria-labelledby="guide-title">
           <Reveal>
@@ -185,8 +161,6 @@ export default function ReviewEvent() {
             <ul>{E.guide.after.map((a) => <li key={a}>{a}</li>)}</ul>
           </Reveal>
         </section>
-
-        <ModelCut name="vanity-mirror" pos="50% 24%" alt="화장대 앞에서 UNI&CORE 1ST BIRTHDAY CREAM 을 들고 웃는 모델" eyebrow="MY DAILY RITUAL" en={<>THE FIRST CREAM<br />OF MY DAY.</>} ko="하루의 시작과 끝, 벌스데이 크림과 함께" />
 
         {/* ===== SECTION 04. PRODUCT ===== */}
         <section className={s.section} aria-labelledby="product-title">
@@ -225,8 +199,6 @@ export default function ReviewEvent() {
             <a className={s.textLink} href={E.brandSite} onClick={() => track("review_brand_link", {})}>제품 이야기 자세히 보기 →</a>
           </Reveal>
         </section>
-
-        <ModelCut name="vanity-smile" pos="50% 22%" alt="UNI&CORE 1ST BIRTHDAY CREAM 을 들고 환하게 웃는 모델" eyebrow="YOUR TURN" en={<>NOW, TELL US<br />YOUR STORY.</>} ko="이제 당신의 벌스데이 크림 이야기를 들려주세요" />
 
         {/* ===== REVIEW FORM ===== */}
         <section className={`${s.section} ${s.sectionAlt} ${s.writeSection}`} id="write" aria-labelledby="write-title">

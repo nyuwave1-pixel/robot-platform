@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import s from "./review.module.css";
 
-const SRC = "/media/audio/bgm.mp3";
+const SRC = "/media/audio/bgm-2.mp3";
 const PREF_KEY = "uc-review-bgm"; // "off" 로 저장되면 다음 방문에도 자동으로 틀지 않는다
 const VOLUME = 0.55;
 
