@@ -42,3 +42,14 @@ SKIP_ASSETS=1 npm run dev   # 영상 없이 UI만 볼 때
   - `buy_click { placement: final|sticky|promo_bar, region: kr|us, locale }`
   - `promo_bar_close { locale }`
 - 주의: 이 프로젝트는 Ignored Build Step 으로 `apps/unicore-birthday` 변경이 없는 커밋·재배포(Redeploy)는 취소됩니다. 강제로 새 배포가 필요하면 이 디렉터리 안의 파일을 바꿔 커밋하세요.
+
+## 구매 후기 이벤트 (`/review`)
+벌스데이 크림 구매 후기 작성·사용 전/후 사진 업로드·접수 완료까지 진행하는 모바일 우선 프로모션 페이지입니다. 브랜드 페이지(`/`)와 별도 루트 레이아웃(`src/app/review/layout.tsx`)이라 인트로·3D·사운드를 불러오지 않습니다.
+
+- 화면: `src/features/review/` — `ReviewEvent`(히어로·보상·참여 방법·제품 소개·접수 완료·내 접수 확인), `ReviewForm`(3단계 작성), `PhotoField`(촬영/사진첩·진행률·교체·삭제·재시도·전후 비교), `image.ts`(업로드 전 1600px 리사이징 + EXIF 제거), `api.ts`
+- 문구: `src/data/reviewEvent.ts`. 제품 설명은 기존 `src/data/{product,ingredients,howto,clinical}.ts` 의 공식 원문을 그대로 씁니다.
+- **데이터는 이 앱에 저장되지 않습니다.** 접수 API·DB·사진 저장·관리자 화면은 더마홈(`dermahome-site` 저장소, `https://dermahome.unincore.com/admin/` > 프로모션 관리)에 있습니다. 글자 수·사진 필수 여부·기간·보상 상품명·동의 문서는 접수 API `/config` 값을 따릅니다.
+- 총판 링크: `/review?d=총판코드` 로 들어온 접수는 해당 총판 실적으로 집계됩니다.
+- 환경변수 `NEXT_PUBLIC_REVIEW_API` — 미설정 시 운영 API. 운영 API 는 `https://birthday.unincore.com` 출처만 허용하므로, 로컬·프리뷰 주소에서 시험하려면 더마홈 쪽 `BR_TEST_ORIGINS` 에 그 주소를 등록해야 합니다(그 접수는 테스트로 분리 저장).
+- 추적 이벤트: `review_cta { placement }`, `review_step { step }`, `review_submit { photos, rating }`
+- 로컬 검수: `dermahome-site` 에서 `npm run promo:serve` → 이 앱을 `SKIP_ASSETS=1 NEXT_PUBLIC_REVIEW_API=http://localhost:8899/api/birthday-review npm run dev`
