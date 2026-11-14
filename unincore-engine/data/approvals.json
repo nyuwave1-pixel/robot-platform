@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "How is a powder wash different from a gel cleanser?",
+        "a": "A powder wash stays dry until you add water, so the enzymes are activated fresh with each use. It lathers into a creamy foam and rinses clean."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "admin"
+  },
+  {
+    "id": 2,
+    "product_id": "UC-US-445",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "When should I use a sheet mask in my routine?",
+        "a": "After cleansing and toner, before your ampoule and moisturizer. Leave the sheet on for 10–20 minutes, remove it, then pat in the remaining essence and continue with the rest of your routine."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "owner-via-chat"
+  },
+  {
+    "id": 3,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "Is the enzyme powder wash good for travel?",
+        "a": "Yes. Each wash comes in its own 1 g single-use pouch, so the powder stays dry and fresh and there is no liquid to spill. A box holds 30 pouches."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "owner-via-chat"
+  },
+  {
+    "id": 4,
+    "product_id": "UC-US-449",
+    "target": "site_seo",
+    "change": {
+      "faq": {
+        "q": "Should I use vitamin C serum in the morning or at night?",
+        "a": "Either works. Many people apply vitamin C in the morning and follow with sunscreen, then keep stronger actives such as retinol for the evening. Apply 2 pumps after cleansing, before your cream."
+      }
+    },
+    "protected": false,
+    "status": "applied",
+    "decided_by": "owner-via-chat"
+  },
+  {
+    "id": 5,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "seoTitle": "Vitamin C Enzyme Powder Cleanser | UNI&CORE Korean Face Wash"
+    },
+    "protected": false,
+    "status": "superseded",
+    "decided_by": "client revision 3 (2026-11-13)"
+  },
+  {
+    "id": 6,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "seoDescription": "UNI&CORE Korean enzyme powder face wash with vitamin C, papain and bromelain: a gentle exfoliating cleanser, pH 5–5.5, in 30 travel packets. On Amazon."
+    },
+    "protected": false,
+    "status": "pending",
+    "decided_by": null
+  }
+]
