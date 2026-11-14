@@ -65,5 +65,16 @@
     "protected": false,
     "status": "superseded",
     "decided_by": "client revision 3 (2026-11-13)"
+  },
+  {
+    "id": 6,
+    "product_id": "UC-US-441",
+    "target": "site_seo",
+    "change": {
+      "seoDescription": "UNI&CORE Korean enzyme powder face wash with vitamin C, papain and bromelain: a gentle exfoliating cleanser, pH 5–5.5, in 30 travel packets. On Amazon."
+    },
+    "protected": false,
+    "status": "pending",
+    "decided_by": null
   }
 ]
