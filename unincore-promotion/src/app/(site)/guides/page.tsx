@@ -23,7 +23,7 @@ export default function GuidesIndex() {
           <p className="eyebrow">Guides</p>
           <h1 className="mt-4 font-display text-[40px] leading-[1.02] sm:text-6xl">Vitamin C Skincare Guides</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">
-            Practical, label-based guides to using vitamin C in a Korean skincare routine. Every UNI&amp;CORE product mentioned is available on Amazon.com.
+            Practical, label-based guides to a Korean skincare routine, from vitamin C to hydrating mists. Every UNI&amp;CORE product mentioned is available on Amazon.com or TikTok Shop.
           </p>
         </div>
       </section>

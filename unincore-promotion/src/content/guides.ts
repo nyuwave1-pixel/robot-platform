@@ -376,6 +376,53 @@ export const GUIDES: Guide[] = [
     published: "2026-11-12",
     updated: "2026-11-12",
   },
+  {
+    slug: "how-to-use-face-mist",
+    title: "How to Use a Face Mist in Your Routine | UNI&CORE",
+    description:
+      "When to use a face mist, before or after moisturizer, over makeup and through the day, plus how to spray it for even, comfortable hydration.",
+    h1: "How to Use a Face Mist: When and Where It Fits",
+    intro:
+      "A face mist is the quickest step in a routine, but where you use it matters. Here is how to place it around your serum and moisturizer, and how to use it through the day.",
+    keywords: ["how to use face mist", "face mist before or after moisturizer", "serum mist", "hydrating face mist", "face mist over makeup"],
+    sections: [
+      {
+        heading: "Right after cleansing",
+        paragraphs: [
+          "The most common place for a mist is straight after cleansing, while skin still feels slightly damp. Mist evenly, let it settle for a moment, then go on with your serum and moisturizer.",
+        ],
+      },
+      {
+        heading: "Before or after moisturizer?",
+        paragraphs: [
+          "Mostly before. A mist is water-based, so a moisturizer on top helps hold that hydration in place. You can also mist again after moisturizer for an extra boost, but a mist works alongside your moisturizer, not instead of it.",
+        ],
+      },
+      {
+        heading: "Over makeup and through the day",
+        paragraphs: [
+          "A fine mist is a quick reset when skin feels dry in air conditioning, heat or on a long day. Hold the bottle at arm's length so the spray lands as a light veil rather than droplets, and let it dry on its own or pat gently.",
+        ],
+      },
+      {
+        heading: "An example: the UNI&CORE serum mist",
+        product: "mist",
+        paragraphs: [
+          "The UNI&CORE Hydrating Skin Barrier Serum Mist is a serum-type mist with copper tripeptide-1 and a CICA mild complex in an ultra-fine spray, made in Korea. It comes in a 1.76 fl oz (50 ml) bottle.",
+          "Hold the bottle 20–30 cm from your face and spray evenly, then pat gently if you like. Use it after cleansing, before the rest of your skincare, over makeup or whenever skin feels dry.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "Should I use face mist before or after moisturizer?", a: "Usually before, so your moisturizer can hold the hydration in. A second mist after moisturizer is optional." },
+      { q: "Can I use a face mist over makeup?", a: "Yes, if the mist is fine enough. Hold it at arm's length, spray a light veil, and let it dry without rubbing." },
+      { q: "How far should I hold a face mist from my face?", a: "Follow the product directions. For the UNI&CORE serum mist, hold the bottle 20–30 cm away and spray evenly." },
+      { q: "Where can I buy the UNI&CORE serum mist?", a: "On TikTok Shop. Use the Shop on TikTok Shop button in this guide." },
+    ],
+    products: ["mist"],
+    published: "2026-11-16",
+    updated: "2026-11-16",
+  },
 ];
 
 export const ROUTINE_GUIDE = {
