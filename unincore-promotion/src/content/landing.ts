@@ -706,7 +706,7 @@ export const LANDING: Record<ProductKey, LandingContent> = {
       ],
     },
     routineHeading: { title: "Pair it with the Vita C glow routine", accent: "Vita C glow routine" },
-    hideGuides: true,
+    // Guides block turned on 2026-11-16 at the client's request, now that a mist guide exists.
     trademark: "UNI&CORE. Shop on TikTok Shop. TikTok and TikTok Shop are trademarks of their respective owners.",
     disclaimer:
       "*Hydration results based on internal testing; individual results may vary. Net weight 1.76 fl oz (50 ml). This product is a cosmetic and is not intended to diagnose, treat, cure or prevent any disease.",

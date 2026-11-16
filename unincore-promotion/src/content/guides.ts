@@ -423,6 +423,56 @@ export const GUIDES: Guide[] = [
     published: "2026-11-16",
     updated: "2026-11-16",
   },
+  {
+    slug: "skin-barrier-care-routine",
+    title: "Skin Barrier Care: A Gentle Daily Routine | UNI&CORE",
+    description:
+      "Signs your skin barrier needs care and a simple routine to support it: a gentle low-pH cleanse, steady hydration, moisturizer and daily sunscreen.",
+    h1: "Skin Barrier Care: A Gentle Routine for Comfortable Skin",
+    intro:
+      "When skin feels tight, stings with products it used to tolerate or looks red and flaky, the outer barrier often needs a break. The fix is usually less, not more: a short, gentle routine done consistently.",
+    keywords: ["skin barrier care", "how to support skin barrier", "damaged skin barrier signs", "gentle cleanser for skin barrier", "barrier hydrating mist"],
+    sections: [
+      {
+        heading: "Signs your barrier needs attention",
+        paragraphs: [
+          "Common signs include tightness after washing, dry or flaky patches, redness, and stinging from products that used to feel fine. These can overlap with skin conditions, so if they persist or worsen, see a dermatologist.",
+        ],
+      },
+      {
+        heading: "Simplify first",
+        paragraphs: [
+          "Pare the routine back to the basics: a gentle cleanser, moisturizer and, in the morning, a broad-spectrum sunscreen. Pause strong exfoliants and other actives until skin feels comfortable again, then bring them back one at a time.",
+          "Wash with lukewarm rather than hot water, and pat skin dry instead of rubbing.",
+        ],
+      },
+      {
+        heading: "Cleanse gently, at a skin-friendly pH",
+        product: "wash",
+        paragraphs: [
+          "A cleanser that leaves skin squeaky or tight is working against the barrier. Look for a mild formula that rinses clean and leaves skin comfortable.",
+          "The UNI&CORE Vita C Enzyme Powder Wash is mildly acidic, at pH 5–5.5, close to the skin's own barrier, with mild cleansers so skin doesn't feel tight. If your skin is reactive, patch test first and start with a few washes a week.",
+        ],
+      },
+      {
+        heading: "Keep hydration steady",
+        product: "mist",
+        paragraphs: [
+          "Dehydrated skin feels tight and uncomfortable. Hydrate right after cleansing, then seal it in with a moisturizer; a mist during the day helps when air conditioning or heat leaves skin feeling dry.",
+          "The UNI&CORE Hydrating Skin Barrier Serum Mist pairs copper tripeptide-1 with a CICA mild complex that helps calm skin and support barrier comfort after cleansing. Spray it from 20–30 cm away, then follow with your moisturizer.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "What are signs of a damaged skin barrier?", a: "Tightness, dry or flaky patches, redness and stinging from products that used to feel fine are common signs. If they persist, see a dermatologist." },
+      { q: "Should I stop exfoliating if my skin barrier feels damaged?", a: "Pause strong exfoliants and actives, keep to a gentle cleanser, moisturizer and sunscreen, and reintroduce products one at a time once skin feels comfortable." },
+      { q: "What kind of cleanser is best for the skin barrier?", a: "A mild cleanser that leaves skin comfortable rather than tight. A mildly acidic formula, close to the skin's own pH, is a good sign." },
+      { q: "Where can I buy UNI&CORE products?", a: "The enzyme powder wash is on Amazon.com and the serum mist is on TikTok Shop. Use the shop buttons in this guide." },
+    ],
+    products: ["wash", "mist"],
+    published: "2026-11-16",
+    updated: "2026-11-16",
+  },
 ];
 
 export const ROUTINE_GUIDE = {
