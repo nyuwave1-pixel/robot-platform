@@ -105,6 +105,8 @@ function OnDeviceVisual() {
   );
 }
 
+const BRAND_CUTS = ["/brand/derma-home-console.webp", "/brand/derma-home-care-1.webp", "/brand/derma-home-care-2.webp", "/brand/derma-home-care-3.webp"];
+
 export default function Landing() {
   const { t } = useI18n();
   const { setPendingFile, config } = useApp();
@@ -242,6 +244,24 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
+          {/* UNI&CORE DERMA HOME 브랜드 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 에서 내보낸 이미지) */}
+          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
+            {BRAND_CUTS.map((src, i) => (
+              <motion.figure
+                key={src}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.2, 0.75, 0.2, 1] }}
+                className="group relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="UNI&CORE DERMA HOME" loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.06]" />
+                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent" />
+                <figcaption className="absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
+              </motion.figure>
+            ))}
+          </div>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {TECHS.map(({ id, shader, tint }, i) => (
               <motion.div key={id} initial={{ opacity: 0, y: 50, rotateY: -18 }} whileInView={{ opacity: 1, y: 0, rotateY: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.75, 0.2, 1] }} style={{ transformPerspective: 1000 }}>
