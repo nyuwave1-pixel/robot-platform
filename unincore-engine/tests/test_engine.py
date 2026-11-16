@@ -1,5 +1,5 @@
-import json
 """Unit tests (no network). Run: cd unincore-engine && python -m pytest -q"""
+import json
 import os
 import tempfile
 
