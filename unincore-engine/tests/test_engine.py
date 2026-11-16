@@ -199,7 +199,9 @@ def test_posting_kit_has_utm_links_and_compliant_captions(tmp_path):
     from engine.publish import BANNED
 
     posts = jobs.build_posts(tmp_path)
-    assert len(posts) == 9 and (tmp_path / "posts.md").exists() and (tmp_path / "posts.json").exists()
+    from engine.publish import SLUGS
+
+    assert len(posts) == 3 * len(SLUGS) and (tmp_path / "posts.md").exists() and (tmp_path / "posts.json").exists()
     for x in posts:
         assert x["link"].startswith(core.PROMO_SITE + "/products/") and "utm_source=" in x["link"] and "utm_campaign=" in x["link"]
         assert len(x["title"]) <= 100 and not BANNED.search(x["caption"] + " ".join(x["hashtags"]))
@@ -224,3 +226,11 @@ def test_dashboard_shows_promo_images_and_serves_only_safe_png_names(monkeypatch
             assert c.get(f"/creatives/{bad}").status_code == 404, bad
     finally:
         (d / name).unlink()
+
+
+def test_tiktok_shop_product_posts_say_tiktok_shop():
+    import tempfile
+    from pathlib import Path
+
+    posts = [x for x in jobs.build_posts(Path(tempfile.mkdtemp())) if x["product_id"] == "UC-US-446"]
+    assert posts and all("TikTok Shop" in x["caption"] and "Amazon" not in x["caption"] for x in posts)

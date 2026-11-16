@@ -389,7 +389,7 @@ def build_posts(out_dir=None) -> list[dict]:
         for fmt in CREATIVE_FORMATS:
             source, channel = POST_CHANNELS[fmt]
             link = f"{core.PROMO_SITE}/products/{c['slug']}?utm_source={source}&utm_medium=social&utm_campaign=vitac_always_on&utm_content={fmt}"
-            caption = f"{c['headline']} by UNI&CORE. {c['sub']}. " + " · ".join(c["points"]) + f". {copy['cta']}."
+            caption = f"{c['headline']} by UNI&CORE. {c['sub']}. " + " · ".join(c["points"]) + f". {c.get('cta', copy['cta'])}."
             posts.append({"product_id": pid, "channel": channel, "format": fmt, "image": f"{c['slug']}-{fmt}.png", "title": f"UNI&CORE {c['headline']}"[:100], "caption": caption, "hashtags": tags, "link": link})
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "posts.json").write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

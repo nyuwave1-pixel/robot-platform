@@ -20,7 +20,7 @@ from .core import session
 from .models import ApprovalRequest
 
 OVERRIDES = core.ROOT.parent / "unincore-promotion" / "src" / "content" / "seo-overrides.json"
-SLUGS = {"UC-US-441": "vita-c-enzyme-powder-wash", "UC-US-445": "vita-c-brightening-mask", "UC-US-449": "vitamin-c-13-5-ampoule"}
+SLUGS = {"UC-US-441": "vita-c-enzyme-powder-wash", "UC-US-445": "vita-c-brightening-mask", "UC-US-449": "vitamin-c-13-5-ampoule", "UC-US-446": "hydrating-skin-barrier-serum-mist"}
 BANNED = re.compile(r"whitening|bleach|\bcures?\b|\btreat(s|ment)?\b|\bheals?\b|fda[- ]approved|\bguarantee", re.I)
 ALLOWED = {"seoTitle", "seoDescription", "faq"}
 

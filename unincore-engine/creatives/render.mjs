@@ -44,6 +44,7 @@ ul{list-style:none;padding:0;margin-top:${(tall ? 4 : 2.8) * u}px;font-weight:50
 li{padding:${1.05 * u}px ${2 * u}px}li+li{border-top:1px solid rgba(22,21,15,.12)}
 .grow{flex:1}
 .cta{margin-top:${2.4 * u}px;background:linear-gradient(180deg,#FFB13D,#FF9900);color:#16150F;font-weight:800;font-size:${3.4 * u}px;padding:${1.9 * u}px ${7 * u}px;border-radius:${1.8 * u}px;box-shadow:0 ${1.2 * u}px ${3 * u}px -${1 * u}px rgba(196,85,0,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.cta.tts{background:linear-gradient(180deg,#2a2a2a,#000);color:#fff;box-shadow:0 ${1.2 * u}px ${3 * u}px -${1 * u}px rgba(0,0,0,.45)}
 .site{margin-top:${1.9 * u}px;font-weight:500;font-size:${2.2 * u}px;letter-spacing:.08em;color:#6b6a62}
 </style></head><body><div class="frame">
 <div class="brand">UNI&amp;CORE</div>
@@ -51,7 +52,7 @@ li{padding:${1.05 * u}px ${2 * u}px}li+li{border-top:1px solid rgba(22,21,15,.12
 <h1>${esc(p.headline)}</h1><div><span class="sub">${esc(p.sub)}</span></div>
 <ul>${p.points.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
 <div class="grow"></div>
-<div class="cta">${esc(spec.cta)}</div><div class="site">${esc(spec.site)}</div>
+<div class="cta${p.store === "tiktok" ? " tts" : ""}">${esc(p.cta || spec.cta)}</div><div class="site">${esc(spec.site)}</div>
 </div></body></html>`;
 }
 

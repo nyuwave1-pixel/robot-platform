@@ -64,3 +64,24 @@
 - 본문: Vitamin C Enzyme Powder Wash by UNI&CORE. Korean enzyme powder cleanser. Papain and bromelain enzymes · Mildly acidic pH 5–5.5 · 30 single-use 1 g pouches. Shop on Amazon.
 - 해시태그: #unincore #koreanskincare #vitaminc #enzymecleanser #powderwash #lowphcleanser
 - 링크: https://promotion.unincore.com/products/vita-c-enzyme-powder-wash?utm_source=instagram&utm_medium=social&utm_campaign=vitac_always_on&utm_content=story
+
+## Pinterest · hydrating-skin-barrier-serum-mist-pinterest_pin.png
+
+- 제목: UNI&CORE Hydrating Skin Barrier Serum Mist
+- 본문: Hydrating Skin Barrier Serum Mist by UNI&CORE. Copper tripeptide-1 and CICA in an ultra-fine mist. Serum-level hydration in a fine spray · Use anytime, even over makeup · 1.76 fl oz (50 ml). Shop on TikTok Shop.
+- 해시태그: #unincore #koreanskincare #vitaminc #facemist #serummist #hydratingmist
+- 링크: https://promotion.unincore.com/products/hydrating-skin-barrier-serum-mist?utm_source=pinterest&utm_medium=social&utm_campaign=vitac_always_on&utm_content=pinterest_pin
+
+## Instagram · hydrating-skin-barrier-serum-mist-instagram_post.png
+
+- 제목: UNI&CORE Hydrating Skin Barrier Serum Mist
+- 본문: Hydrating Skin Barrier Serum Mist by UNI&CORE. Copper tripeptide-1 and CICA in an ultra-fine mist. Serum-level hydration in a fine spray · Use anytime, even over makeup · 1.76 fl oz (50 ml). Shop on TikTok Shop.
+- 해시태그: #unincore #koreanskincare #vitaminc #facemist #serummist #hydratingmist
+- 링크: https://promotion.unincore.com/products/hydrating-skin-barrier-serum-mist?utm_source=instagram&utm_medium=social&utm_campaign=vitac_always_on&utm_content=instagram_post
+
+## Instagram Story · hydrating-skin-barrier-serum-mist-story.png
+
+- 제목: UNI&CORE Hydrating Skin Barrier Serum Mist
+- 본문: Hydrating Skin Barrier Serum Mist by UNI&CORE. Copper tripeptide-1 and CICA in an ultra-fine mist. Serum-level hydration in a fine spray · Use anytime, even over makeup · 1.76 fl oz (50 ml). Shop on TikTok Shop.
+- 해시태그: #unincore #koreanskincare #vitaminc #facemist #serummist #hydratingmist
+- 링크: https://promotion.unincore.com/products/hydrating-skin-barrier-serum-mist?utm_source=instagram&utm_medium=social&utm_campaign=vitac_always_on&utm_content=story
