@@ -51,6 +51,8 @@ export const AMPOULE: ProductContent = {
   asinVerified: false,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Glutathione-Stabilized/dp/B0HJRKRKT7/",
   attribution: {},
+  // Amazon Attribution link for this landing page only (JYT, 2026-11-16). Do not edit the parameters.
+  landingAmazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Glutathione-Stabilized/dp/B0HJRKRKT7?maas=maas_adg_D5F746C2B1D8B2926F7F7DE7BBBB2B52_afap_abs&ref_=aa_maas&tag=maas",
 
   name: "Vita C 13.5 Super Brightening Ampoule",
   shortName: "Vita C 13.5 Ampoule",
@@ -254,6 +256,8 @@ export const MASK: ProductContent = {
   asinVerified: false,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Moisturizing-Radiant-Skin/dp/B0HGR6V48S/",
   attribution: {},
+  // Amazon Attribution link for this landing page only (JYT, 2026-11-16). Do not edit the parameters.
+  landingAmazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Moisturizing-Radiant-Skin/dp/B0HGR6V48S?maas=maas_adg_268248143264C602A06E05D6E5739975_afap_abs&ref_=aa_maas&tag=maas",
 
   name: "Vita C Super Brightening Mask",
   shortName: "Vita C Brightening Mask",
@@ -453,6 +457,8 @@ export const WASH: ProductContent = {
   asinVerified: false,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Single-Use-bromelain-exfoliation/dp/B0HGQYFF13/",
   attribution: {},
+  // Amazon Attribution link for this landing page only (JYT, 2026-11-16). Do not edit the parameters.
+  landingAmazonUrl: "https://www.amazon.com/UNI-CORE-Single-Use-bromelain-exfoliation/dp/B0HGQYFF13?maas=maas_adg_6F0C0AF8B5F31534B64233D7684DE5C7_afap_abs&ref_=aa_maas&tag=maas",
 
   name: "Vita C Enzyme Powder Wash",
   shortName: "Vita C Enzyme Powder Wash",

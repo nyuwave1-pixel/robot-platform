@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { extractAsin, resolveAmazonUrl, validateAmazonUrl } from "@/lib/amazon";
 import { formatPromoWindow, isPromoActive } from "@/lib/promo";
 import { detectChannel, cleanTag } from "@/lib/channel";
-import { publicView } from "@/lib/visibility";
+import { publicView, toAmazonProduct, toLandingAmazonProduct } from "@/lib/visibility";
 import { DEFAULT_PRODUCTS, AMPOULE, MASK, WASH } from "@/content/products";
 import { GUIDES } from "@/content/guides";
 import overrides from "@/content/seo-overrides.json";
@@ -15,6 +15,26 @@ describe("Amazon links", () => {
       expect(validateAmazonUrl(p.amazonUrl, p.asin)).toEqual({ ok: true });
     }
     expect(new Set(onAmazon.map((p) => p.asin)).size).toBe(3);
+  });
+
+  // JYT (Ryan, 2026-11-16): Amazon Attribution links per landing page, copied exactly as Amazon issued them.
+  it("each landing page uses its own Amazon Attribution link, unchanged", () => {
+    const expected: Record<string, string> = {
+      [WASH.asin]: "maas_adg_6F0C0AF8B5F31534B64233D7684DE5C7_afap_abs",
+      [MASK.asin]: "maas_adg_268248143264C602A06E05D6E5739975_afap_abs",
+      [AMPOULE.asin]: "maas_adg_D5F746C2B1D8B2926F7F7DE7BBBB2B52_afap_abs",
+    };
+    for (const p of [WASH, MASK, AMPOULE]) {
+      const href = resolveAmazonUrl(toLandingAmazonProduct(p));
+      expect(href).toBe(p.landingAmazonUrl);
+      expect(extractAsin(href)).toBe(p.asin);
+      const q = new URL(href).searchParams;
+      expect(q.get("maas")).toBe(expected[p.asin]);
+      expect(q.get("ref_")).toBe("aa_maas");
+      expect(q.get("tag")).toBe("maas");
+      // Home page and guides keep the plain product link.
+      expect(resolveAmazonUrl(toAmazonProduct(p))).toBe(p.amazonUrl);
+    }
   });
 
   it("the serum mist links to its TikTok Shop listing, not Amazon", () => {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ProductContent } from "@/content/types";
-import { toAmazonProduct } from "@/lib/visibility";
+import { toLandingAmazonProduct } from "@/lib/visibility";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
@@ -18,7 +18,8 @@ export function Header({ products: all }: { products: ProductContent[] }) {
           <Logo />
         </Link>
         <NavLinks products={products.map(({ slug, shortName }) => ({ slug, shortName }))} />
-        <HeaderShop products={products.map((p) => ({ ...toAmazonProduct(p), slug: p.slug }))} />
+        {/* HeaderShop links a product only on that product's own landing page, so it takes the landing link. */}
+        <HeaderShop products={products.map((p) => ({ ...toLandingAmazonProduct(p), slug: p.slug }))} />
         <MobileMenu products={products.map(({ slug, shortName }) => ({ slug, shortName }))} />
       </div>
     </header>

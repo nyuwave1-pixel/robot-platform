@@ -121,6 +121,12 @@ export interface ProductContent {
   amazonUrl: string;
   attribution: AttributionLinks;
   /**
+   * Amazon Attribution link for this product's own landing page (/products/<slug>), from JYT (Ryan, 2026-11-16).
+   * Every Amazon button on that page uses it; the home page and guides keep the plain product link, so only
+   * landing-page clicks are counted. Kept exactly as Amazon issued it: maas, ref_ and tag must not change.
+   */
+  landingAmazonUrl?: string;
+  /**
    * Set when the product is sold on TikTok Shop instead of Amazon (the serum mist). Every
    * "Shop on" button for the product then opens this link; Amazon links are not used.
    */
