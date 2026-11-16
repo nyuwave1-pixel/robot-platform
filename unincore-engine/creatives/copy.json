@@ -17,6 +17,19 @@
         "vitamin c serum",
         "ampoule",
         "glutathione"
+      ],
+      "variants": [
+        {
+          "id": "silky",
+          "image": "landing/amz/ampoule-inuse.webp",
+          "headline": "A Silky Vitamin C Ampoule",
+          "sub": "Lightweight, fast-absorbing, non-sticky finish",
+          "points": [
+            "2 pumps after cleansing",
+            "Dual-layer stabilized formula",
+            "Glutathione + camu camu"
+          ]
+        }
       ]
     },
     "UC-US-445": {
@@ -33,6 +46,19 @@
         "sheet mask",
         "vitamin c mask",
         "glutathione"
+      ],
+      "variants": [
+        {
+          "id": "sheet",
+          "image": "landing/amz/mask-inuse.webp",
+          "headline": "A 10–20 Minute Vitamin C Mask",
+          "sub": "High-adherence 100% TENCEL™ sheet",
+          "points": [
+            "Hugs every contour, no slipping",
+            "Light, watery essence",
+            "A great base before a night out"
+          ]
+        }
       ]
     },
     "UC-US-441": {
@@ -49,6 +75,19 @@
         "enzyme cleanser",
         "powder wash",
         "low ph cleanser"
+      ],
+      "variants": [
+        {
+          "id": "powder",
+          "image": "landing/amz/wash-powder.webp",
+          "headline": "Fresh Powder, Every Wash",
+          "sub": "Papain + bromelain + lipase enzymes",
+          "points": [
+            "Turns into a rich, creamy foam with water",
+            "No tightness after washing",
+            "Built for travel: no liquids, no spills"
+          ]
+        }
       ]
     },
     "UC-US-446": {
