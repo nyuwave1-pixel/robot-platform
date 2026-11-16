@@ -1,3 +1,4 @@
+import json
 """Unit tests (no network). Run: cd unincore-engine && python -m pytest -q"""
 import os
 import tempfile
@@ -201,7 +202,9 @@ def test_posting_kit_has_utm_links_and_compliant_captions(tmp_path):
     posts = jobs.build_posts(tmp_path)
     from engine.publish import SLUGS
 
-    assert len(posts) == 3 * len(SLUGS) and (tmp_path / "posts.md").exists() and (tmp_path / "posts.json").exists()
+    copy = json.loads((jobs.CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
+    assert {e["product_id"] for e in jobs.creative_entries(copy)} == set(SLUGS)
+    assert len(posts) == 3 * len(jobs.creative_entries(copy)) and (tmp_path / "posts.md").exists() and (tmp_path / "posts.json").exists()
     for x in posts:
         assert x["link"].startswith(core.PROMO_SITE + "/products/") and "utm_source=" in x["link"] and "utm_campaign=" in x["link"]
         assert len(x["title"]) <= 100 and not BANNED.search(x["caption"] + " ".join(x["hashtags"]))
@@ -234,3 +237,19 @@ def test_tiktok_shop_product_posts_say_tiktok_shop():
 
     posts = [x for x in jobs.build_posts(Path(tempfile.mkdtemp())) if x["product_id"] == "UC-US-446"]
     assert posts and all("TikTok Shop" in x["caption"] and "Amazon" not in x["caption"] for x in posts)
+
+
+def test_creative_variants_expand_and_name_files():
+    import json
+
+    from engine import jobs
+
+    copy = json.loads((jobs.CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
+    entries = jobs.creative_entries(copy)
+    files = [e["file"] for e in entries]
+    assert len(files) == len(set(files))
+    mist = [e for e in entries if e["product_id"] == "UC-US-446"]
+    assert {e.get("variant") for e in mist} == {None, "spray", "barrier"}
+    for e in mist:
+        assert e["store"] == "tiktok" and e["slug"] == "hydrating-skin-barrier-serum-mist"
+        assert "variants" not in e

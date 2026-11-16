@@ -1,5 +1,5 @@
 {
-  "_comment": "Promo copy for the template renderer. Every line must already be stated on the promotion site (src/content/products.ts). No prices, discounts, ratings, reviews or clinical figures here.",
+  "_comment": "Promo copy for the template renderer. Every line must already be stated on the promotion site (src/content/products.ts). No prices, discounts, ratings, reviews or clinical figures here. A product may list \"variants\": extra versions with their own photo and copy (same rules); files are named <slug>-<variant id>-<format>.png.",
   "site": "promotion.unincore.com",
   "cta": "Shop on Amazon",
   "products": {
@@ -67,7 +67,31 @@
         "hydrating mist"
       ],
       "cta": "Shop on TikTok Shop",
-      "store": "tiktok"
+      "store": "tiktok",
+      "variants": [
+        {
+          "id": "spray",
+          "image": "landing/mist/feature-texture.webp",
+          "headline": "Ultra-Fine Serum Mist",
+          "sub": "Serum-level hydration in a lightweight mist",
+          "points": [
+            "Spreads evenly without disturbing makeup",
+            "After cleansing, before skincare",
+            "Midday hydration reset"
+          ]
+        },
+        {
+          "id": "barrier",
+          "image": "landing/mist/feature-barrier.webp",
+          "headline": "Copper Tripeptide-1 + CICA",
+          "sub": "Nano liposomes in an O/W/O multi emulsion",
+          "points": [
+            "Copper tripeptide-1 for skin vitality",
+            "Supports skin barrier comfort",
+            "Leaves skin soft, smooth and naturally radiant"
+          ]
+        }
+      ]
     }
   }
 }

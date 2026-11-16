@@ -339,6 +339,17 @@ CREATIVE_DIR = core.ROOT / "creatives"
 CREATIVE_FORMATS = ["pinterest_pin", "instagram_post", "story"]
 
 
+def creative_entries(copy: dict) -> list[dict]:
+    """Each product's main version plus its variants. A variant overrides the photo and copy and keeps the rest."""
+    out = []
+    for pid, c in copy["products"].items():
+        base = {k: v for k, v in c.items() if k != "variants"}
+        out.append({**base, "product_id": pid, "file": c["slug"]})
+        for v in c.get("variants", []):
+            out.append({**base, **{k: x for k, x in v.items() if k != "id"}, "product_id": pid, "variant": v["id"], "file": f"{c['slug']}-{v['id']}"})
+    return out
+
+
 def render_creatives(out_dir=None, site_images=None) -> list[dict]:
     """Template renderer (no external API): official photo + copy already on the site → PNG files."""
     import shutil
@@ -351,14 +362,15 @@ def render_creatives(out_dir=None, site_images=None) -> list[dict]:
     site_images = site_images or core.ROOT.parent / "unincore-promotion" / "public"
     out_dir = out_dir or core.DATA / "creatives"
     products = []
-    for pid, c in copy["products"].items():
+    for c in creative_entries(copy):
+        pid = c["product_id"]
         text = " ".join([c["headline"], c["sub"], *c["points"]])
         if BANNED.search(text) or re.search(r"[$%]\s*off|\d\s*stars?|review", text, re.I):
             raise ValueError(f"{pid}: 홍보 문구에 금지 표현이 있습니다")
         img = site_images / c["image"]
         if not img.exists():
             raise FileNotFoundError(f"제품 사진 없음: {img}")
-        products.append({**c, "product_id": pid, "imagePath": str(img)})
+        products.append({**c, "imagePath": str(img)})
     node = shutil.which("node")
     if not node:
         raise WaitingConnection("렌더러 미설치: node 가 필요합니다")
@@ -384,13 +396,16 @@ def build_posts(out_dir=None) -> list[dict]:
     copy = json.loads((CREATIVE_DIR / "copy.json").read_text(encoding="utf-8"))
     out_dir = out_dir or core.DATA / "creatives"
     posts = []
-    for pid, c in copy["products"].items():
-        tags = ["#unincore", "#koreanskincare", "#vitaminc"] + ["#" + re.sub(r"[^a-z0-9]", "", w) for w in c.get("tags", [])]
+    for c in creative_entries(copy):
+        pid = c["product_id"]
+        # #vitaminc only where vitamin C is part of the copy (not the serum mist).
+        vc = re.search(r"vitamin c", " ".join([c["headline"], c["sub"], *c["points"], *c.get("tags", [])]), re.I)
+        tags = ["#unincore", "#koreanskincare"] + (["#vitaminc"] if vc else []) + ["#" + re.sub(r"[^a-z0-9]", "", w) for w in c.get("tags", [])]
         for fmt in CREATIVE_FORMATS:
             source, channel = POST_CHANNELS[fmt]
-            link = f"{core.PROMO_SITE}/products/{c['slug']}?utm_source={source}&utm_medium=social&utm_campaign=vitac_always_on&utm_content={fmt}"
+            link = f"{core.PROMO_SITE}/products/{c['slug']}?utm_source={source}&utm_medium=social&utm_campaign=vitac_always_on&utm_content={fmt}" + (f"_{c['variant']}" if c.get("variant") else "")
             caption = f"{c['headline']} by UNI&CORE. {c['sub']}. " + " · ".join(c["points"]) + f". {c.get('cta', copy['cta'])}."
-            posts.append({"product_id": pid, "channel": channel, "format": fmt, "image": f"{c['slug']}-{fmt}.png", "title": f"UNI&CORE {c['headline']}"[:100], "caption": caption, "hashtags": tags, "link": link})
+            posts.append({"product_id": pid, "channel": channel, "format": fmt, "image": f"{c['file']}-{fmt}.png", "title": f"UNI&CORE {c['headline']}"[:100], "caption": caption, "hashtags": tags, "link": link})
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "posts.json").write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     md = ["# 홍보 이미지 게시용 문구", "", "이미지마다 제목·본문·해시태그·링크입니다. 문구는 `creatives/copy.json`에서만 만들어지며 사이트에 있는 사실만 씁니다. 링크에는 유입 경로 표시(UTM)가 붙어 있습니다.", ""]

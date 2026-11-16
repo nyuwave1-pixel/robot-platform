@@ -70,10 +70,10 @@ try {
         return fr.scrollHeight > fr.clientHeight + 1 || fr.scrollWidth > fr.clientWidth + 1;
       });
       if (overflow) throw new Error(`layout overflow: ${p.slug} ${f}`);
-      const file = path.join(outDir, `${p.slug}-${f}.png`);
+      const file = path.join(outDir, `${p.file || p.slug}-${f}.png`);
       await page.screenshot({ path: file });
       await page.close();
-      written.push({ product_id: p.product_id, format: f, file, width: w, height: h });
+      written.push({ product_id: p.product_id, variant: p.variant || null, format: f, file, width: w, height: h });
     }
   }
 } finally {
