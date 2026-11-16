@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
 import { track } from "@/lib/analytics";
+import { lazyPoster } from "@/lib/lazyPoster";
 
 /** Only one creator video plays with sound at a time. */
 const SOUND_EVENT = "uc-video-sound";
@@ -10,7 +11,8 @@ const SOUND_EVENT = "uc-video-sound";
 /**
  * Vertical creator video (JYT revision 2, item 6). It plays by itself, muted and looping, while at
  * least half of it is on screen, and pauses when it leaves. Browsers only allow muted autoplay, so
- * there is a sound button. The file is only fetched once the card comes on screen.
+ * there is a sound button. The file is only fetched once the card comes on screen, and the poster only
+ * once the card is near the screen, so the posters don't compete with the first screen.
  *
  * With reduced motion turned on, or when the browser refuses autoplay (e.g. iOS Low Power Mode),
  * it shows the poster with a play button instead.
@@ -27,6 +29,8 @@ export function VideoCard({ src, poster, caption, duration }: { src: string; pos
     loaded.current = true;
     v.src = src;
   };
+
+  useEffect(() => lazyPoster(ref.current, poster), [poster]);
 
   useEffect(() => {
     const v = ref.current;
@@ -85,7 +89,7 @@ export function VideoCard({ src, poster, caption, duration }: { src: string; pos
 
   return (
     <div className="relative aspect-[9/16] overflow-hidden rounded-[20px] bg-[#16150F] shadow-[0_0_0_1.5px_rgb(255_255_255/0.9),0_18px_34px_-24px_rgb(var(--acc-deep)/0.55)]">
-      <video ref={ref} className="h-full w-full object-cover" poster={poster} muted loop playsInline preload="none" aria-label={caption} />
+      <video ref={ref} className="h-full w-full object-cover" muted loop playsInline preload="none" aria-label={caption} />
       <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/45 to-transparent" />
 
       {blocked && (

@@ -82,7 +82,9 @@ export function LandingGallery({ items, product, ctaLabel }: { items: GalleryIte
           >
             {items.map((item, i) => (
               <div key={item.id} className="relative aspect-square w-full shrink-0" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${items.length}: ${item.label}`}>
-                <Stage item={item} priority={i < 2} />
+                {/* Only the first slide is preloaded. The second sits off to the side: it loads eagerly but at low priority,
+                    so it doesn't compete with the first slide (and React doesn't add a preload for it). */}
+                <Stage item={item} priority={i === 0} eager={i === 1} />
               </div>
             ))}
           </div>
@@ -125,10 +127,10 @@ export function LandingGallery({ items, product, ctaLabel }: { items: GalleryIte
   );
 }
 
-function Stage({ item, priority }: { item: GalleryItem; priority: boolean }) {
+function Stage({ item, priority, eager = false }: { item: GalleryItem; priority: boolean; eager?: boolean }) {
   switch (item.kind) {
     case "image":
-      return <Image src={item.src} alt={item.alt} fill priority={priority} sizes="(min-width: 1024px) 620px, 100vw" className="object-cover" />;
+      return <Image src={item.src} alt={item.alt} fill priority={priority} loading={eager ? "eager" : undefined} fetchPriority={priority ? "high" : eager ? "low" : undefined} sizes="(min-width: 1024px) 620px, 100vw" className="object-cover" />;
     case "beforeAfter":
       return <BeforeAfter item={item} priority={priority} />;
     case "slot":
@@ -185,7 +187,7 @@ function BeforeAfter({ item, priority = false }: { item: Extract<GalleryItem, { 
   const half = (src: string | undefined, label: string, after: boolean) => (
     <figure className="relative h-full overflow-hidden">
       {src ? (
-        <Image src={src} alt={`${item.alt}: ${label}`} fill priority={priority} sizes="(min-width: 1024px) 310px, 50vw" className="object-cover" />
+        <Image src={src} alt={`${item.alt}: ${label}`} fill priority={priority} fetchPriority={priority ? "high" : undefined} sizes="(min-width: 1024px) 310px, 50vw" className="object-cover" />
       ) : (
         <div className={`h-full w-full ${after ? "bg-[radial-gradient(62%_52%_at_50%_44%,#fff,transparent_72%),linear-gradient(165deg,#F6F4EF,#ECE9E2)]" : "bg-[radial-gradient(90%_70%_at_30%_15%,#fff,transparent_60%),linear-gradient(165deg,#F2F0EA,#E4E0D6)]"}`} />
       )}

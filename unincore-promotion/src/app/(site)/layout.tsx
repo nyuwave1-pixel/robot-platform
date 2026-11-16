@@ -7,6 +7,7 @@ import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { LANDING } from "@/content/landing";
 import { JsonLd } from "@/components/site/JsonLd";
+import { SvgSprites } from "@/components/site/SvgSprites";
 import { consentDefaultSnippet } from "@/lib/consent-snippet";
 import { organizationLd, websiteLd } from "@/lib/seo";
 
@@ -16,6 +17,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <>
       {/* Must run before any tag: defines gtag + Consent Mode defaults (honors GPC). */}
       <script dangerouslySetInnerHTML={{ __html: consentDefaultSnippet(settings.consentMode, settings.tracking.gtmId ? undefined : settings.tracking.ga4Id) }} />
+      <SvgSprites />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-ivory">
         Skip to content
       </a>

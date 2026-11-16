@@ -206,7 +206,8 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
             {/* The Amazon listing's key-benefit image, the product name under it in the same glass card */}
             <figure className="glass mt-5 rounded-[28px] p-2.5">
               <div className="relative aspect-square overflow-hidden rounded-[20px] bg-white">
-                <Image src={c.hero.src} alt={c.hero.alt} fill priority sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+                {/* Below the gallery on phones, so it is not preloaded; lazy loading still fetches it at once on desktop, where it is in view. */}
+                <Image src={c.hero.src} alt={c.hero.alt} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
               </div>
               <figcaption className="relative px-4 pb-4 pt-5 sm:px-5">
                 <h1 className="text-[clamp(28px,3vw,40px)] leading-[1.06] text-body">{rich(c.title)}</h1>
