@@ -165,6 +165,7 @@ python3 scripts/films/build_product_loops.py
 - 2026-11-10: 드라이브 v2 디자인 반영. 제품 페이지 3개를 아마존 리스팅형 랜딩으로 교체(전후 사진, 리스팅 이미지, 크리에이터 영상, 아마존 5성 리뷰, 할인 상자, 7일 루틴). 제품 페이지에는 FAQ 영역과 FAQ 구조화 데이터가 없음(요청 사항)
 - 2026-11-12: 드라이브 2차 수정본(20261112_v2) 반영. 홈의 3단계 루틴 가로 스크롤 섹션 삭제, 메뉴 순서 앰플→마스크→파우더 워시. 제품 페이지: 제품별 피부 고민 사진 4장, 크리에이터 영상 자동 재생(무음, 소리 버튼), "Complete your 7-day glow routine" 카드(아마존 버튼 없이 제품 페이지로 연결), 모바일 하단 전체 폭 아마존 버튼, 판매량 아래 출처 줄(March 2023 – September 2026)
 - 2026-11-13: 드라이브 3차 수정본(20261113_v3) 반영. 4번째 제품 "Hydrating Skin Barrier Serum Mist" 페이지 추가(TikTok Shop 판매, 모든 구매 버튼이 TikTok Shop으로 연결, `/?product=mist` 광고 경로). 제품 3종 검색 제목·설명을 미국 검색어 기준으로 변경, 조직 구조화 데이터에 TikTok 계정·브랜드 별칭 추가
+- 2026-11-16: 드라이브 4차 수정본(20261116_v4) 반영. 제품 3종 랜딩 페이지의 아마존 버튼에 제품별 Amazon Attribution 링크(`landingAmazonUrl`) 적용. 홈·가이드의 아마존 버튼은 일반 상품 링크 유지
 - 가이드 9개(/guides). 상단 메뉴·푸터·제품 페이지 하단에서 연결
 - 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-12 라이브(2차 수정본): 홈 92, 앰플 85, SEO 100
 - `unincore-engine/`: 매일 점검·키워드·홍보 이미지 렌더링·승인 요청(`python -m engine propose/approvals/approve/publish`)
@@ -176,7 +177,7 @@ python3 scripts/films/build_product_loops.py
 | 블랙프라이데이 배너·할인 상자 채우기 | 제품별 실제 할인율·기간 (지금은 `enabled: false`, 할인 상자는 자리 표시 문구) |
 | 한국 판매량 문구 근거 확인 | "100,000+ bottles sold in Korea", "10M+ sold in Korea" 의 근거 자료 |
 | 아마존 리뷰 인용 유지 여부 | 아마존 정책 확인 (리뷰 9건 원문 인용 중) |
-| Amazon Attribution 연결 | 셀러센트럴에서 만든 채널별 링크 |
+| Amazon Attribution 채널별 링크 | 랜딩 페이지용 링크는 적용 완료(2026-11-16). 광고 채널별(meta·google·email) 링크는 아직 없음 |
 | 아마존 링크 확인 | 3개 ASIN 페이지를 직접 열어 확인 (`asinVerified: true`로 변경) |
 | GA4 관리 화면 설정 | `docs/GA4_SETUP.md` 체크리스트 (주요 이벤트, 맞춤 측정기준, 보존 14개월) |
 | (선택) 부작용 신고 안내 | 미국용 연락 이메일 → Contact 페이지 |

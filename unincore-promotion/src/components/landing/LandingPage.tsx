@@ -7,7 +7,7 @@ import { LANDING, ROUTINE, TRADEMARK, type LandingContent, type Review } from "@
 import type { ProductKey } from "@/content/types";
 import { GUIDES, ROUTINE_GUIDE } from "@/content/guides";
 import { isPromoActive } from "@/lib/promo";
-import { toAmazonProduct } from "@/lib/visibility";
+import { toLandingAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
 import { PromoStrip } from "@/components/site/PromoBanner";
 import { StickyCTA } from "@/components/site/StickyCTA";
@@ -157,7 +157,8 @@ function Reviews({
  */
 export function LandingPage({ product: p, all }: { product: ProductContent; all: ProductContent[] }) {
   const c: LandingContent = LANDING[p.key];
-  const ap = toAmazonProduct(p);
+  // Landing page: its Amazon Attribution link (if any) on every Amazon button here.
+  const ap = toLandingAmazonProduct(p);
   // Up to three guides: the ones that feature this product, then the routine guide.
   const guides = c.hideGuides
     ? []
