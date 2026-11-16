@@ -178,6 +178,10 @@ await gpcCtx.close();
 // ---------- technical ----------
 const sm = await (await fetch(`${BASE}/sitemap.xml`)).text();
 check("sitemap.xml lists home + 3 products", PRODUCTS.every((p) => sm.includes(`${SITE}/products/${p.slug}`)) && sm.includes(`<loc>${SITE}/</loc>`));
+{
+  const home = await (await fetch(`${BASE}/`)).text();
+  check("home ItemList lists all four products incl. the serum mist", (home.match(/"@type":"ListItem"/g) || []).length >= 4 && home.includes("/products/hydrating-skin-barrier-serum-mist"));
+}
 check("sitemap has image entries for products and guides", (sm.match(/<image:loc>/g) || []).length >= 40 && sm.includes("/landing/amz/"));
 const rb = await (await fetch(`${BASE}/robots.txt`)).text();
 check("robots.txt allows crawling and points to sitemap", rb.includes("Allow: /") && rb.includes(`Sitemap: ${SITE}/sitemap.xml`));

@@ -409,7 +409,7 @@ export default async function HomePage() {
       </section>
 
       <HomeStickyCTA products={products.map(toAmazonProduct)} labels={buyLabels} />
-      <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), productListLd(products)]} />
+      <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), productListLd([...products, ...all.filter((p) => p.published && !products.some((x) => x.key === p.key))])]} />
     </>
   );
 }

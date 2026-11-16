@@ -166,7 +166,7 @@ export function productListLd(products: ProductContent[]) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "UNI&CORE VITA C Collection",
+    name: "UNI&CORE Korean Skincare Collection",
     itemListElement: products.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: abs(`/products/${p.slug}`), name: p.name })),
   };
 }
