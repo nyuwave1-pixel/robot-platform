@@ -170,7 +170,7 @@ export default function Landing() {
           </div>
           <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
             {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
-            <FaceSequence mode="pointer" />
+            <FaceSequence mode="pointer" className="[mask-image:linear-gradient(#000_74%,transparent_96%)]" />
             <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} />
           </motion.div>
         </div>
