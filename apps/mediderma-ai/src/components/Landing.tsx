@@ -15,10 +15,10 @@ import UploadBox from "./UploadBox";
 import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
 import FaceSequence from "./fx/FaceSequence";
+import ScanHud from "./fx/ScanHud";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
-const FaceScene = dynamic(() => import("./FaceScene"), { ssr: false });
 const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
 const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
 
@@ -168,13 +168,10 @@ export default function Landing() {
               </div>
             </motion.div>
           </div>
-          <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] [mask-image:radial-gradient(closest-side,#000_66%,transparent_100%)] sm:max-w-md lg:order-2 lg:max-w-none">
-            {use3d === null ? null : use3d ? (
-              <FaceScene labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} />
-            ) : (
-              /* WebGL 을 쓰지 않는 기기: Blender 로 미리 렌더링한 이미지 시퀀스(가짜 3D) */
-              <FaceSequence mode="pointer" />
-            )}
+          <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
+            {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
+            <FaceSequence mode="pointer" />
+            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} />
           </motion.div>
         </div>
         {/* 키워드 마키 */}

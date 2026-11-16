@@ -47,7 +47,7 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 | 위치 | 기술 |
 |---|---|
 | 히어로 타이틀 | 실제 압출·베벨 3D 텍스트(`fx/Title3D`), 금속 재질 + 절차적 환경광, 포인터 추종 틸트 |
-| 히어로 얼굴 | Blender 로 서브디비전·스무딩한 GLB 표면(`public/3d/face.glb`) + 프레넬 림 셰이더 + 영역 순차 점등(GLB 의 영역 ID 채널) + 스캔 밴드 + 궤도 링 + 블룸 후처리(`FaceScene`) |
+| 히어로 얼굴 | Blender Cycles 로 렌더링한 사실적 얼굴 턴테이블(`public/3d/face-sequence.webp`, 36프레임) + CSS/SVG 분석 HUD(`ScanHud`). 얼굴은 MakeHuman 기본 메시에 매크로 타깃을 적용한 합성 인체 모델이며 실존 인물이 아니다. 생성: `scripts/blender/build_head.py` → `pack_sequence.py` |
 | WebGL 미사용 기기 · CTA | Blender Cycles 로 미리 렌더링한 36프레임 턴테이블 스프라이트(`public/3d/face-sequence.webp`)를 포인터·스크롤로 넘기는 '가짜 3D'(`fx/FaceSequence`) |
 | 섹션 헤딩 | 글자별 3D 등장 + 압출 깊이 + 강조어 발광(`fx/DepthText`, 모든 언어 지원) |
 | 기술 카드 | 기능별 GLSL 모션 그래픽 — RF 열 파동 / 초음파 간섭 / 이온 입자 흐름(`fx/ShaderCanvas`) + 3D 틸트 |

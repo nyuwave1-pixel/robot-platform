@@ -1,4 +1,6 @@
 """
+[이전 버전] 히어로는 이제 build_head.py 가 만드는 사실적 얼굴 렌더를 쓴다. 이 스크립트는 영역 ID 가 들어간 얼굴 셸(GLB)이 다시 필요할 때를 위해 남겨 둔다.
+
 MEDIDERMA AI — 얼굴 3D 에셋 파이프라인 (Blender 4.x, 헤드리스).
 
   blender -b -P scripts/blender/build_face.py -- [--frames 36] [--size 480] [--samples 64] [--skip-render]
