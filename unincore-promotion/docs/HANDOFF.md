@@ -1,14 +1,14 @@
 # UNI&CORE VITA C 프로모션 사이트: 작업 인수인계
 
-최종 업데이트: 2026-11-12 · 기준 커밋 `827790a` 이후 (라이브 배포본과 같음, 2차 수정본 반영)
+최종 업데이트: 2026-11-16 · 기준 커밋 `8a1b0c7` 이후 (라이브 배포본과 같음, 4차 수정본 반영)
 
 ## 1. 한눈에 보기
 
 | 항목 | 내용 |
 |---|---|
 | 사이트 | https://promotion.unincore.com |
-| 성격 | VITA C 3종 → **Amazon.com 구매로 보내는 정적 랜딩 사이트** (관리자/CMS 없음) |
-| 제품 | Vita C Enzyme Powder Wash · Vita C Super Brightening Mask · Vita C 13.5 Super Brightening Ampoule |
+| 성격 | 제품 4종 → **Amazon.com·TikTok Shop 구매로 보내는 정적 랜딩 사이트** (관리자/CMS 없음) |
+| 제품 | Amazon: Vita C Enzyme Powder Wash · Vita C Super Brightening Mask · Vita C 13.5 Super Brightening Ampoule (랜딩 페이지 버튼은 Amazon Attribution 링크) · TikTok Shop: Hydrating Skin Barrier Serum Mist |
 | 코드 | GitHub `nyuwave1-pixel/robot-platform`, 브랜치 `claude/awesome-gauss-5kqwk2` (PR #2, Draft). 사이트 `unincore-promotion/`, SEO 엔진 `unincore-engine/`, 매일 실행 워크플로 `.github/workflows/unincore-engine-daily.yml` |
 | 호스팅 | Netlify 프로젝트 `unincore-promotion` (siteId `4a3fa453-4eb7-4f23-9855-816a3cc62589`, 팀 nyuwave1) |
 | 도메인 | 후이즈 DNS: `promotion` CNAME → `unincore-promotion.netlify.app` · HTTPS Let's Encrypt 자동 |
@@ -167,7 +167,7 @@ python3 scripts/films/build_product_loops.py
 - 2026-11-13: 드라이브 3차 수정본(20261113_v3) 반영. 4번째 제품 "Hydrating Skin Barrier Serum Mist" 페이지 추가(TikTok Shop 판매, 모든 구매 버튼이 TikTok Shop으로 연결, `/?product=mist` 광고 경로). 제품 3종 검색 제목·설명을 미국 검색어 기준으로 변경, 조직 구조화 데이터에 TikTok 계정·브랜드 별칭 추가
 - 2026-11-16: 드라이브 4차 수정본(20261116_v4) 반영. 제품 3종 랜딩 페이지의 아마존 버튼에 제품별 Amazon Attribution 링크(`landingAmazonUrl`) 적용. 홈·가이드의 아마존 버튼은 일반 상품 링크 유지
 - 가이드 9개(/guides). 상단 메뉴·푸터·제품 페이지 하단에서 연결
-- 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-12 라이브(2차 수정본): 홈 92, 앰플 85, SEO 100
+- 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-16 라이브: 홈 85, 앰플 82, SEO 100
 - `unincore-engine/`: 매일 점검·키워드·홍보 이미지 렌더링·승인 요청(`python -m engine propose/approvals/approve/publish`)
 
 ## 8. 남은 일
