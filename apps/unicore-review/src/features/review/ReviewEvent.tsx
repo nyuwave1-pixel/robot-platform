@@ -140,7 +140,12 @@ export default function ReviewEvent() {
               <div className={s.rewardNo}>{E.reward.all.no}</div>
               <p className={s.rewardWho}>{E.reward.all.who}</p>
               <div className={s.rewardAllMark} aria-hidden="true"><span>100</span><i>%</i><small>참여자 전원</small></div>
+              <div className={s.shakeShot}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/media/product/protein-shake.webp" alt="UNI&CORE 슬림핏 프로틴 쉐이크 고소한 멀티그레인 — 박스와 파우치" loading="lazy" decoding="async" width={650} height={650} />
+              </div>
               <h3 className={s.rewardName}>{shake}</h3>
+              <p className={s.rewardNameKo}>슬림핏 프로틴 쉐이크 고소한 멀티그레인 · 40g × 10개입</p>
               <ul className={s.rewardNotes}>{E.reward.all.notes.map((n) => <li key={n}>{n}</li>)}</ul>
             </Reveal>
           </div>

@@ -68,6 +68,9 @@
 .rewardName { margin: 0; font-size: clamp(26px, 7.2vw, 32px); font-weight: 700; line-height: 1.25; letter-spacing: -0.03em; color: var(--champ); }
 .rewardGold .rewardName { font: 600 clamp(26px, 7vw, 32px) / 1.15 var(--font-serif); letter-spacing: 0.02em; }
 .rewardNameKo { margin: 8px 0 0; font-size: 18px; color: var(--text); }
+.shakeShot { position: relative; width: min(300px, 78%); margin: 4px auto 18px; aspect-ratio: 1; display: grid; place-items: center; }
+.shakeShot::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 243, 214, 0.34), rgba(229, 197, 141, 0.12) 52%, transparent 72%); }
+.shakeShot img { position: relative; display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.55)); }
 .rewardNotes { list-style: none; margin: 20px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(198, 161, 106, 0.2); display: grid; gap: 6px; font-size: 17px; color: var(--dim); }
 .rewardAllMark { display: flex; align-items: baseline; justify-content: center; gap: 2px; margin: 18px 0 14px; color: var(--champ); font-family: var(--font-serif); line-height: 1; flex-wrap: wrap; }
 .rewardAllMark span { font-size: 84px; font-weight: 500; }
