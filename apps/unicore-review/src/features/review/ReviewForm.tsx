@@ -243,7 +243,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
         <section aria-labelledby="st3">
           <h3 id="st3" className={s.stepTitle}><small>STEP 03</small>참여 정보를 입력하고<br />이벤트 참여를 완료해 주세요</h3>
           <div className={s.field} id="f-name"><label className={s.label} htmlFor="name">이름<em>필수</em></label>
-            <input id="name" className={s.input} value={v.name} maxLength={40} onChange={(e) => set("name", e.target.value)} autoComplete="name" placeholder="받으시는 분 이름" enterKeyHint="next" {...inv("name")} />{err("name")}</div>
+            <input id="name" className={s.input} value={v.name} maxLength={40} onChange={(e) => set("name", e.target.value)} autoComplete="name" placeholder="참여하시는 분 이름" enterKeyHint="next" {...inv("name")} />{err("name")}</div>
           <div className={s.field} id="f-phone"><label className={s.label} htmlFor="phone">휴대폰 번호<em>필수</em></label>
             <input id="phone" className={s.input} value={v.phone} onChange={(e) => set("phone", fmtPhone(e.target.value))} type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="010-0000-0000" enterKeyHint="next" {...inv("phone")} />{err("phone")}
             <p className={s.hint}>당첨 안내와 사은품 지급 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.</p></div>

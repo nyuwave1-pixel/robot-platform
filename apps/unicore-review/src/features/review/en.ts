@@ -196,6 +196,7 @@ export const EN: Record<string, string> = {
   "이벤트 참여를 완료해 주세요": "complete your entry",
   "이름": "Name",
   "받으시는 분 이름": "Recipient's name",
+  "참여하시는 분 이름": "Your name",
   "휴대폰 번호": "Mobile number",
   "당첨 안내와 사은품 배송 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.": "Used to contact winners and arrange gift delivery. You can also check your entry with this number.",
   "유니앤코어 회원번호": "UNI&CORE member number",
