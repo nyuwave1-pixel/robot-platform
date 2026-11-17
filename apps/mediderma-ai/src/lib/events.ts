@@ -14,6 +14,8 @@ export const EVENT_TYPES = [
   "compare_run",
   "simulation_viewed",
   "history_saved",
+  "ai_insight",
+  "video_play",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 

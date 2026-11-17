@@ -6,6 +6,7 @@
  * 테스트용 얼굴 사진은 저장소에 포함하지 않는다 (초상권). 변형 이미지는 브라우저 캔버스로 즉석 생성한다.
  */
 import { createRequire } from "node:module";
+import http from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -215,6 +216,13 @@ await check("C01", "케어 추천: 근거·주의사항·공식 링크", async (
   assert((await care.locator('[data-testid^="routine-"]').count()) >= 1, "no routine");
   const hrefs = await care.locator('a[data-testid^="product-"]').evaluateAll((as) => as.map((a) => a.href));
   assert(hrefs.length >= 3 && hrefs.every((h) => h.startsWith("https://www.unincore.com/shopping/search/view.do?productSeq=")), "product links: " + hrefs.join(","));
+  // 제품마다 "내 결과와의 연결" 근거가 있고, 공식 가이드 순서·더마홈 사용법 5단계가 표시된다
+  const cards = await care.locator('[data-testid^="product-card-"]').count();
+  const whys = await care.locator('[data-testid^="product-why-"]').count();
+  assert(cards === hrefs.length && whys === cards, `product reasons ${whys}/${cards}`);
+  assert((await care.locator('[data-testid="guide-order"] li').count()) === cards, "guide order");
+  assert((await care.locator('[data-testid="device-how"] ol li').count()) === 5, "device how-to steps");
+  assert(await care.locator('[data-testid="product-sunscreen"]').count(), "sunscreen missing");
   const trial = await P.getAttribute('[data-testid="trial-cta"]', "href");
   assert(trial === "https://dermahome.unincore.com/experience/", "trial " + trial);
   return `추천 ${await care.locator('[data-testid^="rec-"]').count()}개, 제품 링크 ${hrefs.length}개`;
@@ -416,8 +424,102 @@ await check("MB3", "저사양 기기 → 3D 대신 2D 자동 전환", async () =
   await page.goto(BASE + "/");
   await page.waitForTimeout(800);
   assert((await page.locator("main canvas").count()) === 0, "WebGL canvas created on low-end device");
+  // 3D 대신 Blender 로 미리 렌더링한 이미지 시퀀스가 표시된다
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-testid="face-sequence"]')).backgroundImage.includes("face-sequence.webp"), null, { timeout: 15000 });
   await page.context().close();
 });
+
+// ── 5.5 공식 영상 · Gemini 해설 ───────────────────────────
+await check("V01", "공식 영상: 누르기 전에는 YouTube 요청 없음 → 구간 버튼으로 해당 시각부터 재생", async () => {
+  const page = await newPage();
+  const yt = [];
+  await page.route(/youtube|ytimg|googlevideo/, (r) => { yt.push(r.request().url()); r.abort(); });
+  assert(await runFlow(page, portrait), "flow");
+  await page.waitForSelector('[data-testid="guide-video"]');
+  assert(yt.length === 0, "YouTube requested before click: " + yt[0]);
+  assert(await page.$('[data-testid="track-plan"]'), "tracking plan missing");
+  await page.click('[data-testid="chapter-faceRf"]');
+  const src = await page.getAttribute('[data-testid="video-frame"]', "src");
+  assert(src.startsWith("https://www.youtube-nocookie.com/embed/iRa1JqPJznk?start=1631"), src);
+  await page.locator('[data-testid^="watch-"]').first().click();
+  const src2 = await page.getAttribute('[data-testid="video-frame"]', "src");
+  assert(/start=(820|1324|1631)/.test(src2), src2);
+  await page.context().close();
+  return src.split("?")[1];
+});
+const MOCK_PORT = Number(process.env.GEMINI_MOCK_PORT || 0);
+if (MOCK_PORT && PW) {
+  // 모의 Gemini 서버: 실제 Google 로는 아무것도 보내지 않는다
+  const seen = [];
+  let failNext = false;
+  const mock = http.createServer((req, res) => {
+    let b = "";
+    req.on("data", (c) => (b += c));
+    req.on("end", () => {
+      const j = JSON.parse(b || "{}");
+      seen.push({ url: req.url, key: req.headers["x-goog-api-key"], hasImage: Boolean(j.contents?.[0]?.parts?.some((p) => p.inlineData?.data?.length > 2000)), schema: Boolean(j.generationConfig?.responseSchema), system: j.systemInstruction?.parts?.[0]?.text ?? "" });
+      if (failNext) { failNext = false; res.writeHead(500); return res.end("{}"); }
+      const out = { summary: "MOCK 요약: 볼 부위 톤이 비교적 고르게 보입니다.", observations: [{ zone: "left_cheek", note: "작은 점들이 보입니다." }, { zone: "not_a_zone", note: "버려져야 함" }], agreement: [{ metric: "toneUniformity", view: "agree", note: "지수와 비슷합니다." }], careExplanation: "MOCK 케어 설명.", skinAge: 27, score: 99 };
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(out) }] }, finishReason: "STOP" }] }));
+    });
+  });
+  await new Promise((r) => mock.listen(MOCK_PORT, "127.0.0.1", r));
+  const adm = await (await browser.newContext()).newPage();
+  const acall = (url, init) => adm.evaluate(async ([u, i]) => { const r = await fetch(u, i); let body = null; try { body = await r.json(); } catch {} return { status: r.status, body }; }, [BASE + url, init]);
+  await adm.goto(BASE + "/privacy");
+  await acall("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: PW }) });
+  const setAi = async (enabled, paid) => { const cur = (await acall("/api/admin/config")).body.config; await acall("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...cur, aiInsight: { enabled, paidTierConfirmed: paid } }) }); await adm.waitForTimeout(300); };
+  const jpeg = "/9j/" + "A".repeat(3000);
+  const post = (b) => acall("/api/ai/insight", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) });
+  await check("G01", "Gemini 해설: 기본은 꺼짐 (패널 없음 · API 503) / 유료 등급 미확인 시에도 꺼짐", async () => {
+    await setAi(false, false);
+    assert((await post({ consent: true, imageBase64: jpeg, indices: {}, locale: "ko", sid: "x" })).status === 503, "API not disabled");
+    await setAi(true, false);
+    assert((await post({ consent: true, imageBase64: jpeg, indices: {}, locale: "ko", sid: "x" })).status === 503, "enabled without paid-tier confirmation");
+    assert((await acall("/api/config?t=" + Date.now(), { cache: "no-store" })).body.aiInsight.available !== true, "available flag");
+    assert(seen.length === 0, "upstream called while disabled");
+  });
+  await check("G02", "Gemini 해설: 동의 없는 요청·잘못된 이미지 거부", async () => {
+    await setAi(true, true);
+    assert((await post({ imageBase64: jpeg, indices: {}, locale: "ko", sid: "x" })).status === 400, "no consent accepted");
+    assert((await post({ consent: true, imageBase64: "hello", indices: {}, locale: "ko", sid: "x" })).status === 400, "bad image accepted");
+    assert(seen.length === 0, "upstream called for rejected request");
+  });
+  await check("G03", "Gemini 해설: 동의 → 축소 사진 전송 → 결과 표시 (허용 스키마만, 점수·피부 나이 없음)", async () => {
+    const page = await newPage();
+    requests.length = 0;
+    assert(await runFlow(page, portrait), "flow");
+    await page.waitForSelector('[data-testid="ai-insight"]');
+    assert(!requests.some((r) => r.url.includes("/api/ai/insight")), "sent before consent");
+    assert(await page.isDisabled('[data-testid="ai-run"]'), "run enabled without consent");
+    await page.check('[data-testid="ai-consent"]');
+    await page.click('[data-testid="ai-run"]');
+    await page.waitForSelector('[data-testid="ai-result"]', { timeout: 30000 });
+    const txt = await page.textContent('[data-testid="ai-result"]');
+    assert(txt.includes("MOCK 요약") && txt.includes("MOCK 케어 설명"), "result not shown");
+    assert(!txt.includes("버려져야") && !/27|99/.test(txt.replace(/gemini[\w.-]*/g, "")), "unvalidated fields leaked: " + txt.slice(0, 200));
+    const s = seen.at(-1);
+    assert(s.key === "e2e-test-key" && s.hasImage && s.schema && /Never give a medical diagnosis/.test(s.system), "upstream request shape: " + JSON.stringify({ ...s, system: s.system.slice(0, 30) }));
+    const overall = await page.getAttribute('[data-testid="overall-score"]', "data-value");
+    assert(overall === String(base.result.analysis.overallConditionScore), "score changed by Gemini");
+    await page.screenshot({ path: path.join(OUT, "ai-insight.png"), fullPage: true });
+    await page.context().close();
+    return `upstream ${s.url}`;
+  });
+  await check("G04", "Gemini 장애 → 오류 안내, 분석 결과는 그대로", async () => {
+    const page = await newPage();
+    assert(await runFlow(page, portrait, { survey: false }), "flow");
+    failNext = true;
+    await page.check('[data-testid="ai-consent"]');
+    await page.click('[data-testid="ai-run"]');
+    await page.waitForSelector('[data-testid="ai-error"]', { timeout: 30000 });
+    assert(await page.$('[data-testid="report"]'), "report gone");
+    await page.context().close();
+    await setAi(false, false);
+  });
+  mock.close();
+} else rec("G01", "Gemini 해설 (GEMINI_MOCK_PORT 미지정으로 건너뜀)", false, "skipped");
 
 // ── 6. 관리자 · 통계 ───────────────────────────────────────
 const api = await (await browser.newContext()).newPage();

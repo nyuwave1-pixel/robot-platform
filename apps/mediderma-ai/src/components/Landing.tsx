@@ -14,10 +14,11 @@ import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
 import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
+import FaceSequence from "./fx/FaceSequence";
+import ScanHud from "./fx/ScanHud";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
-const FaceScene = dynamic(() => import("./FaceScene"), { ssr: false });
 const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
 const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
 
@@ -104,6 +105,8 @@ function OnDeviceVisual() {
   );
 }
 
+const BRAND_CUTS = ["/brand/derma-home-console.webp", "/brand/derma-home-care-1.webp", "/brand/derma-home-care-2.webp", "/brand/derma-home-care-3.webp"];
+
 export default function Landing() {
   const { t } = useI18n();
   const { setPendingFile, config } = useApp();
@@ -167,12 +170,10 @@ export default function Landing() {
               </div>
             </motion.div>
           </div>
-          <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] [mask-image:radial-gradient(closest-side,#000_66%,transparent_100%)] sm:max-w-md lg:order-2 lg:max-w-none">
-            {use3d === null ? null : use3d ? (
-              <FaceScene labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} />
-            ) : (
-              <FaceFallback mesh />
-            )}
+          <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
+            {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
+            <FaceSequence mode="pointer" className="[mask-image:linear-gradient(#000_74%,transparent_96%)]" />
+            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} />
           </motion.div>
         </div>
         {/* 키워드 마키 */}
@@ -243,6 +244,24 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
+          {/* UNI&CORE DERMA HOME 브랜드 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 에서 내보낸 이미지) */}
+          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
+            {BRAND_CUTS.map((src, i) => (
+              <motion.figure
+                key={src}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.2, 0.75, 0.2, 1] }}
+                className="group relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="UNI&CORE DERMA HOME" loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.06]" />
+                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent" />
+                <figcaption className="absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
+              </motion.figure>
+            ))}
+          </div>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {TECHS.map(({ id, shader, tint }, i) => (
               <motion.div key={id} initial={{ opacity: 0, y: 50, rotateY: -18 }} whileInView={{ opacity: 1, y: 0, rotateY: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.75, 0.2, 1] }} style={{ transformPerspective: 1000 }}>
@@ -294,6 +313,7 @@ export default function Landing() {
                     </motion.li>
                   ))}
                 </ul>
+                {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver/80">{t.ai.exception}</p>}
                 <Link href="/privacy" className="mt-5 inline-block text-xs text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               <div className="mx-auto aspect-[16/10] w-full max-w-sm">
@@ -308,7 +328,11 @@ export default function Landing() {
       <section className="relative mt-10 overflow-hidden border-t border-line/70">
         <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(79,182,255,0.25),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
-        <div className="relative mx-auto max-w-3xl px-4 py-24 text-center">
+        <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
+          {/* 스크롤에 따라 회전하는 Blender 렌더 시퀀스 */}
+          <div className="mx-auto mb-4 w-48 sm:w-60">
+            <FaceSequence mode="scroll" />
+          </div>
           <DepthText text={t.landing.ctaTitle} size="lg" className="mx-auto" />
           <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>
           <motion.div {...rise} className="mt-8 flex flex-wrap justify-center gap-4">

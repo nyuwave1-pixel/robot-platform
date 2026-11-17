@@ -149,7 +149,8 @@ function Settings({ tab }: { tab: Tab }) {
   const [defaults, setDefaults] = useState<AppConfig | null>(null);
   const [history, setHistory] = useState<{ ts: string; calibration: string; provider: string }[]>([]);
   const [msg, setMsg] = useState("");
-  const load = useCallback(() => fetch("/api/admin/config").then((r) => r.json()).then((d) => { setCfg(d.config); setDefaults(d.defaults); setHistory(d.history); }), []);
+  const [gemini, setGemini] = useState<{ key: boolean; model: string }>({ key: false, model: "" });
+  const load = useCallback(() => fetch("/api/admin/config").then((r) => r.json()).then((d) => { setCfg(d.config); setDefaults(d.defaults); setHistory(d.history); setGemini({ key: d.geminiKeyPresent, model: d.geminiModel }); }), []);
   useEffect(() => { load(); }, [load]);
   if (!cfg || !defaults) return <p className="text-sm text-silver">불러오는 중…</p>;
   const save = async (next: AppConfig = cfg) => {
@@ -183,6 +184,19 @@ function Settings({ tab }: { tab: Tab }) {
             <input value={cal.version} onChange={(e) => setCal({ version: e.target.value })} className={input} data-testid="cal-version" />
           </label>
           <p className="mt-2 text-[11px] text-silver/70">변경 이력: {history.slice(-5).map((h) => `${h.ts.slice(0, 16)} ${h.calibration}`).join(" → ") || "없음"}</p>
+        </div>
+        <div className={card} data-testid="admin-gemini">
+          <h3 className="text-sm font-semibold">Gemini AI 해설 (외부 Vision AI · 선택 기능)</h3>
+          <p className="mt-1 text-[11px] leading-relaxed text-silver">켜면 리포트에 'Gemini AI 해설' 영역이 생기고, 이용자가 그 자리에서 따로 동의한 경우에만 축소된 얼굴 사진이 Google Gemini API로 전송됩니다. 점수는 바뀌지 않습니다.</p>
+          <dl className="mt-2 grid grid-cols-[140px_1fr] gap-y-1 text-xs text-silver">
+            <dt>서버 API 키</dt><dd className={gemini.key ? "text-emerald-300" : "text-amber-200"}>{gemini.key ? "설정됨 (GEMINI_API_KEY)" : "없음 — 서버 환경변수 GEMINI_API_KEY 를 설정하세요"}</dd>
+            <dt>모델</dt><dd className="text-white">{gemini.model} (GEMINI_MODEL 로 변경)</dd>
+          </dl>
+          <p role="note" className="mt-2 rounded-lg border border-amber-400/40 bg-amber-400/10 p-2 text-[11px] leading-relaxed text-amber-100">
+            Google 약관상 <b>무료 등급 키</b>로 보낸 내용은 Google이 제품 개선에 사용하고 사람이 검토할 수 있으며, 개인정보를 보내지 말라고 명시되어 있습니다. 얼굴 사진을 보내려면 반드시 <b>결제가 연결된 유료 등급 키</b>를 사용하세요. 국외 이전 고지·처리위탁 등 법무 검토도 필요합니다.
+          </p>
+          <label className="mt-2 flex items-center gap-2 text-xs"><input type="checkbox" data-testid="gemini-paid" checked={cfg.aiInsight.paidTierConfirmed} onChange={(e) => setCfg({ ...cfg, aiInsight: { ...cfg.aiInsight, paidTierConfirmed: e.target.checked } })} /> 사용 중인 키가 유료 등급(결제 연결)임을 확인했습니다</label>
+          <label className="mt-1 flex items-center gap-2 text-xs"><input type="checkbox" data-testid="gemini-enabled" checked={cfg.aiInsight.enabled} onChange={(e) => setCfg({ ...cfg, aiInsight: { ...cfg.aiInsight, enabled: e.target.checked } })} /> Gemini AI 해설 사용</label>
         </div>
         <div className={card}>
           <h3 className="text-sm font-semibold">분석 항목 관리</h3>

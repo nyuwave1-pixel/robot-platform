@@ -1,5 +1,5 @@
 import type { AnalysisResult, CareGoal, CareRecommendation, MetricKey, SurveyAnswers, ZoneId, ZoneResult } from "../analysis/types";
-import { GOAL_ROUTINE, ROUTINES, type ProductId, type RoutineId } from "./knowledge";
+import { GOAL_ROUTINE, PRODUCTS, PRODUCT_ORDER, ROUTINES, type ConcernTag, type ProductId, type RoutineId } from "./knowledge";
 
 export interface CarePlan {
   /** 사용자가 '사용하면 안 되는 경우'에 해당한다고 표시 → 기기 루틴을 추천하지 않는다 */
@@ -15,9 +15,16 @@ export interface CarePlan {
   focusAreas: ("jaw" | "cheek" | "nose" | "forehead" | "eye" | "neck")[];
   recommendations: CareRecommendation[];
   products: ProductId[];
+  /** 제품별 추천 근거 (공식 상세페이지가 언급하는 고민 ↔ 내 관찰·설문) */
+  productReasons: Partial<Record<ProductId, ProductReason[]>>;
   /** 관찰된 붉은 기가 높아 전문가 상담 안내를 함께 표시 */
   rednessNotice: boolean;
 }
+
+export type ProductReason =
+  | { type: "observation"; metric: MetricKey; zone: ZoneId; value: number }
+  | { type: "survey" | "goal"; key: string }
+  | { type: "routine" | "guide" };
 
 const EMPTY_SURVEY: SurveyAnswers = {
   dryness: null, oiliness: null, sensitivity: null, tightness: null, troubleFrequency: null,
@@ -198,18 +205,57 @@ export function buildCarePlan(
   }
   recs.sort((a, b) => b.priority - a.priority);
 
-  const products = new Set<ProductId>();
-  for (const r of [night, day]) if (r) for (const s of ROUTINES[r].steps) products.add(s.product);
-  products.add("mist");
-  if (!deviceBlocked) products.add("device");
-  if (deviceBlocked) {
-    // 기기 없이도 쓸 수 있는 공식 스킨케어 제품만 안내
-    products.add(lvl(survey.sensitivity) >= 2 ? "boostingGel" : "cream");
+  // ── 제품 추천: 상세페이지가 언급하는 고민(태그)과 내 관찰·설문·목표가 맞닿는 제품 + 루틴에 쓰이는 제품 + 공식 가이드의 기본 단계
+  const ALL_FACE: ZoneId[] = result.analysis.zones.map((z) => z.zone);
+  const tagEvidence: Record<ConcernTag, ProductReason[]> = { pigment: [], tone: [], texture: [], pore: [], wrinkle: [], firmness: [], redness: [], dryness: [], sensitive: [], neck: [] };
+  const obsHi = (tag: ConcernTag, metric: MetricKey, ids: ZoneId[] = ALL_FACE) => {
+    const m = zoneMax(zones, ids, metric);
+    if (m && m.value >= NOTICE) tagEvidence[tag].push({ type: "observation", metric, zone: m.zone, value: m.value });
+  };
+  const obsLo = (tag: ConcernTag, metric: MetricKey, ids: ZoneId[] = ALL_FACE) => {
+    const m = zoneMinGood(zones, ids, metric);
+    if (m && m.value <= 100 - NOTICE) tagEvidence[tag].push({ type: "observation", metric, zone: m.zone, value: m.value });
+  };
+  const sv = (tag: ConcernTag, key: "dryness" | "tightness" | "sensitivity") => { if (lvl(survey[key]) >= 2) tagEvidence[tag].push({ type: "survey", key }); };
+  const gl = (tag: ConcernTag, g: CareGoal) => { if (goals.has(g)) tagEvidence[tag].push({ type: "goal", key: g }); };
+  obsHi("pigment", "pigmentVisibility"); gl("pigment", "brightening");
+  obsLo("tone", "toneUniformity"); gl("tone", "brightening");
+  obsLo("texture", "texture"); gl("texture", "pore_texture");
+  obsHi("pore", "poreVisibility"); gl("pore", "pore_texture");
+  obsHi("wrinkle", "wrinkleVisibility"); gl("wrinkle", "wrinkle_firming");
+  obsHi("firmness", "nasolabialVisibility", CHEEKS); gl("firmness", "contour"); gl("firmness", "wrinkle_firming");
+  obsHi("redness", "rednessVisibility"); gl("redness", "soothing");
+  sv("dryness", "dryness"); sv("dryness", "tightness"); gl("dryness", "moisture");
+  sv("sensitive", "sensitivity");
+  if (neck && neck.wrinkleVisibility !== null && neck.wrinkleVisibility >= NOTICE) tagEvidence.neck.push({ type: "observation", metric: "wrinkleVisibility", zone: "neck", value: neck.wrinkleVisibility });
+
+  const inRoutine = new Set<ProductId>();
+  for (const r of [night, day]) if (r) for (const s of ROUTINES[r].steps) inRoutine.add(s.product);
+  const productReasons: Partial<Record<ProductId, ProductReason[]>> = {};
+  for (const id of PRODUCT_ORDER) {
+    if (id === "device") continue;
+    const reasons: ProductReason[] = [];
+    const seen = new Set<string>();
+    for (const tag of PRODUCTS[id].concerns) {
+      for (const r of tagEvidence[tag]) {
+        const k = JSON.stringify(r);
+        if (!seen.has(k)) { seen.add(k); reasons.push(r); }
+      }
+    }
+    if (inRoutine.has(id)) reasons.push({ type: "routine" });
+    // 공식 스킨케어 가이드의 기본 단계: 미스트(보습/보호)·선크림(자외선차단)은 항상 안내
+    if ((id === "mist" || id === "sunscreen") && !reasons.length) reasons.push({ type: "guide" });
+    if (reasons.length) productReasons[id] = reasons.slice(0, 4);
   }
+  if (!deviceBlocked) productReasons.device = [{ type: "routine" }];
+  // 근거가 관찰·설문·목표로만 구성된 제품이 너무 많아지지 않게: 같은 단계(미백)에서는 근거가 많은 2개까지만
+  const brighten = (["ampoule", "glutaAmpoule", "mask"] as ProductId[]).filter((p) => productReasons[p]).sort((a, b) => Number(inRoutine.has(b)) - Number(inRoutine.has(a)) || (productReasons[b]?.length ?? 0) - (productReasons[a]?.length ?? 0));
+  for (const p of brighten.slice(2)) delete productReasons[p];
+  const products = new Set<ProductId>(PRODUCT_ORDER.filter((p) => productReasons[p]));
 
   return {
     deviceBlocked, night, alternativeNight, day,
     frequency: sensitive || rednessNotice ? "gentle" : "standard",
-    drivers, focusAreas: focus, recommendations: recs, products: [...products], rednessNotice,
+    drivers, focusAreas: focus, recommendations: recs, products: [...products], productReasons, rednessNotice,
   };
 }

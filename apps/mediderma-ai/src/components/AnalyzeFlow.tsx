@@ -146,7 +146,7 @@ export default function AnalyzeFlow() {
               <div className="mt-5 space-y-4 rounded-2xl border border-line bg-panel p-5 text-sm">
                 <label className="flex gap-3">
                   <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-4 w-4 shrink-0 accent-[#4fb6ff]" />
-                  <span className="leading-relaxed">{t.consent.processing}</span>
+                  <span className="leading-relaxed">{t.consent.processing}{config.aiInsight.available && <span className="mt-1 block text-xs text-silver">{t.ai.exception}</span>}</span>
                 </label>
                 <label className="flex gap-3 text-silver">
                   <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#4fb6ff]" />
