@@ -34,6 +34,10 @@ export default function BgMusic() {
     try { if (localStorage.getItem(PREF_KEY) === "off") wanted.current = false; } catch { /* 무시 */ }
     const a = new Audio(); a.src = SRC; a.loop = true; a.preload = wanted.current ? "auto" : "none";
     audio.current = a;
+    // 첫 화면 배경 영상이 음악 위치에 장면을 맞출 수 있게 알려 준다
+    (window as unknown as { __ucBgm?: HTMLAudioElement }).__ucBgm = a;
+    const tell = () => window.dispatchEvent(new Event("uc-bgm-play"));
+    a.addEventListener("playing", tell);
     const events = ["click", "touchend", "pointerup", "keydown"] as const; // iOS 는 스크롤이 아닌 "누르기"만 재생 허용으로 친다
     const off = () => events.forEach((e) => window.removeEventListener(e, first));
     // 누른 대상이 음악 버튼이면 버튼이 직접 처리한다(중복 재생 방지)

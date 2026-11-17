@@ -9,6 +9,7 @@ import { track } from "@/lib/track";
 import { ApiError, getConfig, lookupReview, reviseReview, type EventConfig, type LookupResult, type SubmitResult } from "./api";
 import ReviewForm from "./ReviewForm";
 import BgMusic from "./BgMusic";
+import HeroVideo from "./HeroVideo";
 import { getLang, setLang, startTranslator, type Lang } from "./i18n";
 import PhotoField, { emptyPhoto, type PhotoState } from "./PhotoField";
 import s from "./review.module.css";
@@ -107,6 +108,7 @@ export default function ReviewEvent() {
       <main>
         {/* ===== SECTION 01. HERO ===== */}
         <section className={s.hero} ref={hero} aria-labelledby="hero-title">
+          <HeroVideo />
           <div className={s.dust} aria-hidden="true">{DUST.map((d, i) => <i key={i} style={{ left: `${d.left}%`, top: `${d.top}%`, width: d.size, height: d.size, animationDelay: `${d.delay}s`, animationDuration: `${d.dur}s` }} />)}</div>
           <div className={s.heroGlow} aria-hidden="true" />
           <div className={s.heroCopy}>
@@ -115,13 +117,7 @@ export default function ReviewEvent() {
             <p className={s.heroKo}>{E.hero.ko}</p>
             <p className={s.heroProduct}>{E.hero.product}<br /><b>{E.hero.badge}</b></p>
           </div>
-          <div className={s.jarStage}>
-            <div className={s.jar} ref={jar}>
-              <video className={s.jarVideo} autoPlay muted loop playsInline preload="metadata" poster="/media/product/spotlight_jar_poster.webp" aria-label="UNI&CORE 1ST BIRTHDAY CREAM 50g 제품">
-                <source src="/media/product/spotlight_jar_720.mp4" type="video/mp4" />
-              </video>
-            </div>
-          </div>
+          <div className={s.heroGap} ref={jar} aria-hidden="true" />
           <div className={s.heroText}>
             <p className={s.heroLead}>{E.hero.lead}</p>
             <p className={s.heroSub}>{E.hero.sub1}<br />{E.hero.sub2}</p>

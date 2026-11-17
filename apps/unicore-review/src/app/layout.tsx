@@ -36,7 +36,7 @@ export default function ReviewLayout({ children }: { children: React.ReactNode }
         {fontCss.map((h) => <link key={h} rel="preload" as="style" href={h} />)}
         <script dangerouslySetInnerHTML={{ __html: `(function(){${JSON.stringify(fontCss)}.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l)})})();` }} />
         <noscript>{fontCss.map((h) => <link key={h} rel="stylesheet" href={h} />)}</noscript>
-        <link rel="preload" as="image" href="/media/product/spotlight_jar_poster.webp" />
+        <link rel="preload" as="image" href="/media/video/hero-poster-mobile.webp" media="(max-width: 899px)" />
       </head>
       <body>{children}<Analytics /></body>
     </html>

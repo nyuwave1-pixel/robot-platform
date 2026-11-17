@@ -35,6 +35,14 @@
 .dust i { position: absolute; border-radius: 50%; background: radial-gradient(circle, #fff3d6, var(--champ) 55%, transparent 72%); opacity: 0; animation: dust linear infinite; }
 @keyframes dust { 0% { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.6); } 18% { opacity: 0.85; } 70% { opacity: 0.5; } 100% { opacity: 0; transform: translate3d(14px, -90px, 0) scale(1.15); } }
 .heroCopy, .heroText { position: relative; z-index: 2; width: 100%; max-width: 560px; }
+/* 첫 화면 배경 영상 — 위·아래를 어둡게 눌러 글자가 읽히게 한다 */
+.heroBg { position: absolute; inset: 0 0 auto 0; z-index: 0; height: min(76vh, 680px); height: min(76svh, 680px); overflow: hidden; background: #0d0a08; -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%); mask-image: linear-gradient(180deg, #000 72%, transparent 100%); }
+.heroBg video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+.heroBg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8, 7, 6, 0.86) 0%, rgba(8, 7, 6, 0.6) 30%, rgba(8, 7, 6, 0.12) 56%, rgba(8, 7, 6, 0.2) 78%, rgba(8, 7, 6, 0.7) 100%); }
+.heroGap { height: min(30vh, 270px); height: min(30svh, 270px); }
+.hero .heroEn, .hero .heroKo, .hero .heroProduct { text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85); }
+.hero .heroEn { filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.8)); }
+@media (min-width: 900px) { .heroBg { height: 100%; } .heroGap { height: min(34vh, 320px); } }
 .badge { display: inline-block; margin: 0 0 18px; padding: 8px 16px 7px; border: 1px solid var(--line); border-radius: 999px; font: 600 13px/1 var(--font-ui); letter-spacing: 0.28em; color: var(--champ); }
 .heroEn { margin: 0; font: 500 clamp(38px, 10.6vw, 64px) / 1.04 var(--font-serif); letter-spacing: 0.01em; color: transparent; background: var(--gold-grad) center / 100% 100% no-repeat; -webkit-background-clip: text; background-clip: text; }
 .heroKo { margin: 16px 0 0; font-size: clamp(20px, 5.4vw, 26px); font-weight: 300; line-height: 1.45; letter-spacing: -0.02em; }
