@@ -246,10 +246,11 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
             <input id="name" className={s.input} value={v.name} maxLength={40} onChange={(e) => set("name", e.target.value)} autoComplete="name" placeholder="받으시는 분 이름" enterKeyHint="next" {...inv("name")} />{err("name")}</div>
           <div className={s.field} id="f-phone"><label className={s.label} htmlFor="phone">휴대폰 번호<em>필수</em></label>
             <input id="phone" className={s.input} value={v.phone} onChange={(e) => set("phone", fmtPhone(e.target.value))} type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="010-0000-0000" enterKeyHint="next" {...inv("phone")} />{err("phone")}
-            <p className={s.hint}>당첨 안내와 사은품 배송 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.</p></div>
+            <p className={s.hint}>당첨 안내와 사은품 지급 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.</p></div>
           <div className={s.field} id="f-memberNumber"><label className={s.label} htmlFor="member">유니앤코어 회원번호<em>필수</em></label>
             <input id="member" className={s.input} value={v.memberNumber} maxLength={30} onChange={(e) => set("memberNumber", e.target.value.replace(/[^A-Za-z0-9-]/g, ""))} placeholder="회원번호 입력" autoComplete="off" autoCapitalize="characters" autoCorrect="off" enterKeyHint="next" {...inv("memberNumber")} />{err("memberNumber")}
             <p className={s.hint}>이 이벤트는 벌스데이 크림을 구매하신 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.</p></div>
+          {config.requireAddress && (
           <div className={s.field} id="f-postalCode"><div className={s.label}>사은품 받으실 주소{config.requireAddress ? <em>필수</em> : <i>선택</i>}</div>
             <div className={s.postRow}>
               <input className={s.input} value={v.postalCode} onChange={(e) => set("postalCode", e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" placeholder="우편번호" aria-label="우편번호" autoComplete="postal-code" {...inv("postalCode")} />
@@ -258,6 +259,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
             <div id="f-address1"><input className={s.input} style={{ marginTop: 10 }} value={v.address1} maxLength={120} onChange={(e) => set("address1", e.target.value)} placeholder="도로명 주소" aria-label="도로명 주소" autoComplete="address-line1" {...inv("address1")} />{err("address1")}</div>
             <input id="f-address2-input" className={s.input} style={{ marginTop: 10 }} value={v.address2} maxLength={80} onChange={(e) => set("address2", e.target.value)} placeholder="상세 주소 (동 · 호수)" aria-label="상세 주소" autoComplete="address-line2" />
           </div>
+          )}
           {/* 자동 등록 프로그램 방지용 칸 — 사람에게는 보이지 않는다 */}
           <input ref={hp} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className={s.hp} />
 

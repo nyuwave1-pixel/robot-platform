@@ -67,10 +67,14 @@ export function consentDocs(st: EventSettings) {
       purpose: "후기 검토, 우수 후기 선정, 당첨자 확인 및 개별 연락",
       items: "이름, 휴대폰 번호, 후기 내용, 사용 전·후 사진, 접수 번호",
       retention: keep, refusal: refuse },
-    { type: "GIFT_SHIPPING", required: true, title: "사은품 배송을 위한 개인정보 이용 동의",
+    // 주소를 받지 않는 설정(현장 지급)에서는 주소·택배 관련 내용을 빼고 안내한다
+    st.requireAddress ? { type: "GIFT_SHIPPING", required: true, title: "사은품 배송을 위한 개인정보 이용 동의",
       purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 배송, 배송 안내 연락",
       items: "수령인 이름, 휴대폰 번호, 배송지 주소(우편번호 포함)",
-      retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse },
+      retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
+      : { type: "GIFT_SHIPPING", required: true, title: "사은품 지급을 위한 개인정보 이용 동의",
+          purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 현장 지급, 지급 안내 연락",
+          items: "이름, 휴대폰 번호, 유니앤코어 회원번호", retention: keep, refusal: refuse },
     { type: "MARKETING_USE", required: false, title: "후기 및 사진의 마케팅 활용 동의 (선택)",
       purpose: "유니앤코어 공식몰·SNS·광고 등 홍보 콘텐츠에 후기 내용과 사용 전·후 사진을 게시",
       items: "후기 제목·내용, 별점, 사용 전·후 사진 (이름은 일부만 표시)",
@@ -181,9 +185,11 @@ function validateInput(b: any, st: EventSettings): ReviewInput {
   if (st.requireAddress) {
     if (postalCode.length !== 5) fields.postalCode = "우편번호 5자리를 입력해 주세요.";
     if (charCount(address1) < 5) fields.address1 = "사은품을 받으실 주소를 입력해 주세요.";
-  } else if (postalCode && postalCode.length !== 5) fields.postalCode = "우편번호 5자리를 입력해 주세요.";
+  }
   if (Object.keys(fields).length) fail(400, "VALIDATION", Object.values(fields)[0], fields);
-  return { name, phone, memberClaimed, memberLoginId, orderNumber, ...t, skinType, usagePeriod, recommendReason, postalCode, address1, address2 };
+  // 주소를 받지 않는 설정이면 보내온 주소가 있어도 저장하지 않는다
+  const addr = st.requireAddress ? { postalCode, address1, address2 } : { postalCode: "", address1: "", address2: "" };
+  return { name, phone, memberClaimed, memberLoginId, orderNumber, ...t, skinType, usagePeriod, recommendReason, ...addr };
 }
 type ImageRef = { id: number; token: string };
 function imageRefs(b: any): { BEFORE?: ImageRef; AFTER?: ImageRef } {

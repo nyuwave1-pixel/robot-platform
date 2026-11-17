@@ -320,6 +320,17 @@ test("사진 없이 참여: 기본은 불가, 관리자 설정으로 허용하�
   const list = await HQ.p("GET", "/reviews?photos=NONE");
   assert.ok(list.data.items.some((x: any) => x.applicationNumber === ok.data.applicationNumber && !x.hasBefore && !x.hasAfter));
   assert.equal((await HQ.p("PATCH", "/event", { settings: { requireImages: true } })).status, 200);
+
+  // 주소를 받지 않는 설정(현장 지급): 주소 없이 접수되고, 보내온 주소도 저장하지 않으며, 동의 문구에서 주소가 빠진다
+  assert.equal((await HQ.p("PATCH", "/event", { settings: { requireAddress: false } })).status, 200);
+  const cfgNoAddr = (await v.call("GET", "/config")).data;
+  assert.equal(cfgNoAddr.requireAddress, false);
+  const gift = cfgNoAddr.consents.find((c: any) => c.type === "GIFT_SHIPPING");
+  assert.match(gift.title, /지급/); assert.doesNotMatch(gift.items + gift.title + gift.purpose + gift.retention, /주소|배송|택배/);
+  const na = await submit({ postalCode: "", address1: "", address2: "" });
+  const nb = await submit({ postalCode: "06774", address1: "서울 서초구 양재대로2길 100-30", address2: "2층" });
+  for (const x of [na, nb]) { const r = (await sql(`SELECT postal_code, address_enc FROM birthday_reviews WHERE id = $1`, [x.id]))[0]; assert.equal(r.postal_code, null); assert.equal(r.address_enc, null); }
+  assert.equal((await HQ.p("PATCH", "/event", { settings: { requireAddress: true } })).status, 200);
 });
 
 test("이벤트 기간·상태: 시작 전·종료·마감에는 접수 불가, 테스트 출처 접수는 운영 통계와 분리", async () => {
