@@ -29,6 +29,7 @@ export function Footer({ products }: { products: Pick<ProductContent, "slug" | "
           <p className="text-[13px] font-semibold text-[#191A17]">Info</p>
           <ul className="mt-4 space-y-3 text-[14px]">
             <li><Link href="/guides" className={link}>Vitamin C Skincare Guides</Link></li>
+            <li><Link href="/about" className={link}>About UNI&amp;CORE</Link></li>
             <li><a href={SITE.usStore} className={link}>UNI&amp;CORE US Official Store</a></li>
             <li><Link href="/contact" className={link}>Contact</Link></li>
             <li><Link href="/privacy" className={link}>Privacy Policy</Link></li>

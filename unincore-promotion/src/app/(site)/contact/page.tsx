@@ -3,14 +3,14 @@ import { pageMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/cms";
 import { SITE } from "@/content/site";
 
-export const metadata = pageMetadata({ title: "Contact | UNI&CORE USA", description: "Get in touch with UNI&CORE about our Korean vitamin C skincare, Amazon orders or partnerships.", path: "/contact", absoluteTitle: true });
+export const metadata = pageMetadata({ title: "Contact | UNI&CORE USA", description: "Get in touch with UNI&CORE about our Korean skincare, Amazon or TikTok Shop orders, or partnerships.", path: "/contact", absoluteTitle: true });
 
 export default async function ContactPage() {
   const { contactEmail } = await getSettings();
   return (
-    <LegalPage title="Contact" updated="November 3, 2026">
+    <LegalPage title="Contact" updated="November 17, 2026">
       <h2>Orders, shipping &amp; returns</h2>
-      <p>All orders are placed and fulfilled through Amazon.com. For order status, delivery or returns, please use <strong>Your Orders</strong> on Amazon, or contact the seller from the order details page.</p>
+      <p>Orders are placed and fulfilled through Amazon.com (vitamin C ampoule, sheet mask and enzyme powder wash) and TikTok Shop (serum mist). For order status, delivery or returns, please use <strong>Your Orders</strong> on Amazon or your order page in TikTok Shop, or contact the seller from the order details.</p>
       <h2>Product questions &amp; partnerships</h2>
       {contactEmail ? (
         <p>Email us at <a href={`mailto:${contactEmail}`}>{contactEmail}</a>. We usually reply within 2 business days.</p>

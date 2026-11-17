@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
       images: [`/og/${g.slug}`, ...g.products.map((k) => LANDING[k].shot.src)].map(abs),
     })),
+    { url: abs("/about"), lastModified: now, changeFrequency: "monthly" as const, priority: 0.5 },
     ...["/contact", "/privacy", "/terms", "/disclaimer"].map((path) => ({ url: abs(path), lastModified: now, changeFrequency: "yearly" as const, priority: 0.2 })),
   ];
 }

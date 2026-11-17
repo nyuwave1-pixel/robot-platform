@@ -37,7 +37,7 @@ const gaEvents = (pg = page) =>
 
 // ---------- pages & SEO ----------
 const seen = { titles: new Set(), descs: new Set() };
-for (const path of ["/", ...PRODUCTS.map((p) => `/products/${p.slug}`), "/privacy", "/terms", "/contact", "/disclaimer"]) {
+for (const path of ["/", ...PRODUCTS.map((p) => `/products/${p.slug}`), "/privacy", "/terms", "/contact", "/disclaimer", "/about"]) {
   const res = await page.goto(BASE + path, { waitUntil: "load" });
   await page.waitForTimeout(250);
   check(`${path} returns 200`, res?.status() === 200, String(res?.status()));
