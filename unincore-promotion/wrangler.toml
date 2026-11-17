@@ -1,0 +1,5 @@
+# Cloudflare Pages project for promotion.unincore.com (moved from Netlify on 2026-11-17).
+# Build: npm run build:cf  →  deploy: npx wrangler pages deploy out --project-name unincore-promotion --branch main
+name = "unincore-promotion"
+pages_build_output_dir = "out"
+compatibility_date = "2026-11-01"
