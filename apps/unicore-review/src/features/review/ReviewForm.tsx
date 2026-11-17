@@ -249,7 +249,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
             <p className={s.hint}>당첨 안내와 사은품 배송 연락에 사용되며, 이 번호로 접수 내용을 확인하실 수 있습니다.</p></div>
           <div className={s.field} id="f-memberNumber"><label className={s.label} htmlFor="member">유니앤코어 회원번호<em>필수</em></label>
             <input id="member" className={s.input} value={v.memberNumber} maxLength={30} onChange={(e) => set("memberNumber", e.target.value.replace(/[^A-Za-z0-9-]/g, ""))} placeholder="회원번호 입력" autoComplete="off" autoCapitalize="characters" autoCorrect="off" enterKeyHint="next" {...inv("memberNumber")} />{err("memberNumber")}
-            <p className={s.hint}>이 이벤트는 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.</p></div>
+            <p className={s.hint}>이 이벤트는 벌스데이 크림을 구매하신 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.</p></div>
           <div className={s.field} id="f-postalCode"><div className={s.label}>사은품 받으실 주소{config.requireAddress ? <em>필수</em> : <i>선택</i>}</div>
             <div className={s.postRow}>
               <input className={s.input} value={v.postalCode} onChange={(e) => set("postalCode", e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" placeholder="우편번호" aria-label="우편번호" autoComplete="postal-code" {...inv("postalCode")} />

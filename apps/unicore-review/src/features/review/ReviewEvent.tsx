@@ -134,6 +134,9 @@ export default function ReviewEvent() {
             <h2 id="reward-title" className={s.titleEn}>{E.reward.en}</h2>
             <p className={s.titleKo}>{E.reward.ko}</p>
           </Reveal>
+          <Reveal>
+            <dl className={s.infoBox}>{E.reward.info.map((i) => <div key={i.label}><dt>{i.label}</dt><dd>{i.value}</dd></div>)}</dl>
+          </Reveal>
           <div className={s.rewards}>
             <Reveal className={s.rewardGold}>
               <div className={s.rewardNo}>{E.reward.winner.no}</div>
@@ -277,7 +280,7 @@ function Complete({ result, onLookup }: { result: SubmitResult; onLookup: () => 
         <section className={s.completeRewards} aria-label="참여 보상 안내">
           <div><small>모든 정상 참여자</small><p><b>{result.rewards.participation.productName}</b>를 드립니다.</p></div>
           <div><small>우수 후기 {result.rewards.winnerCount}명</small><p><b>퍼스트 벌스데이 크림</b>을 추가로 드립니다.</p></div>
-          <p className={s.completeNote}>당첨 결과는 개별 연락을 통해 안내됩니다. 사은품은 관리자 확인 후 순서대로 발송됩니다.</p>
+          <p className={s.completeNote}>당첨 결과는 개별 연락을 통해 안내됩니다. 사은품은 2027년 1월 신규 세미나 진행 시 지급됩니다.</p>
         </section>
         <div className={s.completeBtns}>
           <a className={s.btnGold} href={E.brandSite}>브랜드 스토리 보러 가기</a>

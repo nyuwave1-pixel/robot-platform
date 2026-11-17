@@ -95,6 +95,12 @@
 .stepNo { font: 500 54px/1 var(--font-serif); color: transparent; background: var(--gold-grad) center / 100% 100% no-repeat; -webkit-background-clip: text; background-clip: text; min-width: 62px; }
 .stepCard small { font: 600 12px/1 var(--font-ui); letter-spacing: 0.24em; color: var(--gold); }
 .stepCard p { margin: 8px 0 0; font-size: 19px; font-weight: 500; line-height: 1.5; letter-spacing: -0.02em; }
+.infoBox { margin: 34px 0 0; border: 1px solid var(--champ); border-radius: 4px; background: linear-gradient(170deg, rgba(58, 40, 22, 0.7), rgba(20, 14, 10, 0.8)); box-shadow: 0 20px 60px rgba(198, 161, 106, 0.12), inset 0 1px 0 rgba(255, 243, 214, 0.22); }
+.infoBox > div { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 14px; padding: 18px 20px; }
+.infoBox > div + div { border-top: 1px solid rgba(198, 161, 106, 0.22); }
+.infoBox dt { font-size: 16px; font-weight: 600; color: var(--gold); letter-spacing: 0.04em; }
+.infoBox dd { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.45; letter-spacing: -0.02em; color: var(--text); }
+.rewards { margin-top: 18px; }
 .afterBox { margin-top: 26px; padding: 22px 22px 20px; border-left: 2px solid var(--gold); background: rgba(198, 161, 106, 0.07); }
 .afterTitle { margin: 0 0 10px; font-size: 18px; font-weight: 700; color: var(--champ); }
 .afterBox ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 17px; color: var(--dim); }
