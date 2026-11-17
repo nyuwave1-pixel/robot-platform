@@ -77,7 +77,7 @@ export function organizationLd() {
     description: "UNI&CORE is a Korean skincare brand: vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist, sold in the US on Amazon and TikTok Shop.",
     url: SITE.url,
     logo: abs("/icon.svg"),
-    sameAs: [SITE.mainSite, "https://us.unincore.com", SITE.amazonStore, ...SITE.social],
+    sameAs: [SITE.mainSite, SITE.usStore, SITE.amazonStore, ...SITE.social],
   };
 }
 

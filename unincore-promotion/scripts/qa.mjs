@@ -185,6 +185,7 @@ check("sitemap.xml lists home + 3 products", PRODUCTS.every((p) => sm.includes(`
 check("sitemap has image entries for products and guides", (sm.match(/<image:loc>/g) || []).length >= 40 && sm.includes("/landing/amz/"));
 const rb = await (await fetch(`${BASE}/robots.txt`)).text();
 check("robots.txt allows crawling and points to sitemap", rb.includes("Allow: /") && rb.includes(`Sitemap: ${SITE}/sitemap.xml`));
+check("robots.txt also lists the US store sitemap", rb.includes("Sitemap: https://us.unincore.com/sitemap.xml"));
 check("no admin area", (await fetch(`${BASE}/admin`)).status === 404);
 const guide = await fetch(`${BASE}/guides/korean-vitamin-c-skincare-routine`);
 const guideHtml = await guide.text();

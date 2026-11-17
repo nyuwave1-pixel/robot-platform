@@ -6,6 +6,8 @@ export const SITE = {
   tagline: "United in Beauty, Core in Confidence",
   url: (process.env.NEXT_PUBLIC_SITE_URL || "https://promotion.unincore.com").replace(/\/$/, ""),
   mainSite: "https://unincore.com",
+  /** UNI&CORE's own US online store; linked from the footer so Google ties the two US sites to one brand. */
+  usStore: "https://us.unincore.com",
   locale: "en_US",
   /** UNI&CORE brand store on Amazon (the share link's tracking parameters removed). */
   amazonStore: "https://www.amazon.com/stores/UNICORE/page/51BC645B-3E00-4AA5-A624-530B9E21DCE3",
