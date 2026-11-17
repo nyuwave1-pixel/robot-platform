@@ -1,6 +1,6 @@
 # UNI&CORE VITA C 프로모션 사이트: 작업 인수인계
 
-최종 업데이트: 2026-11-17 · 기준 커밋 `8a1b0c7` 이후 (라이브 배포본과 같음, 4차 수정본 반영)
+최종 업데이트: 2026-11-16 · 기준 커밋 `8a1b0c7` 이후 (라이브 배포본과 같음, 4차 수정본 반영)
 
 ## 1. 한눈에 보기
 
@@ -10,12 +10,12 @@
 | 성격 | 제품 4종 → **Amazon.com·TikTok Shop 구매로 보내는 정적 랜딩 사이트** (관리자/CMS 없음) |
 | 제품 | Amazon: Vita C Enzyme Powder Wash · Vita C Super Brightening Mask · Vita C 13.5 Super Brightening Ampoule (랜딩 페이지 버튼은 Amazon Attribution 링크) · TikTok Shop: Hydrating Skin Barrier Serum Mist |
 | 코드 | GitHub `nyuwave1-pixel/robot-platform`, 브랜치 `claude/awesome-gauss-5kqwk2` (PR #2, Draft). 사이트 `unincore-promotion/`, SEO 엔진 `unincore-engine/`, 매일 실행 워크플로 `.github/workflows/unincore-engine-daily.yml` |
-| 호스팅 | Cloudflare Workers `robot-platform` (정적 사이트, 2026-11-17 Netlify에서 이전 — Netlify가 사용량 초과로 사이트를 멈춤). 이전 Netlify 프로젝트 `unincore-promotion`은 DNS 전환 전까지 예비로 남아 있음 |
-| 도메인 | 후이즈 DNS: `promotion` CNAME → Cloudflare 주소로 변경 예정 (현재는 아직 `unincore-promotion.netlify.app`) |
+| 호스팅 | Netlify 프로젝트 `unincore-promotion` (siteId `4a3fa453-4eb7-4f23-9855-816a3cc62589`, 팀 nyuwave1) |
+| 도메인 | 후이즈 DNS: `promotion` CNAME → `unincore-promotion.netlify.app` · HTTPS Let's Encrypt 자동 |
 | 분석 | GA4 `G-QDK6Q436G5` (계정 387197170 / 속성 527901588, us.unincore.com 쇼핑몰과 같은 속성) |
 | 검색 등록 | Google Search Console(HTML 파일) · 네이버 서치어드바이저(메타 태그) 완료 |
 | 엔진 DB | 기본은 로컬 SQLite. 운영용은 Supabase 프로젝트 `qeabsjyglethzkwlkmaw` 의 `seo_engine` 스키마(빈 상태로 준비됨). 접속 주소는 GitHub Secret `ENGINE_DATABASE_URL` 로만 보관 |
-| 배포 | Cloudflare가 GitHub 브랜치 `claude/awesome-gauss-5kqwk2`에 푸시될 때마다 자동 빌드·배포 |
+| 배포 | 자동 배포 없음. Netlify에 수동 배포하며, 배포는 매번 담당자 승인 후에만 진행 |
 
 ## 2. 다른 PC에서 시작하기
 
@@ -102,9 +102,7 @@ unincore-promotion/
 │  ├─ qa.mjs                 E2E QA
 │  └─ films/                 영상 재생성 스크립트 (build_ampoule_films.py, build_product_loops.py)
 ├─ docs/                     문서 (이 파일, GA4_SETUP, flow 프롬프트 등)
-├─ wrangler.toml             Cloudflare Worker 설정 (정적 파일 out/, "/"만 worker/index.js)
-├─ worker/index.js           "/?product=" 광고 링크 → 제품 페이지 이동
-├─ public/_headers, _redirects  보안 헤더, 사이트맵 주소 이동
+├─ netlify.toml              빌드 설정 + netlify.app → 도메인 301
 └─ tests/core.test.ts        단위 테스트
 ```
 
@@ -120,22 +118,25 @@ unincore-promotion/
 | 블랙프라이데이 등 프로모션 | `products.ts`의 `bfcm()` → `enabled: true`, 할인율, 기간 (미국 태평양 시간) |
 | 검색 제목·설명·키워드 | 각 제품 `seo` (제목 70자, 설명 170자 이내) |
 | 홈 카피 | `src/data/brand.ts`, `src/data/scenes.ts` |
-| GA4 / GTM / Meta Pixel ID | Cloudflare Settings → Build → Variables `NEXT_PUBLIC_GA4_ID` 등 → 재빌드 |
+| GA4 / GTM / Meta Pixel ID | Netlify 환경 변수 `NEXT_PUBLIC_GA4_ID` 등 → 재배포 |
 
 문구 규칙: 미국 화장품 기준으로 "brighter-looking"처럼 **보이는 효과**만 씁니다. "whitening", 치료·완화 표현 금지. 수치는 출처가 있는 것만 (`status: "verified"`), 없는 것은 `"pending"`으로 두면 화면에 나오지 않습니다.
 
 ## 5. 배포
 
-Cloudflare Workers (Workers Builds)가 GitHub와 연결되어 있습니다. 브랜치에 푸시하면 자동으로 빌드·배포됩니다.
+Netlify에 Git 자동 배포가 연결되어 있지 않습니다. 둘 중 하나로 배포합니다.
 
-- Cloudflare 대시보드 → Workers 및 Pages → `robot-platform` → Settings → Build
-  - Production branch: `claude/awesome-gauss-5kqwk2` (병합 후에는 `main`)
-  - Root directory: `unincore-promotion`
-  - Build command: `npm run build` (next build + 사진 크기별 변환 `scripts/build-images.mjs`)
-  - Deploy command: `npx wrangler deploy`
-  - Build variables: `NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5`, `NODE_VERSION=22`
-- 사이트는 완전 정적(`output: "export"` → `out/`)입니다. 이미지 서버가 없으므로 사진은 빌드 때 `/_img/<경로>-<폭>.webp`로 미리 만들어집니다.
-- 로컬 확인: `npm run build && npm start` (wrangler dev로 out/ 실행, http://localhost:3100) → `npm run qa`.
+1. **Netlify CLI** (다른 PC에서 권장)
+   ```bash
+   npm i -g netlify-cli
+   netlify login
+   cd unincore-promotion
+   netlify link --id 4a3fa453-4eb7-4f23-9855-816a3cc62589
+   netlify deploy --build --prod
+   ```
+2. **Netlify 화면에서 Git 연결**: Site configuration → Build & deploy → Link repository → `robot-platform`, Base directory `unincore-promotion`, 브랜치 `claude/awesome-gauss-5kqwk2`(또는 병합 후 `main`). 이후 푸시할 때마다 자동 배포.
+
+Netlify 환경 변수 (현재): `NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5`, `NEXT_PUBLIC_SITE_URL=https://promotion.unincore.com`.
 
 배포 전 체크: `npm run typecheck && npm test && npm run build` 통과.
 

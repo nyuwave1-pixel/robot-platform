@@ -5,9 +5,8 @@
   "description": "UNI&CORE USA Promotion Platform — promotion.unincore.com",
   "scripts": {
     "dev": "next dev -p 3100",
-    "build": "next build && node scripts/flatten-chunks.mjs && node scripts/build-images.mjs",
-    "build:cf": "next build && node scripts/flatten-chunks.mjs && node scripts/build-images.mjs",
-    "start": "npx -y wrangler@4 dev --port 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "qa": "node scripts/qa.mjs"
@@ -29,7 +28,6 @@
     "@types/three": "0.187.0",
     "autoprefixer": "10.4.21",
     "postcss": "8.5.32",
-    "sharp": "0.35.5",
     "tailwindcss": "3.4.17",
     "typescript": "5.9.2",
     "vitest": "5.1.0"

@@ -1,5 +1,0 @@
-# Common sitemap URLs people submit to Search Console / Naver → the real sitemap.
-/sitemap            /sitemap.xml  301
-/sitemap_index.xml  /sitemap.xml  301
-/sitemap-index.xml  /sitemap.xml  301
-/sitemap.html       /sitemap.xml  301
