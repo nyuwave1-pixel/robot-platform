@@ -21,7 +21,7 @@ export const reviewEvent = {
   reward: {
     en: "SPECIAL GIFT FOR YOU",
     /** 참여 대상 · 사은품 지급 일정 */
-    info: [{ label: "대상", value: "벌스데이 구매 회원 대상" }, { label: "지급 일정", value: "2027년 1월 신규 세미나 진행 시 지급" }],
+    info: [{ label: "대상", value: "벌스데이 구매 회원 대상" }, { label: "지급 일정", value: "후기 작성 후 2027년 1월 신규 세미나 참석 시 지급" }],
     ko: "여러분의 소중한 후기에 감사의 마음을 담았습니다.",
     winner: {
       no: "REWARD 01", who: "우수 후기 선정", product: "UNI&CORE 1ST BIRTHDAY CREAM", productKo: "퍼스트 벌스데이 크림 50g",
@@ -29,7 +29,7 @@ export const reviewEvent = {
     },
     all: {
       no: "REWARD 02", who: "전체 이벤트 참가자", product: "프로틴 쉐이크 1박스",
-      notes: ["참여 조건을 충족한 모든 참가자에게 드립니다", "2027년 1월 신규 세미나 진행 시 지급됩니다"],
+      notes: ["참여 조건을 충족한 모든 참가자에게 드립니다", "2027년 1월 신규 세미나 참석 시 지급됩니다"],
     },
   },
   guide: {
@@ -54,7 +54,7 @@ export const reviewEvent = {
     "벌스데이 크림을 구매하신 유니앤코어 회원만 참여하실 수 있으며, 한 분당 1회 참여하실 수 있습니다. 같은 휴대폰 번호로는 다시 접수되지 않습니다.",
     "사용 전·후 사진은 공개되지 않으며, 후기 심사를 위해 관리자만 확인합니다. (마케팅 활용에 동의하신 경우에만 홍보 콘텐츠에 사용될 수 있습니다)",
     "타인의 사진·후기를 도용했거나 제품과 무관한 내용, 중복·부정 참여로 확인되면 참여와 당첨이 취소될 수 있습니다.",
-    "사은품은 관리자 확인 후 2027년 1월 신규 세미나 진행 시 지급됩니다.",
+    "사은품은 관리자 확인 후 2027년 1월 신규 세미나 참석 시 지급됩니다.",
     "후기는 개인의 사용 경험이며, 제품의 효과는 개인에 따라 차이가 있을 수 있습니다.",
   ],
   company: { name: "주식회사 유니앤코어", tel: "1551-7970", privacy: "https://www.unincore.com/policy/personal/page.do", terms: "https://www.unincore.com/policy/agreement/page.do" },

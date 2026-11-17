@@ -45,11 +45,11 @@ export const EN: Record<string, string> = {
   "슬림핏 프로틴 쉐이크 고소한 멀티그레인 · 40g × 10개입": "Slim Fit Protein Shake, Multigrain Nutty · 40g × 10",
   "참여 조건을 충족한 모든 참가자에게 드립니다": "For every participant who meets the entry conditions",
   "관리자 확인 후 지급 처리됩니다": "Sent after confirmation by our team",
-  "2027년 1월 신규 세미나 진행 시 지급됩니다": "Presented at the new seminar in January 2027",
+  "2027년 1월 신규 세미나 참석 시 지급됩니다": "Presented when you attend the new seminar in January 2027",
   "대상": "Eligibility",
   "벌스데이 구매 회원 대상": "Members who purchased Birthday Cream",
   "지급 일정": "Gift schedule",
-  "2027년 1월 신규 세미나 진행 시 지급": "Presented at the new seminar in January 2027",
+  "후기 작성 후 2027년 1월 신규 세미나 참석 시 지급": "After you write your review, presented when you attend the new seminar in January 2027",
 
   // ---- 참여 방법 ----
   "참여 방법은 단 3단계입니다.": "Just three steps to take part.",
@@ -315,8 +315,8 @@ export const EN: Record<string, string> = {
   // ---- 유의사항 · 공통 오류 ----
   "이벤트 유의사항": "Event notes",
   "벌스데이 크림을 구매하신 유니앤코어 회원만 참여하실 수 있으며, 한 분당 1회 참여하실 수 있습니다. 같은 휴대폰 번호로는 다시 접수되지 않습니다.": "Only UNI&CORE members who purchased Birthday Cream can take part, once per person. The same mobile number cannot be used for another entry.",
-  "사은품은 관리자 확인 후 2027년 1월 신규 세미나 진행 시 지급됩니다.": "After confirmation by our team, gifts are presented at the new seminar in January 2027.",
-  "당첨 결과는 개별 연락을 통해 안내됩니다. 사은품은 2027년 1월 신규 세미나 진행 시 지급됩니다.": "Winners are notified individually. Gifts are presented at the new seminar in January 2027.",
+  "사은품은 관리자 확인 후 2027년 1월 신규 세미나 참석 시 지급됩니다.": "After confirmation by our team, gifts are presented when you attend the new seminar in January 2027.",
+  "당첨 결과는 개별 연락을 통해 안내됩니다. 사은품은 2027년 1월 신규 세미나 참석 시 지급됩니다.": "Winners are notified individually. Gifts are presented when you attend the new seminar in January 2027.",
   "이 이벤트는 벌스데이 크림을 구매하신 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.": "This event is for UNI&CORE members who purchased Birthday Cream. You can find your member number in My Office after logging in to the UNI&CORE official store.",
   "유니앤코어 회원만 참여하실 수 있으며, 한 분당 1회 참여하실 수 있습니다. 같은 휴대폰 번호로는 다시 접수되지 않습니다.": "Only UNI&CORE members can take part, once per person. The same mobile number cannot be used for another entry.",
   "사용 전·후 사진은 공개되지 않으며, 후기 심사를 위해 관리자만 확인합니다. (마케팅 활용에 동의하신 경우에만 홍보 콘텐츠에 사용될 수 있습니다)": "Before/after photos are not made public and are seen only by staff for judging. (They may be used in promotional content only if you consent to marketing use.)",
