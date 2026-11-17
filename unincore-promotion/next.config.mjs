@@ -7,8 +7,8 @@ const nextConfig = {
   outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
   reactStrictMode: true,
   poweredByHeader: false,
-  // Static export served by Cloudflare Pages (no server). Security headers, redirects and the
-  // "/?product=" ad routing live in public/_headers, public/_redirects and functions/index.js.
+  // Static export served by Cloudflare (Worker static assets). Security headers, redirects and the
+  // "/?product=" ad routing live in public/_headers, public/_redirects and worker/index.js.
   output: "export",
   images: {
     // Photos are resized at build time (scripts/build-images.mjs) and served from /_img.

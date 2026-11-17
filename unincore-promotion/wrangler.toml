@@ -1,5 +1,14 @@
-# Cloudflare Pages project for promotion.unincore.com (moved from Netlify on 2026-11-17).
-# Build: npm run build:cf  →  deploy: npx wrangler pages deploy out --project-name unincore-promotion --branch main
-name = "unincore-promotion"
-pages_build_output_dir = "out"
+# Cloudflare Worker (static assets) for promotion.unincore.com — moved from Netlify on 2026-11-17.
+# Cloudflare builds it from GitHub: root directory "unincore-promotion", build "npm run build",
+# deploy "npx wrangler deploy". The name must match the Worker's name in the Cloudflare dashboard.
+name = "robot-platform"
+main = "worker/index.js"
 compatibility_date = "2026-11-01"
+
+[assets]
+directory = "./out"
+binding = "ASSETS"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
+# The Worker only handles "/" (ad routing); public/_headers and public/_redirects still apply to assets.
+run_worker_first = ["/"]
