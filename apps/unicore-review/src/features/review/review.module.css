@@ -10,6 +10,10 @@
 /* ---------- 상단 ---------- */
 .top { position: absolute; inset: 0 0 auto 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 0; }
 .brand { font: 600 15px/44px var(--font-ui); letter-spacing: 0.3em; color: var(--champ); text-decoration: none; }
+.topRight { display: inline-flex; align-items: center; gap: 8px; }
+.lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(8, 7, 6, 0.5); }
+.lang button { min-width: 40px; height: 36px; padding: 0 9px; border: 0; border-radius: 999px; background: none; color: var(--dim); font: 600 13px/1 var(--font-ui); letter-spacing: 0.08em; cursor: pointer; }
+.lang .langOn { color: #1a120c; background: var(--champ); }
 .topLink { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; font-size: 15px; color: var(--text); text-decoration: none; background: rgba(8, 7, 6, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
 /* ---------- 버튼 ---------- */

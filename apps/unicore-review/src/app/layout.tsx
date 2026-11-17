@@ -25,8 +25,11 @@ const fontCss = [
 
 export default function ReviewLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" data-locale="ko">
+    <html lang="ko" data-locale="ko" suppressHydrationWarning>
       <head>
+        {/* 영어를 고른 방문자: 번역이 적용되기 전의 한국어 화면이 잠깐 보이지 않도록 가린다(최대 2.5초) */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var q=new URLSearchParams(location.search).get("lang");var l=q==="en"||q==="ko"?q:localStorage.getItem("uc-review-lang");if(l==="en"){var d=document.documentElement;d.lang="en";d.setAttribute("data-lang","en")}}catch(e){}})();` }} />
+        <style dangerouslySetInnerHTML={{ __html: `html[data-lang="en"]:not([data-lang-ready]) body{animation:ucLangWait 2.5s step-end both}@keyframes ucLangWait{from{visibility:hidden}to{visibility:visible}}` }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />

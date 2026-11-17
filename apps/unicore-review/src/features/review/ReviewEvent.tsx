@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { reviewEvent as E } from "@/data/reviewEvent";
 import { product } from "@/data/product";
 import { keyIngredients } from "@/data/ingredients";
@@ -9,6 +9,7 @@ import { track } from "@/lib/track";
 import { ApiError, getConfig, lookupReview, reviseReview, type EventConfig, type LookupResult, type SubmitResult } from "./api";
 import ReviewForm from "./ReviewForm";
 import BgMusic from "./BgMusic";
+import { getLang, setLang, startTranslator, type Lang } from "./i18n";
 import PhotoField, { emptyPhoto, type PhotoState } from "./PhotoField";
 import s from "./review.module.css";
 
@@ -32,6 +33,9 @@ function Reveal({ children, className = "", as: Tag = "div" }: { children: React
 }
 
 export default function ReviewEvent() {
+  const [lang, setLangState] = useState<Lang>("ko");
+  // 영어를 고른 방문자에게는 화면 문구를 영어로 바꿔 준다(그리기 전에 적용)
+  useLayoutEffect(() => { const l = getLang(); setLangState(l); if (l === "en") return startTranslator(); }, []);
   const [config, setConfig] = useState<EventConfig | null>(null);
   const [loadError, setLoadError] = useState("");
   const [done, setDone] = useState<SubmitResult | null>(null);
@@ -88,9 +92,17 @@ export default function ReviewEvent() {
     <div className={s.page}>
       <header className={s.top}>
         <a href={E.brandSite} className={s.brand} aria-label="UNI&CORE 1ST BIRTHDAY CREAM 브랜드 페이지로">UNI&amp;CORE</a>
-        <a href="#lookup" className={s.topLink}>내 접수 확인</a>
-        <BgMusic />
+        <span className={s.topRight}>
+          <span className={s.lang} role="group" aria-label="Language">
+            <button type="button" className={lang === "ko" ? s.langOn : ""} onClick={() => lang !== "ko" && setLang("ko")} aria-pressed={lang === "ko"} lang="ko" data-notranslate>KO</button>
+            <button type="button" className={lang === "en" ? s.langOn : ""} onClick={() => lang !== "en" && setLang("en")} aria-pressed={lang === "en"} lang="en" data-notranslate>EN</button>
+          </span>
+          <a href="#lookup" className={s.topLink}>내 접수 확인</a>
+        </span>
       </header>
+
+      {/* 인트로가 하단 고정 버튼보다 위에 오도록 헤더 밖에 둔다 */}
+      <BgMusic />
 
       <main>
         {/* ===== SECTION 01. HERO ===== */}
