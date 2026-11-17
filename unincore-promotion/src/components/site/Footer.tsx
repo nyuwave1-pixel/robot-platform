@@ -11,7 +11,7 @@ export function Footer({ products }: { products: Pick<ProductContent, "slug" | "
       <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-10">
         <div>
           <Logo />
-          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-[#5C5F58]">Korean vitamin C skincare, available in the US on Amazon.com.</p>
+          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-[#5C5F58]">Official US site of UNI&amp;CORE Korean skincare, available on Amazon.com and TikTok Shop.</p>
         </div>
         <div>
           <p className="text-[13px] font-semibold text-[#191A17]">Shop</p>

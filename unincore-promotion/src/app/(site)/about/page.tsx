@@ -21,8 +21,8 @@ export default async function AboutPage() {
     <>
       <LegalPage title="About UNI&CORE" updated="November 17, 2026">
         <p>
-          UNI&amp;CORE is a Korean skincare brand from {SITE.legalName}. Our motto is &ldquo;{SITE.tagline}&rdquo;. You may
-          also see the brand written as UNI &amp; CORE, Uni and Core or Unincore.
+          UNI&amp;CORE is a Korean skincare brand from {SITE.legalName}. Our motto is &ldquo;{SITE.tagline}&rdquo;. This site,
+          promotion.unincore.com, is the official US site for UNI&amp;CORE skincare.
         </p>
         <h2>Our products in the US</h2>
         <ul>

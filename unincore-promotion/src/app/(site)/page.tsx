@@ -26,11 +26,11 @@ import { PageBackgroundLink, StoreCta, StoreLink } from "@/components/site/Store
 
 
 // Brand searches first (2026-11-13): the company name UNI&CORE leads the title and the description, written exactly
-// like that (client). Other spellings shoppers type ("uni and core", "unincore") live only in the structured data.
+// like that (client). "Official US site" separates it from other "Uni" brands in US results (2026-11-17). Other spellings shoppers type ("uni and core", "unincore") live only in the structured data.
 export const metadata: Metadata = pageMetadata({
   title: "UNI&CORE USA | Korean Skincare, Vitamin C Serum & Mask",
   description:
-    "UNI&CORE Korean skincare in the US: 13.5% vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist.",
+    "Official US site of UNI&CORE, the Korean skincare brand: 13.5% vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist.",
   path: "/",
   keywords: ["UNI&CORE", "Uni and Core", "UNI&CORE skincare", "UNI&CORE USA", "unincore", "Korean skincare", "Korean vitamin C serum", "vitamin C sheet mask", "enzyme powder cleanser", "hydrating face mist"],
   ogImage: "/og/home",

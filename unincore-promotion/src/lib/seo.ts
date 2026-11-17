@@ -76,7 +76,8 @@ export function organizationLd() {
     // Tells search engines which UNI&CORE this is: "uni core" alone also matches a holding company and software projects.
     description: "UNI&CORE is a Korean skincare brand: vitamin C serum, vitamin C sheet mask, enzyme powder cleanser and a hydrating face mist, sold in the US on Amazon and TikTok Shop.",
     url: SITE.url,
-    logo: abs("/icon.svg"),
+    // A square PNG of the official wordmark: Google's logo guidelines prefer a raster image at least 112 px.
+    logo: abs("/brand/unincore-logo-512.png"),
     sameAs: [SITE.mainSite, SITE.usStore, SITE.amazonStore, ...SITE.social],
   };
 }

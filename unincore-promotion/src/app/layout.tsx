@@ -11,7 +11,7 @@ const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", displ
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: { default: "UNI&CORE | Korean Vitamin C Skincare", template: "%s" },
-  description: "Korean vitamin C skincare by UNI&CORE — shop the ampoule, sheet mask and enzyme powder wash on Amazon.",
+  description: "Official US site of UNI&CORE Korean skincare — vitamin C ampoule, sheet mask and enzyme powder wash on Amazon, serum mist on TikTok Shop.",
   applicationName: "UNI&CORE",
   formatDetection: { telephone: false },
   verification: {
