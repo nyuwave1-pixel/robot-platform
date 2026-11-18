@@ -33,7 +33,7 @@ function withHeaders(res: Response, extra: Record<string, string>): Response {
   return new Response(res.body, { status: res.status, headers: h });
 }
 async function publicRoute(req: Request, url: URL, sub: string, kind: "PROD" | "TEST" | "DENY"): Promise<Response> {
-  if (req.method === "GET" && sub === "/config") return ok(P.publicConfig(await P.eventBySlug()));
+  if (req.method === "GET" && sub === "/config") return ok(P.publicConfig(await P.eventBySlug(), P.siteLangOf(new URL(req.url).searchParams.get("lang"))));
   if (req.method === "GET") return fail(404, "NOT_FOUND", "없는 경로입니다.");
   // 변경 요청: 허용 출처 + 전용 헤더 필수 (다른 사이트의 폼·스크립트로는 붙일 수 없다)
   if (kind === "DENY") fail(403, "ORIGIN", "허용되지 않은 출처입니다.");

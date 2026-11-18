@@ -2,15 +2,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { reviewEvent } from "@/data/reviewEvent";
 import { track } from "@/lib/track";
+import { getLang } from "./i18n";
 import { ApiError, submitReview, type EventConfig, type SubmitResult } from "./api";
 import PhotoField, { CompareSlider, emptyPhoto, type PhotoState } from "./PhotoField";
 import s from "./review.module.css";
 
 type Values = {
   rating: number; ratingExperience: number; title: string; content: string; skinType: string; usagePeriod: string; recommendReason: string;
-  name: string; phone: string; memberNumber: string; postalCode: string; address1: string; address2: string;
+  name: string; phone: string; memberNumber: string; postalCode: string; address1: string; address2: string; country: string;
 };
-const EMPTY: Values = { rating: 0, ratingExperience: 0, title: "", content: "", skinType: "", usagePeriod: "", recommendReason: "", name: "", phone: "", memberNumber: "", postalCode: "", address1: "", address2: "" };
+const EMPTY: Values = { rating: 0, ratingExperience: 0, title: "", content: "", skinType: "", usagePeriod: "", recommendReason: "", name: "", phone: "", memberNumber: "", postalCode: "", address1: "", address2: "", country: "" };
 const DRAFT_KEY = "uc-review-draft-v2";
 const STEPS = ["후기 작성", "사진 올리기", "정보 입력 · 동의"] as const;
 /** 오류가 난 항목이 어느 단계에 있는지 */
@@ -40,6 +41,8 @@ function Stars({ label, value, onChange, required, invalid, id }: { label: strin
 export default function ReviewForm({ config, onDone }: { config: EventConfig; onDone: (r: SubmitResult) => void }) {
   const [step, setStep] = useState(0);
   const [v, setV] = useState<Values>(EMPTY);
+  // 영문 사이트에서는 회원 주소를 필수로 받는다(해외 주소 형식)
+  const [en] = useState(() => getLang() === "en");
   const [before, setBefore] = useState<PhotoState>(emptyPhoto);
   const [after, setAfter] = useState<PhotoState>(emptyPhoto);
   const [agree, setAgree] = useState<Record<string, boolean>>({});
@@ -96,7 +99,11 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
       if (count(v.name) < 2) e.name = "이름을 입력해 주세요.";
       if (!/^01[016789]\d{7,8}$/.test(v.phone.replace(/\D/g, ""))) e.phone = "휴대폰 번호를 정확히 입력해 주세요.";
       if (v.memberNumber.replace(/[^A-Za-z0-9]/g, "").length < 4) e.memberNumber = "유니앤코어 회원번호를 정확히 입력해 주세요.";
-      if (config.requireAddress) {
+      if (config.requireAddress && en) {
+        if (v.postalCode.trim().length < 3) e.postalCode = "우편번호를 입력해 주세요.";
+        if (count(v.address1) < 5) e.address1 = "주소를 입력해 주세요.";
+        if (count(v.country) < 2) e.country = "국가를 입력해 주세요.";
+      } else if (config.requireAddress) {
         if (v.postalCode.replace(/\D/g, "").length !== 5) e.postalCode = "우편번호 5자리를 입력해 주세요.";
         if (count(v.address1) < 5) e.address1 = "사은품을 받으실 주소를 입력해 주세요.";
       }
@@ -147,7 +154,7 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
       const result = await submitReview({
         name: v.name, phone: v.phone, memberNumber: v.memberNumber,
         title: v.title, content: v.content, rating: v.rating, ratingExperience: v.ratingExperience || null, skinType: v.skinType, usagePeriod: v.usagePeriod, recommendReason: v.recommendReason,
-        postalCode: v.postalCode, address1: v.address1, address2: v.address2,
+        postalCode: v.postalCode, address1: v.address1, address2: en ? [v.address2.trim(), v.country.trim()].filter(Boolean).join(", ") : v.address2, locale: en ? "en" : "ko",
         consents: Object.fromEntries(config.consents.map((c) => [c.type, !!agree[c.type]])), consentVersion: config.consentVersion,
         images: { ...(before.uploaded ? { before: { uploadId: before.uploaded.uploadId, token: before.uploaded.token } } : {}), ...(after.uploaded ? { after: { uploadId: after.uploaded.uploadId, token: after.uploaded.token } } : {}) },
         distributorCode: d, website: hp.current?.value || "",
@@ -250,7 +257,18 @@ export default function ReviewForm({ config, onDone }: { config: EventConfig; on
           <div className={s.field} id="f-memberNumber"><label className={s.label} htmlFor="member">유니앤코어 회원번호<em>필수</em></label>
             <input id="member" className={s.input} value={v.memberNumber} maxLength={30} onChange={(e) => set("memberNumber", e.target.value.replace(/[^A-Za-z0-9-]/g, ""))} placeholder="회원번호 입력" autoComplete="off" autoCapitalize="characters" autoCorrect="off" enterKeyHint="next" {...inv("memberNumber")} />{err("memberNumber")}
             <p className={s.hint}>이 이벤트는 벌스데이 크림을 구매하신 유니앤코어 회원만 참여할 수 있습니다. 회원번호는 유니앤코어 공식몰 로그인 후 마이오피스에서 확인하실 수 있습니다.</p></div>
-          {config.requireAddress && (
+          {config.requireAddress && en && (
+          <div className={s.field} id="f-postalCode"><div className={s.label}>회원 주소지<em>필수</em></div>
+            <div id="f-address1"><input className={s.input} value={v.address1} maxLength={120} onChange={(e) => set("address1", e.target.value)} placeholder="주소 (도로명 · 도시 · 주/도)" aria-label="주소 (도로명 · 도시 · 주/도)" autoComplete="street-address" {...inv("address1")} />{err("address1")}</div>
+            <input className={s.input} style={{ marginTop: 10 }} value={v.address2} maxLength={50} onChange={(e) => set("address2", e.target.value)} placeholder="상세 주소 (선택)" aria-label="상세 주소 (선택)" autoComplete="address-line2" />
+            <div className={s.postRow} style={{ marginTop: 10, gridTemplateColumns: "1fr 1fr" }}>
+              <input className={s.input} value={v.postalCode} maxLength={12} onChange={(e) => set("postalCode", e.target.value.replace(/[^0-9A-Za-z -]/g, ""))} placeholder="우편번호" aria-label="우편번호" autoComplete="postal-code" {...inv("postalCode")} />
+              <input id="f-country" className={s.input} value={v.country} maxLength={28} onChange={(e) => set("country", e.target.value)} placeholder="국가" aria-label="국가" autoComplete="country-name" {...inv("country")} />
+            </div>{err("postalCode")}{err("country")}
+            <p className={s.hint}>회원님의 주소지를 정확히 입력해 주세요.</p>
+          </div>
+          )}
+          {config.requireAddress && !en && (
           <div className={s.field} id="f-postalCode"><div className={s.label}>사은품 받으실 주소{config.requireAddress ? <em>필수</em> : <i>선택</i>}</div>
             <div className={s.postRow}>
               <input className={s.input} value={v.postalCode} onChange={(e) => set("postalCode", e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" placeholder="우편번호" aria-label="우편번호" autoComplete="postal-code" {...inv("postalCode")} />

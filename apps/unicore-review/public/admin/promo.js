@@ -181,7 +181,7 @@
     if (!items.length) return '<div class="tablewrap"><div class="empty">조건에 맞는 참여자가 없습니다.</div></div>';
     return '<div class="tablewrap"><table><thead><tr><th>접수번호</th><th>접수일</th><th>이름</th><th>휴대폰</th><th>회원번호</th><th>후기 제목</th><th>사진</th><th>별점</th><th>검토 상태</th><th>우수 후기</th><th>참가 보상<br>프로틴 쉐이크</th><th>추가 보상<br>벌스데이 크림</th>' + (compact ? '' : '<th>총판</th>') + '<th>관리</th></tr></thead><tbody>' +
       items.map(function (x) {
-        return '<tr data-id="' + x.id + '"><td class="arch" style="font-size:11.5px">' + E(x.applicationNumber) + (x.isTest ? ' <span class="pm-b pm-test">테스트</span>' : '') + (x.flagged ? ' <span class="pm-b pm-flag" title="' + E(x.flagReason || '') + '">확인 필요</span>' : '') + '</td>' +
+        return '<tr data-id="' + x.id + '"><td class="arch" style="font-size:11.5px">' + E(x.applicationNumber) + (x.isTest ? ' <span class="pm-b pm-test">테스트</span>' : '') + (x.siteLang === 'en' ? ' <span class="pm-b pm-test" title="영문 사이트 접수 — 주소 입력 필수">EN</span>' : '') + (x.flagged ? ' <span class="pm-b pm-flag" title="' + E(x.flagReason || '') + '">확인 필요</span>' : '') + '</td>' +
           '<td>' + dt(x.submittedAt) + '</td><td><b>' + E(x.name) + '</b></td><td>' + E(x.phone) + '</td>' +
           '<td>' + E(x.memberLoginId || '—') + '</td>' +
           '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis">' + E(x.title) + '</td>' +
@@ -270,7 +270,8 @@
       '<div class="pm-card"><h3>고객 정보</h3><dl class="pm-kv"><dt>이름</dt><dd>' + E(c.name) + '</dd><dt>연락처</dt><dd>' + E(c.phone) + '</dd>' +
         '<dt>회원번호</dt><dd>' + E(c.memberLoginId || '—') + ' <span class="pm-mut">· 본인 입력' + (c.memberVerified ? ' · 회원 확인됨' : ' · 공식몰 회원 DB 미대조') + '</span></dd>' +
         '<dt>신청 일자</dt><dd>' + dt(d.submittedAt) + '</dd><dt>접수 번호</dt><dd>' + E(d.applicationNumber) + '</dd>' +
-        '<dt>배송 주소</dt><dd>' + (c.address ? '(' + E(c.postalCode || '') + ') ' + E(c.address) : '—') + '</dd><dt>유입 총판</dt><dd>' + E(c.distributorCode || '직접 유입') + '</dd>' +
+        '<dt>접수 사이트</dt><dd>' + (d.siteLang === 'en' ? '영문 사이트 (주소 입력 필수)' : '한국어 사이트') + '</dd>' +
+        '<dt>주소</dt><dd>' + (c.address ? '(' + E(c.postalCode || '') + ') ' + E(c.address).replace(/\n/g, '<br>') : '—') + '</dd><dt>유입 총판</dt><dd>' + E(c.distributorCode || '직접 유입') + '</dd>' +
         '<dt>보유 기한</dt><dd>' + E(d.retentionUntil ? String(d.retentionUntil).slice(0, 10) : '—') + ' 까지</dd></dl></div>' +
       '<div class="pm-card"><h3>후기 정보</h3><dl class="pm-kv" style="margin-bottom:12px"><dt>후기 제목</dt><dd><b>' + E(r.title) + '</b></dd><dt>제품 만족도</dt><dd>' + stars(r.rating) + '</dd><dt>사용 경험</dt><dd>' + stars(r.ratingExperience) + '</dd>' +
         '<dt>피부 타입</dt><dd>' + E(r.skinType || '—') + '</dd><dt>사용 기간</dt><dd>' + E(r.usagePeriod || '—') + '</dd>' + (r.recommendReason ? '<dt>추천 이유</dt><dd>' + E(r.recommendReason) + '</dd>' : '') + '</dl><div class="pm-review">' + E(r.content) + '</div></div>' +

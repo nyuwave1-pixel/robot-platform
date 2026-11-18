@@ -137,9 +137,11 @@ const REVIEW_FROM = `FROM birthday_reviews r
   LEFT JOIN birthday_review_rewards rw ON rw.review_id = r.id AND rw.reward_type = 'WINNER'
   LEFT JOIN LATERAL (SELECT count(DISTINCT image_type) AS n, bool_or(image_type = 'BEFORE') AS has_before, bool_or(image_type = 'AFTER') AS has_after
                      FROM birthday_review_images i WHERE i.review_id = r.id AND i.deleted_at IS NULL) im ON true`;
+/** 우편번호 — 국내 5자리 숫자 또는 해외 형식(영문·숫자·공백·하이픈, 12자 이내) */
+const normPostal = (v: unknown) => String(v ?? "").replace(/[^0-9A-Za-z -]/g, "").replace(/\s+/g, " ").trim().slice(0, 12).toUpperCase();
 const REVIEW_COLS = `r.id, r.application_number, r.submitted_at, r.applicant_name, r.phone_enc, r.phone_last4, r.member_claimed, r.member_login_id, r.order_number,
   r.review_title, r.rating, r.rating_experience, r.review_status, r.is_candidate, r.duplicate_flag, r.duplicate_cleared_at, r.duplicate_reason, r.distributor_code,
-  r.is_test, r.purged_at, r.image_marketing_consent, r.skin_type, r.usage_period, r.version,
+  r.is_test, r.purged_at, r.image_marketing_consent, r.skin_type, r.usage_period, r.version, r.site_lang,
   COALESCE(im.has_before, false) AS has_before, COALESCE(im.has_after, false) AS has_after,
   w.id AS winner_id, w.winner_rank, w.status AS winner_status,
   rp.id AS rp_id, rp.reward_status AS rp_status, rw.id AS rw_id, rw.reward_status AS rw_status`;
@@ -154,7 +156,7 @@ function listRow(a: PromoActor, r: any) {
     reviewStatus: r.review_status, reviewStatusLabel: REVIEW_STATUS_LABEL[r.review_status],
     isCandidate: r.is_candidate, flagged: r.duplicate_flag && !r.duplicate_cleared_at, flagReason: r.duplicate_reason,
     distributorCode: r.distributor_code, isTest: r.is_test, purged: !!r.purged_at, marketingConsent: r.image_marketing_consent,
-    skinType: r.skin_type, usagePeriod: r.usage_period, version: r.version,
+    skinType: r.skin_type, usagePeriod: r.usage_period, version: r.version, siteLang: r.site_lang || "ko",
     hasBefore: r.has_before, hasAfter: r.has_after,
     winner: r.winner_id ? { id: Number(r.winner_id), rank: r.winner_rank, status: r.winner_status } : null,
     participationReward: r.rp_id ? { id: Number(r.rp_id), status: r.rp_status, statusLabel: REWARD_STATUS_LABEL[r.rp_status] } : null,
@@ -254,7 +256,7 @@ export async function reviewDetail(a: PromoActor, id: number) {
   const address = tryDecrypt(r.address_enc);
   return {
     id: Number(r.id), applicationNumber: r.application_number, entryNo: r.entry_no, submittedAt: r.submitted_at, updatedAt: r.updated_at, version: r.version,
-    purged: !!r.purged_at, purgedAt: r.purged_at, retentionUntil: r.retention_until, isTest: r.is_test,
+    purged: !!r.purged_at, purgedAt: r.purged_at, retentionUntil: r.retention_until, isTest: r.is_test, siteLang: r.site_lang || "ko",
     customer: {
       name: r.purged_at ? "(파기됨)" : pii ? r.applicant_name : maskName(r.applicant_name || ""),
       phone: r.purged_at ? "—" : pii ? fmtPhone(tryDecrypt(r.phone_enc)) : maskedPhone(r.phone_last4),
@@ -397,7 +399,7 @@ export async function editReview(a: PromoActor, id: number, b: any) {
     if (typeof b.memberClaimed === "boolean") put("member_claimed", b.memberClaimed, "회원 여부");
     if (b.memberLoginId !== undefined) put("member_login_id", normMember(b.memberLoginId) || null, "회원번호");
     if (b.distributorCode !== undefined) put("distributor_code", s(b.distributorCode, 40).toUpperCase().replace(/[^A-Z0-9_-]/g, "") || null, "총판 코드");
-    if (b.postalCode !== undefined) { const v = String(b.postalCode || "").replace(/\D/g, "").slice(0, 5); if (v && v.length !== 5) fail(400, "VALIDATION", "우편번호 5자리를 확인해 주세요."); put("postal_code", v || null, "우편번호"); }
+    if (b.postalCode !== undefined) { const v = normPostal(b.postalCode); if (v && v.length < 3) fail(400, "VALIDATION", "우편번호를 확인해 주세요."); put("postal_code", v || null, "우편번호"); }
     if (b.address !== undefined) { const v = String(b.address || "").trim().slice(0, 220); put("address_enc", v ? encrypt(v) : null, "주소"); }
     if (typeof b.isTest === "boolean") put("is_test", b.isTest, "테스트 표시");
     if (!set.length) fail(400, "VALIDATION", "수정할 항목이 없습니다.");
@@ -575,7 +577,7 @@ export async function updateReward(a: PromoActor, id: number, b: any) {
     const put = (col: string, v: unknown, label: string) => { vals.push(v); set.push(`${col} = $${vals.length}`); changed.push(label); };
     if (b.recipientName !== undefined) { const v = s(b.recipientName, 40); if (!v) fail(400, "VALIDATION", "수령인을 입력해 주세요."); put("recipient_name", v, "수령인"); }
     if (b.recipientPhone !== undefined) { const v = normPhone(b.recipientPhone); if (!PHONE_RE.test(v)) fail(400, "VALIDATION", "연락처를 확인해 주세요."); put("recipient_phone_enc", encrypt(v), "연락처"); }
-    if (b.postalCode !== undefined) { const v = String(b.postalCode || "").replace(/\D/g, "").slice(0, 5); if (v.length !== 5) fail(400, "VALIDATION", "우편번호 5자리를 확인해 주세요."); put("postal_code", v, "우편번호"); }
+    if (b.postalCode !== undefined) { const v = normPostal(b.postalCode); if (v.length < 3) fail(400, "VALIDATION", "우편번호를 확인해 주세요."); put("postal_code", v, "우편번호"); }
     if (b.address !== undefined) { const v = String(b.address || "").trim().slice(0, 220); if (v.length < 5) fail(400, "VALIDATION", "배송 주소를 입력해 주세요."); put("shipping_address_enc", encrypt(v), "배송 주소"); }
     if (b.carrier !== undefined) put("carrier", s(b.carrier, 30) || null, "택배사");
     if (b.trackingNumber !== undefined) put("tracking_number", s(b.trackingNumber, 40).replace(/[^0-9A-Za-z-]/g, "") || null, "운송장 번호");
@@ -680,14 +682,14 @@ export async function exportRows(a: PromoActor, f: URLSearchParams) {
   const kst = (v: any) => v ? new Date(new Date(v).getTime() + 9 * 3600e3).toISOString().slice(0, 16).replace("T", " ") : "";
   const header = ["접수번호", "접수일시", "이름", "휴대폰", "회원번호", "우편번호", "주소", "후기 제목", "후기 내용", "제품 만족도", "사용 경험", "피부 타입", "사용 기간", "추천 이유",
     "사용 전 사진", "사용 후 사진", "검토 상태", "검토 사유", "우수 후기 순위", "우수 후기 확정", "참가 보상(프로틴 쉐이크)", "참가 보상 택배사", "참가 보상 운송장", "참가 보상 완료일",
-    "추가 보상(벌스데이 크림)", "추가 보상 택배사", "추가 보상 운송장", "추가 보상 완료일", "마케팅 활용 동의", "총판 코드", "확인 대상", "확인 사유", "테스트", "관리자 메모"];
+    "추가 보상(벌스데이 크림)", "추가 보상 택배사", "추가 보상 운송장", "추가 보상 완료일", "마케팅 활용 동의", "총판 코드", "확인 대상", "확인 사유", "테스트", "관리자 메모", "접수 사이트"];
   const data = rows.map((r) => [r.application_number, kst(r.submitted_at), r.purged_at ? "(파기됨)" : r.applicant_name, r.purged_at ? "" : fmtPhone(tryDecrypt(r.phone_enc)),
     r.member_login_id || "", r.postal_code || "", tryDecrypt(r.address_enc).replace(/\n/g, " "),
     r.review_title, r.review_content, r.rating, r.rating_experience ?? "", r.skin_type || "", r.usage_period || "", r.recommend_reason || "",
     r.has_before ? "제출" : "미제출", r.has_after ? "제출" : "미제출", REVIEW_STATUS_LABEL[r.review_status], r.status_reason || "", r.winner_rank ?? "", r.winner_status === "CONFIRMED" ? "확정" : r.winner_rank ? "선정" : "",
     r.rp_status ? REWARD_STATUS_LABEL[r.rp_status] : "", r.rp_carrier || "", r.rp_tracking || "", kst(r.rp_delivered),
     r.rw_status ? REWARD_STATUS_LABEL[r.rw_status] : "", r.rw_carrier || "", r.rw_tracking || "", kst(r.rw_delivered),
-    r.image_marketing_consent ? "동의" : "미동의", r.distributor_code || "", r.duplicate_flag && !r.duplicate_cleared_at ? "확인 필요" : "", r.duplicate_reason || "", r.is_test ? "테스트" : "", r.admin_memo || ""]);
+    r.image_marketing_consent ? "동의" : "미동의", r.distributor_code || "", r.duplicate_flag && !r.duplicate_cleared_at ? "확인 필요" : "", r.duplicate_reason || "", r.is_test ? "테스트" : "", r.admin_memo || "", r.site_lang === "en" ? "영문" : "한국어"]);
   await log(undefined, a, ev.id, "export.reviews", "event", ev.id, null, { rows: rows.length, filters: Object.fromEntries(f) });
   // 수식 주입 방지: =,+,-,@ 로 시작하는 문자열은 앞에 작은따옴표를 붙여 글자로만 읽히게 한다
   const safe = (v: unknown) => (typeof v === "string" && /^[=+\-@\t\r]/.test(v) ? "'" + v : v);

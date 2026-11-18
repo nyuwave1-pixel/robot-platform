@@ -38,7 +38,8 @@ async function call<T>(method: string, path: string, body?: unknown, headers: Re
   return json.data as T;
 }
 
-export const getConfig = () => call<EventConfig>("GET", "/config");
+/** lang 이 "en" 이면 영문 사이트용 기준(주소 필수·주소가 포함된 동의 문서)을 받는다 */
+export const getConfig = (lang: "ko" | "en" = "ko") => call<EventConfig>("GET", lang === "en" ? "/config?lang=en" : "/config");
 export const submitReview = (payload: unknown) => call<SubmitResult>("POST", "/submit", payload);
 export const lookupReview = (phone: string) => call<LookupResult>("POST", "/lookup", { phone });
 export const reviseReview = (payload: unknown) => call<{ applicationNumber: string; reviewStatusLabel: string }>("POST", "/revise", payload);

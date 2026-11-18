@@ -46,7 +46,7 @@ export default function ReviewEvent() {
 
   const load = useCallback(() => {
     setLoadError("");
-    getConfig().then(setConfig).catch((e: ApiError) => setLoadError(e.message));
+    getConfig(getLang()).then(setConfig).catch((e: ApiError) => setLoadError(e.message));
   }, []);
   useEffect(() => {
     load();

@@ -330,6 +330,19 @@ test("사진 없이 참여: 기본은 불가, 관리자 설정으로 허용하�
   const na = await submit({ postalCode: "", address1: "", address2: "" });
   const nb = await submit({ postalCode: "06774", address1: "서울 서초구 양재대로2길 100-30", address2: "2층" });
   for (const x of [na, nb]) { const r = (await sql(`SELECT postal_code, address_enc FROM birthday_reviews WHERE id = $1`, [x.id]))[0]; assert.equal(r.postal_code, null); assert.equal(r.address_enc, null); }
+  // 영문 사이트 접수(locale: "en"): 한국어 사이트가 주소를 받지 않아도 주소가 필수이고, 해외 우편번호 형식을 받으며, 관리자 화면·엑셀에 나온다
+  const cfgEn = (await v.call("GET", "/config?lang=en")).data;
+  assert.equal(cfgEn.requireAddress, true); assert.match(cfgEn.consents.find((c: any) => c.type === "GIFT_SHIPPING").items, /주소/);
+  const ve = new Visitor();
+  const noAddr = await ve.call("POST", "/submit", await payload(ve, { locale: "en", postalCode: "", address1: "", address2: "" }));
+  assert.equal(noAddr.error.code, "VALIDATION"); assert.ok(noAddr.error.fields.postalCode && noAddr.error.fields.address1 && noAddr.error.fields.address2);
+  const en1 = await submit({ locale: "en", postalCode: "sw1a 1aa", address1: "10 Downing Street, London", address2: "Flat 2, United Kingdom" });
+  const er = (await sql(`SELECT site_lang, postal_code, address_enc FROM birthday_reviews WHERE id = $1`, [en1.id]))[0];
+  assert.equal(er.site_lang, "en"); assert.equal(er.postal_code, "SW1A 1AA"); assert.ok(er.address_enc);
+  const ed = (await HQ.p("GET", `/reviews/${en1.id}`)).data;
+  assert.equal(ed.siteLang, "en"); assert.match(ed.customer.address, /Downing Street/); assert.match(ed.customer.address, /United Kingdom/); assert.equal(ed.customer.postalCode, "SW1A 1AA");
+  assert.equal((await HQ.p("GET", "/reviews?limit=200")).data.items.find((x: any) => x.id === en1.id).siteLang, "en");
+  assert.equal((await sql(`SELECT site_lang FROM birthday_reviews WHERE id = $1`, [na.id]))[0].site_lang, "ko");
   assert.equal((await HQ.p("PATCH", "/event", { settings: { requireAddress: true } })).status, 200);
 });
 

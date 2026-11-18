@@ -117,6 +117,7 @@ CREATE TABLE birthday_reviews (
   ip_hash             text,
   user_agent          text,
   retention_until     date,                                -- 개인정보 보유 기한
+  site_lang           text NOT NULL DEFAULT 'ko' CHECK (site_lang IN ('ko','en')),  -- 접수한 사이트 언어 (영문 사이트는 주소를 받는다)
   purged_at           timestamptz,                         -- 개인정보 파기 일시
   version             integer NOT NULL DEFAULT 1,
   submitted_at        timestamptz NOT NULL DEFAULT now(),

@@ -55,7 +55,8 @@ export function phaseOf(ev: PromoEvent, now = Date.now()): "OPEN" | "UPCOMING" |
 
 // ---- 동의 문서 (서버가 원문·버전을 관리하고 동의 시점의 버전을 기록한다) ----
 export const CONSENT_TYPES = ["PRIVACY_COLLECT", "EVENT_PROCESSING", "GIFT_SHIPPING", "MARKETING_USE"] as const;
-export function consentDocs(st: EventSettings) {
+/** siteLang 이 "en" 이면(영문 사이트) 주소를 받으므로 수집 항목에 주소가 들어간 문서를 준다 */
+export function consentDocs(st: EventSettings, siteLang: SiteLang = "ko") {
   const keep = `이벤트 종료 후 ${st.retentionDays}일까지 보관 후 지체 없이 파기`;
   const refuse = "동의를 거부할 수 있으며, 거부하시면 이벤트에 참여하실 수 없습니다.";
   return [
@@ -74,7 +75,7 @@ export function consentDocs(st: EventSettings) {
       retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
       : { type: "GIFT_SHIPPING", required: true, title: "사은품 지급을 위한 개인정보 이용 동의",
           purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 현장 지급, 지급 안내 연락",
-          items: "이름, 휴대폰 번호, 유니앤코어 회원번호", retention: keep, refusal: refuse },
+          items: siteLang === "en" ? "이름, 휴대폰 번호, 유니앤코어 회원번호, 주소(우편번호·국가 포함)" : "이름, 휴대폰 번호, 유니앤코어 회원번호", retention: keep, refusal: refuse },
     { type: "MARKETING_USE", required: false, title: "후기 및 사진의 마케팅 활용 동의 (선택)",
       purpose: "유니앤코어 공식몰·SNS·광고 등 홍보 콘텐츠에 후기 내용과 사용 전·후 사진을 게시",
       items: "후기 제목·내용, 별점, 사용 전·후 사진 (이름은 일부만 표시)",
@@ -83,16 +84,16 @@ export function consentDocs(st: EventSettings) {
   ] as const;
 }
 
-export function publicConfig(ev: PromoEvent) {
+export function publicConfig(ev: PromoEvent, siteLang: SiteLang = "ko") {
   const st = settingsOf(ev), pol = policyOf(ev);
   return {
     eventName: ev.event_name, phase: phaseOf(ev), startDate: ev.start_date, endDate: ev.end_date,
     minChars: st.minChars, maxChars: st.maxChars, titleMaxChars: st.titleMaxChars,
-    requireImages: st.requireImages, requireOrderNumber: st.requireOrderNumber, requireAddress: st.requireAddress,
+    requireImages: st.requireImages, requireOrderNumber: st.requireOrderNumber, requireAddress: needAddress(st, siteLang),
     maxImageBytes: st.maxImageBytes, maxImagePixels: st.maxImagePixels, winnerCount: st.winnerCount,
     rewards: { participation: pol.participation, winner: pol.winner, winnersAlsoGetParticipation: pol.winnersAlsoGetParticipation },
     skinTypes: SKIN_TYPES, usagePeriods: USAGE_PERIODS,
-    consentVersion: st.consentVersion, consents: consentDocs(st),
+    consentVersion: st.consentVersion, consents: consentDocs(st, siteLang),
   };
 }
 
@@ -150,7 +151,7 @@ export async function purgeStaleUploads(limit = 50) {
 type ReviewInput = {
   name: string; phone: string; memberClaimed: boolean; memberLoginId: string; orderNumber: string; title: string; content: string;
   rating: number; ratingExperience: number | null; skinType: string; usagePeriod: string; recommendReason: string;
-  postalCode: string; address1: string; address2: string;
+  postalCode: string; address1: string; address2: string; siteLang: SiteLang;
 };
 function validateReviewText(b: any, st: EventSettings, fields: Record<string, string>) {
   const title = cleanText(b.title, st.titleMaxChars), content = cleanText(b.content, st.maxChars);
@@ -165,6 +166,11 @@ function validateReviewText(b: any, st: EventSettings, fields: Record<string, st
   if (re !== null && (re < 1 || re > 5)) fields.ratingExperience = "사용 경험 별점이 올바르지 않습니다.";
   return { title, content, rating, ratingExperience: re };
 }
+export type SiteLang = "ko" | "en";
+export const siteLangOf = (v: unknown): SiteLang => (v === "en" ? "en" : "ko");
+/** 주소를 받는 경우: 이벤트 설정에서 켰거나, 영문 사이트 접수 */
+export const needAddress = (st: EventSettings, siteLang: SiteLang) => st.requireAddress || siteLang === "en";
+
 function validateInput(b: any, st: EventSettings): ReviewInput {
   const fields: Record<string, string> = {};
   const name = cleanText(b.name, 40).replace(/\s+/g, " ");
@@ -180,16 +186,21 @@ function validateInput(b: any, st: EventSettings): ReviewInput {
   const skinType = (SKIN_TYPES as readonly string[]).includes(String(b.skinType)) ? String(b.skinType) : "";
   const usagePeriod = (USAGE_PERIODS as readonly string[]).includes(String(b.usagePeriod)) ? String(b.usagePeriod) : "";
   const recommendReason = cleanText(b.recommendReason, 300).slice(0, 300);
-  const postalCode = String(b.postalCode ?? "").replace(/\D/g, "").slice(0, 5);
+  const siteLang = siteLangOf(b.locale);
+  // 영문 사이트는 해외 주소일 수 있어 우편번호를 숫자 5자리로 제한하지 않는다
+  const postalCode = siteLang === "en" ? String(b.postalCode ?? "").replace(/[^0-9A-Za-z -]/g, "").replace(/\s+/g, " ").trim().slice(0, 12).toUpperCase()
+    : String(b.postalCode ?? "").replace(/\D/g, "").slice(0, 5);
   const address1 = cleanText(b.address1, 120).slice(0, 120), address2 = cleanText(b.address2, 80).slice(0, 80);
-  if (st.requireAddress) {
-    if (postalCode.length !== 5) fields.postalCode = "우편번호 5자리를 입력해 주세요.";
-    if (charCount(address1) < 5) fields.address1 = "사은품을 받으실 주소를 입력해 주세요.";
+  const withAddr = needAddress(st, siteLang);
+  if (withAddr) {
+    if (siteLang === "en" ? postalCode.length < 3 : postalCode.length !== 5) fields.postalCode = siteLang === "en" ? "우편번호를 입력해 주세요." : "우편번호 5자리를 입력해 주세요.";
+    if (charCount(address1) < 5) fields.address1 = siteLang === "en" ? "주소를 입력해 주세요." : "사은품을 받으실 주소를 입력해 주세요.";
+    if (siteLang === "en" && charCount(address2) < 2) fields.address2 = "국가를 입력해 주세요.";
   }
   if (Object.keys(fields).length) fail(400, "VALIDATION", Object.values(fields)[0], fields);
-  // 주소를 받지 않는 설정이면 보내온 주소가 있어도 저장하지 않는다
-  const addr = st.requireAddress ? { postalCode, address1, address2 } : { postalCode: "", address1: "", address2: "" };
-  return { name, phone, memberClaimed, memberLoginId, orderNumber, ...t, skinType, usagePeriod, recommendReason, ...addr };
+  // 주소를 받지 않는 접수는 보내온 주소가 있어도 저장하지 않는다
+  const addr = withAddr ? { postalCode, address1, address2 } : { postalCode: "", address1: "", address2: "" };
+  return { name, phone, memberClaimed, memberLoginId, orderNumber, ...t, skinType, usagePeriod, recommendReason, ...addr, siteLang };
 }
 type ImageRef = { id: number; token: string };
 function imageRefs(b: any): { BEFORE?: ImageRef; AFTER?: ImageRef } {
@@ -267,16 +278,16 @@ export async function submitReview(req: Request, b: any, isTest: boolean) {
     const row = await q1<any>(
       `INSERT INTO birthday_reviews (event_id, application_number, entry_no, member_claimed, member_login_id, distributor_code, applicant_name, phone_enc, phone_hash, phone_last4,
          order_number, order_number_norm, postal_code, address_enc, review_title, review_content, rating, rating_experience, skin_type, usage_period, recommend_reason,
-         privacy_consent, image_marketing_consent, is_test, ip_hash, user_agent, retention_until)
+         privacy_consent, image_marketing_consent, is_test, ip_hash, user_agent, retention_until, site_lang)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,true,$22,$23,$24,$25,
-         ((COALESCE($26::timestamptz, now()) AT TIME ZONE 'Asia/Seoul')::date + $27::int))
+         ((COALESCE($26::timestamptz, now()) AT TIME ZONE 'Asia/Seoul')::date + $27::int), $28)
        RETURNING id, submitted_at`,
       [ev.id, applicationNumber, entryNo, v.memberClaimed, v.memberLoginId || null, dist || null, v.name, encrypt(v.phone), ph, v.phone.slice(-4),
        v.orderNumber || null, orderNorm.length >= 6 ? orderNorm : null, v.postalCode || null, address ? encrypt(address) : null, v.title, v.content, v.rating, v.ratingExperience,
        v.skinType || null, v.usagePeriod || null, v.recommendReason || null, marketing, isTest, ip || null, String(req.headers.get("user-agent") || "").slice(0, 200),
-       ev.end_date, st.retentionDays], c);
+       ev.end_date, st.retentionDays, v.siteLang], c);
     const reviewId = Number(row.id);
-    for (const d of consentDocs(st)) {
+    for (const d of consentDocs(st, v.siteLang)) {
       await q(`INSERT INTO birthday_review_consents (review_id, consent_type, required, agreed, version) VALUES ($1,$2,$3,$4,$5)`,
         [reviewId, d.type, d.required, d.required ? true : marketing, st.consentVersion], c);
     }
