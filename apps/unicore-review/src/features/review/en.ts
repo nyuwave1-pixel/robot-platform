@@ -25,6 +25,7 @@ export const EN: Record<string, string> = {
   "소중한 후기를 남겨주신 모든 참여자에게 특별한 선물을 드립니다.": "Everyone who leaves a review receives a special gift.",
   "지금 후기 이벤트 참여하기": "Join the review event",
   "참여 기간 ·": "Event period ·",
+  "이벤트 진행 일정은 추후 안내드립니다": "The event schedule will be announced later",
   "까지": "",
   "지금은 이벤트 참여 기간이 아닙니다.": "The event is not open for entries right now.",
   "곧": "soon",

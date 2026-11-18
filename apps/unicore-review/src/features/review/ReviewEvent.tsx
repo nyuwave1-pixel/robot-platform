@@ -123,7 +123,9 @@ export default function ReviewEvent() {
             <p className={s.heroSub}>{E.hero.sub1}<br />{E.hero.sub2}</p>
             <button type="button" className={s.btnGold} onClick={() => toForm("hero")}>{E.hero.cta}</button>
             {config && config.phase !== "OPEN" && <p className={s.phaseNote}>{config.phase === "UPCOMING" ? `이벤트는 ${config.startDate ? kDay(config.startDate) : "곧"} 시작됩니다.` : "지금은 이벤트 참여 기간이 아닙니다."}</p>}
-            {config?.endDate && open && <p className={s.period}>참여 기간 · {config.startDate ? `${kDay(config.startDate)} ~ ` : ""}{kDay(config.endDate)}까지</p>}
+            {/* 기간 안내: periodNote 가 있으면 날짜 대신 그 문구를 보여 준다(접수 가능 여부는 관리자 설정의 기간을 그대로 따른다) */}
+            {open && E.periodNote ? <p className={s.period}>{E.periodNote}</p>
+              : config?.endDate && open && <p className={s.period}>참여 기간 · {config.startDate ? `${kDay(config.startDate)} ~ ` : ""}{kDay(config.endDate)}까지</p>}
           </div>
         </section>
 
