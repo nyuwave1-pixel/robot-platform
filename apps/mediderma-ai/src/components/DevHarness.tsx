@@ -37,6 +37,14 @@ export default function Harness() {
       const p = (i: number) => ({ x: lm[3 * i], y: lm[3 * i + 1] });
       return { scale: 1, left: p(234), right: p(454), top: p(10), chin: p(152), eyeR: p(33), eyeL: p(263), nose: p(1), browR: p(105), underR: p(119), canvasW: canvas.width };
     };
+    // 전체 랜드마크(478점, 캔버스 px)와 그 캔버스 이미지 — scripts/blender/photo_face.py 의 입력으로 사용
+    w.__landmarks = async (dataUrl: string) => {
+      const blob = await (await fetch(dataUrl)).blob();
+      const canvas = await blobToCanvas(blob);
+      const det = await detectFace(canvas);
+      if (!det.landmarksPx) return null;
+      return { width: canvas.width, height: canvas.height, landmarksPx: Array.from(det.landmarksPx), image: canvas.toDataURL("image/jpeg", 0.95) };
+    };
     w.__crop = async (dataUrl: string) => {
       const blob = await (await fetch(dataUrl)).blob();
       const canvas = await blobToCanvas(blob);
