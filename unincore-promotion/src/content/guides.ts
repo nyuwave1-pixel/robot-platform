@@ -114,6 +114,8 @@ export const GUIDES: Guide[] = [
     ],
     faqs: [
       { q: "Is an enzyme powder cleanser the same as a scrub?", a: "No. A scrub exfoliates with particles; an enzyme cleanser relies mainly on enzymes to loosen dead skin cells, which is typically gentler for frequent use." },
+      // Search research 2026-11-18: "enzyme powder cleanser vs foam cleanser".
+      { q: "How is an enzyme powder cleanser different from a foam cleanser?", a: "A foam cleanser is ready to use. An enzyme powder stays dry until you add water, then lathers into foam with enzymes that help loosen dead skin cells. The UNI&CORE powder wash whips into a creamy foam with coconut- and amino-acid-derived cleansers." },
       { q: "How much powder should I use?", a: "About a small coin-sized amount, or one single-use packet. The UNI&CORE powder wash comes pre-portioned in 1 g pouches." },
       { q: "Can I use an enzyme powder wash every day?", a: "Gentle, low-pH formulas made for daily use can be. The UNI&CORE Vita C Enzyme Powder Wash is mildly acidic (pH 5–5.5) and designed for everyday cleansing." },
       { q: "Is an enzyme powder cleanser OK for sensitive skin?", a: "It depends on the formula and your skin. If your skin is reactive, patch test first and start with a few washes a week before moving to daily use. The UNI&CORE Vita C Enzyme Powder Wash uses low-irritation enzymes at a mildly acidic pH of 5–5.5." },

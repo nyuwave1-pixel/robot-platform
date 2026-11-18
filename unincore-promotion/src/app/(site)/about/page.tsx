@@ -10,7 +10,7 @@ import { SITE } from "@/content/site";
 export const metadata = pageMetadata({
   title: "About UNI&CORE USA | Korean Skincare Brand",
   description:
-    "UNI&CORE is a Korean skincare brand. Find our vitamin C serum, sheet mask, enzyme cleanser and serum mist in the US on Amazon, TikTok Shop and our US store.",
+    "UNI&CORE is a Korean skincare brand. Find our vitamin C serum, sheet mask, enzyme cleanser and serum mist in the US on Amazon, TikTok Shop and our US shop.",
   path: "/about",
   absoluteTitle: true,
 });
