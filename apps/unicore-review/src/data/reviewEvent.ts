@@ -23,7 +23,7 @@ export const reviewEvent = {
   reward: {
     en: "SPECIAL GIFT FOR YOU",
     /** 참여 대상 · 사은품 지급 일정 */
-    info: [{ label: "대상", value: "벌스데이 구매 회원 대상" }, { label: "지급 일정", value: "후기 작성 후 2027년 1월 신규 세미나 참석 시 지급" }],
+    info: [{ label: "대상", value: "벌스데이 구매 회원 대상" }, { label: "지급 일정", value: "2027년 1월 신규 세미나 참석 시 지급" }],
     ko: "여러분의 소중한 후기에 감사의 마음을 담았습니다.",
     winner: {
       no: "REWARD 01", who: "우수 후기 선정", product: "UNI&CORE 1ST BIRTHDAY CREAM", productKo: "퍼스트 벌스데이 크림 50g",

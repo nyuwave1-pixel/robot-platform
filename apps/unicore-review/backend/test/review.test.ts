@@ -332,18 +332,25 @@ test("사진 없이 참여: 기본은 불가, 관리자 설정으로 허용하�
   for (const x of [na, nb]) { const r = (await sql(`SELECT postal_code, address_enc FROM birthday_reviews WHERE id = $1`, [x.id]))[0]; assert.equal(r.postal_code, null); assert.equal(r.address_enc, null); }
   // 영문 사이트 접수(locale: "en"): 한국어 사이트가 주소를 받지 않아도 주소가 필수이고, 해외 우편번호 형식을 받으며, 관리자 화면·엑셀에 나온다
   const cfgEn = (await v.call("GET", "/config?lang=en")).data;
-  assert.equal(cfgEn.requireAddress, true); assert.match(cfgEn.consents.find((c: any) => c.type === "GIFT_SHIPPING").items, /주소/);
+  assert.equal(cfgEn.requireAddress, true); assert.match(cfgEn.consents.find((c: any) => c.type === "GIFT_SHIPPING").items, /미국 배송 주소/);
   const ve = new Visitor();
   const noAddr = await ve.call("POST", "/submit", await payload(ve, { locale: "en", postalCode: "", address1: "", address2: "" }));
   assert.equal(noAddr.error.code, "VALIDATION"); assert.ok(noAddr.error.fields.postalCode && noAddr.error.fields.address1 && noAddr.error.fields.address2);
-  const en1 = await submit({ locale: "en", postalCode: "sw1a 1aa", address1: "10 Downing Street, London", address2: "Flat 2, United Kingdom" });
+  assert.equal((await ve.call("POST", "/submit", await payload(ve, { locale: "en", postalCode: "SW1A 1AA", address1: "10 Downing Street", address2: "London, UK" }))).error.fields.postalCode !== undefined, true, "영문 사이트는 미국 ZIP 코드만");
+  const en1 = await submit({ locale: "en", postalCode: "90210-1234", address1: "350 N Canon Dr", address2: "Apt 2, Beverly Hills, CA, United States" });
   const er = (await sql(`SELECT site_lang, postal_code, address_enc FROM birthday_reviews WHERE id = $1`, [en1.id]))[0];
-  assert.equal(er.site_lang, "en"); assert.equal(er.postal_code, "SW1A 1AA"); assert.ok(er.address_enc);
+  assert.equal(er.site_lang, "en"); assert.equal(er.postal_code, "90210-1234"); assert.ok(er.address_enc);
   const ed = (await HQ.p("GET", `/reviews/${en1.id}`)).data;
-  assert.equal(ed.siteLang, "en"); assert.match(ed.customer.address, /Downing Street/); assert.match(ed.customer.address, /United Kingdom/); assert.equal(ed.customer.postalCode, "SW1A 1AA");
+  assert.equal(ed.siteLang, "en"); assert.match(ed.customer.address, /Canon Dr/); assert.match(ed.customer.address, /United States/); assert.equal(ed.customer.postalCode, "90210-1234");
   assert.equal((await HQ.p("GET", "/reviews?limit=200")).data.items.find((x: any) => x.id === en1.id).siteLang, "en");
   assert.equal((await sql(`SELECT site_lang FROM birthday_reviews WHERE id = $1`, [na.id]))[0].site_lang, "ko");
+  // 한국어 사이트·현장 지급: 참여자 조회 화면의 사은품 상태는 현장 지급 이름, 운송장은 숨김
+  await sql(`INSERT INTO birthday_review_rewards (event_id, review_id, reward_type, product_name, quantity, reward_status, carrier, tracking_number) SELECT event_id, id, 'PARTICIPATION', '프로틴 쉐이크 1박스', 1, 'SHIPPING', 'CJ대한통운', '123456789012' FROM birthday_reviews WHERE id = $1`, [na.id]);
+  const lkOn = (await na.v.call("POST", "/lookup", { phone: na.phone })).data.rewards[0];
+  assert.equal(lkOn.statusLabel, "현장 지급 예정"); assert.equal(lkOn.trackingNumber, null);
   assert.equal((await HQ.p("PATCH", "/event", { settings: { requireAddress: true } })).status, 200);
+  const lkShip = (await na.v.call("POST", "/lookup", { phone: na.phone })).data.rewards[0];
+  assert.equal(lkShip.statusLabel, "배송 중", "주소를 받는 설정으로 바꾸면 배송 상태 이름"); assert.equal(lkShip.trackingNumber, "123456789012");
 });
 
 test("이벤트 기간·상태: 시작 전·종료·마감에는 접수 불가, 테스트 출처 접수는 운영 통계와 분리", async () => {

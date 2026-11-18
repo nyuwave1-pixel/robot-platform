@@ -12,6 +12,8 @@ export const REVIEW_STATUS_LABEL: Record<string, string> = { PENDING: "검토 �
 export const REWARD_STATUS_LABEL: Record<string, string> = {
   ELIGIBLE: "지급 대상", PREPARING: "지급 준비", SHIP_READY: "배송 준비", SHIPPING: "배송 중", DELIVERED: "지급 완료", ON_HOLD: "지급 보류", CANCELED: "지급 취소",
 };
+/** 세미나 현장 지급 — 참여자에게 보이는 상태 이름(관리자 화면은 기존 이름 그대로) */
+export const ONSITE_STATUS_LABEL: Record<string, string> = { SHIP_READY: "현장 지급 예정", SHIPPING: "현장 지급 예정", DELIVERED: "지급 완료" };
 export const REWARD_TYPE_LABEL: Record<string, string> = { PARTICIPATION: "참가 보상", WINNER: "우수 후기 추가 보상" };
 
 // ---- 이벤트·설정 ----
@@ -73,9 +75,14 @@ export function consentDocs(st: EventSettings, siteLang: SiteLang = "ko") {
       purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 배송, 배송 안내 연락",
       items: "수령인 이름, 휴대폰 번호, 배송지 주소(우편번호 포함)",
       retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
+      // 영문 사이트는 미국 현지 주소로 배송한다
+      : siteLang === "en" ? { type: "GIFT_SHIPPING", required: true, title: "사은품 배송을 위한 개인정보 이용 동의",
+          purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 미국 내 배송, 배송 안내 연락",
+          items: "이름, 휴대폰 번호, 유니앤코어 회원번호, 미국 배송 주소(ZIP 코드 포함)",
+          retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
       : { type: "GIFT_SHIPPING", required: true, title: "사은품 지급을 위한 개인정보 이용 동의",
           purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 현장 지급, 지급 안내 연락",
-          items: siteLang === "en" ? "이름, 휴대폰 번호, 유니앤코어 회원번호, 주소(우편번호·국가 포함)" : "이름, 휴대폰 번호, 유니앤코어 회원번호", retention: keep, refusal: refuse },
+          items: "이름, 휴대폰 번호, 유니앤코어 회원번호", retention: keep, refusal: refuse },
     { type: "MARKETING_USE", required: false, title: "후기 및 사진의 마케팅 활용 동의 (선택)",
       purpose: "유니앤코어 공식몰·SNS·광고 등 홍보 콘텐츠에 후기 내용과 사용 전·후 사진을 게시",
       items: "후기 제목·내용, 별점, 사용 전·후 사진 (이름은 일부만 표시)",
@@ -187,15 +194,15 @@ function validateInput(b: any, st: EventSettings): ReviewInput {
   const usagePeriod = (USAGE_PERIODS as readonly string[]).includes(String(b.usagePeriod)) ? String(b.usagePeriod) : "";
   const recommendReason = cleanText(b.recommendReason, 300).slice(0, 300);
   const siteLang = siteLangOf(b.locale);
-  // 영문 사이트는 해외 주소일 수 있어 우편번호를 숫자 5자리로 제한하지 않는다
-  const postalCode = siteLang === "en" ? String(b.postalCode ?? "").replace(/[^0-9A-Za-z -]/g, "").replace(/\s+/g, " ").trim().slice(0, 12).toUpperCase()
+  // 영문 사이트는 미국 주소 — ZIP 코드(5자리 또는 ZIP+4)
+  const postalCode = siteLang === "en" ? String(b.postalCode ?? "").replace(/[^0-9-]/g, "").slice(0, 10)
     : String(b.postalCode ?? "").replace(/\D/g, "").slice(0, 5);
   const address1 = cleanText(b.address1, 120).slice(0, 120), address2 = cleanText(b.address2, 80).slice(0, 80);
   const withAddr = needAddress(st, siteLang);
   if (withAddr) {
-    if (siteLang === "en" ? postalCode.length < 3 : postalCode.length !== 5) fields.postalCode = siteLang === "en" ? "우편번호를 입력해 주세요." : "우편번호 5자리를 입력해 주세요.";
+    if (siteLang === "en" ? !/^\d{5}(-\d{4})?$/.test(postalCode) : postalCode.length !== 5) fields.postalCode = siteLang === "en" ? "ZIP 코드 5자리를 입력해 주세요." : "우편번호 5자리를 입력해 주세요.";
     if (charCount(address1) < 5) fields.address1 = siteLang === "en" ? "주소를 입력해 주세요." : "사은품을 받으실 주소를 입력해 주세요.";
-    if (siteLang === "en" && charCount(address2) < 2) fields.address2 = "국가를 입력해 주세요.";
+    if (siteLang === "en" && charCount(address2) < 2) fields.address2 = "도시와 주를 입력해 주세요.";
   }
   if (Object.keys(fields).length) fail(400, "VALIDATION", Object.values(fields)[0], fields);
   // 주소를 받지 않는 접수는 보내온 주소가 있어도 저장하지 않는다
@@ -323,6 +330,9 @@ async function findOwn(b: any, c?: Queryable, lock = false, needMember = false) 
 export async function lookup(req: Request, b: any) {
   await rateLimit("br-look:" + ipHash(req), 12, 900);
   const r = await findOwn(b);
+  // 한국어 사이트 접수이고 주소를 받지 않는 설정(세미나 현장 지급)이면 배송 대신 현장 지급 상태 이름을 보여 준다
+  const onSite = (r.site_lang || "ko") === "ko" && !needAddress(settingsOf(await eventBySlug(EVENT_SLUG)), "ko");
+  const label = (st: string) => (onSite ? ONSITE_STATUS_LABEL[st] : undefined) ?? REWARD_STATUS_LABEL[st];
   const rewards = await q<any>(`SELECT reward_type, product_name, quantity, reward_status, carrier, tracking_number, shipped_at, delivered_at FROM birthday_review_rewards WHERE review_id = $1 ORDER BY reward_type`, [r.id]);
   const win = await q1<any>(`SELECT status FROM birthday_review_winners WHERE review_id = $1`, [r.id]);
   const imgs = await q<any>(`SELECT image_type FROM birthday_review_images WHERE review_id = $1 AND deleted_at IS NULL`, [r.id]);
@@ -337,9 +347,9 @@ export async function lookup(req: Request, b: any) {
     isWinner: win?.status === "CONFIRMED",   // 최종 확정 전에는 알리지 않는다
     rewards: rewards.filter((x) => x.reward_status !== "CANCELED" && (x.reward_type !== "WINNER" || win?.status === "CONFIRMED")).map((x) => ({
       type: x.reward_type, typeLabel: REWARD_TYPE_LABEL[x.reward_type], productName: x.product_name, quantity: x.quantity,
-      status: x.reward_status, statusLabel: REWARD_STATUS_LABEL[x.reward_status],
-      carrier: ["SHIPPING", "DELIVERED"].includes(x.reward_status) ? x.carrier : null,
-      trackingNumber: ["SHIPPING", "DELIVERED"].includes(x.reward_status) ? x.tracking_number : null,
+      status: x.reward_status, statusLabel: label(x.reward_status),
+      carrier: !onSite && ["SHIPPING", "DELIVERED"].includes(x.reward_status) ? x.carrier : null,
+      trackingNumber: !onSite && ["SHIPPING", "DELIVERED"].includes(x.reward_status) ? x.tracking_number : null,
     })),
   };
 }
