@@ -47,7 +47,7 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 | 위치 | 기술 |
 |---|---|
 | 히어로 타이틀 | 실제 압출·베벨 3D 텍스트(`fx/Title3D`), 금속 재질 + 절차적 환경광, 포인터 추종 틸트 |
-| 히어로 얼굴 | 정아름 님 사진(본인·소속사 사용 동의 확인)으로 만든 3D 회전 렌더(`public/3d/face-sequence.webp`, 36프레임 · 640px) + CSS/SVG 분석 HUD(`ScanHud`). 생성: 초해상도·인물 분리 → `extract_landmarks.mjs` → `photo_head_depth.py` → `photo_head.py` → `pack_sequence.py`. 이전 합성 얼굴 파이프라인은 `build_head.py` 에 남아 있다. |
+| 히어로 얼굴 | Blender Cycles 로 렌더링한 합성 여성 얼굴 회전 렌더(`public/3d/face-sequence.webp`, 36프레임 · 640px) + CSS/SVG 분석 HUD(`ScanHud`). MakeHuman 기본 메시(CC0)에 매크로 타깃을 적용한 합성 인체 모델이며 실존 인물이 아니다. 머리카락(부드러운 헤어라인 셸 + 묶은 번)·어깨·상의 포함. 생성: `scripts/blender/build_head.py` → `pack_sequence.py`. 사진 기반 파이프라인(`photo_head*.py`)도 남아 있다. |
 | WebGL 미사용 기기 · CTA | Blender Cycles 로 미리 렌더링한 36프레임 턴테이블 스프라이트(`public/3d/face-sequence.webp`)를 포인터·스크롤로 넘기는 '가짜 3D'(`fx/FaceSequence`) |
 | 섹션 헤딩 | 글자별 3D 등장 + 압출 깊이 + 강조어 발광(`fx/DepthText`, 모든 언어 지원) |
 | 기술 카드 | 기능별 GLSL 모션 그래픽 — RF 열 파동 / 초음파 간섭 / 이온 입자 흐름(`fx/ShaderCanvas`) + 3D 틸트 |
