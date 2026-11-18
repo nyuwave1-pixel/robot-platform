@@ -8,7 +8,7 @@ import { SITE } from "@/content/site";
 // Brand page for searches such as "uni&core" or "unincore" (Google search improvement request, 2026-11-17).
 // Facts only from the site content: products.ts and SITE.
 export const metadata = pageMetadata({
-  title: "About UNI&CORE | Korean Skincare Brand",
+  title: "About UNI&CORE USA | Korean Skincare Brand",
   description:
     "UNI&CORE is a Korean skincare brand. Find our vitamin C serum, sheet mask, enzyme cleanser and serum mist in the US on Amazon, TikTok Shop and our US store.",
   path: "/about",
@@ -19,7 +19,7 @@ export default async function AboutPage() {
   const products = await getProducts();
   return (
     <>
-      <LegalPage title="About UNI&CORE" updated="November 17, 2026">
+      <LegalPage title="About UNI&CORE USA" updated="November 17, 2026">
         <p>
           UNI&amp;CORE is a Korean skincare brand from {SITE.legalName}. Our motto is &ldquo;{SITE.tagline}&rdquo;. This site,
           promotion.unincore.com, is the official US site for UNI&amp;CORE skincare.

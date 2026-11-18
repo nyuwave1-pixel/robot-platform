@@ -26,7 +26,7 @@ export interface Guide {
 export const GUIDES: Guide[] = [
   {
     slug: "vitamin-c-ampoule-vs-serum",
-    title: "Vitamin C Ampoule vs Serum: The Difference | UNI&CORE",
+    title: "Vitamin C Ampoule vs Serum: The Difference | UNI&CORE USA",
     description:
       "Ampoule or serum? How Korean vitamin C ampoules differ from serums, what the percentage means, and where an ampoule fits in your routine.",
     h1: "Vitamin C Ampoule vs Serum: What's the Difference?",
@@ -76,7 +76,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-use-enzyme-powder-cleanser",
-    title: "How to Use an Enzyme Powder Cleanser | UNI&CORE",
+    title: "How to Use an Enzyme Powder Cleanser | UNI&CORE USA",
     description:
       "How to use a Korean enzyme powder cleanser: how much powder, how to lather, how often, and how it differs from a foam cleanser or a scrub.",
     h1: "How to Use an Enzyme Powder Cleanser",
@@ -127,7 +127,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "vitamin-c-and-glutathione",
-    title: "Vitamin C and Glutathione in Skincare | UNI&CORE",
+    title: "Vitamin C and Glutathione in Skincare | UNI&CORE USA",
     description:
       "Why vitamin C and glutathione are paired in brightening skincare, how to use them in a routine, and what to expect.",
     h1: "Vitamin C and Glutathione: Why They're Paired in Skincare",
@@ -170,7 +170,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "vitamin-c-sheet-mask-guide",
-    title: "How to Use a Vitamin C Sheet Mask | UNI&CORE",
+    title: "How to Use a Vitamin C Sheet Mask | UNI&CORE USA",
     description:
       "How to use a vitamin C sheet mask: when, how long, which side faces out, what to do after, and how often to mask for a brighter-looking glow.",
     h1: "How to Use a Vitamin C Sheet Mask",
@@ -212,7 +212,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-use-vitamin-c-serum",
-    title: "How to Use Vitamin C Serum: Morning or Night? | UNI&CORE",
+    title: "How to Use Vitamin C Serum: Morning or Night? | UNI&CORE USA",
     description:
       "How to use a vitamin C serum: morning or night, where it goes in your routine, how to layer it with other products, and tips for sensitive skin.",
     h1: "How to Use Vitamin C Serum",
@@ -264,7 +264,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "vitamin-c-for-sensitive-skin",
-    title: "Vitamin C for Sensitive Skin: How to Start | UNI&CORE",
+    title: "Vitamin C for Sensitive Skin: How to Start | UNI&CORE USA",
     description:
       "New to vitamin C or easily irritated? How to patch test, how often to start, what to pair it with, and a gentle cleanse-to-serum routine.",
     h1: "Vitamin C for Sensitive Skin: How to Start",
@@ -378,7 +378,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-use-face-mist",
-    title: "How to Use a Face Mist in Your Routine | UNI&CORE",
+    title: "How to Use a Face Mist in Your Routine | UNI&CORE USA",
     description:
       "When to use a face mist, before or after moisturizer, over makeup and through the day, plus how to spray it for even, comfortable hydration.",
     h1: "How to Use a Face Mist: When and Where It Fits",
@@ -428,7 +428,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "skin-barrier-care-routine",
-    title: "Skin Barrier Care: A Gentle Daily Routine | UNI&CORE",
+    title: "Skin Barrier Care: A Gentle Daily Routine | UNI&CORE USA",
     description:
       "Signs your skin barrier needs care and a simple routine to support it: a gentle low-pH cleanse, steady hydration, moisturizer and daily sunscreen.",
     h1: "Skin Barrier Care: A Gentle Routine for Comfortable Skin",

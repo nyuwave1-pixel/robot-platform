@@ -41,7 +41,14 @@ export function Footer({ products }: { products: Pick<ProductContent, "slug" | "
       </div>
       <div className="border-t border-black/[0.06]">
         <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-2 px-4 py-6 text-[12.5px] text-[#5C5F58] sm:flex-row sm:justify-between sm:px-6 lg:px-10">
-          <p>© {new Date().getFullYear()} {SITE.legalName}. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} {SITE.legalName}. All rights reserved.
+            <span className="ml-3 inline-flex gap-3">
+              <a href={SITE.social[0]} className="hover:text-[#191A17]">TikTok</a>
+              <a href={SITE.social[1]} className="hover:text-[#191A17]">Instagram</a>
+              <a href={SITE.social[2]} className="hover:text-[#191A17]">YouTube</a>
+            </span>
+          </p>
           <p>Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.</p>
         </div>
       </div>

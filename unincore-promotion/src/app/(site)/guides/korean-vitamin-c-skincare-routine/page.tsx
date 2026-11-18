@@ -10,7 +10,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import type { ProductKey } from "@/content/types";
 
 const PATH = "/guides/korean-vitamin-c-skincare-routine";
-const TITLE = "Korean Vitamin C Skincare Routine: 3 Steps | UNI&CORE";
+const TITLE = "Korean Vitamin C Skincare Routine: 3 Steps | UNI&CORE USA";
 const DESCRIPTION =
   "How to use vitamin C in a Korean skincare routine: enzyme cleanse, vitamin C sheet mask, then a 13.5% vitamin C serum ampoule. Order, tips and FAQs.";
 const PUBLISHED = "2026-11-05";

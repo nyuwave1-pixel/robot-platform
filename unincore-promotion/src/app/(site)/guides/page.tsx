@@ -5,7 +5,7 @@ import { abs, breadcrumbLd, pageMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/site/JsonLd";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Vitamin C Skincare Guides | UNI&CORE Korean Skincare",
+  title: "Korean Skincare Guides | UNI&CORE USA",
   description: "How to use vitamin C serums, ampoules, sheet masks and enzyme cleansers in a Korean skincare routine — guides from UNI&CORE.",
   path: "/guides",
   keywords: ["vitamin C skincare guide", "Korean skincare guide", "how to use vitamin C serum", "UNI&CORE"],

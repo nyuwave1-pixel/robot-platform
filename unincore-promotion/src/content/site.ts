@@ -12,7 +12,12 @@ export const SITE = {
   /** UNI&CORE brand store on Amazon (the share link's tracking parameters removed). */
   amazonStore: "https://www.amazon.com/stores/UNICORE/page/51BC645B-3E00-4AA5-A624-530B9E21DCE3",
   /** Official profiles, for the Organization structured data (sameAs). */
-  social: ["https://www.tiktok.com/@unincore_official"] as string[],
+  social: [
+    "https://www.tiktok.com/@unincore_official",
+    // The brand's own channels, as listed in its Google Search Console (2026-11-18).
+    "https://www.instagram.com/unincore.official/",
+    "https://www.youtube.com/@unincore.official",
+  ] as string[],
   /** Other ways US shoppers write the brand (Google, Amazon and TikTok search suggestions, 2026-11-13). */
   alternateNames: ["Uni and Core", "UNI & CORE", "Unincore", "UNI&CORE USA", "UNI&CORE Skincare"],
   /** Locales planned for hreflang expansion. Only en-US is live today. */

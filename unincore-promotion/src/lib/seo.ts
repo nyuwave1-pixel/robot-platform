@@ -79,6 +79,19 @@ export function organizationLd() {
     // A square PNG of the official wordmark: Google's logo guidelines prefer a raster image at least 112 px.
     logo: abs("/brand/unincore-logo-512.png"),
     sameAs: [SITE.mainSite, SITE.usStore, SITE.amazonStore, ...SITE.social],
+    brand: { "@id": `${SITE.url}/#brand` },
+  };
+}
+
+/** One Brand entity shared by every product, tied to the Organization so Google reads them as the same UNI&CORE. */
+export function brandLd() {
+  return {
+    "@type": "Brand",
+    "@id": `${SITE.url}/#brand`,
+    name: SITE.name,
+    alternateName: SITE.alternateNames,
+    logo: abs("/brand/unincore-logo-512.png"),
+    url: SITE.url,
   };
 }
 
@@ -119,7 +132,7 @@ export function productLd(p: ProductContent) {
     image: landingImages(LANDING[p.key]).slice(0, 10).map(abs),
     // The search phrase the page is built around ("Korean Vitamin C Serum for Face, 13.5% Pure"), from its title.
     alternateName: p.seo.title.split(" | ")[0],
-    brand: { "@type": "Brand", name: SITE.name, alternateName: SITE.alternateNames },
+    brand: brandLd(),
     ...(p.asin && { sku: p.asin }),
     category: "Beauty > Skin Care",
     url,
