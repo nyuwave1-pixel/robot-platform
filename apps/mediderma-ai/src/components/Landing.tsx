@@ -16,6 +16,7 @@ import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
 import HeroPortrait from "./fx/HeroPortrait";
 import ScanHud from "./fx/ScanHud";
+import BeforeAfter from "./fx/BeforeAfter";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
@@ -112,7 +113,8 @@ const PORTRAIT_MARKS = [
   { x: 46, y: 53, lx: 8, ly: 64, align: "end" as const },
 ];
 
-const BRAND_CUTS = ["/brand/model-silk.webp", "/brand/model-knit.webp", "/brand/model-robe.webp", "/brand/model-cream.webp"];
+// 사용 후 = Canva "UNI&CORE DERMA HOME Model Cuts" 의 모델 컷, 사용 전 = 같은 컷을 Higgsfield 로 피부 문제만 바꿔 만든 AI 연출 이미지
+const BRAND_CUTS = ["silk", "knit", "robe", "cream"].map((n) => ({ after: `/brand/model-${n}.webp`, before: `/brand/model-${n}-before.webp` }));
 
 export default function Landing() {
   const { t } = useI18n();
@@ -252,24 +254,24 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
-          {/* UNI&CORE 브랜드 모델 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 중 기기 사용 장면이 아닌 컷) */}
+          {/* 사용 전/후 비교 갤러리 (AI 연출 이미지임을 아래에 밝힌다) */}
           <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
-            {BRAND_CUTS.map((src, i) => (
+            {BRAND_CUTS.map(({ before, after }, i) => (
               <motion.figure
-                key={src}
+                key={after}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.1, ease: [0.2, 0.75, 0.2, 1] }}
-                className="group relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
+                className="relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="UNI&CORE DERMA HOME" loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.06]" />
-                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent" />
-                <figcaption className="absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
+                <BeforeAfter before={before} after={after} beforeLabel={t.landing.galleryBefore} afterLabel={t.landing.galleryAfter} alt="UNI&CORE DERMA HOME" phase={i * 0.8} animate={!reduce} />
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/85 to-transparent" />
+                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
               </motion.figure>
             ))}
           </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-silver/70" data-testid="gallery-note">{t.landing.galleryNote}</p>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {TECHS.map(({ id, shader, tint }, i) => (
               <motion.div key={id} initial={{ opacity: 0, y: 50, rotateY: -18 }} whileInView={{ opacity: 1, y: 0, rotateY: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.75, 0.2, 1] }} style={{ transformPerspective: 1000 }}>

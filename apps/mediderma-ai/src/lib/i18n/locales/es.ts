@@ -45,6 +45,9 @@ const es: Dict = {
     notMeasureDesc: "La hidratación interna de la piel, la densidad de colágeno, la secreción de sebo, el flujo sanguíneo, la temperatura y la edad de la piel no pueden medirse con una foto, así que no generamos cifras para ello. Cuéntanos en el cuestionario aspectos como la sequedad o la sensibilidad.",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "Tres tecnologías en un solo dispositivo. Según lo observado y tus respuestas, te vinculamos con las rutinas de la guía de cuidado oficial.",
+    galleryBefore: "Antes",
+    galleryAfter: "Después",
+    galleryNote: "Imágenes ilustrativas generadas con IA, no son fotos de usuarias reales. Los resultados varían según la piel y el uso.",
     processTitle: "Así funciona el análisis",
     process: [
       { title: "Sube tu foto", desc: "Toma una foto o elígela de tu galería." },

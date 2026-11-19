@@ -48,7 +48,7 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 |---|---|
 | 히어로 타이틀 | 실제 압출·베벨 3D 텍스트(`fx/Title3D`), 금속 재질 + 절차적 환경광, 포인터 추종 틸트 |
 | 히어로 얼굴 · CTA | 브랜드 모델(정아름 님, 본인·소속사 사용 동의 확인) 사진을 Higgsfield 로 스튜디오 컷으로 가공하고 배경을 분리한 정지 이미지(`public/brand/hero-portrait.webp`) + 부유·포인터 기울기 모션(`fx/HeroPortrait`) + 얼굴 위치에 맞춘 분석 HUD(`fx/ScanHud`, 좁은 화면에서는 라벨을 틀 안쪽에 고정) |
-| 브랜드 갤러리 | Canva "UNI&CORE DERMA HOME Model Cuts" 디자인에서 내보낸 모델 컷 4장(`public/brand/model-*.webp`) |
+| 사용 전/후 갤러리 | 사용 후 = Canva "UNI&CORE DERMA HOME Model Cuts" 모델 컷(`public/brand/model-*.webp`), 사용 전 = 같은 컷을 Higgsfield 로 피부 상태만 바꾼 AI 연출 이미지(`model-*-before.webp`). 분할선이 자동으로 오가고 포인터로 직접 밀 수 있다(`fx/BeforeAfter`). 아래에 "AI 생성 연출 이미지, 실제 사용자 사진 아님" 안내 문구를 7개 언어로 표시한다. |
 | 섹션 헤딩 | 글자별 3D 등장 + 압출 깊이 + 강조어 발광(`fx/DepthText`, 모든 언어 지원) |
 | 기술 카드 | 기능별 GLSL 모션 그래픽 — RF 열 파동 / 초음파 간섭 / 이온 입자 흐름(`fx/ShaderCanvas`) + 3D 틸트 |
 | 진행 단계 | 스크롤 연동 진행선 + 3D 플립 등장 |

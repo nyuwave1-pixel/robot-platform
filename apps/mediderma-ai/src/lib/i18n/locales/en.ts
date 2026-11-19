@@ -44,6 +44,9 @@ const en: Dict = {
     notMeasureDesc: "Moisture inside the skin, collagen density, sebum output, blood flow, skin temperature and skin age cannot be measured from a photo, so we do not generate numbers for them. Tell us about things like dryness or sensitivity in the survey.",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "Three technologies in one device. We match routines from the official care guide to your observations and survey answers.",
+    galleryBefore: "Before",
+    galleryAfter: "After",
+    galleryNote: "AI-generated illustrative images, not photos of real users. Results vary with skin condition and use.",
     processTitle: "How the analysis works",
     process: [
       { title: "Upload a photo", desc: "Take a photo or choose one from your gallery." },

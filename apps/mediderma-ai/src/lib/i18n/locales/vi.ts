@@ -44,6 +44,9 @@ const vi: Dict = {
     notMeasureDesc: "Lượng nước trong da, mật độ collagen, lượng bã nhờn, lưu lượng máu, nhiệt độ da và tuổi da không thể đo qua ảnh, vì vậy chúng tôi không tạo ra con số cho các mục này. Những thông tin như khô hay nhạy cảm, bạn hãy cho biết trực tiếp qua khảo sát.",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "Ba công nghệ trong một thiết bị. Các quy trình trong hướng dẫn chăm sóc chính thức được kết nối theo kết quả quan sát và khảo sát của bạn.",
+    galleryBefore: "Trước",
+    galleryAfter: "Sau",
+    galleryNote: "Hình minh họa do AI tạo, không phải ảnh người dùng thật. Kết quả khác nhau tùy tình trạng da và cách sử dụng.",
     processTitle: "Quy trình phân tích",
     process: [
       { title: "Tải ảnh lên", desc: "Chụp ảnh mới hoặc chọn từ thư viện." },

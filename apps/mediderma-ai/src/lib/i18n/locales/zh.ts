@@ -45,6 +45,9 @@ const zh: Dict = {
     notMeasureDesc: "皮肤内部含水量、胶原蛋白密度、皮脂分泌量、血流、皮肤温度和肌肤年龄无法通过照片测量，因此我们不会生成这些数值。干燥、敏感等情况请通过问卷告诉我们。",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "三种技术，集于一机。根据观察结果和问卷，为你匹配官方护理指南中的护理流程。",
+    galleryBefore: "使用前",
+    galleryAfter: "使用后",
+    galleryNote: "AI 生成的示意图片，并非真实用户照片。效果因肤质和使用方式而异。",
     processTitle: "分析流程",
     process: [
       { title: "上传照片", desc: "现场拍摄，或从相册中选择。" },

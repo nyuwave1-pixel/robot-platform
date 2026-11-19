@@ -47,6 +47,9 @@ const ko = {
     notMeasureDesc: "피부 속 수분량, 콜라겐 밀도, 피지 분비량, 혈류, 피부 온도, 피부 나이는 사진으로 측정할 수 없어 숫자를 만들지 않습니다. 건조함·민감함 같은 정보는 설문으로 직접 알려주세요.",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "세 가지 기술을 하나의 기기로. 관찰 결과와 설문에 맞춰 공식 케어 가이드의 루틴을 연결합니다.",
+    galleryBefore: "사용 전",
+    galleryAfter: "사용 후",
+    galleryNote: "AI로 생성한 연출 이미지입니다. 실제 사용자의 사진이 아니며, 효과는 피부 상태와 사용 방법에 따라 다릅니다.",
     processTitle: "분석은 이렇게 진행됩니다",
     process: [
       { title: "사진 업로드", desc: "촬영하거나 갤러리에서 선택합니다." },

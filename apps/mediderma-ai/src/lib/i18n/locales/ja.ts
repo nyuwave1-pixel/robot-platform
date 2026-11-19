@@ -44,6 +44,9 @@ const ja: Dict = {
     notMeasureDesc: "肌内部の水分量、コラーゲン密度、皮脂分泌量、血流、肌温度、肌年齢は写真からは測定できないため、数値を作りません。乾燥や敏感さなどの情報は、アンケートで直接お知らせください。",
     techTitle: "DERMA HOME TECHNOLOGY",
     techDesc: "3つのテクノロジーを1台に。観察結果とアンケートに合わせて、公式ケアガイドのルーティンをご案内します。",
+    galleryBefore: "使用前",
+    galleryAfter: "使用後",
+    galleryNote: "AIで生成したイメージです。実際の利用者の写真ではなく、効果は肌の状態や使い方によって異なります。",
     processTitle: "分析の流れ",
     process: [
       { title: "写真をアップロード", desc: "撮影するか、ギャラリーから選択します。" },
