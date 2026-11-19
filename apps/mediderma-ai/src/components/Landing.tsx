@@ -14,8 +14,9 @@ import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
 import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
-import FaceSequence from "./fx/FaceSequence";
+import HeroPortrait from "./fx/HeroPortrait";
 import ScanHud from "./fx/ScanHud";
+import BeforeAfter from "./fx/BeforeAfter";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
@@ -105,7 +106,15 @@ function OnDeviceVisual() {
   );
 }
 
-const BRAND_CUTS = ["/brand/derma-home-console.webp", "/brand/derma-home-care-1.webp", "/brand/derma-home-care-2.webp", "/brand/derma-home-care-3.webp"];
+const PORTRAIT_MARKS = [
+  { x: 54, y: 23, lx: 74, ly: 9, align: "start" as const },
+  { x: 45, y: 43, lx: 6, ly: 34, align: "end" as const },
+  { x: 64, y: 41, lx: 88, ly: 46, align: "start" as const },
+  { x: 46, y: 53, lx: 8, ly: 64, align: "end" as const },
+];
+
+// 40·50·60대 한국 여성 예시 3명. 사용 전·후 모두 Higgsfield 로 만든 AI 연출 이미지(별도 촬영처럼 표정·포즈·옷이 다름)
+const BRAND_CUTS = ["40", "50", "60"].map((n) => ({ after: `/brand/case-${n}-after.webp`, before: `/brand/case-${n}-before.webp` }));
 
 export default function Landing() {
   const { t } = useI18n();
@@ -171,9 +180,10 @@ export default function Landing() {
             </motion.div>
           </div>
           <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
-            {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
-            <FaceSequence mode="pointer" className="[mask-image:linear-gradient(#000_74%,transparent_96%)]" />
-            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} />
+            {/* 브랜드 모델 사진 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
+            <HeroPortrait alt="MEDIDERMA" />
+            {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
+            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} marks={PORTRAIT_MARKS} />
           </motion.div>
         </div>
         {/* 키워드 마키 */}
@@ -244,24 +254,24 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
-          {/* UNI&CORE DERMA HOME 브랜드 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 에서 내보낸 이미지) */}
-          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
-            {BRAND_CUTS.map((src, i) => (
+          {/* 사용 전/후 비교 갤러리 (AI 연출 이미지임을 아래에 밝힌다) */}
+          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" data-testid="brand-gallery">
+            {BRAND_CUTS.map(({ before, after }, i) => (
               <motion.figure
-                key={src}
+                key={after}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.1, ease: [0.2, 0.75, 0.2, 1] }}
-                className="group relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
+                className="relative aspect-[3/4] w-[68%] shrink-0 snap-center overflow-hidden rounded-2xl border border-line bg-black sm:w-[42%] md:w-auto"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="UNI&CORE DERMA HOME" loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.06]" />
-                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent" />
-                <figcaption className="absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
+                <BeforeAfter before={before} after={after} beforeLabel={t.landing.galleryBefore} afterLabel={t.landing.galleryAfter} alt="UNI&CORE DERMA HOME" phase={i * 0.8} animate={!reduce} />
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/85 to-transparent" />
+                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
               </motion.figure>
             ))}
           </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-silver/70" data-testid="gallery-note">{t.landing.galleryNote}</p>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {TECHS.map(({ id, shader, tint }, i) => (
               <motion.div key={id} initial={{ opacity: 0, y: 50, rotateY: -18 }} whileInView={{ opacity: 1, y: 0, rotateY: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.75, 0.2, 1] }} style={{ transformPerspective: 1000 }}>
@@ -329,9 +339,9 @@ export default function Landing() {
         <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(79,182,255,0.25),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
         <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
-          {/* 스크롤에 따라 회전하는 Blender 렌더 시퀀스 */}
+          {/* 히어로와 같은 브랜드 모델 사진 */}
           <div className="mx-auto mb-4 w-48 sm:w-60">
-            <FaceSequence mode="scroll" />
+            <HeroPortrait alt="" />
           </div>
           <DepthText text={t.landing.ctaTitle} size="lg" className="mx-auto" />
           <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>

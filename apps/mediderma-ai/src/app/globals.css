@@ -8,6 +8,8 @@
   color-scheme: dark;
 }
 html { scroll-behavior: smooth; }
+/* 큰 글씨 모드 (헤더의 '가+' 버튼) */
+html.big-text { font-size: 118%; }
 body { font-family: var(--font-sans); background: #05070a; }
 ::selection { background: rgba(79, 182, 255, 0.35); }
 @media (prefers-reduced-motion: reduce) {
