@@ -14,7 +14,7 @@ import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
 import FaceFallback from "./FaceFallback";
 import DepthText from "./fx/DepthText";
-import FaceSequence from "./fx/FaceSequence";
+import HeroPortrait from "./fx/HeroPortrait";
 import ScanHud from "./fx/ScanHud";
 import { Magnetic, Tilt } from "./fx/Interactive";
 import type { ShaderKind } from "./fx/ShaderCanvas";
@@ -105,6 +105,13 @@ function OnDeviceVisual() {
   );
 }
 
+const PORTRAIT_MARKS = [
+  { x: 41, y: 21, lx: 66, ly: 9, align: "start" as const },
+  { x: 33, y: 37, lx: 6, ly: 30, align: "end" as const },
+  { x: 48.6, y: 31, lx: 86, ly: 38, align: "start" as const },
+  { x: 35.7, y: 47.4, lx: 8, ly: 62, align: "end" as const },
+];
+
 const BRAND_CUTS = ["/brand/derma-home-console.webp", "/brand/derma-home-care-1.webp", "/brand/derma-home-care-2.webp", "/brand/derma-home-care-3.webp"];
 
 export default function Landing() {
@@ -172,8 +179,9 @@ export default function Landing() {
           </div>
           <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
             {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
-            <FaceSequence mode="pointer" className="[mask-image:linear-gradient(#000_74%,transparent_96%)]" />
-            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} />
+            <HeroPortrait alt="MEDIDERMA" />
+            {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
+            <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} marks={PORTRAIT_MARKS} />
           </motion.div>
         </div>
         {/* 키워드 마키 */}
@@ -331,7 +339,7 @@ export default function Landing() {
         <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
           {/* 스크롤에 따라 회전하는 Blender 렌더 시퀀스 */}
           <div className="mx-auto mb-4 w-48 sm:w-60">
-            <FaceSequence mode="scroll" />
+            <HeroPortrait alt="" />
           </div>
           <DepthText text={t.landing.ctaTitle} size="lg" className="mx-auto" />
           <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>

@@ -1,16 +1,18 @@
 "use client";
 /**
- * 사실적 얼굴 렌더(FaceSequence) 위에 얹는 분석 HUD: 모서리 브래킷 · 스캔 라인 · 부위 표식.
+ * 첫 화면 인물(HeroPortrait) 위에 얹는 분석 HUD: 모서리 브래킷 · 스캔 라인 · 부위 표식.
  * 순수 CSS/SVG 라서 WebGL 이 없는 기기에서도 그대로 동작한다. 장식 요소이므로 aria-hidden.
  */
-const MARKS: { x: number; y: number; lx: number; ly: number; align: "start" | "end" }[] = [
+const MARKS: HudMark[] = [
   { x: 50, y: 24, lx: 80, ly: 12, align: "start" }, // 이마
   { x: 64, y: 52, lx: 90, ly: 50, align: "start" }, // 볼
   { x: 40, y: 43, lx: 9, ly: 34, align: "end" }, // 눈밑
   { x: 39, y: 68, lx: 10, ly: 78, align: "end" }, // 턱선
 ];
 
-export default function ScanHud({ labels, animate = true }: { labels: string[]; animate?: boolean }) {
+export type HudMark = { x: number; y: number; lx: number; ly: number; align: "start" | "end" };
+
+export default function ScanHud({ labels, animate = true, marks = MARKS }: { labels: string[]; animate?: boolean; marks?: HudMark[] }) {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0" data-testid="scan-hud">
       {/* 모서리 브래킷 */}
@@ -24,7 +26,7 @@ export default function ScanHud({ labels, animate = true }: { labels: string[]; 
         </div>
       )}
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full overflow-visible">
-        {MARKS.map((m, i) => (
+        {marks.map((m, i) => (
           <g key={i}>
             <line x1={m.x} y1={m.y} x2={m.lx} y2={m.ly} stroke="rgba(125,211,252,0.55)" strokeWidth="0.25" strokeDasharray="1 1" style={animate ? { animation: "dash 2.4s linear infinite" } : undefined} />
             <circle cx={m.x} cy={m.y} r="1.1" fill="rgba(125,211,252,0.95)" />
@@ -32,7 +34,7 @@ export default function ScanHud({ labels, animate = true }: { labels: string[]; 
           </g>
         ))}
       </svg>
-      {MARKS.map((m, i) =>
+      {marks.map((m, i) =>
         labels[i] ? (
           <span
             key={i}

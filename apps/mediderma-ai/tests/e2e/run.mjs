@@ -424,8 +424,8 @@ await check("MB3", "저사양 기기 → 3D 대신 2D 자동 전환", async () =
   await page.goto(BASE + "/");
   await page.waitForTimeout(800);
   assert((await page.locator("main canvas").count()) === 0, "WebGL canvas created on low-end device");
-  // 3D 대신 Blender 로 미리 렌더링한 이미지 시퀀스가 표시된다
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-testid="face-sequence"]')).backgroundImage.includes("face-sequence.webp"), null, { timeout: 15000 });
+  // WebGL 없이도 첫 화면 인물 사진이 표시된다
+  await page.waitForFunction(() => { const img = document.querySelector('[data-testid="hero-portrait"]'); return img && img.complete && img.naturalWidth > 0; }, null, { timeout: 15000 });
   await page.context().close();
 });
 
