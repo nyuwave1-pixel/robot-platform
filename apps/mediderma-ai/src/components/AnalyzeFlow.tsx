@@ -13,6 +13,7 @@ import type { ImageQuality, SurveyAnswers, ZoneResult } from "@/lib/analysis/typ
 import UploadBox from "./UploadBox";
 import Survey from "./Survey";
 import Report from "./report/Report";
+import StepBar from "./StepBar";
 
 type Step = "consent" | "capture" | "running" | "failed" | "error" | "survey" | "report";
 const STAGES: ProgressStage[] = ["loading_model", "detecting", "quality", "analyzing"];
@@ -133,71 +134,98 @@ export default function AnalyzeFlow() {
     window.scrollTo({ top: 0 });
   };
 
-  if (step === "report" && analysis) return <Report data={analysis} onRestart={restart} />;
-  if (step === "survey") return <Survey onSubmit={finish} onSkip={() => finish(null)} />;
+  if (step === "report" && analysis)
+    return (
+      <>
+        <StepBar current={3} />
+        <Report data={analysis} onRestart={restart} />
+      </>
+    );
+  if (step === "survey")
+    return (
+      <>
+        <StepBar current={2} />
+        <Survey onSubmit={finish} onSkip={() => finish(null)} />
+      </>
+    );
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <>
+    <StepBar current={step === "consent" ? 0 : 1} />
+    <div className="mx-auto max-w-3xl px-4 py-6">
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
           {step === "consent" && (
             <div data-testid="consent">
-              <h1 className="font-display text-2xl font-light">{t.consent.title}</h1>
-              <div className="mt-5 space-y-4 rounded-2xl border border-line bg-panel p-5 text-sm">
-                <label className="flex gap-3">
-                  <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-4 w-4 shrink-0 accent-[#4fb6ff]" />
-                  <span className="leading-relaxed">{t.consent.processing}{config.aiInsight.available && <span className="mt-1 block text-xs text-silver">{t.ai.exception}</span>}</span>
-                </label>
-                <label className="flex gap-3 text-silver">
-                  <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-[#4fb6ff]" />
-                  <span className="leading-relaxed">{fmt(t.consent.history, { days: config.retention.historyDays })}</span>
-                </label>
-                <p className="text-xs leading-relaxed text-silver/80">{t.consent.stats}</p>
-                <p className="text-xs text-silver/80">{t.consent.age}</p>
-                <Link href="/privacy" className="inline-block text-xs text-scan2 underline underline-offset-4">{t.consent.details}</Link>
+              <h1 className="text-2xl font-bold sm:text-3xl">{t.consent.title}</h1>
+              <label
+                className={`mt-5 flex cursor-pointer gap-4 rounded-2xl border-2 p-5 transition ${agree ? "border-scan bg-scan/10" : consentError ? "border-rose-400/70 bg-rose-400/5" : "border-line bg-panel hover:border-silver/50"}`}
+              >
+                <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#4fb6ff]" />
+                <span className="text-base leading-relaxed">
+                  {t.consent.processing}
+                  {!agree && <span className="mt-2 block text-sm font-semibold text-scan2">👆 {t.consent.tapHint}</span>}
+                  {config.aiInsight.available && <span className="mt-1 block text-sm text-silver">{t.ai.exception}</span>}
+                </span>
+              </label>
+              <label className="mt-3 flex cursor-pointer gap-4 rounded-2xl border border-line bg-panel p-5 text-silver">
+                <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#4fb6ff]" />
+                <span className="text-base leading-relaxed">{fmt(t.consent.history, { days: config.retention.historyDays })}</span>
+              </label>
+              <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver/80">
+                <p>{t.consent.stats}</p>
+                <p>{t.consent.age}</p>
+                <Link href="/privacy" className="inline-block text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
-              {consentError && <p role="alert" className="mt-3 text-sm text-rose-300" data-testid="consent-error">{t.consent.required}</p>}
-              <button onClick={acceptConsent} data-testid="consent-agree" className="mt-5 rounded-full bg-white px-8 py-3 text-sm font-semibold text-black hover:bg-scan2">{t.consent.agree}</button>
+              {consentError && <p role="alert" className="mt-3 text-base text-rose-300" data-testid="consent-error">{t.consent.required}</p>}
+              <button onClick={acceptConsent} data-testid="consent-agree" className={`mt-5 w-full rounded-full px-8 py-4 text-lg font-bold transition sm:w-auto ${agree ? "bg-white text-black hover:bg-scan2" : "bg-white/30 text-black/70"}`}>{t.consent.agree} →</button>
             </div>
           )}
 
           {step === "capture" && (
             <div data-testid="capture">
-              <h1 className="font-display text-2xl font-light">{t.capture.title}</h1>
-              <div className="mt-5 grid gap-5 md:grid-cols-[1.3fr_1fr]">
-                <div>
-                  <UploadBox onFile={run} testId="capture-upload" />
-                  <div className="mt-4 rounded-xl border border-line bg-panel p-4">
-                    <p className="text-sm font-semibold">{t.capture.neckTitle}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-silver">{t.capture.neckDesc}</p>
-                    {neckFile ? (
-                      <p className="mt-2 text-xs text-scan2">
-                        ✓ {t.capture.neckAdded}{" "}
-                        <button onClick={() => setNeckFile(null)} className="ml-2 text-silver underline">{t.capture.neckRemove}</button>
-                      </p>
-                    ) : (
-                      <label className="mt-2 inline-block cursor-pointer rounded-full border border-silver/40 px-4 py-1.5 text-xs">
-                        {t.capture.neckAdd}
-                        <input type="file" data-testid="neck-input" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => setNeckFile(e.target.files?.[0] ?? null)} />
-                      </label>
-                    )}
-                  </div>
-                </div>
-                <div className="rounded-xl border border-line bg-panel p-4">
-                  <p className="text-sm font-semibold">{t.capture.guideTitle}</p>
-                  <ul className="mt-2 space-y-1.5 text-xs text-silver">
-                    {t.capture.guide.map((g, i) => (
-                      <li key={i} className="flex gap-2"><span className="text-scan2">✓</span>{g}</li>
-                    ))}
-                  </ul>
-                </div>
+              <h1 className="text-2xl font-bold sm:text-3xl">{t.capture.easyTitle}</h1>
+              <p className="mt-2 text-base text-silver">{t.capture.easyDesc}</p>
+              <ul className="mt-4 grid grid-cols-3 gap-2" data-testid="capture-tips">
+                {t.capture.tips.map(([icon, label]) => (
+                  <li key={label} className="rounded-2xl border border-line bg-panel px-2 py-3 text-center">
+                    <span className="block text-3xl">{icon}</span>
+                    <span className="mt-1 block text-sm font-semibold leading-tight">{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                <UploadBox onFile={run} testId="capture-upload" large />
               </div>
+              <details className="mt-4 rounded-2xl border border-line bg-panel p-4">
+                <summary className="cursor-pointer text-base font-semibold">{t.capture.moreTips}</summary>
+                <ul className="mt-2 space-y-1.5 text-sm text-silver">
+                  {t.capture.guide.map((g, i) => (
+                    <li key={i} className="flex gap-2"><span className="text-scan2">✓</span>{g}</li>
+                  ))}
+                </ul>
+              </details>
+              <details className="mt-3 rounded-2xl border border-line bg-panel p-4" open={!!neckFile}>
+                <summary className="cursor-pointer text-base font-semibold">{t.capture.neckToggle}</summary>
+                <p className="mt-2 text-sm leading-relaxed text-silver">{t.capture.neckDesc}</p>
+                {neckFile ? (
+                  <p className="mt-2 text-sm text-scan2">
+                    ✓ {t.capture.neckAdded}{" "}
+                    <button onClick={() => setNeckFile(null)} className="ml-2 text-silver underline">{t.capture.neckRemove}</button>
+                  </p>
+                ) : (
+                  <label className="mt-2 inline-block cursor-pointer rounded-full border border-silver/40 px-5 py-2.5 text-sm">
+                    {t.capture.neckAdd}
+                    <input type="file" data-testid="neck-input" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => setNeckFile(e.target.files?.[0] ?? null)} />
+                  </label>
+                )}
+              </details>
             </div>
           )}
 
           {step === "running" && (
             <div className="text-center" data-testid="running">
-              <h1 className="font-display text-2xl font-light">{t.progress.title}</h1>
+              <h1 className="text-2xl font-bold">{t.progress.title}</h1>
               <div className="relative mx-auto mt-10 w-56 [perspective:800px]">
                 <div aria-hidden className="absolute -inset-8 rounded-full border border-scan/40 [transform:rotateX(68deg)]" style={{ animation: "orbit 5s linear infinite" }}>
                   <span className="absolute -top-1 left-1/2 h-2 w-2 rounded-full bg-scan2 shadow-glow" />
@@ -210,7 +238,7 @@ export default function AnalyzeFlow() {
                 <div aria-hidden className="absolute inset-0 bg-[linear-gradient(rgba(79,182,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(79,182,255,0.12)_1px,transparent_1px)] bg-[size:22px_22px]" />
               </div>
               </div>
-              <ol className="mx-auto mt-6 max-w-xs space-y-2 text-left text-sm">
+              <ol className="mx-auto mt-6 max-w-xs space-y-2.5 text-left text-base">
                 {STAGES.map((s) => {
                   const done = STAGES.indexOf(s) < STAGES.indexOf(stage) || stage === "done";
                   const cur = s === stage;
@@ -227,11 +255,11 @@ export default function AnalyzeFlow() {
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">
-              <h1 className="font-display text-2xl font-light">{t.quality.failTitle}</h1>
-              <p className="mt-2 text-sm text-silver">{t.quality.failDesc}</p>
+              <h1 className="text-2xl font-bold">{t.quality.failTitle}</h1>
+              <p className="mt-2 text-base text-silver">{t.quality.failDesc}</p>
               <ul className="mt-5 space-y-2">
                 {quality.issues.map((i) => (
-                  <li key={i.code} data-testid={`issue-${i.code}`} data-severity={i.severity} className={`rounded-xl border p-3 text-sm ${i.severity === "blocker" ? "border-rose-400/50 bg-rose-400/10 text-rose-100" : "border-amber-400/40 bg-amber-400/5 text-amber-100"}`}>
+                  <li key={i.code} data-testid={`issue-${i.code}`} data-severity={i.severity} className={`rounded-xl border p-4 text-base ${i.severity === "blocker" ? "border-rose-400/50 bg-rose-400/10 text-rose-100" : "border-amber-400/40 bg-amber-400/5 text-amber-100"}`}>
                     {t.quality.issues[i.code]}
                   </li>
                 ))}
@@ -244,7 +272,7 @@ export default function AnalyzeFlow() {
                   ))}
                 </ul>
               </div>
-              <button onClick={() => setStep("capture")} data-testid="retake" className="mt-5 rounded-full bg-white px-8 py-3 text-sm font-semibold text-black hover:bg-scan2">{t.common.retake}</button>
+              <button onClick={() => setStep("capture")} data-testid="retake" className="mt-5 w-full rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2 sm:w-auto">{t.common.retake}</button>
               <ReportProblem context={`quality:${quality.issues.map((i) => i.code).join(",")}`} />
             </div>
           )}
@@ -259,5 +287,6 @@ export default function AnalyzeFlow() {
         </motion.div>
       </AnimatePresence>
     </div>
+    </>
   );
 }

@@ -119,6 +119,7 @@ const en: Dict = {
     elasticity: "Elasticity (requires physical measurement)",
   },
   consent: {
+    tapHint: "Tap to agree",
     title: "Before we analyze",
     processing:
       "(Required) I agree to my face photo being processed on my device (in the browser) for the purpose of skin observation. The photo is not sent to a server or an external AI service, and it is deleted when the session ends.",
@@ -131,6 +132,11 @@ const en: Dict = {
     details: "Read the full privacy notice",
   },
   capture: {
+    easyTitle: "Just one face photo",
+    easyDesc: "Take one now with your phone, or pick one from your album.",
+    tips: [["☀️", "In bright light"], ["🙂", "Facing forward"], ["👓", "No glasses or mask"]],
+    moreTips: "More photo tips",
+    neckToggle: "(Optional) Also check your neck",
     title: "Take or upload a photo",
     guideTitle: "Photo guide",
     guide: [
@@ -211,6 +217,9 @@ const en: Dict = {
     },
   },
   survey: {
+    answered: "{n} / {total} answered",
+    optionalNote: "It's fine to skip if you're not sure.",
+    more: "Tell us more for better advice (optional)",
     title: "Skin survey (optional)",
     desc: "This is information a photo can't tell us. Your answers are used only for personalized care recommendations and are labeled as “survey-based”.",
     levels: ["Never", "Sometimes", "Often", "Always"],
@@ -240,6 +249,7 @@ const en: Dict = {
     submit: "View results",
   },
   report: {
+    analysisInfo: "Analysis details",
     title: "AI Skin Analysis Report",
     overall: "AI Overall Skin Condition",
     overallDesc: "A weighted average of the observation indices across 13 zones. The higher the value, the more even the skin surface appears in the photo.",
@@ -328,6 +338,7 @@ const en: Dict = {
     verdict: {"improved": "Better", "no_change": "Same", "worsened": "Worse", "not_comparable": "Can't compare"},
     note: "Changes are seen in photos; small differences count as 'Same' (photo noise). This does not prove product or device efficacy.",
   },
+  flow: { label: "Analysis steps", steps: ["Consent", "Photo", "Questions", "Result"] },
   care: {
     title: "Personalized DERMA HOME Care",
     techTitle: "Recommended functions",

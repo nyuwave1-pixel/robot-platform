@@ -173,15 +173,18 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         <header className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
           <div>
             <p className="font-display text-xs tracking-[0.3em] text-scan2">MEDIDERMA AI</p>
-            <h1 className="mt-1 font-display text-3xl font-light">{t.report.title}</h1>
+            <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{t.report.title}</h1>
           </div>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] text-silver">
+          <details className="text-[11px] text-silver">
+            <summary className="cursor-pointer text-sm text-silver/80">{t.report.analysisInfo}</summary>
+                      <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] text-silver">
             <dt>{t.report.analyzedAt}</dt><dd className="text-white">{dt}</dd>
             <dt>{t.report.imageQuality}</dt><dd className="text-white">{result.imageQuality.score} / 100</dd>
             <dt>{t.report.confidence}</dt><dd className="text-white" data-testid="confidence">{a.confidence !== null ? `${Math.round(a.confidence * 100)}%` : "—"}</dd>
             <dt>{t.report.processedOn}</dt><dd className="text-white">{result.provider.imageLeftDevice ? result.provider.id : t.report.onDevice}</dd>
             <dt>{t.report.modelVersion}</dt><dd className="col-span-1 break-all text-white/80">{result.modelVersion}</dd>
           </dl>
+          </details>
         </header>
 
         {/* 한눈에 보기: 방사형 그래프 + 먼저 관리할 곳 + 제품·더마홈 관리 방법 + 결과 확인 */}

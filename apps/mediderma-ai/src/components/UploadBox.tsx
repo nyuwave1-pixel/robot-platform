@@ -12,7 +12,7 @@ export function validateImageFile(f: File): "unsupportedType" | "tooLarge" | nul
   return null;
 }
 
-export default function UploadBox({ onFile, compact = false, testId = "upload" }: { onFile: (f: File) => void; compact?: boolean; testId?: string }) {
+export default function UploadBox({ onFile, compact = false, large = false, testId = "upload" }: { onFile: (f: File) => void; compact?: boolean; large?: boolean; testId?: string }) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const nativeCamRef = useRef<HTMLInputElement>(null);
@@ -96,11 +96,11 @@ export default function UploadBox({ onFile, compact = false, testId = "upload" }
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <div className="h-[68%] w-[62%] rounded-[50%] border-2 border-scan/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
             </div>
-            <p className="absolute inset-x-0 top-3 text-center text-xs text-white/90">{t.capture.faceGuide}</p>
+            <p className="absolute inset-x-0 top-3 text-center text-base font-semibold text-white drop-shadow">{t.capture.faceGuide}</p>
           </div>
           <div className="flex items-center justify-center gap-3 p-3">
             <button onClick={() => startCam(facing === "user" ? "environment" : "user")} className="rounded-full border border-line px-4 py-2 text-xs text-silver">{t.capture.switchCamera}</button>
-            <button onClick={shoot} className="rounded-full bg-white px-8 py-3 text-sm font-semibold text-black">{t.capture.shoot}</button>
+            <button onClick={shoot} className="rounded-full bg-white px-10 py-4 text-lg font-bold text-black">{t.capture.shoot}</button>
             <button onClick={stopCam} className="rounded-full border border-line px-4 py-2 text-xs text-silver">{t.capture.closeCamera}</button>
           </div>
         </div>
@@ -118,12 +118,26 @@ export default function UploadBox({ onFile, compact = false, testId = "upload" }
           }}
           className={`rounded-2xl border border-dashed p-5 text-center transition ${drag ? "border-scan bg-scan/10" : "border-silver/30 bg-white/[0.03]"} ${compact ? "" : "sm:p-8"}`}
         >
-          <p className="text-sm text-silver">{t.landing.uploadHint}</p>
-          <p className="mt-1 text-[11px] text-silver/60">{t.landing.uploadFormats}</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <button onClick={() => inputRef.current?.click()} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-scan2">{t.landing.pickFile}</button>
-            <button onClick={() => startCam("user")} className="rounded-full border border-silver/40 px-5 py-2.5 text-sm text-white transition hover:border-scan hover:text-scan2">{t.landing.useCamera}</button>
-          </div>
+          {large ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button onClick={() => startCam("user")} data-testid={`${testId}-camera`} className="flex items-center justify-center gap-3 rounded-2xl bg-white px-5 py-5 text-lg font-bold text-black transition hover:bg-scan2">
+                <span className="text-3xl">📷</span>{t.landing.useCamera}
+              </button>
+              <button onClick={() => inputRef.current?.click()} data-testid={`${testId}-pick`} className="flex items-center justify-center gap-3 rounded-2xl border-2 border-silver/40 px-5 py-5 text-lg font-bold text-white transition hover:border-scan hover:text-scan2">
+                <span className="text-3xl">🖼️</span>{t.landing.pickFile}
+              </button>
+              <p className="text-sm text-silver/70 sm:col-span-2">{t.landing.uploadFormats}</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-silver">{t.landing.uploadHint}</p>
+              <p className="mt-1 text-[11px] text-silver/60">{t.landing.uploadFormats}</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <button onClick={() => inputRef.current?.click()} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-scan2">{t.landing.pickFile}</button>
+                <button onClick={() => startCam("user")} className="rounded-full border border-silver/40 px-5 py-2.5 text-sm text-white transition hover:border-scan hover:text-scan2">{t.landing.useCamera}</button>
+              </div>
+            </>
+          )}
         </div>
       )}
       <input ref={inputRef} data-testid={`${testId}-input`} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { accept(e.target.files?.[0]); e.target.value = ""; }} />
