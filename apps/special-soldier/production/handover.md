@@ -1,4 +1,9 @@
-# 핸드오버 카드 — v0.12
+# 핸드오버 카드 — v0.13
+
+> v0.13 (2026-11-19, PC Blender 세션): 신규 무기 FB-21 BULLPUP·R-44 MAGNUM, 병사 디테일, 폴리곤 −13% (120k → 104.5k tris),
+> M4 외 모든 총기의 마커(총구·조준선·왼손·탄창·LOD) 노드를 못 찾던 버그 수정. 단위 테스트 9/9, `vite build` 통과.
+> **E2E는 이 PC에서 돌리지 못했다**(Playwright 미설치) — 클라우드 세션에서 `npm run test:e2e` 로 회귀 확인 필요. 특히 1인칭 조준(ADS) 높이와
+> 총구 화염 위치가 이제 Blender 마커 값을 쓰므로 직접 플레이로 확인할 것. 무료 에셋 조사: `docs/ASSET_RESEARCH.md`.
 
 > 형식 출처: `donchitos/claude-code-game-studios` 의 handover card(통과한 것 / 아직 깨진 것 / 추정한 것을 나눠 적는다).
 

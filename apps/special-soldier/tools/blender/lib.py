@@ -13,6 +13,14 @@ AO_DIRS = [(math.cos(a) * math.sin(e), math.sin(a) * math.sin(e), math.cos(e)) f
 MATS = {}
 
 
+def seg_cap(r, n):
+    """Polygon budget (v0.13): cap round segments by on-screen size. Parts a few mm across never show more than
+    6-8 facets even in the first-person view, so 16-20 sided pins / straps / lenses only cost triangles."""
+    r = abs(r)
+    cap = 6 if r < 0.006 else 8 if r < 0.012 else 10 if r < 0.022 else 12 if r < 0.035 else 16 if r < 0.07 else 1000
+    return max(4, min(n, cap))
+
+
 def mat(name, color, rough=0.7, metal=0.0, emit=None, alpha=1.0):
     if name in MATS:
         return MATS[name]
@@ -111,11 +119,14 @@ class Asm:
                 v.co.y += shear
         bevel = min(bevel, min(size) * 0.45)
         if bevel < 0.0025: bevel = 0.0  # triangle budget: invisible bevels cost 10x the faces
-        elif bevel < 0.012 or max(size) < 0.1: seg = 1
+        elif bevel < 0.02 or max(size) < 0.14: seg = 1  # v0.13: a single chamfer reads the same below 2 cm (108 → 44 tris a box)
         return self._add(g, _bake(bm, bevel, seg, subsurf), self._M(loc, rot), m)
 
     def cyl(self, g, r, depth, loc, m, rot=(0, 0, 0), r2=None, n=16, bevel=0.0, scale=(1, 1, 1), seg=2):
         bm = bmesh.new()
+        n = seg_cap(max(r, r2 or 0) * max(scale), n)
+        if bevel < 0.02:
+            seg = 1
         bmesh.ops.create_cone(bm, cap_ends=True, segments=n, radius1=r, radius2=r if r2 is None else r2, depth=depth, calc_uvs=True)
         return self._add(g, _bake(bm, bevel, seg, 0, 0.8), self._M(loc, rot, scale), m)
 
@@ -123,6 +134,7 @@ class Asm:
         p0, p1 = Vector(p0), Vector(p1)
         d = p1 - p0
         bm = bmesh.new()
+        n = seg_cap(max(r0, r1), n)
         bmesh.ops.create_cone(bm, cap_ends=True, segments=n, radius1=r0, radius2=r1, depth=d.length, calc_uvs=True)
         M = Matrix.Translation((p0 + p1) / 2) @ Vector((0, 0, 1)).rotation_difference(d.normalized()).to_matrix().to_4x4()
         return self._add(g, _bake(bm, bevel, 2, 0, 0.9), M, m)
@@ -130,7 +142,8 @@ class Asm:
     def sphere(self, g, r, loc, m, scale=(1, 1, 1), seg=16, rot=(0, 0, 0), cut_below=None, cut_y=None):
         """cut_below: remove everything under local z; cut_y: keep only local y below the value (after scale), e.g. a front cap."""
         bm = bmesh.new()
-        bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=max(8, seg // 2 + 2), radius=r, calc_uvs=True)
+        seg = seg_cap(r * max(scale), seg)
+        bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=max(6, seg // 2 + 2), radius=r, calc_uvs=True)
         for v in bm.verts:
             v.co.x *= scale[0]; v.co.y *= scale[1]; v.co.z *= scale[2]
         if cut_below is not None:
@@ -148,6 +161,10 @@ class Asm:
 
     def tube(self, g, points, r, m, cyclic=False, res=3, bevel_res=4, taper=None):
         """Swept round tube along a smooth path (hull collars, skids, hoses, palm trunks). taper: list of radius factors."""
+        if r < 0.008:
+            bevel_res = min(bevel_res, 1)  # cables / straps: an 8-sided section is plenty
+        elif r < 0.02:
+            bevel_res = min(bevel_res, 2)
         cu = bpy.data.curves.new('c', 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = r; cu.bevel_resolution = bevel_res; cu.resolution_u = res; cu.use_fill_caps = True
         sp = cu.splines.new('NURBS'); sp.points.add(len(points) - 1)
         for i, p in enumerate(points):

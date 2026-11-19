@@ -21,8 +21,9 @@ def soldier():
         a.sphere(g, 0.074, (x * 1.02, -0.008, 0.52), cloth, seg=12)  # knee cap fills the joint when the shin bends
         a.limb(sh, (x * 1.02, -0.01, 0.52), (x * 1.02, 0.01, 0.13), 0.07, 0.055, cloth, n=14)
         a.box(sh, (0.12, 0.05, 0.13), (x * 1.02, -0.065, 0.5), gear, bevel=0.02)  # knee pad rides on the shin
-        a.box(sh, (0.115, 0.27, 0.11), (x * 1.02, -0.045, 0.055), boots, bevel=0.03)
-        a.box(sh, (0.11, 0.16, 0.12), (x * 1.02, 0.0, 0.15), boots, bevel=0.03)
+        a.box(sh, (0.112, 0.26, 0.1), (x * 1.02, -0.04, 0.052), boots, bevel=0.03, taper=(0.9, 0.8))  # foot: instep slopes down to the toe (v0.13)
+        a.cyl(sh, 0.06, 0.13, (x * 1.02, 0.004, 0.155), boots, n=14, bevel=0.015, scale=(1.0, 1.15, 1.0), r2=0.056)  # round ankle shaft instead of a block
+        a.box(sh, (0.1, 0.06, 0.05), (x * 1.02, 0.045, 0.045), boots, bevel=0.015)  # heel counter
         a.box(sh, (0.12, 0.275, 0.02), (x * 1.02, -0.045, 0.01), gear, bevel=0.006)
         a.detail(True)
         # cargo pocket with flap and button tab
@@ -36,7 +37,7 @@ def soldier():
         a.cyl(sh, 0.07, 0.06, (x * 1.02, 0.008, 0.235), cloth, n=14, bevel=0.012)
         a.cyl(sh, 0.064, 0.03, (x * 1.02, 0.008, 0.205), boots, n=14, bevel=0.006)
         for k in range(5):
-            a.box(sh, (0.06, 0.008, 0.007), (x * 1.02, -0.082, 0.195 - k * 0.02), web, bevel=0.002)
+            a.box(sh, (0.05, 0.008, 0.007), (x * 1.02, -0.064 - k * 0.002, 0.2 - k * 0.02), web, bevel=0.002)  # laces sit on the rounded shaft (v0.13)
         a.sphere(sh, 0.058, (x * 1.02, -0.14, 0.05), boots, scale=(1.0, 1.0, 0.8), seg=10)
         a.box(sh, (0.118, 0.085, 0.022), (x * 1.02, 0.05, 0.004), gear, bevel=0.005)
         for k in range(4):
@@ -83,6 +84,10 @@ def soldier():
         a.box('upper', (0.062, 0.026, 0.07), (xm, -0.163, 1.25), pmag, bevel=0.006, shear=0.0)
         a.box('upper', (0.012, 0.062, 0.012), (xm, -0.165, 1.288), web, bevel=0.003)
     a.box('upper', (0.055, 0.016, 0.042), (0, -0.108, 1.02), gear, bevel=0.006)  # belt buckle
+    for sx in (-1, 1):  # v0.13: belt loops, a carabiner on the support side, trouser fly seam
+        a.box('upper', (0.014, 0.012, 0.062), (sx * 0.075, -0.108, 1.02), cloth, bevel=0.003)
+    a.tube('upper', [(-0.1, -0.11, 1.0), (-0.11, -0.115, 0.955), (-0.095, -0.118, 0.93), (-0.085, -0.114, 0.97)], 0.0035, mat('kit_steel', (0.16, 0.17, 0.18), 0.4, 0.8))
+    a.box('upper', (0.006, 0.01, 0.07), (0, -0.104, 0.955), cloth, bevel=0.002)
     for sx in (-1, 1):
         a.box('upper', (0.075, 0.055, 0.1), (sx * 0.14, -0.115, 1.035), vest, bevel=0.014)  # belt pouches
         a.box('upper', (0.078, 0.058, 0.03), (sx * 0.14, -0.117, 1.075), vest, bevel=0.008)
@@ -129,6 +134,9 @@ def soldier():
         a.sphere('head', 0.0075, (sx * 0.032, -0.0885, 1.708), iris, seg=8)  # iris
         a.box('head', (0.036, 0.012, 0.008), (sx * 0.032, -0.085, 1.718), skin, bevel=0.003)  # upper lid
         a.sphere('head', 0.027, (sx * 0.092, 0.002, 1.69), skin, scale=(0.4, 0.7, 1.0), seg=10)  # ear
+        a.box('head', (0.04, 0.012, 0.009), (sx * 0.033, -0.093, 1.73), hair, rot=(0.15, 0, sx * -0.12), bevel=0.003, taper=(0.7, 1))  # eyebrow (v0.13)
+        a.box('head', (0.012, 0.008, 0.014), (sx * 0.026, -0.098, 1.692), skin, rot=(0.1, 0, sx * 0.35), bevel=0.003)  # nostril wing
+    a.box('head', (0.03, 0.01, 0.006), (0, -0.092, 1.627), skin, bevel=0.003)  # lower lip / chin crease
     a.box('head', (0.044, 0.012, 0.011), (0, -0.088, 1.64), lips, bevel=0.005)  # mouth
     a.detail(False)
     a.cyl('head', 0.066, 0.05, (0, 0.006, 1.55), cloth, n=14, bevel=0.012)  # collar of the combat shirt
@@ -190,6 +198,8 @@ def soldier():
     for s, e, h in ((sR, eR, hR), (sL, eL, hL)):
         a.limb('arms', s, e, 0.054, 0.042, cloth, n=12); a.limb('arms', e, h, 0.044, 0.034, cloth, n=12)
         a.sphere('arms', 0.045, e, cloth, seg=12)  # elbow
+        out = [e[i] - (s[i] + h[i]) / 2 for i in range(3)]; ol = math.sqrt(sum(c * c for c in out)) or 1
+        a.sphere('arms', 0.038, tuple(e[i] + out[i] / ol * 0.03 for i in range(3)), gear, scale=(1.0, 1.0, 0.75), seg=10)  # elbow pad (v0.13)
         d = [e[i] - h[i] for i in range(3)]; L_ = math.sqrt(sum(c * c for c in d)); d = [c / L_ for c in d]
         a.box('arms', (0.05, 0.07, 0.048), h, glove, bevel=0.014)  # back of the hand / palm
         for f in range(4):  # fingers wrapped round the grip / handguard
@@ -1000,8 +1010,8 @@ def pier():
         a.box('root', (60.0, 0.25, 0.012), (0, sy * 10.2, 0.605), yl, bevel=0, seg=1)
         for k in range(7):
             x = -27 + k * 9.0
-            a.cyl('root', 0.22, 0.5, (x, sy * 9.6, 0.85), ir, n=10, bevel=0.02); a.cyl('root', 0.32, 0.12, (x, sy * 9.6, 1.14), ir, n=10, bevel=0.02)  # bollards
-            a.cyl('root', 0.55, 0.3, (x + 4.5, sy * 11.1, -0.2), rb, rot=(H, 0, 0), n=14, bevel=0.05)  # tyre fenders
+            a.cyl('root', 0.22, 0.5, (x, sy * 9.6, 0.85), ir, n=10, bevel=0.02, seg=1); a.cyl('root', 0.32, 0.12, (x, sy * 9.6, 1.14), ir, n=10, bevel=0.02, seg=1)  # bollards
+            a.cyl('root', 0.55, 0.3, (x + 4.5, sy * 11.1, -0.2), rb, rot=(H, 0, 0), n=12, bevel=0.05, seg=1)  # tyre fenders
             a.limb('root', (x + 4.5, sy * 10.9, 0.6), (x + 4.5, sy * 11.1, 0.3), 0.02, 0.02, ir, n=4)
     for sx in (-1, 1):
         a.box('root', (0.4, 22.0, 0.25), (sx * 29.8, 0, 0.72), c2, bevel=0.03, seg=1)

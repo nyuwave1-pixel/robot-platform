@@ -8,7 +8,9 @@ import glbUrl from '../assets/assets.glb?inline';
 
 const roots = new Map();
 export const ASSETS = { ready: false, tris: 0, count: 0 };
-const clean = (n) => n.replace(/_\d+$/, ''); // GLTFLoader de-duplicates node names with a numeric suffix
+// GLTFLoader de-duplicates node names with '_<n>', and sanitizes Blender's unique-name suffix 'mag.001' → 'mag001'
+// (dots are reserved). Without stripping the latter, every gun but the first lost its muzzle/sight/gripL/mag/LOD nodes (fixed v0.13).
+const clean = (n) => n.replace(/_\d+$/, '').replace(/([A-Za-z_])\d{3}$/, '$1');
 export function find(root, name) { let hit = null; root.traverse((o) => { if (!hit && o !== root && clean(o.name) === name) hit = o; }); return hit; }
 export function has(name) { return roots.has(name); }
 export function clone(name) { const r = roots.get(name); return r ? r.clone(true) : null; }

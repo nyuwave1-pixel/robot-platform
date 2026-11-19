@@ -22,6 +22,8 @@ const SHAPE = { // per-weapon view model proportions (metres): body length, barr
   dmr: { L: 0.48, B: 0.46, mag: [0.05, 0.14, 0.08], stock: 0.28, sight: 'scope', body: mGun },
   pistol: { L: 0.19, B: 0.14, mag: null, stock: 0, sight: 'iron', body: mGun, pistol: true },
   gl: { L: 0.36, B: 0.2, mag: null, stock: 0.22, sight: 'iron', body: mPoly, drum: true },
+  bullpup: { L: 0.4, B: 0.26, mag: [0.05, 0.17, 0.06], stock: 0.12, sight: 'dot', body: mTan },
+  revolver: { L: 0.12, B: 0.17, mag: null, stock: 0, sight: 'iron', body: mGun, pistol: true },
 };
 function box(g, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(x, y, z); g.add(b); return b; }
 function cyl(g, r, len, x, y, z, m) { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), m); c.rotation.x = Math.PI / 2; c.position.set(x, y, z); g.add(c); return c; }

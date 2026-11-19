@@ -9,7 +9,7 @@ import { buildIsland, POI } from './world/build.js';
 import { Sky, Post } from './world/sky.js';
 import { FX } from './game/fx.js';
 import { Player } from './game/player.js';
-import { Weapons } from './game/weapons.js';
+import { Weapons, buildGun } from './game/weapons.js';
 import { Enemies } from './game/enemies.js';
 import { Squad } from './game/squad.js';
 import { Gear } from './game/gear.js';
@@ -125,5 +125,5 @@ function tick(dt) {
   if (!G.skipRender) { G.stats = { calls: G.renderer.info.render.calls, tris: G.renderer.info.render.triangles }; G.renderer.info.reset(); G.post.render(dt); } G.input.endFrame();
 }
 G.tick = tick; G.POI = POI; G.THREE = THREE; G.assets = ASSETS;
-window.SS = G; G.dev = { makeSoldier, poseSoldier }; // test / tooling hooks
+window.SS = G; G.dev = { makeSoldier, poseSoldier, buildGun }; // test / tooling hooks
 boot().catch((e) => { console.error(e); $('loadText').textContent = 'BOOT FAILED: ' + e.message; });

@@ -5,3 +5,6 @@ test-results
 tests/out
 dist-single
 tools/blender/.cache/
+__pycache__/
+*.pyc
+*.blend1

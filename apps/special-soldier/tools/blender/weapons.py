@@ -1,4 +1,4 @@
-# Weapon models (10) + first-person arm. Blender axes: muzzle towards -Y, up +Z, right +X.
+# Weapon models (12) + first-person arm. Blender axes: muzzle towards -Y, up +Z, right +X.
 # Origin = rear of the receiver on the bore line. Markers: muzzle, sight, gripL. Animated groups: mag, pump.
 import math
 from lib import Asm, mat
@@ -208,6 +208,85 @@ def pistol():
     return a
 
 
+def bullpup():
+    """FB-21 bullpup rifle (v0.13): action and magazine behind the pistol grip, so a full-length barrel in a short gun.
+    Grip sits where every other rifle's grip is (just ahead of the origin), so the existing hand poses fit."""
+    a, m = Asm('W_bullpup'), M()
+    sh, pl = m['tan'], m['poly']
+    # stock shell: one long housing from the butt to the front of the grip, wider at the action
+    a.box('root', (0.05, 0.36, 0.07), (0, 0.07, -0.022), sh, bevel=0.014, taper=(0.92, 1))
+    a.box('root', (0.046, 0.16, 0.05), (0, 0.17, 0.028), sh, bevel=0.012, taper=(0.9, 1))  # cheek weld
+    a.box('root', (0.052, 0.018, 0.11), (0, 0.258, -0.012), m['rubber'], bevel=0.005)  # butt pad
+    a.box('root', (0.044, 0.2, 0.05), (0, -0.21, 0.0), pl, bevel=0.01)  # upper receiver / barrel shroud
+    rail(a, 'root', 0.06, -0.3, 0.031, m['steel'])
+    # handguard + barrel
+    a.box('root', (0.052, 0.16, 0.058), (0, -0.37, -0.004), pl, bevel=0.012, taper=(0.94, 0.96))
+    a.cyl('root', 0.0095, 0.2, (0, -0.52, 0.002), m['steel'], rot=(H, 0, 0), n=12)
+    a.cyl('root', 0.0135, 0.05, (0, -0.635, 0.002), m['steel'], rot=(H, 0, 0), n=12, bevel=0.002)  # muzzle brake
+    a.box('root', (0.018, 0.022, 0.024), (0, -0.465, 0.012), m['steel'], bevel=0.003)  # gas block
+    # pistol grip, wrap-around trigger guard, trigger
+    a.box('root', (0.03, 0.042, 0.1), (0, -0.04, -0.1), pl, rot=(0.28, 0, 0), bevel=0.008)
+    a.box('root', (0.014, 0.075, 0.012), (0, -0.085, -0.114), pl, bevel=0.004)  # trigger guard bar from the grip to the front post
+    a.box('root', (0.014, 0.014, 0.066), (0, -0.118, -0.084), pl, bevel=0.004)
+    a.box('root', (0.006, 0.008, 0.024), (0, -0.09, -0.074), m['steel'], rot=(0.3, 0, 0), bevel=0.001)
+    # magazine behind the grip
+    a.pivot('mag', (0, 0.1, -0.06))
+    a.box('mag', (0.026, 0.06, 0.17), (0, 0.11, -0.13), m['steel'], rot=(-0.2, 0, 0), bevel=0.004, shear=-0.02)
+    a.box('mag', (0.029, 0.064, 0.012), (0, 0.128, -0.215), pl, rot=(-0.2, 0, 0), bevel=0.003)
+    a.box('root', (0.04, 0.075, 0.02), (0, 0.105, -0.06), sh, bevel=0.004)  # mag well lip
+    a.detail(True)
+    a.box('root', (0.003, 0.09, 0.022), (0.0255, 0.06, -0.008), m['steel'], bevel=0.001)  # ejection port
+    a.box('root', (0.004, 0.09, 0.022), (-0.0255, 0.06, -0.008), pl, bevel=0.001)  # cover on the off side (ambi)
+    a.box('root', (0.012, 0.03, 0.012), (-0.029, -0.2, 0.012), m['steel'], bevel=0.003)  # forward charging handle
+    a.box('root', (0.006, 0.02, 0.012), (0.026, 0.0, -0.035), m['steel'], bevel=0.001)  # selector
+    a.box('root', (0.016, 0.006, 0.01), (0, 0.075, -0.075), m['steel'], bevel=0.001)  # mag release paddle
+    for i in range(4):
+        a.box('root', (0.054, 0.016, 0.01), (0, -0.315 - i * 0.035, -0.004), m['steel'], bevel=0.001)  # handguard vents
+    for i in range(5):
+        a.box('root', (0.032, 0.004, 0.012), (0, -0.055 + i * 0.002, -0.07 - i * 0.012), m['rubber'], rot=(0.28, 0, 0), bevel=0.001)
+    for i in range(3):
+        a.box('mag', (0.0275, 0.008, 0.13), (0, 0.095 + i * 0.016, -0.13), m['steel'], rot=(-0.2, 0, 0), bevel=0.001, shear=-0.02)
+    a.cyl('root', 0.007, 0.008, (-0.027, 0.22, -0.02), m['steel'], rot=(0, H, 0), n=8)  # QD socket
+    a.box('root', (0.02, 0.03, 0.008), (0, -0.28, 0.04), m['steel'], bevel=0.002)  # folded front sight
+    a.detail(False)
+    a.box('root', (0.026, 0.034, 0.075), (0, -0.39, -0.068), pl, rot=(-0.12, 0, 0), bevel=0.008, taper=(0.85, 0.85))  # angled foregrip
+    zs = optic(a, 'dot', -0.06, 0.034, m)
+    a.marker('muzzle', (0, -0.665, 0.002)); a.marker('sight', (0, 0.0, zs)); a.marker('gripL', (0, -0.385, -0.06))
+    return a
+
+
+def revolver():
+    """R-44 heavy revolver (v0.13). No 'mag' node: the cylinder stays in the frame (the game hides 'mag' mid-reload)."""
+    a, m = Asm('W_revolver'), M()
+    st = m['steel']; bore = 0.02
+    a.box('root', (0.03, 0.1, 0.052), (0, -0.045, 0.004), st, bevel=0.006)  # frame
+    a.box('root', (0.026, 0.06, 0.012), (0, -0.045, 0.04), st, bevel=0.004)  # top strap
+    a.cyl('root', 0.0115, 0.17, (0, -0.18, bore), st, rot=(H, 0, 0), n=14, bevel=0.002)  # barrel
+    a.box('root', (0.022, 0.17, 0.022), (0, -0.18, 0.004), st, bevel=0.006)  # full-length underlug
+    a.box('root', (0.009, 0.17, 0.008), (0, -0.18, bore + 0.013), st, bevel=0.002)  # vent rib
+    a.cyl('root', 0.0235, 0.046, (0, -0.045, 0.008), st, rot=(H, 0, 0), n=18, bevel=0.003)  # cylinder
+    a.cyl('root', 0.0045, 0.05, (0, -0.045, 0.008), st, rot=(H, 0, 0), n=8)  # ejector rod / axis
+    a.box('root', (0.012, 0.02, 0.02), (0, 0.012, 0.036), st, rot=(-0.5, 0, 0), bevel=0.003)  # hammer spur
+    a.box('root', (0.006, 0.012, 0.02), (0, -0.265, bore + 0.022), st, bevel=0.001)  # front blade
+    a.box('root', (0.02, 0.012, 0.008), (0, -0.005, 0.05), st, bevel=0.001)  # rear sight
+    a.box('root', (0.031, 0.05, 0.11), (0, 0.006, -0.07), m['wood'], rot=(0.32, 0, 0), bevel=0.012, taper=(0.95, 1.1))  # grip
+    a.tube('root', [(0, -0.03, -0.022), (0, -0.04, -0.05), (0, -0.065, -0.05), (0, -0.075, -0.022)], 0.0035, st)  # trigger guard
+    a.box('root', (0.005, 0.008, 0.022), (0, -0.05, -0.034), st, rot=(0.25, 0, 0), bevel=0.001)  # trigger
+    a.detail(True)
+    for i in range(6):  # cylinder flutes and chamber mouths
+        an = i * math.pi / 3
+        a.box('root', (0.007, 0.03, 0.005), (math.cos(an) * 0.0225, -0.045, 0.008 + math.sin(an) * 0.0225), m['poly'], rot=(0, -an, 0), bevel=0)
+        a.cyl('root', 0.005, 0.002, (math.cos(an + 0.52) * 0.013, -0.0685, 0.008 + math.sin(an + 0.52) * 0.013), m['brass'], rot=(H, 0, 0), n=8)
+    a.cyl('root', 0.006, 0.004, (0.016, -0.03, 0.0), st, rot=(0, H, 0), n=8)  # cylinder release
+    a.cyl('root', 0.006, 0.033, (0, 0.006, -0.065), m['brass'], rot=(0, H, 0), n=10)  # grip medallion
+    for i in range(4):
+        a.box('root', (0.0095, 0.012, 0.003), (0, -0.12 - i * 0.03, bore + 0.0175), m['rubber'], bevel=0)  # rib ports
+    a.box('root', (0.003, 0.03, 0.008), (0.0155, -0.12, 0.004), m['brass'], bevel=0)  # calibre plate
+    a.detail(False)
+    a.marker('muzzle', (0, -0.27, bore)); a.marker('sight', (0, 0, 0.056)); a.marker('gripL', (0, -0.02, -0.08))
+    return a
+
+
 def arm():
     """First-person forearm: hand at the origin, elbow towards +Y (so it points at the camera after export)."""
     a = Asm('Arm'); sl = mat('sleeve_camo', (0.11, 0.11, 0.065), 0.9); gl = mat('glove', (0.05, 0.05, 0.045), 0.8); st = mat('strap', (0.02, 0.02, 0.02), 0.6, 0.3)
@@ -248,5 +327,6 @@ def all_weapons():
         long_gun('W_dmr', L=0.22, B=0.46, hg=0.32, sight='scope', mag=(0.13, 0.066, 0.1), stock='fixed', supp=False),
         pistol(),
         long_gun('W_gl', L=0.22, B=0.2, hg=0.0, body='poly', sight='holo', mag=None, drum=True, stock='m4', barrel_r=0.026, fore=True),
+        bullpup(), revolver(),
         arm(),
     ]

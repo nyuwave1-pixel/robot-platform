@@ -27,7 +27,7 @@ export const MISSIONS = [
 
   { code: 'MISSION 02', name: 'DEEP JUNGLE', zone: 'ZONE 02 · JUNGLE', sky: 'dawn', spawn: () => ({ x: 0, z: 236, yaw: 0.5 }),
     brief: ['05:40 — First light. Fog and rain are covering your approach.', 'A relay station in the western jungle links the island to BLACK COBRA command. Patrols sweep the trails between you and it.', 'Launch the recon drone [B] to tag hostiles before you commit.', 'Clear the station, plant C4 on the mast, get clear and hold against the counter-attack.'],
-    unlocks: ['ARX-17 TACTICAL', 'M90 BREACHER', 'THERMAL IMAGER [T]'],
+    unlocks: ['ARX-17 TACTICAL', 'M90 BREACHER', 'R-44 MAGNUM', 'THERMAL IMAGER [T]'],
     intro: [{ from: [-60, 62, 250], to: [-110, 44, 200], look: [-140, 22, 150], dur: 6, text: 'ZONE 02 — JUNGLE · 05:40' }, { from: [-118, 21, 176], to: [-128, 30, 168], look: [-140, 36, 150], dur: 5, text: 'OBJECTIVE: BLACK COBRA COMMS RELAY' }],
     setup() { const c = POI.comms;
       for (const [k, x, z] of [['guard', -28, 204], ['assault', -32, 200], ['guard', -24, 198]]) sp(k, x, z, { group: 'patrolA', patrol: [[x, z], [x - 44, z - 16], [x - 20, z + 22]] });
@@ -45,7 +45,7 @@ export const MISSIONS = [
 
   { code: 'MISSION 03', name: 'BLACK COBRA BASE', zone: 'ZONE 03 · MILITARY BASE', sky: 'storm', spawn: () => ({ x: 0, z: 46, yaw: 0 }),
     brief: ['09:10 — A thunderstorm is rolling over the island. Thunder masks gunfire; rain cuts their sight lines.', 'The base is walled, with snipers in the corner towers and an APC in the motor pool. Small arms barely scratch armour — use grenades [G] or explosive barrels.', 'Breach the south gate, eliminate HQ security and pull the facility access data from the HQ terminal.', 'When the alarm goes, get to the bunker elevator on the east side.'],
-    unlocks: ['MG-48 LMG', 'SR-25 MARKSMAN'],
+    unlocks: ['MG-48 LMG', 'SR-25 MARKSMAN', 'FB-21 BULLPUP'],
     intro: [{ from: [-30, 60, 90], to: [30, 48, 50], look: [0, 18, -80], dur: 6, text: 'ZONE 03 — BLACK COBRA BASE · 09:10' }, { from: [40, 24, -100], to: [20, 22, -112], look: [0, 18, -130], dur: 5, text: 'OBJECTIVE: HQ INTEL TERMINAL' }],
     setup() { const b = 'base', y = 16;
       sp('guard', -8, -8, { group: b, yaw: 3.1 }); sp('guard', 10, -10, { group: b, yaw: 3.1 }); sp('sniper', -112, -8, { group: b, y: top(-112, -8), yaw: 2.4 }); sp('sniper', 112, -8, { group: b, y: top(112, -8), yaw: -2.4 });
