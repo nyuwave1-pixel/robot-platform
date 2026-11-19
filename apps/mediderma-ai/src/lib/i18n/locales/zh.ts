@@ -318,6 +318,17 @@ const zh: Dict = {
     checkSteps: ["点击下方「保存到变化记录」保存今天的结果。", "按上面的方法护理4周。", "在同一地点、同样光线下重新拍照，即可对比前后变化。"],
     checkBtn: "去对比前后",
   },
+  compareGlance: {
+    title: "一眼看懂变化",
+    headlineImproved: "{n}处变好了 👏",
+    headlineSame: "还没有明显变化，请继续坚持护理。",
+    headlineCondition: "两张照片的拍摄条件不同，难以准确比较。",
+    conditionWarn: "在同一地点、同样光线下正面重新拍摄会更准确。",
+    legendBefore: "之前",
+    legendAfter: "现在",
+    verdict: {"improved": "变好", "no_change": "不变", "worsened": "变差", "not_comparable": "无法比较"},
+    note: "这是照片上看到的变化，细小差异视为拍摄误差显示为「不变」。不能证明产品或设备的功效。",
+  },
   care: {
     title: "DERMA HOME 定制护理",
     techTitle: "推荐功能",

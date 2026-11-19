@@ -317,6 +317,17 @@ const vi: Dict = {
     checkSteps: ["Nhấn 'Lưu vào nhật ký thay đổi' bên dưới để lưu kết quả hôm nay.", "Chăm sóc theo cách trên trong 4 tuần.", "Chụp lại ở cùng nơi, cùng ánh sáng để so sánh trước và sau."],
     checkBtn: "So sánh trước và sau",
   },
+  compareGlance: {
+    title: "Thay đổi trong nháy mắt",
+    headlineImproved: "{n} vùng đã tốt hơn 👏",
+    headlineSame: "Chưa có thay đổi lớn. Hãy tiếp tục chăm sóc.",
+    headlineCondition: "Hai ảnh chụp trong điều kiện khác nhau nên khó so sánh chính xác.",
+    conditionWarn: "Chụp lại ở cùng nơi, cùng ánh sáng, nhìn thẳng để chính xác hơn.",
+    legendBefore: "Trước",
+    legendAfter: "Bây giờ",
+    verdict: {"improved": "Tốt hơn", "no_change": "Như cũ", "worsened": "Kém hơn", "not_comparable": "Không so sánh được"},
+    note: "Đây là thay đổi nhìn thấy trên ảnh; khác biệt nhỏ được tính là 'Như cũ'. Không chứng minh hiệu quả của sản phẩm hay thiết bị.",
+  },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",
     techTitle: "Chức năng gợi ý",

@@ -317,6 +317,17 @@ const en: Dict = {
     checkSteps: ["Tap 'Save to Skin Log' below to keep today's result.", "Follow the care above for 4 weeks.", "Take a new photo in the same place and light to compare before and after."],
     checkBtn: "Compare before & after",
   },
+  compareGlance: {
+    title: "Your change at a glance",
+    headlineImproved: "{n} areas look better 👏",
+    headlineSame: "No big change yet. Keep up your care.",
+    headlineCondition: "The two photos were taken in different conditions, so it is hard to compare accurately.",
+    conditionWarn: "Retake in the same place and light, facing the camera, for a more accurate result.",
+    legendBefore: "Before",
+    legendAfter: "Now",
+    verdict: {"improved": "Better", "no_change": "Same", "worsened": "Worse", "not_comparable": "Can't compare"},
+    note: "Changes are seen in photos; small differences count as 'Same' (photo noise). This does not prove product or device efficacy.",
+  },
   care: {
     title: "Personalized DERMA HOME Care",
     techTitle: "Recommended functions",

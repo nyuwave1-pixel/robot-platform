@@ -317,6 +317,17 @@ const ja: Dict = {
     checkSteps: ["下の「変化の記録に保存」で今日の結果を残しましょう。", "4週間、上の方法でケアします。", "同じ場所・同じ明かりで撮り直すと、前後を比較できます。"],
     checkBtn: "前後を比較する",
   },
+  compareGlance: {
+    title: "ひと目でわかる変化",
+    headlineImproved: "{n}か所が良くなりました 👏",
+    headlineSame: "まだ大きな変化はありません。続けてケアしましょう。",
+    headlineCondition: "2枚の撮影条件が違うため、正確な比較が難しいです。",
+    conditionWarn: "同じ場所・同じ明かり・正面で撮り直すとより正確です。",
+    legendBefore: "以前",
+    legendAfter: "今",
+    verdict: {"improved": "良くなった", "no_change": "変わらず", "worsened": "悪くなった", "not_comparable": "比較できない"},
+    note: "写真で見た変化です。小さな差は撮影誤差として「変わらず」と表示します。製品や機器の効果を証明するものではありません。",
+  },
   care: {
     title: "DERMA HOME パーソナルケア",
     techTitle: "おすすめの機能",

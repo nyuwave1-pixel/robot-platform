@@ -320,6 +320,17 @@ const ko = {
     checkSteps: ["아래 '변화 기록에 저장'을 눌러 오늘 결과를 남겨 두세요.", "4주 동안 위 방법으로 관리하세요.", "같은 장소·같은 불빛에서 다시 찍으면 전후를 비교해 드려요."],
     checkBtn: "전후 비교하러 가기",
   },
+  compareGlance: {
+    title: "한눈에 보는 변화",
+    headlineImproved: "{n}곳이 좋아졌어요 👏",
+    headlineSame: "아직 큰 변화는 없어요. 꾸준히 관리해 보세요.",
+    headlineCondition: "두 사진의 찍은 조건이 달라서 정확히 비교하기 어려워요.",
+    conditionWarn: "같은 장소, 같은 불빛, 정면 얼굴로 다시 찍으면 더 정확해요.",
+    legendBefore: "이전",
+    legendAfter: "지금",
+    verdict: {"improved": "좋아짐", "no_change": "그대로", "worsened": "나빠짐", "not_comparable": "비교 어려움"},
+    note: "사진으로 본 변화이며, 작은 차이는 촬영 오차로 보고 '그대로'로 표시합니다. 제품이나 기기의 효능을 증명하지 않습니다.",
+  },
   care: {
     title: "더마홈 맞춤 케어",
     techTitle: "추천 기능",

@@ -318,6 +318,17 @@ const es: Dict = {
     checkSteps: ["Pulsa 'Guardar en el historial' abajo para guardar el resultado de hoy.", "Sigue este cuidado durante 4 semanas.", "Hazte otra foto en el mismo lugar y con la misma luz para comparar."],
     checkBtn: "Comparar antes y después",
   },
+  compareGlance: {
+    title: "Tu cambio de un vistazo",
+    headlineImproved: "{n} zonas se ven mejor 👏",
+    headlineSame: "Aún no hay un gran cambio. Sigue con tu cuidado.",
+    headlineCondition: "Las dos fotos se tomaron en condiciones distintas y es difícil compararlas con precisión.",
+    conditionWarn: "Repite la foto en el mismo lugar y con la misma luz, de frente, para un resultado más preciso.",
+    legendBefore: "Antes",
+    legendAfter: "Ahora",
+    verdict: {"improved": "Mejor", "no_change": "Igual", "worsened": "Peor", "not_comparable": "No comparable"},
+    note: "Son cambios vistos en fotos; las diferencias pequeñas cuentan como 'Igual'. No demuestra la eficacia de productos ni dispositivos.",
+  },
   care: {
     title: "Cuidado a medida DERMA HOME",
     techTitle: "Funciones recomendadas",

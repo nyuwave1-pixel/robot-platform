@@ -19,7 +19,7 @@ export type AxisId = "texture" | "wrinkle" | "pore" | "tone" | "pigment" | "redn
 type Area = "jaw" | "cheek" | "nose" | "forehead" | "eye" | "neck";
 
 /** 축 → 카테고리 지수 (모두 '높을수록 좋음'으로 맞춘다) */
-const AXES: { id: AxisId; value: (c: CategoryScores) => number | null }[] = [
+export const AXES: { id: AxisId; value: (c: CategoryScores) => number | null }[] = [
   { id: "texture", value: (c) => c.textureUniformity },
   { id: "wrinkle", value: (c) => (c.wrinkleVisibility === null ? null : 100 - c.wrinkleVisibility) },
   { id: "pore", value: (c) => (c.poreVisibility === null ? null : 100 - c.poreVisibility) },
@@ -52,7 +52,8 @@ function level(v: number) {
   return v < 40 ? 0 : v < 60 ? 1 : v < 75 ? 2 : 3;
 }
 
-function Radar({ values, weak, labels }: { values: (number | null)[]; weak: Set<number>; labels: string[] }) {
+/** 방사형 그래프. before 를 주면 이전 값을 점선 회색으로 함께 그린다(전후 비교용). */
+export function Radar({ values, weak, labels, before, testId = "glance-radar" }: { values: (number | null)[]; weak: Set<number>; labels: string[]; before?: (number | null)[]; testId?: string }) {
   const N = values.length;
   const C = 160;
   const R = 100;
@@ -62,7 +63,7 @@ function Radar({ values, weak, labels }: { values: (number | null)[]; weak: Set<
   };
   const poly = values.map((v, i) => pt(i, v ?? 0).join(",")).join(" ");
   return (
-    <svg viewBox="0 0 320 320" className="mx-auto w-full max-w-[380px]" role="img" aria-label={labels.join(", ")} data-testid="glance-radar">
+    <svg viewBox="0 0 320 320" className="mx-auto w-full max-w-[380px]" role="img" aria-label={labels.join(", ")} data-testid={testId}>
       {[25, 50, 75, 100].map((r) => (
         <polygon key={r} points={values.map((_, i) => pt(i, r).join(",")).join(" ")} fill="none" stroke="#1f2a36" strokeWidth={r === 100 ? 1.4 : 1} />
       ))}
@@ -70,6 +71,7 @@ function Radar({ values, weak, labels }: { values: (number | null)[]; weak: Set<
         const [x, y] = pt(i, 100);
         return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#1f2a36" />;
       })}
+      {before && <polygon points={before.map((v, i) => pt(i, v ?? 0).join(",")).join(" ")} fill="rgba(148,163,184,0.10)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="5 4" />}
       <motion.polygon
         points={poly}
         fill="rgba(79,182,255,0.22)"
@@ -88,10 +90,13 @@ function Radar({ values, weak, labels }: { values: (number | null)[]; weak: Set<
       {labels.map((l, i) => {
         const [x, y] = pt(i, 128);
         const v = values[i];
+        const b = before?.[i];
         return (
           <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#fde68a" : "#f1f5f9"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
             {l}
-            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#fde68a" : "#7dd3fc"}>{v ?? "—"}</tspan>
+            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#fde68a" : "#7dd3fc"}>
+              {before ? `${b ?? "—"}→${v ?? "—"}` : (v ?? "—")}
+            </tspan>
           </text>
         );
       })}
