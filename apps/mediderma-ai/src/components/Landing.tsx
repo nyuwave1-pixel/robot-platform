@@ -112,7 +112,7 @@ const PORTRAIT_MARKS = [
   { x: 35.7, y: 47.4, lx: 8, ly: 62, align: "end" as const },
 ];
 
-const BRAND_CUTS = ["/brand/derma-home-console.webp", "/brand/derma-home-care-1.webp", "/brand/derma-home-care-2.webp", "/brand/derma-home-care-3.webp"];
+const BRAND_CUTS = ["/brand/model-silk.webp", "/brand/model-knit.webp", "/brand/model-robe.webp", "/brand/model-cream.webp"];
 
 export default function Landing() {
   const { t } = useI18n();
@@ -252,7 +252,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
-          {/* UNI&CORE DERMA HOME 브랜드 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 에서 내보낸 이미지) */}
+          {/* UNI&CORE 브랜드 모델 컷 (Canva "UNI&CORE DERMA HOME Model Cuts" 중 기기 사용 장면이 아닌 컷) */}
           <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
             {BRAND_CUTS.map((src, i) => (
               <motion.figure
