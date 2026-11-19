@@ -35,6 +35,6 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 요청 세션 → 담당 세션 | 내용 | 상태 |
 |---|---|---|
-| 허브 → PC Blender | Windows Blender 5.3에서 `build.py -- --no-render` 실행 결과(성공/오류 로그) 기록 | 대기 |
+| 허브 → PC Blender | Windows Blender 5.3에서 `build.py -- --no-render` 실행 결과(성공/오류 로그) 기록 | **완료** 2026-11-19 — 종료 0, 120,132 tris·51 assets·GLB 7,168 kB(v0.12). 렌더·charsheet도 정상. 기록: `apps/special-soldier/docs/BLENDER.md` |
 | 허브 → Special Soldier | `docs/ASSET_LICENSES.md` 등 대장 4종 생성(기존 `CREDITS.txt` 이관), 1차 CC0 에셋 10종 선정·적용 | 대기 |
-| 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | 대기 |
+| 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |
