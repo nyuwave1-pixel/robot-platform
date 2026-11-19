@@ -120,6 +120,7 @@ const zh: Dict = {
     elasticity: "弹性（需物理测量）",
   },
   consent: {
+    tapHint: "点击同意",
     title: "分析前请确认",
     processing:
       "（必选）我同意以皮肤观察为目的，在我的设备（浏览器）内处理面部照片。照片不会传输到服务器或外部 AI 服务，会话结束后即被删除。",
@@ -132,6 +133,11 @@ const zh: Dict = {
     details: "查看个人信息处理说明全文",
   },
   capture: {
+    easyTitle: "一张脸部照片就够了",
+    easyDesc: "用手机直接拍，或从相册选择照片。",
+    tips: [["☀️", "在明亮处"], ["🙂", "正对镜头"], ["👓", "摘掉眼镜和口罩"]],
+    moreTips: "更多拍摄提示",
+    neckToggle: "(可选) 同时查看颈部",
     title: "拍摄或上传照片",
     guideTitle: "拍摄指南",
     guide: [
@@ -212,6 +218,9 @@ const zh: Dict = {
     },
   },
   survey: {
+    answered: "已答 {n} / {total}",
+    optionalNote: "不确定可以跳过。",
+    more: "告诉我们更多，推荐会更准确 (可选)",
     title: "肌肤问卷（可选）",
     desc: "这些是照片无法呈现的信息。你的回答仅用于定制护理推荐，并会标注为“基于问卷”加以区分。",
     levels: ["没有", "偶尔", "经常", "总是"],
@@ -241,6 +250,7 @@ const zh: Dict = {
     submit: "查看结果",
   },
   report: {
+    analysisInfo: "分析信息",
     title: "AI 肌肤分析报告",
     overall: "AI 肌肤综合状态",
     overallDesc: "13 个区域观察指数的加权平均值。数值越高，表示照片中皮肤表面看起来越均匀。",
@@ -318,6 +328,18 @@ const zh: Dict = {
     checkSteps: ["点击下方「保存到变化记录」保存今天的结果。", "按上面的方法护理4周。", "在同一地点、同样光线下重新拍照，即可对比前后变化。"],
     checkBtn: "去对比前后",
   },
+  compareGlance: {
+    title: "一眼看懂变化",
+    headlineImproved: "{n}处变好了 👏",
+    headlineSame: "还没有明显变化，请继续坚持护理。",
+    headlineCondition: "两张照片的拍摄条件不同，难以准确比较。",
+    conditionWarn: "在同一地点、同样光线下正面重新拍摄会更准确。",
+    legendBefore: "之前",
+    legendAfter: "现在",
+    verdict: {"improved": "变好", "no_change": "不变", "worsened": "变差", "not_comparable": "无法比较"},
+    note: "这是照片上看到的变化，细小差异视为拍摄误差显示为「不变」。不能证明产品或设备的功效。",
+  },
+  flow: { label: "分析步骤", steps: ["同意", "照片", "问题", "结果"] },
   care: {
     title: "DERMA HOME 定制护理",
     techTitle: "推荐功能",

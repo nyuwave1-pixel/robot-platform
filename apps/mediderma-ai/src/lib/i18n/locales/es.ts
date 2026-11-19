@@ -120,6 +120,7 @@ const es: Dict = {
     elasticity: "Elasticidad (requiere medición física)",
   },
   consent: {
+    tapHint: "Toca para aceptar",
     title: "Antes de empezar el análisis",
     processing:
       "(Obligatorio) Acepto que la foto de mi rostro se procese en mi dispositivo (navegador) con el fin de observar la piel. La foto no se envía a ningún servidor ni a servicios de IA externos y se elimina al terminar la sesión.",
@@ -132,6 +133,11 @@ const es: Dict = {
     details: "Ver el aviso de privacidad completo",
   },
   capture: {
+    easyTitle: "Solo una foto de tu cara",
+    easyDesc: "Hazla ahora con el móvil o elige una de tu álbum.",
+    tips: [["☀️", "Con buena luz"], ["🙂", "Mirando de frente"], ["👓", "Sin gafas ni mascarilla"]],
+    moreTips: "Más consejos de foto",
+    neckToggle: "(Opcional) Revisar también el cuello",
     title: "Toma o sube una foto",
     guideTitle: "Guía para la foto",
     guide: [
@@ -212,6 +218,9 @@ const es: Dict = {
     },
   },
   survey: {
+    answered: "{n} / {total} respondidas",
+    optionalNote: "Si no estás segura, puedes saltarla.",
+    more: "Cuéntanos más para mejores consejos (opcional)",
     title: "Cuestionario de piel (opcional)",
     desc: "Es información que una foto no puede mostrar. Tus respuestas solo se usan para recomendarte un cuidado a medida y se muestran aparte como «Según el cuestionario».",
     levels: ["Nunca", "A veces", "A menudo", "Siempre"],
@@ -241,6 +250,7 @@ const es: Dict = {
     submit: "Ver resultados",
   },
   report: {
+    analysisInfo: "Detalles del análisis",
     title: "Informe de análisis de piel con IA",
     overall: "Estado global de la piel (IA)",
     overallDesc: "Es la media ponderada de los índices de observación de las 13 zonas. Cuanto más alto, más uniforme se ve la superficie de la piel en la foto.",
@@ -318,6 +328,18 @@ const es: Dict = {
     checkSteps: ["Pulsa 'Guardar en el historial' abajo para guardar el resultado de hoy.", "Sigue este cuidado durante 4 semanas.", "Hazte otra foto en el mismo lugar y con la misma luz para comparar."],
     checkBtn: "Comparar antes y después",
   },
+  compareGlance: {
+    title: "Tu cambio de un vistazo",
+    headlineImproved: "{n} zonas se ven mejor 👏",
+    headlineSame: "Aún no hay un gran cambio. Sigue con tu cuidado.",
+    headlineCondition: "Las dos fotos se tomaron en condiciones distintas y es difícil compararlas con precisión.",
+    conditionWarn: "Repite la foto en el mismo lugar y con la misma luz, de frente, para un resultado más preciso.",
+    legendBefore: "Antes",
+    legendAfter: "Ahora",
+    verdict: {"improved": "Mejor", "no_change": "Igual", "worsened": "Peor", "not_comparable": "No comparable"},
+    note: "Son cambios vistos en fotos; las diferencias pequeñas cuentan como 'Igual'. No demuestra la eficacia de productos ni dispositivos.",
+  },
+  flow: { label: "Pasos del análisis", steps: ["Acepto", "Foto", "Preguntas", "Resultado"] },
   care: {
     title: "Cuidado a medida DERMA HOME",
     techTitle: "Funciones recomendadas",

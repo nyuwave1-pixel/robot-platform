@@ -119,6 +119,7 @@ const vi: Dict = {
     elasticity: "Độ đàn hồi (cần đo vật lý)",
   },
   consent: {
+    tapHint: "Chạm để đồng ý",
     title: "Vui lòng xác nhận trước khi phân tích",
     processing:
       "(Bắt buộc) Tôi đồng ý để ảnh khuôn mặt được xử lý ngay trên thiết bị (trình duyệt) của tôi cho mục đích quan sát da. Ảnh không được gửi đến máy chủ hay dịch vụ AI bên ngoài và sẽ bị xóa khi phiên kết thúc.",
@@ -131,6 +132,11 @@ const vi: Dict = {
     details: "Xem toàn văn thông báo xử lý dữ liệu cá nhân",
   },
   capture: {
+    easyTitle: "Chỉ cần một ảnh khuôn mặt",
+    easyDesc: "Chụp ngay bằng điện thoại hoặc chọn ảnh từ album.",
+    tips: [["☀️", "Ở nơi sáng"], ["🙂", "Nhìn thẳng"], ["👓", "Bỏ kính và khẩu trang"]],
+    moreTips: "Thêm mẹo chụp ảnh",
+    neckToggle: "(Tùy chọn) Xem cả vùng cổ",
     title: "Chụp hoặc tải ảnh lên",
     guideTitle: "Hướng dẫn chụp",
     guide: [
@@ -211,6 +217,9 @@ const vi: Dict = {
     },
   },
   survey: {
+    answered: "Đã trả lời {n} / {total}",
+    optionalNote: "Nếu không chắc, bạn có thể bỏ qua.",
+    more: "Cho chúng tôi biết thêm để gợi ý chính xác hơn (tùy chọn)",
     title: "Khảo sát về da (tùy chọn)",
     desc: "Đây là những thông tin không thể biết qua ảnh. Câu trả lời chỉ dùng để gợi ý chăm sóc phù hợp và được hiển thị riêng là 'dựa trên khảo sát'.",
     levels: ["Không", "Thỉnh thoảng", "Thường xuyên", "Luôn luôn"],
@@ -240,6 +249,7 @@ const vi: Dict = {
     submit: "Xem kết quả",
   },
   report: {
+    analysisInfo: "Thông tin phân tích",
     title: "Báo cáo phân tích da AI",
     overall: "Tình trạng da tổng thể theo AI",
     overallDesc: "Giá trị trung bình có trọng số của các chỉ số quan sát trên 13 vùng. Càng cao thì bề mặt da trong ảnh trông càng đồng đều.",
@@ -317,6 +327,18 @@ const vi: Dict = {
     checkSteps: ["Nhấn 'Lưu vào nhật ký thay đổi' bên dưới để lưu kết quả hôm nay.", "Chăm sóc theo cách trên trong 4 tuần.", "Chụp lại ở cùng nơi, cùng ánh sáng để so sánh trước và sau."],
     checkBtn: "So sánh trước và sau",
   },
+  compareGlance: {
+    title: "Thay đổi trong nháy mắt",
+    headlineImproved: "{n} vùng đã tốt hơn 👏",
+    headlineSame: "Chưa có thay đổi lớn. Hãy tiếp tục chăm sóc.",
+    headlineCondition: "Hai ảnh chụp trong điều kiện khác nhau nên khó so sánh chính xác.",
+    conditionWarn: "Chụp lại ở cùng nơi, cùng ánh sáng, nhìn thẳng để chính xác hơn.",
+    legendBefore: "Trước",
+    legendAfter: "Bây giờ",
+    verdict: {"improved": "Tốt hơn", "no_change": "Như cũ", "worsened": "Kém hơn", "not_comparable": "Không so sánh được"},
+    note: "Đây là thay đổi nhìn thấy trên ảnh; khác biệt nhỏ được tính là 'Như cũ'. Không chứng minh hiệu quả của sản phẩm hay thiết bị.",
+  },
+  flow: { label: "Các bước phân tích", steps: ["Đồng ý", "Ảnh", "Câu hỏi", "Kết quả"] },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",
     techTitle: "Chức năng gợi ý",

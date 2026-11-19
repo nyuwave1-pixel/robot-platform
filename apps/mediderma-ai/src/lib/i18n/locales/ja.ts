@@ -119,6 +119,7 @@ const ja: Dict = {
     elasticity: "弾力（物理的な測定が必要）",
   },
   consent: {
+    tapHint: "タップして同意",
     title: "分析の前にご確認ください",
     processing:
       "（必須）顔写真を肌の観察を目的として、お使いの端末（ブラウザ）内で処理することに同意します。写真はサーバーや外部のAIサービスに送信されず、セッションが終了すると削除されます。",
@@ -131,6 +132,11 @@ const ja: Dict = {
     details: "個人情報の取り扱いについて全文を見る",
   },
   capture: {
+    easyTitle: "顔写真1枚でOK",
+    easyDesc: "スマホですぐ撮るか、アルバムから写真を選んでください。",
+    tips: [["☀️", "明るい場所で"], ["🙂", "正面を向いて"], ["👓", "メガネ・マスクは外して"]],
+    moreTips: "撮影のコツをもっと見る",
+    neckToggle: "(任意) 首の写真も見る",
     title: "写真の撮影またはアップロード",
     guideTitle: "撮影ガイド",
     guide: [
@@ -211,6 +217,9 @@ const ja: Dict = {
     },
   },
   survey: {
+    answered: "{n} / {total} 回答",
+    optionalNote: "わからなければ飛ばしても大丈夫です。",
+    more: "もっと教えていただくとおすすめが正確になります (任意)",
     title: "肌アンケート（任意）",
     desc: "写真からはわからない情報です。回答はパーソナルケアのおすすめにのみ使用し、「アンケートに基づく」と区別して表示します。",
     levels: ["ない", "ときどき", "よくある", "いつも"],
@@ -240,6 +249,7 @@ const ja: Dict = {
     submit: "結果を見る",
   },
   report: {
+    analysisInfo: "分析情報",
     title: "AI肌分析レポート",
     overall: "AI肌総合コンディション",
     overallDesc: "13エリアの観察指数を加重平均した値です。高いほど、写真上で肌表面が均一に見えています。",
@@ -317,6 +327,18 @@ const ja: Dict = {
     checkSteps: ["下の「変化の記録に保存」で今日の結果を残しましょう。", "4週間、上の方法でケアします。", "同じ場所・同じ明かりで撮り直すと、前後を比較できます。"],
     checkBtn: "前後を比較する",
   },
+  compareGlance: {
+    title: "ひと目でわかる変化",
+    headlineImproved: "{n}か所が良くなりました 👏",
+    headlineSame: "まだ大きな変化はありません。続けてケアしましょう。",
+    headlineCondition: "2枚の撮影条件が違うため、正確な比較が難しいです。",
+    conditionWarn: "同じ場所・同じ明かり・正面で撮り直すとより正確です。",
+    legendBefore: "以前",
+    legendAfter: "今",
+    verdict: {"improved": "良くなった", "no_change": "変わらず", "worsened": "悪くなった", "not_comparable": "比較できない"},
+    note: "写真で見た変化です。小さな差は撮影誤差として「変わらず」と表示します。製品や機器の効果を証明するものではありません。",
+  },
+  flow: { label: "分析ステップ", steps: ["同意", "写真", "質問", "結果"] },
   care: {
     title: "DERMA HOME パーソナルケア",
     techTitle: "おすすめの機能",

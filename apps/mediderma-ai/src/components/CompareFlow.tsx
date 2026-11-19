@@ -11,6 +11,7 @@ import { FACE_ZONES } from "@/lib/analysis/zones";
 import type { AnalysisResult, ImageQuality } from "@/lib/analysis/types";
 import { validateImageFile } from "./UploadBox";
 import CompareSlider from "./report/CompareSlider";
+import CompareGlance from "./CompareGlance";
 
 /** 비교에 필요한 최소 데이터: 분석 결과 + 정규화 얼굴 이미지 + 랜드마크 */
 interface Side {
@@ -163,6 +164,7 @@ export default function CompareFlow() {
 
       {cmp && aligned && before.status === "ok" && (
         <div className="mt-8 space-y-6" data-testid="compare-result">
+          {after.status === "ok" && <CompareGlance cmp={cmp} before={before.side.result} after={after.side.result} />}
           <div className={`rounded-xl border p-4 text-sm ${cmp.conditionIssues.length ? "border-amber-400/50 bg-amber-400/10 text-amber-100" : "border-emerald-400/40 bg-emerald-400/5 text-emerald-200"}`} data-testid="condition" data-issues={cmp.conditionIssues.join(",")}>
             <p className="font-semibold">{t.compare.conditionTitle}</p>
             <p className="mt-1 text-xs">{cmp.conditionIssues.length ? t.compare.conditionBad : t.compare.conditionOk}</p>

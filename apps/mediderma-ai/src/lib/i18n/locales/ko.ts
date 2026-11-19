@@ -122,6 +122,7 @@ const ko = {
     elasticity: "탄력 (물리적 측정 필요)",
   },
   consent: {
+    tapHint: "눌러서 동의해 주세요",
     title: "분석 전 확인해 주세요",
     processing:
       "(필수) 얼굴 사진을 피부 관찰 목적으로 내 기기(브라우저) 안에서 처리하는 데 동의합니다. 사진은 서버나 외부 AI 서비스로 전송되지 않으며, 세션이 끝나면 삭제됩니다.",
@@ -134,6 +135,11 @@ const ko = {
     details: "개인정보 처리 안내 전문 보기",
   },
   capture: {
+    easyTitle: "얼굴 사진 한 장이면 돼요",
+    easyDesc: "휴대폰으로 바로 찍거나, 앨범에서 사진을 골라 주세요.",
+    tips: [["☀️", "밝은 곳에서"], ["🙂", "정면을 보고"], ["👓", "안경·마스크는 벗고"]],
+    moreTips: "촬영 팁 더 보기",
+    neckToggle: "(선택) 목 사진도 함께 보기",
     title: "사진 촬영 또는 업로드",
     guideTitle: "촬영 가이드",
     guide: [
@@ -214,6 +220,9 @@ const ko = {
     },
   },
   survey: {
+    answered: "{n} / {total} 답함",
+    optionalNote: "모르면 건너뛰어도 괜찮아요.",
+    more: "더 알려주시면 추천이 정확해져요 (선택)",
     title: "피부 설문 (선택)",
     desc: "사진으로는 알 수 없는 정보입니다. 답변은 맞춤 케어 추천에만 사용되며 '설문 기반'으로 구분해 표시합니다.",
     levels: ["없음", "가끔", "자주", "항상"],
@@ -243,6 +252,7 @@ const ko = {
     submit: "결과 보기",
   },
   report: {
+    analysisInfo: "분석 정보",
     title: "AI 피부 분석 리포트",
     overall: "AI 피부 종합 컨디션",
     overallDesc: "13개 영역의 관찰 지수를 가중 평균한 값입니다. 높을수록 사진상 피부 표면이 고르게 보입니다.",
@@ -320,6 +330,18 @@ const ko = {
     checkSteps: ["아래 '변화 기록에 저장'을 눌러 오늘 결과를 남겨 두세요.", "4주 동안 위 방법으로 관리하세요.", "같은 장소·같은 불빛에서 다시 찍으면 전후를 비교해 드려요."],
     checkBtn: "전후 비교하러 가기",
   },
+  compareGlance: {
+    title: "한눈에 보는 변화",
+    headlineImproved: "{n}곳이 좋아졌어요 👏",
+    headlineSame: "아직 큰 변화는 없어요. 꾸준히 관리해 보세요.",
+    headlineCondition: "두 사진의 찍은 조건이 달라서 정확히 비교하기 어려워요.",
+    conditionWarn: "같은 장소, 같은 불빛, 정면 얼굴로 다시 찍으면 더 정확해요.",
+    legendBefore: "이전",
+    legendAfter: "지금",
+    verdict: {"improved": "좋아짐", "no_change": "그대로", "worsened": "나빠짐", "not_comparable": "비교 어려움"},
+    note: "사진으로 본 변화이며, 작은 차이는 촬영 오차로 보고 '그대로'로 표시합니다. 제품이나 기기의 효능을 증명하지 않습니다.",
+  },
+  flow: { label: "분석 단계", steps: ["동의", "사진", "질문", "결과"] },
   care: {
     title: "더마홈 맞춤 케어",
     techTitle: "추천 기능",
