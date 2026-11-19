@@ -13,7 +13,7 @@ How the game sessions split the work and hand off: [`docs/game-dev/STUDIO_HUB.md
 
 ## 0. Ground rules (read first)
 
-1. **Detect the project's engine and keep it.** SPECIAL SOLDIER is Three.js + Vite with a Blender 5.3 pipeline, not UE5
+1. **Detect the project's engine and keep it** (UE5 `.uproject`, Unity `ProjectSettings/ProjectVersion.txt`, web `package.json`). SPECIAL SOLDIER is Three.js + Vite with a Blender 5.3 pipeline, not UE5
    (`apps/special-soldier/docs/adr/0001-web-engine.md`). The UE5 items below (Nanite, Lumen, GAS, Lyra, Fab, MetaSounds)
    apply only to a project that already has a `.uproject`. For a web game, use the web equivalents in §4.
 2. **Never report unverified work as done.** If a download, login, conversion or test did not happen, say so and find an alternative.
@@ -36,6 +36,9 @@ How the game sessions split the work and hand off: [`docs/game-dev/STUDIO_HUB.md
   OpenGameArt, Freesound and Fab are per-asset).
 - GitHub code: read `LICENSE`; a repo with no license is all-rights-reserved — read it for ideas only, do not copy code.
 - Never re-host or resell raw source assets outside the game build.
+- Unity Asset Store assets (Standard EULA / Unity Companion License) may be used in a game but **must not be committed to this public repo**;
+  record them in the ledger and fetch them on each machine through the Package Manager.
+- Unity projects: load the Unity plugin skills (`unity:unity-cli`, `unity:new-unity-project`, ...) and import shared Blender GLBs with glTFast.
 
 ## 2. Ledger files (create in the game folder, update on every asset)
 
@@ -63,20 +66,21 @@ Start with ~10 verified assets applied end to end, then widen.
 
 ## 4. Engine mapping
 
-| Need | UE5 project | Web game (Three.js) |
-|---|---|---|
-| Dense meshes | Nanite | Blender decimate + `__d` LOD children, instancing |
-| GI / reflections | Lumen | Poly Haven HDRI → PMREM env map, baked AO (vertex colour) |
-| Materials | PBR 4K–8K, virtual textures | PBR 1K–2K, KTX2/Basis compression |
-| VFX | Niagara | GPU sprite/mesh particles in the existing pool |
-| Audio | MetaSounds | WebAudio buffers (OGG/MP3), existing mixer |
-| Characters | Skeletal mesh, retarget, Motion Matching | Rigged GLB + `AnimationMixer`; Mixamo/Quaternius clips retargeted in Blender |
-| Abilities | GAS (see GASDocumentation) | existing game systems in `src/game/` |
+| Need | UE5 project | Unity 6.3 LTS project | Web game (Three.js) |
+|---|---|---|---|
+| Dense meshes | Nanite | LODGroup, GPU Resident Drawer | Blender decimate + `__d` LOD children, instancing |
+| GI / reflections | Lumen | URP/HDRP APV light probes, reflection probes, HDRI skybox | Poly Haven HDRI → PMREM env map, baked AO (vertex colour) |
+| Materials | PBR 4K–8K, virtual textures | URP Lit, 2K–4K, platform texture compression | PBR 1K–2K, KTX2/Basis compression |
+| VFX | Niagara | VFX Graph / Particle System | GPU sprite/mesh particles in the existing pool |
+| Audio | MetaSounds | AudioMixer (see `unity:audio-setup-mixers`) | WebAudio buffers (OGG/MP3), existing mixer |
+| Characters | Skeletal mesh, retarget, Motion Matching | Humanoid Avatar + Mecanim retarget (Rokoko/Mixamo/Quaternius FBX) | Rigged GLB + `AnimationMixer`; Mixamo/Quaternius clips retargeted in Blender |
+| Abilities | GAS (see GASDocumentation) | project C# systems / ScriptableObjects | existing game systems in `src/game/` |
 
 ## 5. Things that need a person or the PC
 
 - Mixamo (Adobe login), Sketchfab/Fab/itch.io downloads (login, per-asset license click), Freesound (account for originals),
   Sonniss GDC bundle (large manual download): run these in a session on the user's PC with the Chrome extension, or ask the user.
+- Unity Editor work (install, Unity ID login, licence, Editor control via Unity CLI): the PC session "Unity 설치 · 게임 개발 연동" (`docs/game-dev/UNITY_SETUP.md`).
 - Blender GUI checks and Windows builds: the PC session (`C:\Program Files\Blender Foundation\Blender 5.3\blender.exe`).
 - Cloud sessions reached Poly Haven and ambientCG (open APIs), OpenGameArt, game-icons.net and quaternius.com on 2026-11-19;
   kenney.nl, freesound.org, sonniss.com and github.com web pages were blocked (GitHub is reachable through `gh api search/*`).
