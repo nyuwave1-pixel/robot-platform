@@ -344,6 +344,12 @@ test("사진 없이 참여: 기본은 불가, 관리자 설정으로 허용하�
   assert.equal(ed.siteLang, "en"); assert.match(ed.customer.address, /Canon Dr/); assert.match(ed.customer.address, /United States/); assert.equal(ed.customer.postalCode, "90210-1234");
   assert.equal((await HQ.p("GET", "/reviews?limit=200")).data.items.find((x: any) => x.id === en1.id).siteLang, "en");
   assert.equal((await sql(`SELECT site_lang FROM birthday_reviews WHERE id = $1`, [na.id]))[0].site_lang, "ko");
+  // 미국(영문) 참여자: 참가 보상이 파우더 워시 + 선크림 — 설정·접수 결과·관리자 승인 시 지급 대상 모두
+  assert.match(cfgEn.rewards.participation.productName, /파우더 워시/);
+  assert.match((await v.call("GET", "/config")).data.rewards.participation.productName, /프로틴 쉐이크/);
+  assert.equal((await HQ.p("POST", `/reviews/${en1.id}/status`, { status: "APPROVED" })).status, 200);
+  const enRw = (await sql(`SELECT product_name FROM birthday_review_rewards WHERE review_id = $1 AND reward_type = 'PARTICIPATION'`, [en1.id]))[0];
+  assert.match(enRw.product_name, /파우더 워시.*선크림/);
   // 한국어 사이트·현장 지급: 참여자 조회 화면의 사은품 상태는 현장 지급 이름, 운송장은 숨김
   await sql(`INSERT INTO birthday_review_rewards (event_id, review_id, reward_type, product_name, quantity, reward_status, carrier, tracking_number) SELECT event_id, id, 'PARTICIPATION', '프로틴 쉐이크 1박스', 1, 'SHIPPING', 'CJ대한통운', '123456789012' FROM birthday_reviews WHERE id = $1`, [na.id]);
   const lkOn = (await na.v.call("POST", "/lookup", { phone: na.phone })).data.rewards[0];

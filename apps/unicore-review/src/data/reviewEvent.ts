@@ -9,7 +9,7 @@ export const reviewEvent = {
   /** 브랜드 페이지 (제품 이야기) */
   brandSite: "https://birthday.unincore.com",
   /** 첫 화면의 기간 안내 문구. 비우면("") 관리자 화면에 설정한 참여 기간(날짜)을 보여 줍니다 */
-  periodNote: "이벤트 진행 일정은 추후 안내드립니다",
+  periodNote: "",
   hero: {
     en: "YOUR SKIN HAS A BIRTHDAY.",
     ko: "나의 피부가 다시 맞이하는 특별한 생일",

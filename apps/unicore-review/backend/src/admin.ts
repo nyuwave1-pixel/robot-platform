@@ -6,7 +6,7 @@ import type { Queryable } from "./platform.ts";
 import { can, requireAdmin, ROLE_LABEL, type AdminRole } from "./auth.ts";
 import { imageStore, signedImagePath, verifyImageSignature } from "./storage.ts";
 import {
-  eventBySlug, settingsOf, policyOf, phaseOf, phoneHash, normOrder, normMember, charCount, purgeStaleUploads,
+  eventBySlug, settingsOf, policyOf, participationFor, phaseOf, phoneHash, normOrder, normMember, charCount, purgeStaleUploads,
   REVIEW_STATUS_LABEL, REWARD_STATUS_LABEL, REWARD_TYPE_LABEL, SKIN_TYPES, USAGE_PERIODS, DEFAULT_SETTINGS, type PromoEvent,
 } from "./public.ts";
 
@@ -297,7 +297,9 @@ function nextRewardStatuses(a: PromoActor, cur: string): string[] {
 }
 /** 후기 1건당 보상 종류별 1행. 이미 있으면 만들지 않는다(UNIQUE). 취소돼 있던 건은 다시 지급 대상으로 되돌린다 */
 async function ensureReward(c: Queryable, a: PromoActor, ev: PromoEvent, r: any, type: "PARTICIPATION" | "WINNER") {
-  const pol = policyOf(ev)[type === "PARTICIPATION" ? "participation" : "winner"];
+  const policy = policyOf(ev);
+  // 영문(미국) 사이트 접수는 참가 보상이 파우더 워시 + 선크림
+  const pol = type === "PARTICIPATION" ? participationFor(policy, r.site_lang) : policy.winner;
   const ins = await q1<any>(
     `INSERT INTO birthday_review_rewards (event_id, review_id, reward_type, product_name, quantity, recipient_name, recipient_phone_enc, postal_code, shipping_address_enc)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (review_id, reward_type) DO NOTHING RETURNING id`,

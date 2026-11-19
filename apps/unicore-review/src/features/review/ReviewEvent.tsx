@@ -15,7 +15,7 @@ import PhotoField, { emptyPhoto, type PhotoState } from "./PhotoField";
 import s from "./review.module.css";
 
 const DONE_KEY = "uc-review-done-v1";
-const kDate = (iso: string) => new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" }).format(new Date(iso));
+const kDate = (iso: string) => new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Seoul" }).format(new Date(iso));
 const kDay = (iso: string) => new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(iso));
 /** 골드 입자 — 서버·클라이언트가 같은 값을 내도록 순번으로 위치를 정한다 */
 const DUST = Array.from({ length: 22 }, (_, i) => ({ left: (i * 37 + 11) % 100, top: (i * 53 + 7) % 100, size: 2 + (i % 4), delay: (i * 0.7) % 9, dur: 9 + (i % 6) * 2 }));
@@ -125,7 +125,7 @@ export default function ReviewEvent() {
             {config && config.phase !== "OPEN" && <p className={s.phaseNote}>{config.phase === "UPCOMING" ? `이벤트는 ${config.startDate ? kDay(config.startDate) : "곧"} 시작됩니다.` : "지금은 이벤트 참여 기간이 아닙니다."}</p>}
             {/* 기간 안내: periodNote 가 있으면 날짜 대신 그 문구를 보여 준다(접수 가능 여부는 관리자 설정의 기간을 그대로 따른다) */}
             {open && E.periodNote ? <p className={s.period}>{E.periodNote}</p>
-              : config?.endDate && open && <p className={s.period}>참여 기간 · {config.startDate ? `${kDay(config.startDate)} ~ ` : ""}{kDay(config.endDate)}까지</p>}
+              : config?.endDate && open && <p className={s.period}>{`참여 기간 · ${config.startDate ? `${kDay(config.startDate)} ~ ` : ""}${kDay(config.endDate)}까지`}</p>}
           </div>
         </section>
 
@@ -155,10 +155,13 @@ export default function ReviewEvent() {
               <div className={s.rewardAllMark} aria-hidden="true"><span>100</span><i>%</i><small>참여자 전원</small></div>
               <div className={s.shakeShot}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/media/product/protein-shake.webp" alt="UNI&CORE 슬림핏 프로틴 쉐이크 고소한 멀티그레인 — 박스와 파우치" loading="lazy" decoding="async" width={650} height={650} />
+                {/* 영문(미국) 사이트 참여자는 파우더 워시 + 선크림 */}
+                {lang === "en"
+                  ? <img src="/media/product/us-gift.webp" alt="UNI&CORE 비타씨 엔자임 파우더 워시와 하이드레이팅 래디언스 선크림" loading="lazy" decoding="async" width={650} height={650} />
+                  : <img src="/media/product/protein-shake.webp" alt="UNI&CORE 슬림핏 프로틴 쉐이크 고소한 멀티그레인 — 박스와 파우치" loading="lazy" decoding="async" width={650} height={650} />}
               </div>
               <h3 className={s.rewardName}>{shake}</h3>
-              <p className={s.rewardNameKo}>슬림핏 프로틴 쉐이크 고소한 멀티그레인 · 40g × 10개입</p>
+              <p className={s.rewardNameKo}>{lang === "en" ? "비타씨 엔자임 파우더 워시 1g × 30개입 · 하이드레이팅 래디언스 선크림 SPF50 PA+++ 30ml" : "슬림핏 프로틴 쉐이크 고소한 멀티그레인 · 40g × 10개입"}</p>
               <ul className={s.rewardNotes}>{E.reward.all.notes.map((n) => <li key={n}>{n}</li>)}</ul>
             </Reveal>
           </div>

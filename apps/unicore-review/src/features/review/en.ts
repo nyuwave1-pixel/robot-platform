@@ -38,11 +38,14 @@ export const EN: Record<string, string> = {
   "퍼스트 벌스데이 크림 50g": "1st Birthday Cream 50g",
   "관리자가 후기 내용을 검토하여 선정합니다": "Selected by our team after reviewing each entry",
   "당첨되신 분께는 개별 연락을 드립니다": "Winners are contacted individually",
-  "선정되신 분께도 프로틴 쉐이크를 함께 드립니다": "Winners also receive the Protein Shake",
+  "선정되신 분께도 프로틴 쉐이크를 함께 드립니다": "Winners also receive the Powder Wash & Sun Cream",
   "전체 이벤트 참가자": "Every participant",
   "참여자 전원": "ALL PARTICIPANTS",
   "UNI&CORE 슬림핏 프로틴 쉐이크 고소한 멀티그레인 — 박스와 파우치": "UNI&CORE Slim Fit Protein Shake, Multigrain Nutty — box and pouch",
   "프로틴 쉐이크 1박스": "Protein Shake · 1 Box",
+  "비타씨 엔자임 파우더 워시 + 하이드레이팅 래디언스 선크림": "Powder Wash + Sun Cream",
+  "비타씨 엔자임 파우더 워시 1g × 30개입 · 하이드레이팅 래디언스 선크림 SPF50 PA+++ 30ml": "Vita C Enzyme Powder Wash (1g × 30) · Hydrating Radiance Sun Cream SPF50 PA+++ 30ml",
+  "UNI&CORE 비타씨 엔자임 파우더 워시와 하이드레이팅 래디언스 선크림": "UNI&CORE Vita C Enzyme Powder Wash and Hydrating Radiance Sun Cream",
   "슬림핏 프로틴 쉐이크 고소한 멀티그레인 · 40g × 10개입": "Slim Fit Protein Shake, Multigrain Nutty · 40g × 10",
   "참여 조건을 충족한 모든 참가자에게 드립니다": "For every participant who meets the entry conditions",
   "관리자 확인 후 지급 처리됩니다": "Sent after confirmation by our team",
@@ -214,7 +217,7 @@ export const EN: Record<string, string> = {
   "주를 선택해 주세요.": "Please select your state.",
   "ZIP 코드 5자리를 입력해 주세요.": "Please enter a 5-digit ZIP code.",
   "도시와 주를 입력해 주세요.": "Please enter your city and state.",
-  "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 미국 내 배송, 배송 안내 연락": "Shipping the participation gift (Protein Shake) and the top-review gift (1st Birthday Cream) within the U.S., and contacting you about delivery",
+  "참가 보상(파우더 워시·선크림) 및 우수 후기 보상(퍼스트 벌스데이 크림) 미국 내 배송, 배송 안내 연락": "Shipping the participation gift (Powder Wash & Sun Cream) and the top-review gift (1st Birthday Cream) within the U.S., and contacting you about delivery",
   "이름, 휴대폰 번호, 유니앤코어 회원번호, 미국 배송 주소(ZIP 코드 포함)": "Name, mobile number, UNI&CORE member number, U.S. shipping address (including ZIP code)",
   "현장 지급 예정": "To be presented on site",
   "상세 주소 (선택)": "Apartment, suite, etc. (optional)",
@@ -350,12 +353,18 @@ export const EN: Record<string, string> = {
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** "2026년 12월 1일" · "2026년 12월 1일 오전 11:06" → "Dec 1, 2026" · "Dec 1, 2026, 11:06 AM" */
-const DATE = /(\d{4})년 (\d{1,2})월 (\d{1,2})일(?: (오전|오후) (\d{1,2}):(\d{2}))?/g;
-const date = (s: string) => s.replace(DATE, (_m, y, mo, d, ap, h, mi) => `${MONTH[Number(mo) - 1]} ${Number(d)}, ${y}${ap ? `, ${Number(h)}:${mi} ${ap === "오전" ? "AM" : "PM"}` : ""}`);
+const DATE = /(\d{4})년 (\d{1,2})월 (\d{1,2})일(?: (?:(오전|오후) )?(\d{1,2}):(\d{2}))?/g;
+const date = (s: string) => s.replace(DATE, (_m, y, mo, d, ap, h, mi) => {
+  if (h === undefined) return `${MONTH[Number(mo) - 1]} ${Number(d)}, ${y}`;
+  // 24시간제(00:00) 또는 오전/오후 표기 모두 12시간제 영어로
+  const H = Number(h), pm = ap ? ap === "오후" : H >= 12, h12 = ap ? H : H % 12 || 12;
+  return `${MONTH[Number(mo) - 1]} ${Number(d)}, ${y}, ${h12}:${mi} ${pm ? "PM" : "AM"}`;
+});
 const t = (k: string) => EN[k] ?? k;
 
 export type Rule = [RegExp, string | ((...m: string[]) => string)];
 export const EN_RULES: Rule[] = [
+  [/^참여 기간 · (?:(.+?) ~ )?(.+?)까지$/, (_m, a, b) => `Event period · ${a ? `${date(a)} – ` : "until "}${date(b)}`],
   [/^이벤트는 (.+) 시작됩니다\.$/, (_m, d) => `The event starts ${d === "곧" ? "soon" : "on " + date(d)}.`],
   [/^(.+)부터 참여하실 수 있습니다\.$/, (_m, d) => `Entries open on ${date(d)}.`],
   [/^(\d)단계 (.+?)( \(완료, 수정하려면 누르세요\))?$/, (_m, n, name, done) => `Step ${n}: ${t(name)}${done ? " (done — tap to edit)" : ""}`],
@@ -373,5 +382,5 @@ export const EN_RULES: Rule[] = [
   [/^이미지 용량이 너무 큽니다\. \(최대 ([\d.]+)MB\)$/, "The image is too large. (max $1MB)"],
   [/^이미지 해상도가 너무 큽니다\. \(한 변 최대 (\d+)px\)$/, "The image resolution is too high. (max $1px per side)"],
   // 날짜만 있는 문구 (접수 날짜 등)
-  [/^\d{4}년 \d{1,2}월 \d{1,2}일(?: (?:오전|오후) \d{1,2}:\d{2})?$/, (m) => date(m)],
+  [/^\d{4}년 \d{1,2}월 \d{1,2}일(?: (?:(?:오전|오후) )?\d{1,2}:\d{2})?$/, (m) => date(m)],
 ];

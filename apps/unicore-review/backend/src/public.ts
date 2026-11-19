@@ -33,6 +33,13 @@ export const DEFAULT_POLICY: RewardPolicy = {
 };
 export type PromoEvent = { id: number; slug: string; event_name: string; event_type: string; start_date: string | null; end_date: string | null; event_status: string; settings: any; reward_policy: any; created_at: string; updated_at: string };
 
+/** 영문(미국) 사이트 참여자의 참가 보상 — 프로틴 쉐이크 대신 파우더 워시 + 선크림 */
+export const US_PARTICIPATION = { productName: "비타씨 엔자임 파우더 워시 + 하이드레이팅 래디언스 선크림", quantity: 1 } as const;
+/** 접수한 사이트 언어에 맞는 참가 보상 */
+export function participationFor(pol: RewardPolicy, siteLang: string | null | undefined) {
+  return siteLang === "en" ? { ...US_PARTICIPATION } : pol.participation;
+}
+
 export function settingsOf(ev: PromoEvent): EventSettings { return { ...DEFAULT_SETTINGS, ...(ev.settings || {}) }; }
 export function policyOf(ev: PromoEvent): RewardPolicy {
   const p = ev.reward_policy || {};
@@ -77,7 +84,7 @@ export function consentDocs(st: EventSettings, siteLang: SiteLang = "ko") {
       retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
       // 영문 사이트는 미국 현지 주소로 배송한다
       : siteLang === "en" ? { type: "GIFT_SHIPPING", required: true, title: "사은품 배송을 위한 개인정보 이용 동의",
-          purpose: "참가 보상(프로틴 쉐이크) 및 우수 후기 보상(퍼스트 벌스데이 크림) 미국 내 배송, 배송 안내 연락",
+          purpose: "참가 보상(파우더 워시·선크림) 및 우수 후기 보상(퍼스트 벌스데이 크림) 미국 내 배송, 배송 안내 연락",
           items: "이름, 휴대폰 번호, 유니앤코어 회원번호, 미국 배송 주소(ZIP 코드 포함)",
           retention: `${keep} (배송을 맡긴 택배사에는 배송에 필요한 범위에서만 제공)`, refusal: refuse }
       : { type: "GIFT_SHIPPING", required: true, title: "사은품 지급을 위한 개인정보 이용 동의",
@@ -98,7 +105,7 @@ export function publicConfig(ev: PromoEvent, siteLang: SiteLang = "ko") {
     minChars: st.minChars, maxChars: st.maxChars, titleMaxChars: st.titleMaxChars,
     requireImages: st.requireImages, requireOrderNumber: st.requireOrderNumber, requireAddress: needAddress(st, siteLang),
     maxImageBytes: st.maxImageBytes, maxImagePixels: st.maxImagePixels, winnerCount: st.winnerCount,
-    rewards: { participation: pol.participation, winner: pol.winner, winnersAlsoGetParticipation: pol.winnersAlsoGetParticipation },
+    rewards: { participation: participationFor(pol, siteLang), winner: pol.winner, winnersAlsoGetParticipation: pol.winnersAlsoGetParticipation },
     skinTypes: SKIN_TYPES, usagePeriods: USAGE_PERIODS,
     consentVersion: st.consentVersion, consents: consentDocs(st, siteLang),
   };
@@ -311,7 +318,7 @@ export async function submitReview(req: Request, b: any, isTest: boolean) {
       [ev.id, String(reviewId), JSON.stringify({ applicationNumber, photos: Object.keys(refs).length, flagged: reasons.length > 0, isTest }), ip || null], c);
     return {
       applicationNumber, name: v.name, submittedAt: row.submitted_at,
-      rewards: { participation: pol.participation, winner: pol.winner, winnerCount: st.winnerCount },
+      rewards: { participation: participationFor(pol, v.siteLang), winner: pol.winner, winnerCount: st.winnerCount },
     };
   });
 }
