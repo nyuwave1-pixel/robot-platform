@@ -38,6 +38,8 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 
 ## 배포 메모
 
+- 대표 주소: https://mediderma.unincore.com (후이즈 DNS: `mediderma` CNAME → `cname.vercel-dns.com`). 공유 미리보기·사이트맵·robots 의 기준 주소이며 `NEXT_PUBLIC_SITE_URL` 로 바꿀 수 있다.
+
 - Vercel: Root Directory 를 `apps/mediderma-ai` 로 지정. 통계·관리자 설정을 쓰려면 `DATABASE_URL` 필수.
 - Docker: `docker build -t mediderma-ai apps/mediderma-ai` (이 저장소에서는 빌드 검증을 하지 못했다).
 - 카메라 촬영은 HTTPS 에서만 동작한다.
