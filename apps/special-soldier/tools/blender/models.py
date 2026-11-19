@@ -14,31 +14,33 @@ def soldier():
     visor = mat('visor', (0.02, 0.02, 0.02), 0.2, 0.5, (1, 0.15, 0.05, 5)); accent = mat('accent', (0.45, 0.04, 0.04), 0.8)
     a.pivot('body', (0, 0, 0)); a.pivot('legL', (0.105, 0, 0.93), 'body'); a.pivot('legR', (-0.105, 0, 0.93), 'body'); a.pivot('upper', (0, 0, 0.93), 'body')
     a.pivot('head', (0, 0, 1.6), 'upper'); a.pivot('arms', (0, -0.02, 1.43), 'upper'); a.pivot('gun', (0.075, -0.22, 1.31), 'arms')
+    a.pivot('shinL', (0.107, -0.01, 0.52), 'legL'); a.pivot('shinR', (-0.107, -0.01, 0.52), 'legR')  # knee joints (v0.11)
     for g, sx in (('legL', 1), ('legR', -1)):
-        x = sx * 0.105
+        x = sx * 0.105; sh = 'shinL' if sx > 0 else 'shinR'
         a.limb(g, (x, 0, 0.95), (x * 1.02, -0.01, 0.52), 0.098, 0.074, cloth, n=14)
-        a.limb(g, (x * 1.02, -0.01, 0.52), (x * 1.02, 0.01, 0.13), 0.07, 0.055, cloth, n=14)
-        a.box(g, (0.12, 0.05, 0.13), (x * 1.02, -0.065, 0.52), gear, bevel=0.02)  # knee pad
-        a.box(g, (0.115, 0.27, 0.11), (x * 1.02, -0.045, 0.055), boots, bevel=0.03)
-        a.box(g, (0.11, 0.16, 0.12), (x * 1.02, 0.0, 0.15), boots, bevel=0.03)
-        a.box(g, (0.12, 0.275, 0.02), (x * 1.02, -0.045, 0.01), gear, bevel=0.006)
+        a.sphere(g, 0.074, (x * 1.02, -0.008, 0.52), cloth, seg=12)  # knee cap fills the joint when the shin bends
+        a.limb(sh, (x * 1.02, -0.01, 0.52), (x * 1.02, 0.01, 0.13), 0.07, 0.055, cloth, n=14)
+        a.box(sh, (0.12, 0.05, 0.13), (x * 1.02, -0.065, 0.5), gear, bevel=0.02)  # knee pad rides on the shin
+        a.box(sh, (0.115, 0.27, 0.11), (x * 1.02, -0.045, 0.055), boots, bevel=0.03)
+        a.box(sh, (0.11, 0.16, 0.12), (x * 1.02, 0.0, 0.15), boots, bevel=0.03)
+        a.box(sh, (0.12, 0.275, 0.02), (x * 1.02, -0.045, 0.01), gear, bevel=0.006)
         a.detail(True)
         # cargo pocket with flap and button tab
         a.box(g, (0.03, 0.13, 0.16), (x + sx * 0.088, 0.005, 0.66), cloth, bevel=0.012); a.box(g, (0.034, 0.135, 0.045), (x + sx * 0.089, 0.005, 0.735), cloth, bevel=0.008)
         a.box(g, (0.036, 0.03, 0.02), (x + sx * 0.09, 0.005, 0.715), web, bevel=0.003)
         # knee pad: hard cap + two elastic straps
-        a.sphere(g, 0.052, (x * 1.02, -0.072, 0.52), gear, scale=(1.0, 0.55, 1.15), seg=10)
+        a.sphere(sh, 0.052, (x * 1.02, -0.072, 0.52), gear, scale=(1.0, 0.55, 1.15), seg=10)
         for z in (0.565, 0.475):
-            a.cyl(g, 0.08 if z > 0.5 else 0.074, 0.02, (x * 1.02, -0.008, z), web, n=14)
+            a.cyl(sh, 0.08 if z > 0.5 else 0.074, 0.02, (x * 1.02, -0.008, z), web, n=14)
         # bloused trouser cuff, boot collar, laces, toe cap, heel
-        a.cyl(g, 0.07, 0.06, (x * 1.02, 0.008, 0.235), cloth, n=14, bevel=0.012)
-        a.cyl(g, 0.064, 0.03, (x * 1.02, 0.008, 0.205), boots, n=14, bevel=0.006)
+        a.cyl(sh, 0.07, 0.06, (x * 1.02, 0.008, 0.235), cloth, n=14, bevel=0.012)
+        a.cyl(sh, 0.064, 0.03, (x * 1.02, 0.008, 0.205), boots, n=14, bevel=0.006)
         for k in range(5):
-            a.box(g, (0.06, 0.008, 0.007), (x * 1.02, -0.082, 0.195 - k * 0.02), web, bevel=0.002)
-        a.sphere(g, 0.058, (x * 1.02, -0.14, 0.05), boots, scale=(1.0, 1.0, 0.8), seg=10)
-        a.box(g, (0.118, 0.085, 0.022), (x * 1.02, 0.05, 0.004), gear, bevel=0.005)
+            a.box(sh, (0.06, 0.008, 0.007), (x * 1.02, -0.082, 0.195 - k * 0.02), web, bevel=0.002)
+        a.sphere(sh, 0.058, (x * 1.02, -0.14, 0.05), boots, scale=(1.0, 1.0, 0.8), seg=10)
+        a.box(sh, (0.118, 0.085, 0.022), (x * 1.02, 0.05, 0.004), gear, bevel=0.005)
         for k in range(4):
-            a.box(g, (0.122, 0.02, 0.012), (x * 1.02, -0.15 + k * 0.045, 0.004), gear, bevel=0.002)  # sole lugs
+            a.box(sh, (0.122, 0.02, 0.012), (x * 1.02, -0.15 + k * 0.045, 0.004), gear, bevel=0.002)  # sole lugs
         if sx > 0:  # drop-leg holster on the trigger-hand side: platform, straps, pistol grip
             a.box(g, (0.03, 0.12, 0.17), (x + sx * 0.118, -0.005, 0.7), gear, bevel=0.012)
             a.box(g, (0.034, 0.075, 0.2), (x + sx * 0.14, -0.015, 0.69), gear, bevel=0.012, taper=(1, 0.8))

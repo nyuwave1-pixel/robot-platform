@@ -23,7 +23,7 @@ export async function loadAssets() {
   return ASSETS.ready;
 }
 /** Direct mesh primitives of a node (not those of child pivots). */
-export const NODES = new Set(['body', 'legL', 'legR', 'upper', 'head', 'arms', 'gun', 'eye', 'mag', 'pump', 'rotor', 'tail', 'light', 'turret', 'trunk', 'canopy', 'muzzle', 'sight', 'gripL', 'acc_helmet', 'acc_nvg', 'acc_cap', 'acc_beret', 'acc_hood', 'acc_visor', 'acc_heavy']);
+export const NODES = new Set(['body', 'legL', 'legR', 'shinL', 'shinR', 'upper', 'head', 'arms', 'gun', 'eye', 'mag', 'pump', 'rotor', 'tail', 'light', 'turret', 'trunk', 'canopy', 'muzzle', 'sight', 'gripL', 'acc_helmet', 'acc_nvg', 'acc_cap', 'acc_beret', 'acc_hood', 'acc_visor', 'acc_heavy']);
 const isNode = (c) => { const n = clean(c.name); return NODES.has(n) || n.startsWith('acc_') || (n.endsWith('__d') && !(c.isMesh && c.parent && clean(c.parent.name).endsWith('__d'))); }; // a multi-material '__d' node loads as a group of primitive meshes: those are not nodes // '__d' = detail (LOD) child, 'acc_' = optional kit set
 function ownMeshes(node) { const out = node.isMesh ? [node] : []; for (const c of node.children) if (c.isMesh && !isNode(c)) out.push(c); return out; }
 /** Surface class of a Blender material (drives which photo texture a prop gets): 0 concrete/stone, 1 painted metal, 2 wood, 3 rust / bare iron. */

@@ -158,3 +158,17 @@ export async function video5({ page, shot }) {
   await page.waitForTimeout(6000); console.log('m5 after 9 s :', await st());
   await page.evaluate(() => { SS.toMenu(); SS.startMission(1); }); await page.waitForTimeout(2500); console.log('m2 (no file) :', await st());
 }
+
+// v0.11 knee joints: same soldier in standing, both walk phases, run, crouch-kneel and seated poses; side view
+export async function knees({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; SS.sky.set('storm', true); SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-60, 300); SS.player.yaw = 0; SS.player.pitch = -0.12; for (const m of SS.squad.list) m.model.visible = false; });
+  await sim(0.4);
+  const out = await page.evaluate(() => {
+    const P = SS.player, poses = [{}, { walk: Math.PI / 2, moveK: 1 }, { walk: Math.PI * 1.5, moveK: 1 }, { walk: Math.PI, moveK: 1 }, { crouch: 1 }, { sit: true }];
+    window.__k = poses.map((o, i) => { const g = SS.dev.makeSoldier('assault'); SS.scene.add(g); const x = P.pos.x + (i - 2.5) * 0.95, z = P.pos.z - 3.4; g.position.set(x, SS.world.groundAt(x, z, P.pos.y + 1) + (o.sit ? 0.45 : 0), z); g.rotation.y = -Math.PI / 2; SS.dev.poseSoldier(g, o); return g; });
+    const p = window.__k[4].userData.parts; return { shin: !!p.shinL, kneeL: +p.shinL.rotation.x.toFixed(2), kneeR: +p.shinR.rotation.x.toFixed(2) };
+  });
+  console.log('knees', JSON.stringify(out));
+  await shot('K-knees');
+}

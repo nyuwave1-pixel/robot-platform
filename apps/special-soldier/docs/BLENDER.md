@@ -112,3 +112,10 @@ Linux에서 헤드리스로 실행해 만들었습니다. 같은 스크립트가
 - `python3 tools/blender/video.py` 가 게임 에셋(지휘관·정예·중화기병·헬기·화물선·트럭)으로 해 질 녘 비행장 장면을 구성하고 Cycles(CPU, 12 샘플 + 디노이즈)로 144프레임을 렌더링한 뒤 ffmpeg로 `public/video/m5-intro.mp4`(H.264)와 `.webm`(VP9)을 만든다. 6초, 960×540, 무음.
 - 게임은 미션 05 시작 시 이 파일을 재생하고(Enter/Space/클릭 스킵) 끝나면 플레이로 넘어간다. 단일 HTML 빌드에는 영상이 포함되지 않아 실시간 시네마틱으로 대체된다.
 - Google Flow(Veo) 영상은 이 세션에서 만들 수 없었다. 같은 파일 이름으로 넣으면 교체된다(`docs/FLOW_PROMPTS.md`).
+
+## v0.11 — 무릎 관절과 걸음걸이
+
+- 병사 다리를 허벅지(`legL/legR`)와 정강이(`shinL/shinR`, 무릎 피벗 z=0.52)로 나눴다. 정강이 쪽에 종아리·무릎 보호대·군화·끈·밑창이 붙고, 허벅지 끝의 무릎 구(球)가 굽힐 때 틈을 메운다.
+- `poseSoldier()`: 앞으로 내딛는 다리가 무릎을 접고(최대 0.95 rad), 디딤발은 거의 편다. 보폭을 0.75 → 0.55 rad로 줄이고 디딤발 각도만큼 골반을 내려 두 발이 땅에 붙는다. 앉기는 정강이를 아래로, 웅크리기는 왼무릎 세우고 오른무릎 꿇기.
+- `python3 tools/blender/posesheet.py` → `docs/screenshots/blender-poses.jpg`: 게임과 같은 공식으로 6가지 자세를 Cycles로 렌더링(검증용).
+- 테스트 훅: `SS.dev.makeSoldier / poseSoldier` (`tests/plans.mjs` 의 `knees`).

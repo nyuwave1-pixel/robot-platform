@@ -20,7 +20,7 @@ import { Menu } from './ui/menu.js';
 import { clamp } from './core/util.js';
 import { loadAssets, ASSETS } from './game/assets.js';
 import { TunePanel } from './ui/tune.js';
-import { makeSoldier, makeAPC, makeHeli, PALETTE, HOT } from './game/models.js';
+import { makeSoldier, makeAPC, makeHeli, poseSoldier, PALETTE, HOT } from './game/models.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
 const step = (pct, text) => new Promise((r) => { $('loadBar').style.width = pct + '%'; $('loadText').textContent = text; setTimeout(r, 30); });
@@ -125,5 +125,5 @@ function tick(dt) {
   if (!G.skipRender) { G.stats = { calls: G.renderer.info.render.calls, tris: G.renderer.info.render.triangles }; G.renderer.info.reset(); G.post.render(dt); } G.input.endFrame();
 }
 G.tick = tick; G.POI = POI; G.THREE = THREE; G.assets = ASSETS;
-window.SS = G;
+window.SS = G; G.dev = { makeSoldier, poseSoldier }; // test / tooling hooks
 boot().catch((e) => { console.error(e); $('loadText').textContent = 'BOOT FAILED: ' + e.message; });

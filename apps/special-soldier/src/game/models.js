@@ -95,7 +95,7 @@ function soldierFromAsset(kind, scale) {
   const g = soldierTemplate(kind).clone(true); g.scale.setScalar(scale);
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
   const n = (k) => g.getObjectByName(k);
-  g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
+  g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), shinL: n('shinL'), shinR: n('shinR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
   const lod = { full: [], base: [], detail: [] }; g.traverse((o) => { if (o.name === 'lodFull') lod.full.push(o); else if (o.name === 'lodBase') lod.base.push(o); else if (o.name.endsWith('__d')) lod.detail.push(o); }); g.userData.lod = lod; g.userData.lodNear = true;
   return g;
 }
@@ -123,9 +123,12 @@ export function makeSoldier(kind, scale = 1) {
   return g;
 }
 export function poseSoldier(g, { walk = 0, moveK = 0, crouch = 0, aim = 0, sit = false, dead = 0 }) {
-  const p = g.userData.parts, sw = Math.sin(walk) * 0.75 * moveK;
-  if (sit) { p.legL.rotation.x = p.legR.rotation.x = -1.45; p.body.position.y = -0.52; p.upper.rotation.x = 0.12; p.arms.rotation.x = 0.35; return; }
-  p.legL.rotation.x = sw - crouch * 1.1; p.legR.rotation.x = -sw + crouch * 0.5; p.body.position.y = -crouch * 0.42 + Math.abs(Math.sin(walk)) * 0.04 * moveK;
+  const p = g.userData.parts, sw = Math.sin(walk) * 0.55 * moveK, kn = (a) => { if (p.shinL) p.shinL.rotation.x = Math.min(2.3, a[0]); if (p.shinR) p.shinR.rotation.x = Math.min(2.3, a[1]); };
+  if (sit) { p.legL.rotation.x = p.legR.rotation.x = -1.45; kn([1.45, 1.45]); p.body.position.y = -0.52; p.upper.rotation.x = 0.12; p.arms.rotation.x = 0.35; return; } // shins hang down from the seat
+  // gait: the swinging leg folds at the knee (forward swing = thigh angle decreasing), the planted leg stays almost straight; crouch = left knee up, right knee down (kneel)
+  const c = Math.cos(walk), lift = 0.95 * moveK;
+  kn([crouch * 2.0 + (Math.max(0, -c) * lift + 0.08 * moveK) * (1 - crouch * 0.6), crouch * 1.05 + (Math.max(0, c) * lift + 0.08 * moveK) * (1 - crouch * 0.6)]);
+  p.legL.rotation.x = sw - crouch * 1.1; p.legR.rotation.x = -sw + crouch * 0.5; p.body.position.y = -crouch * 0.42 - 0.93 * (1 - Math.cos(sw)); // hips drop with the planted (straight) leg's angle, so both feet stay on the ground
   p.upper.rotation.x = crouch * 0.25 + moveK * 0.1; p.arms.rotation.x = -aim - crouch * 0.2;
   g.rotation.x = -dead * 1.5; g.position.y += 0;
 }
