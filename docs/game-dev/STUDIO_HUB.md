@@ -29,7 +29,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
-| | | |
+| PC Blender | apps/special-soldier: 대장 4종(`docs/ASSET_LICENSES.md` 등), `src/core/audio.js`·`public/audio/`(CC0 음악·효과음), `src/game/assets.js`(meshopt GLB), `tools/blender/textures.py`·`src/assets/tex/`, `tools/assets/` — ASSET_RESEARCH.md Top 10 1차 적용 | 2026-11-19 |
 
 ## 요청
 
