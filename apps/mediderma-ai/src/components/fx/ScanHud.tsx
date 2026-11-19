@@ -1,4 +1,5 @@
 "use client";
+import type React from "react";
 /**
  * 첫 화면 인물(HeroPortrait) 위에 얹는 분석 HUD: 모서리 브래킷 · 스캔 라인 · 부위 표식.
  * 순수 CSS/SVG 라서 WebGL 이 없는 기기에서도 그대로 동작한다. 장식 요소이므로 aria-hidden.
@@ -38,8 +39,11 @@ export default function ScanHud({ labels, animate = true, marks = MARKS }: { lab
         labels[i] ? (
           <span
             key={i}
-            className="absolute whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[10px] tracking-wide text-scan2 backdrop-blur"
-            style={{ left: `${m.lx}%`, top: `${m.ly}%`, transform: `translate(${m.align === "end" ? "-100%" : "0"}, -50%)` }}
+            // 좁은 화면에서는 라벨이 틀 밖으로 잘리지 않도록 가장자리 안쪽에 붙이고, sm 이상에서만 지정 좌표에 둔다.
+            className={`absolute top-[var(--ly)] -translate-y-1/2 whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[10px] tracking-wide text-scan2 backdrop-blur ${
+              m.align === "end" ? "left-1 sm:left-[var(--lx)] sm:-translate-x-full" : "right-1 sm:right-auto sm:left-[var(--lx)]"
+            }`}
+            style={{ "--lx": `${m.lx}%`, "--ly": `${m.ly}%` } as React.CSSProperties}
           >
             {labels[i]}
           </span>

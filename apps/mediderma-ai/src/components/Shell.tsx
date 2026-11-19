@@ -7,7 +7,7 @@ import { track } from "@/lib/client/telemetry";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-baseline gap-2 font-display tracking-[0.28em] ${className}`}>
+    <span className={`inline-flex items-baseline gap-1.5 font-display tracking-[0.16em] min-[400px]:gap-2 min-[400px]:tracking-[0.28em] ${className}`}>
       <span className="font-semibold text-white">MEDIDERMA</span>
       <span className="bg-gradient-to-r from-scan to-scan2 bg-clip-text text-transparent">AI</span>
     </span>
@@ -21,11 +21,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-ink/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
-          <Link href="/" aria-label="MEDIDERMA AI" className="text-[13px] sm:text-sm">
+          <Link href="/" aria-label="MEDIDERMA AI" className="shrink-0 text-[12px] min-[400px]:text-[13px] sm:text-sm">
             <Logo />
           </Link>
           <nav className="flex items-center gap-1 text-[13px] text-silver sm:gap-3">
-            <Link href="/analyze" className="whitespace-nowrap rounded px-1.5 py-1.5 hover:text-white sm:px-2">{t.nav.analyze}</Link>
+            <Link href="/analyze" className="hidden whitespace-nowrap rounded min-[360px]:block px-1.5 py-1.5 hover:text-white sm:px-2">{t.nav.analyze}</Link>
             <Link href="/compare" className="hidden whitespace-nowrap rounded px-1.5 py-1.5 hover:text-white min-[480px]:block sm:px-2">{t.nav.compare}</Link>
             <Link href="/history" className="hidden rounded px-2 py-1.5 hover:text-white sm:block">{t.nav.history}</Link>
             <label className="sr-only" htmlFor="lang">{t.common.language}</label>

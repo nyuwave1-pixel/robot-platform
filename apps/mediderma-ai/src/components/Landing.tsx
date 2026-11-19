@@ -178,7 +178,7 @@ export default function Landing() {
             </motion.div>
           </div>
           <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
-            {/* Blender Cycles 로 렌더링한 사실적 얼굴(합성 인체 모델) 턴테이블 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
+            {/* 브랜드 모델 사진 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
             <HeroPortrait alt="MEDIDERMA" />
             {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
             <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} marks={PORTRAIT_MARKS} />
@@ -337,7 +337,7 @@ export default function Landing() {
         <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(79,182,255,0.25),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
         <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
-          {/* 스크롤에 따라 회전하는 Blender 렌더 시퀀스 */}
+          {/* 히어로와 같은 브랜드 모델 사진 */}
           <div className="mx-auto mb-4 w-48 sm:w-60">
             <HeroPortrait alt="" />
           </div>
