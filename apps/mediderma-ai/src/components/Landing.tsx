@@ -106,10 +106,10 @@ function OnDeviceVisual() {
 }
 
 const PORTRAIT_MARKS = [
-  { x: 41, y: 21, lx: 66, ly: 9, align: "start" as const },
-  { x: 33, y: 37, lx: 6, ly: 30, align: "end" as const },
-  { x: 48.6, y: 31, lx: 86, ly: 38, align: "start" as const },
-  { x: 35.7, y: 47.4, lx: 8, ly: 62, align: "end" as const },
+  { x: 51, y: 25, lx: 72, ly: 10, align: "start" as const },
+  { x: 39, y: 49, lx: 6, ly: 40, align: "end" as const },
+  { x: 60, y: 46, lx: 88, ly: 44, align: "start" as const },
+  { x: 43, y: 60, lx: 8, ly: 70, align: "end" as const },
 ];
 
 const BRAND_CUTS = ["/brand/model-silk.webp", "/brand/model-knit.webp", "/brand/model-robe.webp", "/brand/model-cream.webp"];
