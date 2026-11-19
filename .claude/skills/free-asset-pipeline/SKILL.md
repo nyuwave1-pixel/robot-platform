@@ -66,7 +66,7 @@ Start with ~10 verified assets applied end to end, then widen.
 
 ## 4. Engine mapping
 
-| Need | UE5 project | Unity 6.3 LTS project | Web game (Three.js) |
+| Need | UE5 project | Unity 6 project (PC: 6000.6.9f1) | Web game (Three.js) |
 |---|---|---|---|
 | Dense meshes | Nanite | LODGroup, GPU Resident Drawer | Blender decimate + `__d` LOD children, instancing |
 | GI / reflections | Lumen | URP/HDRP APV light probes, reflection probes, HDRI skybox | Poly Haven HDRI → PMREM env map, baked AO (vertex colour) |
@@ -80,7 +80,7 @@ Start with ~10 verified assets applied end to end, then widen.
 
 - Mixamo (Adobe login), Sketchfab/Fab/itch.io downloads (login, per-asset license click), Freesound (account for originals),
   Sonniss GDC bundle (large manual download): run these in a session on the user's PC with the Chrome extension, or ask the user.
-- Unity Editor work (install, Unity ID login, licence, Editor control via Unity CLI): the PC session "Unity 설치 · 게임 개발 연동" (`docs/game-dev/UNITY_SETUP.md`).
+- Unity Editor work (install, Unity ID login, licence, Editor control via Unity CLI): the PC Blender session (Unity 6000.6.9f1 already installed) (`docs/game-dev/UNITY_SETUP.md`).
 - Blender GUI checks and Windows builds: the PC session (`C:\Program Files\Blender Foundation\Blender 5.3\blender.exe`).
 - Cloud sessions reached Poly Haven and ambientCG (open APIs), OpenGameArt, game-icons.net and quaternius.com on 2026-11-19;
   kenney.nl, freesound.org, sonniss.com and github.com web pages were blocked (GitHub is reachable through `gh api search/*`).

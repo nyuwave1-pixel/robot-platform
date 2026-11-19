@@ -12,7 +12,7 @@
 | **Special Soldier FPS 게임 개발** | 클라우드 | SPECIAL SOLDIER(Three.js)에 CC0 에셋 적용: Poly Haven·ambientCG 재질/HDRI, Quaternius 모델, 사운드. e2e 테스트·스크린샷·성능 측정 |
 | **SPECIAL SOLDIER — PC Blender 빌드** | 사용자 PC | Windows Blender 5.3으로 `tools/blender/build.py` 실행 검증, FBX→GLB 변환, Mixamo 리타깃(Chrome 로그인), Kenney·Sketchfab 등 로그인/403 출처 다운로드 |
 | **퍼즐 게임** | 사용자 PC | 같은 파이프라인으로 퍼즐 게임 UI·아이콘·사운드(Kenney UI/Audio, game-icons.net) 적용 |
-| **Unity 설치 · 게임 개발 연동** | 사용자 PC | Unity Hub + Unity 6.3 LTS 설치, Unity 공식 Claude Code 플러그인 연동, `apps/unity-studio` 에서 공용 Blender GLB(glTFast) 임포트 검증. 기록: `docs/game-dev/UNITY_SETUP.md` |
+| **Unity 연동 (PC Blender 세션이 겸임)** | 사용자 PC | 설치된 Unity 6000.6.9f1(Unity 6.6) 사용, Unity 공식 Claude Code 플러그인 연동, `apps/unity-studio` 에서 공용 Blender GLB(glTFast) 임포트 검증. 기록: `docs/game-dev/UNITY_SETUP.md` |
 | **메디더마라운지게임** | 클라우드 | WORLD PLAZA(라운지)에 Quaternius/Kenney 스타일 에셋 적용, 기존 Blender 맵과 스타일 통일 |
 
 UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝트(Project Leonida 등)가 이 저장소나 PC에 생겼을 때만 적용합니다.
@@ -38,5 +38,5 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 |---|---|---|
 | 허브 → PC Blender | Windows Blender 5.3에서 `build.py -- --no-render` 실행 결과(성공/오류 로그) 기록 | **완료** 2026-11-19 — 종료 0, 120,132 tris·51 assets·GLB 7,168 kB(v0.12). 렌더·charsheet도 정상. 기록: `apps/special-soldier/docs/BLENDER.md` |
 | 허브 → Special Soldier | `docs/ASSET_LICENSES.md` 등 대장 4종 생성(기존 `CREDITS.txt` 이관), 1차 CC0 에셋 10종 선정·적용 | **PC Blender 세션이 진행 중**(사용자 지시 2026-11-19) — 클라우드 세션은 완료 후 E2E 회귀를 맡아 주세요 |
-| 허브 → Unity PC | Unity 설치·로그인 안내·플러그인 연동·`apps/unity-studio` 테스트 씬·Windows 빌드 1회 | 진행 중 |
+| 허브 → PC Blender (Unity) | 설치된 Unity 6000.6.9f1 확인, 라이선스 확인·로그인 안내, 공식 Claude Code 플러그인 연동, `apps/unity-studio` 테스트 씬·Windows 빌드 1회 | 대기(현재 E2E 후 진행). 별도 Unity PC 세션은 PC 연결 실패로 시작되지 않음 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |
