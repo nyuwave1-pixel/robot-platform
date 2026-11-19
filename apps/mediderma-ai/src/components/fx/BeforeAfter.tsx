@@ -1,21 +1,14 @@
 "use client";
 /**
- * 사용 전/후 비교 카드. 두 사진을 겹쳐 두고 세로 분할선이 좌우로 오가며 '사용 전 → 사용 후' 로 바뀐다.
- * 마우스·손가락을 올리면 분할선이 포인터를 따라간다. 화면 밖이거나 모션 최소화 설정이면 멈춘다.
- * 분할 위치는 CSS 변수(--p)만 바꿔서 리렌더 없이 그린다.
+ * 사용 전/후 비교 카드. 사용 전·사용 후는 서로 다른 날 찍은 사진처럼 표정·포즈가 달라서,
+ * 겹쳐 밀어 보는 방식 대신 두 장이 번갈아 서서히 바뀌는 크로스페이드로 보여준다.
+ * 마우스를 올리면 사용 후에서 멈추고, 누르면(터치 포함) 전/후를 직접 바꿔 볼 수 있다.
+ * 화면 밖이거나 모션 최소화 설정이면 자동 전환을 멈춘다.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const CYCLE = 6.4; // 초: 사용 전 유지 → 넘어감 → 사용 후 유지 → 되돌아감
-
-function posAt(t: number) {
-  const s = ((t % CYCLE) + CYCLE) % CYCLE;
-  const ease = (x: number) => x * x * (3 - 2 * x);
-  if (s < 1.2) return 100; // 사용 전이 화면 전체
-  if (s < 3.0) return 100 - 100 * ease((s - 1.2) / 1.8);
-  if (s < 4.6) return 0; // 사용 후가 화면 전체
-  return 100 * ease((s - 4.6) / 1.8);
-}
+const HOLD_BEFORE = 2200;
+const HOLD_AFTER = 3000;
 
 export default function BeforeAfter({
   before,
@@ -37,64 +30,68 @@ export default function BeforeAfter({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const hover = useRef(false);
+  const [showAfter, setShowAfter] = useState(!animate);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
+    if (!animate || paused) return;
     const el = ref.current;
     if (!el) return;
-    el.style.setProperty("--p", "50%");
-    if (!animate) return;
-    let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     let visible = false;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      if (!hover.current) el.style.setProperty("--p", `${posAt((now - t0) / 1000 + phase)}%`);
-      raf = visible ? requestAnimationFrame(tick) : 0;
+    let state = false;
+    const step = () => {
+      if (!visible) return;
+      state = !state;
+      setShowAfter(state);
+      timer = setTimeout(step, state ? HOLD_AFTER : HOLD_BEFORE);
     };
     const io = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting;
-      if (visible && !raf) raf = requestAnimationFrame(tick);
+      clearTimeout(timer);
+      if (visible) timer = setTimeout(step, HOLD_BEFORE + phase * 1000);
     });
     io.observe(el);
     return () => {
       io.disconnect();
-      cancelAnimationFrame(raf);
+      clearTimeout(timer);
     };
-  }, [animate, phase]);
-
-  const follow = (e: React.PointerEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    hover.current = true;
-    e.currentTarget.style.setProperty("--p", `${Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100))}%`);
-  };
+  }, [animate, paused, phase]);
 
   return (
     <div
       ref={ref}
-      onPointerMove={follow}
-      onPointerDown={follow}
-      onPointerLeave={() => (hover.current = false)}
-      className={`relative h-full w-full touch-pan-y select-none ${className}`}
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") {
+          setPaused(true);
+          setShowAfter(true);
+        }
+      }}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setPaused(false)}
+      onClick={() => {
+        setPaused(true);
+        setShowAfter((v) => !v);
+      }}
+      className={`relative h-full w-full cursor-pointer select-none ${className}`}
       data-testid="before-after"
+      data-state={showAfter ? "after" : "before"}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={after} alt={`${alt} — ${afterLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
+      <img src={before} alt={`${alt} — ${beforeLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={before}
-        alt={`${alt} — ${beforeLabel}`}
+        src={after}
+        alt={`${alt} — ${afterLabel}`}
         loading="lazy"
         decoding="async"
         draggable={false}
-        className="absolute inset-0 h-full w-full object-cover object-top"
-        style={{ clipPath: "inset(0 calc(100% - var(--p, 50%)) 0 0)" }}
+        className={`absolute inset-0 h-full w-full object-cover object-top transition-[opacity,transform] duration-700 ease-out ${showAfter ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"}`}
       />
-      {/* 분할선 */}
-      <div aria-hidden className="pointer-events-none absolute inset-y-0 w-px bg-white/80 shadow-[0_0_14px_3px_rgba(125,211,252,0.7)]" style={{ left: "var(--p, 50%)" }}>
-        <span className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80 bg-ink/50 backdrop-blur" />
+      {/* 전/후 표시: 현재 보이는 쪽이 강조된다 */}
+      <div className="pointer-events-none absolute left-3 top-3 flex overflow-hidden rounded-full border border-white/20 bg-ink/60 text-[10px] tracking-wide backdrop-blur">
+        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "text-white/50" : "bg-white/90 text-ink"}`}>{beforeLabel}</span>
+        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "bg-scan text-ink" : "text-white/50"}`}>{afterLabel}</span>
       </div>
-      <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-ink/70 px-2 py-0.5 text-[10px] tracking-wide text-white/90 backdrop-blur">{beforeLabel}</span>
-      <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-scan/80 px-2 py-0.5 text-[10px] tracking-wide text-ink backdrop-blur">{afterLabel}</span>
     </div>
   );
 }

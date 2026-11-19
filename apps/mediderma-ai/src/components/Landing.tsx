@@ -113,8 +113,8 @@ const PORTRAIT_MARKS = [
   { x: 46, y: 53, lx: 8, ly: 64, align: "end" as const },
 ];
 
-// 사용 후 = Canva "UNI&CORE DERMA HOME Model Cuts" 의 모델 컷, 사용 전 = 같은 컷을 Higgsfield 로 피부 문제만 바꿔 만든 AI 연출 이미지
-const BRAND_CUTS = ["silk", "knit", "robe", "cream"].map((n) => ({ after: `/brand/model-${n}.webp`, before: `/brand/model-${n}-before.webp` }));
+// 40·50·60대 한국 여성 예시 3명. 사용 전·후 모두 Higgsfield 로 만든 AI 연출 이미지(별도 촬영처럼 표정·포즈·옷이 다름)
+const BRAND_CUTS = ["40", "50", "60"].map((n) => ({ after: `/brand/case-${n}-after.webp`, before: `/brand/case-${n}-before.webp` }));
 
 export default function Landing() {
   const { t } = useI18n();
@@ -255,7 +255,7 @@ export default function Landing() {
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
           <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
           {/* 사용 전/후 비교 갤러리 (AI 연출 이미지임을 아래에 밝힌다) */}
-          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0" data-testid="brand-gallery">
+          <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" data-testid="brand-gallery">
             {BRAND_CUTS.map(({ before, after }, i) => (
               <motion.figure
                 key={after}
