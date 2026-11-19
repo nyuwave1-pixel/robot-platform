@@ -206,6 +206,9 @@ export const GUIDES: Guide[] = [
       { q: "How often can I use a vitamin C sheet mask?", a: "Whenever your skin needs a boost — many people mask once or twice a week, or before an event." },
       { q: "Should I use a serum before or after a sheet mask?", a: "Either order is used. A simple approach is to mask after cleansing and toner, pat in the remaining essence, then apply your serum or ampoule and finish with moisturizer. In the morning, end with sunscreen." },
       { q: "Can I sleep in a sheet mask?", a: "No. A regular sheet mask is a short treatment: take it off after 10–20 minutes, before it dries, and pat in the remaining essence. Only products made as overnight or sleeping masks are meant to stay on all night." },
+      // Search research 2026-11-19: "how often should you use a sheet mask", "reuse sheet mask", "sheet mask before makeup".
+      { q: "Can I reuse a sheet mask?", a: "No. A sheet mask is made for one use. The UNI&CORE mask comes as 5 individually sealed sheets, so open a fresh one each time." },
+      { q: "Can I use a sheet mask before makeup?", a: "Yes. Leave it on for 10–20 minutes, pat in the remaining essence and let it absorb before makeup. It leaves skin smooth and comfortable, a good base before a night out." },
       { q: "Where can I buy the UNI&CORE vitamin C sheet mask?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
     ],
     products: ["mask"],

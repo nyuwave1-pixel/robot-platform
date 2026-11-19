@@ -8,6 +8,8 @@ export const SITE = {
   mainSite: "https://unincore.com",
   /** UNI&CORE's own US online store; linked from the footer so Google ties the two US sites to one brand. */
   usStore: "https://us.unincore.com",
+  /** The same four products on the US store (productSeq), so Google ties each landing page to its store page. */
+  usStoreProducts: { wash: 441, mask: 445, mist: 446, ampoule: 449 } as Record<string, number>,
   locale: "en_US",
   /** UNI&CORE brand store on Amazon (the share link's tracking parameters removed). */
   amazonStore: "https://www.amazon.com/stores/UNICORE/page/51BC645B-3E00-4AA5-A624-530B9E21DCE3",

@@ -139,7 +139,15 @@ export function productLd(p: ProductContent) {
     ...(p.size && { size: p.size }),
     countryOfOrigin: "KR",
     ...(p.keyIngredient && { additionalProperty: [{ "@type": "PropertyValue", name: "Key ingredient", value: p.keyIngredient }] }),
-    sameAs: [p.shop?.url ?? p.amazonUrl, ...(p.officialDetail ? [p.officialDetail.sourceUrl] : [])].filter(Boolean),
+    sameAs: [
+      ...new Set(
+        [
+          p.shop?.url ?? p.amazonUrl,
+          p.officialDetail?.sourceUrl,
+          SITE.usStoreProducts[p.key] && `${SITE.usStore}/shopping/search/view.do?productSeq=${SITE.usStoreProducts[p.key]}`,
+        ].filter(Boolean),
+      ),
+    ],
   };
   if (p.price) {
     data.offers = {
