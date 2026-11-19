@@ -57,6 +57,7 @@ public/models       MediaPipe Face Landmarker 모델 (Apache-2.0, 자체 호스�
 | 개인정보 | "사진이 기기 밖으로 나가지 않음" 모션 다이어그램(SVG) |
 | CTA | 오로라 셰이더 배경 + 자석 버튼 |
 | 분석·리포트 | 스캔 궤도 링, 종합 지수 카운트업 링, 지표 막대 애니메이션 |
+| 리포트 · 한눈에 보기 | 맨 위에 큰 글씨로 방사형 그래프(8개 항목, 바깥쪽 = 좋음) → 먼저 관리할 곳 3곳 → "언제 · 어떤 제품 · 더마홈 어떤 기능 · 몇 분 · 어느 방향" 카드(공식 CARE GUIDE 루틴 단계에서 가져옴, 공식몰 제품 사진 `public/products/`) → 4주 뒤 다시 찍어 전후 비교 안내(`report/CareAtAGlance`). 헤더의 "가+" 버튼으로 사이트 전체 큰 글씨 모드. |
 
 저사양 기기·WebGL 미지원·모션 최소화 설정에서는 WebGL 캔버스를 만들지 않고 CSS/SVG 버전으로 자동 전환한다 (`lib/client/device.ts`). 3D 글꼴(helvetiker)은 three.js 배포본이며 라이선스는 `public/fonts/LICENSE`.
 

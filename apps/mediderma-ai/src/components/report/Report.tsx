@@ -17,6 +17,7 @@ import FaceMap from "./FaceMap";
 import CareView from "./CareView";
 import Simulation from "./Simulation";
 import AiInsightPanel from "./AiInsightPanel";
+import CareAtAGlance from "./CareAtAGlance";
 
 const Face3D = dynamic(() => import("./Face3D"), { ssr: false });
 
@@ -182,6 +183,9 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
             <dt>{t.report.modelVersion}</dt><dd className="col-span-1 break-all text-white/80">{result.modelVersion}</dd>
           </dl>
         </header>
+
+        {/* 한눈에 보기: 방사형 그래프 + 먼저 관리할 곳 + 제품·더마홈 관리 방법 + 결과 확인 */}
+        <CareAtAGlance categories={a.categories} plan={plan} />
 
         {/* 종합 + 세부 */}
         <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">

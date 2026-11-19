@@ -4,6 +4,34 @@ import { useI18n } from "@/lib/i18n";
 import { LOCALE_NAMES, type Locale } from "@/lib/appConfig";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
+import { useEffect, useState } from "react";
+
+/** 큰 글씨 모드: 루트 글자 크기를 키워 rem 기반 화면 전체를 함께 키운다(어르신·저시력 사용자용). 브라우저에만 기억한다. */
+function BigTextToggle({ label }: { label: string }) {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    let v = false;
+    try {
+      v = localStorage.getItem("mediderma:bigText") === "1";
+    } catch {}
+    setOn(v);
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle("big-text", on);
+  }, [on]);
+  const flip = () => {
+    const v = !on;
+    setOn(v);
+    try {
+      localStorage.setItem("mediderma:bigText", v ? "1" : "0");
+    } catch {}
+  };
+  return (
+    <button onClick={flip} aria-pressed={on} title={label} aria-label={label} data-testid="big-text" className={`shrink-0 rounded border px-1.5 py-0.5 text-sm font-bold leading-none ${on ? "border-scan bg-scan/20 text-white" : "border-line text-silver"}`}>
+      가<span className="text-[10px]">+</span>
+    </button>
+  );
+}
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
@@ -25,9 +53,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <Logo />
           </Link>
           <nav className="flex items-center gap-1 text-[13px] text-silver sm:gap-3">
-            <Link href="/analyze" className="hidden whitespace-nowrap rounded min-[360px]:block px-1.5 py-1.5 hover:text-white sm:px-2">{t.nav.analyze}</Link>
+            <Link href="/analyze" className="hidden whitespace-nowrap rounded min-[440px]:block px-1.5 py-1.5 hover:text-white sm:px-2">{t.nav.analyze}</Link>
             <Link href="/compare" className="hidden whitespace-nowrap rounded px-1.5 py-1.5 hover:text-white min-[480px]:block sm:px-2">{t.nav.compare}</Link>
             <Link href="/history" className="hidden rounded px-2 py-1.5 hover:text-white sm:block">{t.nav.history}</Link>
+            <BigTextToggle label={t.common.bigText} />
             <label className="sr-only" htmlFor="lang">{t.common.language}</label>
             <select
               id="lang"
