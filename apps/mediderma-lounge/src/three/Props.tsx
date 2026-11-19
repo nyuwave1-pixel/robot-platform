@@ -380,7 +380,7 @@ export function Sofa({ color = "#f6bccb", seats = 3 }: { color?: string; seats?:
     <Model
       url={`./models/sofa_${Math.min(3, Math.max(1, seats))}.glb`}
       rotation={[0, Math.PI, 0]}
-      tint={{ fabric: { color } }}
+      tint={{ fabric: { color, normalMap: "./tex/fabric_n.jpg", normalScale: 0.6, repeat: 4 } }}
       fallback={<group rotation={[0, Math.PI, 0]}>
       <mesh position={[0, 0.26, 0]} castShadow receiveShadow><boxGeometry args={[w, 0.36, 0.8]} /><meshStandardMaterial color={color} roughness={0.9} /></mesh>
       <mesh position={[0, 0.62, 0.34]} castShadow><boxGeometry args={[w, 0.6, 0.18]} /><meshStandardMaterial color={color} roughness={0.9} /></mesh>

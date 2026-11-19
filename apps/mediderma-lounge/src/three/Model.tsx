@@ -17,7 +17,29 @@ function load(url: string) {
   return p;
 }
 
-export interface Tint { color?: string; emissive?: string; emissiveIntensity?: number; roughness?: number }
+export interface Tint {
+  color?: string; emissive?: string; emissiveIntensity?: number; roughness?: number;
+  /** 잎·꽃 카드처럼 알파가 있는 텍스처를 정렬 문제 없이 그린다 (BLEND → MASK) */
+  alphaTest?: number;
+  /** 무료 PBR 재질(ambientCG 등)의 노멀맵을 덧입힌다: 파일 경로 · 강도 · 반복 */
+  normalMap?: string; normalScale?: number; repeat?: number;
+}
+
+const texCache = new Map<string, THREE.Texture>();
+/** 같은 경로·반복은 한 번만 불러 공유한다 (불러오는 동안에도 바로 쓸 수 있다) */
+export function loadTex(url: string, repeat = 1, color = false) {
+  const key = `${url}|${repeat}|${color}`;
+  let t = texCache.get(key);
+  if (!t) {
+    t = new THREE.TextureLoader().load(url);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(repeat, repeat);
+    t.anisotropy = 4;
+    if (color) t.colorSpace = THREE.SRGBColorSpace;
+    texCache.set(key, t);
+  }
+  return t;
+}
 
 export function Model({ url, tint, fallback, materials, ...props }: { url: string; tint?: Record<string, Tint>; fallback?: ReactNode; /** 재질 이름 → 통째로 바꿔 끼울 재질 (캐릭터 피부처럼 공유 재질을 쓸 때) */ materials?: Record<string, THREE.Material> } & JSX.IntrinsicElements["group"]) {
   const [src, setSrc] = useState<THREE.Group | null>(null);
@@ -39,6 +61,8 @@ export function Model({ url, tint, fallback, materials, ...props }: { url: strin
         if (t.emissive) n.emissive.set(t.emissive);
         if (t.emissiveIntensity !== undefined) n.emissiveIntensity = t.emissiveIntensity;
         if (t.roughness !== undefined) n.roughness = t.roughness;
+        if (t.alphaTest !== undefined) { n.alphaTest = t.alphaTest; n.transparent = false; n.depthWrite = true; n.side = THREE.DoubleSide; }
+        if (t.normalMap) { n.normalMap = loadTex(t.normalMap, t.repeat ?? 1); n.normalScale.setScalar(t.normalScale ?? 1); }
         return n;
       });
       m.material = Array.isArray(m.material) ? mats : mats[0];

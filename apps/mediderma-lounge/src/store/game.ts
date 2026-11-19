@@ -72,7 +72,7 @@ export interface GameState {
   posts: Post[];
   followers: number;
   following: string[];
-  settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean };
+  settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number };
 
   startNew: (name: string, look: Look) => void;
   setLook: (patch: Partial<Look>) => void;

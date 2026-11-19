@@ -29,6 +29,7 @@ export function World() {
   const [lost, setLost] = useState(0);
   const lostRef = useRef(false);
   const q = lost ? "low" : quality === "auto" ? auto : quality;
+  const plaza = useUI((s) => s.world === "plaza");
   const wrap = useRef<HTMLDivElement>(null);
   useCameraGestures(wrap);
 
@@ -42,6 +43,8 @@ export function World() {
         gl={{ antialias: q === "high", preserveDrawingBuffer: true, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.1;
+          const dbg = (window as unknown as { __mdl?: Record<string, unknown> }).__mdl;
+          if (dbg) dbg.gl = gl; // ?debug 일 때 렌더러 통계(삼각형·드로우콜) 측정용
           gl.domElement.addEventListener("webglcontextlost", (e) => {
             // 캔버스를 내릴 때 R3F 가 일부러 컨텍스트를 버리는 경우는 무시하고, 복구는 한 번만 시도한다
             if (!gl.domElement.isConnected || lostRef.current) return;
@@ -55,14 +58,14 @@ export function World() {
         <color attach="background" args={["#f6e1e7"]} />
         <fog attach="fog" args={["#f6e1e7", 30, 60]} />
         {/* 환경 반사광: 외부 HDR 파일 없이 라이트포머로 만든 스튜디오 */}
-        <Environment resolution={q === "high" ? 256 : 64} frames={1} environmentIntensity={0.3}>
+        {!plaza && <Environment resolution={q === "high" ? 256 : 64} frames={1} environmentIntensity={0.3}>
           <color attach="background" args={["#e9d3d9"]} />
           <Lightformer form="rect" intensity={3.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 12, 1]} color="#fff1e0" />
           <Lightformer form="rect" intensity={2.4} position={[7, 2.5, 0]} rotation-y={-Math.PI / 2} scale={[7, 4, 1]} color="#ffffff" />
           <Lightformer form="rect" intensity={1.3} position={[-7, 2.5, 2]} rotation-y={Math.PI / 2} scale={[7, 4, 1]} color="#ffc9d8" />
           <Lightformer form="ring" intensity={5} position={[0, 3, -7]} scale={3} color="#ffe0b0" />
           <Lightformer form="rect" intensity={1.2} position={[0, 2, 8]} rotation-y={Math.PI} scale={[8, 3, 1]} color="#e7dcff" />
-        </Environment>
+        </Environment>}
         <PerformanceMonitor onDecline={() => setAuto("low")} onIncline={() => setAuto("high")} flipflops={2} />
         <AdaptiveDpr pixelated={false} />
         <Suspense fallback={null}>

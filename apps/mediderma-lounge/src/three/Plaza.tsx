@@ -1,7 +1,7 @@
 /** WORLD PLAZA — 다른 플레이어와 함께 걷는 야외 광장. 통신은 src/net/plaza.ts */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Billboard, Sparkles } from "@react-three/drei";
+import { Billboard, Environment, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { tune } from "../data/config";
 import { DEMO_FRIENDS } from "../data/game";
@@ -9,9 +9,10 @@ import { joinPlaza, leavePlaza, postScore, remotes, sparkleSpots, usePlaza, SLOT
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { input, useUI } from "../store/ui";
 import { useT } from "../i18n";
+import { play, setWater } from "../audio/sound";
 import { Character } from "./Character";
 import { Label } from "./Label";
-import { Model } from "./Model";
+import { Model, loadTex } from "./Model";
 import { layout, type Layout } from "./layout";
 
 export const PLAZA_R = 13.5;
@@ -64,6 +65,12 @@ export function Plaza({ onFloor, quality = "high" }: { onFloor: (x: number, z: n
   const hi = quality === "high";
   useEffect(() => { joinPlaza(); return () => leavePlaza(); }, []);
   const paving = usePaving();
+  // ambientCG (CC0) 잔디·돌 표면 질감
+  const grass = useMemo(() => loadTex("./tex/grass_c.jpg", 22, true), []);
+  const grassN = useMemo(() => loadTex("./tex/grass_n.jpg", 22), []);
+  const grassHill = useMemo(() => loadTex("./tex/grass_c.jpg", 4, true), []);
+  const pavingN = useMemo(() => loadTex("./tex/paving_n.jpg", 9), []);
+  const pavingR = useMemo(() => loadTex("./tex/paving_r.jpg", 9), []);
   const click = (e: ThreeEvent<MouseEvent>) => { if (e.delta > 6) return; e.stopPropagation(); usePlaza.setState({ target: null }); onFloor(e.point.x, e.point.z); };
   // 가까이 있는 시설 감지
   const last = useRef<string | null>(null);
@@ -71,17 +78,23 @@ export function Plaza({ onFloor, quality = "high" }: { onFloor: (x: number, z: n
     const p = input.playerPos;
     const near = Math.hypot(p.x - STAGE.x, p.z - STAGE.z) < STAGE.r + 0.6 ? "stage" : Math.hypot(p.x - STALL.x, p.z - STALL.z) < 2.6 ? "stall" : Math.hypot(p.x, p.z) < 4.2 ? "fountain" : null;
     if (near !== last.current) { last.current = near; usePlaza.setState({ near }); }
+    setWater(1 - Math.min(1, Math.max(0, (Math.hypot(p.x, p.z) - 3) / 8)));
   });
   return (
     <group>
       <hemisphereLight args={["#fff8f2", "#f3d9e2", 0.78]} />
       <directionalLight position={[8, 14, 6]} intensity={1.4} color="#fff3e0" castShadow={hi} shadow-mapSize={[2048, 2048]} shadow-bias={-0.0004} shadow-camera-left={-16} shadow-camera-right={16} shadow-camera-top={16} shadow-camera-bottom={-16} />
       {/* 잔디 언덕 → 광장 돌바닥 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]} receiveShadow><circleGeometry args={[46, 48]} /><meshStandardMaterial color="#cfe8c4" roughness={1} /></mesh>
+      {/* 하늘: Poly Haven HDRI (CC0) — 배경과 반사광. 불러오는 동안에는 기본 배경색이 보인다 */}
+      <Suspense fallback={null}>
+        <Environment files="./tex/sky_plaza.hdr" background backgroundIntensity={1.05} environmentIntensity={0.5} />
+      </Suspense>
+      <fog attach="fog" args={["#eaf2f8", 38, 90]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, 0]} receiveShadow><circleGeometry args={[46, 48]} /><meshStandardMaterial color="#d9efcf" map={grass} normalMap={grassN} normalScale={[0.8, 0.8] as never} roughness={1} /></mesh>
       {[[-22, -16, 9], [20, -20, 11], [26, 8, 8], [-26, 10, 10], [0, -30, 12], [4, 28, 9]].map(([x, z, r], i) => (
-        <mesh key={i} position={[x, -r * 0.72, z]}><sphereGeometry args={[r, 24, 16]} /><meshStandardMaterial color={i % 2 ? "#c2e0b6" : "#d6ecca"} roughness={1} /></mesh>
+        <mesh key={i} position={[x, -r * 0.72, z]}><sphereGeometry args={[r, 24, 16]} /><meshStandardMaterial color={i % 2 ? "#cde6c0" : "#e0f1d6"} map={grassHill} roughness={1} /></mesh>
       ))}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow onClick={click}><circleGeometry args={[PLAZA_R + 0.6, 72]} /><meshStandardMaterial map={paving} roughness={0.8} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow onClick={click}><circleGeometry args={[PLAZA_R + 0.6, 72]} /><meshStandardMaterial map={paving} normalMap={pavingN} normalScale={[0.45, 0.45] as never} roughnessMap={pavingR} roughness={0.9} /></mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}><ringGeometry args={[PLAZA_R + 0.5, PLAZA_R + 0.85, 72]} /><meshStandardMaterial color="#fffaf4" roughness={0.5} /></mesh>
 
       <Model url="./models/plaza_fountain.glb" fallback={<mesh position={[0, 0.25, 0]}><cylinderGeometry args={[2.3, 2.3, 0.5, 32]} /><meshStandardMaterial color="#fffaf4" /></mesh>} />
@@ -114,6 +127,7 @@ export function Plaza({ onFloor, quality = "high" }: { onFloor: (x: number, z: n
         <Model url="./models/plaza_stall.glb" />
         <Label text="LOUNGE PROMO" width={1.35} position={[0, 2.45, -0.35]} rotation={[0, Math.PI, 0]} color="#f6d9a6" size={150} weight={800} spacing={0.04} />
       </group>
+      <Greenery />
       <SparkleHunt />
       <Remotes />
       <Guides />
@@ -135,6 +149,39 @@ function Water() {
         <mesh key={i} position={[0, y, 0]}><cylinderGeometry args={[r * 0.62, r, h, 24, 1, true]} /><meshStandardMaterial color="#cfefff" transparent opacity={0.16} roughness={0.1} side={THREE.DoubleSide} depthWrite={false} /></mesh>
       ))}
       <Sparkles count={60} scale={[3.4, 2.6, 3.4]} position={[0, 1.6, 0]} size={3.2} speed={1.1} color="#e6f8ff" opacity={0.95} />
+    </group>
+  );
+}
+
+// ───────────── Quaternius 자연 소품 (CC0) ─────────────
+const LEAF = { Bush_Leaves: { alphaTest: 0.5 }, Flowers: { alphaTest: 0.5 }, Grass: { alphaTest: 0.5 } };
+const BUSHES = ["qn_bush_large", "qn_bush", "qn_bush_small"];
+/** 광장 둘레의 꽃 덤불, 나무 밑 꽃밭, 잔디 위 풀 무더기. 위치는 매번 같도록 고정 씨앗으로 정한다 */
+function Greenery() {
+  const items = useMemo(() => {
+    let s = 20261119;
+    const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+    const out: { url: string; x: number; z: number; r: number; k: number }[] = [];
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2 + 0.1;
+      if (Math.abs(Math.atan2(Math.sin(a), -Math.cos(a))) > Math.PI - 0.25) continue; // 정문 뒤쪽은 비워 둔다
+      const r = PLAZA_R + 1.4 + rnd() * 0.6;
+      out.push({ url: BUSHES[i % 3], x: Math.sin(a) * r, z: -Math.cos(a) * r, r: rnd() * 6.28, k: 1.1 + rnd() * 0.4 });
+    }
+    for (const [x, z] of TREES) out.push({ url: "qn_flowerpatch", x: x * 0.93, z: z * 0.93, r: rnd() * 6.28, k: 1 });
+    for (let i = 0; i < 22; i++) {
+      const a = rnd() * Math.PI * 2, r = PLAZA_R + 2.6 + rnd() * 9;
+      out.push({ url: i % 4 ? "qn_grass" : "qn_flowerpatch", x: Math.sin(a) * r, z: Math.cos(a) * r, r: rnd() * 6.28, k: 1 + rnd() * 0.5 });
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {items.map((it, i) => (
+        <group key={i} position={[it.x, 0, it.z]} rotation={[0, it.r, 0]} scale={it.k}>
+          <Model url={`./models/${it.url}.glb`} tint={LEAF} />
+        </group>
+      ))}
     </group>
   );
 }
@@ -163,6 +210,7 @@ function PetalGame() {
     spots.current.forEach((s, i) => {
       if (Math.hypot(s.x - p.x, s.z - p.z) < 0.7) {
         spots.current[i] = spawn();
+        play("pickup", 0.7);
         usePlaza.setState({ game: { end: st.game!.end, score: usePlaza.getState().game!.score + 1 } });
       }
       const m = group.current?.children[i];
@@ -173,10 +221,11 @@ function PetalGame() {
   return (
     <group ref={group}>
       {Array.from({ length: 7 }, (_, i) => (
-        <mesh key={i} scale={[1, 0.25, 0.7]}>
-          <sphereGeometry args={[0.26, 12, 8]} />
-          <meshStandardMaterial color={i % 2 ? "#ff9db5" : "#ffd0dc"} emissive="#ff7fa5" emissiveIntensity={0.7} roughness={0.4} />
-        </mesh>
+        <group key={i}>
+          {/* Quaternius 꽃잎 (CC0). 못 불러오면 분홍 꽃잎 모양으로 대신한다 */}
+          <Model url="./models/qn_petal.glb" scale={0.75} tint={{ Flowers: { alphaTest: 0.4, emissive: "#ff7fa5", emissiveIntensity: 0.35 } }}
+            fallback={<mesh scale={[1, 0.25, 0.7]}><sphereGeometry args={[0.26, 12, 8]} /><meshStandardMaterial color={i % 2 ? "#ff9db5" : "#ffd0dc"} emissive="#ff7fa5" emissiveIntensity={0.7} roughness={0.4} /></mesh>} />
+        </group>
       ))}
     </group>
   );
@@ -269,7 +318,7 @@ function SparkleHunt() {
       if (Math.hypot(spots[i].x - p.x, spots[i].z - p.z) < 0.75) {
         setTaken((t) => [...t, i]);
         const got = useGame.getState().plazaCollect();
-        useUI.getState().toast(got.coins ? `+${got.coins} BEAUTY COIN${got.star ? "  +1 SOCIAL STAR" : ""}` : useGame.getState().settings.lang === "ko" ? "오늘은 반짝이를 다 모았어요" : "Daily sparkle limit reached");
+        useUI.getState().toast(got.coins ? `+${got.coins} BEAUTY COIN${got.star ? "  +1 SOCIAL STAR" : ""}` : useGame.getState().settings.lang === "ko" ? "오늘은 반짝이를 다 모았어요" : "Daily sparkle limit reached", "pickup");
         break;
       }
     }

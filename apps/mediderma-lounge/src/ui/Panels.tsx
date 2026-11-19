@@ -645,6 +645,12 @@ function SettingsPanel() {
       <p className="text-xs font-bold text-ink/70">{t("set.lang")}</p>
       <div className="mt-1.5 flex flex-wrap gap-2">{LANGS.map((l) => <button key={l.id} className={`chip ${g.settings.lang === l.id ? "chip-on" : ""}`} onClick={() => g.setSettings({ lang: l.id })}>{l.label}</button>)}</div>
       <p className="mt-1 text-[12px] text-ink/45">{t("set.langNote")}</p>
+      <p className="mt-4 text-xs font-bold text-ink/70">{t("set.sound")}</p>
+      <div className="mt-1.5 flex items-center gap-2">
+        <button className={`chip ${g.settings.sound ?? true ? "chip-on" : ""}`} onClick={() => g.setSettings({ sound: !(g.settings.sound ?? true) })}>{g.settings.sound ?? true ? t("set.soundOn") : t("set.soundOff")}</button>
+        <span className="text-[12px] font-bold text-ink/50">{t("set.music")}</span>
+        <input type="range" min={0} max={1} step={0.05} value={g.settings.music ?? 0.8} disabled={!(g.settings.sound ?? true)} onChange={(e) => g.setSettings({ music: Number(e.target.value) })} className="min-w-0 flex-1 accent-pink-500" />
+      </div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.quality")}</p>
       <div className="mt-1.5 flex gap-2">{(["auto", "high", "low"] as const).map((q) => <button key={q} className={`chip ${g.settings.quality === q ? "chip-on" : ""}`} onClick={() => g.setSettings({ quality: q })}>{t(`set.q.${q}`)}</button>)}</div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.gift")}</p>
@@ -669,6 +675,10 @@ function SettingsPanel() {
       )}
       <button className="btn-ghost mt-2 w-full" onClick={() => useUI.setState({ screen: "splash", panel: null })}>{t("set.title")}</button>
       <p className="mt-4 text-[12px] leading-relaxed text-ink/40">{t("set.legal")}</p>
+      <details className="mt-4 rounded-2xl bg-cream p-3">
+        <summary className="cursor-pointer text-xs font-bold text-ink/70">{t("set.credits")}</summary>
+        <p className="mt-2 whitespace-pre-line text-[12px] leading-relaxed text-ink/60">{t("set.creditsBody")}</p>
+      </details>
     </Sheet>
   );
 }

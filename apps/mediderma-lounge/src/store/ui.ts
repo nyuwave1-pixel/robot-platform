@@ -1,5 +1,6 @@
 /** 저장하지 않는 런타임 상태: 화면, 모드, 케어 세션, 방문 고객, 조이스틱 입력 등 */
 import { create } from "zustand";
+import { play, soundForToast, type Sfx } from "../audio/sound";
 import type { ModeId, RoutineStep, ZoneId } from "../data/devices";
 import type { ExpKey } from "../data/game";
 import type { Furniture, Look } from "./game";
@@ -65,7 +66,8 @@ interface UIState {
   stroking: boolean;
   skipCine: boolean;
   set: (p: Partial<UIState>) => void;
-  toast: (text: string) => void;
+  /** sound: 효과음 이름, false 면 무음, 생략하면 "+숫자" 가 있을 때 보상음 */
+  toast: (text: string, sound?: Sfx | false) => void;
   open: (p: Panel) => void;
   patchCare: (p: Partial<CareSession>) => void;
   patchCustomer: (id: string, p: Partial<Customer>) => void;
@@ -94,12 +96,14 @@ export const useUI = create<UIState>((set, get) => ({
   stroking: false,
   skipCine: false,
   set: (p) => set(p),
-  toast: (text) => {
+  toast: (text, sound) => {
+    const s = sound === undefined ? soundForToast(text) : sound;
+    if (s) play(s);
     const id = ++tid;
     set({ toasts: [...get().toasts.slice(-2), { id, text }] });
     setTimeout(() => set({ toasts: get().toasts.filter((t) => t.id !== id) }), 2600);
   },
-  open: (p) => set({ panel: get().panel === p ? null : p }),
+  open: (p) => { const next = get().panel === p ? null : p; play(next ? "ui_open" : "ui_close", 0.6); set({ panel: next }); },
   patchCare: (p) => set((s) => (s.care ? { care: { ...s.care, ...p } } : {})),
   patchCustomer: (id, p) => set((s) => ({ customers: s.customers.map((c) => (c.id === id ? { ...c, ...p } : c)) })),
 }));

@@ -167,7 +167,7 @@ function PlazaBar() {
   useEffect(() => { if (!pz.game) return; const id = setInterval(() => tick((x) => x + 1), 250); return () => clearInterval(id); }, [!!pz.game]);
   // 다른 사람이 보낸 하트·방문 알림
   useEffect(() => {
-    onPlazaNotice((kind, name, n) => useUI.getState().toast(kind === "heart" ? t("plaza.gotHeart", { name }) + (n ? "  +1 SOCIAL STAR" : "") : t("plaza.gotVisit", { name }) + (n ? `  +${n} LOUNGE POINT` : "")));
+    onPlazaNotice((kind, name, n) => useUI.getState().toast(kind === "heart" ? t("plaza.gotHeart", { name }) + (n ? "  +1 SOCIAL STAR" : "") : t("plaza.gotVisit", { name }) + (n ? `  +${n} LOUNGE POINT` : ""), kind === "heart" ? "heart" : "reward"));
     return () => onPlazaNotice(null);
   }, [t]);
   const today = new Date().toISOString().slice(0, 10);
@@ -178,7 +178,7 @@ function PlazaBar() {
   const shops = pz.ids.map((id) => remotes.get(id)).filter((r): r is NonNullable<typeof r> => !!r && r.promo > 0);
   const toast = (s: string) => useUI.getState().toast(s);
   const act = () => {
-    if (pz.near === "fountain") { const c = g.plazaWish(); toast(c ? `${t("plaza.wishDone")}  +${c} BEAUTY COIN` : t("plaza.wishUsed")); }
+    if (pz.near === "fountain") { const c = g.plazaWish(); useUI.getState().toast(c ? `${t("plaza.wishDone")}  +${c} BEAUTY COIN` : t("plaza.wishUsed"), c ? "chime" : "error"); }
     else if (pz.near === "stage") usePlaza.setState({ game: { end: Date.now() + tune("plaza.petal_secs") * 1000, score: 0 } });
     else if (pz.near === "stall") usePlaza.setState({ list: true, target: null });
   };
@@ -235,7 +235,7 @@ function PlazaBar() {
             if (r) toast(`${t("plaza.visited", { name: target.name })}${r.coins ? `  +${r.coins} COIN` : ""}${r.stars ? `  +${r.stars} STAR` : ""}`);
             useUI.setState({ shop: { name: target.name, code: target.code, look: target.look, stage: target.stage, rank: target.rank, lounge: target.lounge }, visiting: "shop", world: null, customers: [], near: null, nearCustomer: null, nearPet: null });
           }}><Icon n="lounge" /> {t("plaza.goLounge")}</button>
-          <button className="btn-ghost mt-2 w-full !py-2 text-xs" onClick={() => { sendHeart(target.id); toast(t("plaza.sentHeart", { name: target.name })); }}>♥ {t("plaza.heart")}</button>
+          <button className="btn-ghost mt-2 w-full !py-2 text-xs" onClick={() => { sendHeart(target.id); useUI.getState().toast(t("plaza.sentHeart", { name: target.name }), "heart"); }}>♥ {t("plaza.heart")}</button>
         </div>
       )}
 

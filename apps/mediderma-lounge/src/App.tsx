@@ -1,6 +1,8 @@
 import { Component, useEffect, type ReactNode } from "react";
 import { applyPendingInvite } from "./store/invite";
 import { useUI } from "./store/ui";
+import { useGame } from "./store/game";
+import { setAudioSettings, setScene } from "./audio/sound";
 import { Create, Intro, Splash } from "./ui/Screens";
 import { World } from "./three/World";
 import { Hud } from "./ui/Hud";
@@ -31,6 +33,12 @@ export function App() {
   const mode = useUI((s) => s.mode);
   // 초대 링크로 들어온 기존 플레이어
   useEffect(() => { if (screen === "game") applyPendingInvite(); }, [screen]);
+  // 화면에 맞는 배경음악·환경음
+  const world = useUI((s) => s.world);
+  const sound = useGame((s) => s.settings.sound ?? true);
+  const music = useGame((s) => s.settings.music ?? 0.8);
+  useEffect(() => { setAudioSettings(sound, music); }, [sound, music]);
+  useEffect(() => { setScene(screen === "game" && world === "plaza" ? "plaza" : "lounge"); }, [screen, world]);
   return (
     <Boundary>
       <div className="fixed inset-0 overflow-hidden bg-cream font-sans text-ink">

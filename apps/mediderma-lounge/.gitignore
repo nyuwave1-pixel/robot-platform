@@ -1,3 +1,6 @@
 node_modules
 dist
 *.tsbuildinfo
+
+# 무료 에셋 원본 (tools/assets/fetch_free_assets.py 로 다시 받는다)
+tools/assets/incoming/
