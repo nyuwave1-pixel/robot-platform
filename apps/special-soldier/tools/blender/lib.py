@@ -128,7 +128,7 @@ class Asm:
         return self._add(g, _bake(bm, bevel, 2, 0, 0.9), M, m)
 
     def sphere(self, g, r, loc, m, scale=(1, 1, 1), seg=16, rot=(0, 0, 0), cut_below=None, cut_y=None):
-        """cut_below: remove everything under local z; cut_y: remove everything with local y below the value (after scale)."""
+        """cut_below: remove everything under local z; cut_y: keep only local y below the value (after scale), e.g. a front cap."""
         bm = bmesh.new()
         bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=max(8, seg // 2 + 2), radius=r, calc_uvs=True)
         for v in bm.verts:

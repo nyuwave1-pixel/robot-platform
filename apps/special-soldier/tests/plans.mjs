@@ -140,7 +140,7 @@ export async function kit({ page, sim, shot }) {
 // v0.7: every soldier type side by side (character kits), plus near/far triangle counts for the LOD
 export async function types({ page, sim, shot }) {
   await page.evaluate(HELPERS);
-  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; SS.sky.set('dawn', true); SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-20, 318); SS.player.yaw = 0; SS.player.pitch = -0.1; for (const m of SS.squad.list) m.model.visible = false; });
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; SS.sky.set(window.TYPES_LIGHT || 'dawn', true); SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-20, 318); SS.player.yaw = 0; SS.player.pitch = -0.1; for (const m of SS.squad.list) m.model.visible = false; });
   await sim(0.4);
   const place = (kinds, dist, gap) => page.evaluate(([kinds, dist, gap]) => { const P = SS.player; for (const e of (window.__e || [])) { SS.scene.remove(e.model); e.model.visible = false; const i = SS.enemies.list.indexOf(e); if (i >= 0) SS.enemies.list.splice(i, 1); } window.__e = kinds.map((k, i) => { const x = P.pos.x + (i - (kinds.length - 1) / 2) * gap, z = P.pos.z - dist; const e = SS.enemies.spawn(k, x, z, { yaw: 0 }); e.model.rotation.set(0, 0, 0); return e; }); for (const m of SS.squad.list) m.model.visible = false; }, [kinds, dist, gap]);
   await place(['guard', 'assault', 'sniper'], 2.6, 1.15); await shot('T1-guard-assault-sniper');
@@ -171,4 +171,17 @@ export async function knees({ page, sim, shot }) {
   });
   console.log('knees', JSON.stringify(out));
   await shot('K-knees');
+}
+
+// v0.12 characters, front-lit: camera looks away from the dawn sun so the faces and uniforms are lit
+export async function types2({ page, shot, sim }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; SS.sky.set('dawn', true); SS.sky.refreshEnv && SS.sky.refreshEnv(); QA.tp(-30, 318); SS.player.yaw = Math.PI / 2; SS.player.pitch = -0.08; for (const m of SS.squad.list) m.model.visible = false; });
+  await sim(0.4);
+  const put = (kinds, dist, gap) => page.evaluate(([kinds, dist, gap]) => { const P = SS.player, fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw), rx = Math.cos(P.yaw), rz = -Math.sin(P.yaw);
+    for (const g of (window.__t || [])) SS.scene.remove(g);
+    window.__t = kinds.map((k, i) => { const g = SS.dev.makeSoldier(k, k === 'boss' ? 1.2 : k === 'heavy' ? 1.14 : 1), o = (i - (kinds.length - 1) / 2) * gap, x = P.pos.x + fx * dist + rx * o, z = P.pos.z + fz * dist + rz * o; g.position.set(x, SS.world.groundAt(x, z, P.pos.y + 1), z); g.rotation.y = P.yaw; SS.dev.poseSoldier(g, {}); SS.scene.add(g); return g; }); }, [kinds, dist, gap]);
+  await put(['squad', 'guard', 'assault', 'sniper'], 2.6, 0.95); await shot('T4-front-a');
+  await put(['heavy', 'elite', 'boss'], 2.9, 1.25); await shot('T5-front-b');
+  await put(['guard', 'sniper', 'boss'], 1.25, 0.62); await page.evaluate(() => { SS.player.pitch = 0.1; }); await shot('T6-faces');
 }

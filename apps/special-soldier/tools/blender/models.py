@@ -55,9 +55,11 @@ def soldier():
         a.detail(False)
         a.cyl(g, 0.103, 0.03, (x, 0, 0.74), gear, n=14)
     # torso
-    a.box('upper', (0.34, 0.2, 0.2), (0, 0, 0.99), cloth, bevel=0.05)
+    a.sphere('upper', 0.17, (0, 0.0, 0.99), cloth, scale=(1.0, 0.62, 0.62), seg=18)  # pelvis
     a.box('upper', (0.37, 0.21, 0.05), (0, 0, 1.02), gear, bevel=0.012)  # belt
-    a.box('upper', (0.33, 0.2, 0.46), (0, 0, 1.25), cloth, bevel=0.07, taper=(1.22, 1.08))
+    a.sphere('upper', 0.2, (0, 0.0, 1.27), cloth, scale=(0.9, 0.55, 1.18), seg=20)  # rib cage
+    for sx in (-1, 1):
+        a.limb('upper', (sx * 0.05, 0.0, 1.5), (sx * 0.19, 0.0, 1.455), 0.045, 0.05, cloth, n=10)  # trapezius slope to the shoulder
     a.box('upper', (0.34, 0.06, 0.36), (0, -0.115, 1.27), vest, bevel=0.025, taper=(1.05, 1))  # front plate
     a.box('upper', (0.34, 0.06, 0.38), (0, 0.115, 1.27), vest, bevel=0.025, taper=(1.05, 1))
     for sx in (-1, 1):
@@ -106,20 +108,30 @@ def soldier():
     a.limb('acc_pack', (-0.12, 0.23, 1.44), (-0.15, 0.27, 1.98), 0.006, 0.0025, gear, n=5)  # whip antenna
     a.tube('acc_pack', [(0.1, 0.2, 1.46), (0.12, 0.08, 1.52), (0.13, -0.06, 1.5), (0.12, -0.12, 1.44)], 0.006, gear)  # hydration tube
     a.detail(False)
-    a.cyl('upper', 0.06, 0.08, (0, 0, 1.52), cloth, n=14)  # neck
+    a.limb('upper', (0, 0.008, 1.47), (0, 0.004, 1.6), 0.058, 0.05, skin, n=14)  # neck
     a.cyl('upper', 0.085, 0.05, (0, 0, 1.495), cloth, n=14, r2=0.065)  # collar
     for sx in (-1, 1):
-        a.sphere('upper', 0.085, (sx * 0.215, 0, 1.44), cloth, scale=(1, 1, 0.95), seg=14)
+        a.sphere('upper', 0.064, (sx * 0.208, 0, 1.435), cloth, scale=(0.95, 1.05, 1.1), seg=14)  # deltoid
     # head + headgear variants (the game shows one set per soldier type)
-    a.sphere('head', 0.1, (0, -0.005, 1.7), skin, scale=(0.92, 1.02, 1.12), seg=18)
-    a.box('head', (0.03, 0.03, 0.045), (0, -0.105, 1.69), skin, bevel=0.012)  # nose
-    a.box('head', (0.15, 0.02, 0.028), (0, -0.092, 1.715), gear, bevel=0.008)  # brow shadow / eyes
-    a.box('head', (0.175, 0.15, 0.13), (0, -0.02, 1.625), cloth, bevel=0.045)  # balaclava / chin wrap
+    hair = mat('hair', (0.03, 0.022, 0.015), 0.7); eyew = mat('eye_white', (0.62, 0.6, 0.56), 0.25); iris = mat('iris', (0.05, 0.035, 0.025), 0.15); lips = mat('lips', (0.36, 0.2, 0.17), 0.5)
+    a.sphere('head', 0.098, (0, 0.006, 1.712), skin, scale=(0.86, 1.0, 1.06), seg=20)  # cranium
+    a.sphere('head', 0.078, (0, -0.032, 1.652), skin, scale=(0.86, 0.92, 0.96), seg=18)  # jaw and cheeks
+    a.sphere('head', 0.03, (0, -0.08, 1.614), skin, scale=(1.25, 1.0, 0.9), seg=12)  # chin
+    for sx in (-1, 1):
+        a.sphere('head', 0.026, (sx * 0.045, -0.072, 1.676), skin, scale=(1.0, 0.8, 0.8), seg=10)  # cheekbones
+    a.box('head', (0.124, 0.03, 0.024), (0, -0.083, 1.728), skin, bevel=0.011)  # brow ridge
+    a.box('head', (0.024, 0.032, 0.052), (0, -0.096, 1.688), skin, rot=(0.18, 0, 0), bevel=0.01, taper=(0.55, 0.45))  # nose
+    a.sphere('head', 0.0125, (0, -0.108, 1.668), skin, scale=(1.4, 1.0, 0.9), seg=10)  # nose tip
+    a.sphere('head', 0.1, (0, 0.016, 1.718), hair, scale=(0.88, 1.03, 1.0), seg=18, cut_below=0.005)  # short hair (hidden under helmets)
     a.detail(True)
     for sx in (-1, 1):
-        a.box('head', (0.02, 0.035, 0.05), (sx * 0.094, 0.0, 1.695), skin, bevel=0.008)  # ears
+        a.sphere('head', 0.016, (sx * 0.032, -0.078, 1.708), eyew, scale=(1.15, 0.7, 0.75), seg=10)  # eye
+        a.sphere('head', 0.0075, (sx * 0.032, -0.0885, 1.708), iris, seg=8)  # iris
+        a.box('head', (0.036, 0.012, 0.008), (sx * 0.032, -0.085, 1.718), skin, bevel=0.003)  # upper lid
+        a.sphere('head', 0.027, (sx * 0.092, 0.002, 1.69), skin, scale=(0.4, 0.7, 1.0), seg=10)  # ear
+    a.box('head', (0.044, 0.012, 0.011), (0, -0.088, 1.64), lips, bevel=0.005)  # mouth
     a.detail(False)
-    a.cyl('head', 0.078, 0.07, (0, 0.0, 1.565), cloth, n=14, bevel=0.012)  # neck gaiter
+    a.cyl('head', 0.066, 0.05, (0, 0.006, 1.55), cloth, n=14, bevel=0.012)  # collar of the combat shirt
     a.pivot('acc_helmet', (0, 0, 1.6), 'head')
     a.detail(True)
     a.cyl('acc_helmet', 0.125, 0.012, (0, 0.005, 1.765), web, n=18, scale=(1, 1.1, 1))  # cover band
@@ -151,29 +163,40 @@ def soldier():
     a.pivot('acc_beret', (0, 0, 1.6), 'head')
     a.sphere('acc_beret', 0.125, (0.025, 0.0, 1.775), accent, scale=(1.1, 1.05, 0.38), seg=16, rot=(0, 0.25, 0))
     a.cyl('acc_beret', 0.103, 0.025, (0, 0, 1.752), gear, n=16)
-    a.pivot('acc_hood', (0, 0, 1.6), 'head')
-    a.sphere('acc_hood', 0.135, (0, 0.03, 1.7), cloth, scale=(1.05, 1.1, 1.12), seg=16, cut_y=None)
-    for i in range(7):
-        an = i * 0.9
-        a.box('acc_hood', (0.03, 0.01, 0.16), (math.cos(an) * 0.13, 0.03 + math.sin(an) * 0.13, 1.62), cloth, rot=(math.sin(an) * 0.5, math.cos(an) * 0.5, 0), bevel=0.003)  # ghillie strips
-    a.pivot('acc_visor', (0, 0, 1.6), 'head')
-    a.box('acc_visor', (0.165, 0.025, 0.045), (0, -0.1, 1.712), visor, bevel=0.01)
-    a.pivot('acc_heavy', (0, 0, 0.93), 'upper')
-    a.box('acc_heavy', (0.42, 0.09, 0.2), (0, -0.14, 1.14), vest, bevel=0.03)  # blast apron
+    a.pivot('acc_hood', (0, 0, 1.6), 'head')  # sniper: boonie hat with ghillie drape and face paint (face stays visible)
+    paint = mat('facepaint', (0.07, 0.08, 0.05), 0.85); gbh = mat('ghillie_brown', (0.2, 0.15, 0.08), 0.98); ggh = mat('ghillie_green', (0.12, 0.19, 0.07), 0.98)
+    a.cyl('acc_hood', 0.101, 0.07, (0, 0.012, 1.792), cloth, n=16, r2=0.09, bevel=0.012)  # crown
+    a.cyl('acc_hood', 0.165, 0.012, (0, 0.012, 1.758), cloth, n=20, r2=0.15, bevel=0.004)  # brim
+    a.cyl('acc_hood', 0.104, 0.016, (0, 0.012, 1.772), gear, n=16)  # hat band
     for sx in (-1, 1):
-        a.box('acc_heavy', (0.13, 0.2, 0.13), (sx * 0.25, 0, 1.47), vest, bevel=0.035)  # pauldrons
-    a.box('acc_heavy', (0.22, 0.1, 0.1), (0, -0.06, 1.56), vest, bevel=0.03)  # throat guard
+        a.box('acc_hood', (0.014, 0.005, 0.05), (sx * 0.052, -0.081, 1.666), paint, rot=(0.15, 0, sx * 0.45), bevel=0.002)  # thin face-paint streaks
+    rnd = random.Random(5)
+    for k in range(26):  # strips hanging from the brim, thickest at the back
+        an = rnd.uniform(-0.45, math.pi + 0.45); ln = rnd.uniform(0.08, 0.17)  # sides and back only: the face stays clear
+        a.box('acc_hood', (rnd.uniform(0.022, 0.034), 0.006, ln), (math.cos(an) * 0.15, 0.012 + math.sin(an) * 0.15, 1.752 - ln / 2), (cloth, gbh, ggh)[k % 3], rot=(rnd.uniform(-0.25, 0.25), rnd.uniform(-0.25, 0.25), an + H), bevel=0)
+    a.pivot('acc_visor', (0, 0, 1.6), 'head')
+    a.box('acc_visor', (0.15, 0.016, 0.034), (0, -0.104, 1.71), visor, bevel=0.008, taper=(0.92, 1))  # tactical glasses / HUD visor
+    for sx in (-1, 1):
+        a.box('acc_visor', (0.006, 0.09, 0.008), (sx * 0.078, -0.06, 1.718), gear, bevel=0)
+    a.pivot('acc_heavy', (0, 0, 0.93), 'upper')
+    a.box('acc_heavy', (0.38, 0.08, 0.18), (0, -0.14, 1.14), vest, bevel=0.03, taper=(1.08, 1))  # blast apron
+    for sx in (-1, 1):
+        a.sphere('acc_heavy', 0.1, (sx * 0.235, 0, 1.455), vest, scale=(0.95, 1.15, 0.72), seg=16, cut_below=-0.03)  # shoulder armour shells
+        a.sphere('acc_heavy', 0.088, (sx * 0.25, 0, 1.39), vest, scale=(0.85, 1.05, 0.6), seg=14, cut_below=-0.02)
+    a.cyl('acc_heavy', 0.1, 0.07, (0, 0.004, 1.52), vest, n=16, r2=0.09, bevel=0.015)  # collar / throat guard
     # arms in a ready-rifle pose
     sR, eR, hR = (0.215, 0.0, 1.44), (0.25, -0.1, 1.2), (0.1, -0.3, 1.235)
     sL, eL, hL = (-0.215, 0.0, 1.44), (-0.23, -0.25, 1.23), (-0.02, -0.56, 1.3)
     for s, e, h in ((sR, eR, hR), (sL, eL, hL)):
-        a.limb('arms', s, e, 0.062, 0.05, cloth, n=12); a.limb('arms', e, h, 0.05, 0.04, cloth, n=12)
-        a.sphere('arms', 0.054, e, gear, seg=10)
+        a.limb('arms', s, e, 0.054, 0.042, cloth, n=12); a.limb('arms', e, h, 0.044, 0.034, cloth, n=12)
+        a.sphere('arms', 0.045, e, cloth, seg=12)  # elbow
         d = [e[i] - h[i] for i in range(3)]; L_ = math.sqrt(sum(c * c for c in d)); d = [c / L_ for c in d]
-        a.box('arms', (0.062, 0.078, 0.062), h, glove, bevel=0.02)
+        a.box('arms', (0.05, 0.07, 0.048), h, glove, bevel=0.014)  # back of the hand / palm
+        for f in range(4):  # fingers wrapped round the grip / handguard
+            a.box('arms', (0.0115, 0.026, 0.03), (h[0] - 0.018 + f * 0.012, h[1] - 0.04, h[2] - 0.016), glove, rot=(-0.6, 0, 0), bevel=0.004)
+        a.box('arms', (0.016, 0.034, 0.016), (h[0] + (0.03 if s[0] > 0 else -0.03), h[1] - 0.026, h[2] + 0.01), glove, rot=(0, 0, 0.5 if s[0] > 0 else -0.5), bevel=0.005)  # thumb
         a.detail(True)
-        a.box('arms', (0.064, 0.03, 0.022), (h[0], h[1] - 0.02, h[2] + 0.032), gear, bevel=0.006)  # knuckle guard
-        a.box('arms', (0.058, 0.035, 0.04), (h[0], h[1] - 0.045, h[2] - 0.012), glove, bevel=0.012)  # curled fingers
+        a.box('arms', (0.052, 0.026, 0.012), (h[0], h[1] - 0.012, h[2] + 0.026), gear, bevel=0.004)  # knuckle guard
         a.limb('arms', tuple(h[i] + d[i] * 0.04 for i in range(3)), tuple(h[i] + d[i] * 0.075 for i in range(3)), 0.047, 0.047, web, n=10)  # glove cuff
         a.limb('arms', tuple(h[i] + d[i] * 0.085 for i in range(3)), tuple(h[i] + d[i] * 0.11 for i in range(3)), 0.05, 0.051, cloth, n=10)  # sleeve cuff
         sgn = 1 if s[0] > 0 else -1; mid = [(s[i] + e[i]) / 2 for i in range(3)]; ang = -math.atan2(s[1] - e[1], s[2] - e[2])
@@ -196,8 +219,9 @@ def soldier_variants(a, M):
     random.seed(7)
     # --- SENTRY: shemagh, sunglasses, shoulder radio, baton and torch on the belt
     a.pivot('acc_guard', (0, 0, 0.93), 'upper'); scarf = mat('scarf', (0.42, 0.35, 0.22), 0.95)
-    a.cyl('acc_guard', 0.096, 0.075, (0, 0.0, 1.545), scarf, n=14, bevel=0.02, r2=0.082)
-    a.box('acc_guard', (0.15, 0.05, 0.11), (0.02, -0.105, 1.5), scarf, rot=(0.25, 0, 0.15), bevel=0.02)
+    a.cyl('acc_guard', 0.088, 0.06, (0, 0.006, 1.53), scarf, n=16, bevel=0.018, r2=0.076)  # shemagh wrapped round the neck
+    a.cyl('acc_guard', 0.094, 0.03, (0, 0.006, 1.5), scarf, n=16, bevel=0.012, r2=0.09)
+    a.box('acc_guard', (0.09, 0.026, 0.075), (0.02, -0.088, 1.462), scarf, rot=(math.pi + 0.22, 0, 0.15), bevel=0.01, taper=(0.3, 1))  # knotted tail
     a.box('acc_guard', (0.04, 0.035, 0.09), (-0.12, -0.135, 1.44), gear, bevel=0.008); a.limb('acc_guard', (-0.13, -0.13, 1.48), (-0.135, -0.12, 1.6), 0.004, 0.003, gear, n=4)
     a.limb('acc_guard', (-0.215, 0.0, 1.03), (-0.23, 0.04, 0.68), 0.016, 0.014, gear, n=8); a.cyl('acc_guard', 0.022, 0.03, (-0.215, 0.0, 1.03), steel, n=8)
     a.cyl('acc_guard', 0.02, 0.13, (0.2, 0.06, 0.98), steel, n=10, bevel=0.004); a.cyl('acc_guard', 0.027, 0.035, (0.2, 0.06, 0.91), steel, n=10, bevel=0.004)
@@ -207,7 +231,8 @@ def soldier_variants(a, M):
         a.box('acc_shades', (0.008, 0.09, 0.01), (sx * 0.085, -0.055, 1.715), gear, bevel=0)
     # --- ASSAULT: balaclava, sealed goggles, chest knife, flashbangs
     a.pivot('acc_mask', (0, 0, 1.6), 'head')
-    a.box('acc_mask', (0.165, 0.07, 0.1), (0, -0.075, 1.652), mask, bevel=0.03)
+    a.sphere('acc_mask', 0.082, (0, -0.034, 1.636), mask, scale=(0.92, 1.06, 0.7), seg=18)  # balaclava over nose, mouth and jaw
+    a.limb('acc_mask', (0, 0.004, 1.5), (0, -0.01, 1.62), 0.066, 0.07, mask, n=14)  # neck of the balaclava
     a.box('acc_mask', (0.165, 0.028, 0.055), (0, -0.102, 1.716), gog, bevel=0.014); a.cyl('acc_mask', 0.111, 0.03, (0, 0.0, 1.716), web, n=16, scale=(1, 1.08, 1))
     a.pivot('acc_assault', (0, 0, 0.93), 'upper')
     a.box('acc_assault', (0.03, 0.022, 0.15), (0.045, -0.185, 1.4), gear, rot=(0, 0.35, 0), bevel=0.006); a.box('acc_assault', (0.026, 0.024, 0.06), (0.068, -0.186, 1.47), steel, rot=(0, 0.35, 0), bevel=0.006)
@@ -225,16 +250,17 @@ def soldier_variants(a, M):
     a.box('acc_ghillie', (0.09, 0.05, 0.07), (-0.1, -0.165, 1.38), gear, bevel=0.012)
     # --- HEAVY: blast face shield, neck collar, groin plate, ammunition backpack with feed chute
     a.pivot('acc_shield', (0, 0, 1.6), 'head'); sh = mat('shield', (0.02, 0.025, 0.03), 0.15, 0.6)
-    a.box('acc_shield', (0.2, 0.03, 0.17), (0, -0.128, 1.69), sh, bevel=0.012); a.box('acc_shield', (0.22, 0.05, 0.03), (0, -0.12, 1.78), vest, bevel=0.01)
+    a.sphere('acc_shield', 0.13, (0, 0.0, 1.685), sh, scale=(0.95, 1.0, 1.08), seg=22, cut_y=-0.066)  # curved ballistic visor (front cap only)
+    a.cyl('acc_shield', 0.012, 0.25, (0, -0.104, 1.82), vest, rot=(0, H, 0), n=8)  # visor hinge bar
     for sx in (-1, 1):
         a.box('acc_shield', (0.03, 0.12, 0.15), (sx * 0.118, -0.06, 1.675), vest, bevel=0.012)
     a.pivot('acc_jugg', (0, 0, 0.93), 'upper'); can = mat('ammo_can', (0.12, 0.13, 0.085), 0.7, 0.3)
     a.cyl('acc_jugg', 0.135, 0.11, (0, 0.005, 1.56), vest, n=14, bevel=0.02, r2=0.115)
     a.box('acc_jugg', (0.2, 0.06, 0.2), (0, -0.115, 0.9), vest, bevel=0.025, taper=(1.3, 1))
     a.box('acc_jugg', (0.34, 0.19, 0.44), (0, 0.245, 1.26), can, bevel=0.03); a.box('acc_jugg', (0.36, 0.2, 0.03), (0, 0.245, 1.4), steel, bevel=0.006); a.box('acc_jugg', (0.36, 0.2, 0.03), (0, 0.245, 1.12), steel, bevel=0.006)
-    a.tube('acc_jugg', [(0.15, 0.25, 1.08), (0.3, 0.12, 0.98), (0.31, -0.12, 1.06), (0.14, -0.27, 1.22)], 0.024, steel, bevel_res=2)
+    a.tube('acc_jugg', [(0.16, 0.2, 1.1), (0.235, 0.08, 1.07), (0.225, -0.1, 1.11), (0.12, -0.24, 1.2)], 0.018, gear, bevel_res=2)  # ammo feed chute, tight to the body
     for sx in (-1, 1):
-        a.box('acc_jugg', (0.1, 0.16, 0.2), (sx * 0.27, 0.0, 1.3), vest, bevel=0.03)  # upper-arm plates
+        a.sphere('acc_jugg', 0.06, (sx * 0.25, 0.0, 1.31), vest, scale=(0.75, 1.0, 1.5), seg=12)  # upper-arm plates
     # --- ELITE: gas mask with twin filters, slim radio pack with dual antennas, shoulder armour, status LED
     a.pivot('acc_gasmask', (0, 0, 1.6), 'head')
     a.box('acc_gasmask', (0.14, 0.075, 0.11), (0, -0.08, 1.648), mask, bevel=0.03)
@@ -251,11 +277,10 @@ def soldier_variants(a, M):
     a.box('acc_elite', (0.11, 0.02, 0.07), (-0.065, -0.2, 1.3), gear, rot=(0.3, 0, 0), bevel=0.008)  # chest-mounted data pad
     # --- COMMANDER: greatcoat skirts and high collar, gold epaulettes, aiguillette, medal bars, cigar
     a.pivot('acc_boss', (0, 0, 0.93), 'upper')
-    a.box('acc_boss', (0.38, 0.03, 0.52), (0, 0.135, 0.7), cloth, bevel=0.012, taper=(0.9, 1))
+    a.box('acc_boss', (0.36, 0.03, 0.4), (0, 0.13, 0.78), cloth, bevel=0.012, taper=(0.86, 1), rot=(math.pi, 0, 0))  # back skirt, flared at the hem
     for sx in (-1, 1):
-        a.box('acc_boss', (0.03, 0.22, 0.5), (sx * 0.205, 0.03, 0.71), cloth, bevel=0.012); a.box('acc_boss', (0.13, 0.025, 0.47), (sx * 0.14, -0.118, 0.72), cloth, bevel=0.01)
+        a.box('acc_boss', (0.03, 0.2, 0.36), (sx * 0.2, 0.025, 0.79), cloth, bevel=0.012); a.box('acc_boss', (0.11, 0.024, 0.32), (sx * 0.15, -0.118, 0.81), cloth, bevel=0.01, rot=(0, 0, sx * 0.08))
         a.box('acc_boss', (0.12, 0.15, 0.025), (sx * 0.2, 0, 1.512), gold, bevel=0.008); a.cyl('acc_boss', 0.062, 0.03, (sx * 0.25, 0, 1.495), gold, n=10)
-        a.box('acc_boss', (0.02, 0.026, 0.5), (sx * 0.075, -0.132, 0.72), gold, bevel=0)
     a.cyl('acc_boss', 0.1, 0.1, (0, 0.01, 1.56), cloth, n=14, r2=0.125, bevel=0.01)
     a.tube('acc_boss', [(0.19, -0.04, 1.49), (0.17, -0.15, 1.4), (0.1, -0.17, 1.36), (0.04, -0.16, 1.44)], 0.007, gold)
     for r in range(2):

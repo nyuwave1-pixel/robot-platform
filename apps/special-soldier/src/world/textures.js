@@ -40,10 +40,10 @@ export function splatTerrain(mat, tiles) {
 }
 
 /** Like photo(), but the texel at uv (0,0) is forced neutral (tint 1.0 / flat normal): parts whose UVs are collapsed to 0 (kit sharing the cloth material) stay untextured. */
-export function photoNeutral(key, repeat = 1) {
-  if (!loader) return null; const k = key + '/n/' + repeat; if (cache.has(k)) return cache.get(k);
-  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'), nrm = key.endsWith('N'); g.fillStyle = nrm ? 'rgb(128,128,255)' : 'rgb(206,206,206)'; g.fillRect(0, 0, 512, 512);
-  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = 8; if (!nrm) t.colorSpace = THREE.SRGBColorSpace;
+export function photoNeutral(key, repeat = 1, linear = false) {
+  if (!loader) return null; const k = key + '/n/' + repeat + (linear ? 'L' : ''); if (cache.has(k)) return cache.get(k);
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'), nrm = key.endsWith('N'); g.fillStyle = nrm ? 'rgb(128,128,255)' : linear ? 'rgb(159,159,159)' : 'rgb(206,206,206)'; // neutral = 1/1.6 after decoding g.fillRect(0, 0, 512, 512);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = 8; if (!nrm && !linear) t.colorSpace = THREE.SRGBColorSpace;
   const img = new Image(); img.onload = () => { g.drawImage(img, 0, 0, 512, 512); for (const [x, y] of [[0, 0], [506, 0], [0, 506], [506, 506]]) g.fillRect(x, y, 6, 6); t.needsUpdate = true; }; img.src = URL[key];
   cache.set(k, t); return t;
 }
@@ -67,7 +67,7 @@ export function propPhoto(mat) {
 /** Soldier cloth: real fabric weave (albedo multiplier + normal) under the camo pattern. */
 export function fabricPhoto(mat) {
   if (!loader) return mat;
-  const u = { tFab: { value: photoNeutral('fabricT') } }; mat.normalMap = photoNeutral('fabricN', 9); mat.normalScale = new THREE.Vector2(0.8, 0.8);
+  const u = { tFab: { value: photoNeutral('fabricT', 1, true) } }; // linear: the weave keeps the cloth's average brightness mat.normalMap = photoNeutral('fabricN', 9); mat.normalScale = new THREE.Vector2(0.8, 0.8);
   mat.onBeforeCompile = (sh) => { Object.assign(sh.uniforms, u);
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D tFab;').replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= texture2D(tFab, vMapUv * 6.0).rgb * 1.6;'); };
   mat.customProgramCacheKey = () => 'fabric-photo';

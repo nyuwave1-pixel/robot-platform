@@ -12,12 +12,12 @@ function part(parent, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(G1, m);
 export const HOT = new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 5, 5), fog: false, toneMapped: false });
 export const PALETTE = {
   squad:  { cloth: 0x5c5c42, vest: 0x45452f, skin: 0x8a6a50, helmet: 0x45452f, nvg: true }, // multi-terrain camo, coyote plate carrier
-  guard:  { cloth: 0x6e6448, vest: 0x34301f, skin: 0x8a6a50, helmet: 0x1a1a1a, cap: true },
-  assault:{ cloth: 0x4a4c52, vest: 0x1c1d20, skin: 0x8a6a50, helmet: 0x222224 },
+  guard:  { cloth: 0x6e6448, vest: 0x3e3926, skin: 0x9a7458, helmet: 0x26262a, cap: true },
+  assault:{ cloth: 0x4a4c52, vest: 0x2a2c30, skin: 0x8a6a50, helmet: 0x2c2e32 },
   sniper: { cloth: 0x3f4a2c, vest: 0x2c3420, skin: 0x7a5a44, helmet: 0x3a4428, hood: true },
-  heavy:  { cloth: 0x2a2a2a, vest: 0x4a1a14, skin: 0x8a6a50, helmet: 0x101010, bulky: true },
-  elite:  { cloth: 0x23262e, vest: 0x14151a, skin: 0x8a6a50, helmet: 0x0c0c0e, visor: 0xff3020 },
-  boss:   { cloth: 0x2c1010, vest: 0x5a1010, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
+  heavy:  { cloth: 0x45453f, vest: 0x5c2a1e, skin: 0x7e5e46, helmet: 0x2a2a2e, bulky: true },
+  elite:  { cloth: 0x3a3e46, vest: 0x22242a, skin: 0x8a6a50, helmet: 0x1e2024, visor: 0xff3020 },
+  boss:   { cloth: 0x3a1a18, vest: 0x6a1c18, skin: 0x9a7a60, helmet: 0x300808, visor: 0xffb020, bulky: true, beret: true },
 };
 /** Returns a group (origin at feet, facing +Z) with userData.parts for animation. */
 /** Tileable micro-detail normal map (fabric weave / cast metal / paint) generated once on a canvas. */
@@ -54,9 +54,9 @@ export function detailMap(kind, perMetre) {
     else { const d = noise(x, y, 0, 0.5) * 0.6 + noise(x, y, 1, 2) * 0.3 + noise(x, y * 0.2, 2, 4) * 0.25; v = 0.98 - Math.max(0, d - 0.5) * 0.9 + (rnd() - 0.5) * 0.06; if (rnd() < 0.0016) v = 1.35; }
     const i = (y * S + x) * 4, k = Math.max(0, Math.min(255, v * 238)); img.data[i] = img.data[i + 1] = img.data[i + 2] = k; img.data[i + 3] = 255; }
   g.putImageData(img, 0, 0);
-  if (kind === 'camo') { g.fillStyle = 'rgb(227,227,227)'; for (const [x, y] of [[0, 0], [S - 4, 0], [0, S - 4], [S - 4, S - 4]]) g.fillRect(x, y, 4, 4); } // neutral texel at uv (0,0): non-cloth parts share the camo material (one draw call per node)
+  if (kind === 'camo') { g.fillStyle = 'rgb(196,196,196)'; for (const [x, y] of [[0, 0], [S - 4, 0], [0, S - 4], [S - 4, S - 4]]) g.fillRect(x, y, 4, 4); } // neutral texel at uv (0,0): non-cloth parts share the camo material (one draw call per node)
   if (kind === 'grunge') { g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1; for (let i = 0; i < 26; i++) { const x = rnd() * S, y = rnd() * S, l = 4 + rnd() * 18, a = rnd() * 6.28; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); } }
-  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(perMetre, perMetre); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(perMetre, perMetre); t.colorSpace = kind === 'camo' ? THREE.NoColorSpace : THREE.SRGBColorSpace; t.anisotropy = 8; return t; // camo is a linear multiplier (value / 1.3): no sRGB decode, or the uniform loses ~40 % of its brightness
 }
 const NS = (v) => new THREE.Vector2(v, v);
 const CLOTH_MAT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, metalness: 0, map: detailMap('camo', 1.5), normalMap: detailNormal('fabric', 45), normalScale: NS(0.6) });
