@@ -92,7 +92,10 @@ def build(name, groups, keep=lambda vi: True, uv=True):
     ob = bpy.data.objects.new(name, me); scene.collection.objects.link(ob); ob.parent = root
     return ob, used
 
-head, head_idx = build("Head", {"body"}, keep=lambda vi: all(conv(V[i]).z > CUT_Z and abs(conv(V[i]).x) < 0.085 for i in vi))
+def keep_upper(p):
+    if p.z > neck.z - 0.01: return abs(p.x) < 0.085            # 머리·목
+    return p.z > neck.z - 0.15 and abs(p.x) < 0.165                # 어깨·가슴 윗부분
+head, head_idx = build("Head", {"body"}, keep=lambda vi: all(keep_upper(conv(V[i])) for i in vi))
 # 서브디비전을 실제로 적용해 정점 간격을 ~1mm 로 만든 뒤, 눈썹·헤어라인을 정점 단위로 정한다
 bpy.context.view_layer.objects.active = head
 sub = head.modifiers.new("Subsurf", "SUBSURF"); sub.levels = 2
@@ -111,7 +114,7 @@ def hair_weight(p):
     d = p.y - eye_mid.y
     line = eye_mid.z + 0.056 - 1.05 * max(0.0, min(0.125, d - 0.012)) - 0.006 * math.cos(min(1.0, abs(p.x) / 0.06) * math.pi / 2)
     if abs(p.x) > 0.066 and p.z < eye_mid.z + 0.035 and d < 0.12: return 0.0   # 귀는 덮지 않는다
-    return smooth(-0.002, 0.004, p.z - line)
+    return smooth(-0.006, 0.03, p.z - line)
 head.data.color_attributes.new(name="brow", type="FLOAT_COLOR", domain="POINT")
 head.data.color_attributes.new(name="hair", type="FLOAT_COLOR", domain="POINT")
 vgl, vgr = head.vertex_groups.new(name="BrowL"), head.vertex_groups.new(name="BrowR")
@@ -177,7 +180,7 @@ def skin_material():
     mix4 = N.new("ShaderNodeMixRGB"); mix4.inputs["Color2"].default_value = (0.05, 0.032, 0.024, 1)
     L.new(bf2.outputs[0], mix4.inputs["Fac"]); L.new(mix3.outputs["Color"], mix4.inputs["Color1"])
     ha = N.new("ShaderNodeAttribute"); ha.attribute_name = "hair"
-    mix5 = N.new("ShaderNodeMixRGB"); mix5.inputs["Color2"].default_value = (0.02, 0.014, 0.011, 1)
+    mix5 = N.new("ShaderNodeMixRGB"); mix5.inputs["Color2"].default_value = (0.09, 0.06, 0.045, 1)
     L.new(ha.outputs["Fac"], mix5.inputs["Fac"]); L.new(mix4.outputs["Color"], mix5.inputs["Color1"])
     L.new(mix5.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Subsurface Weight"].default_value = 1.0
@@ -251,6 +254,23 @@ def hair_material(name, col):
     nt.links.new(h.outputs[0], out.inputs["Surface"])
     return m
 head.data.materials.append(hair_material("Brow", (0.018, 0.012, 0.009, 1)))
+# 상의(무광 검정 저지, V 넥라인): 정점 속성으로 피부와 부드럽게 섞어 경계가 계단지지 않게
+def neckline(x):   # 가운데가 깊은 V 넥라인 (z 좌표)
+    return neck.z - 0.115 + 0.075 * min(1.0, abs(x) / 0.075)
+head.data.color_attributes.new(name="cloth", type="FLOAT_COLOR", domain="POINT")
+cw = [smooth(-0.012, 0.012, neckline(v.co.x) - v.co.z) for v in head.data.vertices]
+cl_ = head.data.color_attributes["cloth"]
+for i, w in enumerate(cw): cl_.data[i].color = (w, w, w, 1)
+sk = head.data.materials[0].node_tree; SN, SL = sk.nodes, sk.links
+s_out = SN["Material Output"]; s_bsdf = SN["Principled BSDF"]
+fab = SN.new("ShaderNodeBsdfPrincipled"); fab.inputs["Base Color"].default_value = (0.012, 0.012, 0.014, 1)
+fab.inputs["Roughness"].default_value = 0.62; fab.inputs["Sheen Weight"].default_value = 0.8; fab.inputs["Sheen Roughness"].default_value = 0.4
+fn = SN.new("ShaderNodeTexNoise"); fn.inputs["Scale"].default_value = 2600; ftc = SN.new("ShaderNodeTexCoord"); SL.new(ftc.outputs["Object"], fn.inputs["Vector"])
+fb = SN.new("ShaderNodeBump"); fb.inputs["Strength"].default_value = 0.35; fb.inputs["Distance"].default_value = 0.0003
+SL.new(fn.outputs["Fac"], fb.inputs["Height"]); SL.new(fb.outputs["Normal"], fab.inputs["Normal"])
+ca = SN.new("ShaderNodeAttribute"); ca.attribute_name = "cloth"
+mx = SN.new("ShaderNodeMixShader"); SL.new(ca.outputs["Fac"], mx.inputs["Fac"]); SL.new(s_bsdf.outputs[0], mx.inputs[1]); SL.new(fab.outputs[0], mx.inputs[2])
+SL.new(mx.outputs[0], s_out.inputs["Surface"])
 bpy.context.view_layer.objects.active = head
 for nm, sx in (("BrowL", 1), ("BrowR", -1)):
     ps = head.modifiers.new(nm, "PARTICLE_SYSTEM").particle_system
@@ -278,26 +298,62 @@ lmx = ln_.nodes.new("ShaderNodeMixShader"); ln_.links.new(lth.outputs[0], lmx.in
 ln_.links.new(lmx.outputs[0], lo.inputs["Surface"])
 lash.visible_shadow = False
 
-# ── 5. 머리카락 (뒤로 넘겨 묶은 머리: 두피를 덮는 셸) ─────────────────────────────
-hme = head.data.copy(); hair = bpy.data.objects.new("Hair", hme); scene.collection.objects.link(hair); hair.parent = root
+# ── 5. 머리카락: 뒤로 넘겨 묶은 머리 (두피 셸 + 번). 헤어라인은 알파로 부드럽게 ─────────────
 import bmesh
+hme = head.data.copy(); hair = bpy.data.objects.new("Hair", hme); scene.collection.objects.link(hair); hair.parent = root
 bm = bmesh.new(); bm.from_mesh(hme)
-bmesh.ops.delete(bm, geom=[v for v in bm.verts if hair_weight(v.co) < 0.5], context="VERTS")
+bmesh.ops.delete(bm, geom=[v for v in bm.verts if hair_weight(v.co) < 0.001 and v.co.z < eye_mid.z + 0.07 or v.co.z < neck.z], context="VERTS")
+bm.verts.ensure_lookup_table(); bm.normal_update()
+def hair_soft(p):
+    d = p.y - eye_mid.y
+    line = eye_mid.z + 0.056 - 1.05 * max(0.0, min(0.125, d - 0.012)) - 0.006 * math.cos(min(1.0, abs(p.x) / 0.06) * math.pi / 2)
+    if abs(p.x) > 0.066 and p.z < eye_mid.z + 0.035 and d < 0.12: return 0.0
+    return smooth(-0.006, 0.03, p.z - line)
+hwv = [hair_soft(v.co) for v in bm.verts]
+for v, w in zip(bm.verts, hwv): v.co += v.normal * (0.0006 + 0.0065 * w * w)   # 가장자리로 갈수록 얇게
 bm.to_mesh(hme); bm.free(); hme.materials.clear()
 for vg in list(hair.vertex_groups): hair.vertex_groups.remove(vg)
-so = hair.modifiers.new("Solid", "SOLIDIFY"); so.thickness = 0.003; so.offset = 1.0
-hmat = bpy.data.materials.new("HairCap"); hmat.use_nodes = True
-hb = hmat.node_tree.nodes["Principled BSDF"]; hb.inputs["Base Color"].default_value = (0.022, 0.015, 0.011, 1); hb.inputs["Roughness"].default_value = 0.32
-hb.inputs["Anisotropic"].default_value = 0.85
-htc = hmat.node_tree.nodes.new("ShaderNodeTexCoord"); hmap = hmat.node_tree.nodes.new("ShaderNodeMapping"); hmap.inputs["Scale"].default_value = (2600, 30, 2600)
-hw = hmat.node_tree.nodes.new("ShaderNodeTexNoise"); hw.inputs["Scale"].default_value = 1.0; hw.inputs["Detail"].default_value = 4
-hmat.node_tree.links.new(htc.outputs["Object"], hmap.inputs["Vector"]); hmat.node_tree.links.new(hmap.outputs["Vector"], hw.inputs["Vector"])
-hbp = hmat.node_tree.nodes.new("ShaderNodeBump"); hbp.inputs["Strength"].default_value = 0.9; hbp.inputs["Distance"].default_value = 0.0006
-hmat.node_tree.links.new(hw.outputs["Fac"], hbp.inputs["Height"]); hmat.node_tree.links.new(hbp.outputs["Normal"], hb.inputs["Normal"])
-hair.data.materials.append(hmat)
+for m_ in list(hair.modifiers): hair.modifiers.remove(m_)
+hme.color_attributes.new(name="hw", type="FLOAT_COLOR", domain="POINT")
+ca_ = hme.color_attributes["hw"]
+for i, w in enumerate(hwv): ca_.data[i].color = (w, w, w, 1)
+for poly in hme.polygons: poly.use_smooth = True
+
+def hair_cap_material(name, soft_edge):
+    m = bpy.data.materials.new(name); m.use_nodes = True; m.blend_method = "HASHED"
+    nt = m.node_tree; N, L = nt.nodes, nt.links
+    b = N["Principled BSDF"]; out = N["Material Output"]
+    tc = N.new("ShaderNodeTexCoord"); mp = N.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (2200, 22, 22)
+    L.new(tc.outputs["Object"], mp.inputs["Vector"])
+    st = N.new("ShaderNodeTexNoise"); st.inputs["Scale"].default_value = 1.0; st.inputs["Detail"].default_value = 3; L.new(mp.outputs["Vector"], st.inputs["Vector"])
+    # 가닥별 밝기 차이: 짙은 흑갈색 ~ 밝은 갈색 하이라이트
+    rmp = N.new("ShaderNodeValToRGB"); rmp.color_ramp.elements[0].position = 0.35; rmp.color_ramp.elements[0].color = (0.012, 0.008, 0.006, 1)
+    rmp.color_ramp.elements[1].position = 0.75; rmp.color_ramp.elements[1].color = (0.06, 0.035, 0.022, 1)
+    L.new(st.outputs["Fac"], rmp.inputs["Fac"]); L.new(rmp.outputs["Color"], b.inputs["Base Color"])
+    b.inputs["Roughness"].default_value = 0.3; b.inputs["Anisotropic"].default_value = 0.9
+    b.inputs["Coat Weight"].default_value = 0.15; b.inputs["Coat Roughness"].default_value = 0.25
+    bp = N.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.8; bp.inputs["Distance"].default_value = 0.0005
+    L.new(st.outputs["Fac"], bp.inputs["Height"]); L.new(bp.outputs["Normal"], b.inputs["Normal"])
+    if soft_edge:
+        at = N.new("ShaderNodeAttribute"); at.attribute_name = "hw"
+        # 헤어라인: 가닥 무늬로 끝을 흩뜨려 잔머리처럼 사라지게
+        mix = N.new("ShaderNodeMath"); mix.operation = "MULTIPLY_ADD"; mix.inputs[1].default_value = 0.7
+        L.new(st.outputs["Fac"], mix.inputs[0]); L.new(at.outputs["Fac"], mix.inputs[2])
+        ar = N.new("ShaderNodeMapRange"); ar.inputs["From Min"].default_value = 0.5; ar.inputs["From Max"].default_value = 1.15
+        L.new(mix.outputs[0], ar.inputs["Value"]); L.new(ar.outputs["Result"], b.inputs["Alpha"])
+    return m
+hair.data.materials.append(hair_cap_material("HairCap", True))
+
+# 번(묶은 머리): 뒤통수 위쪽 표면에 붙인다
+back = max((v.co for v in head.data.vertices if abs(v.co.x) < 0.01 and abs(v.co.z - (eye_mid.z + 0.06)) < 0.01), key=lambda c: c.y)
+bpy.ops.mesh.primitive_uv_sphere_add(segments=64, ring_count=32, radius=0.036, location=(0, back.y + 0.012, back.z + 0.018))
+bun = bpy.context.active_object; bun.name = "Bun"; bun.scale = (1.0, 0.85, 0.9); bun.parent = root
+for poly in bun.data.polygons: poly.use_smooth = True
+tw = bun.modifiers.new("Twist", "SIMPLE_DEFORM"); tw.deform_method = "TWIST"; tw.angle = math.radians(220); tw.deform_axis = "Y"
+bun.data.materials.append(hair_cap_material("HairBun", False))
 
 # ── 6. 조명 · 카메라 · 렌더 ────────────────────────────────────────────────
-center = (eyeL + eyeR) / 2 + Vector((0, 0, -0.022))
+center = (eyeL + eyeR) / 2 + Vector((0, 0.01, -0.045))
 def area(name, loc, energy, size, color=(1, 1, 1)):
     d = bpy.data.lights.new(name, "AREA"); d.energy = energy; d.size = size; d.color = color
     o = bpy.data.objects.new(name, d); scene.collection.objects.link(o); o.location = center + Vector(loc)
@@ -314,7 +370,7 @@ cam_data = bpy.data.cameras.new("Cam"); cam_data.lens = 85; cam_data.sensor_widt
 cam_data.dof.use_dof = True; cam_data.dof.focus_object = target; cam_data.dof.aperture_fstop = 5.6
 cam = bpy.data.objects.new("Cam", cam_data); scene.collection.objects.link(cam); scene.camera = cam
 t = cam.constraints.new("TRACK_TO"); t.target = target; t.track_axis = "TRACK_NEGATIVE_Z"; t.up_axis = "UP_Y"
-R = 0.6
+R = 0.8
 for f in range(FRAMES):
     u = f / max(1, FRAMES - 1)
     yaw = math.radians(-38 + 76 * u); pitch = math.radians(3 * math.sin(u * math.pi))
