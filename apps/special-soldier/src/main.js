@@ -60,7 +60,9 @@ async function boot() {
 }
 
 // ---------------- state transitions ----------------
-G.toMenu = () => { G.state = 'menu'; G.hud.show(false); G.hud.cinematic(false); G.cine.active = false; G.enemies.clear(); G.squad.clear(); G.fx.reset(); G.gear.reset(); G.input.unlock(); G.audio.hush(); if (G.audio.enabled) { G.audio.stopLoops(); } G.weapons.root.visible = false; G.post.fadeTarget = 0; if (G.mission.heli) { G.scene.remove(G.mission.heli); G.mission.heli = null; } G.cine.menuScene(); G.menu.main(); $('lockHint').style.display = 'none'; };
+// first click/key in the menu unlocks WebAudio (browsers need a gesture) and starts the menu theme
+addEventListener('pointerdown', () => { if (G.state === 'menu' && !G.test) { G.audio.init(); G.audio.music('menu'); } });
+G.toMenu = () => { G.state = 'menu'; G.hud.show(false); G.hud.cinematic(false); G.cine.active = false; G.enemies.clear(); G.squad.clear(); G.fx.reset(); G.gear.reset(); G.input.unlock(); G.audio.hush(); if (G.audio.enabled) { G.audio.stopLoops(); if (!G.test) G.audio.music('menu'); } G.weapons.root.visible = false; G.post.fadeTarget = 0; if (G.mission.heli) { G.scene.remove(G.mission.heli); G.mission.heli = null; } G.cine.menuScene(); G.menu.main(); $('lockHint').style.display = 'none'; };
 G.startMission = (i, skipIntro = false) => {
   G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); const d = MISSIONS[i]; G.player.frozen = false;
   const go = () => { G.state = 'playing'; G.mission.begin(); if (!G.test) G.input.lock(); if (i === 0) G.hud.radio('REAPER: Feet wet. Move up the beach — quiet.'); G.player.updateCamera(0); };
@@ -98,11 +100,13 @@ function playIntroVideo(i, done, fallback) {
 }
 
 // ---------------- frame loop ----------------
-let last = 0, deadT = 0, deathKind = '', ambT = 0, acc = 0;
+let last = 0, deadT = 0, deathKind = '', ambT = 0, acc = 0, fightHold = 0;
 function ambient(dt) {
   if ((ambT -= dt) > 0 || !G.audio.enabled) return; ambT = 0.3; const A = G.audio, c = G.camera.position, under = c.y < -30, shore = under ? 0 : clamp(1.15 - Math.abs(Math.hypot(c.x, c.z) - 390) / 160, 0.05, 1);
   A.loop('ocean', shore * 0.4); A.loop('rain', G.sky.rainAmt * 0.3); A.loop('wind', under ? 0 : 0.05 + G.sky.wind * 0.07); A.loop('hum', under ? 0.16 : 0);
   const jungle = !under && G.world.heightAt(c.x, c.z) > 3 && c.z > 20 ? 1 : 0; A.loop('jungle', jungle * 0.05 * (1 - G.sky.rainAmt * 0.6));
+  fightHold = G.state === 'playing' && G.enemies.inCombat > 0 ? 9 : Math.max(0, fightHold - 0.3); const fight = fightHold > 0; // hold the combat cue 9 s so short sight-breaks don't flip the music A.loop('battle', fight && !under ? 0.22 : 0); // v0.14 recorded distant-battle bed while enemies are engaged
+  if (!G.test) A.music(G.state === 'cinematic' ? 'stealth' : fight ? 'combat' : 'stealth');
 }
 function frame(now) {
   requestAnimationFrame(frame);

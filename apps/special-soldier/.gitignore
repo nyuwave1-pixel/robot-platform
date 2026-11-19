@@ -8,3 +8,4 @@ tools/blender/.cache/
 __pycache__/
 *.pyc
 *.blend1
+tools/assets/.cache/

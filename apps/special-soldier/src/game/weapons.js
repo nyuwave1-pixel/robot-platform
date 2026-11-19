@@ -29,7 +29,9 @@ function box(g, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(new THREE.Box
 function cyl(g, r, len, x, y, z, m) { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), m); c.rotation.x = Math.PI / 2; c.position.set(x, y, z); g.add(c); return c; }
 const FP_GUN_MAT = photoDetail(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.75 }), 'gun', 5, 0.4);
 function gunFromAsset(id) {
-  const src = rebuild('W_' + id, FP_GUN_MAT, (n, m, kept) => (kept ? null : m.color.clone().multiplyScalar(2.2).addScalar(0.015))); if (!src) return null; // lifted so the dark finish still reads at night
+  // lift the dark finish so it still reads at night — but only dark colours: a ×2.2 on tan furniture (ARX, bullpup) blew it out to white (v0.14)
+  const lift = (c) => { const l = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b, k = Math.min(2.2, Math.max(1, 0.11 / Math.max(l, 1e-4))); return c.clone().multiplyScalar(k).addScalar(0.015); };
+  const src = rebuild('W_' + id, FP_GUN_MAT, (n, m, kept) => (kept ? null : lift(m.color))); if (!src) return null;
   const g = new THREE.Group(); src.rotation.y = Math.PI; g.add(src); g.updateMatrixWorld(true); // Blender model points +Z; the view model looks down -Z
   const at = (n) => { const o = src.getObjectByName(n); return o ? o.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(); };
   const mz = at('muzzle'), st = at('sight'), gp = at('gripL');

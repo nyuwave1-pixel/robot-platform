@@ -3,14 +3,15 @@
 // Usage: npm run build && npm run test:e2e   (screenshots → tests/out, report → tests/out/report.json)
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { HELPERS } from './plans.mjs';
 const { chromium } = createRequire(import.meta.url)('playwright');
-const OUT = new URL('./out/', import.meta.url).pathname; mkdirSync(OUT, { recursive: true });
+const OUT = fileURLToPath(new URL('./out/', import.meta.url)); mkdirSync(OUT, { recursive: true }); // fileURLToPath: also correct on Windows
 const results = []; let failed = 0;
 const check = (name, ok, detail = '') => { results.push({ name, ok: !!ok, detail: String(detail) }); if (!ok) failed++; console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  — ' + detail : ''}`); };
 const server = await preview({ preview: { port: 5183, strictPort: true }, logLevel: 'silent' });
-const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || undefined, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errs = []; page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text().slice(0, 300)); }); page.on('pageerror', (e) => errs.push('PAGEERROR ' + e.message + ' ' + (e.stack || '').split('\n')[1]));
 const shot = (n) => page.screenshot({ path: `${OUT}${n}.png`, timeout: 120000 });

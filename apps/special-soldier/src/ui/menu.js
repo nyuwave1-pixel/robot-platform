@@ -84,7 +84,7 @@ export class Menu {
       <label>Frame limit</label><select data-set="fpsCap">${[[0, 'Unlimited (v-sync)'], [30, '30'], [60, '60'], [120, '120']].map(([v, t]) => `<option value="${v}" ${+s.fpsCap === v ? 'selected' : ''}>${t}</option>`).join('')}</select><b></b>
       <label>Show performance counter</label><input type="checkbox" data-set="showFps" ${s.showFps ? 'checked' : ''}><b></b>
       <h3>CONTROLS</h3><label>Mouse sensitivity</label>${sl('sens', 0.2, 3, 0.05, (v) => v.toFixed(2))}<label>Invert Y</label><input type="checkbox" data-set="invertY" ${s.invertY ? 'checked' : ''}><b></b>
-      <h3>AUDIO</h3><label>Master volume</label>${sl('volume', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Radio voice (speech synthesis)</label><input type="checkbox" data-set="voice" ${s.voice ? 'checked' : ''}><b></b></div>
+      <h3>AUDIO</h3><label>Master volume</label>${sl('volume', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Music volume</label>${sl('music', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Radio voice (speech synthesis)</label><input type="checkbox" data-set="voice" ${s.voice ? 'checked' : ''}><b></b></div>
       <h3>KEY BINDINGS</h3><div class="keys">${KEYS.map(([k, d]) => `<div><kbd>${k}</kbd>${d}</div>`).join('')}</div>`, back));
   }
   setting(k, v, el) {

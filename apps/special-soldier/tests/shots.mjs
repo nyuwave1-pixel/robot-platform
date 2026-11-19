@@ -5,7 +5,7 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const out = process.env.OUT || '/tmp/claude-0/-home-user-robot-platform/ac6b075d-dbb3-56b1-9c64-d3d8fda8d695/scratchpad';
 const plan = process.argv[2] || 'intro';
 const server = await preview({ preview: { port: 5182, strictPort: true }, logLevel: 'silent' });
-const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || undefined, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errs = []; page.on('console', (m) => { if (m.type() === 'error') errs.push('error: ' + m.text().slice(0, 400)); }); page.on('pageerror', (e) => errs.push('PAGEERROR: ' + e.message + '\n' + (e.stack || '').split('\n').slice(0, 5).join('\n')));
 await page.goto('http://localhost:5182/?test&q=' + (process.env.Q || 'medium'));
