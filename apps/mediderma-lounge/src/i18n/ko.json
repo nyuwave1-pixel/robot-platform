@@ -333,5 +333,11 @@
   "set.soundOff": "꺼짐",
   "set.music": "배경음악",
   "set.credits": "크레딧 · 사용한 무료 에셋",
-  "set.creditsBody": "무료 에셋 (모두 CC0, 출처 표기 의무 없음 · 감사의 뜻으로 적습니다)\n· 3D 자연 소품: Quaternius — Ultimate Stylized Nature\n· 하늘 HDRI: Poly Haven — Greg Zaal, Jarod Guest\n· 잔디·돌·패브릭 재질: ambientCG\n· 효과음: Kenney — Interface Sounds\n· 배경음악: Zane Little Music — Apple Cider · Kistol — Hot Springs Town\n· 환경음: Thimras — Park Ambiences · rubberduck — 100 CC0 SFX #2\n그 밖의 모델은 Blender 스크립트로 직접 만들었습니다."
+  "set.creditsBody": "무료 에셋 (모두 CC0, 출처 표기 의무 없음 · 감사의 뜻으로 적습니다)\n· 실사형 캐릭터·동작: Quaternius — Universal Base Characters · Universal Animation Library\n· 3D 자연 소품: Quaternius — Ultimate Stylized Nature\n· 하늘 HDRI: Poly Haven — Greg Zaal, Jarod Guest\n· 잔디·돌·패브릭 재질: ambientCG\n· 효과음: Kenney — Interface Sounds\n· 배경음악: Zane Little Music — Apple Cider · Kistol — Hot Springs Town\n· 환경음: Thimras — Park Ambiences · rubberduck — 100 CC0 SFX #2\n그 밖의 모델은 Blender 스크립트로 직접 만들었습니다.",
+  "look.style": "캐릭터 스타일",
+  "look.style.real": "실사형 3D",
+  "look.style.chibi": "귀여운 3D",
+  "look.body": "체형",
+  "look.body.female": "여성",
+  "look.body.male": "남성"
 }

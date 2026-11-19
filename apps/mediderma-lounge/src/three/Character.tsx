@@ -11,12 +11,27 @@ import { Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { Model } from "./Model";
 import { FASHION_MAP, STAGES, RANKS } from "../data/game";
-import type { Look } from "../store/game";
+import { useGame, type Look } from "../store/game";
+import { RealCharacter, realScale } from "./RealCharacter";
 
 export type Anim = "idle" | "walk" | "sit" | "lie" | "wave" | "pose" | "pay" | "photo";
 
 const lerp = THREE.MathUtils.lerp;
+/** 지금 캐릭터 스타일(실사/귀여운)에 맞는 몸 치수. 카메라·누운 자세·케어 위치가 쓴다 */
 export function bodyDims(growth: number) {
+  if (styleNow() !== "real") return chibiDims(growth);
+  const s = realScale(growth);
+  return { ...chibiDims(growth), head: 0.105 * s, torso: 0.47 * s, leg: 0.92 * s, arm: 0.55 * s, shoulder: 0.19 * s, limb: 0.05 * s, neck: 0.07 * s, headY: 1.64 * s, height: 1.78 * s };
+}
+export const styleNow = () => useGame.getState().settings.charStyle ?? "real";
+
+/** 캐릭터: 설정의 캐릭터 스타일에 따라 실사 모델 또는 귀여운 코드 모델 */
+export function Character(props: Props) {
+  const style = useGame((s) => s.settings.charStyle ?? "real");
+  return style === "real" ? <RealCharacter {...props} /> : <ChibiCharacter {...props} />;
+}
+
+export function chibiDims(growth: number) {
   const g = THREE.MathUtils.clamp(growth, 1, 5);
   const i = Math.min(4, Math.floor(g) - 1);
   const j = Math.min(4, i + 1);
@@ -46,12 +61,12 @@ interface Props {
   rank?: number;
 }
 
-export function Character({ look, growth, anim = "idle", mood = "smile", glow = 0, sparkle, seed = 0, movingRef, rank = 0 }: Props) {
+function ChibiCharacter({ look, growth, anim = "idle", mood = "smile", glow = 0, sparkle, seed = 0, movingRef, rank = 0 }: Props) {
   const rk = rank > 0 ? RANKS[Math.min(rank, RANKS.length) - 1] : null;
   /** 등급 뷰티 연출 강도 0..1 (게임 판타지 연출이며 제품 효능 표현이 아니다) */
   const beauty = Math.sqrt(Math.min(1, rank / 10));
   const rankCol = rk ? (rk.n === 10 ? "#2a2226" : rk.color) : "#ffffff";
-  const d = bodyDims(growth);
+  const d = chibiDims(growth);
   const stage = Math.round(growth);
   const outfit = FASHION_MAP[look.outfit] ?? FASHION_MAP["fit-pastel"];
   const cut = outfit.cut ?? "puff";

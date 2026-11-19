@@ -8,7 +8,7 @@ import { useL } from "../i18n";
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
-import { Character } from "../three/Character";
+import { bodyDims, Character, styleNow } from "../three/Character";
 import { Icon, type IconName } from "./Icon";
 
 export function Splash() {
@@ -105,6 +105,7 @@ export function Create() {
             <button className="chip chip-on" onClick={random}>{t("create.random")}</button>
           </div>
         </div>
+        <StyleChips body={look.body} onBody={(b) => patch({ body: b })} />
         <Swatches label={t("look.skin")} values={SKIN_TONES} value={look.skin} onPick={(v) => patch({ skin: v })} />
         <Swatches label={t("look.hairColor")} values={HAIR_COLORS} value={look.hairColor} onPick={(v) => patch({ hairColor: v })} />
         <Swatches label={t("look.eyeColor")} values={EYE_COLORS} value={look.eyeColor} onPick={(v) => patch({ eyeColor: v })} />
@@ -119,8 +120,11 @@ export function Create() {
 }
 
 export function Preview({ look, growth, auto, rank }: { look: Look; growth: number; auto?: boolean; rank?: number }) {
+  // 캐릭터 스타일(실사/귀여운)에 따라 키가 달라 화면 구도를 키에 맞춘다
+  useGame((s) => s.settings.charStyle);
+  const h = bodyDims(growth).height + (rank && rank >= 7 ? 0.12 : 0);
   return (
-    <Canvas camera={{ fov: 32, position: [0, 0.75 + (growth - 1) * 0.1, 3.1 + (growth - 1) * 0.28 + (rank && rank >= 7 ? 0.3 : 0)] }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+    <Canvas key={styleNow()} camera={{ fov: 32, position: [0, h * 0.62, h * 2.15 + 0.6] }} dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
       <hemisphereLight args={["#fff4ee", "#f3d9e0", 1.2]} />
       <directionalLight position={[2, 4, 3]} intensity={1.6} />
       <Suspense fallback={null}>
@@ -129,8 +133,20 @@ export function Preview({ look, growth, auto, rank }: { look: Look; growth: numb
           <ContactShadows opacity={0.3} scale={3} blur={2.4} far={2} color="#e79aae" />
         </group>
       </Suspense>
-      <OrbitControls enablePan={false} target={[0, 0.5 + (growth - 1) * 0.12, 0]} minDistance={1.6} maxDistance={5} autoRotate={auto} autoRotateSpeed={1.2} maxPolarAngle={1.7} />
+      <OrbitControls enablePan={false} target={[0, h * 0.5, 0]} minDistance={1.2} maxDistance={7} autoRotate={auto} autoRotateSpeed={1.2} maxPolarAngle={1.7} />
     </Canvas>
+  );
+}
+
+/** 캐릭터 스타일(실사/귀여운 — 기기 설정) · 체형(여/남 — 룩) 선택 */
+export function StyleChips({ body, onBody }: { body?: "female" | "male"; onBody: (b: "female" | "male") => void }) {
+  const t = useT();
+  const style = useGame((s) => s.settings.charStyle ?? "real");
+  return (
+    <>
+      <Chips label={t("look.style")} values={["real", "chibi"] as ("real" | "chibi")[]} value={style} onPick={(v) => useGame.getState().setSettings({ charStyle: v })} render={(v) => t(`look.style.${v}`)} />
+      {style === "real" && <Chips label={t("look.body")} values={["female", "male"] as ("female" | "male")[]} value={body ?? "female"} onPick={onBody} render={(v) => t(`look.body.${v}`)} />}
+    </>
   );
 }
 

@@ -33,6 +33,13 @@ SOURCES = [
     ("oga/sfx_100_v2.zip", OGA + "sfx_100_v2.zip", "0fc61b4494e2e893c0c015ced4877b3f689c7d84a48cb61daecd7ddb52db797b"),  # /content/100-cc0-sfx-2 · rubberduck
 ]
 
+# itch.io "Name your own price"(0원 가능) 팩 — 브라우저 절차로 받는다 (tools/assets/itch_download.cjs)
+# Quaternius (CC0) · https://quaternius.itch.io/universal-base-characters · /universal-animation-library
+ITCH = [
+    ("quaternius_ubc/UBC_Standard.zip", "quaternius", "universal-base-characters", "Standard", "fdbf1804c90dfc1ea03e992bff7da2dfd1a79318e13270a660180f9308455f40"),
+    ("quaternius_ual/UAL_Standard.zip", "quaternius", "universal-animation-library", "Standard", "cc73fc4e495b82958207316596317a3f40b9fa38065bde1027937452da537724"),
+]
+
 
 def sha(p):
     return hashlib.sha256(open(p, "rb").read()).hexdigest()
@@ -52,6 +59,17 @@ def main():
         if out.endswith(".zip"):
             with zipfile.ZipFile(out) as z:
                 z.extractall(out[:-4])
+    here = os.path.dirname(os.path.abspath(__file__))
+    for name, creator, slug, want_file, want in ITCH:
+        out = os.path.join(IN, name)
+        if not os.path.exists(out) or sha(out) != want:
+            subprocess.run(["node", os.path.join(here, "itch_download.cjs"), creator, slug, want_file, out], check=True)
+        got = sha(out)
+        ok = got == want
+        bad += not ok
+        print(f"{'OK ' if ok else 'BAD'} {name}  {got}")
+        with zipfile.ZipFile(out) as z:
+            z.extractall(os.path.join(os.path.dirname(out), name.split("/")[1].split("_")[0]))
     sys.exit(1 if bad else 0)
 
 

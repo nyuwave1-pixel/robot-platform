@@ -11,7 +11,7 @@ import { levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from
 import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
-import { Chips, Swatches } from "./Screens";
+import { Chips, StyleChips, Swatches } from "./Screens";
 import { Icon, Price } from "./Icon";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
@@ -96,6 +96,7 @@ function CharacterPanel() {
       <Tabs tabs={[["face", t("char.face")], ["hair", t("char.hair")], ["style", t("char.style")], ["pose", t("char.pose")]]} value={tab} onPick={setTab} />
       {tab === "face" && (
         <>
+          <StyleChips body={look.body} onBody={(b) => g.setLook({ body: b })} />
           <Swatches label={t("look.skin")} values={SKIN_TONES} value={look.skin} onPick={(v) => g.setLook({ skin: v })} />
           <Chips label={t("look.face")} values={[...FACE_SHAPES]} value={look.face} onPick={(v) => g.setLook({ face: v })} render={(v) => t(`face.${v}`)} />
           <Chips label={t("look.eyes")} values={[...EYE_SHAPES]} value={look.eyes} onPick={(v) => g.setLook({ eyes: v })} render={(v) => t(`eyes.${v}`)} />

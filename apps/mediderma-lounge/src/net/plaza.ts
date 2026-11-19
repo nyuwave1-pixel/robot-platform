@@ -63,6 +63,7 @@ export function cleanLook(v: unknown): Look {
     face: word(o.face, D.face), eyes: word(o.eyes, D.eyes), brows: word(o.brows, D.brows), pose: "stand",
     hair: item(o.hair, D.hair)!, outfit: item(o.outfit, D.outfit)!,
     height: typeof o.height === "number" ? Math.min(1.08, Math.max(0.92, o.height)) : 1,
+    body: o.body === "male" ? "male" : "female",
     accessory: item(o.accessory, null), earring: item(o.earring, null), necklace: item(o.necklace, null), bag: item(o.bag, null),
     shoes: item(o.shoes, null), makeup: item(o.makeup, null), nail: item(o.nail, null),
   };

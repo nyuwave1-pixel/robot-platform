@@ -18,6 +18,8 @@ export interface Look {
   height?: number;
   /** 등급 장식을 숨길지 (기본: 표시) */
   hideRank?: boolean;
+  /** 실사 스타일의 체형 (기본: 여성) */
+  body?: "female" | "male";
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
 }
 export const DEFAULT_LOOK: Look = {
@@ -72,7 +74,7 @@ export interface GameState {
   posts: Post[];
   followers: number;
   following: string[];
-  settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number };
+  settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number; charStyle?: "real" | "chibi" };
 
   startNew: (name: string, look: Look) => void;
   setLook: (patch: Partial<Look>) => void;

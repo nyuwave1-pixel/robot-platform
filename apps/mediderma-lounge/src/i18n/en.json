@@ -333,5 +333,11 @@
   "set.soundOff": "Off",
   "set.music": "Music",
   "set.credits": "Credits · free assets used",
-  "set.creditsBody": "Free assets (all CC0, attribution not required — credited with thanks)\n· 3D nature props: Quaternius — Ultimate Stylized Nature\n· Sky HDRI: Poly Haven — Greg Zaal, Jarod Guest\n· Grass, stone and fabric materials: ambientCG\n· Sound effects: Kenney — Interface Sounds\n· Music: Zane Little Music — Apple Cider · Kistol — Hot Springs Town\n· Ambience: Thimras — Park Ambiences · rubberduck — 100 CC0 SFX #2\nAll other models are made in-house with Blender scripts."
+  "set.creditsBody": "Free assets (all CC0, attribution not required — credited with thanks)\n· Realistic characters & animations: Quaternius — Universal Base Characters · Universal Animation Library\n· 3D nature props: Quaternius — Ultimate Stylized Nature\n· Sky HDRI: Poly Haven — Greg Zaal, Jarod Guest\n· Grass, stone and fabric materials: ambientCG\n· Sound effects: Kenney — Interface Sounds\n· Music: Zane Little Music — Apple Cider · Kistol — Hot Springs Town\n· Ambience: Thimras — Park Ambiences · rubberduck — 100 CC0 SFX #2\nAll other models are made in-house with Blender scripts.",
+  "look.style": "Character style",
+  "look.style.real": "Realistic 3D",
+  "look.style.chibi": "Cute 3D",
+  "look.body": "Body",
+  "look.body.female": "Female",
+  "look.body.male": "Male"
 }

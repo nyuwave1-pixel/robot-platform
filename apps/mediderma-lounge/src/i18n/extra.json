@@ -26,7 +26,13 @@
     "shop.product": "製品",
     "shop.codex": "図鑑",
     "shop.fashion": "ファッション",
-    "shop.interior": "インテリア"
+    "shop.interior": "インテリア",
+    "look.style": "キャラスタイル",
+    "look.style.real": "リアル3D",
+    "look.style.chibi": "かわいい3D",
+    "look.body": "体型",
+    "look.body.female": "女性",
+    "look.body.male": "男性"
   },
   "zh": {
     "nav.character": "我的角色",
@@ -55,7 +61,13 @@
     "shop.product": "产品",
     "shop.codex": "图鉴",
     "shop.fashion": "时尚",
-    "shop.interior": "室内装饰"
+    "shop.interior": "室内装饰",
+    "look.style": "角色风格",
+    "look.style.real": "写实3D",
+    "look.style.chibi": "可爱3D",
+    "look.body": "体型",
+    "look.body.female": "女性",
+    "look.body.male": "男性"
   },
   "es": {
     "nav.character": "MI PERSONAJE",
