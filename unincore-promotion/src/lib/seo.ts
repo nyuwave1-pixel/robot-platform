@@ -15,6 +15,12 @@ const isoDuration = (d: string) => {
   return `PT${m || 0}M${s || 0}S`;
 };
 
+/**
+ * Google wants VideoObject.uploadDate as a full ISO 8601 date-time with a time zone
+ * (Search Console flagged a date-only value on 2026-11-19). A bare date gets midnight KST.
+ */
+export const isoDateTime = (d: string) => (/T\d{2}:\d{2}/.test(d) ? d : `${d}T00:00:00+09:00`);
+
 /** Creator videos on a product landing page. They were added to this site on 2026-11-10. */
 export function landingVideoLd(c: LandingContent, productName: string) {
   return c.ugc.map((v) => ({
@@ -24,7 +30,7 @@ export function landingVideoLd(c: LandingContent, productName: string) {
     description: `${v.caption}. A creator video about UNI&CORE ${productName}.`,
     thumbnailUrl: [abs(v.poster)],
     contentUrl: abs(v.video),
-    uploadDate: "2026-11-10",
+    uploadDate: isoDateTime("2026-11-10"),
     duration: isoDuration(v.duration),
   }));
 }
@@ -177,7 +183,7 @@ export function videoLd(p: ProductContent) {
     name: v.title,
     description: v.description,
     thumbnailUrl: [abs(v.poster)],
-    uploadDate: v.uploadDate,
+    uploadDate: isoDateTime(v.uploadDate),
     contentUrl: abs(v.src),
     ...(v.duration && { duration: v.duration }),
   }));

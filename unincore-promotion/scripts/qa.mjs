@@ -75,6 +75,8 @@ for (const path of ["/", ...PRODUCTS.map((p) => `/products/${p.slug}`), "/privac
   check(`${path} JSON-LD parses`, ldOk, types.join(", "));
   if (path.startsWith("/products/")) {
     check(`${path} has VideoObject for each creator video`, types.filter((t) => t === "VideoObject").length >= 3);
+    const dates = meta.ld.flatMap((l) => { try { return [].concat(JSON.parse(l)); } catch { return []; } }).filter((x) => x["@type"] === "VideoObject").map((x) => x.uploadDate);
+    check(`${path} VideoObject uploadDate is a date-time with time zone`, dates.length > 0 && dates.every((d) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$/.test(d)), dates[0]);
     check(`${path} has Product + BreadcrumbList schema, no FAQPage`, ["Product", "BreadcrumbList"].every((t) => types.includes(t)) && !types.includes("FAQPage"));
   }
   if (path === "/") check("home has Organization + WebSite schema", types.includes("Organization") && types.includes("WebSite"));
