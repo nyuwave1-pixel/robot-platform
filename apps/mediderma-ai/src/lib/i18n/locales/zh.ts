@@ -339,7 +339,15 @@ const zh: Dict = {
     verdict: {"improved": "变好", "no_change": "不变", "worsened": "变差", "not_comparable": "无法比较"},
     note: "这是照片上看到的变化，细小差异视为拍摄误差显示为「不变」。不能证明产品或设备的功效。",
   },
-  flow: { label: "分析步骤", steps: ["同意", "照片", "问题", "结果"] },
+  flow: { label: "分析步骤", steps: ["同意", "信息", "照片", "问题", "结果"] },
+  fit: {
+    pf: {"skip": "跳过", "next": "继续", "back": "返回", "forWhom": {"title": "这次扫描是为谁做的?", "sub": "告诉我们以便个性化结果。", "self": "本人", "other": "其他人"}, "makeup": {"titleSelf": "您现在化妆了吗?", "titleOther": "对方现在化妆了吗?", "sub": "有助于个性化推荐。", "yes": "是", "no": "否", "note": "提示: 皮肤上残留妆容可能会降低分析准确度。"}, "age": {"titleSelf": "您的年龄段是?", "titleOther": "对方的年龄段是?", "sub": "皮肤会随年龄变化，我们会据此调整建议。", "bands": ["18–24岁", "25–34岁", "35–44岁", "45–54岁", "55–64岁", "65岁以上"]}, "skin": {"titleSelf": "白天您的皮肤通常感觉如何?", "titleOther": "白天对方的皮肤通常感觉如何?", "sub": "", "types": {"dry": "干性 (常紧绷)", "normal": "中性 (舒适)", "oily": "油性 (泛油光)", "combination": "混合性 (T区出油)"}}},
+    confirm: {"title": "确认照片", "desc": "脸部清晰可见吗? 用这张照片分析吗?", "ok": "用这张照片分析", "again": "重新选择"},
+    scan: {"title": "AI 正在精密分析您的皮肤", "steps": ["识别面部478个点", "划分13个皮肤区域", "测量肤质与皱纹", "测量毛孔与斑点", "分析肤色均匀度", "匹配护理方案"], "privacy": "照片只在本设备内分析"},
+    hero: {"scoreLabel": "皮肤状态", "sentence": "照片显示的皮肤状态为 {n} 分（满分100）。", "skinType": "肤质", "age": "年龄段", "makeupWarn": "照片带妆拍摄，结果可能不够准确。", "types": {"dry": "干性", "normal": "中性", "oily": "油性", "combination": "混合性"}, "note": "这是 AI 基于照片的参考指数，并非医学诊断。"},
+    cards: {"title": "皮肤详情", "tapHint": "点击卡片查看详细说明。", "badges": ["需要护理", "有点不足", "良好", "很好"], "whereLabel": "最明显的位置", "close": "关闭"},
+    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA AI 皮肤分析]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
+  },
   care: {
     title: "DERMA HOME 定制护理",
     techTitle: "推荐功能",

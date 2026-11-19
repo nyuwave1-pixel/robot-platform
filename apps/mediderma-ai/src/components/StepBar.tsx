@@ -2,7 +2,7 @@
 /** 분석 흐름 단계 표시(동의 → 사진 → 질문 → 결과). 지금 어디쯤인지 한눈에 보이게 큰 숫자로. */
 import { useI18n } from "@/lib/i18n";
 
-export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 }) {
+export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
   const { t } = useI18n();
   const steps = t.flow.steps;
   return (
