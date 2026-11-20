@@ -19,7 +19,7 @@ export interface Look {
   /** 등급 장식을 숨길지 (기본: 표시) */
   hideRank?: boolean;
   /** 실사 스타일의 체형 (기본: 여성) */
-  body?: "female" | "male";
+  body?: "female" | "male" | "signature";
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
 }
 export const DEFAULT_LOOK: Look = {

@@ -1,7 +1,7 @@
 # 에셋 라이선스 대장
 
 게임에 들어간 **외부 무료 에셋**을 파일 하나당 한 줄로 기록합니다. 대장에 없는 파일은 넣지 않습니다
-(`tests/assets.test.ts` 가 `public/tex`, `public/audio`, `public/models/qn_*` · `public/models/real_*` 의 모든 파일이 이 표에 있는지 검사합니다).
+(외부 무료 에셋은 모두 CC0, 직접 생성한 에셋은 '자체 생성'으로 표기. `tests/assets.test.ts` 가 `public/tex`, `public/audio`, `public/models/qn_*` · `public/models/real_*` 의 모든 파일이 이 표에 있는지 검사합니다).
 
 - 원본 받기: `python3 tools/assets/fetch_free_assets.py` (공식 출처에서 받고 원본 SHA-256 을 확인)
 - 게임용 가공: `python3 tools/assets/build_free_assets.py` · Blender `tools/blender/import_quaternius.py` · `tools/blender/build_real_character.py`
@@ -21,6 +21,7 @@
 | `public/models/real_female.glb` | Universal Base Characters [Standard] — Superhero_Female_FullBody + Hairstyles(Long·Buns·SimpleParted·BuzzedFemale) | Quaternius | CC0 1.0 | [itch.io](https://quaternius.itch.io/universal-base-characters) | 실사형 캐릭터(여성) — 내 캐릭터·손님·광장 플레이어 | 몸 메시로 상의·반바지·소매·구두를, 몸 단면으로 치마 2종을 Blender 에서 만들어 붙임 · 피부 Light 텍스처 1024px · 헤어 회색조 · WebP |
 | `public/models/real_male.glb` | 〃 Superhero_Male_FullBody + Hairstyles(SimpleParted·Buzzed·Long·Beard) | Quaternius | CC0 1.0 | 〃 | 실사형 캐릭터(남성) | 〃 |
 | `public/models/real_anims.glb` | Universal Animation Library [Standard] — Idle·Walk·Jog·Sitting_Idle·Idle_Talking·Interact·Dance·Walk_Formal | Quaternius | CC0 1.0 | [itch.io](https://quaternius.itch.io/universal-animation-library) | 실사형 캐릭터 동작 (두 체형 공용 65개 뼈대) | 43개 중 8개 클립만, 뼈대만 내보냄 |
+| `public/models/signature.glb` | 시그니처 캐릭터 — 2026-11-20 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 5종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 체형 '시그니처' | `tools/blender/build_signature.py`: 동작 GLB 5개를 한 뼈대로 합침 · 텍스처 2048 JPEG → 1024 WebP · meshopt 압축 (4.7MB → 0.8MB) |
 | `public/tex/sky_plaza.hdr` | Kloofendal 43d Clear (Pure Sky), 1k | Greg Zaal | CC0 | [polyhaven.com](https://polyhaven.com/a/kloofendal_43d_clear_puresky) | 광장 하늘 배경·반사광 | 원본 그대로 |
 | `public/tex/grass_c.jpg` | Grass004 Color | ambientCG (Lennart Demes) | CC0 | [ambientcg.com](https://ambientcg.com/view?id=Grass004) | 광장 잔디·언덕 | 512px, 파스텔 보정 |
 | `public/tex/grass_n.jpg` | Grass004 NormalGL | ambientCG | CC0 | 〃 | 광장 잔디 | 512px |

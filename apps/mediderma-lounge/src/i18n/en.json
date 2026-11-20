@@ -415,5 +415,7 @@
   "slot.bag": "Bag",
   "slot.shoes": "Shoes",
   "slot.makeup": "Makeup",
-  "slot.nail": "Nails"
+  "slot.nail": "Nails",
+  "look.body.signature": "Signature (designed look)",
+  "look.body.sigNote": "The Signature character is a finished design, so hair, outfit and makeup colours don't change."
 }

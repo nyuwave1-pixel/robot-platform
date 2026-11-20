@@ -43,6 +43,8 @@ export function realOutfit(cut: string, male = false) {
     Shoes: true,
   } as Record<string, boolean>;
 }
+/** 시그니처 캐릭터(Higgsfield 디자인 · 자체 리그)의 동작 이름 */
+const SIG_CLIP: Record<Anim, string> = { idle: "Idle", walk: "Walk", sit: "Sit", lie: "Idle", wave: "Wave", pose: "Dance", pay: "Wave", photo: "Idle" };
 const CLIP: Record<Anim, string> = {
   idle: "Idle_Loop", walk: "Walk_Loop", sit: "Sitting_Idle_Loop", lie: "Idle_Loop", wave: "Idle_Talking_Loop", pose: "Dance_Loop", pay: "Interact", photo: "Idle_Loop",
 };
@@ -70,14 +72,17 @@ function crown(rank: number) {
 
 export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0 }: { look: Look; growth: number; anim?: Anim; movingRef?: { current: boolean }; rank?: number }) {
   const male = look.body === "male";
+  const sig = look.body === "signature"; // 텍스처에 옷·헤어가 구워진 완성형 모델 — 색 바꾸기는 쓰지 않는다
   const [src, setSrc] = useState<{ scene: THREE.Group; clips: THREE.AnimationClip[] } | null>(null);
   useEffect(() => {
     let on = true;
-    Promise.all([load(`./models/real_${male ? "male" : "female"}.glb`), load("./models/real_anims.glb")]).then(([c, a]) => {
-      if (on && c && a) setSrc({ scene: c.scene, clips: a.animations });
+    const files = sig ? ["./models/signature.glb"] : [`./models/real_${male ? "male" : "female"}.glb`, "./models/real_anims.glb"];
+    Promise.all(files.map(load)).then(([c, a]) => {
+      const anims = sig ? c?.animations : a?.animations;
+      if (on && c && anims) setSrc({ scene: c.scene, clips: anims });
     });
     return () => { on = false; };
-  }, [male]);
+  }, [male, sig]);
 
   // 인스턴스마다 뼈대·재질을 복제한다 (같은 모델을 여러 캐릭터가 쓴다)
   const obj = useMemo(() => {
@@ -100,7 +105,7 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
   const acc = outfit.accent ?? "#ffffff";
   const shoe = look.shoes ? FASHION_MAP[look.shoes]?.color ?? "#ef9ab0" : "#ef9ab0";
   useEffect(() => {
-    if (!obj) return;
+    if (!obj || sig) return;
     const hair = realHair(look.hair, male);
     const wear = realOutfit(cut, male);
     const skin = new THREE.Color(look.skin);
@@ -151,7 +156,7 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
   useFrame((_, dt) => {
     if (!mixer) return;
     const moving = !!movingRef?.current && anim !== "lie" && anim !== "sit";
-    const want = actions[moving ? "Walk_Loop" : CLIP[anim]] ?? actions.Idle_Loop;
+    const want = sig ? actions[moving ? "Walk" : SIG_CLIP[anim]] ?? actions.Idle : actions[moving ? "Walk_Loop" : CLIP[anim]] ?? actions.Idle_Loop;
     if (want && cur.current !== want) {
       want.reset().fadeIn(0.25).play();
       cur.current?.fadeOut(0.25);

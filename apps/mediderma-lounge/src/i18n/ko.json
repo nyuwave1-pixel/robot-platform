@@ -415,5 +415,7 @@
   "slot.bag": "가방",
   "slot.shoes": "신발",
   "slot.makeup": "메이크업",
-  "slot.nail": "네일"
+  "slot.nail": "네일",
+  "look.body.signature": "시그니처 (디자인 완성형)",
+  "look.body.sigNote": "시그니처 캐릭터는 헤어·의상·메이크업이 디자인된 완성형이라 색 바꾸기가 적용되지 않아요."
 }
