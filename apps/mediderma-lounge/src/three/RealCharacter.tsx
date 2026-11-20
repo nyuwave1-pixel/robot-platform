@@ -104,6 +104,10 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
     const wear = realOutfit(cut, male);
     const skin = new THREE.Color(look.skin);
     const tint = new THREE.Color(skin.r / SKIN_AVG.r, skin.g / SKIN_AVG.g, skin.b / SKIN_AVG.b);
+    // 입술: 피부색 위에 룩의 립 컬러를 60% 섞는다 (밝기는 텍스처가 맡도록 가장 밝은 채널을 1로 맞춘다)
+    const lip = new THREE.Color(look.lipColor ?? "#e98c9a");
+    const lm = Math.max(lip.r, lip.g, lip.b, 0.001);
+    const lipTint = tint.clone().multiply(new THREE.Color(1, 1, 1).lerp(new THREE.Color(lip.r / lm, lip.g / lm, lip.b / lm), 0.6));
     obj.traverse((c) => {
       const m = c as THREE.Mesh;
       if (!m.isMesh) return;
@@ -113,6 +117,7 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       const mt = m.material as THREE.MeshStandardMaterial;
       const mn = mt.name;
       if (mn === "skin") mt.color.copy(tint);
+      else if (mn === "lips") mt.color.copy(lipTint);
       else if (mn.startsWith("hair")) mt.color.set(look.hairColor).multiplyScalar(1.15);
       else if (mn === "shoe") mt.color.set(shoe);
       else if (mn === "accent") mt.color.set(acc);
@@ -122,7 +127,7 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
         mt.metalness = cut === "gown" ? 0.15 : 0;
       }
     });
-  }, [obj, look.hair, look.hairColor, look.skin, look.outfit, look.shoes, male, cut, col, acc, shoe, outfit.id]);
+  }, [obj, look.hair, look.hairColor, look.skin, look.lipColor, look.outfit, look.shoes, male, cut, col, acc, shoe, outfit.id]);
 
   // 등급 7 이상: 머리 뼈에 티아라/왕관
   useEffect(() => {
