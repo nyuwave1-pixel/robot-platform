@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { BOX_COST, CURIOS, CURIO_SETS, DUP_REFUND, GIFT_DAILY, PLANT_MAP, PLANTS, RARITY_ODDS, WORKOUT_DAILY, WORKOUTS, fitLevel, growth, potsFor, rollCurio } from "../src/data/life";
 import { CURIO_IDS } from "../src/ui/LifeArt";
+import { CURIO_MODEL_IDS } from "../src/three/Curios3D";
 import { useGame } from "../src/store/game";
 import { useLife } from "../src/store/life";
 
@@ -67,6 +68,7 @@ describe("웰니스 피트니스", () => {
 describe("인테리어 소품 컬렉션", () => {
   it("모든 소품에 그림이 있고 세트마다 4개씩이다", () => {
     expect(CURIO_IDS.sort()).toEqual(CURIOS.map((c) => c.id).sort());
+    expect(CURIO_MODEL_IDS.sort()).toEqual(CURIOS.map((c) => c.id).sort()); // 라운지 진열 3D 모델
     for (const s of CURIO_SETS) expect(CURIOS.filter((c) => c.set === s.id)).toHaveLength(4);
     expect(RARITY_ODDS[1] + RARITY_ODDS[2] + RARITY_ODDS[3]).toBeCloseTo(1);
   });

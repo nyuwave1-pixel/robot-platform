@@ -18,6 +18,7 @@ import { Care3D } from "./Care3D";
 import { Customers, npcPos } from "./Customers";
 import { PetActor, petPos } from "./Pet";
 import { Garden3D } from "./Garden3D";
+import { Curios3D } from "./Curios3D";
 
 const lerp = THREE.MathUtils.lerp;
 /** 카메라가 바라보는 지점 — 피사계 심도의 초점 */
@@ -162,6 +163,7 @@ function Scene({ q }: { q: "low" | "high" }) {
       {shop ? <ShopHost shop={shop} /> : friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
       {!away && pets.map((p, i) => <PetActor key={p.id} pet={p} L={L} seed={i} />)}
       {!away && <Garden3D L={L} />}
+      {!away && <Curios3D L={L} />}
       {hasCare && !away && <Care3D L={L} />}
       <ZoneMarkers L={L} hidden={mode !== "explore" || away} />
       <CameraRig L={L} />
