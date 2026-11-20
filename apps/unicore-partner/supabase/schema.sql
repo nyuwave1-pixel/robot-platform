@@ -1,6 +1,6 @@
 -- UNI&CORE PARTNER (화이트라벨 사업자 사이트) — 최종 스키마
 -- Supabase 프로젝트에 이미 적용됨 (마이그레이션: partner_platform_v1, partner_products_id_case,
--- site_platform_rename_and_fix_checks, site_platform_grants, site_profiles_anon_column_grant).
+-- site_platform_rename_and_fix_checks, site_platform_grants, site_profiles_anon_column_grant, site_photo_select_own_folder).
 -- 기존 ERP 의 partners/partner_* 테이블과 구분하기 위해 site_ 접두사를 쓴다. 기존 테이블은 건드리지 않는다.
 
 create table public.site_hq_admins (
@@ -143,6 +143,9 @@ grant select on public.site_hq_admins to authenticated;
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('partner-photos', 'partner-photos', true, 5242880, array['image/jpeg','image/png','image/webp'])
 on conflict (id) do nothing;
+-- 본인 폴더 목록 조회 (삭제가 동작하려면 조회 권한이 필요). 공개 URL 읽기는 버킷 public 설정으로 가능.
+create policy "site photo list own folder" on storage.objects for select to authenticated
+  using (bucket_id = 'partner-photos' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select public.site_is_hq_admin())));
 create policy "site photo upload own folder" on storage.objects for insert to authenticated
   with check (bucket_id = 'partner-photos' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select public.site_is_hq_admin())));
 create policy "site photo update own folder" on storage.objects for update to authenticated
