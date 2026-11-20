@@ -7,7 +7,9 @@ import BgVideo from "@/features/video/BgVideo";
 import { useSectionProgress } from "@/features/scroll/useSectionProgress";
 import { useQualityTier, useReducedMotion } from "@/lib/env";
 import s from "./sections.module.css";
-import { useDict } from "@/i18n/context";
+import { useDict, useLocale } from "@/i18n/context";
+import { purchaseLinks } from "@/lib/purchase";
+import { track } from "@/lib/track";
 
 const GoldParticles = dynamic(() => import("@/features/scenes/GoldParticles"), { ssr: false });
 
@@ -25,7 +27,9 @@ export default function Final() {
     el.style.opacity = String(q); el.style.transform = `translateY(${(1 - q) * 30}px)`;
     if (bg.current) bg.current.style.transform = `scale(${1.08 - p * 0.06})`;
   });
-  const purchase = product.urls.purchase || "#how-to-use";
+  const locale = useLocale();
+  const links = purchaseLinks(locale);
+  const label = (r: "kr" | "us") => (r === "kr" ? t.ui.buy.kr : t.ui.buy.us);
   return (
     <section id="rebirth" ref={pin} className={s.pin} style={{ height: "200svh" }} data-bg="#080706" aria-labelledby="h-final">
       <div className={s.stage}>
@@ -44,7 +48,8 @@ export default function Final() {
             <p className={`headline-ko ${s.finalKo}`}>{t.copy.s12.ko}</p>
             <span className="caption">{t.copy.s12.name}</span>
             <div className={s.ctas}>
-              <a className="btn btn-primary" href={purchase} target={product.urls.purchase ? "_blank" : undefined} rel="noopener">{t.copy.s12.cta1}</a>
+              <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" data-region={links.primary.region} onClick={() => track("buy_click", { placement: "final", region: links.primary.region, locale })}>{label(links.primary.region)}</a>
+              {links.secondary && <a className="btn btn-outline" href={links.secondary.href} target="_blank" rel="noopener" data-region={links.secondary.region} onClick={() => track("buy_click", { placement: "final", region: links.secondary!.region, locale })}>{label(links.secondary.region)}</a>}
               <a className="btn btn-ghost" href="#how-to-use">{t.copy.s12.cta2}</a>
               <a className="btn btn-ghost" href={product.urls.brand} target="_blank" rel="noopener">{t.copy.s12.cta3}</a>
             </div>
