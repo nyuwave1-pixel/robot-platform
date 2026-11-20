@@ -3,7 +3,7 @@ import type { Dict } from "./ko";
 const vi: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Phân tích làn da của bạn và khám phá liệu trình DERMA HOME phù hợp với chính mình.",
     start: "Bắt đầu phân tích da",
@@ -30,7 +30,7 @@ const vi: Dict = {
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
     desc: "Chỉ cần một bức ảnh khuôn mặt, không cần đăng ký. Quan sát đặc điểm bề mặt da trên 13 vùng mặt và gợi ý chăm sóc phù hợp với DERMA HOME: RF · Siêu âm (Ultrasonic) · Điện di ion (Iontophoresis).",
     onDeviceBadge: "Ảnh chỉ được xử lý ngay trên thiết bị của bạn",
     uploadTitle: "Tải ảnh lên để bắt đầu ngay",
@@ -345,7 +345,7 @@ const vi: Dict = {
     scan: {"title": "AI đang phân tích chi tiết làn da của bạn", "steps": ["Nhận diện 478 điểm trên mặt", "Chia 13 vùng da", "Đo kết cấu và nếp nhăn", "Đo lỗ chân lông và đốm", "Phân tích độ đều màu", "Ghép chăm sóc phù hợp"], "privacy": "Ảnh chỉ được phân tích trên thiết bị này"},
     hero: {"scoreLabel": "Tình trạng da", "sentence": "Tình trạng da qua ảnh đạt {n}/100 điểm.", "skinType": "Loại da", "age": "Độ tuổi", "makeupWarn": "Ảnh chụp khi trang điểm nên kết quả có thể kém chính xác.", "types": {"dry": "Da khô", "normal": "Da thường", "oily": "Da dầu", "combination": "Da hỗn hợp"}, "note": "Chỉ số tham khảo do AI quan sát từ ảnh, không phải chẩn đoán y khoa."},
     cards: {"title": "Chi tiết làn da", "tapHint": "Chạm vào thẻ để xem chi tiết.", "badges": ["Cần chăm sóc", "Hơi kém", "Tốt", "Rất tốt"], "whereLabel": "Rõ nhất ở", "close": "Đóng"},
-    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA AI Phân tích da]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
+    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA AI SKIN SCORE]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
   },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",

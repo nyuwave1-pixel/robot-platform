@@ -2,7 +2,7 @@
   "name": "mediderma-ai-skin-analysis",
   "version": "0.1.0",
   "private": true,
-  "description": "MEDIDERMA AI SKIN ANALYSIS — on-device photo skin observation, DERMA HOME care guidance, virtual simulation",
+  "description": "MEDIDERMA AI SKIN SCORE — on-device photo skin observation, DERMA HOME care guidance, virtual simulation",
   "scripts": {
     "dev": "next dev -p 3200",
     "predev": "node scripts/copy-wasm.mjs",

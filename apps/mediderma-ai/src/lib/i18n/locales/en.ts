@@ -3,7 +3,7 @@ import type { Dict } from "./ko";
 const en: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Scan your skin and discover the DERMA HOME care that fits you.",
     start: "Start skin analysis",
@@ -30,7 +30,7 @@ const en: Dict = {
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
     desc: "One face photo, no sign-up. We observe skin surface features across 13 facial zones and guide you to personalized DERMA HOME care with RF (Radio Frequency), Ultrasonic and Iontophoresis.",
     onDeviceBadge: "Your photo is processed only on your device",
     uploadTitle: "Upload a photo to get started",
@@ -345,7 +345,7 @@ const en: Dict = {
     scan: {"title": "AI is analyzing your skin in detail", "steps": ["Detecting 478 face points", "Dividing 13 skin zones", "Measuring texture and wrinkles", "Measuring pores and spots", "Analyzing tone evenness", "Matching your care"], "privacy": "Your photo is analyzed only on this device"},
     hero: {"scoreLabel": "Skin condition", "sentence": "Your skin condition from the photo scores {n} out of 100.", "skinType": "Skin type", "age": "Age range", "makeupWarn": "The photo was taken with makeup, so results may be less accurate.", "types": {"dry": "Dry", "normal": "Normal", "oily": "Oily", "combination": "Combination"}, "note": "A photo-based reference index from AI, not a medical diagnosis."},
     cards: {"title": "Skin details", "tapHint": "Tap a card for details.", "badges": ["Needs care", "Could be better", "Good", "Excellent"], "whereLabel": "Most visible in", "close": "Close"},
-    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA AI Skin Analysis]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
+    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA AI SKIN SCORE]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
   },
   care: {
     title: "Personalized DERMA HOME Care",

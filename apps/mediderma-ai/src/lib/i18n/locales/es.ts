@@ -4,7 +4,7 @@ import type { Dict } from "./ko";
 const es: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Analiza tu piel y descubre el cuidado DERMA HOME que va contigo.",
     start: "Iniciar análisis de piel",
@@ -31,7 +31,7 @@ const es: Dict = {
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
     desc: "Sin registro, con una sola foto de tu rostro. Observamos las características superficiales de la piel en 13 zonas faciales y te orientamos hacia un cuidado a medida con DERMA HOME: RF (radiofrecuencia) · Ultrasónico · Iontoforesis.",
     onDeviceBadge: "Tu foto se procesa solo en tu dispositivo",
     uploadTitle: "Sube una foto y empieza ahora",
@@ -346,7 +346,7 @@ const es: Dict = {
     scan: {"title": "La IA está analizando tu piel en detalle", "steps": ["Detectando 478 puntos del rostro", "Dividiendo 13 zonas", "Midiendo textura y arrugas", "Midiendo poros y manchas", "Analizando la uniformidad del tono", "Eligiendo tu cuidado"], "privacy": "Tu foto se analiza solo en este dispositivo"},
     hero: {"scoreLabel": "Estado de la piel", "sentence": "El estado de tu piel en la foto es de {n} sobre 100.", "skinType": "Tipo de piel", "age": "Edad", "makeupWarn": "La foto tiene maquillaje; el resultado puede ser menos preciso.", "types": {"dry": "Seca", "normal": "Normal", "oily": "Grasa", "combination": "Mixta"}, "note": "Índice de referencia de IA basado en la foto, no es un diagnóstico médico."},
     cards: {"title": "Detalles de la piel", "tapHint": "Toca una tarjeta para ver más.", "badges": ["Necesita cuidado", "Podría mejorar", "Bien", "Excelente"], "whereLabel": "Más visible en", "close": "Cerrar"},
-    share: {"button": "Compartir resultado", "copied": "Copiado. Pégalo en tu mensajería.", "text": "[MEDIDERMA AI Análisis de piel]\nEstado {score}/100\nCuidar primero: {weak}\nRecomendado: {products}\nPruébalo 👉 {url}"},
+    share: {"button": "Compartir resultado", "copied": "Copiado. Pégalo en tu mensajería.", "text": "[MEDIDERMA AI SKIN SCORE]\nEstado {score}/100\nCuidar primero: {weak}\nRecomendado: {products}\nPruébalo 👉 {url}"},
   },
   care: {
     title: "Cuidado a medida DERMA HOME",

@@ -3,7 +3,7 @@ import type { Dict } from "./ko";
 const ru: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Анализируйте свою кожу и откройте уход DERMA HOME, который подходит именно вам.",
     start: "Начать анализ кожи",
@@ -30,7 +30,7 @@ const ru: Dict = {
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
     desc: "Без регистрации, по одной фотографии лица. Наблюдаем особенности поверхности кожи в 13 зонах лица и подсказываем персональный уход DERMA HOME: RF · Ультразвук · Ионофорез.",
     onDeviceBadge: "Фото обрабатывается только на вашем устройстве",
     uploadTitle: "Загрузите фото и начните прямо сейчас",
@@ -345,7 +345,7 @@ const ru: Dict = {
     scan: {"title": "ИИ подробно анализирует вашу кожу", "steps": ["Распознавание 478 точек лица", "Разделение на 13 зон", "Измерение текстуры и морщин", "Измерение пор и пятен", "Анализ равномерности тона", "Подбор ухода"], "privacy": "Фото анализируется только на этом устройстве"},
     hero: {"scoreLabel": "Состояние кожи", "sentence": "Состояние кожи по фото — {n} из 100.", "skinType": "Тип кожи", "age": "Возраст", "makeupWarn": "Фото сделано с макияжем, результат может быть менее точным.", "types": {"dry": "Сухая", "normal": "Нормальная", "oily": "Жирная", "combination": "Комбинированная"}, "note": "Справочный индекс ИИ по фото, не медицинский диагноз."},
     cards: {"title": "Подробности о коже", "tapHint": "Нажмите на карточку для подробностей.", "badges": ["Нужен уход", "Можно лучше", "Хорошо", "Отлично"], "whereLabel": "Заметнее всего", "close": "Закрыть"},
-    share: {"button": "Поделиться", "copied": "Скопировано. Вставьте в мессенджер.", "text": "[MEDIDERMA AI Анализ кожи]\nСостояние {score}/100\nВ первую очередь: {weak}\nРекомендуем: {products}\nПопробуйте 👉 {url}"},
+    share: {"button": "Поделиться", "copied": "Скопировано. Вставьте в мессенджер.", "text": "[MEDIDERMA AI SKIN SCORE]\nСостояние {score}/100\nВ первую очередь: {weak}\nРекомендуем: {products}\nПопробуйте 👉 {url}"},
   },
   care: {
     title: "Персональный уход DERMA HOME",

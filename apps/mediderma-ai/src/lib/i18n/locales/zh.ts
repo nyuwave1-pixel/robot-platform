@@ -4,7 +4,7 @@ import type { Dict } from "./ko";
 const zh: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "扫描你的肌肤，发现适合你的 DERMA HOME 护理。",
     start: "开始肌肤分析",
@@ -31,7 +31,7 @@ const zh: Dict = {
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
     desc: "无需注册，只要一张面部照片。观察 13 个面部区域的皮肤表面特征，并为你匹配 DERMA HOME RF 射频 · 超声波 · 离子导入护理方案。",
     onDeviceBadge: "照片仅在你的设备内处理",
     uploadTitle: "上传照片，立即开始",
@@ -346,7 +346,7 @@ const zh: Dict = {
     scan: {"title": "AI 正在精密分析您的皮肤", "steps": ["识别面部478个点", "划分13个皮肤区域", "测量肤质与皱纹", "测量毛孔与斑点", "分析肤色均匀度", "匹配护理方案"], "privacy": "照片只在本设备内分析"},
     hero: {"scoreLabel": "皮肤状态", "sentence": "照片显示的皮肤状态为 {n} 分（满分100）。", "skinType": "肤质", "age": "年龄段", "makeupWarn": "照片带妆拍摄，结果可能不够准确。", "types": {"dry": "干性", "normal": "中性", "oily": "油性", "combination": "混合性"}, "note": "这是 AI 基于照片的参考指数，并非医学诊断。"},
     cards: {"title": "皮肤详情", "tapHint": "点击卡片查看详细说明。", "badges": ["需要护理", "有点不足", "良好", "很好"], "whereLabel": "最明显的位置", "close": "关闭"},
-    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA AI 皮肤分析]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
+    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA AI SKIN SCORE]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
   },
   care: {
     title: "DERMA HOME 定制护理",
