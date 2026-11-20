@@ -261,6 +261,8 @@ export const GUIDES: Guide[] = [
       { q: "How should I store vitamin C serum?", a: "Close it after every use and keep it in a cool, dry place away from heat and direct sunlight. Use it within the period printed on the package. Color alone can mislead: the UNI&CORE Vita C 13.5 ampoule is naturally yellow from turmeric root extract and beta-carotene." },
       { q: "Can I use vitamin C serum with niacinamide?", a: "Yes, many routines use both. Apply the thinner product first and let it absorb before the next. If your skin is sensitive, you can also use them at different times of day." },
       { q: "Can I wear vitamin C serum under makeup?", a: "Yes. Let it absorb for a few minutes, then apply moisturizer and sunscreen, and give your skincare time to settle before foundation. If products pill, try fewer layers or a longer wait." },
+      // Search research 2026-11-20: "vitamin c serum before or after sunscreen".
+      { q: "Do I apply vitamin C serum before or after sunscreen?", a: "Before. In the morning, apply vitamin C serum after cleansing, then moisturizer, and finish with sunscreen as the last step. Vitamin C works alongside sunscreen; it does not replace it." },
       { q: "Where can I buy the UNI&CORE vitamin C serum?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
     ],
     products: ["ampoule"],
