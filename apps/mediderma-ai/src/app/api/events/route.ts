@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { sanitizeEvent } from "@/lib/events";
 import { getStore } from "@/server/store";
+import { forwardToPlatform } from "@/server/platform";
 
 export const runtime = "nodejs";
 
@@ -17,6 +18,9 @@ export async function POST(req: Request) {
   const ev = sanitizeEvent(body);
   if (!ev) return NextResponse.json({ ok: false }, { status: 400 });
   const country = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "ZZ").slice(0, 2).toUpperCase();
+  // 통합 관리자(UNI&CORE) 익명 집계 전달 — 응답을 보낸 뒤 실행되어 이용자 대기 시간에 영향이 없다
+  const ua = req.headers.get("user-agent");
+  after(() => forwardToPlatform(ev, country, ua));
   try {
     await (await getStore()).addEvent(ev, country);
   } catch {
