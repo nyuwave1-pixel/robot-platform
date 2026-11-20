@@ -8,6 +8,10 @@ const nextConfig = {
   poweredByHeader: false,
   outputFileTracingRoot: path.join(__dirname, "../../"),
   transpilePackages: ["three"],
+  // 이 도메인의 관리 화면은 MEDIDERMA 분석 관리자(/admin) 하나다. 흔히 입력하는 관리자 주소를 그쪽으로 보낸다.
+  async redirects() {
+    return ["/login", "/hq", "/studio", "/partner", "/manager", "/administrator"].map((source) => ({ source, destination: "/admin", permanent: false }));
+  },
   async headers() {
     return [
       { source: "/models/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
