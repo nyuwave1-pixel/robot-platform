@@ -24,7 +24,7 @@ const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
 
 const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
 
-const KEYWORDS = ["MEDICAL BEAUTY TECH", "AI SKIN INTELLIGENCE", "FUTURE SKIN LAB", "PREMIUM CLINICAL EXPERIENCE", "DIGITAL SKIN ANALYSIS", "SCAN · ANALYZE · CARE · TRANSFORM"];
+const KEYWORDS = ["MEDICAL BEAUTY TECH", "AI SKIN INTELLIGENCE", "FUTURE SKIN LAB", "PREMIUM CLINICAL EXPERIENCE", "AI SKIN SCORE", "SCAN · ANALYZE · CARE · TRANSFORM"];
 const BRAND_LINE = ["THE", "FUTURE", "OF", "SKIN", "INTELLIGENCE."];
 
 const rise = { initial: { opacity: 0, y: 36 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.7, ease: [0.2, 0.75, 0.2, 1] as const } };

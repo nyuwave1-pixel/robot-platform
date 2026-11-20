@@ -255,7 +255,7 @@ const en: Dict = {
   },
   report: {
     analysisInfo: "Analysis details",
-    title: "AI Skin Analysis Report",
+    title: "AI Skin Score Report",
     overall: "AI Overall Skin Condition",
     overallDesc: "A weighted average of the observation indices across 13 zones. The higher the value, the more even the skin surface appears in the photo.",
     indexNote: "Photo-based observation index · Not yet clinically validated",

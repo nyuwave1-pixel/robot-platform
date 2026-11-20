@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: { default: TITLE, template: "%s · MEDIDERMA AI" },
   description: DESCRIPTION,
   applicationName: "MEDIDERMA AI",
-  keywords: ["AI 피부 분석", "피부 진단", "더마홈", "DERMA HOME", "UNI&CORE", "홈케어 디바이스", "skin analysis"],
+  keywords: ["AI 피부 분석", "피부 진단", "더마홈", "DERMA HOME", "UNI&CORE", "홈케어 디바이스", "skin analysis", "AI SKIN SCORE", "skin score"],
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
