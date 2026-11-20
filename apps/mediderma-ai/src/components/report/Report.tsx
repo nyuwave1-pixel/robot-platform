@@ -18,6 +18,7 @@ import CareView from "./CareView";
 import Simulation from "./Simulation";
 import AiInsightPanel from "./AiInsightPanel";
 import CareAtAGlance from "./CareAtAGlance";
+import { SummaryHero, SkinCards, ShareButton } from "./ResultSummary";
 
 const Face3D = dynamic(() => import("./Face3D"), { ssr: false });
 
@@ -99,7 +100,7 @@ function ZoneDetail({ zone }: { zone: ZoneResult }) {
 export default function Report({ data, onRestart }: { data: CurrentAnalysis; onRestart: () => void }) {
   const { t, locale } = useI18n();
   const { config, wipe } = useApp();
-  const { result, visual, plan, survey, neck } = data;
+  const { result, visual, plan, survey, neck, profile } = data;
   const a = result.analysis;
   const [heatmap, setHeatmap] = useState<MetricKey | null>(null);
   const [showZones, setShowZones] = useState(true);
@@ -188,7 +189,10 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         </header>
 
         {/* 한눈에 보기: 방사형 그래프 + 먼저 관리할 곳 + 제품·더마홈 관리 방법 + 결과 확인 */}
+        <SummaryHero score={a.overallConditionScore} profile={profile} />
         <CareAtAGlance categories={a.categories} plan={plan} />
+        <SkinCards categories={a.categories} zones={a.zones} />
+        <ShareButton score={a.overallConditionScore} categories={a.categories} plan={plan ?? null} />
 
         {/* 종합 + 세부 */}
         <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">

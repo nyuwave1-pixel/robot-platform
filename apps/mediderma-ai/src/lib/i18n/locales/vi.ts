@@ -338,7 +338,15 @@ const vi: Dict = {
     verdict: {"improved": "Tốt hơn", "no_change": "Như cũ", "worsened": "Kém hơn", "not_comparable": "Không so sánh được"},
     note: "Đây là thay đổi nhìn thấy trên ảnh; khác biệt nhỏ được tính là 'Như cũ'. Không chứng minh hiệu quả của sản phẩm hay thiết bị.",
   },
-  flow: { label: "Các bước phân tích", steps: ["Đồng ý", "Ảnh", "Câu hỏi", "Kết quả"] },
+  flow: { label: "Các bước phân tích", steps: ["Đồng ý", "Thông tin", "Ảnh", "Câu hỏi", "Kết quả"] },
+  fit: {
+    pf: {"skip": "Bỏ qua", "next": "Tiếp tục", "back": "Quay lại", "forWhom": {"title": "Lần quét này dành cho ai?", "sub": "Cho chúng tôi biết để cá nhân hóa kết quả.", "self": "Bản thân", "other": "Người khác"}, "makeup": {"titleSelf": "Bạn có đang trang điểm không?", "titleOther": "Người đó có đang trang điểm không?", "sub": "Giúp cá nhân hóa gợi ý.", "yes": "Có", "no": "Không", "note": "Lưu ý: lớp trang điểm có thể làm kết quả kém chính xác."}, "age": {"titleSelf": "Bạn ở độ tuổi nào?", "titleOther": "Người đó ở độ tuổi nào?", "sub": "Da thay đổi theo tuổi nên chúng tôi điều chỉnh hướng dẫn.", "bands": ["18–24", "25–34", "35–44", "45–54", "55–64", "65+"]}, "skin": {"titleSelf": "Ban ngày da bạn thường cảm thấy thế nào?", "titleOther": "Ban ngày da người đó thường thế nào?", "sub": "Hãy chọn một mục gần đúng nhất.", "types": {"dry": "Da khô (hay căng)", "normal": "Da thường (dễ chịu)", "oily": "Da dầu (bóng)", "combination": "Da hỗn hợp (bóng vùng chữ T)"}}},
+    confirm: {"title": "Kiểm tra ảnh", "desc": "Khuôn mặt có rõ không? Phân tích ảnh này nhé?", "ok": "Phân tích ảnh này", "again": "Chọn lại"},
+    scan: {"title": "AI đang phân tích chi tiết làn da của bạn", "steps": ["Nhận diện 478 điểm trên mặt", "Chia 13 vùng da", "Đo kết cấu và nếp nhăn", "Đo lỗ chân lông và đốm", "Phân tích độ đều màu", "Ghép chăm sóc phù hợp"], "privacy": "Ảnh chỉ được phân tích trên thiết bị này"},
+    hero: {"scoreLabel": "Tình trạng da", "sentence": "Tình trạng da qua ảnh đạt {n}/100 điểm.", "skinType": "Loại da", "age": "Độ tuổi", "makeupWarn": "Ảnh chụp khi trang điểm nên kết quả có thể kém chính xác.", "types": {"dry": "Da khô", "normal": "Da thường", "oily": "Da dầu", "combination": "Da hỗn hợp"}, "note": "Chỉ số tham khảo do AI quan sát từ ảnh, không phải chẩn đoán y khoa."},
+    cards: {"title": "Chi tiết làn da", "tapHint": "Chạm vào thẻ để xem chi tiết.", "badges": ["Cần chăm sóc", "Hơi kém", "Tốt", "Rất tốt"], "whereLabel": "Rõ nhất ở", "close": "Đóng"},
+    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA AI Phân tích da]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
+  },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",
     techTitle: "Chức năng gợi ý",

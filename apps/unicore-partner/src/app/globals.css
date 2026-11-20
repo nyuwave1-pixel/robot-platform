@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); word-break: keep-all; overflow-wrap: anywhere; }
+/* 세리프(Cormorant)의 옛 숫자 모양(1 이 I 처럼 보임) 대신 일반 숫자 */
+.font-serif { font-variant-numeric: lining-nums; }
+::selection { background: rgba(216, 184, 120, 0.35); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

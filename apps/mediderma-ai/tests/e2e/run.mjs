@@ -136,12 +136,22 @@ await check("S01", "결과 JSON 스키마: 13개 영역, NaN 없음, 측정 불�
 await H.context().close();
 
 // ── 2. 사용자 흐름 ─────────────────────────────────────────
-async function runFlow(page, file, { survey = true, contra = false, lang = "ko" } = {}) {
+async function answerProfile(page, profile) {
+  await page.waitForSelector('[data-testid="profile"]');
+  if (!profile) return page.click('[data-testid="profile-skip"]');
+  for (const k of ["pf-forWhom-self", "pf-makeup-no", "pf-age-2", "pf-skinType-dry"]) {
+    await page.click(`[data-testid="${k}"]`);
+    await page.click('[data-testid="profile-next"]');
+  }
+}
+async function runFlow(page, file, { survey = true, contra = false, lang = "ko", profile = false } = {}) {
   await page.goto(`${BASE}/?lang=${lang}`);
   await page.setInputFiles('[data-testid="hero-upload-input"]', file);
   await page.waitForSelector('[data-testid="consent"]');
   await page.check('[data-testid="consent-required"]');
   await page.click('[data-testid="consent-agree"]');
+  await answerProfile(page, profile);
+  await page.click('[data-testid="photo-confirm"]');
   await page.waitForSelector('[data-testid="survey"], [data-testid="quality-failed"], [data-testid="analysis-error"]', { timeout: 120000 });
   if (!(await page.$('[data-testid="survey"]'))) return false;
   if (survey) {
@@ -164,18 +174,27 @@ await check("F01", "로그인 없이 분석 시작 + 필수 동의 없이는 진
 await check("F02", "지원하지 않는 파일 형식 거부", async () => {
   await P.check('[data-testid="consent-required"]');
   await P.click('[data-testid="consent-agree"]');
+  await answerProfile(P, false);
   await P.waitForSelector('[data-testid="capture"]');
   await P.setInputFiles('[data-testid="capture-upload-input"]', { name: "x.gif", mimeType: "image/gif", buffer: Buffer.from("GIF89a") });
   await P.waitForSelector('[data-testid="capture-upload"] [role="alert"]');
 });
 await check("F03", "손상된 이미지 → 오류 안내", async () => {
   await P.setInputFiles('[data-testid="capture-upload-input"]', { name: "broken.jpg", mimeType: "image/jpeg", buffer: Buffer.from("not an image at all") });
+  await P.click('[data-testid="photo-confirm"]');
   await P.waitForSelector('[data-testid="analysis-error"]', { timeout: 30000 });
 });
 await check("F04", "업로드 → 품질검사 → 설문 → 리포트 (전체 흐름)", async () => {
   requests.length = 0;
-  assert(await runFlow(P, portrait), "flow did not reach report");
+  assert(await runFlow(P, portrait, { profile: true }), "flow did not reach report");
   const score = await P.getAttribute('[data-testid="overall-score"]', 'data-value');
+  // FitLine 식 요약: 반원 게이지 점수 = 종합 점수, 사용자가 고른 피부 타입 표시, 카드 → 설명 시트
+  assert((await P.getAttribute('[data-testid="hero-score"]', 'data-value')) === score, "hero score mismatch");
+  assert(/건성/.test(await P.textContent('[data-testid="hero-skin"]')), "skin type not shown");
+  await P.click('[data-testid="skin-card-texture"]');
+  await P.waitForSelector('[data-testid="skin-sheet"]');
+  await P.click('[data-testid="skin-sheet-close"]');
+  await P.waitForSelector('[data-testid="skin-sheet"]', { state: "detached" });
   await P.waitForSelector('[data-testid="sim-slider"]', { timeout: 60000 });
   assert(P.errors.length === 0, "page errors: " + P.errors.join(" | "));
   return `overall=${score.trim()}`;
@@ -315,7 +334,9 @@ await check("E01", "AI 모델 로드 장애 → 오류 안내 (가짜 결과 없
   await page.goto(BASE + "/analyze");
   await page.check('[data-testid="consent-required"]');
   await page.click('[data-testid="consent-agree"]');
+  await answerProfile(page, false);
   await page.setInputFiles('[data-testid="capture-upload-input"]', portrait);
+  await page.click('[data-testid="photo-confirm"]');
   await page.waitForSelector('[data-testid="analysis-error"]', { timeout: 60000 });
   assert(!(await page.$('[data-testid="report"]')), "report shown");
   const t = await page.textContent('[data-testid="analysis-error"]');

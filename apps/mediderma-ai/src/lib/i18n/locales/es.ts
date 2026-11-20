@@ -339,7 +339,15 @@ const es: Dict = {
     verdict: {"improved": "Mejor", "no_change": "Igual", "worsened": "Peor", "not_comparable": "No comparable"},
     note: "Son cambios vistos en fotos; las diferencias pequeñas cuentan como 'Igual'. No demuestra la eficacia de productos ni dispositivos.",
   },
-  flow: { label: "Pasos del análisis", steps: ["Acepto", "Foto", "Preguntas", "Resultado"] },
+  flow: { label: "Pasos del análisis", steps: ["Acepto", "Datos", "Foto", "Preguntas", "Resultado"] },
+  fit: {
+    pf: {"skip": "Omitir", "next": "Continuar", "back": "Atrás", "forWhom": {"title": "¿Para quién es este escaneo?", "sub": "Cuéntanos para personalizar el resultado.", "self": "Para mí", "other": "Otra persona"}, "makeup": {"titleSelf": "¿Llevas maquillaje ahora?", "titleOther": "¿La persona lleva maquillaje ahora?", "sub": "Ayuda a personalizar los consejos.", "yes": "Sí", "no": "No", "note": "Nota: el maquillaje puede hacer el análisis menos preciso."}, "age": {"titleSelf": "¿Cuál es tu rango de edad?", "titleOther": "¿Cuál es el rango de edad de la persona?", "sub": "La piel cambia con la edad, así que adaptamos la guía.", "bands": ["18–24", "25–34", "35–44", "45–54", "55–64", "65+"]}, "skin": {"titleSelf": "¿Cómo sientes tu piel normalmente durante el día?", "titleOther": "¿Cómo siente su piel normalmente durante el día?", "sub": "Elige la opción que mejor te describa.", "types": {"dry": "Seca (tirante)", "normal": "Normal (cómoda)", "oily": "Grasa (brillante)", "combination": "Mixta (zona T brillante)"}}},
+    confirm: {"title": "Revisa la foto", "desc": "¿Se ve bien tu cara? ¿Analizamos esta foto?", "ok": "Analizar esta foto", "again": "Elegir otra"},
+    scan: {"title": "La IA está analizando tu piel en detalle", "steps": ["Detectando 478 puntos del rostro", "Dividiendo 13 zonas", "Midiendo textura y arrugas", "Midiendo poros y manchas", "Analizando la uniformidad del tono", "Eligiendo tu cuidado"], "privacy": "Tu foto se analiza solo en este dispositivo"},
+    hero: {"scoreLabel": "Estado de la piel", "sentence": "El estado de tu piel en la foto es de {n} sobre 100.", "skinType": "Tipo de piel", "age": "Edad", "makeupWarn": "La foto tiene maquillaje; el resultado puede ser menos preciso.", "types": {"dry": "Seca", "normal": "Normal", "oily": "Grasa", "combination": "Mixta"}, "note": "Índice de referencia de IA basado en la foto, no es un diagnóstico médico."},
+    cards: {"title": "Detalles de la piel", "tapHint": "Toca una tarjeta para ver más.", "badges": ["Necesita cuidado", "Podría mejorar", "Bien", "Excelente"], "whereLabel": "Más visible en", "close": "Cerrar"},
+    share: {"button": "Compartir resultado", "copied": "Copiado. Pégalo en tu mensajería.", "text": "[MEDIDERMA AI Análisis de piel]\nEstado {score}/100\nCuidar primero: {weak}\nRecomendado: {products}\nPruébalo 👉 {url}"},
+  },
   care: {
     title: "Cuidado a medida DERMA HOME",
     techTitle: "Funciones recomendadas",

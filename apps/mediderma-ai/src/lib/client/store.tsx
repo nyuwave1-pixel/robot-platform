@@ -7,7 +7,18 @@ import { endSession, getSession, touchSession } from "./session";
 import { setTelemetryContext, track } from "./telemetry";
 import { useI18n } from "../i18n";
 
+/** 촬영 전 간단 정보 (한 화면에 한 질문) */
+export interface ScanProfile {
+  forWhom: "self" | "other" | null;
+  makeup: boolean | null;
+  /** 연령대 인덱스 (0: 18~24 … 5: 65+) */
+  age: number | null;
+  skinType: "dry" | "normal" | "oily" | "combination" | null;
+}
+export const EMPTY_PROFILE: ScanProfile = { forWhom: null, makeup: null, age: null, skinType: null };
+
 export interface CurrentAnalysis {
+  profile?: ScanProfile | null;
   result: AnalysisResult;
   /** 품질 미달이면 null */
   visual: VisualData | null;

@@ -14,8 +14,11 @@ import UploadBox from "./UploadBox";
 import Survey from "./Survey";
 import Report from "./report/Report";
 import StepBar from "./StepBar";
+import ProfileSteps from "./ProfileSteps";
+import ScanStage from "./ScanStage";
+import { EMPTY_PROFILE, type ScanProfile } from "@/lib/client/store";
 
-type Step = "consent" | "capture" | "running" | "failed" | "error" | "survey" | "report";
+type Step = "consent" | "profile" | "capture" | "confirm" | "running" | "failed" | "error" | "survey" | "report";
 const STAGES: ProgressStage[] = ["loading_model", "detecting", "quality", "analyzing"];
 
 function ReportProblem({ context }: { context: string }) {
@@ -58,6 +61,19 @@ export default function AnalyzeFlow() {
   const [neckFile, setNeckFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const pending = useRef<{ out: ProviderOutput; neck: ZoneResult | null } | null>(null);
+  const [profile, setProfile] = useState<ScanProfile>(EMPTY_PROFILE);
+  const [chosen, setChosen] = useState<File | null>(null);
+  const visualDone = useRef<(() => void) | null>(null);
+  const visualFinished = useRef(false);
+  // 단계가 바뀌면 화면 맨 위(단계 표시·제목)부터 보이게
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [step]);
+  const onVisualDone = useCallback(() => {
+    visualFinished.current = true;
+    visualDone.current?.();
+  }, []);
+  const reduceMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   const consented = useRef(false);
 
   useEffect(() => setKeep(hasHistoryConsent()), []);
@@ -69,6 +85,8 @@ export default function AnalyzeFlow() {
 
   const run = useCallback(
     async (file: File) => {
+      visualFinished.current = false;
+      visualDone.current = null;
       setStep("running");
       setStage("loading_model");
       setErrorCode(null);
@@ -89,6 +107,12 @@ export default function AnalyzeFlow() {
         const neck = neckFile ? await runNeckAnalysis(neckFile, config) : null;
         track("analysis_succeeded", { concerns: out.result.analysis.topConcerns.map((c) => c.metric), needsRetake: out.result.analysis.needsRetake });
         pending.current = { out, neck };
+        // 스캔 연출이 100% 를 채운 뒤 넘어간다
+        await new Promise<void>((resolve) => {
+          if (visualFinished.current) return resolve();
+          visualDone.current = resolve;
+          setStage("done");
+        });
         setStep("survey");
       } catch (e) {
         const code = e instanceof AnalysisError ? e.code : "analysisFailed";
@@ -107,7 +131,7 @@ export default function AnalyzeFlow() {
     const result = { ...p.out.result, survey: survey ? { ...survey, deviceContraindication: false } : null, careRecommendations: plan.recommendations };
     if (survey) track("survey_submitted");
     track("care_selected", { routine: plan.night ?? "none", tech: plan.recommendations.map((r) => r.technology) });
-    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck });
+    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile });
     pending.current = null;
     setStep("report");
     window.scrollTo({ top: 0 });
@@ -120,16 +144,30 @@ export default function AnalyzeFlow() {
     }
     consented.current = true;
     setHistoryConsent(keep);
+    setStep("profile");
+  };
+  const choose = (f: File) => {
+    setChosen(f);
+    setPreview((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return URL.createObjectURL(f);
+    });
+    setStep("confirm");
+  };
+  const afterProfile = (p: ScanProfile) => {
+    setProfile(p);
     if (pendingFile) {
       const f = pendingFile;
       setPendingFile(null);
-      run(f);
+      choose(f);
     } else setStep("capture");
+    window.scrollTo({ top: 0 });
   };
   const restart = () => {
     setAnalysis(null);
     setQuality(null);
     setNeckFile(null);
+    setChosen(null);
     setStep(consented.current ? "capture" : "consent");
     window.scrollTo({ top: 0 });
   };
@@ -137,21 +175,21 @@ export default function AnalyzeFlow() {
   if (step === "report" && analysis)
     return (
       <>
-        <StepBar current={3} />
+        <StepBar current={4} />
         <Report data={analysis} onRestart={restart} />
       </>
     );
   if (step === "survey")
     return (
       <>
-        <StepBar current={2} />
+        <StepBar current={3} />
         <Survey onSubmit={finish} onSkip={() => finish(null)} />
       </>
     );
 
   return (
     <>
-    <StepBar current={step === "consent" ? 0 : 1} />
+    <StepBar current={step === "consent" ? 0 : step === "profile" ? 1 : 2} />
     <div className="mx-auto max-w-3xl px-4 py-6">
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
@@ -182,6 +220,24 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
+          {step === "profile" && <ProfileSteps initial={profile} onDone={afterProfile} />}
+
+          {step === "confirm" && chosen && (
+            <div data-testid="photo-confirm-step">
+              <h1 className="text-2xl font-bold sm:text-3xl">{t.fit.confirm.title}</h1>
+              <p className="mt-2 text-base text-silver">{t.fit.confirm.desc}</p>
+              <div className="mx-auto mt-5 aspect-[4/5] w-full max-w-sm overflow-hidden rounded-3xl border border-line bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {preview && <img src={preview} alt="" className="h-full w-full object-cover" />}
+              </div>
+              {profile.makeup && <p className="mx-auto mt-3 max-w-sm rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100">💡 {t.fit.pf.makeup.note}</p>}
+              <div className="mx-auto mt-5 grid max-w-sm gap-3">
+                <button onClick={() => run(chosen)} data-testid="photo-confirm" className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2">✓ {t.fit.confirm.ok}</button>
+                <button onClick={() => { setChosen(null); setStep("capture"); }} data-testid="photo-again" className="rounded-full border-2 border-silver/40 px-8 py-4 text-lg text-white">↺ {t.fit.confirm.again}</button>
+              </div>
+            </div>
+          )}
+
           {step === "capture" && (
             <div data-testid="capture">
               <h1 className="text-2xl font-bold sm:text-3xl">{t.capture.easyTitle}</h1>
@@ -195,7 +251,7 @@ export default function AnalyzeFlow() {
                 ))}
               </ul>
               <div className="mt-4">
-                <UploadBox onFile={run} testId="capture-upload" large />
+                <UploadBox onFile={choose} testId="capture-upload" large />
               </div>
               <details className="mt-4 rounded-2xl border border-line bg-panel p-4">
                 <summary className="cursor-pointer text-base font-semibold">{t.capture.moreTips}</summary>
@@ -223,35 +279,7 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
-          {step === "running" && (
-            <div className="text-center" data-testid="running">
-              <h1 className="text-2xl font-bold">{t.progress.title}</h1>
-              <div className="relative mx-auto mt-10 w-56 [perspective:800px]">
-                <div aria-hidden className="absolute -inset-8 rounded-full border border-scan/40 [transform:rotateX(68deg)]" style={{ animation: "orbit 5s linear infinite" }}>
-                  <span className="absolute -top-1 left-1/2 h-2 w-2 rounded-full bg-scan2 shadow-glow" />
-                </div>
-                <div aria-hidden className="absolute -inset-14 rounded-full border border-dashed border-silver/20 [transform:rotateX(68deg)]" style={{ animation: "orbit 9s linear infinite reverse" }} />
-              <div className="relative aspect-[4/5] w-56 overflow-hidden rounded-2xl border border-scan/40 bg-black shadow-glow">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {preview && <img src={preview} alt="" className="h-full w-full object-cover opacity-70" />}
-                <div className="absolute inset-x-0 h-10 animate-[scan_1.8s_ease-in-out_infinite] bg-gradient-to-b from-transparent via-scan/60 to-transparent" />
-                <div aria-hidden className="absolute inset-0 bg-[linear-gradient(rgba(79,182,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(79,182,255,0.12)_1px,transparent_1px)] bg-[size:22px_22px]" />
-              </div>
-              </div>
-              <ol className="mx-auto mt-6 max-w-xs space-y-2.5 text-left text-base">
-                {STAGES.map((s) => {
-                  const done = STAGES.indexOf(s) < STAGES.indexOf(stage) || stage === "done";
-                  const cur = s === stage;
-                  return (
-                    <li key={s} className={`flex items-center gap-2 ${done ? "text-silver" : cur ? "text-white" : "text-silver/40"}`}>
-                      <span className={`h-2 w-2 rounded-full ${done ? "bg-scan2" : cur ? "animate-pulse bg-white" : "bg-line"}`} />
-                      {t.progress[s]}
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          )}
+          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} />}
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">
