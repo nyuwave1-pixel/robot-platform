@@ -6,6 +6,9 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { BOX_COST, CURIO_MAP, CURIO_SETS, CURIOS, DUP_REFUND, FRIEND_MILESTONES, GIFT_COINS, GIFT_DAILY, HELP_COINS, HELP_DAILY, PLANT_MAP, WATER_EVERY_H, WORKOUT_DAILY, WORKOUT_MAP, growth, potsFor, rollCurio, type Curio } from "../data/life";
 import { useGame } from "./game";
+import { CHALLENGE_DAILY, PLACE_REWARD, rivalsOf, scoreFit, streakBonus, themeOfDay, trendOfDay, type Fit, type Score } from "../data/style";
+
+export interface ChallengeResult { score: Score; place: number; rivals: { name: string; score: number }[]; coins: number; followers: number; gems: number; streak: number }
 
 export interface PlantSlot { id: string; type: string; planted: number; water: number; lastWater: number }
 
@@ -19,6 +22,8 @@ export interface LifeState {
   curios: Record<string, number>; // 소품 보유 수
   setsClaimed: string[];
   milestones: number[];
+  /** 스타일 챌린지: 오늘 출전 수·최고점, 연속 출전, 누적 1등 */
+  style: { date: string; entries: number; best: number; streak: number; lastDay: string; wins: number };
   daily: { date: string; workouts: number; gifts: string[]; helps: string[]; boxes: number };
 
   plant: (type: string, now?: number) => "ok" | "full" | "money" | "level";
@@ -30,6 +35,7 @@ export interface LifeState {
   sendGift: (friend: string) => boolean;
   helpFriend: (friend: string) => boolean;
   claimMilestone: (n: number, friends: number) => boolean;
+  enterChallenge: (fit: Fit, date?: string) => ChallengeResult | null;
 }
 
 const freshDaily = () => ({ date: day(), workouts: 0, gifts: [] as string[], helps: [] as string[], boxes: 0 });
@@ -64,6 +70,7 @@ export const useLife = create<LifeState>()(
       curios: {},
       setsClaimed: [],
       milestones: [],
+      style: { date: "", entries: 0, best: 0, streak: 0, lastDay: "", wins: 0 },
       daily: freshDaily(),
 
       plant: (type, now = Date.now()) => {
@@ -135,6 +142,25 @@ export const useLife = create<LifeState>()(
         reward({ coins: HELP_COINS, exp: { social: 3, lounge: 1 } });
         return true;
       },
+      enterChallenge: (fit, date = day()) => {
+        const s = get();
+        const st = s.style.date === date ? s.style : { ...s.style, date, entries: 0, best: 0 };
+        if (st.entries >= CHALLENGE_DAILY) return null;
+        const score = scoreFit(fit, themeOfDay(date), trendOfDay(date));
+        const rivals = rivalsOf(date, st.entries);
+        const place = rivals.filter((r) => r.score > score.total).length; // 0 = 1등
+        const r = PLACE_REWARD[place];
+        // 오늘 첫 출전이면 연속 일수 갱신 (어제 출전했으면 +1, 아니면 1부터)
+        const yesterday = new Date(new Date(date + "T00:00:00Z").getTime() - 86_400_000).toISOString().slice(0, 10);
+        const first = st.entries === 0;
+        const streak = first ? (st.lastDay === yesterday ? st.streak + 1 : 1) : st.streak;
+        const bonus = first ? streakBonus(streak) : { coins: 0, gems: 0 };
+        set({ style: { date, entries: st.entries + 1, best: Math.max(st.best, score.total), streak, lastDay: date, wins: st.wins + (place === 0 ? 1 : 0) } });
+        reward({ coins: r.coins + bonus.coins, gems: bonus.gems, exp: { social: 4 + (place === 0 ? 6 : 0) } });
+        useGame.setState((g) => ({ followers: g.followers + r.followers, exp: { ...g.exp, fashion: g.exp.fashion + Math.round(score.total / 10) } }));
+        count("challenge");
+        return { score, place, rivals, coins: r.coins + bonus.coins, followers: r.followers, gems: bonus.gems, streak };
+      },
       claimMilestone: (n, friends) => {
         const s = get(); const m = FRIEND_MILESTONES.find((x) => x.n === n);
         if (!m || friends < n || s.milestones.includes(n)) return false;
@@ -151,7 +177,7 @@ export const useLife = create<LifeState>()(
         setItem: (k, v) => { try { localStorage.setItem(k, v); } catch { /* 저장 불가 환경 */ } },
         removeItem: (k) => { try { localStorage.removeItem(k); } catch { /* */ } },
       })),
-      partialize: (s) => ({ garden: s.garden, harvested: s.harvested, fit: s.fit, bestScore: s.bestScore, curios: s.curios, setsClaimed: s.setsClaimed, milestones: s.milestones, daily: s.daily }) as LifeState,
+      partialize: (s) => ({ garden: s.garden, harvested: s.harvested, fit: s.fit, bestScore: s.bestScore, curios: s.curios, setsClaimed: s.setsClaimed, milestones: s.milestones, style: s.style, daily: s.daily }) as LifeState,
       merge: (p, cur) => ({ ...cur, ...((p ?? {}) as Partial<LifeState>) }),
     },
   ),

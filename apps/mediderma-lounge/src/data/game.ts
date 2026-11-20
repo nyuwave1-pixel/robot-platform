@@ -207,6 +207,7 @@ export const QUESTS: Quest[] = [
   { id: "d-customer", ko: "고객 1명 케어하기", en: "Care for 1 customer", stat: "d.customer", goal: 1, daily: true, reward: { coins: 100, lp: 5 } },
   { id: "d-post", ko: "뷰티 피드에 게시물 올리기", en: "Post to the Beauty Feed", stat: "d.post", goal: 1, daily: true, reward: { stars: 5 } },
   { id: "d-like", ko: "친구 게시물에 좋아요 3번", en: "Like 3 posts", stat: "d.like", goal: 3, daily: true, reward: { stars: 3 } },
+  { id: "d-challenge", ko: "스타일 챌린지 출전", en: "Enter the Style Challenge", stat: "d.challenge", goal: 1, daily: true, reward: { coins: 70, stars: 2 } },
   { id: "d-workout", ko: "웰니스 운동 1회", en: "Do 1 wellness workout", stat: "d.workout", goal: 1, daily: true, reward: { coins: 60 } },
   { id: "d-harvest", ko: "뷰티 가든 수확 1회", en: "Harvest your beauty garden once", stat: "d.harvest", goal: 1, daily: true, reward: { coins: 60 } },
   { id: "d-gift", ko: "친구에게 선물 2번", en: "Send 2 gifts to friends", stat: "d.gift", goal: 2, daily: true, reward: { stars: 4 } },

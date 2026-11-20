@@ -8,7 +8,7 @@ import { useLife } from "../src/store/life";
 const H = 3_600_000;
 beforeEach(() => {
   useGame.setState({ coins: 10_000, gems: 0, lounge: { ...useGame.getState().lounge, level: 1 } });
-  useLife.setState({ garden: [], harvested: {}, fit: 0, bestScore: {}, curios: {}, setsClaimed: [], milestones: [], daily: { date: new Date().toISOString().slice(0, 10), workouts: 0, gifts: [], helps: [], boxes: 0 } });
+  useLife.setState({ style: { date: "", entries: 0, best: 0, streak: 0, lastDay: "", wins: 0 }, garden: [], harvested: {}, fit: 0, bestScore: {}, curios: {}, setsClaimed: [], milestones: [], daily: { date: new Date().toISOString().slice(0, 10), workouts: 0, gifts: [], helps: [], boxes: 0 } });
 });
 
 describe("뷰티 가든", () => {
@@ -113,4 +113,56 @@ describe("친구 교류", () => {
 
 it("식물 데이터는 레벨·시간 순으로 비싸진다", () => {
   for (let i = 1; i < PLANTS.length; i++) expect(PLANTS[i].coins).toBeGreaterThan(PLANTS[i - 1].coins);
+});
+
+describe("스타일 챌린지", () => {
+  it("모든 패션 아이템에 스타일 수치가 있고 0~5 범위다", async () => {
+    const { FASHION } = await import("../src/data/game");
+    const { ITEM_STYLE } = await import("../src/data/style");
+    for (const f of FASHION) {
+      expect(ITEM_STYLE[f.id], f.id).toBeDefined();
+      for (const v of ITEM_STYLE[f.id]) expect(v >= 0 && v <= 5).toBe(true);
+    }
+  });
+  it("테마에 맞는 룩이 더 높은 점수를 받고, 최고 조합은 100점에 가깝다", async () => {
+    const { THEMES, scoreFit } = await import("../src/data/style");
+    const red = THEMES.find((x) => x.id === "redcarpet")!;
+    const cute = scoreFit({ outfit: "fit-pastel", hair: "hair-twin", shoes: "shoe-pink" }, red, "glam").total;
+    const glam = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold" }, red, "glam").total;
+    expect(glam).toBeGreaterThan(cute + 20);
+    const full = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold", accessory: "acc-tiara", earring: "ear-gold", necklace: "neck-gold", bag: "bag-black", makeup: "mk-rose", nail: "nail-gold" }, red, "glam");
+    expect(full.total).toBeGreaterThanOrEqual(90);
+    expect(full.grade).toBe("S");
+  });
+  it("스타일리스트 팁은 실제로 점수를 올리는 가진 아이템만 추천한다", async () => {
+    const { THEMES, scoreFit, stylistTip } = await import("../src/data/style");
+    const th = THEMES[0]; const fit = { outfit: "fit-suit", hair: "hair-pixie" };
+    const tip = stylistTip(fit, ["fit-pastel", "fit-suit", "hair-pixie", "hair-twin"], th, "cute")!;
+    expect(["fit-pastel", "hair-twin"]).toContain(tip.id);
+    expect(scoreFit({ ...fit, [tip.slot]: tip.id }, th, "cute").total - scoreFit(fit, th, "cute").total).toBe(tip.gain);
+    expect(stylistTip(fit, ["fit-suit"], th, "cute")).toBeNull();
+  });
+  it("출전: 하루 3번, 순위대로 보상, 연속 출전이 이어진다", async () => {
+    const { CHALLENGE_DAILY } = await import("../src/data/style");
+    const fit = { outfit: "fit-gown", hair: "hair-wave" };
+    const f0 = useGame.getState().followers;
+    const r1 = useLife.getState().enterChallenge(fit, "2026-01-01")!;
+    expect(r1.streak).toBe(1);
+    expect(useGame.getState().followers).toBeGreaterThan(f0);
+    for (let i = 1; i < CHALLENGE_DAILY; i++) expect(useLife.getState().enterChallenge(fit, "2026-01-01")).not.toBeNull();
+    expect(useLife.getState().enterChallenge(fit, "2026-01-01")).toBeNull();
+    expect(useLife.getState().enterChallenge(fit, "2026-01-02")!.streak).toBe(2);
+    expect(useLife.getState().enterChallenge(fit, "2026-01-05")!.streak).toBe(1); // 끊기면 1부터
+  });
+  it("같은 날은 모두 같은 테마·트렌드·라이벌", async () => {
+    const { themeOfDay, trendOfDay, rivalsOf } = await import("../src/data/style");
+    expect(themeOfDay("2026-03-03")).toBe(themeOfDay("2026-03-03"));
+    expect(trendOfDay("2026-03-03")).toBe(trendOfDay("2026-03-03"));
+    expect(rivalsOf("2026-03-03", 0)).toEqual(rivalsOf("2026-03-03", 0));
+    // 트렌드는 언제나 다섯 스타일 중 하나 (부호 있는 시프트로 음수 인덱스가 나오던 버그)
+    const { STYLES } = await import("../src/data/style");
+    for (let i = 0; i < 400; i++) expect(STYLES).toContain(trendOfDay(new Date(Date.UTC(2026, 0, 1) + i * 86_400_000).toISOString().slice(0, 10)));
+    const days = new Set(Array.from({ length: 30 }, (_, i) => themeOfDay(`2026-04-${String(i + 1).padStart(2, "0")}`).id));
+    expect(days.size).toBeGreaterThan(5); // 테마가 고르게 돈다
+  });
 });

@@ -12,20 +12,22 @@ import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
 import { BoxArt, CurioArt, PlantArt, WorkoutArt } from "./LifeArt";
 import { Preview } from "./Screens";
+import { StyleChallenge } from "./StyleChallenge";
 
 const toast = (s: string, sound?: Parameters<ReturnType<typeof useUI.getState>["toast"]>[1]) => useUI.getState().toast(s, sound);
-type Tab = "garden" | "fit" | "collect" | "friends";
+type Tab = "style" | "garden" | "fit" | "collect" | "friends";
 
 export function LifeBody() {
   const t = useT();
-  const [tab, setTab] = useState<Tab>("garden");
+  const [tab, setTab] = useState<Tab>("style");
   return (
     <>
       <div className="sticky top-0 z-10 -mx-1 mb-2 flex gap-1 overflow-x-auto bg-white/95 px-1 py-1">
-        {([["garden", t("life.garden")], ["fit", t("life.fit")], ["collect", t("life.collect")], ["friends", t("life.friends")]] as [Tab, string][]).map(([id, label]) => (
+        {([["style", t("life.style")], ["garden", t("life.garden")], ["fit", t("life.fit")], ["collect", t("life.collect")], ["friends", t("life.friends")]] as [Tab, string][]).map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${tab === id ? "bg-ink text-cream" : "bg-ink/5 text-ink/60"}`}>{label}</button>
         ))}
       </div>
+      {tab === "style" && <StyleChallenge />}
       {tab === "garden" && <Garden />}
       {tab === "fit" && <Fitness />}
       {tab === "collect" && <Collection />}
