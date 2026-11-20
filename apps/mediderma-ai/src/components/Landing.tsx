@@ -18,17 +18,14 @@ import HeroPortrait from "./fx/HeroPortrait";
 import ScanHud from "./fx/ScanHud";
 import BeforeAfter from "./fx/BeforeAfter";
 import { Magnetic, Tilt } from "./fx/Interactive";
-import type { ShaderKind } from "./fx/ShaderCanvas";
+import TechShowcase from "./TechShowcase";
 
-const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
 const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
 
+const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
+
 const KEYWORDS = ["MEDICAL BEAUTY TECH", "AI SKIN INTELLIGENCE", "FUTURE SKIN LAB", "PREMIUM CLINICAL EXPERIENCE", "DIGITAL SKIN ANALYSIS", "SCAN · ANALYZE · CARE · TRANSFORM"];
-const TECHS: { id: "rf" | "ultrasonic" | "iontophoresis"; shader: ShaderKind; tint: string }[] = [
-  { id: "rf", shader: "rf", tint: "from-amber-400/25" },
-  { id: "ultrasonic", shader: "ultrasonic", tint: "from-sky-400/25" },
-  { id: "iontophoresis", shader: "ionto", tint: "from-violet-400/25" },
-];
+const BRAND_LINE = ["THE", "FUTURE", "OF", "SKIN", "INTELLIGENCE."];
 
 const rise = { initial: { opacity: 0, y: 36 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.7, ease: [0.2, 0.75, 0.2, 1] as const } };
 
@@ -116,6 +113,28 @@ const PORTRAIT_MARKS = [
 // 40·50·60대 한국 여성 예시 3명. 사용 전·후 모두 Higgsfield 로 만든 AI 연출 이미지(별도 촬영처럼 표정·포즈·옷이 다름)
 const BRAND_CUTS = ["40", "50", "60"].map((n) => ({ after: `/brand/case-${n}-after.webp`, before: `/brand/case-${n}-before.webp` }));
 
+/** 모바일 하단 고정 버튼: 첫 화면을 지나 내려가면 나타나고, 맨 아래(마지막 안내·바닥글)에서는 가리지 않게 숨는다. */
+function StickyStart({ label }: { label: string }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const on = () => {
+      const y = window.scrollY;
+      const left = document.documentElement.scrollHeight - (y + window.innerHeight);
+      setShow(y > 640 && left > 900);
+    };
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
+  return (
+    <div className={`pb-safe pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-all duration-500 md:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`} data-testid="sticky-start" data-show={show}>
+      <Link href="/analyze" tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(0,0,0,0.6)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
+        {label} <span aria-hidden>→</span>
+      </Link>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const { setPendingFile, config } = useApp();
@@ -135,7 +154,8 @@ export default function Landing() {
   };
   const zoneIds = [...FACE_ZONES.map((z) => z.id), "neck" as const];
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-clip">
+      <StickyStart label={t.common.start} />
       {/* ── HERO ───────────────────────────────────────────── */}
       <section ref={heroRef} className="relative">
         <div aria-hidden className="grid-floor pointer-events-none absolute inset-x-0 bottom-0 h-64 opacity-60" />
@@ -162,10 +182,30 @@ export default function Landing() {
                 <DepthText as="p" text={t.landing.title2} size="xl" accent="all" />
               </div>
             )}
+            {/* 브랜드 문구: 단어별 마스크 등장 */}
+            <p className="mt-2 flex flex-wrap gap-x-[0.5em] font-display text-[13px] font-medium tracking-[0.22em] text-white sm:text-base" aria-label={BRAND_LINE.join(" ")} data-testid="brand-line">
+              {BRAND_LINE.map((w, i) => (
+                <span key={w} aria-hidden className="inline-block overflow-hidden pb-0.5">
+                  <motion.span className="inline-block" initial={reduce ? false : { y: "115%", filter: "blur(6px)" }} animate={{ y: "0%", filter: "blur(0px)" }} transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}>
+                    {w}
+                  </motion.span>
+                </span>
+              ))}
+            </p>
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
-              <p className="mt-3 text-xs tracking-[0.2em] text-silver/80">{t.common.slogan}</p>
-              <p className="mt-1 text-sm text-white/90">{t.common.sloganLocal}</p>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-silver">{t.landing.desc}</p>
+              <p className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">{t.landing.tagline}</p>
+              <p className="mt-3 text-[11px] tracking-[0.2em] text-silver/70">{t.common.slogan}</p>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-silver">{t.landing.desc}</p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <Magnetic>
+                  <Link href="/analyze" className="sheen inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-black hover:bg-scan2" data-testid="hero-start">
+                    {t.common.start} <span aria-hidden>→</span>
+                  </Link>
+                </Magnetic>
+                <a href="#technology" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-3.5 text-sm text-white hover:border-white/60" data-testid="hero-explore">
+                  {t.landing.exploreTech} <span aria-hidden>↓</span>
+                </a>
+              </div>
               <div className="mt-6 max-w-xl">
                 <p className="mb-2 flex items-center gap-2 text-xs text-scan2">
                   <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-scan2" />
@@ -272,35 +312,11 @@ export default function Landing() {
             ))}
           </div>
           <p className="mt-3 text-[11px] leading-relaxed text-silver/70" data-testid="gallery-note">{t.landing.galleryNote}</p>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {TECHS.map(({ id, shader, tint }, i) => (
-              <motion.div key={id} initial={{ opacity: 0, y: 50, rotateY: -18 }} whileInView={{ opacity: 1, y: 0, rotateY: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.8, delay: i * 0.12, ease: [0.2, 0.75, 0.2, 1] }} style={{ transformPerspective: 1000 }}>
-                <Tilt className="h-full overflow-hidden rounded-2xl border border-line bg-ink">
-                  <div className={`relative h-40 bg-gradient-to-b ${tint} to-transparent`}>
-                    {use3d && <ShaderCanvas kind={shader} />}
-                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-transparent" />
-                    <span className="absolute left-4 top-3 font-display text-4xl font-light text-white/90 [text-shadow:0_2px_0_#1b2733,0_4px_0_#121b24,0_10px_18px_rgba(0,0,0,.6)]">0{i + 1}</span>
-                  </div>
-                  <div className="p-5 [transform:translateZ(30px)]">
-                    <p className="font-display text-[11px] tracking-[0.25em] text-scan2">{t.care.tech[id].en}</p>
-                    <h3 className="mt-1.5 text-lg font-semibold">{t.care.tech[id].name}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-silver">{t.care.tech[id].desc}</p>
-                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                      {t.care.tech[id].tags.map((tag) => (
-                        <li key={tag} className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-silver">{tag}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </Tilt>
-              </motion.div>
-            ))}
-          </div>
-          <p className="mt-5 text-xs text-silver/60">
-            {t.care.sourceNote} ·{" "}
-            <a className="underline hover:text-white" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">dermahome.unincore.com</a>
-          </p>
         </div>
       </section>
+
+      {/* ── DERMA HOME TECHNOLOGY: 스크롤 연동 3장면 전시 ───────────────── */}
+      <TechShowcase webgl={use3d === true} />
 
       {/* ── PROCESS ────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 py-16">
