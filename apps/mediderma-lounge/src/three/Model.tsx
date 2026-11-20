@@ -5,13 +5,13 @@
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { makeGLTFLoader } from "./gltf";
 
 const cache = new Map<string, Promise<THREE.Group | null>>();
 function load(url: string) {
   let p = cache.get(url);
   if (!p) {
-    p = new Promise<THREE.Group | null>((resolve) => new GLTFLoader().load(url, (g) => resolve(g.scene), undefined, () => resolve(null)));
+    p = new Promise<THREE.Group | null>((resolve) => makeGLTFLoader().load(url, (g) => resolve(g.scene), undefined, () => resolve(null)));
     cache.set(url, p);
   }
   return p;

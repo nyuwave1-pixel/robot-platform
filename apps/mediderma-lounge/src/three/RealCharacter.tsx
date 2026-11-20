@@ -6,7 +6,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { makeGLTFLoader } from "./gltf";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { FASHION_MAP } from "../data/game";
 import type { Look } from "../store/game";
@@ -16,7 +17,7 @@ const cache = new Map<string, Promise<GLTF | null>>();
 function load(url: string) {
   let p = cache.get(url);
   if (!p) {
-    p = new Promise((res) => new GLTFLoader().load(url, res, undefined, (e) => { console.error("real model load failed", url, e); res(null); }));
+    p = new Promise((res) => makeGLTFLoader().load(url, res, undefined, (e) => { console.error("real model load failed", url, e); res(null); }));
     cache.set(url, p);
   }
   return p;

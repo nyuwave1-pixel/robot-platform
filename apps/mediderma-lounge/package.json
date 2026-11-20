@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "docs:db": "node scripts/gen-product-db.mjs",
     "test": "vitest run",
-    "smoke": "node scripts/smoke-check.mjs"
+    "smoke": "node scripts/smoke-check.mjs",
+    "optimize:models": "node tools/assets/optimize_models.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",
@@ -24,6 +25,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.169.0",

@@ -1,6 +1,7 @@
 """
 실사형 캐릭터 (Quaternius Universal Base Characters + Universal Animation Library, 둘 다 CC0) → 게임용 GLB.
     .bl/bin/python tools/blender/build_real_character.py
+    npm run optimize:models   # 웹 최적화: meshopt 압축 (게임 로더가 푼다)
 원본: tools/assets/incoming/quaternius_ubc · quaternius_ual (tools/assets/fetch_free_assets.py 가 itch.io 무료 버전을 받는다)
 
 결과
