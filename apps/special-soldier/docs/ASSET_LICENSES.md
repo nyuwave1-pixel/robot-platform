@@ -9,7 +9,7 @@
 
 | 묶음 | 수 | 라이선스 | 표기 의무 | 게임 파일 | 만든 도구 |
 |---|---|---|---|---|---|
-| Poly Haven 사진 텍스처 (v0.8–0.9) | 11 | CC0 1.0 | 없음 | `src/assets/tex/*.jpg` | `tools/blender/textures.py` |
+| Poly Haven 사진 텍스처 (v0.8–0.9, v0.16) | 12 | CC0 1.0 | 없음 | `src/assets/tex/*.jpg` | `tools/blender/textures.py` |
 | Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` | `tools/assets/build_audio.py` |
 | Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
@@ -31,6 +31,7 @@ CC-BY 에셋은 아직 없다(게임에 크레딧 화면을 만들면 game-icons
 | metal_plate | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 총기 금속 |
 | rusty_painted_metal | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 도장 금속 |
 | bark_brown_02 | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 나무 줄기 |
+| hessian_230 | Poly Haven https://polyhaven.com/a/hessian_230 | colormass(촬영)·Rico Cilliers(처리) | CC0 1.0 | 2026-11-20 | — (API 1k JPG → 512 px 재처리) | 모래주머니·트럭 덮개 등 소품 재질 클래스 4 (`burlap_t/_n.jpg`) |
 | Gunshot 4.wav (#166191) | Freesound | ShawnyBoy | CC0 1.0 | 2026-11-19 | `5ba94bfc…2b36` | 소총류 총성 녹음 층 (`shot.mp3`) |
 | Explosion_01.wav (#235968) | Freesound | tommccann | CC0 1.0 | 2026-11-19 | `363b19fb…1c05` | 폭발 (`explosion.mp3`) |
 | Helicopter (#413655) | Freesound | alegemaate | CC0 1.0 | 2026-11-19 | `56d6431e…ed09` | 헬기 루프 (`heli.mp3`) |

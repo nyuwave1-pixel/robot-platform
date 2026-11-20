@@ -13,7 +13,10 @@ SETS = {  # game name → (Poly Haven asset id, also write a tint-normalised cop
     'concrete': ('concrete_floor_02', True), 'rust': ('rusty_metal_02', True), 'wood': ('brown_planks_03', True), 'metal': ('corrugated_iron', False),
     # model surfaces (v0.9): cloth weave, gun steel, painted equipment, tree bark
     'fabric': ('denim_fabric', True), 'gun': ('metal_plate', True), 'paint': ('rusty_painted_metal', True), 'bark': ('bark_brown_02', True),
+    # v0.16: burlap for sandbags and canvas covers (prop surface class 4)
+    'burlap': ('hessian_230', True),
 }
+ONLY = [s for s in os.environ.get('ONLY', '').split(',') if s]  # e.g. ONLY=burlap → fetch / rewrite just these sets
 SIZE = int(os.environ.get('TEX_SIZE', 512))
 
 
@@ -38,11 +41,14 @@ def load(path, data=False):
 
 os.makedirs(OUT, exist_ok=True); os.makedirs(CACHE, exist_ok=True); credits = []
 for name, (pid, tint) in SETS.items():
+    credits.append(f'{name}: https://polyhaven.com/a/{pid} (CC0)')
+    if ONLY and name not in ONLY:
+        continue
     files = json.load(urllib.request.urlopen(urllib.request.Request(f'https://api.polyhaven.com/files/{pid}', headers={'User-Agent': 'asset-pipeline/1.0'}), timeout=60))
     d = load(fetch(files['Diffuse']['1k']['jpg']['url'], os.path.join(CACHE, pid + '_d.jpg')))
     n = load(fetch(files['nor_gl']['1k']['jpg']['url'], os.path.join(CACHE, pid + '_n.jpg')), data=True)
     save(d, os.path.join(OUT, name + '_d.jpg')); save(n, os.path.join(OUT, name + '_n.jpg'), 88)
     if tint:  # linear albedo / mean colour → neutral detail that keeps the photo's structure; stored / 1.6
         t = d.copy(); mean = t[:, :, :3].reshape(-1, 3).mean(axis=0); t[:, :, :3] = np.clip(t[:, :, :3] / mean / 1.6, 0, 1); save(t, os.path.join(OUT, name + '_t.jpg'))
-    credits.append(f'{name}: https://polyhaven.com/a/{pid} (CC0)'); print('TEX', name, pid)
+    print('TEX', name, pid)
 open(os.path.join(OUT, 'CREDITS.txt'), 'w').write('Textures from Poly Haven, licence CC0 1.0 (public domain). Processed with Blender (tools/blender/textures.py).\n' + '\n'.join(credits) + '\n')

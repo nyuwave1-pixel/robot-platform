@@ -21,7 +21,7 @@
 
 ## 텍스처 — Poly Haven (CC0 1.0)
 
-`src/assets/tex/CREDITS.txt` 의 11종. 라이선스: https://polyhaven.com/license
+`src/assets/tex/CREDITS.txt` 의 12종(v0.16: hessian_230 → burlap, `ONLY=burlap` 로 해당 세트만 재생성 가능). 라이선스: https://polyhaven.com/license
 
 ## 재생성
 

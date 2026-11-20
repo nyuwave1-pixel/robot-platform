@@ -7,7 +7,8 @@ import woodD from '../assets/tex/wood_d.jpg'; import woodN from '../assets/tex/w
 
 import woodT from '../assets/tex/wood_t.jpg'; import rustT from '../assets/tex/rust_t.jpg'; import fabricT from '../assets/tex/fabric_t.jpg'; import fabricN from '../assets/tex/fabric_n.jpg';
 import gunT from '../assets/tex/gun_t.jpg'; import gunN from '../assets/tex/gun_n.jpg'; import paintT from '../assets/tex/paint_t.jpg'; import paintN from '../assets/tex/paint_n.jpg'; import barkT from '../assets/tex/bark_t.jpg'; import barkN from '../assets/tex/bark_n.jpg';
-const URL = { woodT, rustT, fabricT, fabricN, gunT, gunN, paintT, paintN, barkT, barkN, sandT, grassT, rockT, concT, sandD, sandN, rockD, rockN, concD, concN, rustD, rustN, woodD, woodN, metalD, metalN };
+import burlapT from '../assets/tex/burlap_t.jpg'; import burlapN from '../assets/tex/burlap_n.jpg'; // v0.16 sandbags / canvas
+const URL = { burlapT, burlapN, woodT, rustT, fabricT, fabricN, gunT, gunN, paintT, paintN, barkT, barkN, sandT, grassT, rockT, concT, sandD, sandN, rockD, rockN, concD, concN, rustD, rustN, woodD, woodN, metalD, metalN };
 const cache = new Map(), loader = typeof document !== 'undefined' ? new THREE.TextureLoader() : null;
 /** Repeating photo texture by key (e.g. 'concD' albedo, 'concN' normal, 'grassT' tint-normalised albedo). */
 export function photo(key, repeat = 1) {
@@ -47,19 +48,19 @@ export function photoNeutral(key, repeat = 1, linear = false) {
   const img = new Image(); img.onload = () => { g.drawImage(img, 0, 0, 512, 512); for (const [x, y] of [[0, 0], [506, 0], [0, 506], [506, 506]]) g.fillRect(x, y, 6, 6); t.needsUpdate = true; }; img.src = URL[key];
   cache.set(k, t); return t;
 }
-/** Props / structures built from Blender meshes: vertex attribute `cls` picks concrete, painted metal, wood or rust photo detail (albedo multiplier + normal). UVs are in metres. */
+/** Props / structures built from Blender meshes: vertex attribute `cls` picks concrete, painted metal, wood, rust or burlap (v0.16) photo detail (albedo multiplier + normal). UVs are in metres. */
 export function propPhoto(mat) {
   if (!loader) return mat;
-  const u = { pT0: { value: photo('concT') }, pT1: { value: photo('paintT') }, pT2: { value: photo('woodT') }, pT3: { value: photo('rustT') }, pN0: { value: photo('concN') }, pN1: { value: photo('paintN') }, pN2: { value: photo('woodN') }, pN3: { value: photo('rustN') } };
+  const u = { pT0: { value: photo('concT') }, pT1: { value: photo('paintT') }, pT2: { value: photo('woodT') }, pT3: { value: photo('rustT') }, pT4: { value: photo('burlapT') }, pN0: { value: photo('concN') }, pN1: { value: photo('paintN') }, pN2: { value: photo('woodN') }, pN3: { value: photo('rustN') }, pN4: { value: photo('burlapN') } };
   mat.normalMap = photo('concN'); mat.normalScale = new THREE.Vector2(0.7, 0.7); // enables the normal-map path; the sampler is replaced below
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, u);
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float cls; varying float vCls; varying vec2 vPuv;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvCls = cls; vPuv = uv * 0.5;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
-      varying float vCls; varying vec2 vPuv; uniform sampler2D pT0, pT1, pT2, pT3, pN0, pN1, pN2, pN3;
-      vec4 propTex(sampler2D a, sampler2D b, sampler2D c, sampler2D d) { vec2 dx = dFdx(vPuv), dy = dFdy(vPuv); return vCls < 0.5 ? textureGrad(a, vPuv, dx, dy) : vCls < 1.5 ? textureGrad(b, vPuv, dx, dy) : vCls < 2.5 ? textureGrad(c, vPuv, dx, dy) : textureGrad(d, vPuv, dx, dy); }`)
-      .replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= propTex(pT0, pT1, pT2, pT3).rgb * 1.6;')
-      .replace('texture2D( normalMap, vNormalMapUv )', 'propTex(pN0, pN1, pN2, pN3)');
+      varying float vCls; varying vec2 vPuv; uniform sampler2D pT0, pT1, pT2, pT3, pT4, pN0, pN1, pN2, pN3, pN4;
+      vec4 propTex(sampler2D a, sampler2D b, sampler2D c, sampler2D d, sampler2D e) { vec2 dx = dFdx(vPuv), dy = dFdy(vPuv); return vCls < 0.5 ? textureGrad(a, vPuv, dx, dy) : vCls < 1.5 ? textureGrad(b, vPuv, dx, dy) : vCls < 2.5 ? textureGrad(c, vPuv, dx, dy) : vCls < 3.5 ? textureGrad(d, vPuv, dx, dy) : textureGrad(e, vPuv * 2.0, dx * 2.0, dy * 2.0); }`)
+      .replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= propTex(pT0, pT1, pT2, pT3, pT4).rgb * 1.6;')
+      .replace('texture2D( normalMap, vNormalMapUv )', 'propTex(pN0, pN1, pN2, pN3, pN4)');
   };
   mat.customProgramCacheKey = () => 'prop-photo';
   return mat;

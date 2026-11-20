@@ -29,7 +29,7 @@ export const NODES = new Set(['body', 'legL', 'legR', 'shinL', 'shinR', 'upper',
 const isNode = (c) => { const n = clean(c.name); return NODES.has(n) || n.startsWith('acc_') || (n.endsWith('__d') && !(c.isMesh && c.parent && clean(c.parent.name).endsWith('__d'))); }; // a multi-material '__d' node loads as a group of primitive meshes: those are not nodes // '__d' = detail (LOD) child, 'acc_' = optional kit set
 function ownMeshes(node) { const out = node.isMesh ? [node] : []; for (const c of node.children) if (c.isMesh && !isNode(c)) out.push(c); return out; }
 /** Surface class of a Blender material (drives which photo texture a prop gets): 0 concrete/stone, 1 painted metal, 2 wood, 3 rust / bare iron. */
-export const surfaceClass = (n) => (/wood|crate|bark|plank/.test(n) ? 2 : /conc|rock|sand|stone|cw$|tin/.test(n) ? 0 : /rust|iron|barrel|door|hull|container|galv/.test(n) ? 3 : 1);
+export const surfaceClass = (n) => (/canvas|^p_sand$|sandbag|hessian|tarp/.test(n) ? 4 : /wood|crate|bark|plank/.test(n) ? 2 : /conc|rock|sand|stone|cw$|tin/.test(n) ? 0 : /rust|iron|barrel|door|hull|container|galv/.test(n) ? 3 : 1);
 function withColor(geo, color, matrix, cls = 1) {
   const g = geo.index ? geo.toNonIndexed() : geo.clone(); const ao = g.attributes.color || null; // COLOR_0 = ambient occlusion baked in Blender
   for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
