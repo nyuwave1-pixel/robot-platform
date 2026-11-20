@@ -8,12 +8,6 @@ const SUPABASE_HOST = (() => {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // mediderma.unincore.com 아래(/@아이디, /studio 등)에서 함께 서비스되므로,
-  // 정적 파일 경로가 MEDIDERMA AI 앱의 /_next 와 겹치지 않게 따로 둔다.
-  assetPrefix: "/partner-static",
-  async rewrites() {
-    return { beforeFiles: [{ source: "/partner-static/_next/:path+", destination: "/_next/:path+" }] };
-  },
   poweredByHeader: false,
   outputFileTracingRoot: path.join(__dirname, "../../"),
   images: { remotePatterns: [{ protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/public/**" }] },
