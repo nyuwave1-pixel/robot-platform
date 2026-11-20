@@ -14,7 +14,7 @@
 | Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
 
-CC-BY 에셋은 아직 없다(게임에 크레딧 화면을 만들면 game-icons.net 등 도입 가능).
+CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/credits.js`)이 생겨 이제 game-icons.net 같은 CC-BY 에셋을 넣을 수 있다 — 넣을 때 이 대장과 credits.js 둘 다에 적는다(`tests/credits.test.mjs` 가 검사).
 
 ## 행별 대장
 

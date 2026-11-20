@@ -7,6 +7,7 @@ import { WEAPONS, burstDps, effectiveDps, hitChance, timeToKill, cycleTime } fro
 import { MISSIONS, unlockedWeapons } from '../game/missions.js';
 import { GEAR } from '../game/gear.js';
 import { ENEMY_TYPES } from '../game/enemies.js';
+import { CREDITS } from '../config/credits.js';
 
 const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['multiplayer', 'MULTIPLAYER', 'Planned expansion — design status'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
@@ -24,7 +25,7 @@ export class Menu {
   frame(title, body, back = 'main') { return `<div class="panel"><header><h2>${title}</h2><button data-a="${back}">◂ BACK</button></header><div class="body">${body}</div></div>`; }
   act(a, v) {
     switch (a) {
-      case 'main': return this.main(); case 'campaign': return this.campaign(); case 'operations': return this.operations(); case 'weapons': return this.weapons(); case 'operator': return this.operator(); case 'settings': return this.settings(v || 'main'); case 'multiplayer': return this.multiplayer(); case 'exit': return this.exit(); case 'pauseBack': return this.pause();
+      case 'main': return this.main(); case 'campaign': return this.campaign(); case 'operations': return this.operations(); case 'weapons': return this.weapons(); case 'operator': return this.operator(); case 'settings': return this.settings(v || 'main'); case 'attrib': return this.attributions(v || 'main'); case 'multiplayer': return this.multiplayer(); case 'exit': return this.exit(); case 'pauseBack': return this.pause();
       case 'brief': return this.briefing(+v); case 'deploy': return G.startMission(+v);
       case 'diff': G.settings.difficulty = v; storeSave(G.save); return this.campaign();
       case 'wsel': this.sel = v; return this.weapons();
@@ -85,7 +86,7 @@ export class Menu {
       <label>Show performance counter</label><input type="checkbox" data-set="showFps" ${s.showFps ? 'checked' : ''}><b></b>
       <h3>CONTROLS</h3><label>Mouse sensitivity</label>${sl('sens', 0.2, 3, 0.05, (v) => v.toFixed(2))}<label>Invert Y</label><input type="checkbox" data-set="invertY" ${s.invertY ? 'checked' : ''}><b></b>
       <h3>AUDIO</h3><label>Master volume</label>${sl('volume', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Music volume</label>${sl('music', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Radio voice (speech synthesis)</label><input type="checkbox" data-set="voice" ${s.voice ? 'checked' : ''}><b></b></div>
-      <h3>KEY BINDINGS</h3><div class="keys">${KEYS.map(([k, d]) => `<div><kbd>${k}</kbd>${d}</div>`).join('')}</div>`, back));
+      <h3>KEY BINDINGS</h3><div class="keys">${KEYS.map(([k, d]) => `<div><kbd>${k}</kbd>${d}</div>`).join('')}</div><p class="note"><button data-a="attrib" data-v="${back}">THIRD-PARTY CREDITS</button></p>`, back));
   }
   setting(k, v, el) {
     const s = G.settings; s[k] = k === 'fpsCap' ? +v : v; storeSave(G.save); G.applySettings();
@@ -104,5 +105,6 @@ export class Menu {
       ${r.unlocks.length ? `<h3>UNLOCKED</h3><div class="unl">${r.unlocks.map((u) => `<span>${u}</span>`).join('')}</div>` : ''}
       <div class="actions"><button class="primary" data-a="next">${r.last ? 'CONTINUE' : 'NEXT MISSION ▸'}</button><button data-a="weapons">ARMORY</button><button data-a="main">MAIN MENU</button></div></div></div>`, 'dim');
   }
-  credits() { this.open(`<div class="panel small"><h2>OPERATION COMPLETE</h2><p>The BLACK COBRA facility is neutralised and the bio-sample is in friendly hands. SQUAD 07 is going home.</p><p class="note">SPECIAL SOLDIER — playable prototype. Every model, texture and sound in this build is generated in code and stands in for production assets (see docs/ASSET_LIST.md).</p><div class="col"><button class="primary" data-a="campaign">REPLAY MISSIONS</button><button data-a="main">MAIN MENU</button></div></div>`, 'dim'); }
+  credits() { this.open(`<div class="panel small"><h2>OPERATION COMPLETE</h2><p>The BLACK COBRA facility is neutralised and the bio-sample is in friendly hands. SQUAD 07 is going home.</p><p class="note">SPECIAL SOLDIER — playable prototype. Models are built in code (Blender scripts); photo textures, recorded sounds and music are free CC0 assets — see THIRD-PARTY CREDITS.</p><div class="col"><button class="primary" data-a="campaign">REPLAY MISSIONS</button><button data-a="attrib">THIRD-PARTY CREDITS</button><button data-a="main">MAIN MENU</button></div></div>`, 'dim'); }
+  attributions(back = 'main') { this.open(this.frame('THIRD-PARTY CREDITS', `<div class="credits">${CREDITS.map((c) => `<h3>${c.group}</h3><p>${c.items.join(' · ')}</p>`).join('')}<p class="note">Full licence ledger: docs/ASSET_LICENSES.md · CC0 assets need no attribution; they are listed as thanks.</p></div>`, back)); }
 }
