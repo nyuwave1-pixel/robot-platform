@@ -207,6 +207,9 @@ export const QUESTS: Quest[] = [
   { id: "d-customer", ko: "고객 1명 케어하기", en: "Care for 1 customer", stat: "d.customer", goal: 1, daily: true, reward: { coins: 100, lp: 5 } },
   { id: "d-post", ko: "뷰티 피드에 게시물 올리기", en: "Post to the Beauty Feed", stat: "d.post", goal: 1, daily: true, reward: { stars: 5 } },
   { id: "d-like", ko: "친구 게시물에 좋아요 3번", en: "Like 3 posts", stat: "d.like", goal: 3, daily: true, reward: { stars: 3 } },
+  { id: "d-workout", ko: "웰니스 운동 1회", en: "Do 1 wellness workout", stat: "d.workout", goal: 1, daily: true, reward: { coins: 60 } },
+  { id: "d-harvest", ko: "뷰티 가든 수확 1회", en: "Harvest your beauty garden once", stat: "d.harvest", goal: 1, daily: true, reward: { coins: 60 } },
+  { id: "d-gift", ko: "친구에게 선물 2번", en: "Send 2 gifts to friends", stat: "d.gift", goal: 2, daily: true, reward: { stars: 4 } },
   { id: "q-first", ko: "첫 디바이스 케어 완료", en: "Complete your first device care", stat: "care", goal: 1, daily: false, reward: { coins: 150, item: "serum-mist" } },
   { id: "q-3modes", ko: "RF·울트라소닉·이온토 모두 체험", en: "Try RF, Ultrasonic and Iontophoresis", stat: "modes", goal: 3, daily: false, reward: { gems: 5 } },
   { id: "q-routines", ko: "공식 루틴 3종 완료", en: "Complete 3 official routines", stat: "routines", goal: 3, daily: false, reward: { gems: 8, coins: 300 } },
@@ -214,6 +217,8 @@ export const QUESTS: Quest[] = [
   { id: "q-customers", ko: "고객 10명 케어", en: "Care for 10 customers", stat: "customers", goal: 10, daily: false, reward: { coins: 500, lp: 30 } },
   { id: "q-style", ko: "패션 아이템 5개 수집", en: "Collect 5 fashion items", stat: "fashionBought", goal: 5, daily: false, reward: { stars: 15 } },
   { id: "q-deco", ko: "가구 3개 배치", en: "Place 3 furniture pieces", stat: "placed", goal: 3, daily: false, reward: { coins: 200 } },
+  { id: "q-garden", ko: "식물 5번 수확", en: "Harvest 5 plants", stat: "harvest", goal: 5, daily: false, reward: { gems: 6, coins: 300 } },
+  { id: "q-fit", ko: "웰니스 운동 10회", en: "Do 10 wellness workouts", stat: "workout", goal: 10, daily: false, reward: { gems: 8 } },
   { id: "q-lounge2", ko: "라운지 LEVEL 2 달성", en: "Reach Lounge LEVEL 2", stat: "loungeLevel", goal: 2, daily: false, reward: { gems: 10 } },
 ];
 
@@ -242,17 +247,19 @@ export const LOOK_PRESETS: { id: string; ko: string; en: string; look: Record<st
 ];
 
 // ───────────── 라운지 펫 ─────────────
-export interface PetType { id: string; kind: "cat" | "dog"; ko: string; en: string; color: string; accent: string; price: number }
+export interface PetType { id: string; kind: "cat" | "dog" | "rabbit"; ko: string; en: string; color: string; accent: string; price: number }
 export const PET_TYPES: PetType[] = [
   { id: "cat-cream", kind: "cat", ko: "크림 고양이", en: "Cream Cat", color: "#fff3e2", accent: "#f2c9a0", price: 300 },
   { id: "cat-gray", kind: "cat", ko: "회색 고양이", en: "Gray Cat", color: "#9aa0a8", accent: "#e9ecef", price: 300 },
   { id: "cat-black", kind: "cat", ko: "턱시도 고양이", en: "Tuxedo Cat", color: "#2a2628", accent: "#ffffff", price: 450 },
   { id: "dog-gold", kind: "dog", ko: "골든 강아지", en: "Golden Puppy", color: "#e3b877", accent: "#f6dfb8", price: 300 },
   { id: "dog-white", kind: "dog", ko: "화이트 강아지", en: "White Puppy", color: "#ffffff", accent: "#f3e6d8", price: 300 },
+  { id: "rabbit-white", kind: "rabbit", ko: "솜사탕 토끼", en: "Cotton Bunny", color: "#fffaf6", accent: "#f6c9d4", price: 350 },
+  { id: "rabbit-lop", kind: "rabbit", ko: "롭이어 토끼", en: "Lop Bunny", color: "#d8b493", accent: "#fff1e2", price: 500 },
   { id: "dog-brown", kind: "dog", ko: "초코 강아지", en: "Choco Puppy", color: "#7a5236", accent: "#d9b48a", price: 450 },
 ];
 export const PET_MAP: Record<string, PetType> = Object.fromEntries(PET_TYPES.map((p) => [p.id, p]));
-export const MAX_PETS = 3;
+export const MAX_PETS = 4;
 
 // ───────────── DERMA HOME 추가 스테이션 (n번째 증설 비용) ─────────────
 export const STATION_COSTS = [400, 900, 1800, 3200, 5000];

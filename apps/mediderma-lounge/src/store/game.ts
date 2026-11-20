@@ -367,7 +367,7 @@ export const useGame = create<GameState>()(
       adoptPet: (type, name) => {
         const t = PET_MAP[type]; const s = get();
         if (!t || s.pets.length >= MAX_PETS || s.coins < t.price) return false;
-        set({ coins: s.coins - t.price, pets: [...s.pets, { id: uid(), type, name: name.trim().slice(0, 10) || (t.kind === "cat" ? "Nabi" : "Mong"), affection: 10, lastPet: "" }], exp: { ...s.exp, lounge: s.exp.lounge + 20 } });
+        set({ coins: s.coins - t.price, pets: [...s.pets, { id: uid(), type, name: name.trim().slice(0, 10) || (t.kind === "cat" ? "Nabi" : t.kind === "rabbit" ? "Toto" : "Mong"), affection: 10, lastPet: "" }], exp: { ...s.exp, lounge: s.exp.lounge + 20 } });
         return true;
       },
       petPet: (id) => {

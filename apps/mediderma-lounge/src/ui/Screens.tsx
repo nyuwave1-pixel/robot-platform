@@ -8,7 +8,7 @@ import { useL } from "../i18n";
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
-import { bodyDims, Character, styleNow } from "../three/Character";
+import { bodyDims, Character, styleNow, type Anim } from "../three/Character";
 import { Icon, type IconName } from "./Icon";
 
 export function Splash() {
@@ -119,7 +119,7 @@ export function Create() {
   );
 }
 
-export function Preview({ look, growth, auto, rank }: { look: Look; growth: number; auto?: boolean; rank?: number }) {
+export function Preview({ look, growth, auto, rank, anim }: { look: Look; growth: number; auto?: boolean; rank?: number; anim?: Anim }) {
   // 캐릭터 스타일(실사/귀여운)에 따라 키가 달라 화면 구도를 키에 맞춘다
   useGame((s) => s.settings.charStyle);
   const h = bodyDims(growth).height + (rank && rank >= 7 ? 0.12 : 0);
@@ -129,7 +129,7 @@ export function Preview({ look, growth, auto, rank }: { look: Look; growth: numb
       <directionalLight position={[2, 4, 3]} intensity={1.6} />
       <Suspense fallback={null}>
         <group position={[0, -0.1, 0]}>
-          <Character look={look} growth={growth} anim={auto ? "wave" : "idle"} rank={rank} />
+          <Character look={look} growth={growth} anim={anim ?? (auto ? "wave" : "idle")} rank={rank} />
           <ContactShadows opacity={0.3} scale={3} blur={2.4} far={2} color="#e79aae" />
         </group>
       </Suspense>

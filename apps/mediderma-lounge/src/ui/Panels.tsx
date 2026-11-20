@@ -12,6 +12,7 @@ import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
 import { Chips, StyleChips, Swatches } from "./Screens";
+import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
@@ -52,6 +53,7 @@ export function PanelHost() {
       {panel === "settings" && <SettingsPanel />}
       {panel === "pets" && <Sheet title="LOUNGE PETS"><PetsBody /></Sheet>}
       {panel === "rank" && <Sheet title="LOUNGE RANK"><RankBody /></Sheet>}
+      {panel === "life" && <Sheet title="MY BEAUTY LIFE"><LifeBody /></Sheet>}
       {panel === "minigame" && <Sheet title="BEAUTY CARD MATCH"><MiniGameBody /></Sheet>}
       {consult && <ConsultModal id={consult} />}
     </>
@@ -180,6 +182,7 @@ function LoungePanel() {
       <div className="mt-2 grid grid-cols-2 gap-2">
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "pets" })}>♥ {t("pet.title")} ({g.pets.length})</button>
         <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "minigame" })}><Icon n="sparkle" /> {t("mini.title")}</button>
+        <button className="btn-ghost !px-3 text-xs" onClick={() => useUI.setState({ panel: "life" })}><Icon n="flower" /> {t("life.title")}</button>
       </div>
       {(["floor", "wall", "light"] as const).map((k) => (
         <div key={k} className="mt-3">

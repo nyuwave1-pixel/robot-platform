@@ -34,6 +34,7 @@ function doAction() {
   else if (z === "vanity") ui.set({ panel: "character" });
   else if (z === "photo") ui.set({ mode: "photo", near: null });
   else if (z === "game") ui.set({ panel: "minigame" });
+  else if (z === "garden") ui.set({ panel: "life" });
 }
 
 export function Hud() {
@@ -76,7 +77,7 @@ export function Hud() {
   }, []);
 
   const explore = mode === "explore";
-  const zoneLabel: Record<ZoneKey, string> = { shelf: t("zone.shelf"), device: t("zone.device"), reception: t("zone.reception"), vanity: t("zone.vanity"), photo: t("zone.photo"), game: t("zone.game") };
+  const zoneLabel: Record<ZoneKey, string> = { shelf: t("zone.shelf"), device: t("zone.device"), reception: t("zone.reception"), vanity: t("zone.vanity"), photo: t("zone.photo"), game: t("zone.game"), garden: t("zone.garden") };
   const action = nearCustomer ? t("action.consult") : nearPet ? t("pet.action") : near ? zoneLabel[near] : null;
 
   return (
@@ -104,6 +105,7 @@ export function Hud() {
               <button onClick={() => open("quests")} className="relative rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="quests">
                 <Icon n="quest" />{claimable > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-deep text-[12px] font-bold text-white">{claimable}</span>}
               </button>
+              <button onClick={() => open("life")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-ink shadow-sm backdrop-blur" aria-label="life" data-testid="life-btn"><Icon n="flower" /> <span className="hidden sm:inline">LIFE</span></button>
               <button onClick={() => open("profile")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="profile"><Icon n="profile" /></button>
               <button onClick={() => open("settings")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="settings"><Icon n="settings" /></button>
             </div>

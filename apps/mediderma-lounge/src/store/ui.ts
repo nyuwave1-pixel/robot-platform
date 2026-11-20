@@ -6,9 +6,9 @@ import type { ExpKey } from "../data/game";
 import type { Furniture, Look } from "./game";
 
 export type Screen = "splash" | "intro" | "create" | "game";
-export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank";
+export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank" | "life";
 export type GameMode = "explore" | "care" | "edit" | "cinematic" | "photo";
-export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo" | "game";
+export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo" | "game" | "garden";
 
 export interface Customer {
   id: string; type: string; name: string;

@@ -16,19 +16,22 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
   const tail = useRef<THREE.Group>(null!);
   const legs = useRef<THREE.Group>(null!);
   const head = useRef<THREE.Group>(null!);
-  const cat = t.kind === "cat";
+  const bunny = t.kind === "rabbit";
+  const cat = t.kind === "cat" || bunny; // 토끼는 얼굴(분홍 코·작은 주둥이)을 고양이와 같이 쓴다
+  const root = useRef<THREE.Group>(null!);
   useFrame(({ clock }) => {
     const e = clock.elapsedTime;
     const w = walking?.current;
     if (tail.current) tail.current.rotation.z = Math.sin(e * (cat ? 2 : 9)) * (cat ? 0.35 : 0.6);
     if (legs.current) legs.current.children.forEach((l, i) => { l.rotation.x = w ? Math.sin(e * 12 + (i % 2 ? Math.PI : 0)) * 0.6 : 0; });
     if (head.current) head.current.rotation.z = w ? 0 : Math.sin(e * 0.9) * 0.12;
+    if (root.current && bunny) root.current.position.y = w ? Math.abs(Math.sin(e * 10)) * 0.07 : 0; // 깡충깡충
   });
   const fur = <meshStandardMaterial color={t.color} roughness={0.9} />;
   const fur2 = <meshStandardMaterial color={t.accent} roughness={0.9} />;
-  const s = cat ? 1 : 1.12;
+  const s = bunny ? 0.85 : cat ? 1 : 1.12;
   return (
-    <group scale={s}>
+    <group ref={root} scale={s}>
       <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><capsuleGeometry args={[0.105, 0.2, 6, 14]} />{fur}</mesh>
       <mesh position={[0, 0.16, 0.06]} scale={[0.8, 0.5, 1]}><sphereGeometry args={[0.1, 12, 10]} />{fur2}</mesh>
       <group ref={legs}>
@@ -46,7 +49,9 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
           <group key={k}>
             <mesh position={[k * 0.05, 0.025, 0.112]}><sphereGeometry args={[0.02, 10, 8]} /><meshStandardMaterial color="#1d1718" roughness={0.2} /></mesh>
             <mesh position={[k * 0.045, 0.033, 0.13]}><sphereGeometry args={[0.006, 6, 6]} /><meshBasicMaterial color="#ffffff" /></mesh>
-            {cat ? (
+            {bunny ? (
+              <mesh position={[k * 0.05, 0.2, -0.02]} rotation={[-0.15, 0, -k * 0.12]} scale={[1, 1, 0.55]} castShadow><capsuleGeometry args={[0.032, 0.17, 4, 10]} />{fur}</mesh>
+            ) : cat ? (
               <mesh position={[k * 0.075, 0.125, 0]} rotation={[0, 0, -k * 0.25]} castShadow><coneGeometry args={[0.045, 0.09, 4]} />{fur}</mesh>
             ) : (
               <mesh position={[k * 0.125, 0.02, 0]} rotation={[0, 0, k * 0.5]} scale={[0.5, 1.1, 0.8]} castShadow><sphereGeometry args={[0.065, 10, 8]} />{fur2}</mesh>
@@ -55,7 +60,9 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
         ))}
       </group>
       <group ref={tail} position={[0, 0.25, -0.2]}>
-        {cat ? (
+        {bunny ? (
+          <mesh position={[0, -0.02, 0.02]}><sphereGeometry args={[0.05, 12, 10]} />{fur2}</mesh>
+        ) : cat ? (
           <mesh position={[0, 0.1, -0.03]} rotation={[-0.5, 0, 0]} castShadow><capsuleGeometry args={[0.022, 0.2, 4, 8]} />{fur}</mesh>
         ) : (
           <mesh position={[0, 0.05, -0.02]} rotation={[-0.7, 0, 0]} castShadow><capsuleGeometry args={[0.028, 0.08, 4, 8]} />{fur2}</mesh>
@@ -98,7 +105,7 @@ export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }
       const dx = goal.current.x - p.x, dz = goal.current.z - p.z, d = Math.hypot(dx, dz);
       if (d < 0.12) { goal.current = null; rest.current = 1.5 + Math.random() * 4; }
       else {
-        const sp = t.kind === "dog" ? 1.6 : 1.1;
+        const sp = t.kind === "dog" ? 1.6 : t.kind === "rabbit" ? 1.3 : 1.1;
         p.x += (dx / d) * sp * dt; p.z += (dz / d) * sp * dt; walking.current = true;
         if (g.current) { let dy = Math.atan2(dx, dz) - g.current.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); g.current.rotation.y += dy * Math.min(1, dt * 8); }
       }

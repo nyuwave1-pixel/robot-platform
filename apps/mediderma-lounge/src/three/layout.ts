@@ -16,6 +16,8 @@ export function layout(level: number, stations = 0) {
   const stationSpots: { x: number; z: number }[] = [];
   for (let z = -d / 2 + 5.2; z <= d / 2 - 4.6 + 0.001; z += 2.4) stationSpots.push({ x: w / 2 - 2.1, z });
   const game = { x: 2.4, z: d / 2 - 1.15 };
+  // 뷰티 가든 화분대: 왼쪽 벽, 화장대 뒤쪽
+  const garden = { x: -w / 2 + 0.42, z: vanity.z - 2.6 };
   const zones: { key: ZoneKey; x: z_; z: z_; min: number }[] = [
     { key: "shelf", x: shelf.x, z: shelf.z + 1.5, min: 1 },
     { key: "device", x: bed.x, z: bed.z + 1.5, min: 1 },
@@ -23,6 +25,7 @@ export function layout(level: number, stations = 0) {
     { key: "vanity", x: vanity.x + 1.3, z: vanity.z, min: 1 },
     { key: "photo", x: photo.x + 1.7, z: photo.z, min: 2 },
     { key: "game", x: game.x, z: game.z - 1.15, min: 1 },
+    { key: "garden", x: garden.x + 1.25, z: garden.z, min: 1 },
   ];
   const seats = Array.from({ length: 5 }, (_, i) => ({ x: sofa.x - 1.2 + (i % 3) * 0.8 + (i >= 3 ? 6.8 : 0), z: sofa.z + (i >= 3 ? -0.2 : 0) }));
   const obstacles = [
@@ -32,9 +35,10 @@ export function layout(level: number, stations = 0) {
     { x: vanity.x, z: vanity.z, r: 0.7 },
     { x: sofa.x - 1.3, z: sofa.z + 0.15, r: 0.6 }, { x: sofa.x - 0.4, z: sofa.z + 0.15, r: 0.6 }, { x: sofa.x + 0.5, z: sofa.z + 0.15, r: 0.6 },
     { x: game.x, z: game.z, r: 0.6 },
+    { x: garden.x, z: garden.z - 0.7, r: 0.5 }, { x: garden.x, z: garden.z + 0.7, r: 0.5 },
     ...stationSpots.slice(0, stations).flatMap((s) => [{ x: s.x - 0.55, z: s.z, r: 0.7 }, { x: s.x + 0.55, z: s.z, r: 0.7 }]),
   ];
-  return { stationSpots, stations: Math.min(stations, stationSpots.length), game, level: L, w, d, bed, shelf, reception, vanity, photo, sofa, zones: zones.filter((z) => level >= z.min), seats, obstacles, entrance: { x: 0, z: d / 2 - 0.3 }, payPoint: { x: reception.x, z: reception.z - 1.6 } };
+  return { stationSpots, stations: Math.min(stations, stationSpots.length), game, garden, level: L, w, d, bed, shelf, reception, vanity, photo, sofa, zones: zones.filter((z) => level >= z.min), seats, obstacles, entrance: { x: 0, z: d / 2 - 0.3 }, payPoint: { x: reception.x, z: reception.z - 1.6 } };
 }
 type z_ = number;
 export type Layout = ReturnType<typeof layout>;
