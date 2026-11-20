@@ -12,4 +12,4 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 // "@" 가 들어간 경로는 경로 패턴 매칭이 불안정해서, 정적 파일을 뺀 모든 요청을 받아 코드에서 판별한다
-export const config = { matcher: ["/((?!_next/|products/|favicon|robots.txt|sitemap.xml).*)"] };
+export const config = { matcher: ["/((?!_next/|partner-static/|products/|favicon|robots.txt|sitemap.xml).*)"] };

@@ -4,7 +4,7 @@
  */
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://qeabsjyglethzkwlkmaw.supabase.co";
 export const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_JfbgxhQtx1cnSIdEmXPDvA_3tg9pk0-";
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://partner.unincore.com").replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://mediderma.unincore.com").replace(/\/$/, "");
 export const PHOTO_BUCKET = "partner-photos";
 
 export function photoUrl(path: string | null | undefined): string | null {

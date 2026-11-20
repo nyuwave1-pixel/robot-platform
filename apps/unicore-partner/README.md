@@ -31,7 +31,7 @@ UNI&CORE 사업자가 이름·사진·사업장·연락처·SNS를 입력하면,
 npm install
 npm run dev        # http://localhost:3300
 ```
-환경 변수(선택, 없으면 현재 프로젝트 기본값): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`(기본 `https://partner.unincore.com`).
+환경 변수(선택, 없으면 현재 프로젝트 기본값): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`(기본 `https://mediderma.unincore.com`).
 
 ## 테스트
 실제 Supabase + 실제 브라우저로 30개 항목(로그인·편집·업로드·미리보기·권한 침범 시도·승인·SEO·모바일)을 검사합니다.
@@ -41,7 +41,7 @@ E2E_A_EMAIL=… E2E_B_EMAIL=… E2E_HQ_EMAIL=… E2E_PASSWORD=… npm run e2e --
 ```
 
 ## 운영 전 해야 할 일
-1. Vercel 새 프로젝트(루트 `apps/unicore-partner`) + 도메인 `partner.unincore.com` (후이즈 CNAME → `cname.vercel-dns.com`)
+1. 배포: Vercel 프로젝트 `unicore-partner`. 별도 도메인 없이 `mediderma.unincore.com` 아래에서 열린다 — MEDIDERMA AI 앱(`apps/mediderma-ai/next.config.mjs`)이 `/@아이디`, `/p/*`, `/studio`, `/hq`, `/login`, `/auth/*`, `/partner`, `/partner-static/*` 요청을 이 앱으로 넘긴다
 2. Supabase Auth 설정: Site URL / Redirect URL 에 실제 도메인 추가, 인증 메일 발송용 SMTP 연결(기본 메일은 발송량 제한)
 3. 본사 관리자 지정: `supabase/schema.sql` 맨 아래 SQL
 
