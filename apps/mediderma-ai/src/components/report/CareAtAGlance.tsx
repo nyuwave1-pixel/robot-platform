@@ -91,9 +91,21 @@ export function Radar({ values, weak, labels, before, testId = "glance-radar" }:
         const [x, y] = pt(i, 128);
         const v = values[i];
         const b = before?.[i];
+        // 정확히 좌우에 놓이는 이름은 길면 그래프 밖으로 잘린다(베트남어·러시아어 등) → 가운데에 가까운 빈칸에서 두 줄로 나눈다
+        const side = Math.abs(Math.cos(-Math.PI / 2 + (i * 2 * Math.PI) / N)) > 0.9;
+        let lines = [l];
+        if (side && l.length > 7 && l.includes(" ")) {
+          const cuts = [...l].map((ch, k) => (ch === " " ? k : -1)).filter((k) => k > 0);
+          const cut = cuts.reduce((best, k) => (Math.abs(k - l.length / 2) < Math.abs(best - l.length / 2) ? k : best), cuts[0]);
+          lines = [l.slice(0, cut), l.slice(cut + 1)];
+        }
         return (
-          <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#fde68a" : "#f1f5f9"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
-            {l}
+          <text key={i} x={x} y={y - (lines.length - 1) * 8} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#fde68a" : "#f1f5f9"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
+            {lines.map((line, k) => (
+              <tspan key={k} x={x} dy={k === 0 ? 0 : 16}>
+                {line}
+              </tspan>
+            ))}
             <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#fde68a" : "#7dd3fc"}>
               {before ? `${b ?? "—"}→${v ?? "—"}` : (v ?? "—")}
             </tspan>
