@@ -29,15 +29,16 @@ export function realHair(hair: string, male: boolean) {
   if (hair === "hair-pixie") return male ? "Hair_Buzzed" : "Hair_BuzzedFemale";
   return "Hair_SimpleParted";
 }
-/** 의상 컷 → 보이는 옷 메시 */
-export function realOutfit(cut: string) {
+/** 의상 컷 → 보이는 옷 메시. 남성 체형은 치마 대신 바지를 입는다 */
+export function realOutfit(cut: string, male = false) {
+  const skirt = !male;
   return {
     Top: true,
     Hips: true,
-    Sleeves: cut === "puff" || cut === "aline" || cut === "pants",
-    SkirtShort: cut === "puff" || cut === "aline" || cut === "sheath",
-    SkirtLong: cut === "gown",
-    Pants: cut === "pants",
+    Sleeves: male || cut === "puff" || cut === "aline" || cut === "pants",
+    SkirtShort: skirt && (cut === "puff" || cut === "aline" || cut === "sheath"),
+    SkirtLong: skirt && cut === "gown",
+    Pants: male || cut === "pants",
     Shoes: true,
   } as Record<string, boolean>;
 }
@@ -100,7 +101,7 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
   useEffect(() => {
     if (!obj) return;
     const hair = realHair(look.hair, male);
-    const wear = realOutfit(cut);
+    const wear = realOutfit(cut, male);
     const skin = new THREE.Color(look.skin);
     const tint = new THREE.Color(skin.r / SKIN_AVG.r, skin.g / SKIN_AVG.g, skin.b / SKIN_AVG.b);
     obj.traverse((c) => {
@@ -114,8 +115,9 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       if (mn === "skin") mt.color.copy(tint);
       else if (mn.startsWith("hair")) mt.color.set(look.hairColor).multiplyScalar(1.15);
       else if (mn === "shoe") mt.color.set(shoe);
+      else if (mn === "accent") mt.color.set(acc);
       else if (mn === "outfit") {
-        mt.color.set((name === "Pants" || (name === "Hips" && cut === "pants")) && outfit.id !== "fit-suit" ? acc : col);
+        mt.color.set((name === "Pants" || (name === "Hips" && (cut === "pants" || male))) && outfit.id !== "fit-suit" ? (male ? "#3b3f4a" : acc) : col);
         mt.roughness = cut === "gown" ? 0.45 : 0.75;
         mt.metalness = cut === "gown" ? 0.15 : 0;
       }

@@ -41,10 +41,10 @@ export function World() {
         dpr={q === "high" ? [1, 2] : [0.75, 1.25]}
         camera={{ fov: 42, near: 0.1, far: 80, position: [0, 4, 10] }}
         gl={{ antialias: q === "high", preserveDrawingBuffer: true, powerPreference: "high-performance" }}
-        onCreated={({ gl, scene }) => {
+        onCreated={({ gl, scene, camera }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.1;
           const dbg = (window as unknown as { __mdl?: Record<string, unknown> }).__mdl;
-          if (dbg) { dbg.gl = gl; dbg.scene = scene; } // ?debug 일 때 렌더러 통계·장면 점검용
+          if (dbg) { dbg.gl = gl; dbg.scene = scene; dbg.camera = camera; } // ?debug 일 때 렌더러 통계·장면 점검용
           gl.domElement.addEventListener("webglcontextlost", (e) => {
             // 캔버스를 내릴 때 R3F 가 일부러 컨텍스트를 버리는 경우는 무시하고, 복구는 한 번만 시도한다
             if (!gl.domElement.isConnected || lostRef.current) return;

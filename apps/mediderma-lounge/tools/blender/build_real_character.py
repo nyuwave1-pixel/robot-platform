@@ -9,7 +9,7 @@
 
 원본 몸은 속옷 차림이라, 몸 메시를 부위(뼈 가중치)별로 복제·부풀려 상의·바지·구두를 만들고
 허리~무릎/발목의 치마는 몸 단면을 재서 새로 만든다. 게임이 재질 이름으로 색을 입힌다:
-  skin · hair(눈썹 포함) · outfit · shoe · eyes
+  skin · hair(눈썹 포함) · outfit · accent(치마 허리띠·단) · shoe · eyes
 메시 이름(게임이 찾는다): Hair_* · Top · Hips · Sleeves · SkirtShort · SkirtLong · Pants · Shoes
 """
 import math, os, sys
@@ -98,8 +98,8 @@ def bone_z(arm, b):
     return (arm.matrix_world @ arm.data.bones[b].head_local).z
 
 
-def skirt(body, arm, name, z_hem, flare, material):
-    """허리~치마단 링을 몸 단면에 맞춰 만들고 골반·허벅지에 가중치를 준다."""
+def skirt(body, arm, name, z_hem, flare, material, accent):
+    """허리~치마단 링을 몸 단면에 맞춰 만들고 골반·허벅지에 가중치를 준다. 허리 리본띠와 단 트림은 accent 재질."""
     me = body.data
     mw = body.matrix_world
     dom = dominant(body)
@@ -125,7 +125,8 @@ def skirt(body, arm, name, z_hem, flare, material):
         return [max(r[(k + j) % N] for j in range(-n, n + 1)) for k in range(N)]
 
     r_w, r_h = smooth(section(z_waist)), smooth(section(z_hip))
-    rows = [(z_waist, [x + 0.022 for x in r_w]), (z_hip, [x + 0.04 for x in r_h])]
+    # 허리 리본띠(높이 4cm) → 엉덩이
+    rows = [(z_waist, [x + 0.026 for x in r_w]), (z_waist - 0.04, [x + 0.028 for x in r_w]), (z_hip, [x + 0.04 for x in r_h])]
     steps = 8
     prev = rows[-1][1]
     for i in range(1, steps + 1):
@@ -133,9 +134,13 @@ def skirt(body, arm, name, z_hem, flare, material):
         z = z_hip + (z_hem - z_hip) * t
         body_r = smooth(section(z)) if t < 0.9 else [0.0] * N
         # 아래로 갈수록 좁아지지 않게(엉덩이·허벅지가 뚫고 나오지 않게) 하고 단으로 갈수록 퍼지게 한다
-        cur = [max(pv, br + 0.055) * (1 + (flare - 1) / steps) for pv, br in zip(prev, body_r)]
+        # 앞쪽(-Y, 서 있는 동작에서 허벅지가 앞으로 나온다)은 여유를 더 준다
+        cur = [max(pv, br + 0.055 + 0.065 * max(0.0, -math.sin(-math.pi + (k + 0.5) / N * 2 * math.pi))) * (1 + (flare - 1) / steps)
+               for k, (pv, br) in enumerate(zip(prev, body_r))]
         rows.append((z, cur))
         prev = cur
+    # 단 트림: 단 아래로 2.5cm, 살짝 더 퍼지게
+    rows.append((z_hem - 0.025, [x * 1.02 for x in prev]))
     bm = bmesh.new()
     rings = []
     for z, rr in rows:
@@ -144,9 +149,11 @@ def skirt(body, arm, name, z_hem, flare, material):
             a = -math.pi + (k + 0.5) / N * 2 * math.pi
             ring.append(bm.verts.new((cx + math.cos(a) * rr[k], cy + math.sin(a) * rr[k], z)))
         rings.append(ring)
-    for r0, r1 in zip(rings, rings[1:]):
+    last = len(rings) - 2
+    for j, (r0, r1) in enumerate(zip(rings, rings[1:])):
         for k in range(N):
-            bm.faces.new((r0[k], r0[(k + 1) % N], r1[(k + 1) % N], r1[k]))
+            f = bm.faces.new((r0[k], r0[(k + 1) % N], r1[(k + 1) % N], r1[k]))
+            f.material_index = 1 if j in (0, last) else 0
     # 법선을 바깥으로 (뒷면 컬링 때문에 안쪽을 향하면 앞이 비어 보인다)
     bm.normal_update()
     for f in bm.faces:
@@ -159,6 +166,7 @@ def skirt(body, arm, name, z_hem, flare, material):
     o = bpy.data.objects.new(name, m)
     bpy.context.collection.objects.link(o)
     o.data.materials.append(material)
+    o.data.materials.append(accent)
     sol = o.modifiers.new("t", "SOLIDIFY")
     sol.thickness = 0.006
     bpy.context.view_layer.objects.active = o
@@ -171,7 +179,7 @@ def skirt(body, arm, name, z_hem, flare, material):
         t = max(0.0, min(1.0, (z_hip - v.co.z) / max(0.01, z_hip - z_hem)))
         dx = v.co.x - cx
         r = max(0.01, math.hypot(dx, v.co.y - cy))
-        w = 0.4 * t * min(1.0, abs(dx) / r) ** 1.5  # 가운데(앞·뒤)는 골반만, 옆은 그쪽 허벅지를 조금 따른다
+        w = 0.6 * t * min(1.0, abs(dx) / r)  # 가운데(앞·뒤)는 골반만, 옆은 그쪽 허벅지를 조금 따른다
         side = gl if dx * lx > 0 else gr
         gp.add([v.index], 1 - w, "REPLACE")
         if w > 0:
@@ -246,16 +254,22 @@ def build(gender):
     hip_z = bone_z(arm, "pelvis")
     outfit = mat("outfit", (0.95, 0.75, 0.8), 0.75)
     shoe = mat("shoe", (0.9, 0.55, 0.65), 0.35)
+    accent = mat("accent", (1, 1, 1), 0.5)
+    # 어깨: 상의가 위팔 윗부분까지 덮어 소매와 겹치게 한다 (틈이 보이지 않게)
+    near_sh = lambda i: min((body.matrix_world @ vs[i].co - sh[s]).length for s in "lr")
     parts = [
-        piece(body, "Top", lambda i: dom[i] in TORSO, 0.009, outfit),
+        piece(body, "Top", lambda i: dom[i] in TORSO or ((dom[i] or "").startswith("upperarm") and near_sh(i) < 0.08), 0.009, outfit),
         piece(body, "Sleeves", lambda i: (dom[i] or "").startswith("upperarm") and min((body.matrix_world @ vs[i].co - sh[s]).length for s in "lr") < (0.16 if gender == "female" else 0.26), 0.01, outfit),
         piece(body, "Pants", lambda i: dom[i] in LEGS and dom[i] != "pelvis", 0.008, outfit),
         # 속옷이 비치지 않게 허리~허벅지 윗부분을 덮는 짧은 반바지(치마 안쪽). 상의 아래쪽과 겹쳐 틈이 없게 한다
         piece(body, "Hips", lambda i: dom[i] in ("pelvis", "spine_01") or (dom[i] in LEGS and (body.matrix_world @ vs[i].co).z > hip_z - 0.13), 0.0085, outfit),
         piece(body, "Shoes", lambda i: dom[i] in FEET, 0.006, shoe),
-        skirt(body, arm, "SkirtShort", bone_z(arm, "calf_l") + 0.02, 1.35, outfit),
-        skirt(body, arm, "SkirtLong", 0.06, 1.75, outfit),
     ]
+    if gender == "female":  # 남성 체형은 게임에서 치마 대신 바지를 입는다
+        parts += [
+            skirt(body, arm, "SkirtShort", bone_z(arm, "calf_l") + 0.02, 1.35, outfit, accent),
+            skirt(body, arm, "SkirtLong", 0.06, 1.75, outfit, accent),
+        ]
     for p in parts:
         if p.name.startswith("Skirt"):
             attach(p, arm)
