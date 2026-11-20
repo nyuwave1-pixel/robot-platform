@@ -8,6 +8,8 @@ import { DIFFICULTY } from '../core/save.js';
 import { makeSoldier, makeAPC, poseSoldier, lodSoldier, HOT } from './models.js';
 import { raySphere } from './fx.js';
 import { TUNE } from '../ui/tune.js';
+import { steerTarget, replan } from './nav.js';
+G.navStats = { ok: 0, fail: 0 }; // path requests after getting stuck (QA: tests read this)
 
 export const ST = { PATROL: 0, SUSPICIOUS: 1, SEARCH: 2, COMBAT: 3, RETREAT: 4 };
 export const ST_NAME = ['PATROL', 'SUSPICIOUS', 'SEARCH', 'COMBAT', 'RETREAT'];
@@ -184,12 +186,12 @@ export class Enemies {
       else { speed = t.speed * (e.state === ST.RETREAT ? 1.1 : 1); if (e.flinch > 0) speed *= 0.4; }
       let moving = false;
       if (e.goal && !e.atGoal && !e.hold && speed > 0) {
-        let gx = e.goal.x - e.pos.x, gz = e.goal.z - e.pos.z; const gl = Math.hypot(gx, gz);
-        if (gl < 0.7) { e.atGoal = true; e.peekT = 0.5 + Math.random(); }
+        const tg = steerTarget(e, e.goal); let gx = tg.x - e.pos.x, gz = tg.z - e.pos.z; const gl = Math.max(1e-3, Math.hypot(gx, gz)); // tg = next path waypoint (v0.15) or the goal itself
+        if (Math.hypot(e.goal.x - e.pos.x, e.goal.z - e.pos.z) < 0.7) { e.atGoal = true; e.nav = null; e.peekT = 0.5 + Math.random(); }
         else { gx /= gl; gz /= gl; if (e.sideT > 0) { e.sideT -= dt; const sx = -gz * e.side, sz = gx * e.side; gx = gx * 0.3 + sx; gz = gz * 0.3 + sz; }
           const px = e.pos.x, pz = e.pos.z, step = speed * dt; const nx = px + gx * step, nz = pz + gz * step;
           if (e.pos.y > -30 && W.heightAt(nx, nz) < 0.15) { e.atGoal = true; } else { W.moveCircle(e.pos, gx * step, gz * step, 0.36, 1.7); }
-          const moved = Math.hypot(e.pos.x - px, e.pos.z - pz); if (moved < step * 0.45) { e.stuckT += dt; if (e.stuckT > 0.35) { e.sideT = 0.7 + Math.random() * 0.5; e.side *= Math.random() < 0.7 ? 1 : -1; e.stuckT = 0; e.stuckN = (e.stuckN || 0) + 1; if (e.stuckN > 5) { e.atGoal = true; e.stuckN = 0; e.planT = 0; } } } else { e.stuckT = 0; }
+          const moved = Math.hypot(e.pos.x - px, e.pos.z - pz); if (moved < step * 0.45) { e.stuckT += dt; if (e.stuckT > 0.35 && !G.navOff && (!e.nav || Math.hypot(e.nav.gx - e.goal.x, e.nav.gz - e.goal.z) > 1.5) && e.navFail !== e.goal) { e.stuckT = 0; if (replan(W, e, e.goal)) G.navStats.ok++; else { e.navFail = e.goal; G.navStats.fail++; } } else if (e.stuckT > 0.35) { e.sideT = 0.7 + Math.random() * 0.5; e.side *= Math.random() < 0.7 ? 1 : -1; e.stuckT = 0; e.stuckN = (e.stuckN || 0) + 1; if (e.stuckN > 5) { e.atGoal = true; e.stuckN = 0; e.planT = 0; } } } else { e.stuckT = 0; }
           moving = true; if (e.state < ST.COMBAT || !e.seeAny) wantYaw = Math.atan2(gx, gz); }
         e.pos.y = damp(e.pos.y, W.groundAt(e.pos.x, e.pos.z, e.pos.y + 0.6), 14, dt);
       }

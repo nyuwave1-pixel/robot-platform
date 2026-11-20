@@ -15,7 +15,7 @@
 
 | 저장소 | 라이선스 | 보류 이유 |
 |---|---|---|
-| isaac-mason/navcat | MIT | 내비메시 도입 후보 1순위 — 적 AI 이동 로직 교체가 필요한 별도 작업 |
+| isaac-mason/navcat | MIT | v0.15에서 검토 후 미사용: 월드가 높이맵 + 축 정렬 박스라 자체 그리드 A*(`src/game/nav.js`, 의존성 없음, 단일 HTML 빌드 영향 없음)로 충분. 외부 코드 복사 없음 |
 | donmccurdy/glTF-Transform + zeux/meshoptimizer | MIT | v0.14에서 검토 후 보류: 양자화된 정점이 게임의 `mergeGeometries`(같은 배열 타입 요구)와 피벗 처리를 깨뜨릴 위험, GLB는 이미 번들 gzip 안에 있어 이득이 작음 |
 | N8python/n8ao · pmndrs/postprocessing | CC0 · Zlib | 실제 GPU 측정 후 결정 |
 | tranek/GASDocumentation 등 UE 전용 3종 | MIT | 엔진이 달라 해당 없음 |

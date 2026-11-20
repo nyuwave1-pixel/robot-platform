@@ -102,6 +102,7 @@ for (let mi = 0; mi < 5; mi++) {
 }
 await ev(() => { SS.godMode = false; });
 if (campaign[4]) { await page.click('[data-a="next"]'); check('campaign end screen', (await page.textContent('#menu h2')).includes('OPERATION COMPLETE')); await page.click('[data-a="main"]'); }
+{ const nav = await ev(() => SS.navStats); check('AI pathfinding: stuck agents get a route (v0.15)', nav && nav.fail <= Math.max(3, nav.ok), JSON.stringify(nav)); }
 // ---------- unlock-gated equipment after the campaign ----------
 await ev(() => SS.startMission(1, true)); await run(0.5);
 await ev(() => QA.key('KeyT')); await run(0.2); check('thermal imager (unlocked)', await ev(() => SS.gear.vision === 2 && SS.enemies.thermal)); await shot('thermal'); await ev(() => QA.key('KeyT'));

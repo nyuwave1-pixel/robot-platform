@@ -6,6 +6,7 @@ import { clamp, angDiff, damp } from '../core/util.js';
 import { makeSoldier, poseSoldier, lodSoldier } from './models.js';
 import { raySphere } from './fx.js';
 import { ST } from './enemies.js';
+import { steerTarget, replan } from './nav.js';
 
 const NAMES = ['REAPER', 'NOMAD', 'ATLAS'], OFFS = [[-2.6, 3.2], [2.6, 3.8], [0, 6.4]], GUN = { dmg: 8, vel: 860, range: [50, 140], minMul: 0.6, pellets: 1 };
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _d = new THREE.Vector3();
@@ -27,7 +28,13 @@ export class Squad {
       let dx = gx - m.pos.x, dz = gz - m.pos.z; const dl = Math.hypot(dx, dz); let speed = 0, wantYaw = m.yaw;
       if (dl > 75 || Math.abs(P.pos.y - m.pos.y) > 15) { this.regroup(); continue; }
       const fighting = m.tgt && m.tgt.alive;
-      if (dl > (fighting ? 14 : 1.6) && !P.frozen) { speed = Math.min(7.2, 1.5 + dl * 1.2); dx /= dl; dz /= dl; const px = m.pos.x, pz = m.pos.z; if (W.heightAt(m.pos.x + dx, m.pos.z + dz) > -1.2 || m.pos.y < -30) W.moveCircle(m.pos, dx * speed * dt, dz * speed * dt, 0.35, 1.7); if (Math.hypot(m.pos.x - px, m.pos.z - pz) < speed * dt * 0.3) W.moveCircle(m.pos, -dz * speed * dt, dx * speed * dt, 0.35, 1.7); wantYaw = Math.atan2(dx, dz); }
+      if (dl > (fighting ? 14 : 1.6) && !P.frozen) {
+        speed = Math.min(7.2, 1.5 + dl * 1.2); dx /= dl; dz /= dl;
+        if (m.nav) { const t = steerTarget(m, P.pos); if (t !== P.pos) { const tl = Math.max(1e-3, Math.hypot(t.x - m.pos.x, t.z - m.pos.z)); dx = (t.x - m.pos.x) / tl; dz = (t.z - m.pos.z) / tl; } else m.nav = null; } // v0.15: follow a path round walls to the player
+        const px = m.pos.x, pz = m.pos.z; if (W.heightAt(m.pos.x + dx, m.pos.z + dz) > -1.2 || m.pos.y < -30) W.moveCircle(m.pos, dx * speed * dt, dz * speed * dt, 0.35, 1.7);
+        if (Math.hypot(m.pos.x - px, m.pos.z - pz) < speed * dt * 0.3) { W.moveCircle(m.pos, -dz * speed * dt, dx * speed * dt, 0.35, 1.7); if ((m.stuckT = (m.stuckT || 0) + dt) > 0.5) { m.stuckT = 0; if (replan(W, m, P.pos)) G.navStats.ok++; else G.navStats.fail++; } } else m.stuckT = 0;
+        wantYaw = Math.atan2(dx, dz);
+      }
       else if (!fighting) wantYaw = P.yaw + Math.PI + (m.off[0] > 0 ? -0.5 : 0.5);
       m.pos.y = damp(m.pos.y, W.groundAt(m.pos.x, m.pos.z, m.pos.y + 0.6), 14, dt);
       // targeting
