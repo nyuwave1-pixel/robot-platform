@@ -73,7 +73,14 @@ GitHub 저장소 페이지 → **Code → Codespaces → 브랜치 선택 후 Cr
 `.devcontainer/devcontainer.json` 설정대로 Node 22·Python 3.13·bpy(Blender 모듈)가 자동 설치되고,
 `npm run dev` 를 실행하면 포트 5180이 브라우저로 열립니다.
 
-## 7. Claude Code로 작업
+## 7. 웹 배포 (바로 플레이 주소)
+
+- 공개 주소: **https://special-soldier.vercel.app** (Vercel 프로젝트 `special-soldier`, 팀 parkjong-s-projects)
+- 설정: `apps/special-soldier/vercel.json` (루트 `vercel.json` 은 Next.js 앱용이므로 이 파일이 있어야 출력 폴더가 `dist` 로 잡힙니다)
+- 이 프로젝트는 Git 자동 배포가 연결돼 있지 않습니다. 새 버전을 올리려면 Vercel 대시보드 → special-soldier → Deployments → **Redeploy**, 또는 Claude에게 "Vercel 재배포"를 요청하세요.
+- `*-parkjong-s-projects.vercel.app` 주소는 Vercel 로그인(팀 보호)이 필요합니다. 공유는 위 공개 주소를 쓰세요.
+
+## 8. Claude Code로 작업
 
 - **PC에서**: 이 폴더에서 `claude` (다른 기기에서도 보려면 `claude remote-control`).
 - **클라우드에서**: claude.ai/code 새 세션 → 환경 **robot-platform** 선택(시작 시 Blender 모듈과 패키지 자동 설치).

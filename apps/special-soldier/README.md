@@ -9,6 +9,10 @@
 > - UE5 본 제작으로 옮기기 위한 설계는 [`docs/UE5_ARCHITECTURE.md`](docs/UE5_ARCHITECTURE.md) 에 있으며, **설계 문서일 뿐 구현물이 아닙니다.**
 > - 멀티플레이어는 구현되어 있지 않습니다(메뉴에 설계 상태만 표시).
 
+## 바로 플레이
+
+**https://special-soldier.vercel.app** — 설치 없이 PC 브라우저(Chrome·Edge, WebGL2)에서 실행됩니다. 클릭하면 마우스가 잠기고 조작이 시작됩니다.
+
 ## 실행
 
 > **다른 PC에서 처음 세팅한다면** → [`SETUP.md`](SETUP.md) (Windows·macOS·Linux 자동 세팅 스크립트, Codespaces)
