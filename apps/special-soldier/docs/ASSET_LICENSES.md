@@ -13,7 +13,7 @@
 | Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` | `tools/assets/build_audio.py` |
 | Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
-| Higgsfield 생성 캐릭터 (분대원) | 1 | Higgsfield 생성물 — 이용 조건은 Higgsfield 약관(Ultra 플랜 계정)을 따름 | 약관 확인 필요 | `src/assets/soldier_hf.glb` | Higgsfield `gpt_image_2_6` → `image_to_3d`(Meshy) → `tools/blender/hf_soldier.py` |
+| Higgsfield 생성 캐릭터 (분대원 + 적 6종) | 7 | Higgsfield 생성물 — 이용 조건은 Higgsfield 약관(Ultra 플랜 계정)을 따름 | 약관 확인 필요 | `src/assets/soldier_hf*.glb` | Higgsfield `gpt_image_2_6` → `image_to_3d`(Meshy) → `tools/blender/hf_soldier.py` |
 
 CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/credits.js`)이 생겨 이제 game-icons.net 같은 CC-BY 에셋을 넣을 수 있다 — 넣을 때 이 대장과 credits.js 둘 다에 적는다(`tests/credits.test.mjs` 가 검사).
 
@@ -51,3 +51,9 @@ CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/cr
 Mixamo, Fab Standard License, Sonniss GDC 번들, Sketchfab Standard/NC/ND, OpenGameArt CC-BY-SA — 이유는 `ASSET_RESEARCH.md` §1.
 원본 에셋을 게임 빌드 밖에서 재배포·재판매하지 않는다.
 | SoldierHF (분대원 캐릭터) | Higgsfield: 디자인 이미지 job aeeef013…, 3D job 415c12a2… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 9325457879c16c1c… (13.9 MB, 저장소에 넣지 않음) | 분대원 REAPER·NOMAD·ATLAS, 보트 시네마틱 대원 — 컨셉 이미지 `tools/assets/higgsfield/operator_concept.png` |
+| SoldierHF guard | Higgsfield: 디자인 job f9202465…, 3D job d0a514d6… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB d5cd693155f8b0fe… (저장소에 넣지 않음) | 적 guard — 컨셉 `tools/assets/higgsfield/guard_concept.png` |
+| SoldierHF assault | Higgsfield: 디자인 job 1a685daa…, 3D job 0c87af01… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 657e39d994ee7e0b… (저장소에 넣지 않음) | 적 assault — 컨셉 `tools/assets/higgsfield/assault_concept.png` |
+| SoldierHF sniper | Higgsfield: 디자인 job 02a2b7c9…, 3D job 34d415f6… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 74936db33fd78dc3… (저장소에 넣지 않음) | 적 sniper — 컨셉 `tools/assets/higgsfield/sniper_concept.png` |
+| SoldierHF heavy | Higgsfield: 디자인 job dcb85696…, 3D job a12c8a85… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 6ac14d5da03c9ad8… (저장소에 넣지 않음) | 적 heavy — 컨셉 `tools/assets/higgsfield/heavy_concept.png` |
+| SoldierHF elite | Higgsfield: 디자인 job b4ea056a…, 3D job c0aba894… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 6dc9830747e07404… (저장소에 넣지 않음) | 적 elite — 컨셉 `tools/assets/higgsfield/elite_concept.png` |
+| SoldierHF boss | Higgsfield: 디자인 job 689a7102…, 3D job c12b532c… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB fdbfd82c1e31950a… (저장소에 넣지 않음) | 적 boss — 컨셉 `tools/assets/higgsfield/boss_concept.png` |
