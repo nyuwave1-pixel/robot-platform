@@ -160,6 +160,8 @@ export const GUIDES: Guide[] = [
       },
     ],
     faqs: [
+      // Search research 2026-11-21: "topical glutathione skincare", "glutathione with vitamin c".
+      { q: "What is glutathione in skincare?", a: "Glutathione is an antioxidant the body makes on its own. In skincare it is often paired with vitamin C for a brighter-looking complexion. The UNI&CORE Vita C 13.5 ampoule combines 13.5% pure vitamin C with glutathione and camu camu." },
       { q: "Can I use vitamin C and glutathione together?", a: "Yes. They are commonly combined in one formula, and both UNI&CORE vitamin C products contain glutathione alongside pure vitamin C." },
       { q: "Should I use them in the morning or at night?", a: "Either works. Many people prefer vitamin C in the morning under sunscreen. Follow your product's directions." },
       { q: "How long until I see results?", a: "It varies. In UNI&CORE's 7-day human application test of the Vita C 13.5 ampoule, skin glow improved by 35.6% (21 adults; individual results may vary)." },
