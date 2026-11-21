@@ -166,7 +166,7 @@ export async function knees({ page, sim, shot }) {
   await sim(0.4);
   const out = await page.evaluate(() => {
     const P = SS.player, poses = [{}, { walk: Math.PI / 2, moveK: 1 }, { walk: Math.PI * 1.5, moveK: 1 }, { walk: Math.PI, moveK: 1 }, { crouch: 1 }, { sit: true }];
-    window.__k = poses.map((o, i) => { const g = SS.dev.makeSoldier('assault'); SS.scene.add(g); const x = P.pos.x + (i - 2.5) * 0.95, z = P.pos.z - 3.4; g.position.set(x, SS.world.groundAt(x, z, P.pos.y + 1) + (o.sit ? 0.45 : 0), z); g.rotation.y = -Math.PI / 2; SS.dev.poseSoldier(g, o); return g; });
+    window.__k = poses.map((o, i) => { const g = SS.dev.makeSoldier(new URLSearchParams(location.search).get('kind') || 'assault'); SS.scene.add(g); const x = P.pos.x + (i - 2.5) * 0.95, z = P.pos.z - 3.4; g.position.set(x, SS.world.groundAt(x, z, P.pos.y + 1) + (o.sit ? 0.45 : 0), z); g.rotation.y = -Math.PI / 2; SS.dev.poseSoldier(g, o); return g; });
     const p = window.__k[4].userData.parts; return { shin: !!p.shinL, kneeL: +p.shinL.rotation.x.toFixed(2), kneeR: +p.shinR.rotation.x.toFixed(2) };
   });
   console.log('knees', JSON.stringify(out));

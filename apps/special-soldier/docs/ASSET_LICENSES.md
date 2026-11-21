@@ -13,6 +13,7 @@
 | Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` | `tools/assets/build_audio.py` |
 | Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
+| Higgsfield 생성 캐릭터 (분대원) | 1 | Higgsfield 생성물 — 이용 조건은 Higgsfield 약관(Ultra 플랜 계정)을 따름 | 약관 확인 필요 | `src/assets/soldier_hf.glb` | Higgsfield `gpt_image_2_6` → `image_to_3d`(Meshy) → `tools/blender/hf_soldier.py` |
 
 CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/credits.js`)이 생겨 이제 game-icons.net 같은 CC-BY 에셋을 넣을 수 있다 — 넣을 때 이 대장과 credits.js 둘 다에 적는다(`tests/credits.test.mjs` 가 검사).
 
@@ -49,3 +50,4 @@ CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/cr
 
 Mixamo, Fab Standard License, Sonniss GDC 번들, Sketchfab Standard/NC/ND, OpenGameArt CC-BY-SA — 이유는 `ASSET_RESEARCH.md` §1.
 원본 에셋을 게임 빌드 밖에서 재배포·재판매하지 않는다.
+| SoldierHF (분대원 캐릭터) | Higgsfield: 디자인 이미지 job aeeef013…, 3D job 415c12a2… | Higgsfield 생성 (사용자 계정) | Higgsfield 약관 | 2026-11-21 | 원본 GLB 9325457879c16c1c… (13.9 MB, 저장소에 넣지 않음) | 분대원 REAPER·NOMAD·ATLAS, 보트 시네마틱 대원 — 컨셉 이미지 `tools/assets/higgsfield/operator_concept.png` |

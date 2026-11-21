@@ -153,3 +153,14 @@ Linux에서 헤드리스로 실행해 만들었습니다.
   이제 3자리 숫자 접미사도 제거한다. 확인: 게임에서 `SS.dev.buildGun(id)` → 모든 총기의 총구 길이·조준선 높이·왼손 위치가 Blender 마커 값으로 읽힘.
 - 전체 Cycles 렌더(48 샘플, 27샷)를 Windows CPU에서 다시 만들었다(`docs/screenshots/blender-*.jpg`).
 - 검증하지 못한 것: 실제 플레이에서 1인칭 조준선·총구 화염 위치가 바뀐 모습(브라우저 창이 숨겨져 스크린샷 불가), E2E 63종(이 PC에 Playwright 미설치).
+
+## Higgsfield 캐릭터 (2026-11-21)
+
+- 디자인: Higgsfield `gpt_image_2_6` 으로 전신 정면 컨셉 2장(1.5 크레딧) → 왼쪽 안 채택 (`tools/assets/higgsfield/operator_concept.png`).
+- 3D: Higgsfield `image_to_3d`(Meshy), 텍스처+PBR, 목표 1.6만 폴리곤 (30 크레딧). 원본 GLB 13.9 MB.
+- 게임용 변환: `python3 tools/blender/hf_soldier.py <원본.glb> src/assets/soldier_hf.glb [--yaw 도] [--tex 1024] [--render 미리보기.jpg]`
+  - 키 1.84 m로 맞추고 발을 z=0, 정면을 게임 정면(-Y)으로.
+  - 면 중심 높이로 가랑이(0.86 m)·무릎(0.52 m)에서 잘라 `legL/shinL/legR/shinR/upper` 로 나누고, 기존 `Soldier` 와 같은 피벗(`body`, `legL`, `shinL`, `upper`, `head`, `arms`, `gun`)에 붙인다 → `poseSoldier()` 가 그대로 걷기·무릎 꿇기·앉기를 적용.
+  - 텍스처는 1024 px JPEG로 줄여 1.4 MB, 16,638 tris.
+- 게임: `squad` 종류(분대원·보트 시네마틱)가 이 모델을 쓴다(`soldierFromHF`). 적 병사는 기존 Blender 모델.
+- 한계: 스키닝이 아니라 강체 분할이라 엉덩이·무릎을 크게 굽히면 이음매가 보일 수 있다. 팔·총은 상체에 붙어 있어 조준 각도에 따라 움직이지 않는다.

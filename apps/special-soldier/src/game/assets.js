@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import glbUrl from '../assets/assets.glb?inline';
+import hfSoldierUrl from '../assets/soldier_hf.glb?inline'; // Higgsfield (Meshy) image-to-3D operator, rigged to the game's pivots by tools/blender/hf_soldier.py
 
 const roots = new Map();
 export const ASSETS = { ready: false, tris: 0, count: 0 };
@@ -22,6 +23,8 @@ export async function loadAssets() {
     for (const o of [...gltf.scene.children]) { o.position.set(0, 0, 0); o.updateMatrixWorld(true); roots.set(o.name, o); o.traverse((m) => { if (m.isMesh) { ASSETS.tris += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; m.castShadow = true; m.receiveShadow = true; } }); }
     ASSETS.count = roots.size; ASSETS.ready = roots.size > 0;
   } catch (e) { console.warn('Blender assets unavailable, using procedural models:', e.message); }
+  try { const h = await new GLTFLoader().loadAsync(hfSoldierUrl); const r = h.scene.getObjectByName('SoldierHF') || h.scene; r.position.set(0, 0, 0); r.updateMatrixWorld(true); r.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; if (m.material) { m.material.side = THREE.FrontSide; } } }); ASSETS.hfSoldier = r; }
+  catch (e) { console.warn('Higgsfield soldier unavailable, using the Blender soldier:', e.message); }
   return ASSETS.ready;
 }
 /** Direct mesh primitives of a node (not those of child pivots). */

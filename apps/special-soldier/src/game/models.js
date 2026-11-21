@@ -91,7 +91,16 @@ function soldierTemplate(kind) {
   const gb = geometry('W_' + kit.gun, null, null, true), gf = geometry('W_' + kit.gun); if (gf) { const full = new THREE.Mesh(gf, GUN_MAT); full.name = 'lodFull'; full.castShadow = true; g.getObjectByName('gun').add(full); if (gb) { const base = new THREE.Mesh(gb, GUN_MAT); base.name = 'lodBase'; base.castShadow = true; base.visible = false; g.getObjectByName('gun').add(base); } }
   templates.set(kind, g); return g;
 }
+/** Squad operators use the textured Higgsfield (image-to-3D) character when it loaded: same pivot names, so poseSoldier() drives it. */
+function soldierFromHF(scale) {
+  const g = ASSETS.hfSoldier.clone(true); g.scale.setScalar(scale);
+  const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; o.castShadow = true; } });
+  const n = (k) => g.getObjectByName(k);
+  g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), shinL: n('shinL'), shinR: n('shinR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
+  return g;
+}
 function soldierFromAsset(kind, scale) {
+  if (kind === 'squad' && ASSETS.hfSoldier) return soldierFromHF(scale);
   const g = soldierTemplate(kind).clone(true); g.scale.setScalar(scale);
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
   const n = (k) => g.getObjectByName(k);
