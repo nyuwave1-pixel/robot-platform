@@ -27,3 +27,7 @@
 *.wav   binary
 *.mp4   binary
 *.webm  binary
+*.jpeg  binary
+*.zip   binary
+*.ttf   binary
+*.woff2 binary

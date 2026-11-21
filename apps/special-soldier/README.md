@@ -11,6 +11,8 @@
 
 ## 실행
 
+> **다른 PC에서 처음 세팅한다면** → [`SETUP.md`](SETUP.md) (Windows·macOS·Linux 자동 세팅 스크립트, Codespaces)
+
 ```bash
 cd apps/special-soldier
 npm install

@@ -32,7 +32,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
-| | | |
+| 클라우드 (Special Soldier) | `apps/special-soldier/{SETUP.md,scripts/,package.json}`, `.devcontainer/` — macOS/Linux/Codespaces 세팅, `npm run assets` | 2026-11-21 (이 커밋에서 완료) |
 
 ## 요청
 
