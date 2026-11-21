@@ -197,7 +197,7 @@ def skirt(body, arm, name, z_hem, flare, material, accent, posed=()):
         body_r = smooth(section(z)) if t < 0.9 else [0.0] * N
         # 아래로 갈수록 좁아지지 않게(엉덩이·허벅지가 뚫고 나오지 않게) 하고 단으로 갈수록 퍼지게 한다
         # 앞쪽(-Y, 서 있는 동작에서 허벅지가 앞으로 나온다)은 여유를 더 준다
-        cur = [max(pv, br + 0.055 + 0.065 * max(0.0, -math.sin(-math.pi + (k + 0.5) / N * 2 * math.pi))) * (1 + (flare - 1) / steps)
+        cur = [max(pv, br + 0.05 + 0.045 * max(0.0, -math.sin(-math.pi + (k + 0.5) / N * 2 * math.pi))) * (1 + (flare - 1) / steps)
                for k, (pv, br) in enumerate(zip(prev, body_r))]
         rows.append((z, cur))
         prev = cur
@@ -449,8 +449,8 @@ def build(gender):
     if gender == "female":  # 남성 체형은 게임에서 치마 대신 바지를 입는다
         posed = posed_points(body, arm)
         parts += [
-            skirt(body, arm, "SkirtShort", bone_z(arm, "calf_l") + 0.02, 1.35, outfit, accent, posed),
-            skirt(body, arm, "SkirtLong", 0.06, 1.75, outfit, accent, posed),
+            skirt(body, arm, "SkirtShort", bone_z(arm, "calf_l") + 0.02, 1.15, outfit, accent, posed),
+            skirt(body, arm, "SkirtLong", 0.06, 1.45, outfit, accent, posed),
         ]
     for p in parts:
         if p.name.startswith("Skirt"):
