@@ -1,0 +1,74 @@
+# 새 PC에서 게임 개발 환경 만들기
+
+어느 Windows PC에서든 같은 저장소·같은 도구 버전으로 이어서 작업하기 위한 순서입니다.
+도구 버전은 [`tools/dev-env/versions.json`](../../tools/dev-env/versions.json) 한 곳에서 관리합니다(현재 Unity 6000.6.9f1, Blender 5.3, Node 22+, Python 3.13).
+
+## 1. 저장소 받기
+
+```bash
+git clone https://github.com/nyuwave1-pixel/robot-platform.git C:\개발\robot-platform
+```
+
+```bash
+cd C:\개발\robot-platform
+```
+
+```bash
+git checkout claude/relaxed-ramanujan-83okpi
+```
+
+Git이 없으면 https://git-scm.com/download/win 에서 먼저 설치합니다. 폴더 위치는 자유지만, 홈 폴더 바로 아래 숨김 폴더(`.`으로 시작)는 피하세요(Claude 원격 연결이 막힙니다).
+
+## 2. 셋업 스크립트
+
+`tools\dev-env\setup.cmd` 를 더블클릭하면 **확인만** 합니다(아무것도 바꾸지 않음). 빠진 도구를 설치하려면:
+
+```bash
+powershell -ExecutionPolicy Bypass -File tools\dev-env\setup.ps1 -Install
+```
+
+| 단계 | 하는 일 |
+|---|---|
+| Git · Node.js · Python | 없으면 winget으로 설치(항목마다 묻고 진행) |
+| Blender | `BLENDER_EXE` → `C:\Program Files\Blender Foundation\Blender 5.3\` 순서로 찾고, 없으면 winget 설치. 버전이 5.3이 아니면 경고 |
+| Unity Hub · Editor | Hub가 없으면 winget 설치 → Hub 헤드리스 CLI로 Unity 6000.6.9f1 + Windows IL2CPP·WebGL 모듈 설치 시도 |
+| 프로젝트 의존성 | `apps\special-soldier` 에서 `npm ci` |
+| 경로 저장 | 찾은 경로를 사용자 환경변수 `BLENDER_EXE`, `UNITY_EDITOR` 에 저장 → 모든 스크립트가 이 값을 씀 |
+| Unity 라이선스 | 배치 모드로 확인만 함 |
+
+이미 설치된 프로그램은 지우거나 업그레이드하지 않습니다. 결과는 표로 출력되고, 필수 항목이 모두 OK면 `All required tools are ready.` 가 나옵니다.
+
+## 3. 직접 해야 하는 것 (자동화 불가)
+
+1. **Unity 라이선스:** Unity Hub → 오른쪽 위 계정 아이콘에서 로그인 → 톱니바퀴(Preferences) → Licenses → Add → 무료 Personal 라이선스.
+   에디터를 따로 설치했다면 Hub → Installs → Locate 로 `Unity.exe` 를 등록합니다.
+2. **Claude 앱:** Claude 데스크톱 앱을 설치하고 같은 계정으로 로그인합니다. 클라우드 세션에서 이 PC를 쓰려면 Settings → Claude Code → Remote Control 에 이 폴더를 추가합니다.
+3. **GitHub 푸시 권한:** 첫 `git push` 때 뜨는 GitHub 로그인 창에서 로그인합니다.
+
+## 4. 동작 확인
+
+```bash
+powershell -ExecutionPolicy Bypass -File apps\special-soldier\tools\blender\build.ps1 -NoRender
+```
+
+```bash
+cd apps\special-soldier
+```
+
+```bash
+npm test
+```
+
+```bash
+powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
+```
+
+Blender 빌드는 에셋 51종 이상과 `src\assets\assets.glb` 를 만들고, Unity 배치는 라이선스가 활성화된 뒤에만 됩니다(`docs/game-dev/UNITY_SETUP.md`).
+
+## 5. 여러 PC에서 함께 작업할 때
+
+- 시작 전 `git pull`, 끝나면 커밋·푸시. 같은 파일을 동시에 고칠 때는 [`STUDIO_HUB.md`](STUDIO_HUB.md) "작업 중" 표에 먼저 적습니다.
+- 줄바꿈·바이너리 처리는 루트 `.gitattributes` 가 맞춰 줍니다(PowerShell은 CRLF, 나머지는 LF, GLB·blend·이미지·소리는 바이너리).
+- PC마다 다른 경로는 환경변수(`BLENDER_EXE`, `UNITY_EDITOR`)로만 다룹니다. 스크립트에 경로를 직접 쓰지 마세요.
+- Unity `Library/`, 빌드 결과물, Asset Store 에셋은 커밋하지 않습니다(`apps/unity-studio/.gitignore`).
+- 무료 에셋 규칙은 [`.claude/skills/free-asset-pipeline/SKILL.md`](../../.claude/skills/free-asset-pipeline/SKILL.md) — 새 PC의 Claude Code도 이 저장소를 열면 자동으로 읽습니다.

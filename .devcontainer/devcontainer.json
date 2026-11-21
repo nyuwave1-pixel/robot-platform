@@ -1,0 +1,12 @@
+{
+  "name": "robot-platform (SPECIAL SOLDIER)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.13" }
+  },
+  "containerEnv": { "ELECTRON_SKIP_BINARY_DOWNLOAD": "1" },
+  "postCreateCommand": "cd apps/special-soldier && npm ci && pip install --user bpy==5.3.0",
+  "forwardPorts": [5180, 5181],
+  "portsAttributes": { "5180": { "label": "SPECIAL SOLDIER (dev)", "onAutoForward": "openBrowser" } },
+  "customizations": { "vscode": { "extensions": ["ms-python.python"] } }
+}
