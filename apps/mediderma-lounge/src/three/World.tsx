@@ -29,7 +29,7 @@ export function World() {
   const [auto, setAuto] = useState<"low" | "high">(() => (typeof navigator !== "undefined" && /Android|iPhone|iPad/i.test(navigator.userAgent) ? "low" : "high"));
   // 그래픽 컨텍스트가 죽으면(메모리 부족 등) 낮은 품질로 캔버스를 다시 만든다
   const [lost, setLost] = useState(0);
-  const lostRef = useRef(false);
+  const lostRef = useRef(0);
   const q = lost ? "low" : quality === "auto" ? auto : quality;
   const plaza = useUI((s) => s.world === "plaza");
   const wrap = useRef<HTMLDivElement>(null);
@@ -49,12 +49,12 @@ export function World() {
           if (dbg) { dbg.gl = gl; dbg.scene = scene; dbg.camera = camera; } // ?debug 일 때 렌더러 통계·장면 점검용
           gl.domElement.addEventListener("webglcontextlost", (e) => {
             // 캔버스를 내릴 때 R3F 가 일부러 컨텍스트를 버리는 경우는 무시하고, 복구는 한 번만 시도한다
-            if (!gl.domElement.isConnected || lostRef.current) return;
-            lostRef.current = true;
+            if (!gl.domElement.isConnected || lostRef.current >= 3) return;
+            lostRef.current += 1;
             e.preventDefault();
             setLost((n) => n + 1);
             useUI.getState().toast(useGame.getState().settings.lang === "ko" ? "그래픽을 가볍게 바꿔 다시 불러왔어요" : "Graphics reloaded at a lighter setting");
-          }, { once: true });
+          }, { once: true }); // 새 캔버스마다 다시 붙는다 (최대 3번 복구)
         }}
       >
         <color attach="background" args={["#f6e1e7"]} />
@@ -73,10 +73,25 @@ export function World() {
         <Suspense fallback={null}>
           <Scene q={q} />
         </Suspense>
-        {q === "high" && <Fx />}
+        {q === "high" ? <Fx /> : <PlainRender />}
       </Canvas>
     </div>
   );
+}
+
+/**
+ * 후처리 없이 그릴 때 렌더러 상태를 기본값으로 되돌린다.
+ * EffectComposer 는 켜져 있는 동안 autoClear 를 끄는데, 품질이 high → low 로 바뀌어 빠질 때
+ * 그대로 남으면 화면이 지워지지 않아 잔상이 남고 하늘색으로 뒤덮인다 (자동 품질이 오갈 때 광장이 깨지던 원인).
+ */
+function PlainRender() {
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    gl.autoClear = true;
+    gl.setRenderTarget(null);
+  }, [gl]);
+  useFrame(() => { if (!gl.autoClear) gl.autoClear = true; });
+  return null;
 }
 
 /** 후처리 체인 (고품질 전용): AO → 피사계 심도 → 블룸 → 색 보정 → 톤매핑 → 비네트 → AA */
@@ -124,6 +139,17 @@ function Scene({ q }: { q: "low" | "high" }) {
     if (away) { input.playerPos.x = 0; input.playerPos.z = L.d / 2 - 3.6; input.playerYaw = Math.PI; input.cam.yaw = 0; input.moveTarget = null; }
     if (world === "plaza") { input.playerPos.x = 0; input.playerPos.z = 8.5; input.playerYaw = Math.PI; input.cam.yaw = 0; input.moveTarget = null; }
   }, [L, away, world]);
+  // 장소(라운지·방문·광장)가 바뀌면 카메라를 기본값으로 되돌리고 다음 프레임에 바로 옮긴다
+  // (이전 장소의 카메라 위치·시술 시점에서 보간하다 하늘만 비추는 일이 없게)
+  const place = world === "plaza" ? "plaza" : away ? `away:${visiting ?? ""}:${shop?.code ?? ""}` : "home";
+  const lastPlace = useRef(place);
+  useEffect(() => {
+    if (lastPlace.current === place) return;
+    lastPlace.current = place;
+    input.cam.pitch = 0.38; input.cam.dist = 6.2; snapCam.now = true;
+    const ui = useUI.getState();
+    if (ui.mode === "edit" || ui.mode === "photo") useUI.setState({ mode: "explore" });
+  }, [place]);
 
   const onFloor = (x: number, z: number) => {
     const ui = useUI.getState();
@@ -329,6 +355,10 @@ function ZoneMarkers({ L, hidden }: { L: Layout; hidden: boolean }) {
 }
 
 // ───────────── 카메라 ─────────────
+/** 다음 프레임에 카메라를 보간 없이 목표 위치로 옮긴다 */
+const snapCam = { now: false };
+const finite = (v: THREE.Vector3) => Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
+
 function CameraRig({ L }: { L: Layout }) {
   const { camera } = useThree();
   const target = useRef(new THREE.Vector3(0, 1, 0));
@@ -386,10 +416,21 @@ function CameraRig({ L }: { L: Layout }) {
       want.x = THREE.MathUtils.clamp(want.x, -L.w / 2 + 0.35, L.w / 2 - 0.35);
       want.z = THREE.MathUtils.clamp(want.z, -L.d / 2 + 0.35, L.d / 2 - 0.35);
     }
+    // 입력이 망가져(NaN 등) 카메라가 엉뚱한 곳을 비추면 기본 시점으로 복구
+    if (!finite(want) || !finite(wantT)) {
+      c.pitch = 0.38; c.dist = 6.2; if (!Number.isFinite(c.yaw)) c.yaw = 0;
+      if (!Number.isFinite(p.x) || !Number.isFinite(p.z)) { p.x = 0; p.z = 0; }
+      return;
+    }
+    if (snapCam.now || !finite(camera.position) || !finite(target.current) || camera.position.distanceTo(want) > 40) {
+      snapCam.now = false; k = 1; camera.up.set(0, 1, 0);
+    }
     camera.position.lerp(want, k);
     target.current.lerp(wantT, k);
     camFocus.copy(target.current);
-    camera.up.lerp(wantUp, k).normalize();
+    camera.up.lerp(wantUp, k);
+    if (camera.up.lengthSq() < 1e-6 || !finite(camera.up)) camera.up.set(0, 1, 0);
+    camera.up.normalize();
     camera.lookAt(target.current);
   });
   return null;
