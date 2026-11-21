@@ -92,15 +92,15 @@ function soldierTemplate(kind) {
   templates.set(kind, g); return g;
 }
 /** Squad operators use the textured Higgsfield (image-to-3D) character when it loaded: same pivot names, so poseSoldier() drives it. */
-function soldierFromHF(scale) {
-  const g = ASSETS.hfSoldier.clone(true); g.scale.setScalar(scale);
+function soldierFromHF(kind, scale) {
+  const g = ASSETS.hf[kind].clone(true); g.scale.setScalar(scale);
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; o.castShadow = true; } });
   const n = (k) => g.getObjectByName(k);
   g.userData.parts = { body: n('body'), legL: n('legL'), legR: n('legR'), shinL: n('shinL'), shinR: n('shinR'), upper: n('upper'), head: n('head'), arms: n('arms'), gun: n('gun'), meshes };
   return g;
 }
 function soldierFromAsset(kind, scale) {
-  if (kind === 'squad' && ASSETS.hfSoldier) return soldierFromHF(scale);
+  if (ASSETS.hf && ASSETS.hf[kind]) return soldierFromHF(kind, scale);
   const g = soldierTemplate(kind).clone(true); g.scale.setScalar(scale);
   const meshes = []; g.traverse((o) => { if (o.isMesh) { meshes.push(o); o.userData.mat = o.material; } });
   const n = (k) => g.getObjectByName(k);
