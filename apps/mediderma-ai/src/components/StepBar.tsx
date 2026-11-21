@@ -7,23 +7,22 @@ export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
   const steps = t.flow.steps;
   return (
     <nav aria-label={t.flow.label} className="mx-auto max-w-3xl px-4 pt-5" data-testid="step-bar" data-current={current}>
-      <ol className="flex items-center">
+      {/* 칸 너비를 똑같이 나누고 이름은 칸 안에서 줄바꿈: 긴 언어(러시아어·베트남어·스페인어)에서도 눌리거나 겹치지 않는다 */}
+      <ol className="grid" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}>
         {steps.map((s, i) => {
           const done = i < current;
           const cur = i === current;
           return (
-            <li key={s} className="flex flex-1 items-center last:flex-none" aria-current={cur ? "step" : undefined}>
-              <span className="flex flex-col items-center gap-1">
-                <span
-                  className={`flex h-9 w-9 items-center justify-center rounded-full text-base font-bold transition ${
-                    cur ? "bg-scan2 text-ink shadow-glow" : done ? "bg-scan/30 text-scan2" : "border border-line text-silver/60"
-                  }`}
-                >
-                  {done ? "✓" : i + 1}
-                </span>
-                <span className={`whitespace-nowrap text-xs sm:text-sm ${cur ? "font-semibold text-white" : "text-silver/70"}`}>{s}</span>
+            <li key={s} className="relative flex flex-col items-center gap-1 px-0.5" aria-current={cur ? "step" : undefined}>
+              {i > 0 && <span aria-hidden className={`absolute top-[17px] h-0.5 rounded ${i <= current ? "bg-scan/60" : "bg-line"}`} style={{ left: "calc(-50% + 24px)", right: "calc(50% + 24px)" }} />}
+              <span
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full text-base font-bold transition ${
+                  cur ? "bg-scan2 text-ink shadow-glow" : done ? "bg-scan/30 text-scan2" : "border border-line text-silver/60"
+                }`}
+              >
+                {done ? "✓" : i + 1}
               </span>
-              {i < steps.length - 1 && <span className={`mx-1.5 mb-5 h-0.5 flex-1 rounded ${i < current ? "bg-scan/60" : "bg-line"}`} />}
+              <span className={`text-center text-[11px] leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver/70"}`}>{s}</span>
             </li>
           );
         })}

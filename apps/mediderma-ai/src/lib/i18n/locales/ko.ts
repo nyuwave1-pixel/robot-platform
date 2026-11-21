@@ -6,7 +6,7 @@
 const ko = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "당신의 피부를 분석하고, 나에게 맞는 더마홈 케어를 발견하다.",
     start: "피부 분석 시작",
@@ -29,11 +29,16 @@ const ko = {
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK 모드 — 실제 AI 분석 결과가 아닙니다.",
   },
-  nav: { analyze: "피부 분석", compare: "전후 비교", history: "변화 기록", privacy: "개인정보 안내", dermahome: "더마홈", trial: "무료 체험 예약" },
+  nav: { analyze: "피부 분석", compare: "전후 비교", history: "변화 기록", privacy: "개인정보 안내", dermahome: "더마홈", trial: "무료 체험 예약", menu: "메뉴" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
+    tagline: "당신의 피부를 이해하는 새로운 방식.",
+    exploreTech: "더마홈 기술 보기",
+    oneDevice: "하나의 기기, 세 가지 기술",
+    officialImage: "공식 제품 이미지",
+    techVisualNote: "배경 그래픽은 기술을 설명하기 위한 연출이며, 실제 기기의 작동 모습이 아닙니다.",
     desc: "회원가입 없이 얼굴 사진 한 장으로. 13개 얼굴 영역의 피부 표면 특징을 관찰하고, 더마홈 RF · 울트라소닉 · 이온토포레시스 맞춤 케어를 안내합니다.",
     onDeviceBadge: "사진은 내 기기 안에서만 처리됩니다",
     uploadTitle: "사진을 올려 바로 시작하세요",
@@ -348,7 +353,7 @@ const ko = {
     scan: {"title": "AI가 피부를 정밀 분석하고 있어요", "steps": ["얼굴 478개 포인트 인식", "13개 피부 영역 나누기", "피부결·주름 측정", "모공·잡티 측정", "피부 톤 균일감 분석", "맞춤 케어 매칭"], "privacy": "사진은 이 기기 안에서만 분석됩니다"},
     hero: {"scoreLabel": "피부 컨디션", "sentence": "사진으로 본 피부 컨디션은 100점 기준 {n}점이에요.", "skinType": "피부 타입", "age": "연령대", "makeupWarn": "화장을 한 상태로 찍어 결과가 덜 정확할 수 있어요.", "types": {"dry": "건성", "normal": "중성", "oily": "지성", "combination": "복합성"}, "note": "AI가 사진에서 관찰한 참고 지수이며, 의학적 진단이 아닙니다."},
     cards: {"title": "피부 세부 정보", "tapHint": "카드를 누르면 자세한 설명이 나와요.", "badges": ["관리 필요", "조금 아쉬움", "좋음", "훌륭함"], "whereLabel": "가장 눈에 띈 곳", "close": "닫기"},
-    share: {"button": "결과 공유하기", "copied": "공유할 내용을 복사했어요. 카카오톡 등에 붙여넣기 하세요.", "text": "[MEDIDERMA AI 피부 분석]\n피부 컨디션 {score}점\n먼저 관리할 곳: {weak}\n추천 제품: {products}\n나도 분석해 보기 👉 {url}"},
+    share: {"button": "결과 공유하기", "copied": "공유할 내용을 복사했어요. 카카오톡 등에 붙여넣기 하세요.", "text": "[MEDIDERMA AI SKIN SCORE]\n피부 컨디션 {score}점\n먼저 관리할 곳: {weak}\n추천 제품: {products}\n나도 분석해 보기 👉 {url}"},
   },
   care: {
     title: "더마홈 맞춤 케어",
