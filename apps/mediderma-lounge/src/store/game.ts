@@ -10,6 +10,12 @@ import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
 
+/** Higgsfield 로 디자인한 완성형 캐릭터 (옷·헤어가 텍스처에 구워져 있다) */
+export const DESIGNED_BODIES = ["signature", "guest_mint", "guest_lavender", "guest_coral", "guest_gentle"] as const;
+export type DesignedBody = (typeof DESIGNED_BODIES)[number];
+/** 손님·광장 NPC 로 쓰는 디자인 캐릭터 */
+export const GUEST_BODIES: DesignedBody[] = ["guest_mint", "guest_lavender", "guest_coral", "guest_gentle"];
+
 export interface Look {
   skin: string; hairColor: string; eyeColor: string; lipColor: string;
   face: string; eyes: string; brows: string; pose: string;
@@ -19,7 +25,7 @@ export interface Look {
   /** 등급 장식을 숨길지 (기본: 표시) */
   hideRank?: boolean;
   /** 실사 스타일의 체형 (기본: 여성) */
-  body?: "female" | "male" | "signature";
+  body?: "female" | "male" | DesignedBody;
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
 }
 export const DEFAULT_LOOK: Look = {

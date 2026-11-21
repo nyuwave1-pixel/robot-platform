@@ -14,6 +14,7 @@ import { LANGS, useL, useT } from "../i18n";
 import { Chips, StyleChips, Swatches } from "./Screens";
 import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
+import { EventsPanel } from "./Events";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -28,7 +29,7 @@ export function Sheet({ title, children, wide }: { title: string; children: Reac
     </div>
   );
 }
-const Tabs = <T extends string>({ tabs, value, onPick }: { tabs: [T, string][]; value: T; onPick: (v: T) => void }) => (
+export const Tabs = <T extends string>({ tabs, value, onPick }: { tabs: [T, string][]; value: T; onPick: (v: T) => void }) => (
   <div className="sticky top-0 z-10 -mx-1 mb-2 flex gap-1 overflow-x-auto bg-white/95 px-1 py-1">
     {tabs.map(([id, label]) => <button key={id} onClick={() => onPick(id)} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${value === id ? "bg-ink text-cream" : "bg-ink/5 text-ink/60"}`}>{label}</button>)}
   </div>
@@ -54,6 +55,7 @@ export function PanelHost() {
       {panel === "pets" && <Sheet title="LOUNGE PETS"><PetsBody /></Sheet>}
       {panel === "rank" && <Sheet title="LOUNGE RANK"><RankBody /></Sheet>}
       {panel === "life" && <Sheet title="MY BEAUTY LIFE"><LifeBody /></Sheet>}
+      {panel === "events" && <EventsPanel />}
       {panel === "minigame" && <Sheet title="BEAUTY CARD MATCH"><MiniGameBody /></Sheet>}
       {consult && <ConsultModal id={consult} />}
     </>

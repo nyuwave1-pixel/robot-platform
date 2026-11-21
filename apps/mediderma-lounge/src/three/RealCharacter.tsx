@@ -10,7 +10,7 @@ import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { makeGLTFLoader } from "./gltf";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { FASHION_MAP } from "../data/game";
-import type { Look } from "../store/game";
+import { DESIGNED_BODIES, type Look } from "../store/game";
 import type { Anim } from "./Character";
 
 const cache = new Map<string, Promise<GLTF | null>>();
@@ -25,10 +25,14 @@ function load(url: string) {
 
 /** 게임 헤어 → 실사 헤어 메시 */
 export function realHair(hair: string, male: boolean) {
-  if (["hair-long", "hair-wave", "hair-hime", "hair-braid"].includes(hair)) return "Hair_Long";
-  if (["hair-bun", "hair-updo", "hair-space", "hair-pony", "hair-twin"].includes(hair)) return male ? "Hair_SimpleParted" : "Hair_Buns";
-  if (hair === "hair-pixie") return male ? "Hair_Buzzed" : "Hair_BuzzedFemale";
-  return "Hair_SimpleParted";
+  if (male) {
+    if (["hair-long", "hair-wave", "hair-hime", "hair-braid"].includes(hair)) return "Hair_Long";
+    if (hair === "hair-pixie") return "Hair_Buzzed";
+    return "Hair_SimpleParted";
+  }
+  // 여성: 짧게 붙는 SimpleParted·BuzzedFemale 은 멀리서 민머리처럼 보여 기본 헤어로 쓰지 않는다
+  if (["hair-bun", "hair-updo", "hair-space"].includes(hair)) return "Hair_Buns";
+  return "Hair_Long"; // 보브·롱·웨이브·트윈·포니·픽시 등은 어깨 길이 헤어
 }
 /** 의상 컷 → 보이는 옷 메시. 남성 체형은 치마 대신 바지를 입는다 */
 export function realOutfit(cut: string, male = false) {
@@ -72,17 +76,17 @@ function crown(rank: number) {
 
 export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0 }: { look: Look; growth: number; anim?: Anim; movingRef?: { current: boolean }; rank?: number }) {
   const male = look.body === "male";
-  const sig = look.body === "signature"; // 텍스처에 옷·헤어가 구워진 완성형 모델 — 색 바꾸기는 쓰지 않는다
+  const sig = (DESIGNED_BODIES as readonly string[]).includes(look.body ?? ""); // 텍스처에 옷·헤어가 구워진 완성형 모델 — 색 바꾸기는 쓰지 않는다
   const [src, setSrc] = useState<{ scene: THREE.Group; clips: THREE.AnimationClip[] } | null>(null);
   useEffect(() => {
     let on = true;
-    const files = sig ? ["./models/signature.glb"] : [`./models/real_${male ? "male" : "female"}.glb`, "./models/real_anims.glb"];
+    const files = sig ? [`./models/${look.body}.glb`] : [`./models/real_${male ? "male" : "female"}.glb`, "./models/real_anims.glb"];
     Promise.all(files.map(load)).then(([c, a]) => {
       const anims = sig ? c?.animations : a?.animations;
       if (on && c && anims) setSrc({ scene: c.scene, clips: anims });
     });
     return () => { on = false; };
-  }, [male, sig]);
+  }, [male, sig, look.body]);
 
   // 인스턴스마다 뼈대·재질을 복제한다 (같은 모델을 여러 캐릭터가 쓴다)
   const obj = useMemo(() => {
@@ -147,6 +151,11 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
   }, [obj, rank]);
 
   const mixer = useMemo(() => (obj ? new THREE.AnimationMixer(obj) : null), [obj]);
+  const fingers = useMemo(() => {
+    const out: [THREE.Object3D, THREE.Quaternion][] = [];
+    obj?.traverse((o) => { if (/^(index|middle|ring|pinky)_0[123]_[lr]$/.test(o.name)) out.push([o, o.quaternion.clone()]); });
+    return out;
+  }, [obj]);
   const actions = useMemo(() => {
     const out: Record<string, THREE.AnimationAction> = {};
     if (mixer && src) for (const clip of src.clips) out[clip.name] = mixer.clipAction(clip);
@@ -163,6 +172,8 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       cur.current = want;
     }
     mixer.update(Math.min(dt, 0.1));
+    // 동작 클립의 주먹 쥔 손가락을 풀어 부드러운 손으로 (손가락 뼈를 휴지 자세로 되돌림)
+    if (!sig) for (const [b, q] of fingers) b.quaternion.slerp(q, 0.85);
   });
 
   if (!obj) return null;
