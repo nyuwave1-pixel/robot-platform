@@ -2,7 +2,7 @@
 시그니처 캐릭터 (Higgsfield 로 디자인 → Meshy 이미지-3D·자동 리깅) → 게임용 GLB.
     .bl/bin/python tools/blender/build_signature.py
     npm run optimize:models
-원본: tools/assets/incoming/higgsfield_signature/ (fetch 는 tools/assets/fetch_signature.py)
+원본: tools/assets/source/higgsfield_signature/ (저장소에 포함 — 다시 내려받을 수 없는 자체 생성물)
   base.glb  : 메시 + 텍스처 + 24개 뼈 리그 + Idle
   walk.glb · sit.glb · wave.glb · dance.glb : 같은 모델을 같은 리거로 리깅한 동작 (뼈 이름이 같다)
 
@@ -16,7 +16,7 @@ import bpy
 from mathutils import Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "..", "assets", "incoming", "higgsfield_signature")
+SRC = os.path.join(HERE, "..", "assets", "source", "higgsfield_signature")
 OUT = os.path.abspath(os.path.join(HERE, "..", "..", "public", "models", "signature.glb"))
 CLIPS = {"base": "Idle", "walk": "Walk", "sit": "Sit", "wave": "Wave", "dance": "Dance"}
 HEIGHT = 1.65

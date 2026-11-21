@@ -11,7 +11,8 @@
     "docs:db": "node scripts/gen-product-db.mjs",
     "test": "vitest run",
     "smoke": "node scripts/smoke-check.mjs",
-    "optimize:models": "node tools/assets/optimize_models.mjs"
+    "optimize:models": "node tools/assets/optimize_models.mjs",
+    "setup": "node scripts/setup-check.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",
@@ -36,5 +37,8 @@
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
     "vitest": "^2.1.9"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

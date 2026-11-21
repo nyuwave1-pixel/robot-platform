@@ -6,6 +6,8 @@ UNI&CORE 제품과 DERMA HOME 디바이스로 캐릭터를 직접 케어해 5단
 독립 Vite 앱이다. 루트의 Next.js 로봇 플랫폼, `apps/unicore-birthday` 와 빌드·의존성을 공유하지 않는다.
 
 ## 실행
+> 다른 PC 에서 처음 받는다면 **[SETUP.md](SETUP.md)** 를 먼저 보세요 (설치 스크립트 · Blender 파이프라인 · 배포).
+
 ```bash
 cd apps/mediderma-lounge
 npm install
