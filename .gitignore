@@ -39,3 +39,7 @@ yarn-error.log*
 *.tsbuildinfo
 
 .vercel
+
+# Python bytecode (Blender scripts)
+__pycache__/
+*.pyc

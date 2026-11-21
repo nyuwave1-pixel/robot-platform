@@ -1,0 +1,8 @@
+{
+  "_comment": "Tool versions every PC should use for the game projects. Change here, not in scripts.",
+  "unity": "6000.6.9f1",
+  "blender": "5.3",
+  "node": "22",
+  "python": "3.13",
+  "repoBranch": "claude/relaxed-ramanujan-83okpi"
+}

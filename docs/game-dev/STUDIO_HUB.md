@@ -19,6 +19,8 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 ## 연결 규칙
 
+0. **새 PC는 [`NEW_PC_SETUP.md`](NEW_PC_SETUP.md)** 순서로 준비합니다(`tools/dev-env/setup.ps1`). 도구 버전은 `tools/dev-env/versions.json` 기준.
+
 1. **공유 지점은 Git 브랜치입니다.** SPECIAL SOLDIER는 `claude/relaxed-ramanujan-83okpi`. 작업 전 `git pull`, 작업 후 커밋·푸시.
    같은 파일을 두 세션이 동시에 고치지 않도록 아래 "작업 중" 표에 먼저 적습니다.
 2. **넘길 일은 이 문서의 "요청" 표에 적고 커밋**합니다(예: 클라우드 → PC: "Mixamo Rifle Idle/Walk/Run FBX 받아 `tools/assets/incoming/` 에").

@@ -3,7 +3,9 @@
 # 1) first open initialises the project (ProjectSettings, Packages), 2) adds URP + glTFast, 3) imports the shared GLB and
 # makes one Windows build. Logs go to apps\unity-studio\Logs\batch-*.log (git-ignored); each step prints its [Studio] lines.
 $ErrorActionPreference = 'Stop'
-$unity = 'C:\Program Files\Unity\Hub\Editor\6000.6.9f1\Editor\Unity.exe'
+. (Join-Path $PSScriptRoot '..\..\tools\dev-env\find-tools.ps1')
+$unity = Find-UnityEditor  # UNITY_EDITOR env var, else the pinned version in tools\dev-env\versions.json
+if (-not $unity) { throw "Unity $($script:DevEnvVersions.unity) not found. Run tools\dev-env\setup.ps1 or set UNITY_EDITOR." }
 $proj = Join-Path $PSScriptRoot '.'
 $logs = Join-Path $PSScriptRoot 'Logs'; New-Item -ItemType Directory -Force $logs | Out-Null
 function Step($name, $extra) {
