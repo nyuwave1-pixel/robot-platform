@@ -9,6 +9,8 @@ import { useL, useT } from "../i18n";
 import { Icon, type IconName } from "./Icon";
 import { petFx } from "../three/Pet";
 import { tune } from "../data/config";
+import { LiveBar, LiveLoungeSync, useEventBadge } from "./Events";
+import { useRoom } from "../net/room";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -57,6 +59,7 @@ export function Hud() {
   const pct = next ? Math.min(100, ((total - stage.need) / (next.need - stage.need)) * 100) : 100;
   const claimable = claimableCount(g);
   const daily = QUESTS.find((q) => q.daily && !questClaimed(g, q));
+  const evBadge = useEventBadge();
 
   // 등급이 오르면 한 번 알린다
   useEffect(() => {
@@ -105,6 +108,9 @@ export function Hud() {
               <button onClick={() => open("quests")} className="relative rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="quests">
                 <Icon n="quest" />{claimable > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-deep text-[12px] font-bold text-white">{claimable}</span>}
               </button>
+              <button onClick={() => open("events")} className="relative rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-ink shadow-sm backdrop-blur" aria-label="events" data-testid="events-btn">
+                <Icon n="party" /> <span className="hidden sm:inline">EVENT</span>{evBadge > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-deep text-[12px] font-bold text-white">{evBadge}</span>}
+              </button>
               <button onClick={() => open("life")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-ink shadow-sm backdrop-blur" aria-label="life" data-testid="life-btn"><Icon n="flower" /> <span className="hidden sm:inline">LIFE</span></button>
               <button onClick={() => open("profile")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="profile"><Icon n="profile" /></button>
               <button onClick={() => open("settings")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="settings"><Icon n="settings" /></button>
@@ -117,6 +123,9 @@ export function Hud() {
           )}
         </div>
       )}
+
+      <LiveLoungeSync />
+      {explore && !panel && world !== "plaza" && <LiveBar />}
 
       {/* 친구 라운지 방문 중 */}
       {visitingFriend && explore && <VisitBanner />}
@@ -272,6 +281,7 @@ function VisitBanner() {
   const t = useT();
   const visiting = useUI((s) => s.visiting);
   const shop = useUI((s) => s.shop);
+  const liveHost = useRoom((s) => !!s.host && s.code === shop?.code);
   const f = DEMO_FRIENDS.find((x) => x.id === visiting);
   const [liked, setLiked] = useState(false);
   if (shop)
@@ -279,7 +289,7 @@ function VisitBanner() {
       <div className="absolute bottom-6 left-1/2 z-30 flex w-[92%] max-w-md -translate-x-1/2 items-center gap-2 rounded-3xl bg-white/90 p-3 shadow-xl backdrop-blur">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-ink">{t("visit.title", { name: shop.name })}</p>
-          <p className="text-[12px] text-ink/50">{t("plaza.shopNote")}</p>
+          <p className="text-[12px] text-ink/50">{liveHost ? t("live.shopLive") : t("plaza.shopNote")}</p>
         </div>
         <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ shop: null, visiting: null, world: "plaza" })}>{t("plaza.toPlaza")}</button>
       </div>

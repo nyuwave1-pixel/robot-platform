@@ -1,0 +1,104 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { beforeEach, describe, expect, it } from "vitest";
+import { EVENT_HOST_DAILY, EVENT_REWARD_CAP, EVENT_VISIT_DAILY, LOUNGE_EVENTS, NOTICES, cleanEvents, isActive } from "../src/data/events";
+import { cleanEvent, cleanLobby } from "../src/net/room";
+import { useEvents } from "../src/store/events";
+import { DEFAULT_LOOK, useGame } from "../src/store/game";
+
+const g = () => useGame.getState();
+const ev = () => useEvents.getState();
+const today = new Date().toISOString().slice(0, 10);
+beforeEach(() => {
+  g().reset(); g().startNew("테스트", DEFAULT_LOOK);
+  useGame.setState({ coins: 10_000, gems: 0, stars: 0 });
+  useEvents.setState({ claimed: [], seen: [], open: true, hosting: null, daily: { date: today, hosted: 0, visits: 0, owners: [] } });
+});
+
+describe("공식 이벤트 (public/events.json)", () => {
+  it("배포되는 events.json 이 형식에 맞고 모두 읽힌다", () => {
+    const raw = JSON.parse(readFileSync(join(__dirname, "../public/events.json"), "utf8"));
+    const list = cleanEvents(raw);
+    expect(list.length).toBe(raw.events.length);
+    for (const e of list) expect(Date.parse(e.end)).toBeGreaterThan(Date.parse(e.start));
+  });
+  it("모르는 값·잘못된 날짜·과한 보상은 걸러 낸다", () => {
+    const list = cleanEvents({ events: [
+      { id: "ok-1", ko: "<b>이벤트</b>", start: "2026-01-01", end: "2026-02-01", color: "red", reward: { coins: 99999999, gems: -5 }, cta: "hack" },
+      { id: "BAD ID", ko: "x", start: "2026-01-01", end: "2026-02-01" },
+      { id: "no-date", ko: "x", start: "nope", end: "2026-02-01" },
+      { id: "reverse", ko: "x", start: "2026-03-01", end: "2026-02-01" },
+      { id: "ok-1", ko: "중복", start: "2026-01-01", end: "2026-02-01" },
+    ] });
+    expect(list.map((e) => e.id)).toEqual(["ok-1"]);
+    expect(list[0].ko).toBe("b이벤트/b");
+    expect(list[0].color).toBe("#e2718d");
+    expect(list[0].reward).toEqual({ coins: EVENT_REWARD_CAP.coins, gems: 0, stars: 0 });
+    expect(list[0].cta).toBeUndefined();
+    expect(cleanEvents("garbage")).toEqual([]);
+  });
+  it("기간 안에서만, 한 번만 보상을 받는다", () => {
+    const [e] = cleanEvents([{ id: "gift", ko: "선물", start: "2026-01-01T00:00:00Z", end: "2026-01-10T00:00:00Z", reward: { coins: 100, gems: 2 } }]);
+    expect(isActive(e, Date.parse("2026-01-05"))).toBe(true);
+    expect(ev().claimOfficial(e, Date.parse("2025-12-31"))).toBeNull();
+    expect(ev().claimOfficial(e, Date.parse("2026-01-05"))).toEqual({ coins: 100, gems: 2, stars: 0 });
+    expect(g().coins).toBe(10_100);
+    expect(g().gems).toBe(2);
+    expect(ev().claimOfficial(e, Date.parse("2026-01-06"))).toBeNull();
+    expect(g().coins).toBe(10_100);
+  });
+});
+
+describe("라운지 이벤트 · 공지", () => {
+  it("코인을 내고 열고, 하루 횟수와 중복 진행을 막는다", () => {
+    const t0 = Date.now();
+    const e = LOUNGE_EVENTS[0];
+    expect(ev().startLoungeEvent(e.id, t0)).toBe("ok");
+    expect(g().coins).toBe(10_000 - e.cost);
+    expect(ev().hosting?.until).toBe(t0 + e.minutes * 60_000);
+    expect(ev().startLoungeEvent(e.id, t0 + 1000)).toBe("busy");
+    for (let i = 1; i < EVENT_HOST_DAILY; i++) { ev().endLoungeEvent(); expect(ev().startLoungeEvent(e.id, t0)).toBe("ok"); }
+    ev().endLoungeEvent();
+    expect(ev().startLoungeEvent(e.id, t0)).toBe("limit");
+    expect(ev().startLoungeEvent(999, t0)).toBe("bad");
+    useEvents.setState({ daily: { date: today, hosted: 0, visits: 0, owners: [] } });
+    useGame.setState({ coins: 0 });
+    expect(ev().startLoungeEvent(e.id, t0)).toBe("money");
+  });
+  it("방문 혜택은 진행 중인 이벤트에서 라운지마다 하루 한 번, 하루 한도까지", () => {
+    const now = Date.now(), e = LOUNGE_EVENTS[0];
+    expect(ev().eventVisit("AAAAAA", e.id, now - 1, now)).toBeNull(); // 끝난 이벤트
+    expect(ev().eventVisit(g().friendCode, e.id, now + 60_000, now)).toBeNull(); // 내 라운지
+    expect(ev().eventVisit("AAAAAA", e.id, now + 9 * 3_600_000, now)).toBeNull(); // 말이 안 되는 종료 시각
+    expect(ev().eventVisit("AAAAAA", e.id, now + 60_000, now)).toEqual({ coins: e.coins, stars: e.stars });
+    expect(ev().eventVisit("AAAAAA", e.id, now + 60_000, now)).toBeNull();
+    for (let i = 1; i < EVENT_VISIT_DAILY; i++) expect(ev().eventVisit(`BBBBB${i}`, e.id, now + 60_000, now)).not.toBeNull();
+    expect(ev().eventVisit("CCCCCC", e.id, now + 60_000, now)).toBeNull();
+  });
+  it("공지 문구는 번호가 이어지고 ko/en 이 모두 있다", () => {
+    NOTICES.forEach((n, i) => { expect(n.id).toBe(i); expect(n.ko && n.en).toBeTruthy(); });
+  });
+});
+
+describe("오픈 라운지 네트워크 입력 검증", () => {
+  it("다른 사람이 보낸 이벤트는 아는 종류이고 곧 끝나는 것만", () => {
+    const now = 1_000_000;
+    expect(cleanEvent({ id: 1, until: now + 60_000 }, now)).toEqual({ id: 1, until: now + 60_000 });
+    expect(cleanEvent({ id: 77, until: now + 60_000 }, now)).toBeNull();
+    expect(cleanEvent({ id: 1, until: now - 1 }, now)).toBeNull();
+    expect(cleanEvent({ id: 1, until: now + 9e9 }, now)?.until).toBe(now + 2 * 3_600_000);
+    expect(cleanEvent("x", now)).toBeNull();
+  });
+  it("로비는 코드가 올바른 라운지만, 내 라운지·중복 없이, 이벤트 중인 곳부터", () => {
+    const now = 1_000_000;
+    const list = cleanLobby({
+      a: [{ code: "AAAAAA", name: "A", level: 2, guests: 5 }],
+      b: [{ code: "BBBBBB", name: "B", level: 99, guests: 1, ev: { id: 2, until: now + 1000 } }],
+      c: [{ code: "AAAAAA", name: "A2" }],
+      d: [{ code: "bad", name: "X" }],
+      e: [{ code: "MYCODE", name: "me" }],
+    }, "MYCODE", now);
+    expect(list.map((o) => o.code)).toEqual(["BBBBBB", "AAAAAA"]);
+    expect(list[0].level).toBe(10);
+  });
+});

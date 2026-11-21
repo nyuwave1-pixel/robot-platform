@@ -232,7 +232,7 @@ function PetalGame() {
 }
 
 // ───────────── 다른 플레이어 ─────────────
-function NameTag({ name, rank, y, say, sayAt }: { name: string; rank: number; y: number; say: number; sayAt: number }) {
+export function NameTag({ name, rank, y, say, sayAt }: { name: string; rank: number; y: number; say: number; sayAt: number }) {
   const t = useT();
   const [, tick] = useState(0);
   const talking = say >= 0 && Date.now() - sayAt < 4000;

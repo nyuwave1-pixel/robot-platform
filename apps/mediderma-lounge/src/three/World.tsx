@@ -19,6 +19,8 @@ import { Customers, npcPos } from "./Customers";
 import { PetActor, petPos } from "./Pet";
 import { Garden3D } from "./Garden3D";
 import { Curios3D } from "./Curios3D";
+import { LiveGuests } from "./LiveGuests";
+import { useRoom } from "../net/room";
 
 const lerp = THREE.MathUtils.lerp;
 /** 카메라가 바라보는 지점 — 피사계 심도의 초점 */
@@ -125,6 +127,8 @@ function Scene({ q }: { q: "low" | "high" }) {
   const hasCare = useUI((s) => !!s.care);
   const careMode = useUI((s) => (s.care && s.care.phase === "step" ? s.care.steps[s.care.step]?.mode ?? null : null));
   const shop = useUI((s) => s.shop);
+  // 방문한 라운지의 주인이 지금 접속해 있으면 실제 주인이 움직이므로 고정 인형은 숨긴다
+  const liveHost = useRoom((s) => !!s.host && s.role === "guest" && s.code === shop?.code);
   const friend = DEMO_FRIENDS.find((f) => f.id === visiting);
   const away = !!friend || !!shop;
   const level = shop ? shop.lounge.level : friend ? friend.level : lounge.level;
@@ -186,7 +190,8 @@ function Scene({ q }: { q: "low" | "high" }) {
         onFurniture={mode === "edit" && !away ? (uid) => useUI.setState({ selected: uid }) : undefined}
       />
       <Player L={L} />
-      {shop ? <ShopHost shop={shop} /> : friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
+      {shop ? (!liveHost && <ShopHost shop={shop} />) : friend ? <FriendHost friend={friend} /> : <Customers L={L} />}
+      {world !== "plaza" && <LiveGuests />}
       {!away && pets.map((p, i) => <PetActor key={p.id} pet={p} L={L} seed={i} />)}
       {!away && <Garden3D L={L} />}
       {!away && <Curios3D L={L} />}
