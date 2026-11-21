@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { CUSTOMER_NAMES, CUSTOMER_TYPES } from "../data/game";
-import { DEFAULT_LOOK, rankBonus, useGame, type Look } from "../store/game";
+import { DEFAULT_LOOK, GUEST_BODIES, rankBonus, useGame, type Look } from "../store/game";
 import { useUI, type Customer } from "../store/ui";
 import { Character, type Anim } from "./Character";
 import { Label } from "./Label";
@@ -50,7 +50,9 @@ export function Customers({ L }: { L: Layout }) {
 
 function Npc({ c, L, seed }: { c: Customer; L: Layout; seed: number }) {
   const type = CUSTOMER_TYPES.find((t) => t.id === c.type)!;
-  const look: Look = useMemo(() => ({ ...DEFAULT_LOOK, hair: type.look.hair, hairColor: type.look.hairColor, outfit: type.look.outfit, skin: type.look.skin, accessory: null, earring: "ear-pearl", bag: "bag-mini", shoes: "shoe-white" }), [type]);
+  // 실사형에서는 Higgsfield 로 디자인한 손님 4명 중 한 명으로 (손님마다 고정)
+  const look: Look = useMemo(() => ({ ...DEFAULT_LOOK, hair: type.look.hair, hairColor: type.look.hairColor, outfit: type.look.outfit, skin: type.look.skin, accessory: null, earring: "ear-pearl", bag: "bag-mini", shoes: "shoe-white",
+    body: GUEST_BODIES[[...c.id].reduce((a, ch) => a + ch.charCodeAt(0), seed) % GUEST_BODIES.length] }), [type, c.id, seed]);
   const g = useRef<THREE.Group>(null!);
   const pos = useRef({ x: L.entrance.x + (seed % 2 ? 0.4 : -0.4), z: L.d / 2 + 1.6 });
   const moving = useRef(false);

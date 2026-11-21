@@ -139,14 +139,14 @@ export function Preview({ look, growth, auto, rank, anim }: { look: Look; growth
 }
 
 /** 캐릭터 스타일(실사/귀여운 — 기기 설정) · 체형(여/남 — 룩) 선택 */
-export function StyleChips({ body, onBody }: { body?: "female" | "male" | "signature"; onBody: (b: "female" | "male" | "signature") => void }) {
+export function StyleChips({ body, onBody }: { body?: Look["body"]; onBody: (b: "female" | "male" | "signature") => void }) {
   const t = useT();
   const style = useGame((s) => s.settings.charStyle ?? "real");
   return (
     <>
       <Chips label={t("look.style")} values={["real", "chibi"] as ("real" | "chibi")[]} value={style} onPick={(v) => useGame.getState().setSettings({ charStyle: v })} render={(v) => t(`look.style.${v}`)} />
       {style === "real" && body === "signature" && <p className="mt-1 text-[12px] text-ink/50">{t("look.body.sigNote")}</p>}
-      {style === "real" && <Chips label={t("look.body")} values={["female", "male", "signature"] as ("female" | "male" | "signature")[]} value={body ?? "female"} onPick={onBody} render={(v) => t(`look.body.${v}`)} />}
+      {style === "real" && <Chips label={t("look.body")} values={["female", "male", "signature"] as ("female" | "male" | "signature")[]} value={body === "male" || body === "signature" ? body : "female"} onPick={onBody} render={(v) => t(`look.body.${v}`)} />}
     </>
   );
 }

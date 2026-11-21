@@ -1,8 +1,10 @@
 """
-시그니처 캐릭터 (Higgsfield 로 디자인 → Meshy 이미지-3D·자동 리깅) → 게임용 GLB.
-    .bl/bin/python tools/blender/build_signature.py
+Higgsfield 디자인 캐릭터 (이미지 → Meshy 이미지-3D·자동 리깅) → 게임용 GLB.
+    .bl/bin/python tools/blender/build_signature.py              # 전부
+    .bl/bin/python tools/blender/build_signature.py guest_mint   # 하나만
     npm run optimize:models
-원본: tools/assets/source/higgsfield_signature/ (저장소에 포함 — 다시 내려받을 수 없는 자체 생성물)
+원본: tools/assets/source/higgsfield_<이름>/ (저장소에 포함 — 다시 내려받을 수 없는 자체 생성물)
+  signature: 플레이어가 고르는 시그니처 / guest_*: 손님·광장 NPC
   base.glb  : 메시 + 텍스처 + 24개 뼈 리그 + Idle
   walk.glb · sit.glb · wave.glb · dance.glb : 같은 모델을 같은 리거로 리깅한 동작 (뼈 이름이 같다)
 
@@ -16,10 +18,10 @@ import bpy
 from mathutils import Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "..", "assets", "source", "higgsfield_signature")
-OUT = os.path.abspath(os.path.join(HERE, "..", "..", "public", "models", "signature.glb"))
+import sys
 CLIPS = {"base": "Idle", "walk": "Walk", "sit": "Sit", "wave": "Wave", "dance": "Dance"}
-HEIGHT = 1.65
+# 이름 → 키(m)
+CHARACTERS = {"signature": 1.65, "guest_mint": 1.65, "guest_lavender": 1.63, "guest_coral": 1.62, "guest_gentle": 1.76}
 
 
 def imported(path):
@@ -29,7 +31,10 @@ def imported(path):
     return [o for o in bpy.data.objects if o not in before], [a for a in bpy.data.actions if a not in acts]
 
 
-def main():
+def build(name):
+    HEIGHT = CHARACTERS[name]
+    SRC = os.path.join(HERE, "..", "assets", "source", f"higgsfield_{name}")
+    OUT = os.path.abspath(os.path.join(HERE, "..", "..", "public", "models", f"{name}.glb"))
     bpy.ops.wm.read_factory_settings(use_empty=True)
     objs, acts = imported(os.path.join(SRC, "base.glb"))
     for o in list(objs):  # 가져오기가 만드는 뼈 표시용 구(Icosphere)는 버린다 — 남기면 키 계산·내보내기에 섞인다
@@ -51,7 +56,7 @@ def main():
             a.name = clip
             a.use_fake_user = True
         for o in o2:
-            if o.name in bpy.data.objects:
+            if o in list(bpy.data.objects):
                 bpy.data.objects.remove(o)
     # 액션마다 NLA 트랙 하나 (glTF 에서 클립 이름이 된다)
     arm.animation_data_create()
@@ -94,7 +99,7 @@ def main():
         if img.size[0] > 1024:
             img.scale(1024, 1024)
     for m in bpy.data.materials:
-        m.name = "signature"
+        m.name = name
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(filepath=OUT, export_format="GLB", export_animations=True, export_animation_mode="NLA_TRACKS",
                               export_image_format="WEBP", export_image_quality=85, export_skins=True, export_yup=True)
@@ -102,7 +107,13 @@ def main():
     for o in meshes:
         o.data.calc_loop_triangles()
         tris += len(o.data.loop_triangles)
-    print(f"ASSET signature: {tris} tris, clips={sorted(a.name for a in bpy.data.actions)}, scale x{k:.3f}, {os.path.getsize(OUT) / 1024:.0f} KB")
+    print(f"ASSET {name}: {tris} tris, clips={sorted(a.name for a in bpy.data.actions)}, scale x{k:.3f}, {os.path.getsize(OUT) / 1024:.0f} KB")
+
+
+def main():
+    args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+    for name in args or list(CHARACTERS):
+        build(name)
 
 
 if __name__ == "__main__":

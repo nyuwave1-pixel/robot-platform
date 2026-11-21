@@ -10,7 +10,7 @@ import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { makeGLTFLoader } from "./gltf";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { FASHION_MAP } from "../data/game";
-import type { Look } from "../store/game";
+import { DESIGNED_BODIES, type Look } from "../store/game";
 import type { Anim } from "./Character";
 
 const cache = new Map<string, Promise<GLTF | null>>();
@@ -76,17 +76,17 @@ function crown(rank: number) {
 
 export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0 }: { look: Look; growth: number; anim?: Anim; movingRef?: { current: boolean }; rank?: number }) {
   const male = look.body === "male";
-  const sig = look.body === "signature"; // 텍스처에 옷·헤어가 구워진 완성형 모델 — 색 바꾸기는 쓰지 않는다
+  const sig = (DESIGNED_BODIES as readonly string[]).includes(look.body ?? ""); // 텍스처에 옷·헤어가 구워진 완성형 모델 — 색 바꾸기는 쓰지 않는다
   const [src, setSrc] = useState<{ scene: THREE.Group; clips: THREE.AnimationClip[] } | null>(null);
   useEffect(() => {
     let on = true;
-    const files = sig ? ["./models/signature.glb"] : [`./models/real_${male ? "male" : "female"}.glb`, "./models/real_anims.glb"];
+    const files = sig ? [`./models/${look.body}.glb`] : [`./models/real_${male ? "male" : "female"}.glb`, "./models/real_anims.glb"];
     Promise.all(files.map(load)).then(([c, a]) => {
       const anims = sig ? c?.animations : a?.animations;
       if (on && c && anims) setSrc({ scene: c.scene, clips: anims });
     });
     return () => { on = false; };
-  }, [male, sig]);
+  }, [male, sig, look.body]);
 
   // 인스턴스마다 뼈대·재질을 복제한다 (같은 모델을 여러 캐릭터가 쓴다)
   const obj = useMemo(() => {

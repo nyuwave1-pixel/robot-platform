@@ -9,7 +9,7 @@
 import { RealtimeClient, type RealtimeChannel } from "@supabase/realtime-js";
 import { create } from "zustand";
 import { FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS } from "../data/game";
-import { DEFAULT_LOOK, useGame, type Furniture, type Look } from "../store/game";
+import { DESIGNED_BODIES, type DesignedBody, DEFAULT_LOOK, useGame, type Furniture, type Look } from "../store/game";
 import { input } from "../store/ui";
 
 /** 공개(publishable) 키다. 브라우저에 노출되도록 만들어진 값이라 비밀이 아니다. */
@@ -63,7 +63,7 @@ export function cleanLook(v: unknown): Look {
     face: word(o.face, D.face), eyes: word(o.eyes, D.eyes), brows: word(o.brows, D.brows), pose: "stand",
     hair: item(o.hair, D.hair)!, outfit: item(o.outfit, D.outfit)!,
     height: typeof o.height === "number" ? Math.min(1.08, Math.max(0.92, o.height)) : 1,
-    body: o.body === "male" ? "male" : o.body === "signature" ? "signature" : "female",
+    body: o.body === "male" ? "male" : (DESIGNED_BODIES as readonly unknown[]).includes(o.body) ? (o.body as DesignedBody) : "female",
     accessory: item(o.accessory, null), earring: item(o.earring, null), necklace: item(o.necklace, null), bag: item(o.bag, null),
     shoes: item(o.shoes, null), makeup: item(o.makeup, null), nail: item(o.nail, null),
   };
