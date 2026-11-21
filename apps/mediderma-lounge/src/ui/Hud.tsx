@@ -91,7 +91,7 @@ export function Hud() {
               <span className="min-w-0 text-left">
                 <span className="block truncate text-xs font-black text-ink">{g.name} <span className="font-semibold text-pink-deep">Lv.{levelOf(total)}</span></span>
                 <span className="mt-0.5 flex items-center gap-1.5">
-                  <span className="text-[12px] font-bold tracking-wider text-gold">STAGE {g.stage}</span>
+                  <span className="whitespace-nowrap text-[12px] font-bold tracking-wider text-gold">STAGE {g.stage}</span>
                   <span className="block h-1.5 w-16 overflow-hidden rounded-full bg-pink-soft sm:w-24"><span className="block h-full rounded-full bg-gradient-to-r from-pink-deep to-gold transition-all" style={{ width: `${pct}%` }} /></span>
                 </span>
               </span>
@@ -187,21 +187,22 @@ function PlazaBar() {
   const label = pz.near === "fountain" ? (daily.wish ? null : t("plaza.wish")) : pz.near === "stage" ? t("plaza.petalStart") : pz.near === "stall" ? t("plaza.promoList") : null;
   return (
     <>
-      <div className="absolute left-1/2 top-[64px] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-4 pr-1.5 text-cream shadow-lg backdrop-blur">
-        <span className={`h-2 w-2 rounded-full ${pz.status === "online" ? "bg-emerald-400" : pz.status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
-        <p className="whitespace-nowrap text-xs font-bold">WORLD PLAZA · {pz.status === "online" ? t("plaza.online", { n: pz.ids.length + 1 }) : pz.status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
-        <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
+      {/* 휴대폰에서는 상단 바가 두 줄이 되므로 그 아래에 둔다. 좁아도 버튼 글자가 세로로 쪼개지지 않게 한 줄 고정 */}
+      <div className="absolute left-1/2 top-[108px] z-20 flex max-w-[calc(100%-16px)] -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-3 pr-1.5 text-cream shadow-lg backdrop-blur sm:top-[64px] sm:pl-4">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${pz.status === "online" ? "bg-emerald-400" : pz.status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
+        <p className="min-w-0 truncate whitespace-nowrap text-xs font-bold"><span className="hidden sm:inline">WORLD PLAZA · </span>{pz.status === "online" ? t("plaza.online", { n: pz.ids.length + 1 }) : pz.status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
+        <button className="btn-primary shrink-0 whitespace-nowrap !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
       </div>
 
       {/* 꽃잎 잡기 순위표 */}
       {pz.board.length > 0 && !pz.game && (
-        <div className="absolute right-2 top-[112px] z-10 w-40 rounded-2xl bg-white/85 p-2 shadow backdrop-blur">
+        <div className="absolute right-2 top-[156px] z-10 w-40 sm:top-[112px] rounded-2xl bg-white/85 p-2 shadow backdrop-blur">
           <p className="text-[12px] font-black tracking-wider text-pink-deep">PETAL CATCH TOP</p>
           {pz.board.map((b, i) => <p key={b.name} className="flex justify-between text-[12px] font-bold text-ink/70"><span className="truncate">{i + 1}. {b.name}</span><span>{b.s}</span></p>)}
         </div>
       )}
       {pz.game && (
-        <div className="absolute left-1/2 top-[112px] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-5 py-2 text-center text-white shadow-lg">
+        <div className="absolute left-1/2 top-[156px] z-20 sm:top-[112px] -translate-x-1/2 rounded-2xl bg-pink-deep px-5 py-2 text-center text-white shadow-lg">
           <p className="text-[12px] font-bold tracking-wider">PETAL CATCH · {Math.max(0, Math.ceil((pz.game.end - Date.now()) / 1000))}s</p>
           <p className="text-2xl font-black leading-tight">{pz.game.score}</p>
         </div>
