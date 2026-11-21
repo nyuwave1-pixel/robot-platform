@@ -25,7 +25,8 @@ npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 `dist/` 는 순수 정적 파일이고 `base: "./"` 로 빌드되어 어떤 하위 경로에도 올릴 수 있다.
 - Netlify: 이 폴더의 `netlify.toml` 사용 (base = `apps/mediderma-lounge`)
 - Vercel: 새 프로젝트의 Root Directory 를 `apps/mediderma-lounge` 로 지정 (Framework: Vite)
-- 루트 `vercel.json` 은 로봇 플랫폼용이므로 건드리지 않았다. **아직 어디에도 배포하지 않았다.**
+- 루트 `vercel.json` 은 로봇 플랫폼용이므로 건드리지 않았다.
+- 공개 주소: https://mediderma-lounge-parkjong-s-projects.vercel.app (Vercel 프로젝트 `mediderma-lounge`)
 
 ## 플레이 방법
 1. 새로 시작 → 캐릭터 이름·첫 모습 선택

@@ -1,7 +1,7 @@
 # 다른 PC 에서 개발 이어가기
 
 이 게임(`apps/mediderma-lounge`)은 GitHub 저장소 **nyuwave1-pixel/robot-platform** 의
-브랜치 **`claude/lucid-cerf-551j1k`** 에 모두 올라가 있습니다 (PR #32, 아직 main 에 합치지 않음).
+**`main`** 브랜치에 들어 있습니다 (PR #32 로 병합).
 
 ## 1. 필요한 프로그램
 
@@ -19,9 +19,7 @@
 
 ```bash
 git clone https://github.com/nyuwave1-pixel/robot-platform.git
-cd robot-platform
-git checkout claude/lucid-cerf-551j1k
-cd apps/mediderma-lounge
+cd robot-platform/apps/mediderma-lounge
 ```
 
 macOS · Linux · WSL:
@@ -65,12 +63,12 @@ Windows 에서는 `.bl/bin/python` 대신 `.\.bl\Scripts\python.exe` 를 씁니�
 
 ## 5. 배포
 
-Vercel 프로젝트 `mediderma-lounge` (Root Directory = `apps/mediderma-lounge`) 가 이 브랜치와 연결돼 있습니다.
+Vercel 프로젝트 `mediderma-lounge` (Root Directory = `apps/mediderma-lounge`) 로 배포합니다.
 공개 주소: https://mediderma-lounge-parkjong-s-projects.vercel.app
 Vercel 무료 플랜은 하루 배포 100회 제한이 있습니다 (같은 저장소에 연결된 다른 프로젝트들의 빌드도 함께 셉니다).
 
 ## 6. 작업 흐름 팁
 
-- 작업 전 `git pull`, 끝나면 `git add -A && git commit -m "..." && git push` — 두 PC 가 같은 브랜치를 쓰므로 항상 먼저 pull 하세요.
+- 작업 전 `git pull`, 끝나면 `git add -A && git commit -m "..." && git push` — 두 PC 가 같은 브랜치(main 또는 작업 브랜치)를 쓰면 항상 먼저 pull 하세요.
 - 저장소의 줄바꿈은 `.gitattributes` 로 LF 통일, 바이너리 에셋은 binary 로 지정돼 Windows 에서도 깨지지 않습니다.
 - 비밀 값(API 키 등)은 저장소에 올리지 말고 각 PC 의 `.env.local` 에 두세요 (`.gitignore` 에 포함).
