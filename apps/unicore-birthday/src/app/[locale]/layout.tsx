@@ -5,6 +5,7 @@ import { seo } from "@/data/seo";
 import { product } from "@/data/product";
 import { hreflangMap, isLocale, localeMeta, locales, type Locale } from "@/i18n/config";
 import { getDict } from "@/i18n/dict";
+import Analytics from "@/components/Analytics";
 
 /** 언어 세그먼트 — ko(/ 로 리라이트) · en · zh 만 정적 생성 */
 export const dynamicParams = false;
@@ -85,7 +86,7 @@ export default async function RootLayout({ children, params }: { children: React
         <link rel="preload" as="image" href="/media/posters/film_poster.webp" media="(min-width: 768px)" />
         <link rel="preload" as="image" href="/media/posters/film_portrait_poster.webp" media="(max-width: 767px)" />
       </head>
-      <body>{children}</body>
+      <body>{children}<Analytics /></body>
     </html>
   );
 }
