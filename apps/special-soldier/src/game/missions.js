@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { fmtTime, clamp } from '../core/util.js';
 import { POI } from '../world/build.js';
-import { FAC_Y } from '../world/world.js';
+import { FAC_Y, MAT } from '../world/world.js';
 import { ST } from './enemies.js';
 import { WEAPONS } from '../config/weapons.js';
 import { makeHeli } from './models.js';
@@ -12,6 +12,52 @@ import { makeHeli } from './models.js';
 const E = () => G.enemies, sp = (k, x, z, o) => G.enemies.spawn(k, x, z, o);
 const top = (x, z) => G.world.groundAt(x, z, 999);
 const wave = (list, group, tx, tz) => list.forEach(([k, x, z, y]) => { const e = sp(k, x, z, { group, squad: group, alert: true, y }); if (tx !== undefined) { e.lk.set(tx, e.pos.y, tz); e.goal = e.lk.clone(); } });
+
+// ---- BOOT CAMP: firing range at the east end of the runway (separate from campaign progress) ----
+// Teaches move / sprint / crouch / hip-fire / ADS / reload / grenade, then a timed run that recommends a difficulty.
+export const RANGE = { x: 235, z: -247 };
+let boardMat = null;
+function boardMaterial() {
+  if (boardMat) return boardMat;
+  const c = document.createElement('canvas'); c.width = 64; c.height = 176; const g = c.getContext('2d');
+  g.fillStyle = '#e6dfca'; g.fillRect(0, 0, 64, 176); g.fillStyle = '#2f3829'; g.beginPath(); g.arc(32, 28, 14, 0, 6.3); g.fill(); g.fillRect(13, 44, 38, 72); g.fillRect(17, 116, 12, 58); g.fillRect(35, 116, 12, 58);
+  g.strokeStyle = '#c8372b'; g.lineWidth = 3; for (const r of [6, 13]) { g.beginPath(); g.arc(32, 74, r, 0, 6.3); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return (boardMat = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }));
+}
+function rangeProp(m, group, x, z, sx, sy, sz, mat, hp, extra = {}) {
+  const y = G.world.groundAt(x, z, 999), c = G.world.box(x, y, z, sx, sy, sz, mat, { hp, kind: 'target', mat: 'wood', ...extra });
+  c.maxHp = hp; c.alive = false; c.mesh.visible = false; (m.trainGroups[group] = m.trainGroups[group] || []).push(c); m.trainProps.push(c); return c;
+}
+const RM = (t) => 'RANGE MASTER: ' + t;
+export const TRAINING = {
+  code: 'BOOT CAMP', name: 'FIRING RANGE', zone: 'TRAINING · AIRFIELD RANGE', sky: 'dawn', training: true, noSquad: true, unlocks: [],
+  spawn: () => ({ x: RANGE.x, z: RANGE.z, yaw: 0 }),
+  brief: ['Eight short drills on the airfield range: movement, sprint, crouch, hip-fire, aiming down sights, reloading and grenades.', 'The last drill is timed. Your time and accuracy recommend a campaign difficulty.', 'No enemies are live on the range. Press Esc to pause or quit at any time.'],
+  setup(m) {
+    const R = RANGE, B = boardMaterial();
+    for (const dx of [-5, 0, 5]) rangeProp(m, 'near', R.x + dx, R.z - 39, 0.6, 1.75, 0.08, B, 1);
+    for (const dx of [-12, 0, 12]) rangeProp(m, 'far', R.x + dx, R.z - 78, 0.6, 1.75, 0.08, B, 1);
+    for (const [dx, dz] of [[-1.1, 0], [0, 0], [1.1, 0], [-0.5, -1.1], [0.6, -1.1]]) rangeProp(m, 'crate', R.x + 8 + dx, R.z - 54 + dz, 1, 0.9, 1, MAT.wood, 400, { geo: 'P_crate' });
+    for (const [dx, dz] of [[-14, -33], [-8, -48], [-3, -30], [3, -58], [7, -36], [12, -50], [17, -31], [-18, -55]]) rangeProp(m, 'run', R.x + dx, R.z + dz, 0.6, 1.75, 0.08, B, 1);
+  },
+  objectives: [
+    { type: 'reach', x: RANGE.x, z: RANGE.z - 11, r: 2.4, text: 'Walk to the marker  [W A S D · mouse to look]', radio: RM('Welcome to boot camp, operator. Walk to the first marker.') },
+    { type: 'custom', text: 'Sprint to the firing line  [SHIFT]', marker: () => ({ x: RANGE.x, z: RANGE.z - 25 }), radio: RM('Hold Shift to sprint. You cannot fire while sprinting.'),
+      start: (m) => { m.flags.spr = false; }, check: (m) => { const P = G.player; if (P.sprinting) m.flags.spr = true; return m.flags.spr && Math.hypot(P.pos.x - RANGE.x, P.pos.z - (RANGE.z - 25)) < 3.2; } },
+    { type: 'custom', text: 'Crouch at the firing line  [CTRL / C]', marker: () => ({ x: RANGE.x, z: RANGE.z - 25 }), radio: RM('Crouching steadies your aim and makes you harder to spot.'), check: () => G.player.stance === 1 },
+    { type: 'custom', text: 'Hip-fire: knock down the 3 close targets  [LEFT MOUSE]', marker: () => ({ x: RANGE.x, z: RANGE.z - 39 }), radio: RM('Targets up. Fire from the hip — fast, but the spread is wide.'),
+      start: (m) => m.showRange('near'), check: (m) => m.rangeLeft('near') === 0 },
+    { type: 'custom', text: 'Aim down sights and hit the 3 far targets  [RIGHT + LEFT MOUSE]', marker: () => ({ x: RANGE.x, z: RANGE.z - 78 }), radio: RM('Hold right mouse to aim down sights. Breathe, then squeeze.'),
+      start: (m) => m.showRange('far'), check: (m) => m.rangeLeft('far') === 0 },
+    { type: 'custom', text: 'Reload your weapon  [R]', radio: RM('Never walk into a room on half a magazine. Reload.'), start: (m) => { m.flags.rl = false; }, check: (m) => { if (G.weapons.reloading) m.flags.rl = true; return m.flags.rl && !G.weapons.reloading; } },
+    { type: 'custom', text: 'Throw a grenade at the crates  [G]', marker: () => ({ x: RANGE.x + 8, z: RANGE.z - 54 }), radio: RM('Frag out! Aim high to throw farther.'),
+      start: (m) => { m.flags.boom = false; m.showRange('crate'); G.weapons.grenades = Math.max(G.weapons.grenades, 2); }, check: (m) => m.flags.boom },
+    { type: 'custom', text: 'Final run: clear the 8 pop-up targets as fast as you can', radio: RM('Last drill. Eight targets, the clock is running. Go!'),
+      start: (m) => { m.showRange('run'); m.runT0 = m.stats.time; m.runShots0 = m.stats.shots; for (const s of G.weapons.slots) s.mag = s.w.mag; },
+      check: (m) => m.rangeLeft('run') === 0, done: (m) => { m.trainResult = { time: m.stats.time - m.runT0, shots: m.stats.shots - m.runShots0, targets: 8 }; } },
+  ],
+  alarm() {},
+};
 
 export const MISSIONS = [
   { code: 'MISSION 01', name: 'SILENT LANDING', zone: 'ZONE 01 · BEACH', sky: 'night', spawn: () => ({ x: 0, z: 328.5, yaw: 0 }),
@@ -104,13 +150,17 @@ export class MissionSys {
   newStats() { return { kills: 0, headshots: 0, shots: 0, hits: 0, score: 0, time: 0, alarms: 0, deaths: 0 }; }
   /** Build the level state for mission i (enemies, sky, player, squad) without starting play. */
   load(i) {
-    const d = (this.def = MISSIONS[i]); this.idx = i; this.flags = {}; this.stats = this.newStats(); this.interactables.length = 0; this.oi = -1; this.objs = d.objectives; this.boss = null; this.heliLanded = false; this.camDetect = 0; this.waveT = 0; this.defT = 0; this.completeT = -1;
+    for (const c of this.trainProps || []) { c.alive = false; if (c.mesh) G.world.group.remove(c.mesh); } this.trainProps = []; this.trainGroups = {}; this.trainResult = null;
+    const d = (this.def = i === 'training' ? TRAINING : MISSIONS[i]); this.idx = i; this.flags = {}; this.stats = this.newStats(); this.interactables.length = 0; this.oi = -1; this.objs = d.objectives; this.boss = null; this.heliLanded = false; this.camDetect = 0; this.waveT = 0; this.defT = 0; this.completeT = -1;
     if (this.heli) { G.scene.remove(this.heli); this.heli = null; G.audio.loop('heli', 0); }
     G.enemies.clear(); G.fx.reset(); G.sky.set(d.sky, true); this.restoreWorld();
     const s = d.spawn(), P = G.player; P.reset(); P.medkits = 2; P.place(s.x, s.z, s.yaw, s.y); this.checkpoint = { x: s.x, z: s.z, y: s.y, yaw: s.yaw, oi: 0 };
-    G.weapons.equip(G.save.loadout); G.gear.reset(); G.squad.spawn(3); d.setup(this);
+    G.weapons.equip(G.save.loadout); G.gear.reset(); G.squad.spawn(3); d.setup(this); if (d.noSquad) G.squad.clear();
     G.cine.placeBoat(i === 0);
   }
+  showRange(k) { for (const c of this.trainGroups[k] || []) { c.alive = true; c.hp = c.maxHp; c.mesh.visible = true; } }
+  rangeLeft(k) { return (this.trainGroups[k] || []).filter((c) => c.alive).length; }
+  onExplosion(x, z) { if (this.def && this.def.training && Math.hypot(x - (RANGE.x + 8), z - (RANGE.z - 54)) < 9) this.flags.boom = true; }
   restoreWorld() { const t = POI.commsTower; if (t) { t.group.rotation.set(0, 0, 0); t.group.visible = true; t.col.alive = true; } for (const it of G.world.interactables) { it.done = false; it.cool = 0; } }
   begin() { this.advance(); G.hud.banner(this.def.code + ' — ' + this.def.name, this.def.zone); }
   get obj() { return this.objs[this.oi]; }
@@ -118,7 +168,7 @@ export class MissionSys {
     const prev = this.obj; if (prev && prev.done) prev.done(this);
     if (this.completeT >= 0) return; this.oi++; this.interactables.length = 0;
     const o = this.obj; if (!o) { this.completeT = 2.2; return; }
-    const P = G.player; if (this.oi > 0) { this.checkpoint = { x: P.pos.x, z: P.pos.z, y: P.pos.y, yaw: P.yaw, oi: this.oi }; G.hud.toast('CHECKPOINT REACHED'); G.audio.play('ui:ok'); }
+    const P = G.player; if (this.oi > 0 && !this.def.training) { this.checkpoint = { x: P.pos.x, z: P.pos.z, y: P.pos.y, yaw: P.yaw, oi: this.oi }; G.hud.toast('CHECKPOINT REACHED'); G.audio.play('ui:ok'); }
     if (o.type === 'interact') { const a = o.at(); this.interactables.push({ x: a.x, y: a.y, z: a.z, r: o.r || 2.6, label: o.label, hold: o.hold, once: true, enabled: o.enabled, act: () => this.advance() }); }
     if (o.type === 'defend') this.defT = o.time;
     if (o.start) o.start(this); if (o.radio) G.hud.radio(o.radio);

@@ -25,11 +25,14 @@ await ev(HELPERS); await ev(() => { localStorage.clear(); });
 const gl = await ev(() => { const g = SS.renderer.getContext(), d = g.getExtension('WEBGL_debug_renderer_info'); return d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'unknown'; });
 if (!process.env.CAMPAIGN_ONLY) {
 // ---------- menus: every main-menu button opens a working screen ----------
-for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['multiplayer', 'MULTIPLAYER'], ['operations', 'OPERATIONS'], ['weapons', 'ARMORY'], ['operator', 'OPERATOR'], ['settings', 'SETTINGS'], ['exit', 'EXIT GAME']]) {
+for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['operations', 'OPERATIONS'], ['weapons', 'ARMORY'], ['operator', 'OPERATOR'], ['settings', 'SETTINGS'], ['exit', 'EXIT GAME']]) {
   await page.click(`nav [data-a="${a}"]`); const h = await page.textContent('#menu h2'); check(`menu: ${a}`, h.includes(expect), h); if (a === 'weapons') await shot('menu-weapons'); if (a === 'settings') await shot('menu-settings');
   await page.click(a === 'exit' ? '[data-a="main"]' : '.panel header [data-a="main"]');
 }
 await shot('menu-main');
+check('menu: boot camp entry', !!(await page.$('nav [data-a="training"]')));
+await page.click('nav [data-a="operations"]'); await page.click('[data-a="multiplayer"]'); check('menu: multiplayer design status (from operations)', (await page.textContent('#menu h2')).includes('MULTIPLAYER')); await page.click('.panel header [data-a]');
+if (!(await page.$('nav'))) await page.evaluate(() => SS.menu.main());
 await page.click('nav [data-a="settings"]'); await page.selectOption('[data-set="quality"]', 'low'); check('settings: quality preset applies', await ev(() => SS.settings.quality === 'low' && SS.renderer.shadowMap.enabled === false));
 await page.selectOption('[data-set="quality"]', process.env.Q || 'medium'); await page.fill('[data-set="fov"]', '90'); check('settings: FOV slider applies', await ev(() => SS.settings.fov === 90)); await page.fill('[data-set="fov"]', '78');
 check('settings persist to storage', await ev(() => JSON.parse(localStorage.getItem('special-soldier-save-v1')).settings.fov === 78)); await page.click('.panel header [data-a="main"]');

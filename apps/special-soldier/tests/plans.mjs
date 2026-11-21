@@ -185,3 +185,48 @@ export async function types2({ page, shot, sim }) {
   await put(['heavy', 'elite', 'boss'], 2.9, 1.25); await shot('T5-front-b');
   await put(['guard', 'sniper', 'boss'], 1.25, 0.62); await page.evaluate(() => { SS.player.pitch = 0.1; }); await shot('T6-faces');
 }
+
+// entry flow audit: what a first-time player sees before playing
+export async function entry({ page, shot, sim }) {
+  await shot('E1-menu');
+  await page.click('button[data-a="campaign"]').catch(() => {}); await page.waitForTimeout(400); await shot('E2-campaign');
+  await page.evaluate(() => SS.menu.briefing(0)); await page.waitForTimeout(400); await shot('E3-briefing');
+  await page.evaluate(() => SS.menu.firstRun()); await page.waitForTimeout(300); await shot('E4-firstrun');
+  await page.evaluate(() => SS.menu.title()); await page.waitForTimeout(600); await shot('E0-title');
+  await page.keyboard.press('Enter'); await page.waitForTimeout(400); console.log('after key:', await page.evaluate(() => SS.menu.screen));
+}
+
+// BOOT CAMP: drive all eight drills with real inputs (keys, aim, fire) and read the recommendation
+export async function training({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission('training'); SS.godMode = true; });
+  await sim(0.6); await shot('B1-start');
+  const st = () => page.evaluate(() => `${SS.state} | oi ${SS.mission.oi} | ${SS.mission.objText()}`);
+  const R = { x: 235, z: -247 };
+  const log = async (t) => console.log(t.padEnd(10), await st());
+  const fireAt = (group, ads) => page.evaluate(([group, ads]) => { const m = SS.mission, I = SS.input, P = SS.player; let n = 0; SS.skipRender = true;
+    for (let k = 0; k < 60 && m.rangeLeft(group) > 0; k++) { const c = m.trainGroups[group].find((c) => c.alive), x = (c.min.x + c.max.x) / 2, z = (c.min.z + c.max.z) / 2;
+      const y = group === 'crate' ? c.min.y : (c.min.y + c.max.y) / 2 - 1.3 + 0.12; QA.aim({ pos: { x, y, z }, type: {}, crouch: 0 });
+      I.btn[2] = ads; for (let t = 0; t < 12; t++) SS.tick(1 / 30); I.btn[0] = true; SS.tick(1 / 30); SS.tick(1 / 30); I.btn[0] = false; for (let t = 0; t < 8; t++) SS.tick(1 / 30); n++; }
+    I.btn[2] = false; SS.skipRender = false; return n; }, [group, ads]);
+  await page.evaluate(([x, z]) => QA.tp(x, z), [R.x, R.z - 10.5]); await sim(0.3); await log('walk');
+  await page.evaluate(([x, z]) => { QA.tp(x, z); SS.player.yaw = 0; SS.input.keys.add('KeyW'); SS.input.keys.add('ShiftLeft'); }, [R.x, R.z - 18]); await sim(0.8);
+  await page.evaluate(([x, z]) => { SS.input.keys.clear(); QA.tp(x, z); }, [R.x, R.z - 25]); await sim(0.3); await log('sprint');
+  await page.evaluate(() => QA.key('ControlLeft')); await sim(0.3); await log('crouch');
+  console.log('near shots', await fireAt('near', false)); await sim(0.3); await log('hipfire'); await shot('B2-near');
+  console.log('far shots', await fireAt('far', true)); await sim(0.3); await log('ads');
+  await page.evaluate(() => QA.key('KeyR')); await sim(3.5); await log('reload');
+  await page.evaluate(([x, z]) => { const P = SS.player; P.updateCamera(0); const dx = x - P.eye.x, dz = z - P.eye.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = 0.1; QA.key('KeyG'); }, [R.x + 8, R.z - 54]); await sim(4); await log('grenade');
+  await shot('B3-run'); console.log('run shots', await fireAt('run', true)); await sim(3); await log('done');
+  console.log('training', JSON.stringify(await page.evaluate(() => SS.save.training)));
+  await shot('B4-result');
+}
+export async function grenadeDbg({ page, sim }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission('training'); SS.godMode = true; const m = SS.mission; m.boomLog = []; const o = m.onExplosion.bind(m); m.onExplosion = (x, z) => { m.boomLog.push([+x.toFixed(1), +z.toFixed(1)]); o(x, z); }; QA.tp(235, -272); });
+  await sim(0.5);
+  for (const pitch of [0.1, 0.25, 0.4]) {
+    console.log(await page.evaluate((pitch) => { const P = SS.player; P.updateCamera(0); const x = 243, z = -293, dx = x - P.eye.x, dz = z - P.eye.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = pitch; const g0 = SS.weapons.grenades; QA.key('KeyG'); return 'pitch ' + pitch + ' grenades ' + g0 + ' dist ' + Math.hypot(dx, dz).toFixed(1); }, pitch));
+    await sim(4); console.log(await page.evaluate(() => JSON.stringify({ booms: SS.mission.boomLog, left: SS.weapons.grenades, flag: SS.mission.flags.boom })));
+  }
+}

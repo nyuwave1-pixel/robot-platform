@@ -55,6 +55,7 @@ export class FX {
     this.nades.push({ p: o.clone(), v: vel.clone(), fuse: opt.fuse ?? 2.8, owner, mesh, impact: opt.impact, radius: opt.radius || 7.5, dmg: opt.dmg || 170, smoke: opt.smoke });
   }
   explode(x, y, z, radius, owner, dmg = 170) {
+    if (G.mission && G.mission.onExplosion) G.mission.onExplosion(x, z);
     this.flashLight(x, y + 1, z, 0xffa040, 900, 0.5); G.audio.play('explosion', { x, y, z });
     for (let i = 0; i < 9; i++) this.puff(x + (Math.random() - 0.5) * 2, y + 0.6 + Math.random() * 1.5, z + (Math.random() - 0.5) * 2, i < 4 ? 0xffb050 : 0xff6a20, 2.2 + Math.random() * 2, 0.35 + Math.random() * 0.3, 1, (Math.random() - 0.5) * 6, 2 + Math.random() * 4, (Math.random() - 0.5) * 6, true, 0, 2.2);
     for (let i = 0; i < 10; i++) this.puff(x + (Math.random() - 0.5) * 3, y + 1 + Math.random() * 2, z + (Math.random() - 0.5) * 3, 0x2a2a2a, 3 + Math.random() * 2, 2.5 + Math.random() * 2, 0.6, (Math.random() - 0.5) * 2, 1.2 + Math.random() * 2, (Math.random() - 0.5) * 2, false, 0, 2.4);

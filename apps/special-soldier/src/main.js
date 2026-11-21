@@ -13,7 +13,7 @@ import { Weapons, buildGun } from './game/weapons.js';
 import { Enemies } from './game/enemies.js';
 import { Squad } from './game/squad.js';
 import { Gear } from './game/gear.js';
-import { MissionSys, MISSIONS } from './game/missions.js';
+import { MissionSys, MISSIONS, TRAINING } from './game/missions.js';
 import { Cine } from './game/cinematics.js';
 import { Hud } from './ui/hud.js';
 import { Menu } from './ui/menu.js';
@@ -56,7 +56,7 @@ async function boot() {
   { const warm = new THREE.Group(); for (const k of Object.keys(PALETTE)) warm.add(makeSoldier(k)); warm.add(makeAPC(), makeHeli(), new THREE.Mesh(G.fx.nadeGeo, G.fx.nadeMat), new THREE.Mesh(G.fx.nadeGeo, HOT), new THREE.Mesh(G.fx.nadeGeo, new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 1 })));
     G.scene.add(warm); G.weapons.root.visible = true; r.compile(G.scene, G.camera); G.scene.remove(warm); G.weapons.root.visible = false; }
   await step(100, 'READY'); $('loading').style.display = 'none';
-  G.toMenu(); last = performance.now(); requestAnimationFrame(frame);
+  G.toMenu(); if (!G.test) G.menu.title(); last = performance.now(); requestAnimationFrame(frame); // title card first (skipped in automated tests)
 }
 
 // ---------------- state transitions ----------------
@@ -64,7 +64,7 @@ async function boot() {
 addEventListener('pointerdown', () => { if (G.state === 'menu' && !G.test) { G.audio.init(); G.audio.music('menu'); } });
 G.toMenu = () => { G.state = 'menu'; G.hud.show(false); G.hud.cinematic(false); G.cine.active = false; G.enemies.clear(); G.squad.clear(); G.fx.reset(); G.gear.reset(); G.input.unlock(); G.audio.hush(); if (G.audio.enabled) { G.audio.stopLoops(); if (!G.test) G.audio.music('menu'); } G.weapons.root.visible = false; G.post.fadeTarget = 0; if (G.mission.heli) { G.scene.remove(G.mission.heli); G.mission.heli = null; } G.cine.menuScene(); G.menu.main(); $('lockHint').style.display = 'none'; };
 G.startMission = (i, skipIntro = false) => {
-  G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); const d = MISSIONS[i]; G.player.frozen = false;
+  G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); const d = i === 'training' ? TRAINING : MISSIONS[i]; G.player.frozen = false; if (d.training) skipIntro = true;
   const go = () => { G.state = 'playing'; G.mission.begin(); if (!G.test) G.input.lock(); if (i === 0) G.hud.radio('REAPER: Feet wet. Move up the beach — quiet.'); G.player.updateCamera(0); };
   if (skipIntro) return go();
   const realtime = () => { if (d.intro === 'boat') G.cine.playBoatIntro(go); else G.cine.play(d.intro, go, { showSquad: true }); };
@@ -75,6 +75,7 @@ G.resume = () => { if (G.state !== 'paused') return; G.menu.hide(); G.state = 'p
 G.respawn = () => { G.menu.hide(); G.mission.respawn(); G.state = 'playing'; if (!G.test) G.input.lock(); };
 G.onPlayerDeath = (kind) => { G.state = 'dead'; deadT = 1.8; deathKind = kind; G.hud.toast('OPERATOR DOWN', true); if (G.gear.droneActive) G.gear.toggleDrone(); };
 G.onMissionComplete = () => {
+  if (G.mission.def && G.mission.def.training) return G.onTrainingComplete();
   const m = G.mission, st = m.stats, s = G.save, i = m.idx, acc = st.shots ? Math.round((st.hits / st.shots) * 100) : 0;
   let pts = 0; pts += acc >= 45 ? 2 : acc >= 25 ? 1 : 0; pts += st.alarms === 0 ? 2 : st.alarms === 1 ? 1 : 0; pts += st.deaths === 0 ? 2 : st.deaths === 1 ? 1 : 0; pts += st.headshots >= st.kills * 0.3 ? 1 : 0;
   const grade = pts >= 7 ? 'S' : pts >= 5 ? 'A' : pts >= 3 ? 'B' : 'C', first = s.progress <= i;
@@ -82,6 +83,15 @@ G.onMissionComplete = () => {
   s.progress = Math.max(s.progress, i + 1); const old = s.best[i]; if (!old || 'CBAS'.indexOf(grade) >= 'CBAS'.indexOf(old.grade)) s.best[i] = { grade, time: Math.round(st.time), kills: st.kills, acc, alarms: st.alarms };
   s.stats.kills += st.kills; s.stats.headshots += st.headshots; s.stats.shots += st.shots; s.stats.hits += st.hits; s.stats.deaths += st.deaths; s.stats.time += st.time; storeSave(s);
   G.state = 'result'; G.lastResult = res; G.input.unlock(); G.audio.hush(); G.audio.stopLoops(); G.hud.show(false); G.player.frozen = false; G.menu.result(res);
+};
+
+/** Boot camp finished: time + accuracy of the timed run recommend a campaign difficulty (stored, applied only if the player accepts). */
+G.onTrainingComplete = () => {
+  const m = G.mission, s = G.save, r = m.trainResult || { time: m.stats.time, shots: m.stats.shots, targets: 8 };
+  const acc = r.shots ? Math.min(100, Math.round((r.targets / r.shots) * 100)) : 0;
+  const rec = r.time <= 16 && acc >= 55 ? 'veteran' : r.time <= 32 && acc >= 30 ? 'regular' : 'recruit';
+  s.training = { time: Math.round(r.time * 10) / 10, acc, shots: r.shots, rec, total: Math.round(m.stats.time), at: Date.now() }; storeSave(s);
+  G.state = 'result'; G.input.unlock(); G.audio.hush(); G.audio.stopLoops(); G.hud.show(false); G.player.frozen = false; G.menu.trainingResult(s.training);
 };
 
 // Optional pre-rendered intro (e.g. made in Google Flow / Veo): drop video/m1-intro.mp4 … m5-intro.mp4 (or .webm)
