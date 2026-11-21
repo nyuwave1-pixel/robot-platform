@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; margin: 0; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+body { background: #fff8f0; -webkit-font-smoothing: antialiased; }
+canvas { touch-action: none; }
+
+@layer components {
+  .btn-primary { @apply rounded-full bg-gradient-to-r from-pink-deep to-[#d9799a] px-6 py-3 text-sm font-black text-white shadow-lg shadow-pink-deep/30 transition-transform active:scale-95; }
+  .btn-ghost { @apply rounded-full border-2 border-pink-soft bg-white px-6 py-3 text-sm font-bold text-ink transition-transform active:scale-95; }
+  .btn-dark { @apply rounded-full bg-ink px-6 py-3 text-sm font-bold text-cream transition-transform active:scale-95; }
+  .chip { @apply rounded-full border border-pink-soft bg-white px-3 py-1.5 text-xs font-bold text-ink/70 transition-colors; }
+  .chip-on { @apply border-pink-deep bg-pink-deep text-white; }
+  .card { @apply rounded-2xl border border-pink-soft/70 bg-white p-3 shadow-sm transition-transform active:scale-[0.98]; }
+}
+
+.toast { animation: toast-in 0.25s ease-out; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+/* 조이스틱은 터치 기기에서만 */
+.joystick { display: none; }
+@media (pointer: coarse) { .joystick { display: block; } }
+
+@media (prefers-reduced-motion: reduce) { .animate-bounce { animation: none; } }
