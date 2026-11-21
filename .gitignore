@@ -39,3 +39,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 .vercel
+
+# Local download bundles (zip of unincore-promotion for another PC)
+unincore-promotion-handoff/

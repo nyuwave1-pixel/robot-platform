@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UNI&amp;CORE AI SEO Engine</title>
+<style>
+:root{--bg:#0b0907;--card:rgba(255,255,255,.045);--line:rgba(233,185,77,.22);--gold:#E9B94D;--ivory:#F6EFE2;--mute:#a59c8d;--ok:#7bd88f;--wait:#f0c05a;--bad:#ff7b72}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(60% 50% at 80% 0,#2a1e0c 0,var(--bg) 60%);color:var(--ivory);font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 16px 60px}
+h1{font:500 30px/1.1 Georgia,serif;margin:0}h1 em{color:var(--gold);font-style:italic}
+h2{font:500 20px Georgia,serif;margin:38px 0 12px;color:var(--gold)}
+.sub{color:var(--mute);margin-top:6px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;backdrop-filter:blur(8px)}
+.k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}.v{font:500 30px Georgia,serif;margin-top:4px}
+.v.na{font-size:15px;color:var(--wait);font-family:inherit;margin-top:12px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{text-align:left;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:500}
+.b{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;border:1px solid}
+.connected,.success,.done{color:var(--ok)}.pending,.waiting,.waiting_connection,.partial,.configured_unverified,.never,.skipped{color:var(--wait)}.error,.failed,.todo{color:var(--bad)}
+img.p{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:8px}
+a{color:var(--gold)}code{color:var(--mute);font-size:12px}
+.note{color:var(--mute);font-size:12px;margin-top:10px}
+.cgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.cr img{width:100%;border-radius:10px;display:block;background:#fff}.cr .k{margin-top:10px}.cap{font-size:12px;color:var(--mute);margin:6px 0 0;overflow-wrap:anywhere}.cap b{color:var(--ivory)}
+button{background:transparent;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:12px;cursor:pointer;margin:2px 0}button:hover{background:rgba(233,185,77,.12)}.applied,.approved{color:var(--ok)}.rejected{color:var(--bad)}
+</style>
+</head>
+<body><div class="wrap">
+<h1>UNI&amp;CORE <em>AI SEO &amp; Auto Marketing Engine</em></h1>
+<p class="sub">실제 실행 결과만 표시합니다. 연결되지 않은 지표는 추정하지 않고 “미연결”로 둡니다.</p>
+
+<h2>Dashboard</h2>
+<div class="grid">
+{% set labels = {"products":"등록 제품","images":"제품 이미지","keywords":"키워드","seo_pages":"SEO 점검 페이지","open_issues":"열린 SEO 이슈","image_jobs_waiting":"이미지 분석 대기","video_jobs_waiting":"영상 작업 대기","approvals_pending":"승인 대기","job_success_rate":"자동화 성공률 %","api_cost":"API 비용 $","google_impressions":"Google 노출","google_clicks":"Google 클릭","avg_position":"평균 순위","naver_visits":"Naver 유입"} %}
+{% for key, label in labels.items() %}
+<div class="card"><div class="k">{{ label }}</div>{% if kpi[key] is none %}<div class="v na">미연결</div>{% else %}<div class="v">{{ kpi[key] }}</div>{% endif %}</div>
+{% endfor %}
+</div>
+
+<h2>Development Phases</h2>
+<div class="scroll"><table><tr><th>#</th><th>단계</th><th>상태</th><th>실제 상태</th></tr>
+{% for p in phases %}<tr><td>{{ p.n }}</td><td>{{ p.name }}</td><td><span class="b {{ p.state }}">{{ p.state }}</span></td><td>{{ p.note }}</td></tr>{% endfor %}
+</table></div>
+
+<h2>API Settings</h2>
+<div class="scroll"><table><tr><th>Provider</th><th>상태</th><th>상세</th><th>필요한 환경변수</th><th>연결 전 대체 방식</th></tr>
+{% for c in connections %}<tr><td>{{ c.provider }}</td><td><span class="b {{ c.status }}">{{ c.status }}</span></td><td>{{ c.detail }}</td><td>{% for e in c.env %}<code>{{ e }}</code> {% endfor %}</td><td>{{ c.fallback }}</td></tr>{% endfor %}
+</table></div>
+
+<h2>Daily Automation</h2>
+<div class="scroll"><table><tr><th>시간 (KST)</th><th>작업</th><th>설명</th><th>마지막 실행</th><th>비고</th></tr>
+{% for s in schedule %}<tr><td>{{ s.time }}</td><td><code>{{ s.job }}</code></td><td>{{ s.desc }}</td><td><span class="b {{ s.last }}">{{ s.last }}</span></td><td>{{ s.note }}</td></tr>{% endfor %}
+</table></div>
+<p class="note">{% for s in schedule %}<button onclick="run('{{ s.job }}')">{{ s.job }} 실행</button> {% endfor %}</p>
+<p class="note">수동 실행: <code>POST /api/jobs/&lt;job&gt;/run</code> · 시간 변경: <code>PATCH /api/schedule/&lt;job&gt;?local_time=HH:MM</code></p>
+
+<h2>Approvals</h2>
+<div class="scroll"><table><tr><th>#</th><th>제품</th><th>대상</th><th>변경 내용</th><th>상태</th><th></th></tr>
+{% for a in approvals %}<tr><td>{{ a.id }}</td><td><code>{{ a.product_id }}</code></td><td>{{ a.target }}{% if a.protected %} <span class="b error">보호 항목</span>{% endif %}</td><td><code>{{ a.change|tojson }}</code></td><td><span class="b {{ a.status }}">{{ a.status }}</span></td>
+<td>{% if a.status == "pending" %}<button onclick="decide({{ a.id }},'approve')">승인</button> <button onclick="decide({{ a.id }},'reject')">거절</button>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6">승인 요청이 없습니다.</td></tr>{% endfor %}
+</table></div>
+<p class="note">승인된 요청은 <code>publish</code> 작업이 검증 후 사이트 파일에 반영합니다. 보호 항목(가격·성분·인증·임상)은 자동 반영되지 않습니다.</p>
+
+<h2>Promo Images ({{ creatives|length }})</h2>
+<div class="cgrid">
+{% for c in creatives %}<div class="card cr">
+<a href="/creatives/{{ c.file }}" target="_blank" rel="noopener"><img src="/creatives/{{ c.file }}" alt="{{ c.product_id }} {{ c.format }}" loading="lazy"></a>
+<div class="k">{{ c.product_id }} · {{ c.format }}</div>
+{% if c.post %}<p class="cap"><b>{{ c.post.channel }}</b> · {{ c.post.title }}</p>
+<p class="cap">{{ c.post.caption }}</p>
+<p class="cap">{{ c.post.hashtags|join(" ") }}</p>
+<p class="cap"><a href="{{ c.post.link }}" target="_blank" rel="noopener">UTM 링크</a> <button type="button" onclick="copyPost(this)" data-text="{{ c.post.title }}&#10;&#10;{{ c.post.caption }}&#10;&#10;{{ c.post.hashtags|join(' ') }}&#10;{{ c.post.link }}">문구 복사</button></p>{% endif %}
+</div>
+{% else %}<div class="card">아직 만든 홍보 이미지가 없습니다. <code>creatives</code> 작업을 실행하세요.</div>{% endfor %}
+</div>
+<p class="note">실제 제품 사진과 사이트에 있는 문구만으로 만든 이미지입니다(AI 생성 아님). 게시는 자동으로 하지 않습니다.</p>
+
+<h2>Top Keywords</h2>
+<div class="scroll"><table><tr><th>키워드</th><th>제품</th><th>의도</th><th>출처</th><th>우선순위(자체)</th><th>검색량</th></tr>
+{% for k in top_keywords %}<tr><td>{{ k.keyword }}</td><td><code>{{ k.product_id or "" }}</code></td><td>{{ k.intent or "" }}</td><td>{{ k.source }}</td><td>{{ k.priority }}</td><td><span class="b waiting">미측정</span></td></tr>
+{% else %}<tr><td colspan="6">키워드가 없습니다.</td></tr>{% endfor %}
+</table></div>
+<p class="note">전체 목록: <code>GET /api/keywords</code>. 검색량은 Search Console·Amazon 데이터가 연결되기 전까지 표시하지 않습니다.</p>
+
+<h2>SEO Pages (promotion.unincore.com)</h2>
+<div class="scroll"><table><tr><th>URL</th><th>HTTP</th><th>이슈</th></tr>
+{% for p in pages %}<tr><td><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.url }}</a></td><td>{{ p.status }}</td><td>{{ p.issues }}</td></tr>{% endfor %}
+</table></div>
+
+<h2>Product Management ({{ products|length }})</h2>
+<div class="scroll"><table><tr><th></th><th>Product ID</th><th>제품명</th><th>카테고리</th><th>가격</th><th>ASIN</th><th>키워드</th></tr>
+{% for p in products %}<tr><td>{% if p.image %}<img class="p" src="{{ p.image }}" alt="" loading="lazy">{% endif %}</td><td><code>{{ p.id }}</code></td><td><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.name }}</a></td><td>{{ p.category }}</td><td>{% if p.price is not none %}${{ "%.0f"|format(p.price) }}{% endif %}</td><td>{{ p.asin or "" }}</td><td>{{ p.keywords }}</td></tr>{% endfor %}
+</table></div>
+<p class="note">SEO 점수·키워드 우선순위는 자체 지표이며 Google의 실제 검색 순위를 뜻하지 않습니다.</p>
+</div>
+<script>
+async function post(u){const r=await fetch(u,{method:"POST"});const t=await r.text();if(!r.ok)alert(t);location.reload()}
+function copyPost(b){navigator.clipboard.writeText(b.dataset.text).then(()=>{const t=b.textContent;b.textContent="복사됨";setTimeout(()=>b.textContent=t,1200)})}
+function decide(id,a){post(`/api/approvals/${id}/${a}`)}
+function run(j){if(confirm(j+" 작업을 지금 실행할까요?"))post(`/api/jobs/${j}/run`)}
+</script></body></html>
