@@ -256,5 +256,6 @@ export async function intel({ page, sim, shot }) {
     if (i === 0) { await page.evaluate(() => { localStorage.clear(); SS.save.intel = {}; SS.startMission(0, true); SS.noTarget = true; const it = SS.mission.intelItems[0]; QA.tp(it.x, it.z + 2.2, it.y); SS.player.yaw = 0; SS.player.pitch = -0.55; }); await sim(0.3); await shot('I1-laptop'); }
   }
   console.log(out.join('\n'));
+  console.log('buried:', JSON.stringify(await page.evaluate(() => { const res = []; for (let i = 0; i < 5; i++) { SS.startMission(i, true); for (const it of SS.mission.intelItems) { const hits = SS.world.colliders.filter((c) => c.alive && !c.noStand && c.kind !== 'tree' && it.x > c.min.x - 0.25 && it.x < c.max.x + 0.25 && it.z > c.min.z - 0.25 && it.z < c.max.z + 0.25 && it.y + 0.3 > c.min.y && it.y + 0.3 < c.max.y); if (hits.length) res.push([i + 1, it.k, hits.map((c) => (c.kind || c.mat) + ' ' + c.min.toArray().map((v) => v.toFixed(1)) + '→' + c.max.toArray().map((v) => v.toFixed(1)))]); } } return res; })));
   await page.evaluate(() => { SS.save.intel = { 0: [0, 1, 2], 2: [1] }; SS.toMenu(); SS.menu.intelArchive(); }); await page.waitForTimeout(400); await shot('I2-archive');
 }

@@ -173,7 +173,7 @@ export class MissionSys {
   spawnIntel() {
     for (const it of this.intelItems || []) G.scene.remove(it.mesh); this.intelItems = []; this.stats.intel = 0;
     const set = INTEL[this.idx]; if (!set) return; const got = (G.save.intel && G.save.intel[this.idx]) || [];
-    set.at().forEach(([x, z, y], k) => { if (got.includes(k)) return; const gy = y !== undefined ? y : G.world.groundAt(x, z, 999), mesh = laptop(); mesh.position.set(x, gy, z); mesh.rotation.y = k * 1.7; G.scene.add(mesh); this.intelItems.push({ k, x, y: gy, z, mesh }); });
+    set.at().forEach(([x, z, y], k) => { if (got.includes(k)) return; const gy = y !== undefined ? y : G.world.heightAt(x, z), mesh = laptop(); mesh.position.set(x, gy, z); mesh.rotation.y = k * 1.7; G.scene.add(mesh); this.intelItems.push({ k, x, y: gy, z, mesh }); });
   }
   updateIntel(dt) {
     const P = G.player; for (let i = this.intelItems.length - 1; i >= 0; i--) { const it = this.intelItems[i]; it.mesh.children[3].material.opacity = 0.35 + 0.25 * Math.sin(G.time * 4 + it.k);
