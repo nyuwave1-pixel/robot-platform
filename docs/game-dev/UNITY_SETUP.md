@@ -46,3 +46,9 @@ powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
 | **SPECIAL SOLDIER 데스크톱판(파일럿)** | 이미 Blender → GLB 파이프라인이 있어 glTFast로 바로 들어옴. 스키닝·애니메이션(UAL CC0)·내비메시(Unity AI Navigation)·URP 후처리를 엔진 기본 기능으로 해결 가능 | 게임 로직(JS)은 C#으로 다시 써야 함 → 먼저 "에셋·씬 뷰어 + 이동/사격 프로토타입" 범위로 |
 | 퍼즐 게임 | 규모가 작아 Unity 학습·빌드 파이프라인 검증에 적합 | 웹 버전이 이미 있으면 이식 이득이 작음 |
 | 메디더마 라운지(WORLD PLAZA) | 3D 공간 탐색형이라 Unity 씬 편집 이점 | 웹 배포가 핵심이면 WebGL 빌드 용량 검토 필요 |
+
+## 2026-11-22 업데이트 — 플레이 가능한 Island Slice 추가 (허브 세션)
+
+- `run-batch.ps1` 단계: init → packages(URP·glTFast·Input System·AI Navigation·Test Framework, 입력 처리 Both) → build(GLB 임포트 테스트) → **slice**(씬 생성·NavMesh·URP·`Builds/Slice/IslandSlice.exe`) → **tests**(EditMode, `Logs/editmode-results.xml`).
+- Core 규칙 코드와 테스트는 클라우드에서 .NET 8로 컴파일·실행 확인(159개 통과). **Runtime·Editor 스크립트는 Unity에서 아직 컴파일하지 못했습니다.**
+- 설명·학습 순서: `UNITY_LEARNING_PATH.md`, `apps/unity-studio/README.md`.

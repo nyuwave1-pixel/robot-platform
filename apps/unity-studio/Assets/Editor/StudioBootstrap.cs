@@ -1,7 +1,7 @@
 // Batch-mode entry points for the Unity studio project (Unity 6000.6.9f1).
 //   Unity.exe -batchmode -projectPath apps/unity-studio -executeMethod StudioBootstrap.AddPackages -quit -logFile -
 //   Unity.exe -batchmode -projectPath apps/unity-studio -executeMethod StudioBootstrap.ImportAndBuild -quit -logFile -
-// AddPackages: installs URP + glTFast through the Package Manager (versions resolved by the editor, not guessed).
+// AddPackages: installs URP, glTFast, Input System, AI Navigation and Test Framework through the Package Manager (versions resolved by the editor, not guessed).
 // ImportAndBuild: copies the shared Blender GLB from apps/special-soldier, lets glTFast import it, builds a test scene
 // that lists the imported nodes the web game relies on, and makes one Windows build. Every step logs "[Studio]" lines.
 using System.IO;
@@ -20,12 +20,22 @@ public static class StudioBootstrap
 
     public static void AddPackages()
     {
-        foreach (var id in new[] { "com.unity.render-pipelines.universal", "com.unity.cloud.gltfast" })
+        foreach (var id in new[] { "com.unity.render-pipelines.universal", "com.unity.cloud.gltfast", "com.unity.inputsystem", "com.unity.ai.navigation", "com.unity.test-framework" })
         {
             var req = Client.Add(id);
             while (!req.IsCompleted) System.Threading.Thread.Sleep(200);
             if (req.Status == StatusCode.Success) Debug.Log($"[Studio] package {req.Result.name} {req.Result.version}");
             else { Debug.LogError($"[Studio] package {id} failed: {req.Error?.message}"); EditorApplication.Exit(2); }
+        }
+        // Active Input Handling = Both (2), so the slice's Input System code and any old Input calls both work.
+        // Takes effect the next time the editor starts (the next batch step).
+        var settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
+        if (settings.Length > 0)
+        {
+            var so = new SerializedObject(settings[0]);
+            var handler = so.FindProperty("activeInputHandler");
+            if (handler != null) { handler.intValue = 2; so.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets(); Debug.Log("[Studio] active input handling = Both"); }
+            else Debug.LogWarning("[Studio] activeInputHandler setting not found; set Player > Active Input Handling to Both by hand");
         }
     }
 

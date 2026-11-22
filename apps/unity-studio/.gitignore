@@ -23,3 +23,8 @@ crashlytics-build.properties
 /Assets/Imported.meta
 # Asset Store downloads are never committed
 /Assets/AssetStoreTools/
+
+# dotnet test project for the engine-free Core (runs without Unity)
+/CoreTests~/bin/
+/CoreTests~/obj/
+!/CoreTests~/CoreTests.csproj

@@ -1,0 +1,212 @@
+// Builds the playable "Island Slice" scene from code, so the scene never has to be hand-edited or merged.
+//   Unity.exe -batchmode -projectPath apps/unity-studio -executeMethod SpecialSoldier.EditorTools.SliceBuilder.BuildSliceAndPlayer -quit -logFile -
+// Menu: Special Soldier > Build Island Slice Scene. Every step logs "[Slice]" lines; exit codes: 0 ok, 10+ failure.
+using System.IO;
+using System.Linq;
+using SpecialSoldier.Core;
+using Unity.AI.Navigation;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
+namespace SpecialSoldier.EditorTools
+{
+    public static class SliceBuilder
+    {
+        public const string ScenePath = "Assets/Scenes/IslandSlice.unity";
+        const string GlbPath = "Assets/Imported/special_soldier_assets.glb";
+        const string SettingsDir = "Assets/Settings";
+
+        [MenuItem("Special Soldier/Build Island Slice Scene")]
+        public static void BuildSceneMenu() => BuildScene();
+
+        public static void BuildSliceAndPlayer()
+        {
+            if (!BuildScene()) { EditorApplication.Exit(10); return; }
+            var opts = new BuildPlayerOptions { scenes = new[] { ScenePath }, locationPathName = "Builds/Slice/IslandSlice.exe", target = BuildTarget.StandaloneWindows64 };
+            var report = BuildPipeline.BuildPlayer(opts);
+            Debug.Log($"[Slice] player build {report.summary.result}, {report.summary.totalSize / 1024} kB, errors {report.summary.totalErrors}");
+            EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 11);
+        }
+
+        public static bool BuildScene()
+        {
+            EnsureUrp();
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var rng = new System.Random(7);   // fixed seed: the same level every build
+
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.type = LightType.Directional; sun.intensity = 1.6f; sun.color = new Color(1f, 0.93f, 0.82f); sun.shadows = LightShadows.Soft;
+            sun.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.8f); RenderSettings.ambientEquatorColor = new Color(0.45f, 0.45f, 0.4f); RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
+            RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 60f; RenderSettings.fogEndDistance = 240f; RenderSettings.fogColor = new Color(0.7f, 0.75f, 0.8f);
+
+            var level = new GameObject("Level");
+            var sand = Mat("Sand", new Color(0.76f, 0.69f, 0.52f), 0.9f);
+            var concrete = Mat("Concrete", new Color(0.55f, 0.55f, 0.53f), 0.85f);
+            var crate = Mat("Crate", new Color(0.42f, 0.33f, 0.2f), 0.8f);
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            ground.name = "Ground"; ground.transform.SetParent(level.transform); ground.transform.localScale = new Vector3(16f, 1f, 16f);
+            ground.GetComponent<Renderer>().sharedMaterial = sand;
+
+            // perimeter walls + a compound in the middle + scattered cover
+            for (int i = 0; i < 4; i++)
+            {
+                var wall = Box(level, $"Perimeter{i}", Vector3.zero, new Vector3(160f, 4f, 1f), concrete);
+                wall.transform.rotation = Quaternion.Euler(0f, i * 90f, 0f);
+                wall.transform.position = wall.transform.rotation * new Vector3(0f, 2f, 80f);
+            }
+            Box(level, "CompoundN", new Vector3(0f, 1.5f, 22f), new Vector3(24f, 3f, 0.6f), concrete);
+            Box(level, "CompoundW", new Vector3(-12f, 1.5f, 13f), new Vector3(0.6f, 3f, 18f), concrete);
+            Box(level, "CompoundE", new Vector3(12f, 1.5f, 13f), new Vector3(0.6f, 3f, 18f), concrete);
+            Box(level, "CompoundS_L", new Vector3(-7.5f, 1.5f, 4f), new Vector3(9f, 3f, 0.6f), concrete);
+            Box(level, "CompoundS_R", new Vector3(7.5f, 1.5f, 4f), new Vector3(9f, 3f, 0.6f), concrete);
+            for (int i = 0; i < 26; i++)
+            {
+                float x = (float)(rng.NextDouble() * 120 - 60), z = (float)(rng.NextDouble() * 110 - 40);
+                if (Mathf.Abs(x) < 14f && z > 2f && z < 24f) continue;            // keep the compound clear
+                if (Mathf.Abs(x) < 6f && z < -28f) continue;                       // keep the spawn clear
+                float s = 1f + (float)rng.NextDouble() * 1.2f;
+                var c = Box(level, $"Cover{i}", new Vector3(x, s / 2f, z), new Vector3(s * 1.4f, s, s), crate);
+                c.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 90f, 0f);
+            }
+
+            var surface = level.AddComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.Children;
+            surface.BuildNavMesh();
+            Debug.Log($"[Slice] navmesh built: {(surface.navMeshData != null ? "ok" : "MISSING")}");
+
+            var player = BuildPlayer(new Vector3(0f, 0.1f, -40f));
+            var visual = LoadSoldierVisual();
+            Debug.Log($"[Slice] soldier visual: {(visual ? "Blender GLB 'Soldier' node" : "capsule fallback (run StudioBootstrap.ImportAndBuild first)")}");
+            var enemies = new (string type, Vector3 pos, Vector3[] patrol, bool hold)[]
+            {
+                ("guard",   new Vector3(-20f, 0f, -10f), new[] { new Vector3(-20f, 0f, -10f), new Vector3(-30f, 0f, 5f) }, false),
+                ("guard",   new Vector3(25f, 0f, -5f),   new[] { new Vector3(25f, 0f, -5f), new Vector3(30f, 0f, 15f) }, false),
+                ("assault", new Vector3(-4f, 0f, 14f),   null, false),
+                ("assault", new Vector3(5f, 0f, 18f),    null, false),
+                ("heavy",   new Vector3(0f, 0f, 30f),    null, false),
+                ("sniper",  new Vector3(40f, 0f, 55f),   null, true),
+                ("elite",   new Vector3(-40f, 0f, 45f),  new[] { new Vector3(-40f, 0f, 45f), new Vector3(-15f, 0f, 50f) }, false),
+            };
+            var parent = new GameObject("Enemies");
+            for (int i = 0; i < enemies.Length; i++) BuildEnemy(parent, i, enemies[i].type, enemies[i].pos, enemies[i].patrol, enemies[i].hold, visual, player.transform.position);
+
+            var director = new GameObject("GameDirector").AddComponent<GameDirector>();
+            director.player = player.GetComponent<PlayerMotor>();
+            var hud = director.gameObject.AddComponent<Hud>();
+            hud.player = director.player; hud.weapon = player.GetComponentInChildren<WeaponController>();
+
+            Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
+            bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
+            var list = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
+            list.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
+            EditorBuildSettings.scenes = list.ToArray();
+            Debug.Log($"[Slice] scene {(saved ? "saved" : "NOT saved")}: {ScenePath}, {enemies.Length} enemies, pipeline {(GraphicsSettings.defaultRenderPipeline ? GraphicsSettings.defaultRenderPipeline.name : "built-in")}");
+            return saved;
+        }
+
+        static GameObject BuildPlayer(Vector3 pos)
+        {
+            var go = new GameObject("Player") { tag = "Player" };
+            go.transform.position = pos;
+            var cc = go.AddComponent<CharacterController>(); cc.height = 1.8f; cc.radius = 0.35f; cc.center = new Vector3(0f, 0.9f, 0f);
+            var hp = go.AddComponent<Damageable>(); hp.maxHealth = 100f; hp.armor = 100f; hp.armorSoak = 0.6f;   // player armour soaks 60%
+            var motor = go.AddComponent<PlayerMotor>();
+            var pivot = new GameObject("CameraPivot").transform; pivot.SetParent(go.transform, false); pivot.localPosition = new Vector3(0f, 1.65f, 0f);
+            motor.cameraPivot = pivot;
+            var cam = pivot.gameObject.AddComponent<Camera>(); cam.fieldOfView = 70f; cam.nearClipPlane = 0.05f; cam.tag = "MainCamera";
+            pivot.gameObject.AddComponent<AudioListener>();
+            if (GraphicsSettings.defaultRenderPipeline) cam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
+            var weapon = pivot.gameObject.AddComponent<WeaponController>(); weapon.motor = motor; weapon.view = cam;
+            return go;
+        }
+
+        static void BuildEnemy(GameObject parent, int i, string type, Vector3 pos, Vector3[] patrol, bool hold, GameObject visual, Vector3 face)
+        {
+            var go = new GameObject($"Enemy{i}_{type}");
+            go.transform.SetParent(parent.transform); go.transform.position = pos;
+            Vector3 look = face - pos; look.y = 0f; go.transform.rotation = Quaternion.LookRotation(look.sqrMagnitude > 0.01f ? look : Vector3.forward);
+            var body = go.AddComponent<CapsuleCollider>(); body.height = 1.8f; body.radius = 0.35f; body.center = new Vector3(0f, 0.9f, 0f);
+            go.AddComponent<HitZone>().part = BodyPart.Torso;
+            var head = new GameObject("HeadHit"); head.transform.SetParent(go.transform, false); head.transform.localPosition = new Vector3(0f, 1.68f, 0f);
+            head.AddComponent<SphereCollider>().radius = 0.14f; head.AddComponent<HitZone>().part = BodyPart.Head;
+            // the capsule covers the head too: shrink it so head shots reach the sphere first
+            body.height = 1.5f; body.center = new Vector3(0f, 0.75f, 0f);
+            go.AddComponent<Damageable>();
+            var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.angularSpeed = 360f; agent.acceleration = 12f;
+            var e = go.AddComponent<EnemyAgent>(); e.typeId = type; e.hold = hold;
+            if (patrol != null)
+            {
+                e.patrolPoints = new Transform[patrol.Length];
+                for (int p = 0; p < patrol.Length; p++)
+                {
+                    var wp = new GameObject($"Patrol{p}").transform; wp.SetParent(parent.transform); wp.position = patrol[p]; e.patrolPoints[p] = wp;
+                }
+            }
+            if (visual)
+            {
+                var v = Object.Instantiate(visual, go.transform); v.name = "Visual";
+                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            }
+            else
+            {
+                var cap = GameObject.CreatePrimitive(PrimitiveType.Capsule); Object.DestroyImmediate(cap.GetComponent<Collider>());
+                cap.name = "Visual"; cap.transform.SetParent(go.transform, false); cap.transform.localPosition = new Vector3(0f, 0.9f, 0f); cap.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
+                cap.GetComponent<Renderer>().sharedMaterial = Mat("Enemy_" + type, type == "heavy" ? new Color(0.25f, 0.27f, 0.22f) : new Color(0.4f, 0.38f, 0.3f), 0.7f);
+            }
+        }
+
+        static GameObject LoadSoldierVisual()
+        {
+            var root = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            if (!root) return null;
+            var t = root.GetComponentsInChildren<Transform>(true).FirstOrDefault(x => x.name == "Soldier");
+            return t ? t.gameObject : null;
+        }
+
+        static GameObject Box(GameObject parent, string name, Vector3 pos, Vector3 size, Material m)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = name; b.transform.SetParent(parent.transform); b.transform.position = pos; b.transform.localScale = size;
+            b.GetComponent<Renderer>().sharedMaterial = m; b.isStatic = true;
+            return b;
+        }
+
+        static Material Mat(string name, Color c, float roughness)
+        {
+            Directory.CreateDirectory(SettingsDir + "/Materials");
+            string path = $"{SettingsDir}/Materials/{name}.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            var shader = Shader.Find(GraphicsSettings.defaultRenderPipeline ? "Universal Render Pipeline/Lit" : "Standard");
+            if (!m) { m = new Material(shader); AssetDatabase.CreateAsset(m, path); }
+            m.shader = shader;
+            m.SetColor(GraphicsSettings.defaultRenderPipeline ? "_BaseColor" : "_Color", c);
+            m.SetFloat("_Smoothness", 1f - roughness); m.SetFloat("_Glossiness", 1f - roughness);
+            EditorUtility.SetDirty(m);
+            return m;
+        }
+
+        /// <summary>Creates and assigns a URP asset when the project still uses the built-in pipeline.</summary>
+        static void EnsureUrp()
+        {
+            if (GraphicsSettings.defaultRenderPipeline) return;
+            Directory.CreateDirectory(SettingsDir);
+            var data = ScriptableObject.CreateInstance<UniversalRendererData>();
+            AssetDatabase.CreateAsset(data, SettingsDir + "/URP_Renderer.asset");
+            var asset = UniversalRenderPipelineAsset.Create(data);
+            asset.shadowDistance = 120f; asset.msaaSampleCount = 4;
+            AssetDatabase.CreateAsset(asset, SettingsDir + "/URP_Pipeline.asset");
+            GraphicsSettings.defaultRenderPipeline = asset;
+            QualitySettings.renderPipeline = asset;
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Slice] created and assigned URP pipeline asset");
+        }
+    }
+}

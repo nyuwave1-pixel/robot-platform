@@ -1,0 +1,24 @@
+{
+    "name": "SpecialSoldier.Runtime",
+    "rootNamespace": "SpecialSoldier",
+    "references": [
+        "SpecialSoldier.Core",
+        "Unity.InputSystem",
+        "Unity.AI.Navigation"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "SS_HAS_INPUT",
+        "SS_HAS_NAV"
+    ],
+    "versionDefines": [
+        { "name": "com.unity.inputsystem", "expression": "1.0.0", "define": "SS_HAS_INPUT" },
+        { "name": "com.unity.ai.navigation", "expression": "1.0.0", "define": "SS_HAS_NAV" }
+    ],
+    "noEngineReferences": false
+}
