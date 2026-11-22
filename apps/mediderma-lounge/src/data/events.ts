@@ -16,14 +16,14 @@ export interface OfficialEvent {
   /** 기간 중 한 번 받는 참여 보상 (없으면 안내만) */
   reward?: { coins?: number; gems?: number; stars?: number };
   /** 눌렀을 때 여는 화면 */
-  cta?: "plaza" | "lounge" | "life" | "shop" | "care";
+  cta?: "plaza" | "lounge" | "life" | "shop" | "care" | "contest";
 }
 
 /** 공식 이벤트 보상 상한 (잘못 쓴 events.json 이 경제를 망가뜨리지 않게) */
 export const EVENT_REWARD_CAP = { coins: 5000, gems: 50, stars: 30 } as const;
 const COLOR = /^#[0-9a-f]{6}$/i;
 const ID = /^[a-z0-9-]{1,40}$/;
-const CTA = ["plaza", "lounge", "life", "shop", "care"] as const;
+const CTA = ["plaza", "lounge", "life", "shop", "care", "contest"] as const;
 
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, max) : "");
 const amount = (v: unknown, cap: number) => (typeof v === "number" && isFinite(v) ? Math.min(cap, Math.max(0, Math.round(v))) : 0);

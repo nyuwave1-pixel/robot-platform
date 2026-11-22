@@ -11,6 +11,8 @@ import { petFx } from "../three/Pet";
 import { tune } from "../data/config";
 import { LiveBar, LiveLoungeSync, useEventBadge } from "./Events";
 import { useRoom } from "../net/room";
+import { useContest } from "../net/contest";
+import { castVote } from "./Contest";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -282,6 +284,10 @@ function VisitBanner() {
   const visiting = useUI((s) => s.visiting);
   const shop = useUI((s) => s.shop);
   const liveHost = useRoom((s) => !!s.host && s.code === shop?.code);
+  const g = useGame();
+  // 이번 주 콘테스트 출품작이면 여기서 바로 투표
+  const entry = useContest((s) => s.board.find((e) => e.code === shop?.code));
+  const voted = useContest((s) => !!shop && !!s.me?.votedFor.includes(shop.code));
   const f = DEMO_FRIENDS.find((x) => x.id === visiting);
   const [liked, setLiked] = useState(false);
   if (shop)
@@ -291,6 +297,7 @@ function VisitBanner() {
           <p className="truncate text-sm font-black text-ink">{t("visit.title", { name: shop.name })}</p>
           <p className="text-[12px] text-ink/50">{liveHost ? t("live.shopLive") : t("plaza.shopNote")}</p>
         </div>
+        {entry && entry.code !== g.friendCode && <button disabled={voted} className="btn-ghost !px-3 !py-2 text-xs disabled:opacity-50" onClick={() => void castVote(entry.code, t)} data-testid="banner-vote">{voted ? "♥" : `♥ ${t("contest.voteBtn")}`}</button>}
         <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ shop: null, visiting: null, world: "plaza" })}>{t("plaza.toPlaza")}</button>
       </div>
     );

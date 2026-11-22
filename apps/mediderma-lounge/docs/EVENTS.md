@@ -29,3 +29,12 @@
 - Supabase Realtime 공개 채널(Presence + Broadcast)만 사용, 데이터베이스 저장 없음: 라운지 `mdl-lounge-<코드>`, 로비 `mdl-lounge-lobby`.
 - 다른 사람이 보낸 값은 모두 검증 (`cleanLook` · `cleanLounge` · `cleanEvent` · `cleanLobby`). 연결이 안 되면 혼자서 동작합니다.
 - 서버가 없으므로 보상은 클라이언트에서 지급됩니다. 실제 경품·결제가 걸린 프로모션이 필요하면 서버 검증(Supabase 테이블 + RLS/Edge Function)으로 옮겨야 합니다.
+
+## 4. 주간 라운지 꾸미기 콘테스트
+- EVENT → **콘테스트** 탭. 한 주(한국 시간 월요일 0시 ~ 일요일 24시)에 내 라운지를 출품하고, 다시 내면 지금 모습으로 바뀝니다.
+- 다른 출품작에 하트(한 주 5표, 작품마다 한 번, 내 라운지 제외). 순위표에서 **구경**하면 그 라운지 출품 사진으로 들어가고, 주인이 접속해 있으면 실시간 방문이 됩니다. 방문 화면 아래 **하트** 버튼으로도 투표.
+- 보상(지난 주 결과로 한 번): 1위 3000 코인·50 젬 / 2~3위 2000·30 / 4~10위 1000·10 / 하트를 받은 출품작 300 코인.
+- 서버: Supabase 프로젝트의 `mdl_contest` 스키마(공개 안 됨) + 검증 함수 `mdl_contest_enter/vote/board/me` (SQL: `supabase/mdl_lounge_contest.sql`).
+  친구 코드 + 기기에 저장된 비밀값으로 본인 확인 — 남의 코드로 출품·투표할 수 없습니다. 같은 저장을 다른 기기에서 쓰면 그 기기에서는 콘테스트 참여가 막힙니다.
+- 한계: 로그인이 없어 한 사람이 저장을 여러 개 만들어 표를 늘리는 것은 막지 못합니다. 실제 경품을 걸 때는 로그인(Supabase Auth) 연동이 필요합니다.
+- 운영 SQL 예: 이번 주 순위 `select * from public.mdl_contest_board();` · 부정 출품작 삭제 `delete from mdl_contest.entries where week = '2026-W48' and code = 'XXXXXX';`

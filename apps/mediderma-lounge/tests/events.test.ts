@@ -12,7 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
 beforeEach(() => {
   g().reset(); g().startNew("테스트", DEFAULT_LOOK);
   useGame.setState({ coins: 10_000, gems: 0, stars: 0 });
-  useEvents.setState({ claimed: [], seen: [], open: true, hosting: null, daily: { date: today, hosted: 0, visits: 0, owners: [] } });
+  useEvents.setState({ claimed: [], seen: [], open: true, hosting: null, contestClaimed: [], daily: { date: today, hosted: 0, visits: 0, owners: [] } });
 });
 
 describe("공식 이벤트 (public/events.json)", () => {
@@ -100,5 +100,39 @@ describe("오픈 라운지 네트워크 입력 검증", () => {
     }, "MYCODE", now);
     expect(list.map((o) => o.code)).toEqual(["BBBBBB", "AAAAAA"]);
     expect(list[0].level).toBe(10);
+  });
+});
+
+describe("주간 라운지 꾸미기 콘테스트", async () => {
+  const { contestReward, weekOf, weekEndsAt, cleanEntry } = await import("../src/net/contest");
+  it("주 표기는 한국 시간 ISO 주 (서버와 같은 규칙)", () => {
+    expect(weekOf(Date.parse("2026-11-22T05:00:00Z"))).toBe("2026-W47"); // 일요일 14시 KST
+    expect(weekOf(Date.parse("2026-11-22T15:30:00Z"))).toBe("2026-W48"); // 월요일 00:30 KST
+    expect(weekOf(Date.parse("2027-01-01T03:00:00Z"))).toBe("2026-W53");
+    expect(weekEndsAt(Date.parse("2026-11-22T05:00:00Z"))).toBe(Date.parse("2026-11-22T15:00:00Z"));
+    expect(weekEndsAt(Date.parse("2026-11-16T00:00:00Z"))).toBe(Date.parse("2026-11-22T15:00:00Z"));
+  });
+  it("순위 보상은 높을수록 크고, 순위가 없으면 없다", () => {
+    expect(contestReward(null)).toBeNull();
+    expect(contestReward(1)!.gems).toBeGreaterThan(contestReward(2)!.gems);
+    expect(contestReward(3)!.coins).toBeGreaterThan(contestReward(4)!.coins);
+    expect(contestReward(10)!.coins).toBeGreaterThan(contestReward(11)!.coins);
+  });
+  it("보상은 주마다 한 번만", () => {
+    const c = g().coins;
+    expect(ev().claimContest("2026-W46", contestReward(1))).toBe(true);
+    expect(g().coins).toBe(c + 3000);
+    expect(ev().claimContest("2026-W46", contestReward(1))).toBe(false);
+    expect(ev().claimContest("nope", contestReward(1))).toBe(false);
+    expect(ev().claimContest("2026-W47", null)).toBe(false);
+  });
+  it("서버가 준 출품작도 아는 값만 받아들인다", () => {
+    expect(cleanEntry({ code: "bad" })).toBeNull();
+    const e = cleanEntry({ code: "ABC123", name: "<i>x", level: 77, votes: "12", rank: 2, snapshot: { lounge: { level: 2, furniture: [{ type: "nope" }] }, look: { hair: "zzz" }, stage: 9 } })!;
+    expect(e.name).toBe("ix");
+    expect(e.level).toBe(10);
+    expect(e.votes).toBe(12);
+    expect(e.lounge.furniture).toEqual([]);
+    expect(e.stage).toBe(5);
   });
 });

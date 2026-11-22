@@ -5,6 +5,8 @@
  *  - LiveBar: 라운지 안에서 보이는 실시간 표시줄 (방문객 수 · 진행 중인 이벤트 · 주인 공지)
  */
 import { useEffect, useState } from "react";
+import { create } from "zustand";
+import { ContestTab } from "./Contest";
 import { LOUNGE_EVENTS, LOUNGE_EVENT_MAP, NOTICES, isActive, isUpcoming, type OfficialEvent } from "../data/events";
 import { activeHosting, loadOfficialEvents, useEvents, useOfficial } from "../store/events";
 import { normCode, useGame } from "../store/game";
@@ -136,13 +138,18 @@ export async function visitByCode(raw: string): Promise<"ok" | "closed" | "self"
 }
 
 // ───────────── 패널 ─────────────
+export type EvTab = "news" | "contest" | "open" | "mine";
+/** 다른 화면에서 특정 탭으로 열 때 */
+export const useEvTab = create<{ tab: EvTab }>(() => ({ tab: "news" }));
 export function EventsPanel() {
   const t = useT();
-  const [tab, setTab] = useState<"news" | "open" | "mine">("news");
+  const tab = useEvTab((s) => s.tab);
+  const setTab = (v: EvTab) => useEvTab.setState({ tab: v });
   return (
     <Sheet title="EVENT & OPEN LOUNGE">
-      <Tabs tabs={[["news", t("ev.tabNews")], ["open", t("ev.tabOpen")], ["mine", t("ev.tabMine")]]} value={tab} onPick={setTab} />
+      <Tabs tabs={[["news", t("ev.tabNews")], ["contest", t("ev.tabContest")], ["open", t("ev.tabOpen")], ["mine", t("ev.tabMine")]]} value={tab} onPick={setTab} />
       {tab === "news" && <News />}
+      {tab === "contest" && <ContestTab />}
       {tab === "open" && <OpenLounges />}
       {tab === "mine" && <MyLounge />}
     </Sheet>
@@ -166,6 +173,7 @@ function News() {
     else if (e.cta === "life") ui.set({ panel: "life" });
     else if (e.cta === "shop") ui.set({ panel: "shop", shopTab: "product" });
     else if (e.cta === "care") ui.set({ panel: "care" });
+    else if (e.cta === "contest") useEvTab.setState({ tab: "contest" });
   };
   const card = (e: OfficialEvent, live: boolean) => {
     const got = claimed.includes(e.id);
