@@ -427,6 +427,8 @@ export const GUIDES: Guide[] = [
       { q: "Can I use a face mist over makeup?", a: "Yes, if the mist is fine enough. Hold it at arm's length, spray a light veil, and let it dry without rubbing." },
       { q: "How far should I hold a face mist from my face?", a: "Follow the product directions. For the UNI&CORE serum mist, hold the bottle 20–30 cm away and spray evenly." },
       // Search research 2026-11-17: "face mist vs setting spray", "copper peptide face mist".
+      // Search research 2026-11-22: "face mist vs toner".
+      { q: "Is a face mist the same as a toner?", a: "Not quite. A toner is a step right after cleansing, while a face mist is a light spray you can use any time: after cleansing, before skincare, over makeup or midday. The UNI&CORE serum mist gives serum-level hydration in an ultra-fine spray." },
       { q: "Is a face mist the same as a setting spray?", a: "No. A face mist is skincare that adds hydration and a fresh finish, while a setting spray is a makeup product made to help makeup last. Over makeup, a mist refreshes the finish rather than extending wear." },
       { q: "What is copper tripeptide-1 in a face mist?", a: "Copper tripeptide-1, also called GHK-Cu, is a peptide used in skincare. In the UNI&CORE serum mist it is paired with a mild CICA complex in nano liposomes, for skin that looks and feels revitalized." },
       { q: "Where can I buy the UNI&CORE serum mist?", a: "On TikTok Shop. Use the Shop on TikTok Shop button in this guide." },
