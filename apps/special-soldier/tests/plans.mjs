@@ -230,3 +230,16 @@ export async function grenadeDbg({ page, sim }) {
     await sim(4); console.log(await page.evaluate(() => JSON.stringify({ booms: SS.mission.boomLog, left: SS.weapons.grenades, flag: SS.mission.flags.boom })));
   }
 }
+
+// grenade danger indicator: a frag 3 m to the player's right shows a red warning pointing right; one 9 m behind shows amber pointing back
+export async function nadeWarn({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; SS.godMode = true; QA.tp(-20, 318); SS.player.yaw = 0; SS.player.pitch = 0; });
+  await sim(0.3);
+  const drop = (dx, dz) => page.evaluate(([dx, dz]) => { const P = SS.player, p = P.pos.clone(); p.x += dx; p.z += dz; p.y = SS.world.heightAt(p.x, p.z) + 0.1; SS.fx.grenade(p, p.clone().set(0, 0, 0), 'enemy', { fuse: 6 }); }, [dx, dz]);
+  const read = () => page.evaluate(() => ({ cls: document.getElementById('nadeWarn').className, deg: Math.round(SS.hud.nadeDeg), dist: document.getElementById('nadeDist').textContent }));
+  await drop(3, 0); await sim(0.2); console.log('right 3 m :', JSON.stringify(await read())); await shot('N1-right');
+  await page.evaluate(() => { for (const n of SS.fx.nades) SS.scene.remove(n.mesh); SS.fx.nades.length = 0; });
+  await drop(0, 9); await sim(0.2); console.log('behind 9 m:', JSON.stringify(await read())); await shot('N2-behind');
+  await page.evaluate(() => { for (const n of SS.fx.nades) SS.scene.remove(n.mesh); SS.fx.nades.length = 0; }); await sim(0.2); console.log('cleared   :', JSON.stringify(await read()));
+}

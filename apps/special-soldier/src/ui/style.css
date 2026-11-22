@@ -85,3 +85,12 @@ code{background:#fff1;padding:1px 5px}
 @keyframes pressPulse{0%,100%{opacity:.35}50%{opacity:1}}
 .tip{flex:1;font-size:12px;color:#cfd6d2;border-left:3px solid var(--red);padding:6px 12px;margin-right:16px;background:rgba(255,255,255,.04);text-align:left}.tip b{color:var(--red);letter-spacing:.2em;margin-right:8px}
 .kia .tip{margin:14px 0}
+
+/* grenade danger indicator */
+#nadeWarn{left:50%;top:50%;width:0;height:0;display:none;pointer-events:none}#nadeWarn.on{display:block}
+#nadeWarn .nw-rot{position:absolute;left:0;top:0;width:0;height:0}
+#nadeWarn .nw-arrow{position:absolute;left:-9px;top:-158px;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:13px solid #f0a020}
+#nadeWarn .nw-ico{position:absolute;left:0;top:-122px;width:44px;height:44px;border-radius:50%;background:rgba(10,12,10,.55);border:2px solid #f0a020;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#nadeWarn svg{width:22px;height:22px;fill:#f0a020;stroke:#f0a020}#nadeWarn b{font:600 10px/1 inherit;color:#f0a020;margin-top:1px;letter-spacing:.05em}
+#nadeWarn.danger .nw-arrow{border-bottom-color:#ff3b2f}#nadeWarn.danger .nw-ico{border-color:#ff3b2f;animation:nadePulse .35s ease-in-out infinite alternate}#nadeWarn.danger svg{fill:#ff3b2f;stroke:#ff3b2f}#nadeWarn.danger b{color:#ff3b2f}
+@keyframes nadePulse{from{box-shadow:0 0 0 0 rgba(255,59,47,.0)}to{box-shadow:0 0 18px 4px rgba(255,59,47,.65)}}

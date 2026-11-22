@@ -16,6 +16,7 @@ export class Hud {
       <div id="droneOv"><div class="d-frame"></div><b>RECON DRONE · LIVE FEED</b><span id="droneInfo"></span><em>WASD fly · SPACE/CTRL altitude · B recall</em></div>
       <div id="cross"><i></i><i></i><i></i><i></i><u></u></div><div id="hitm"></div>
       <div id="dmgDir"></div>
+      <div id="nadeWarn"><div class="nw-rot"><i class="nw-arrow"></i><div class="nw-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="14" r="7"/><rect x="9" y="4" width="5" height="4" rx="1"/><path d="M14 6 L20 3" stroke-width="2"/></svg><b id="nadeDist"></b></div></div></div>
       <div id="objPanel"><div id="objCode"></div><div id="objText"></div></div>
       <div id="aware"><span id="awareLabel">HIDDEN</span><div><i id="awareBar"></i></div></div>
       <div id="bossBar"><span>COMMANDER VIPER</span><div><i id="bossHp"></i><u id="bossAr"></u></div></div>
@@ -50,6 +51,15 @@ export class Hud {
   toast(msg, warn) { const box = $('toasts'), d = document.createElement('div'); d.textContent = msg; if (warn) d.className = 'warn'; box.appendChild(d); while (box.children.length > 4) box.firstChild.remove(); setTimeout(() => d.remove(), 3200); }
   radio(line) { const r = $('radio'); r.textContent = '◢ ' + line; r.classList.add('on'); clearTimeout(this.radioT); this.radioT = setTimeout(() => r.classList.remove('on'), 5200); G.audio.say(line); }
   objective(text, flash) { if (text === this.lastObj && !flash) return; this.lastObj = text; $('objCode').textContent = G.mission.def ? `${G.mission.def.code} · ${G.mission.def.name}` : ''; const el = $('objText'); el.textContent = '▸ ' + text; if (flash) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
+  /** Grenade danger indicator: nearest live frag within 11 m, drawn on a ring around the crosshair (same angle convention as hitFrom). */
+  nadeWarn(P) {
+    const el = $('nadeWarn'); let best = null, bd = 11;
+    if (G.state === 'playing' && P.alive) for (const n of G.fx.nades) { if (n.smoke) continue; const d = Math.hypot(n.p.x - P.pos.x, n.p.z - P.pos.z); if (d < bd) { bd = d; best = n; } }
+    if (!best) { if (this.nadeOn) { el.className = ''; this.nadeOn = false; } return; }
+    const a = Math.atan2(best.p.x - P.pos.x, best.p.z - P.pos.z), deg = ((P.yaw - a) * 180) / Math.PI + 180, danger = bd < best.radius;
+    el.className = 'on' + (danger ? ' danger' : ''); this.nadeOn = true; this.nadeDeg = ((deg % 360) + 360) % 360;
+    el.firstChild.style.transform = `rotate(${deg}deg)`; el.querySelector('.nw-ico').style.transform = `translate(-50%, -50%) rotate(${-deg}deg)`; $('nadeDist').textContent = bd.toFixed(0) + ' m';
+  }
   hitFrom(angle) { const d = document.createElement('i'); $('dmgDir').appendChild(d); this.dirs.push({ d, angle, t: 1.6 }); }
   hitMarker(head, kill) { const h = $('hitm'); h.className = (head ? 'head ' : '') + (kill ? 'kill ' : '') + 'on'; this.hitT = 0.22; }
   killFeed(name, head) { const f = $('feed'), d = document.createElement('div'); d.innerHTML = `<b>${G.save.callsign}</b> ${head ? '◎ HEADSHOT' : '▸'} <span>${name}</span>`; f.appendChild(d); while (f.children.length > 5) f.firstChild.remove(); setTimeout(() => d.remove(), 4500); }
@@ -63,6 +73,7 @@ export class Hud {
     if (this.hitT > 0 && (this.hitT -= dt) <= 0) $('hitm').className = '';
     $('scope').style.display = wp.scoped && !drone ? 'block' : 'none'; $('droneOv').style.display = drone ? 'block' : 'none';
     const vis = $('vision'); vis.className = G.gear.vision === 1 ? 'nvg' : G.gear.vision === 2 ? 'thermal' : '';
+    this.nadeWarn(P);
     for (let i = this.dirs.length - 1; i >= 0; i--) { const d = this.dirs[i]; d.t -= dt; if (d.t <= 0) { d.d.remove(); this.dirs.splice(i, 1); continue; } d.d.style.opacity = Math.min(1, d.t); d.d.style.transform = `rotate(${((P.yaw - d.angle) * 180) / Math.PI + 180}deg)`; }
     // interaction prompt
     const it = P.interact, pr = $('prompt'); if (it && !drone) { pr.style.display = 'flex'; $('promptText').textContent = (it.hold ? 'HOLD — ' : '') + it.label; $('promptBar').style.width = it.hold ? `${(P.holdT / it.hold) * 100}%` : '0'; } else pr.style.display = 'none';
