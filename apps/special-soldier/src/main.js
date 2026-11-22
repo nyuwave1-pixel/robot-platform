@@ -14,6 +14,7 @@ import { Enemies } from './game/enemies.js';
 import { Squad } from './game/squad.js';
 import { Gear } from './game/gear.js';
 import { MissionSys, MISSIONS, TRAINING } from './game/missions.js';
+import { INTEL } from './config/intel.js';
 import { Cine } from './game/cinematics.js';
 import { Hud } from './ui/hud.js';
 import { Menu } from './ui/menu.js';
@@ -79,7 +80,7 @@ G.onMissionComplete = () => {
   const m = G.mission, st = m.stats, s = G.save, i = m.idx, acc = st.shots ? Math.round((st.hits / st.shots) * 100) : 0;
   let pts = 0; pts += acc >= 45 ? 2 : acc >= 25 ? 1 : 0; pts += st.alarms === 0 ? 2 : st.alarms === 1 ? 1 : 0; pts += st.deaths === 0 ? 2 : st.deaths === 1 ? 1 : 0; pts += st.headshots >= st.kills * 0.3 ? 1 : 0;
   const grade = pts >= 7 ? 'S' : pts >= 5 ? 'A' : pts >= 3 ? 'B' : 'C', first = s.progress <= i;
-  const res = { code: m.def.code, name: m.def.name, grade, time: st.time, kills: st.kills, headshots: st.headshots, acc, hits: st.hits, shots: st.shots, alarms: st.alarms, deaths: st.deaths, score: Math.round(st.score), unlocks: first ? m.def.unlocks : [], last: i === MISSIONS.length - 1 };
+  const res = { code: m.def.code, name: m.def.name, grade, time: st.time, kills: st.kills, headshots: st.headshots, acc, hits: st.hits, shots: st.shots, alarms: st.alarms, deaths: st.deaths, intel: st.intel || 0, intelMax: (INTEL[i] ? INTEL[i].docs.length : 0), score: Math.round(st.score), unlocks: first ? m.def.unlocks : [], last: i === MISSIONS.length - 1 };
   s.progress = Math.max(s.progress, i + 1); const old = s.best[i]; if (!old || 'CBAS'.indexOf(grade) >= 'CBAS'.indexOf(old.grade)) s.best[i] = { grade, time: Math.round(st.time), kills: st.kills, acc, alarms: st.alarms };
   s.stats.kills += st.kills; s.stats.headshots += st.headshots; s.stats.shots += st.shots; s.stats.hits += st.hits; s.stats.deaths += st.deaths; s.stats.time += st.time; storeSave(s);
   G.state = 'result'; G.lastResult = res; G.input.unlock(); G.audio.hush(); G.audio.stopLoops(); G.hud.show(false); G.player.frozen = false; G.menu.result(res);

@@ -243,3 +243,18 @@ export async function nadeWarn({ page, sim, shot }) {
   await drop(0, 9); await sim(0.2); console.log('behind 9 m:', JSON.stringify(await read())); await shot('N2-behind');
   await page.evaluate(() => { for (const n of SS.fx.nades) SS.scene.remove(n.mesh); SS.fx.nades.length = 0; }); await sim(0.2); console.log('cleared   :', JSON.stringify(await read()));
 }
+
+// intel collectibles: each mission spawns 3 laptops; walking onto one collects it, saves it and fills the archive
+export async function intel({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const out = [];
+  for (let i = 0; i < 5; i++) {
+    const r = await page.evaluate((i) => { localStorage.clear(); SS.save.intel = {}; SS.startMission(i, true); SS.noTarget = true; SS.godMode = true; const items = SS.mission.intelItems.map((it) => [+it.x.toFixed(1), +it.y.toFixed(1), +it.z.toFixed(1)]); return { n: items.length, items }; }, i);
+    await sim(0.2);
+    const got = await page.evaluate(async (i) => { const m = SS.mission; for (const it of [...m.intelItems]) { QA.tp(it.x, it.z, it.y); SS.skipRender = true; for (let t = 0; t < 6; t++) SS.tick(1 / 30); SS.skipRender = false; } return { saved: (SS.save.intel[i] || []).length, left: m.intelItems.length, stat: m.stats.intel }; }, i);
+    out.push(`M0${i + 1}: spawned ${r.n} → saved ${got.saved}, left ${got.left}, run stat ${got.stat} · ${JSON.stringify(r.items)}`);
+    if (i === 0) { await page.evaluate(() => { localStorage.clear(); SS.save.intel = {}; SS.startMission(0, true); SS.noTarget = true; const it = SS.mission.intelItems[0]; QA.tp(it.x, it.z + 2.2, it.y); SS.player.yaw = 0; SS.player.pitch = -0.55; }); await sim(0.3); await shot('I1-laptop'); }
+  }
+  console.log(out.join('\n'));
+  await page.evaluate(() => { SS.save.intel = { 0: [0, 1, 2], 2: [1] }; SS.toMenu(); SS.menu.intelArchive(); }); await page.waitForTimeout(400); await shot('I2-archive');
+}

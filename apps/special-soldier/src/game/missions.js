@@ -8,6 +8,8 @@ import { FAC_Y, MAT } from '../world/world.js';
 import { ST } from './enemies.js';
 import { WEAPONS } from '../config/weapons.js';
 import { makeHeli } from './models.js';
+import { INTEL } from '../config/intel.js';
+import { storeSave } from '../core/save.js';
 
 const E = () => G.enemies, sp = (k, x, z, o) => G.enemies.spawn(k, x, z, o);
 const top = (x, z) => G.world.groundAt(x, z, 999);
@@ -144,6 +146,15 @@ export const MISSIONS = [
     alarm() {} },
 ];
 const _a = new THREE.Vector3();
+const lapMat = { base: new THREE.MeshStandardMaterial({ color: 0x2a2d30, roughness: 0.5, metalness: 0.4 }), screen: new THREE.MeshStandardMaterial({ color: 0x0a1a12, emissive: 0x38ff9a, emissiveIntensity: 1.6 }) };
+/** Rugged laptop with a glowing screen and a soft ground ring so the player can spot it. */
+function laptop() {
+  const g = new THREE.Group(), base = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.03, 0.27), lapMat.base); base.position.y = 0.015; g.add(base);
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.27, 0.014), lapMat.base); lid.position.set(0, 0.15, -0.135); lid.rotation.x = -0.32; g.add(lid);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.33, 0.22), lapMat.screen); scr.position.set(0, 0.15, -0.126); scr.rotation.x = -0.32; g.add(scr);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.55, 28), new THREE.MeshBasicMaterial({ color: 0x38ff9a, transparent: true, opacity: 0.5, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; g.add(ring);
+  g.traverse((o) => { if (o.isMesh && o !== ring) o.castShadow = true; }); return g;
+}
 
 export class MissionSys {
   constructor() { this.idx = -1; this.def = null; this.interactables = []; this.stats = this.newStats(); this.flags = {}; this.objs = []; this.oi = 0; this.heli = null; }
@@ -156,7 +167,18 @@ export class MissionSys {
     G.enemies.clear(); G.fx.reset(); G.sky.set(d.sky, true); this.restoreWorld();
     const s = d.spawn(), P = G.player; P.reset(); P.medkits = 2; P.place(s.x, s.z, s.yaw, s.y); this.checkpoint = { x: s.x, z: s.z, y: s.y, yaw: s.yaw, oi: 0 };
     G.weapons.equip(G.save.loadout); G.gear.reset(); G.squad.spawn(3); d.setup(this); if (d.noSquad) G.squad.clear();
-    G.cine.placeBoat(i === 0);
+    G.cine.placeBoat(i === 0); this.spawnIntel();
+  }
+  /** Intel laptops for this mission that the player has not collected yet (auto-pickup within 1.8 m). */
+  spawnIntel() {
+    for (const it of this.intelItems || []) G.scene.remove(it.mesh); this.intelItems = []; this.stats.intel = 0;
+    const set = INTEL[this.idx]; if (!set) return; const got = (G.save.intel && G.save.intel[this.idx]) || [];
+    set.at().forEach(([x, z, y], k) => { if (got.includes(k)) return; const gy = y !== undefined ? y : G.world.groundAt(x, z, 999), mesh = laptop(); mesh.position.set(x, gy, z); mesh.rotation.y = k * 1.7; G.scene.add(mesh); this.intelItems.push({ k, x, y: gy, z, mesh }); });
+  }
+  updateIntel(dt) {
+    const P = G.player; for (let i = this.intelItems.length - 1; i >= 0; i--) { const it = this.intelItems[i]; it.mesh.children[3].material.opacity = 0.35 + 0.25 * Math.sin(G.time * 4 + it.k);
+      if (Math.hypot(P.pos.x - it.x, P.pos.z - it.z) < 1.8 && Math.abs(P.pos.y - it.y) < 2.5) { G.scene.remove(it.mesh); this.intelItems.splice(i, 1); const s = G.save; s.intel = s.intel || {}; const got = (s.intel[this.idx] = s.intel[this.idx] || []); if (!got.includes(it.k)) got.push(it.k); storeSave(s); this.stats.intel++;
+        G.hud.toast(`INTEL ACQUIRED — ${INTEL[this.idx].docs[it.k][0]} (${got.length}/${INTEL[this.idx].docs.length})`); G.audio.play('ui:ok'); } }
   }
   showRange(k) { for (const c of this.trainGroups[k] || []) { c.alive = true; c.hp = c.maxHp; c.mesh.visible = true; } }
   rangeLeft(k) { return (this.trainGroups[k] || []).filter((c) => c.alive).length; }
@@ -182,6 +204,7 @@ export class MissionSys {
   }
   update(dt) {
     if (this.completeT >= 0) { this.completeT -= dt; if (this.completeT < 0) { this.completeT = -1; this.finish(); } return; }
+    if (this.intelItems && this.intelItems.length) this.updateIntel(dt);
     const o = this.obj, P = G.player; if (!o) return; this.stats.time += dt; if (this.def.tick) this.def.tick(this, dt);
     if (o.type === 'kill') { if (G.enemies.count(o.group) === 0) this.advance(); }
     else if (o.type === 'reach') { const a = o.at ? o.at() : o; if (Math.hypot(P.pos.x - a.x, P.pos.z - a.z) < o.r && (a.y === undefined || Math.abs(P.pos.y - a.y) < 6)) this.advance(); }
