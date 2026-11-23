@@ -15,7 +15,7 @@ export const geminiConfigured = () => Boolean(process.env.GEMINI_API_KEY);
 
 const ZONES = FACE_ZONES.map((z) => z.id) as string[];
 const METRICS: MetricKey[] = ["texture", "wrinkleVisibility", "poreVisibility", "toneUniformity", "pigmentVisibility", "rednessVisibility", "underEyeDarkness"];
-const LANG: Record<string, string> = { ko: "Korean", en: "English", ja: "Japanese", zh: "Simplified Chinese", es: "Spanish", vi: "Vietnamese", ru: "Russian" };
+const LANG: Record<string, string> = { ko: "Korean", en: "English", ja: "Japanese", zh: "Simplified Chinese", es: "Spanish", vi: "Vietnamese", ru: "Russian", th: "Thai", mn: "Mongolian (Cyrillic script)" };
 
 const SYSTEM = `You are a cosmetic skin-observation assistant inside a beauty app. You look at one face photo and a set of photo-based observation indices that an on-device computer-vision engine already computed.
 Rules you must follow:
