@@ -15,6 +15,8 @@ export interface Ingredient {
   video?: { src: string; poster: string };
   /** 노벨상 성분(EGF) 강조 배지 */
   nobel?: boolean;
+  /** 강조 배지 문구 (예: 레시틴 2.5% 함유) */
+  badge?: string;
 }
 
 /** 상세페이지 「기억할 건 딱 4가지」 원문 */
@@ -25,13 +27,10 @@ export const keyIngredients: Ingredient[] = [
     id: "peptide", index: "03", name: "아세틸헥사펩타이드-8", claim1: "생기 없는 피부에", claim2: "깊은주름 억제 & 케어", color: "#F4EFE7", image: detail.ingPeptide,
     sub: [{ name: "아세틸헥사펩타이드-8", desc: "집중 표정주름 케어" }, { name: "카퍼트라이펩타이드-1", desc: "" }],
   },
+  // 2026-11-23 수정 요청(대표 지시): 레시틴 2.5% 함량 강조 — 교육자료 8·19번 페이지와 같은 문구
   {
-    id: "cica", index: "04", name: "시카컴플렉스 & 우레아 · 세라마이드", claim1: "지친 피부 진정 케어,", claim2: "수분 충전 & 보습", color: "#7FB08A", image: detail.ingCica, video: clips.cicaLeaves,
-    sub: [
-      { name: "자작나무껍질추출물", desc: "피부를 정돈하는 자작나무 껍질" },
-      { name: "병풀 유래 3종 성분", desc: "지친 피부를 차분하게 진정" },
-      { name: "베타-글루칸", desc: "건조한 피부를 촉촉하게 진정" },
-    ],
+    id: "lecithin", index: "04", badge: "레시틴 2.5% 함유", name: "레시틴 2.5% & 우레아 & 세라마이드", claim1: "바르는 즉시, 수분 충전.", claim2: "당기고 거친 피부결을 촉촉하고 매끄럽게.", color: "#E5C58D",
+    sub: [{ name: "산화에 안정적으로 구현한 크림 제형", desc: "레시틴 2.5%" }],
   },
 ];
 

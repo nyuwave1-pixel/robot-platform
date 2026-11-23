@@ -200,7 +200,7 @@ export default function ReviewEvent() {
             {keyIngredients.map((ing) => (
               <Reveal as="li" key={ing.id} className={s.ing}>
                 <span className={s.ingIdx}>{ing.index}</span>
-                <div><h3>{ing.name}</h3><p>{ing.claim1} {ing.claim2}</p>{ing.sub && <small>{ing.sub.map((x) => x.name).join(" · ")}</small>}</div>
+                <div>{ing.badge && <span className={s.ingBadge}>{ing.badge}</span>}<h3>{ing.name}</h3><p>{ing.claim1} {ing.claim2}</p>{ing.sub && <small>{ing.sub.map((x) => x.name).join(" · ")}</small>}</div>
               </Reveal>
             ))}
           </ul>

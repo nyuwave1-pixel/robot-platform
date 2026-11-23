@@ -111,6 +111,7 @@
 .productShot p { margin: 14px 0 0; font-size: 16px; color: var(--dim); letter-spacing: 0.02em; }
 .keyTitle { margin: 46px 0 18px; text-align: center; font-size: 26px; font-weight: 300; letter-spacing: -0.03em; }
 .ingredients { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ingBadge { display: inline-block; margin: 0 0 8px; padding: 5px 10px 4px; border-radius: 999px; background: var(--champ); color: #1a120c; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
 .ing { display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 20px 18px; border: 1px solid rgba(198, 161, 106, 0.2); border-radius: 6px; }
 .ingIdx { font: 500 30px/1.1 var(--font-serif); color: var(--gold); }
 .ing h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--champ); }
