@@ -42,7 +42,7 @@ namespace SpecialSoldier
             if (_tracerT > 0 && (_tracerT -= dt) <= 0) _tracer.enabled = false;
             var hp = motor ? motor.GetComponent<Damageable>() : null;
             var kb = Keyboard.current; var mouse = Mouse.current;
-            bool canAct = kb != null && mouse != null && (!hp || hp.Alive) && Cursor.lockState == CursorLockMode.Locked
+            bool canAct = kb != null && mouse != null && (!hp || hp.Alive) && GameDirector.CursorCaptured
                           && (!GameDirector.Instance || GameDirector.Instance.State == GameDirector.Outcome.Playing);
 
             if (canAct)

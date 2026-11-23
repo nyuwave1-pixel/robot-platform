@@ -40,15 +40,19 @@ namespace SpecialSoldier.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var rng = new System.Random(7);   // fixed seed: the same level every build
 
+            // Linear colour space + ACES tonemapping: in Gamma space URP washed the sand out to pale yellow (first PC run, 2026-11-23)
+            if (PlayerSettings.colorSpace != ColorSpace.Linear) PlayerSettings.colorSpace = ColorSpace.Linear;
+            var post = new GameObject("PostProcess").AddComponent<Volume>(); post.isGlobal = true; post.sharedProfile = PostProfile();
+
             var sun = new GameObject("Sun").AddComponent<Light>();
-            sun.type = LightType.Directional; sun.intensity = 1.6f; sun.color = new Color(1f, 0.93f, 0.82f); sun.shadows = LightShadows.Soft;
+            sun.type = LightType.Directional; sun.intensity = 1.25f; sun.color = new Color(1f, 0.93f, 0.82f); sun.shadows = LightShadows.Soft;
             sun.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
             RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.8f); RenderSettings.ambientEquatorColor = new Color(0.45f, 0.45f, 0.4f); RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
             RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 60f; RenderSettings.fogEndDistance = 240f; RenderSettings.fogColor = new Color(0.7f, 0.75f, 0.8f);
 
             var level = new GameObject("Level");
-            var sand = Mat("Sand", new Color(0.76f, 0.69f, 0.52f), 0.9f);
+            var sand = Mat("Sand", new Color(0.62f, 0.55f, 0.42f), 0.9f);
             var concrete = Mat("Concrete", new Color(0.55f, 0.55f, 0.53f), 0.85f);
             var crate = Mat("Crate", new Color(0.42f, 0.33f, 0.2f), 0.8f);
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -178,6 +182,19 @@ namespace SpecialSoldier.EditorTools
             b.name = name; b.transform.SetParent(parent.transform); b.transform.position = pos; b.transform.localScale = size;
             b.GetComponent<Renderer>().sharedMaterial = m; b.isStatic = true;
             return b;
+        }
+
+        static VolumeProfile PostProfile()
+        {
+            string path = SettingsDir + "/SlicePost.asset";
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(path);
+            if (!profile) { profile = ScriptableObject.CreateInstance<VolumeProfile>(); AssetDatabase.CreateAsset(profile, path); }
+            if (!profile.TryGet(out Tonemapping tm)) { tm = profile.Add<Tonemapping>(true); tm.name = "Tonemapping"; AssetDatabase.AddObjectToAsset(tm, profile); }
+            tm.mode.Override(TonemappingMode.ACES);
+            if (!profile.TryGet(out ColorAdjustments ca)) { ca = profile.Add<ColorAdjustments>(true); ca.name = "ColorAdjustments"; AssetDatabase.AddObjectToAsset(ca, profile); }
+            ca.postExposure.Override(0.3f); ca.contrast.Override(8f);
+            EditorUtility.SetDirty(profile); AssetDatabase.SaveAssets();
+            return profile;
         }
 
         static Material Mat(string name, Color c, float roughness)

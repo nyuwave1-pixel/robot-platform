@@ -94,6 +94,14 @@ if ($Install) {
   if ($unity -and $env:UNITY_EDITOR -ne $unity) { [Environment]::SetEnvironmentVariable('UNITY_EDITOR', $unity, 'User'); Write-Host "  Saved UNITY_EDITOR (user env)" }
 }
 
+# --- MSIX Unity Hub: copy its licence to where the Editor looks (see find-tools.ps1 Get-MsixUnityLicence)
+$msixLic = Get-MsixUnityLicence
+if ($msixLic) {
+  if ($Install -and (Ask "Copy the Unity licence from the Store (MSIX) Unity Hub to $($msixLic.Target)?")) {
+    New-Item -ItemType Directory -Force (Split-Path $msixLic.Target) | Out-Null; Copy-Item $msixLic.Source $msixLic.Target -Force; Write-Host '  Copied Unity licence for the Editor'
+  } else { Write-Host '  Unity licence found only inside the MSIX Hub. Re-run with -Install to copy it for the Editor.' -ForegroundColor Yellow }
+}
+
 # --- Unity licence (read-only check, only when an editor exists)
 if ($unity) {
   $log = Join-Path $env:TEMP 'robot-platform-unity-licence.log'

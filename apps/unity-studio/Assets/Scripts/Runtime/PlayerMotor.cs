@@ -37,7 +37,7 @@ namespace SpecialSoldier
             if (kb == null || mouse == null) return;
             float dt = Time.deltaTime;
 
-            if (Cursor.lockState == CursorLockMode.Locked)
+            if (GameDirector.CursorCaptured)
             {
                 Vector2 look = mouse.delta.ReadValue() * lookSensitivity;
                 transform.Rotate(0f, look.x, 0f);

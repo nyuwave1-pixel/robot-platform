@@ -9,6 +9,9 @@ namespace SpecialSoldier
     public sealed class GameDirector : MonoBehaviour
     {
         public static GameDirector Instance { get; private set; }
+        /// <summary>Tests only: a batch-mode Editor has no window, so the cursor can never be locked there.</summary>
+        public static bool AssumeCursorCaptured;
+        public static bool CursorCaptured => AssumeCursorCaptured || Cursor.lockState == CursorLockMode.Locked;
         public PlayerMotor player;
         public readonly List<EnemyAgent> enemies = new List<EnemyAgent>();
         public enum Outcome { Playing, Won, Lost }

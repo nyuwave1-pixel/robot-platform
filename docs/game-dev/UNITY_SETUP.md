@@ -94,3 +94,12 @@ powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
 
 확인하지 못한 것: 키보드·마우스로 직접 이동·사격·적 처치·승패 화면(사람이 해 봐야 함). 지면 색이 매우 밝게(노랗게) 보여 조명·노출 조정이 필요해 보임.
 Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자가 다시 실행해야 함) → `unity command` 실시간 제어 왕복 테스트는 아직 못 함.
+
+## 2026-11-23 (2) — 조명 수정, PlayMode 자동 플레이 테스트 추가
+
+- **조명**: 프로젝트가 Gamma 색 공간이라 URP 화면이 노랗게 날아갔다 → `SliceBuilder` 가 Linear 색 공간으로 바꾸고, 전역 Volume(ACES 톤매핑, 노출 +0.3, 대비 +8)을 넣고, 태양 1.6 → 1.25, 모래색을 조금 어둡게. 전후: `screenshots/unity-island-slice-first-run.png` → `screenshots/unity-island-slice-lighting.png`(Blender 병사 모델이 보임).
+- **PlayMode 테스트** `Assets/Tests/PlayMode/SliceSmokeTests.cs` — 실제 `IslandSlice` 씬을 Input System 테스트 장치(가상 키보드·마우스)로 플레이: 씬 부팅(적 7·전원 내비메시 위), **W 1초 → 전진**, **좌클릭 → 적 피해**, 적 전멸 → 승리, 플레이어 사망 → 패배. **5/5 통과**. `run-batch.ps1` 의 마지막 단계(`playtests`)로 추가.
+  배치 모드에는 창이 없어 커서를 잠글 수 없으므로 `GameDirector.AssumeCursorCaptured`(테스트 전용)를 추가했다. 게임 실행 시 동작은 그대로.
+  `Packages/manifest.json` 에 `"testables": ["com.unity.inputsystem"]` 추가(InputTestFixture 사용) — 그래서 Input System 패키지 자체 테스트 4개(2 통과, 2 건너뜀)도 함께 돈다.
+- `find-tools.ps1`: MSIX(스토어) Unity Hub 탐지, `Get-MsixUnityLicence`. `setup.ps1 -Install` 이 MSIX Hub의 라이선스를 Editor 위치로 복사(항목마다 확인).
+- 관찰: 시작 6초 만에 적이 교전 상태가 되고 HP 100 → 60. 직접 플레이해서 난이도(적 반응·명중) 조정이 필요한지 확인할 것.

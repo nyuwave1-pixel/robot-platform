@@ -1,7 +1,7 @@
 # Unity studio batch pipeline (Windows PowerShell). Run from the repo root AFTER the editor licence is active:
 #   powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
 # 1) first open initialises the project (ProjectSettings, Packages), 2) adds URP + glTFast, 3) imports the shared GLB and
-# makes one Windows build, 4) builds the playable Island Slice scene + player, 5) runs the EditMode tests. Logs go to apps\unity-studio\Logs\batch-*.log (git-ignored); each step prints its [Studio] lines.
+# makes one Windows build, 4) builds the playable Island Slice scene + player, 5) runs the EditMode tests, 6) plays the slice scene with simulated input (PlayMode tests). Logs go to apps\unity-studio\Logs\batch-*.log (git-ignored); each step prints its [Studio] lines.
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\..\tools\dev-env\find-tools.ps1')
 $unity = Find-UnityEditor  # UNITY_EDITOR env var, else the pinned version in tools\dev-env\versions.json
@@ -22,4 +22,7 @@ Step 'slice' @('-executeMethod', 'SpecialSoldier.EditorTools.SliceBuilder.BuildS
 $results = Join-Path $logs 'editmode-results.xml'
 Step 'tests' @('-runTests', '-testPlatform', 'EditMode', '-testResults', "`"$results`"") -NoQuit
 if (Test-Path $results) { $x = [xml](Get-Content $results); $r = $x.'test-run'; Write-Host "== EditMode tests: $($r.passed) passed, $($r.failed) failed, $($r.total) total" }
+$results = Join-Path $logs 'playmode-results.xml'
+Step 'playtests' @('-runTests', '-testPlatform', 'PlayMode', '-testResults', "`"$results`"") -NoQuit
+if (Test-Path $results) { $x = [xml](Get-Content $results); $r = $x.'test-run'; Write-Host "== PlayMode tests: $($r.passed) passed, $($r.failed) failed, $($r.total) total" }
 Write-Host "Playable build: apps\unity-studio\Builds\Slice\IslandSlice.exe" 
