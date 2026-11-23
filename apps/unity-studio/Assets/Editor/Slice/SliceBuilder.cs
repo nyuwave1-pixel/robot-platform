@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using BodyPart = SpecialSoldier.Core.BodyPart; // UnityEditor also defines BodyPart (CS0104)
 
 namespace SpecialSoldier.EditorTools
 {

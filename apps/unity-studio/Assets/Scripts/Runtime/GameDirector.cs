@@ -20,8 +20,8 @@ namespace SpecialSoldier
 
         void Start()
         {
-            enemies.AddRange(FindObjectsByType<EnemyAgent>(FindObjectsSortMode.None));
-            if (!player) player = FindFirstObjectByType<PlayerMotor>();
+            enemies.AddRange(FindObjectsByType<EnemyAgent>());
+            if (!player) player = FindAnyObjectByType<PlayerMotor>();
             foreach (var e in enemies) { var d = e.GetComponent<Damageable>(); if (d) d.Died += OnEnemyDied; }
             if (player) { var d = player.GetComponent<Damageable>(); if (d) d.Died += () => End(Outcome.Lost); }
             Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;

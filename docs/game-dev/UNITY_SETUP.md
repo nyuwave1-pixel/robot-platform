@@ -71,3 +71,26 @@ powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
 
 다음 단계는 그대로입니다: 사용자가 Unity Hub 설치 → 로그인 → Personal 라이선스 활성화 → PC 세션이 `run-batch.ps1` 전체 실행 → Unity CLI(승인 후).
 선택 설치 후보(사용자 승인 필요): .NET 8 SDK(Core 테스트·IntelliSense), VS Code + C# Dev Kit.
+
+## 2026-11-23 — 라이선스 해결, Unity 파이프라인·슬라이스 첫 검증 통과 (PC 세션)
+
+**라이선스 문제의 원인**: 사용자 PC의 Unity Hub는 MSIX 패키지(`UnityHubSetup-x64.msix`, 11-19 설치)다. MSIX 앱은 AppData 쓰기가 가상화되어
+라이선스가 `%LOCALAPPDATA%\Packages\UnityTechnologies.UnityHub_2vrhnee42bhxm\LocalCache\Local\Unity\licenses\UnityEntitlementLicense.xml` 에만 저장되고,
+패키지 밖의 Unity Editor는 `%LOCALAPPDATA%\Unity\licenses\` 를 보므로 "No valid Unity Editor license"(198)가 났다. 활성화 자체는 11-19에 이미 되어 있었다.
+**조치**: 그 파일을 `%LOCALAPPDATA%\Unity\licenses\` 로 복사 → Editor 라이선스 확인 통과(종료 0).
+다른 PC에서는 MSIX 대신 **일반 설치판 Hub(.exe)** 를 쓰면 이 문제가 없다. MSIX Hub를 쓴다면 라이선스 갱신(다음 2026-12-19) 뒤 같은 복사가 다시 필요할 수 있다.
+`find-tools.ps1` 의 `Find-UnityHub` 는 MSIX 설치(`Get-AppxPackage UnityTechnologies.UnityHub`)를 아직 찾지 못한다.
+
+**`run-batch.ps1` 전체 결과** (Unity 6000.6.9f1, Windows 11):
+
+| 단계 | 결과 |
+|---|---|
+| init | 종료 0 (첫 열기, URP 전역 설정 생성 경고만) |
+| packages | URP 17.6.0 · glTFast 6.21.0 · Input System 1.20.1 · AI Navigation 2.0.16 · Test Framework 1.8.0, 입력 처리 Both |
+| build | 첫 실행에서 **컴파일 오류 1종**: `SliceBuilder.cs` 의 `BodyPart` 가 `UnityEditor.BodyPart` 와 충돌(CS0104) → `using BodyPart = SpecialSoldier.Core.BodyPart;` 로 수정. 경고 4개(사용 중단 API `FindFirstObjectByType`·`FindObjectsSortMode`)도 `FindAnyObjectByType`·`FindObjectsByType<T>()` 로 교체 → **오류 0 · 경고 0**. GLB 노드 Soldier·W_m4·W_bullpup·W_revolver·Heli·APC 확인, 164 노드·104,528 tris, Windows 빌드 성공(107.8 MB, 171 s) |
+| slice | URP 파이프라인 생성, 내비메시 구움, 병사 외형 = Blender GLB `Soldier`, `Assets/Scenes/IslandSlice.unity`(적 7), 플레이어 빌드 성공(104.5 MB, 오류 0) |
+| tests | **EditMode 159/159 통과** (dotnet `CoreTests~` 도 159/159) |
+| 실행 | `Builds\Slice\IslandSlice.exe` 창 모드 실행 → HUD(HOSTILES 7 · KILLS 0 · 시간), 조준선, 적 교전 상태 표시, 16초 동안 정상 동작. 화면: `docs/game-dev/screenshots/unity-island-slice-first-run.png` |
+
+확인하지 못한 것: 키보드·마우스로 직접 이동·사격·적 처치·승패 화면(사람이 해 봐야 함). 지면 색이 매우 밝게(노랗게) 보여 조명·노출 조정이 필요해 보임.
+Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자가 다시 실행해야 함) → `unity command` 실시간 제어 왕복 테스트는 아직 못 함.

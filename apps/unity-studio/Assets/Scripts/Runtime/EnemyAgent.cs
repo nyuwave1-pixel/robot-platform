@@ -42,7 +42,7 @@ namespace SpecialSoldier
 
         void Start()
         {
-            _player = FindFirstObjectByType<PlayerMotor>();
+            _player = FindAnyObjectByType<PlayerMotor>();
             _playerHp = _player ? _player.GetComponent<Damageable>() : null;
             _agent.speed = 1.5f;
         }
