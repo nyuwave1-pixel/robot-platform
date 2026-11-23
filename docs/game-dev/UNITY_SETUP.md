@@ -52,3 +52,22 @@ powershell -ExecutionPolicy Bypass -File apps\unity-studio\run-batch.ps1
 - `run-batch.ps1` 단계: init → packages(URP·glTFast·Input System·AI Navigation·Test Framework, 입력 처리 Both) → build(GLB 임포트 테스트) → **slice**(씬 생성·NavMesh·URP·`Builds/Slice/IslandSlice.exe`) → **tests**(EditMode, `Logs/editmode-results.xml`).
 - Core 규칙 코드와 테스트는 클라우드에서 .NET 8로 컴파일·실행 확인(159개 통과). **Runtime·Editor 스크립트는 Unity에서 아직 컴파일하지 못했습니다.**
 - 설명·학습 순서: `UNITY_LEARNING_PATH.md`, `apps/unity-studio/README.md`.
+
+## 2026-11-23 — 통합 환경 체크리스트 (`UNITY_CLAUDE_INTEGRATION.md` §2, PC 세션)
+
+| 항목 | 결과 |
+|---|---|
+| Unity Hub | ❌ 미설치 |
+| Unity Editor | ✅ 6000.6.9f1 (`find-tools.ps1` 로 탐색), 실행 중인 에디터 없음 |
+| Unity 라이선스 | ❌ 없음 — `run-batch.ps1` init 단계 종료 198 (재확인) |
+| Unity 프로젝트 | `C:\개발` 아래 `ProjectVersion.txt` 없음 → `apps/unity-studio` 는 첫 배치 실행 전(아직 초기화 안 됨) |
+| Visual Studio | ❌ 없음(`vswhere` 없음) |
+| VS Code | ❌ 없음 |
+| .NET SDK | ❌ 없음 → `dotnet test "apps/unity-studio/CoreTests~"` 를 이 PC에서 못 돌림 |
+| Git / GitHub | ✅ 2.55, 작업 브랜치 pull·push 가능 |
+| Python / uv | Python 3.12 ✅ / uv ❌ (MCP for Unity 쓸 때만 필요) |
+| Unity CLI (`unity`) | ❌ 없음 — 설치는 사용자 승인 후 |
+| Package Manager / Console 오류 | 확인 못 함(프로젝트 미초기화·라이선스 없음) |
+
+다음 단계는 그대로입니다: 사용자가 Unity Hub 설치 → 로그인 → Personal 라이선스 활성화 → PC 세션이 `run-batch.ps1` 전체 실행 → Unity CLI(승인 후).
+선택 설치 후보(사용자 승인 필요): .NET 8 SDK(Core 테스트·IntelliSense), VS Code + C# Dev Kit.
