@@ -35,12 +35,12 @@ function Ring({ value, label, sub }: { value: number | null; label: string; sub:
   return (
     <div className="flex items-center gap-4">
       <svg viewBox="0 0 128 128" className="h-28 w-28 shrink-0 -rotate-90">
-        <circle cx="64" cy="64" r={r} fill="none" stroke="#1c232d" strokeWidth="8" />
+        <circle cx="64" cy="64" r={r} fill="none" stroke="#dce1e5" strokeWidth="8" />
         {value !== null && <motion.circle cx="64" cy="64" r={r} fill="none" stroke="url(#g)" strokeWidth="8" strokeLinecap="round" strokeDasharray={c} initial={{ strokeDashoffset: c }} animate={{ strokeDashoffset: c - (c * value) / 100 }} transition={{ duration: 1.4, ease: [0.2, 0.75, 0.2, 1] }} style={{ filter: "drop-shadow(0 0 6px rgba(79,182,255,0.7))" }} />}
         <defs>
           <linearGradient id="g" x1="0" x2="1">
-            <stop offset="0" stopColor="#4fb6ff" />
-            <stop offset="1" stopColor="#ffffff" />
+            <stop offset="0" stopColor="#6caed0" />
+            <stop offset="1" stopColor="#246f96" />
           </linearGradient>
         </defs>
         <text x="64" y="64" transform="rotate(90 64 64)" textAnchor="middle" dominantBaseline="central" className="fill-white font-display text-[34px] font-light" data-testid="overall-score" data-value={value ?? ""}>
@@ -258,7 +258,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
                   <button key={m} data-testid={`heat-${m}`} onClick={() => setHeatmap(m)} className={`rounded-full border px-2.5 py-1 ${heatmap === m ? "border-scan bg-scan/15 text-scan2" : "border-line text-silver"}`}>{t.metrics[m].name}</button>
                 ))}
                 <label className="ml-auto flex items-center gap-1.5 text-silver">
-                  <input type="checkbox" checked={showZones} onChange={(e) => setShowZones(e.target.checked)} className="accent-[#4fb6ff]" />
+                  <input type="checkbox" checked={showZones} onChange={(e) => setShowZones(e.target.checked)} className="accent-[#3b8fb8]" />
                   {t.report.zonesLayer}
                 </label>
               </div>

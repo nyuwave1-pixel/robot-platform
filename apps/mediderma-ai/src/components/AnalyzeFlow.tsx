@@ -199,7 +199,7 @@ export default function AnalyzeFlow() {
               <label
                 className={`mt-5 flex cursor-pointer gap-4 rounded-2xl border-2 p-5 transition ${agree ? "border-scan bg-scan/10" : consentError ? "border-rose-400/70 bg-rose-400/5" : "border-line bg-panel hover:border-silver/50"}`}
               >
-                <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#4fb6ff]" />
+                <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">
                   {t.consent.processing}
                   {!agree && <span className="mt-2 block text-sm font-semibold text-scan2">👆 {t.consent.tapHint}</span>}
@@ -207,7 +207,7 @@ export default function AnalyzeFlow() {
                 </span>
               </label>
               <label className="mt-3 flex cursor-pointer gap-4 rounded-2xl border border-line bg-panel p-5 text-silver">
-                <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#4fb6ff]" />
+                <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">{fmt(t.consent.history, { days: config.retention.historyDays })}</span>
               </label>
               <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver/80">

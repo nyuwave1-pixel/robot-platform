@@ -83,8 +83,8 @@ function Backdrop({ index, webgl }: { index: number; webgl: boolean }) {
       {/* 공식 사이트(dermahome.unincore.com)의 작용 원리 이미지 — 천천히 다가오는 켄 번스 */}
       <motion.img src={s.art} alt="" aria-hidden loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-70 lg:object-[70%_50%]" initial={{ scale: 1.14 }} animate={{ scale: 1.02 }} transition={{ duration: 9, ease: "easeOut" }} />
       {webgl ? <ShaderCanvas kind={s.shader} className="absolute inset-0 opacity-45 mix-blend-screen" /> : <div className="absolute inset-0 opacity-60" style={{ background: s.fallback }} />}
-      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,#05070a_0%,rgba(5,7,10,0.35)_22%,rgba(5,7,10,0.2)_50%,rgba(5,7,10,0.88)_82%,#05070a_100%)]" />
-      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,10,0.85),transparent_55%)] max-lg:hidden" />
+      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,#101318_0%,rgba(16,19,24,0.35)_22%,rgba(16,19,24,0.2)_50%,rgba(16,19,24,0.88)_82%,#101318_100%)]" />
+      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,19,24,0.85),transparent_55%)] max-lg:hidden" />
     </div>
   );
 }
@@ -118,7 +118,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
   // 동작 줄이기: 고정·전환 없이 차례로 나열
   if (reduce) {
     return (
-      <section id="technology" className="border-y border-line/70 bg-[#05070a]" data-testid="tech-showcase" data-mode="static">
+      <section id="technology" className="theme-dark border-y border-line/70 bg-[#101318]" data-testid="tech-showcase" data-mode="static">
         <div className="mx-auto max-w-6xl px-4 py-14">
           {heading}
           <div className="mt-6">
@@ -139,7 +139,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
 
   return (
     <>
-    <section id="technology" ref={ref} className="relative border-y border-line/70 bg-[#05070a]" style={{ height: `${SCENES.length * 90 + 30}svh` }} data-testid="tech-showcase" data-mode="pinned" data-active={active}>
+    <section id="technology" ref={ref} className="theme-dark relative border-y border-line/70 bg-[#101318]" style={{ height: `${SCENES.length * 90 + 30}svh` }} data-testid="tech-showcase" data-mode="pinned" data-active={active}>
       <div className="sticky top-14 h-[calc(100svh-3.5rem)] overflow-hidden">
         <AnimatePresence initial={false}>
           <motion.div key={active} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeInOut" }}>
@@ -198,7 +198,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
         </div>
       </div>
     </section>
-    <p className="border-b border-line/70 bg-[#05070a] px-4 py-3 text-[11px] leading-relaxed text-[#aeb7c0]/80 md:hidden" data-testid="tech-note-mobile">
+    <p className="theme-dark border-b border-line/70 bg-[#101318] px-4 py-3 text-[11px] leading-relaxed text-[#aeb7c0]/80 md:hidden" data-testid="tech-note-mobile">
       {t.landing.techVisualNote}{" "}
       <a className="underline underline-offset-2" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">
         dermahome.unincore.com ↗

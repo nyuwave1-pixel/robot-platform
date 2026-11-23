@@ -65,27 +65,27 @@ export function Radar({ values, weak, labels, before, testId = "glance-radar" }:
   return (
     <svg viewBox="0 0 320 320" className="mx-auto w-full max-w-[380px]" role="img" aria-label={labels.join(", ")} data-testid={testId}>
       {[25, 50, 75, 100].map((r) => (
-        <polygon key={r} points={values.map((_, i) => pt(i, r).join(",")).join(" ")} fill="none" stroke="#1f2a36" strokeWidth={r === 100 ? 1.4 : 1} />
+        <polygon key={r} points={values.map((_, i) => pt(i, r).join(",")).join(" ")} fill="none" stroke="#c9d1d8" strokeWidth={r === 100 ? 1.4 : 1} />
       ))}
       {values.map((_, i) => {
         const [x, y] = pt(i, 100);
-        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#1f2a36" />;
+        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#dce1e5" />;
       })}
       {before && <polygon points={before.map((v, i) => pt(i, v ?? 0).join(",")).join(" ")} fill="rgba(148,163,184,0.10)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="5 4" />}
       <motion.polygon
         points={poly}
-        fill="rgba(79,182,255,0.22)"
-        stroke="#7dd3fc"
+        fill="rgba(108,174,208,0.28)"
+        stroke="#3b8fb8"
         strokeWidth={2.2}
         initial={{ scale: 0.2, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1, ease: [0.2, 0.75, 0.2, 1] }}
-        style={{ transformOrigin: `${C}px ${C}px`, filter: "drop-shadow(0 0 8px rgba(79,182,255,0.5))" }}
+        style={{ transformOrigin: `${C}px ${C}px`, filter: "drop-shadow(0 0 8px rgba(108,174,208,0.45))" }}
       />
       {values.map((v, i) => {
         if (v === null) return null;
         const [x, y] = pt(i, v);
-        return <circle key={i} cx={x} cy={y} r={weak.has(i) ? 6 : 3.5} fill={weak.has(i) ? "#fcd34d" : "#e0f2fe"} stroke={weak.has(i) ? "#05070a" : "none"} strokeWidth={1.5} />;
+        return <circle key={i} cx={x} cy={y} r={weak.has(i) ? 6 : 3.5} fill={weak.has(i) ? "#f59e0b" : "#ffffff"} stroke={weak.has(i) ? "#20252b" : "#3b8fb8"} strokeWidth={1.5} />;
       })}
       {labels.map((l, i) => {
         const [x, y] = pt(i, 128);
@@ -100,13 +100,13 @@ export function Radar({ values, weak, labels, before, testId = "glance-radar" }:
           lines = [l.slice(0, cut), l.slice(cut + 1)];
         }
         return (
-          <text key={i} x={x} y={y - (lines.length - 1) * 8} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#fde68a" : "#f1f5f9"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
+          <text key={i} x={x} y={y - (lines.length - 1) * 8} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#b45309" : "#20252b"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
             {lines.map((line, k) => (
               <tspan key={k} x={x} dy={k === 0 ? 0 : 16}>
                 {line}
               </tspan>
             ))}
-            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#fde68a" : "#7dd3fc"}>
+            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#b45309" : "#246f96"}>
               {before ? `${b ?? "—"}→${v ?? "—"}` : (v ?? "—")}
             </tspan>
           </text>

@@ -108,13 +108,13 @@ function Dashboard() {
         <div className="mt-2 h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={s.daily}>
-              <CartesianGrid stroke="#1c232d" />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#8b96a3" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#8b96a3" }} />
-              <Tooltip contentStyle={{ background: "#0c1016", border: "1px solid #1c232d", fontSize: 12 }} />
-              <Line type="monotone" dataKey="users" name="이용자" stroke="#4fb6ff" dot={false} />
-              <Line type="monotone" dataKey="started" name="분석 시작" stroke="#c9d1d9" dot={false} />
-              <Line type="monotone" dataKey="succeeded" name="분석 성공" stroke="#34d399" dot={false} />
+              <CartesianGrid stroke="#dce1e5" />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#5e6873" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#5e6873" }} />
+              <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #dce1e5", fontSize: 12 }} />
+              <Line type="monotone" dataKey="users" name="이용자" stroke="#3b8fb8" dot={false} />
+              <Line type="monotone" dataKey="started" name="분석 시작" stroke="#8a949e" dot={false} />
+              <Line type="monotone" dataKey="succeeded" name="분석 성공" stroke="#059669" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -130,10 +130,10 @@ function Dashboard() {
           <div className="mt-2 h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={s.countries.slice(0, 10)}>
-                <XAxis dataKey="key" tick={{ fontSize: 10, fill: "#8b96a3" }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#8b96a3" }} />
-                <Tooltip contentStyle={{ background: "#0c1016", border: "1px solid #1c232d", fontSize: 12 }} />
-                <Bar dataKey="count" name="세션" fill="#4fb6ff" />
+                <XAxis dataKey="key" tick={{ fontSize: 10, fill: "#5e6873" }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#5e6873" }} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #dce1e5", fontSize: 12 }} />
+                <Bar dataKey="count" name="세션" fill="#3b8fb8" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -11,6 +11,8 @@ const loaders: Record<Locale, () => Promise<{ default: Dict }>> = {
   es: () => import("./locales/es"),
   vi: () => import("./locales/vi"),
   ru: () => import("./locales/ru"),
+  th: () => import("./locales/th"),
+  mn: () => import("./locales/mn"),
 };
 
 interface I18n {

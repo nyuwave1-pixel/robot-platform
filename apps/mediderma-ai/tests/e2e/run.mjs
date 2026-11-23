@@ -398,7 +398,7 @@ await check("B03", "선명도가 다른 전후 사진 → 결·모공·주름 '�
 await C.context().close();
 
 // ── 5. 다국어 · 모바일 ─────────────────────────────────────
-const TITLES = { ko: "피부 분석 시작", en: "Start", ja: "肌", zh: "皮肤", es: "piel", vi: "da", ru: "кож" };
+const TITLES = { ko: "피부 분석 시작", en: "Start", ja: "肌", zh: "皮肤", es: "piel", vi: "da", ru: "кож", th: "ผิว", mn: "арьс" };
 for (const [lang, needle] of Object.entries(TITLES)) {
   await check(`L-${lang}`, `다국어: ${lang}`, async () => {
     const page = await newPage();

@@ -2,9 +2,11 @@ import { DEFAULT_CALIBRATION, type Calibration } from "./analysis/calibration";
 import type { MetricKey } from "./analysis/types";
 import { LINKS, PRODUCTS, ROUTINES, type ProductId, type RoutineId } from "./care/knowledge";
 
-export const LOCALES = ["ko", "en", "ja", "zh", "es", "vi", "ru"] as const;
+export const LOCALES = ["ko", "en", "ja", "zh", "es", "vi", "ru", "th", "mn"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const LOCALE_NAMES: Record<Locale, string> = { ko: "한국어", en: "English", ja: "日本語", zh: "简体中文", es: "Español", vi: "Tiếng Việt", ru: "Русский" };
+/** 처음 출시 때의 언어. 이후 추가된 언어는 관리자가 끄기 전까지 켜진 상태로 보인다 */
+const LEGACY_LOCALES: readonly string[] = ["ko", "en", "ja", "zh", "es", "vi", "ru"];
+export const LOCALE_NAMES: Record<Locale, string> = { ko: "한국어", en: "English", ja: "日本語", zh: "简体中文", es: "Español", vi: "Tiếng Việt", ru: "Русский", th: "ไทย", mn: "Монгол" };
 
 /** 관리자 페이지에서 조정 가능한 운영 설정. 저장소에 없으면 이 기본값을 쓴다. */
 export interface AppConfig {
@@ -18,6 +20,8 @@ export interface AppConfig {
   products: Record<ProductId, { enabled: boolean; url: string }>;
   links: { freeTrial: string; partners: string };
   locales: Locale[];
+  /** 설정을 저장할 때 존재하던 언어 목록 — 그 뒤에 추가된 언어는 기본으로 켠다 */
+  localesKnown: Locale[];
   retention: { sessionMinutes: number; historyDays: number };
   /**
    * Gemini 해설(선택 기능). 사진이 Google 로 전송되므로 기본은 꺼져 있다.
@@ -36,6 +40,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   products: Object.fromEntries(Object.entries(PRODUCTS).map(([k, v]) => [k, { enabled: true, url: v.url }])) as Record<ProductId, { enabled: boolean; url: string }>,
   links: { freeTrial: LINKS.freeTrial, partners: LINKS.partners },
   locales: [...LOCALES],
+  localesKnown: [...LOCALES],
   retention: { sessionMinutes: 60, historyDays: 90 },
   aiInsight: { enabled: false, paidTierConfirmed: false },
 };
@@ -60,6 +65,7 @@ export function mergeConfig(partial: unknown): AppConfig {
   }
   const routinesEnabled = { ...d.routinesEnabled };
   for (const k of Object.keys(routinesEnabled) as RoutineId[]) if (p.routinesEnabled && k in p.routinesEnabled) routinesEnabled[k] = p.routinesEnabled[k] !== false;
+  const known: readonly string[] = Array.isArray(p.localesKnown) ? (p.localesKnown as string[]) : LEGACY_LOCALES;
   const okUrl = (v: unknown, fb: string) => (typeof v === "string" && /^https:\/\/([a-z0-9-]+\.)*unincore\.com\//.test(v) ? v : fb);
   return {
     provider: { id: p.provider?.id === "local-cv" ? "local-cv" : d.provider.id, note: typeof p.provider?.note === "string" ? p.provider.note.slice(0, 200) : d.provider.note },
@@ -77,7 +83,8 @@ export function mergeConfig(partial: unknown): AppConfig {
     routinesEnabled,
     products,
     links: { freeTrial: okUrl(p.links?.freeTrial, d.links.freeTrial), partners: okUrl(p.links?.partners, d.links.partners) },
-    locales: Array.isArray(p.locales) && p.locales.length ? LOCALES.filter((l) => (p.locales as string[]).includes(l) || l === "ko") : d.locales,
+    locales: Array.isArray(p.locales) && p.locales.length ? LOCALES.filter((l) => (p.locales as string[]).includes(l) || l === "ko" || !known.includes(l)) : d.locales,
+    localesKnown: [...LOCALES],
     aiInsight: { enabled: p.aiInsight?.enabled === true, paidTierConfirmed: p.aiInsight?.paidTierConfirmed === true, ...(p.aiInsight?.available === true ? { available: true } : {}) },
     retention: { sessionMinutes: num(p.retention?.sessionMinutes, d.retention.sessionMinutes, 5, 240), historyDays: num(p.retention?.historyDays, d.retention.historyDays, 1, 365) },
   };

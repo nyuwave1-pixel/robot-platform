@@ -82,7 +82,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
   const scanY = 50 + 46 * Math.sin(now / 520);
 
   return (
-    <div className="relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running">
+    <div className="theme-dark relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running">
       {/* 배경: 홀로그램 스캔 루프 영상 */}
       {videoOk ? (
         <video className="absolute inset-0 h-full w-full object-cover opacity-55" src="/scan/scan-bg.mp4" autoPlay muted loop playsInline onError={() => setVideoOk(false)} aria-hidden />

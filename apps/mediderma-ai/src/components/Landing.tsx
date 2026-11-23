@@ -66,23 +66,23 @@ function OnDeviceVisual() {
     <svg viewBox="0 0 320 200" className="h-full w-full" aria-hidden>
       <defs>
         <linearGradient id="od-g" x1="0" x2="1">
-          <stop offset="0" stopColor="#4fb6ff" />
-          <stop offset="1" stopColor="#7fe0ff" />
+          <stop offset="0" stopColor="#6caed0" />
+          <stop offset="1" stopColor="#246f96" />
         </linearGradient>
       </defs>
       {/* 기기 */}
-      <rect x="92" y="18" width="104" height="164" rx="16" fill="rgba(79,182,255,0.06)" stroke="url(#od-g)" strokeWidth="1.5" />
-      <rect x="126" y="26" width="36" height="5" rx="2.5" fill="#1c232d" />
-      <circle cx="144" cy="92" r="26" fill="none" stroke="#c9d1d9" strokeWidth="1" opacity="0.7" />
-      <path d="M131 88q13-16 26 0M134 100q10 9 20 0" fill="none" stroke="#c9d1d9" strokeWidth="1" opacity="0.7" />
+      <rect x="92" y="18" width="104" height="164" rx="16" fill="rgba(108,174,208,0.08)" stroke="url(#od-g)" strokeWidth="1.5" />
+      <rect x="126" y="26" width="36" height="5" rx="2.5" fill="#dce1e5" />
+      <circle cx="144" cy="92" r="26" fill="none" stroke="#8a949e" strokeWidth="1" opacity="0.7" />
+      <path d="M131 88q13-16 26 0M134 100q10 9 20 0" fill="none" stroke="#8a949e" strokeWidth="1" opacity="0.7" />
       {/* 기기 안에서만 도는 데이터 */}
       <g style={{ transformOrigin: "144px 92px", animation: "orbit 6s linear infinite" }}>
-        <circle cx="144" cy="52" r="3.2" fill="#7fe0ff" />
-        <circle cx="184" cy="92" r="2.4" fill="#4fb6ff" />
-        <circle cx="144" cy="132" r="2.8" fill="#7fe0ff" />
+        <circle cx="144" cy="52" r="3.2" fill="#246f96" />
+        <circle cx="184" cy="92" r="2.4" fill="#6caed0" />
+        <circle cx="144" cy="132" r="2.8" fill="#246f96" />
       </g>
-      <circle cx="144" cy="92" r="40" fill="none" stroke="#4fb6ff" strokeWidth="0.8" strokeDasharray="3 5" style={{ animation: "dash 2s linear infinite" }} />
-      <rect x="112" y="146" width="64" height="5" rx="2.5" fill="#1c232d" />
+      <circle cx="144" cy="92" r="40" fill="none" stroke="#6caed0" strokeWidth="0.8" strokeDasharray="3 5" style={{ animation: "dash 2s linear infinite" }} />
+      <rect x="112" y="146" width="64" height="5" rx="2.5" fill="#dce1e5" />
       <rect x="112" y="146" width="64" height="5" rx="2.5" fill="url(#od-g)">
         <animate attributeName="width" values="0;64;64;0" keyTimes="0;0.6;0.9;1" dur="4s" repeatCount="indefinite" />
       </rect>
@@ -92,13 +92,13 @@ function OnDeviceVisual() {
         <path d="M-16 8a10 10 0 0 1 2-19 13 13 0 0 1 25 3 9 9 0 0 1 1 16z" fill="none" stroke="#5b6672" strokeWidth="1.4" />
       </g>
       <g transform="translate(230 92)">
-        <circle r="11" fill="#05070a" stroke="#fb7185" strokeWidth="1.6" />
-        <path d="M-6-6 6 6M6-6-6 6" stroke="#fb7185" strokeWidth="1.8" strokeLinecap="round" />
+        <circle r="11" fill="#ffffff" stroke="#e11d48" strokeWidth="1.6" />
+        <path d="M-6-6 6 6M6-6-6 6" stroke="#e11d48" strokeWidth="1.8" strokeLinecap="round" />
       </g>
       <path d="M32 92h52" stroke="url(#od-g)" strokeWidth="1.4" strokeDasharray="4 5" style={{ animation: "dash 1.2s linear infinite reverse" }} />
-      <rect x="10" y="78" width="24" height="28" rx="4" fill="none" stroke="#c9d1d9" strokeWidth="1.2" />
-      <circle cx="22" cy="88" r="4" fill="none" stroke="#c9d1d9" strokeWidth="1" />
-      <path d="M14 102q8-8 16 0" fill="none" stroke="#c9d1d9" strokeWidth="1" />
+      <rect x="10" y="78" width="24" height="28" rx="4" fill="none" stroke="#8a949e" strokeWidth="1.2" />
+      <circle cx="22" cy="88" r="4" fill="none" stroke="#8a949e" strokeWidth="1" />
+      <path d="M14 102q8-8 16 0" fill="none" stroke="#8a949e" strokeWidth="1" />
     </svg>
   );
 }
@@ -128,7 +128,7 @@ function StickyStart({ label }: { label: string }) {
   }, []);
   return (
     <div className={`pb-safe pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-all duration-500 md:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`} data-testid="sticky-start" data-show={show}>
-      <Link href="/analyze" tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(0,0,0,0.6)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
+      <Link href="/analyze" tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(32,37,43,0.28)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
         {label} <span aria-hidden>→</span>
       </Link>
     </div>
@@ -352,7 +352,7 @@ export default function Landing() {
 
       {/* ── CTA ────────────────────────────────────────────── */}
       <section className="relative mt-10 overflow-hidden border-t border-line/70">
-        <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(79,182,255,0.25),transparent)]" />}</div>
+        <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(108,174,208,0.3),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
         <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
           {/* 히어로와 같은 브랜드 모델 사진 */}
