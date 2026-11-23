@@ -10,6 +10,9 @@ import { useEffect, useRef, useState } from "react";
 const HOLD_BEFORE = 2200;
 const HOLD_AFTER = 3000;
 
+/** 갤러리 카드 폭: 모바일 68vw · 태블릿 42vw · PC 3열 */
+const SIZES = "(min-width: 768px) 360px, (min-width: 640px) 42vw, 68vw";
+
 export default function BeforeAfter({
   before,
   after,
@@ -77,10 +80,12 @@ export default function BeforeAfter({
       data-state={showAfter ? "after" : "before"}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={before} alt={`${alt} — ${beforeLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
+      <img src={before} srcSet={`${before.replace(".webp", "-480.webp")} 480w, ${before} 800w`} sizes={SIZES} alt={`${alt} — ${beforeLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={after}
+        srcSet={`${after.replace(".webp", "-480.webp")} 480w, ${after} 800w`}
+        sizes={SIZES}
         alt={`${alt} — ${afterLabel}`}
         loading="lazy"
         decoding="async"

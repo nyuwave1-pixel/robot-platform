@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import ko, { type Dict } from "./locales/ko";
 import { LOCALES, type Locale } from "../appConfig";
 
@@ -40,7 +40,9 @@ function detect(): Locale {
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ko");
   const [t, setT] = useState<Dict>(ko);
+  const target = useRef<Locale | null>(null);
   const apply = useCallback((l: Locale) => {
+    target.current = l;
     loaders[l]()
       .then((m) => {
         setT(m.default);
@@ -48,13 +50,19 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         document.documentElement.lang = l === "zh" ? "zh-CN" : l;
       })
       .catch(() => {
+        target.current = "ko";
         setT(ko);
         setLocaleState("ko");
       });
   }, []);
   useEffect(() => {
     const l = detect();
-    if (l !== "ko") apply(l);
+    if (l !== "ko") {
+      // 한국어로 그려진 화면이 번역으로 바뀌며 밀리지 않도록(CLS) 본문을 잠깐 가린다. 2.5초 안전장치
+      document.documentElement.classList.add("i18n-pending");
+      setTimeout(() => document.documentElement.classList.remove("i18n-pending"), 2500);
+      apply(l);
+    }
   }, [apply]);
   const setLocale = useCallback(
     (l: Locale) => {
@@ -67,8 +75,16 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     },
     [apply],
   );
+  // 번역 문구가 실제로 화면에 반영(commit)된 뒤에 가림을 푼다 — 그 전에 풀면 한국어→번역 전환이 밀림(CLS)으로 잡힌다
+  useEffect(() => {
+    if (target.current !== null && locale === target.current) reveal();
+  }, [t, locale]);
   const value = useMemo(() => ({ t, locale, setLocale }), [t, locale, setLocale]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+function reveal() {
+  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.remove("i18n-pending")));
 }
 
 export const useI18n = () => useContext(Ctx);

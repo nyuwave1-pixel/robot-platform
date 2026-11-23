@@ -12,7 +12,8 @@ import { FACE_ZONES } from "@/lib/analysis/zones";
 import type { FaceZoneId } from "@/lib/analysis/types";
 import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
-import FaceFallback from "./FaceFallback";
+// 얼굴 영역 메쉬 SVG 는 크다(약 77KB) — 첫 HTML 에서 빼고 브라우저에서 따로 불러온다
+const FaceFallback = dynamic(() => import("./FaceFallback"), { ssr: false, loading: () => <div className="h-full w-full animate-pulse rounded-2xl bg-line/40" /> });
 import DepthText from "./fx/DepthText";
 import HeroPortrait from "./fx/HeroPortrait";
 import ScanHud from "./fx/ScanHud";
@@ -81,7 +82,7 @@ function OnDeviceVisual() {
         <circle cx="184" cy="92" r="2.4" fill="#6caed0" />
         <circle cx="144" cy="132" r="2.8" fill="#246f96" />
       </g>
-      <circle cx="144" cy="92" r="40" fill="none" stroke="#6caed0" strokeWidth="0.8" strokeDasharray="3 5" style={{ animation: "dash 2s linear infinite" }} />
+      <circle cx="144" cy="92" r="40" fill="none" stroke="#6caed0" strokeWidth="0.8" strokeDasharray="3 5" style={{ animation: "pulse-zone 2s ease-in-out infinite" }} />
       <rect x="112" y="146" width="64" height="5" rx="2.5" fill="#dce1e5" />
       <rect x="112" y="146" width="64" height="5" rx="2.5" fill="url(#od-g)">
         <animate attributeName="width" values="0;64;64;0" keyTimes="0;0.6;0.9;1" dur="4s" repeatCount="indefinite" />
@@ -95,7 +96,7 @@ function OnDeviceVisual() {
         <circle r="11" fill="#ffffff" stroke="#e11d48" strokeWidth="1.6" />
         <path d="M-6-6 6 6M6-6-6 6" stroke="#e11d48" strokeWidth="1.8" strokeLinecap="round" />
       </g>
-      <path d="M32 92h52" stroke="url(#od-g)" strokeWidth="1.4" strokeDasharray="4 5" style={{ animation: "dash 1.2s linear infinite reverse" }} />
+      <path d="M32 92h52" stroke="url(#od-g)" strokeWidth="1.4" strokeDasharray="4 5" style={{ animation: "pulse-zone 1.2s ease-in-out infinite" }} />
       <rect x="10" y="78" width="24" height="28" rx="4" fill="none" stroke="#8a949e" strokeWidth="1.2" />
       <circle cx="22" cy="88" r="4" fill="none" stroke="#8a949e" strokeWidth="1" />
       <path d="M14 102q8-8 16 0" fill="none" stroke="#8a949e" strokeWidth="1" />
@@ -127,7 +128,7 @@ function StickyStart({ label }: { label: string }) {
     return () => window.removeEventListener("scroll", on);
   }, []);
   return (
-    <div className={`pb-safe pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-all duration-500 md:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`} data-testid="sticky-start" data-show={show}>
+    <div className={`pb-safe pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-[opacity,transform] duration-500 md:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`} data-testid="sticky-start" data-show={show}>
       <Link href="/analyze" onClick={() => track("cta_click", { place: "sticky" })} tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(32,37,43,0.28)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
         {label} <span aria-hidden>→</span>
       </Link>
@@ -161,7 +162,7 @@ export default function Landing() {
         <div aria-hidden className="grid-floor pointer-events-none absolute inset-x-0 bottom-0 h-64 opacity-60" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-4 pb-12 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
           <div className="order-2 lg:order-1">
-            <motion.p initial={{ opacity: 0, letterSpacing: "0.6em" }} animate={{ opacity: 1, letterSpacing: "0.3em" }} transition={{ duration: 1.1 }} className="text-[10px] text-scan2 sm:text-xs">
+            <motion.p initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1 }} className="text-[10px] tracking-[0.3em] text-scan2 sm:text-xs">
               {t.landing.eyebrow}
             </motion.p>
             {/* 실제 헤딩(스크린리더·검색엔진용). 3D 타이틀이 준비되면 시각적으로만 대체한다 */}
@@ -183,10 +184,11 @@ export default function Landing() {
               </div>
             )}
             {/* 브랜드 문구: 단어별 마스크 등장 */}
-            <p className="mt-2 flex flex-wrap gap-x-[0.5em] font-display text-[13px] font-medium tracking-[0.22em] text-white sm:text-base" aria-label={BRAND_LINE.join(" ")} data-testid="brand-line">
+            <p className="mt-2 flex flex-wrap gap-x-[0.5em] font-display text-[13px] font-medium tracking-[0.22em] text-white sm:text-base" data-testid="brand-line">
+              <span className="sr-only">{BRAND_LINE.join(" ")}</span>
               {BRAND_LINE.map((w, i) => (
                 <span key={w} aria-hidden className="inline-block overflow-hidden pb-0.5">
-                  <motion.span className="inline-block" initial={reduce ? false : { y: "115%", filter: "blur(6px)" }} animate={{ y: "0%", filter: "blur(0px)" }} transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}>
+                  <motion.span className="inline-block" initial={reduce ? false : { y: "115%", opacity: 0 }} animate={{ y: "0%", opacity: 1 }} transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}>
                     {w}
                   </motion.span>
                 </span>
@@ -221,7 +223,7 @@ export default function Landing() {
           </div>
           <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
             {/* 브랜드 모델 사진 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
-            <HeroPortrait alt="MEDIDERMA" />
+            <HeroPortrait alt="MEDIDERMA" priority />
             {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
             <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} marks={PORTRAIT_MARKS} />
           </motion.div>

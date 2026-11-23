@@ -7,8 +7,12 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import type { PointerEvent } from "react";
 
 export const PORTRAIT_SRC = "/brand/hero-portrait.webp";
+/** 화면 폭에 맞는 크기만 내려받도록 (모바일 26KB · 태블릿 51KB · PC 원본) */
+const SRCSET = "/brand/hero-portrait-480.webp 480w, /brand/hero-portrait-720.webp 720w, /brand/hero-portrait.webp 1100w";
+const SIZES = "(min-width: 1024px) 560px, (min-width: 640px) 448px, 320px";
 
-export default function HeroPortrait({ className = "", alt }: { className?: string; alt: string }) {
+/** priority: 첫 화면(LCP) 이미지 — 먼저 받고, 처음부터 보이게 그린다 */
+export default function HeroPortrait({ className = "", alt, priority = false }: { className?: string; alt: string; priority?: boolean }) {
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -26,10 +30,17 @@ export default function HeroPortrait({ className = "", alt }: { className?: stri
       <motion.div style={reduce ? undefined : { rotateX: rx, rotateY: ry }} className="relative h-full w-full">
         <motion.img
           src={PORTRAIT_SRC}
+          srcSet={SRCSET}
+          sizes={SIZES}
+          width={1100}
+          height={1100}
           alt={alt}
-          data-testid="hero-portrait"
+          data-testid={priority ? "hero-portrait" : undefined}
           decoding="async"
-          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          // 첫 화면 사진은 투명에서 시작하지 않는다 (JS 가 늦게 실행돼도 바로 보이도록)
+          initial={priority ? { opacity: 1, y: 12, scale: 0.99 } : { opacity: 0, y: 24, scale: 0.98 }}
           animate={reduce ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [0, -8, 0], scale: 1 }}
           transition={reduce ? { duration: 0.6 } : { opacity: { duration: 0.9 }, scale: { duration: 0.9 }, y: { duration: 7, repeat: Infinity, ease: "easeInOut" } }}
           className="h-full w-full object-contain [filter:drop-shadow(0_0_28px_rgba(79,182,255,0.35))] [mask-image:linear-gradient(#000_78%,transparent_99%)]"
