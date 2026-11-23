@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { LOCALE_NAMES, type Locale } from "@/lib/appConfig";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 /** 큰 글씨 모드: 루트 글자 크기를 키워 rem 기반 화면 전체를 함께 키운다(어르신·저시력 사용자용). 브라우저에만 기억한다. */
 function BigTextToggle({ label }: { label: string }) {
@@ -42,6 +44,73 @@ export function Logo({ className = "" }: { className?: string }) {
   );
 }
 
+/** 모바일 전용 메뉴: 좁은 화면에서는 상단에 메뉴가 들어갈 자리가 없어, 버튼을 누르면 전체 메뉴가 열린다. */
+function MobileMenu({ freeTrial }: { freeTrial: string }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  const links: { href: string; label: string; ext?: boolean; onClick?: () => void }[] = [
+    { href: "/analyze", label: t.nav.analyze },
+    { href: "/compare", label: t.nav.compare },
+    { href: "/history", label: t.nav.history },
+    { href: "/#technology", label: t.landing.techTitle },
+    { href: "/privacy", label: t.nav.privacy },
+    { href: "https://dermahome.unincore.com/", label: t.nav.dermahome, ext: true },
+    { href: freeTrial, label: t.nav.trial, ext: true, onClick: () => track("trial_click") },
+  ];
+  return (
+    <>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? t.common.close : t.nav.menu} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-white sm:hidden" data-testid="menu-toggle">
+        <span aria-hidden className="relative block h-3 w-4">
+          <span className={`absolute left-0 h-px w-4 bg-current transition-all duration-300 ${open ? "top-1.5 rotate-45" : "top-0"}`} />
+          <span className={`absolute left-0 top-1.5 h-px w-4 bg-current transition-opacity duration-200 ${open ? "opacity-0" : ""}`} />
+          <span className={`absolute left-0 h-px w-4 bg-current transition-all duration-300 ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
+        </span>
+      </button>
+      {open &&
+        createPortal(
+        <div id="mobile-menu" role="dialog" aria-modal="true" aria-label={t.nav.menu} className="fixed inset-x-0 bottom-0 top-14 z-40 overflow-y-auto bg-ink/95 backdrop-blur-xl sm:hidden" data-testid="mobile-menu">
+          <nav className="mx-auto max-w-6xl px-5 pb-10 pt-4">
+            <ul>
+              {links.map((l, i) => (
+                <li key={l.href} className="border-b border-line/70" style={{ animation: `menu-in 0.5s ${0.04 * i}s both cubic-bezier(0.16,1,0.3,1)` }}>
+                  {l.ext ? (
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" onClick={l.onClick} className="flex items-center justify-between py-4 text-xl font-medium text-white">
+                      {l.label}
+                      <span aria-hidden className="text-scan2">↗</span>
+                    </a>
+                  ) : (
+                    <Link href={l.href} onClick={() => setOpen(false)} className="flex items-center justify-between py-4 text-xl font-medium text-white">
+                      {l.label}
+                      <span aria-hidden className="text-silver/50">→</span>
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <Link href="/analyze" onClick={() => setOpen(false)} className="mt-7 block rounded-full bg-white py-4 text-center text-base font-bold text-black">
+              {t.common.start} →
+            </Link>
+          </nav>
+        </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
 export default function Shell({ children }: { children: React.ReactNode }) {
   const { t, locale, setLocale } = useI18n();
   const { config, expiredNotice, dismissExpired, analysis } = useApp();
@@ -68,6 +137,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 <option key={l} value={l}>{LOCALE_NAMES[l]}</option>
               ))}
             </select>
+            <MobileMenu freeTrial={config.links.freeTrial} />
           </nav>
         </div>
         {analysis?.result.isMock && <div className="bg-amber-500 px-4 py-1 text-center text-xs font-semibold text-black">{t.common.mockBanner}</div>}

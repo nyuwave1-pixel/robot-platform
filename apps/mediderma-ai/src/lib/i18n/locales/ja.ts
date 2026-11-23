@@ -3,7 +3,7 @@ import type { Dict } from "./ko";
 const ja: Dict = {
   common: {
     brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    product: "AI SKIN SCORE",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "あなたの肌を分析し、自分に合ったDERMA HOMEケアを見つける。",
     start: "肌分析をはじめる",
@@ -26,11 +26,16 @@ const ja: Dict = {
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCKモード — 実際のAI分析結果ではありません。",
   },
-  nav: { analyze: "肌分析", compare: "ビフォーアフター比較", history: "変化の記録", privacy: "個人情報について", dermahome: "DERMA HOME", trial: "無料体験を予約" },
+  nav: { analyze: "肌分析", compare: "ビフォーアフター比較", history: "変化の記録", privacy: "個人情報について", dermahome: "DERMA HOME", trial: "無料体験を予約", menu: "メニュー" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
     title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title2: "SCORE",
+    tagline: "あなたの肌を理解する、新しい方法。",
+    exploreTech: "DERMA HOMEの技術を見る",
+    oneDevice: "1台に、3つの技術",
+    officialImage: "公式製品画像",
+    techVisualNote: "背景のグラフィックは技術を説明するための演出であり、実際の機器の動作ではありません。",
     desc: "会員登録なし、顔写真1枚で。顔の13エリアの肌表面の特徴を観察し、DERMA HOMEのRF高周波・ウルトラソニック・イオントフォレシスによるパーソナルケアをご案内します。",
     onDeviceBadge: "写真はお使いの端末内でのみ処理されます",
     uploadTitle: "写真をアップロードして、すぐにスタート",
@@ -345,7 +350,7 @@ const ja: Dict = {
     scan: {"title": "AIが肌を精密分析しています", "steps": ["顔の478ポイントを認識", "13の肌エリアに分割", "キメ・シワを測定", "毛穴・シミを測定", "肌トーンの均一さを分析", "ケアをマッチング"], "privacy": "写真はこの端末内だけで分析されます"},
     hero: {"scoreLabel": "肌コンディション", "sentence": "写真から見た肌コンディションは100点中{n}点です。", "skinType": "肌タイプ", "age": "年代", "makeupWarn": "メイクをしたまま撮影したため、結果の精度が下がることがあります。", "types": {"dry": "乾燥肌", "normal": "普通肌", "oily": "脂性肌", "combination": "混合肌"}, "note": "AIが写真から観察した参考指数で、医学的診断ではありません。"},
     cards: {"title": "肌の詳細", "tapHint": "カードをタップすると詳しい説明が出ます。", "badges": ["ケアが必要", "やや気になる", "良好", "とても良い"], "whereLabel": "最も目立つ場所", "close": "閉じる"},
-    share: {"button": "結果をシェア", "copied": "コピーしました。メッセンジャーに貼り付けてください。", "text": "[MEDIDERMA AI 肌分析]\n肌コンディション {score}点\n先にケアする場所: {weak}\nおすすめ: {products}\nあなたも分析 👉 {url}"},
+    share: {"button": "結果をシェア", "copied": "コピーしました。メッセンジャーに貼り付けてください。", "text": "[MEDIDERMA AI SKIN SCORE]\n肌コンディション {score}点\n先にケアする場所: {weak}\nおすすめ: {products}\nあなたも分析 👉 {url}"},
   },
   care: {
     title: "DERMA HOME パーソナルケア",
