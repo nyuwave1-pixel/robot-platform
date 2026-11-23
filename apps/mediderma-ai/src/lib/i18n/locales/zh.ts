@@ -621,6 +621,7 @@ const zh: Dict = {
     disabled: "你尚未同意保存记录。",
     enable: "同意保存记录",
   },
+  iq: {"decoding": "正在解读皮肤数据", "complete": "分析完成", "skip": "点击查看结果", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析明细", "sub": "生成此结果的实际测量值。照片仅在本设备中处理。", "landmarks": "面部特征点", "zonesAnalyzed": "已分析区域", "metricsComputed": "已计算指标", "duration": "分析用时", "sec": "秒", "capture": "拍摄条件", "pose": "面部角度", "yaw": "左右转动", "pitch": "上下倾斜", "roll": "左右倾斜", "faceSize": "脸部宽度", "imageSize": "原始分辨率", "zoneConf": "各区域可信度", "excluded": "排除的区域", "none": "无", "ideal": "正面 = 0°"},
   privacy: {
     title: "个人信息处理说明",
     updated: "生效日期：2026-11-13",

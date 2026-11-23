@@ -9,6 +9,7 @@ import { FACE_ZONES, ZONE_METRICS } from "@/lib/analysis/zones";
 import { HIGHER_IS_BETTER, type FaceZoneId, type MetricKey, type ZoneResult } from "@/lib/analysis/types";
 import { HEATMAP_METRICS } from "@/lib/client/overlay";
 import { canUse3D } from "@/lib/client/device";
+import AnalysisDetails from "./AnalysisDetails";
 import { track } from "@/lib/client/telemetry";
 import { getAnonId, hasHistoryConsent, setHistoryConsent } from "@/lib/client/session";
 import { addHistory, rgbaToJpeg } from "@/lib/client/history";
@@ -193,6 +194,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         <CareAtAGlance categories={a.categories} plan={plan} />
         <SkinCards categories={a.categories} zones={a.zones} />
         <ShareButton score={a.overallConditionScore} categories={a.categories} plan={plan ?? null} />
+        <AnalysisDetails result={result} visual={visual} durationMs={data.durationMs ?? null} />
 
         {/* 종합 + 세부 */}
         <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">

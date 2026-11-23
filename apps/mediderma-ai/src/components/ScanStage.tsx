@@ -10,6 +10,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import facedata from "@/lib/analysis/facedata.json";
 import { useI18n } from "@/lib/i18n";
 import type { ProgressStage } from "@/lib/analysis/provider";
+import type { AnalysisResult, VisualData } from "@/lib/analysis/types";
+import AnalysisReveal from "./fx/AnalysisReveal";
 
 const STAGE_FLOOR: Record<ProgressStage, number> = { loading_model: 0.08, detecting: 0.25, quality: 0.4, analyzing: 0.6, done: 1 };
 
@@ -44,7 +46,8 @@ function useMeshPath() {
   }, []);
 }
 
-export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void }) {
+/** reveal: 실제 분석이 끝나면 넘겨받는 결과 — 스캔 연출 뒤 '분석 완료 연출'(AnalysisReveal)을 보여 준다 */
+export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, reveal = null }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void; reveal?: { visual: VisualData; result: AnalysisResult } | null }) {
   const { t } = useI18n();
   const s = t.fit.scan;
   const { d, pts } = useMeshPath();
@@ -72,11 +75,18 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
   const activeStep = Math.min(stepCount - 1, Math.floor(progress * stepCount));
 
   useEffect(() => {
-    if (done && !finished.current) {
+    // 결과 연출이 있으면 그 연출이 끝날 때 넘어간다
+    if (done && !finished.current && !reveal) {
       finished.current = true;
       onVisualDone?.();
     }
-  }, [done, onVisualDone]);
+  }, [done, onVisualDone, reveal]);
+  const showReveal = done && !!reveal;
+  const revealDone = () => {
+    if (finished.current) return;
+    finished.current = true;
+    onVisualDone?.();
+  };
 
   const meshReveal = Math.min(1, now / 2200);
   const scanY = 50 + 46 * Math.sin(now / 520);
@@ -93,7 +103,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
 
       <div className="relative px-5 pb-6 pt-6 text-center">
         <p className="font-display text-[11px] tracking-[0.35em] text-scan2">AI DEEP SKIN SCAN</p>
-        <h1 className="mt-2 text-[22px] font-bold [word-break:keep-all] sm:text-2xl">{s.title}</h1>
+        <h1 className="mt-2 text-[22px] font-bold [word-break:keep-all] sm:text-2xl">{showReveal ? t.iq.complete : s.title}</h1>
 
         <div className="relative mx-auto mt-6 aspect-[4/5] w-full max-w-[300px]">
           {/* HUD 링 */}
@@ -133,13 +143,14 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
               <p>ZONE {Math.min(13, Math.floor(progress * 16))}/13</p>
               <p>RGB Δ {(0.12 + 0.05 * Math.sin(now / 300)).toFixed(3)}</p>
             </div>
+            {showReveal && reveal && <AnalysisReveal visual={reveal.visual} result={reveal.result} onDone={revealDone} />}
           </div>
         </div>
 
         {/* 진행률 */}
         <div className="mx-auto mt-6 max-w-sm">
           <div className="flex items-baseline justify-between text-base">
-            <span className="font-semibold text-white">{s.steps[activeStep]}…</span>
+            <span className="font-semibold text-white">{showReveal ? t.iq.decoding : `${s.steps[activeStep]}…`}</span>
             <span className="font-display text-2xl tabular-nums text-scan2" data-testid="scan-pct">{pct}%</span>
           </div>
           <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/10">

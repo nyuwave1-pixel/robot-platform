@@ -9,7 +9,7 @@ import { hasHistoryConsent, setHistoryConsent } from "@/lib/client/session";
 import { AnalysisError, runFaceAnalysis, runNeckAnalysis } from "@/lib/client/runAnalysis";
 import { buildCarePlan } from "@/lib/care/recommend";
 import type { ProgressStage, ProviderOutput } from "@/lib/analysis/provider";
-import type { ImageQuality, SurveyAnswers, ZoneResult } from "@/lib/analysis/types";
+import type { AnalysisResult, ImageQuality, SurveyAnswers, VisualData, ZoneResult } from "@/lib/analysis/types";
 import UploadBox from "./UploadBox";
 import Survey from "./Survey";
 import Report from "./report/Report";
@@ -65,6 +65,9 @@ export default function AnalyzeFlow() {
   const [chosen, setChosen] = useState<File | null>(null);
   const visualDone = useRef<(() => void) | null>(null);
   const visualFinished = useRef(false);
+  const [reveal, setReveal] = useState<{ visual: VisualData; result: AnalysisResult } | null>(null);
+  const startedAt = useRef(0);
+  const durationMs = useRef<number | null>(null);
   // 단계가 바뀌면 화면 맨 위(단계 표시·제목)부터 보이게
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -87,6 +90,7 @@ export default function AnalyzeFlow() {
     async (file: File) => {
       visualFinished.current = false;
       visualDone.current = null;
+      setReveal(null);
       setStep("running");
       setStage("loading_model");
       setErrorCode(null);
@@ -96,7 +100,9 @@ export default function AnalyzeFlow() {
       });
       track("analysis_started");
       try {
+        startedAt.current = performance.now();
         const out = await runFaceAnalysis(file, sessionId, config, setStage);
+        durationMs.current = performance.now() - startedAt.current;
         setQuality(out.result.imageQuality);
         if (!out.result.imageQuality.passed || !out.visual) {
           const first = out.result.imageQuality.issues.find((i) => i.severity === "blocker");
@@ -107,6 +113,8 @@ export default function AnalyzeFlow() {
         const neck = neckFile ? await runNeckAnalysis(neckFile, config) : null;
         track("analysis_succeeded", { concerns: out.result.analysis.topConcerns.map((c) => c.metric), needsRetake: out.result.analysis.needsRetake });
         pending.current = { out, neck };
+        // 스캔 연출이 끝나면 실제 결과로 '분석 완료 연출'을 보여 준다
+        setReveal({ visual: out.visual, result: out.result });
         // 스캔 연출이 100% 를 채운 뒤 넘어간다
         await new Promise<void>((resolve) => {
           if (visualFinished.current) return resolve();
@@ -131,7 +139,7 @@ export default function AnalyzeFlow() {
     const result = { ...p.out.result, survey: survey ? { ...survey, deviceContraindication: false } : null, careRecommendations: plan.recommendations };
     if (survey) track("survey_submitted");
     track("care_selected", { routine: plan.night ?? "none", tech: plan.recommendations.map((r) => r.technology) });
-    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile });
+    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile, durationMs: durationMs.current });
     pending.current = null;
     setStep("report");
     window.scrollTo({ top: 0 });
@@ -286,7 +294,7 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
-          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} />}
+          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} reveal={reveal} />}
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">
