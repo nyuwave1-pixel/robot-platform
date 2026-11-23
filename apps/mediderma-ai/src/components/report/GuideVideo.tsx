@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { GUIDE_VIDEO, type VideoChapter } from "@/lib/care/knowledge";
@@ -62,7 +63,7 @@ const GuideVideo = forwardRef<GuideVideoHandle>(function GuideVideo(_, ref) {
             ))}
           </ul>
           <p className="mt-2 text-xs text-silver-soft">{t.care.video.approx} {t.care.video.consent}</p>
-          <a href={GUIDE_VIDEO.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-scan2 underline underline-offset-4">YouTube ↗</a>
+          <a href={GUIDE_VIDEO.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-scan2 underline underline-offset-4">YouTube <Icon name="external" size={13} className="ml-0.5" /></a>
         </div>
       </div>
     </div>

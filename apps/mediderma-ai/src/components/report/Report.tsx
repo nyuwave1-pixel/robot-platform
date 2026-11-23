@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -218,7 +219,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
             {result.imageQuality.issues.length > 0 && (
               <ul className="mt-3 space-y-1 text-xs text-amber-100/80">
                 {result.imageQuality.issues.map((i) => (
-                  <li key={i.code}>⚠ {t.quality.issues[i.code]}</li>
+                  <li key={i.code} className="flex gap-1.5"><Icon name="alert" size={15} className="mt-0.5 shrink-0" />{t.quality.issues[i.code]}</li>
                 ))}
               </ul>
             )}

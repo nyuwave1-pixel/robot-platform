@@ -335,7 +335,7 @@ const zh: Dict = {
   },
   compareGlance: {
     title: "一眼看懂变化",
-    headlineImproved: "{n}处变好了 👏",
+    headlineImproved: "{n}处变好了",
     headlineSame: "还没有明显变化，请继续坚持护理。",
     headlineCondition: "两张照片的拍摄条件不同，难以准确比较。",
     conditionWarn: "在同一地点、同样光线下正面重新拍摄会更准确。",

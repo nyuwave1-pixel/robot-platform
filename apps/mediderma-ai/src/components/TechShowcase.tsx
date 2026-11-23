@@ -7,6 +7,7 @@
  *  - '동작 줄이기' 설정이면 고정·전환 없이 세 장면을 차례로 나열한다.
  * 배경 그래픽은 기술 설명을 위한 연출이며 실제 기기 작동 모습이 아님을 화면에 밝힌다.
  */
+import Icon from "@/components/ui/Icon";
 import dynamic from "next/dynamic";
 import { AnimatePresence, m, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -202,7 +203,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
             <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] text-[#aeb7c0]/80 max-md:hidden">
               <span>{t.landing.techVisualNote}</span>
               <a className="underline underline-offset-2 hover:text-white" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">
-                dermahome.unincore.com ↗
+                dermahome.unincore.com <Icon name="external" size={13} className="ml-0.5" />
               </a>
             </div>
           </div>
@@ -212,7 +213,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
     <p className="theme-dark border-b border-line/70 bg-[#101318] px-4 py-3 text-xs leading-relaxed text-[#aeb7c0]/80 md:hidden" data-testid="tech-note-mobile">
       {t.landing.techVisualNote}{" "}
       <a className="underline underline-offset-2" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">
-        dermahome.unincore.com ↗
+        dermahome.unincore.com <Icon name="external" size={13} className="ml-0.5" />
       </a>
     </p>
     </>

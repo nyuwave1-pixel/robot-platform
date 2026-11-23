@@ -337,7 +337,7 @@ const ko = {
   },
   compareGlance: {
     title: "한눈에 보는 변화",
-    headlineImproved: "{n}곳이 좋아졌어요 👏",
+    headlineImproved: "{n}곳이 좋아졌어요",
     headlineSame: "아직 큰 변화는 없어요. 꾸준히 관리해 보세요.",
     headlineCondition: "두 사진의 찍은 조건이 달라서 정확히 비교하기 어려워요.",
     conditionWarn: "같은 장소, 같은 불빛, 정면 얼굴로 다시 찍으면 더 정확해요.",

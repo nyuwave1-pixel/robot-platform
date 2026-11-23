@@ -334,7 +334,7 @@ const ja: Dict = {
   },
   compareGlance: {
     title: "ひと目でわかる変化",
-    headlineImproved: "{n}か所が良くなりました 👏",
+    headlineImproved: "{n}か所が良くなりました",
     headlineSame: "まだ大きな変化はありません。続けてケアしましょう。",
     headlineCondition: "2枚の撮影条件が違うため、正確な比較が難しいです。",
     conditionWarn: "同じ場所・同じ明かり・正面で撮り直すとより正確です。",
