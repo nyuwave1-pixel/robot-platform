@@ -334,7 +334,7 @@ const vi: Dict = {
   },
   compareGlance: {
     title: "Thay đổi trong nháy mắt",
-    headlineImproved: "{n} vùng đã tốt hơn 👏",
+    headlineImproved: "{n} vùng đã tốt hơn",
     headlineSame: "Chưa có thay đổi lớn. Hãy tiếp tục chăm sóc.",
     headlineCondition: "Hai ảnh chụp trong điều kiện khác nhau nên khó so sánh chính xác.",
     conditionWarn: "Chụp lại ở cùng nơi, cùng ánh sáng, nhìn thẳng để chính xác hơn.",

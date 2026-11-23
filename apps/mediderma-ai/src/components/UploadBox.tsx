@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/client/telemetry";
@@ -123,10 +124,10 @@ export default function UploadBox({ onFile, compact = false, large = false, test
           {large ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <button onClick={() => startCam("user")} data-testid={`${testId}-camera`} className="flex items-center justify-center gap-3 rounded-2xl bg-white px-5 py-5 text-lg font-bold text-black transition hover:bg-scan2">
-                <span className="text-3xl">📷</span>{t.landing.useCamera}
+                <Icon name="camera" size={28} strokeWidth={1.4} />{t.landing.useCamera}
               </button>
               <button onClick={() => inputRef.current?.click()} data-testid={`${testId}-pick`} className="flex items-center justify-center gap-3 rounded-2xl border-2 border-silver/40 px-5 py-5 text-lg font-bold text-white transition hover:border-scan hover:text-scan2">
-                <span className="text-3xl">🖼️</span>{t.landing.pickFile}
+                <Icon name="image" size={28} strokeWidth={1.4} />{t.landing.pickFile}
               </button>
               <p className="text-sm text-silver-soft sm:col-span-2">{t.landing.uploadFormats}</p>
             </div>

@@ -1,5 +1,6 @@
 "use client";
 /** 분석 흐름 단계 표시(동의 → 사진 → 질문 → 결과). 지금 어디쯤인지 한눈에 보이게 큰 숫자로. */
+import Icon from "@/components/ui/Icon";
 import { useI18n } from "@/lib/i18n";
 
 export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
@@ -20,7 +21,7 @@ export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
                   cur ? "bg-scan2 text-ink shadow-glow" : done ? "bg-scan/30 text-scan2" : "border border-line text-silver-soft"
                 }`}
               >
-                {done ? "✓" : i + 1}
+                {done ? <Icon name="check" size={16} strokeWidth={2.2} /> : i + 1}
               </span>
               <span className={`text-center text-xs leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver-soft"}`}>{s}</span>
             </li>

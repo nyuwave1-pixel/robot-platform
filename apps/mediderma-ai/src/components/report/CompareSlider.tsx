@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { useEffect, useRef, useState } from "react";
 
 /** 두 캔버스(같은 크기)를 좌우로 가르는 BEFORE / AFTER 슬라이더. 마우스·터치·키보드 지원 */
@@ -37,7 +38,7 @@ export default function CompareSlider({ left, right, leftLabel, rightLabel, hint
         <canvas ref={b} className="block h-auto w-full" />
         <canvas ref={a} className="absolute inset-0 h-full w-full" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
         <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow-[0_0_12px_rgba(108,174,208,0.9)]" style={{ left: `${pos}%` }}>
-          <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xs font-bold text-black">⇆</span>
+          <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xs font-bold text-black"><Icon name="swap" size={18} strokeWidth={1.8} /></span>
         </div>
         <span className="pointer-events-none absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-xs">{leftLabel}</span>
         <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-xs text-scan2">{rightLabel}</span>

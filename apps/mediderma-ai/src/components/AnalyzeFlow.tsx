@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, m } from "framer-motion";
@@ -222,7 +223,7 @@ export default function AnalyzeFlow() {
                 <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">
                   {t.consent.processing}
-                  {!agree && <span className="mt-2 block text-sm font-semibold text-scan2">👆 {t.consent.tapHint}</span>}
+                  {!agree && <span className="mt-2 block text-sm font-semibold text-scan2"><Icon name="tap" size={18} className="mr-1" />{t.consent.tapHint}</span>}
                   {config.aiInsight.available && <span className="mt-1 block text-sm text-silver">{t.ai.exception}</span>}
                 </span>
               </label>
@@ -250,10 +251,10 @@ export default function AnalyzeFlow() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {preview && <img src={preview} alt="" className="h-full w-full object-cover" />}
               </div>
-              {profile.makeup && <p className="mx-auto mt-3 max-w-sm rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100">💡 {t.fit.pf.makeup.note}</p>}
+              {profile.makeup && <p className="mx-auto mt-3 max-w-sm rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100"><Icon name="bulb" size={18} className="mr-1.5" />{t.fit.pf.makeup.note}</p>}
               <div className="mx-auto mt-5 grid max-w-sm gap-3">
-                <button onClick={() => run(chosen)} data-testid="photo-confirm" className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2">✓ {t.fit.confirm.ok}</button>
-                <button onClick={() => { setChosen(null); setStep("capture"); }} data-testid="photo-again" className="rounded-full border-2 border-silver/40 px-8 py-4 text-lg text-white">↺ {t.fit.confirm.again}</button>
+                <button onClick={() => run(chosen)} data-testid="photo-confirm" className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2"><Icon name="check" size={20} strokeWidth={2} className="mr-1.5" />{t.fit.confirm.ok}</button>
+                <button onClick={() => { setChosen(null); setStep("capture"); }} data-testid="photo-again" className="rounded-full border-2 border-silver/40 px-8 py-4 text-lg text-white"><Icon name="refresh" size={20} className="mr-1.5" />{t.fit.confirm.again}</button>
               </div>
             </div>
           )}
@@ -263,9 +264,9 @@ export default function AnalyzeFlow() {
               <h1 className="text-2xl font-bold sm:text-3xl">{t.capture.easyTitle}</h1>
               <p className="mt-2 text-base text-silver">{t.capture.easyDesc}</p>
               <ul className="mt-4 grid grid-cols-3 gap-2" data-testid="capture-tips">
-                {t.capture.tips.map(([icon, label]) => (
+                {t.capture.tips.map(([, label], ti) => (
                   <li key={label} className="rounded-2xl border border-line bg-panel px-2 py-3 text-center">
-                    <span className="block text-3xl">{icon}</span>
+                    <Icon name={(["sun", "face", "glasses"] as const)[ti] ?? "sparkle"} size={30} strokeWidth={1.3} className="mx-auto block text-brand" />
                     <span className="mt-1 block text-sm font-semibold leading-tight">{label}</span>
                   </li>
                 ))}
@@ -277,7 +278,7 @@ export default function AnalyzeFlow() {
                 <summary className="cursor-pointer text-base font-semibold">{t.capture.moreTips}</summary>
                 <ul className="mt-2 space-y-1.5 text-sm text-silver">
                   {t.capture.guide.map((g, i) => (
-                    <li key={i} className="flex gap-2"><span className="text-scan2">✓</span>{g}</li>
+                    <li key={i} className="flex gap-2"><Icon name="check" size={18} strokeWidth={2} className="mt-0.5 text-scan2" />{g}</li>
                   ))}
                 </ul>
               </details>
@@ -286,7 +287,7 @@ export default function AnalyzeFlow() {
                 <p className="mt-2 text-sm leading-relaxed text-silver">{t.capture.neckDesc}</p>
                 {neckFile ? (
                   <p className="mt-2 text-sm text-scan2">
-                    ✓ {t.capture.neckAdded}{" "}
+                    <Icon name="checkCircle" size={18} className="mr-1 text-scan2" />{t.capture.neckAdded}{" "}
                     <button onClick={() => setNeckFile(null)} className="ml-2 text-silver underline">{t.capture.neckRemove}</button>
                   </p>
                 ) : (
@@ -316,7 +317,7 @@ export default function AnalyzeFlow() {
                 <p className="text-sm font-semibold">{t.capture.guideTitle}</p>
                 <ul className="mt-2 grid gap-1 text-xs text-silver sm:grid-cols-2">
                   {t.capture.guide.map((g, i) => (
-                    <li key={i}>✓ {g}</li>
+                    <li key={i} className="flex gap-2"><Icon name="check" size={16} strokeWidth={2} className="mt-0.5 shrink-0" />{g}</li>
                   ))}
                 </ul>
               </div>

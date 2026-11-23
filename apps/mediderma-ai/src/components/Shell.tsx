@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
@@ -91,7 +92,7 @@ function MobileMenu({ freeTrial }: { freeTrial: string }) {
                   {l.ext ? (
                     <a href={l.href} target="_blank" rel="noopener noreferrer" onClick={l.onClick} className="flex items-center justify-between py-4 text-xl font-medium text-white">
                       {l.label}
-                      <span aria-hidden className="text-scan2">↗</span>
+                      <Icon name="external" size={16} className="text-scan2" />
                     </a>
                   ) : (
                     <Link href={l.href} onClick={() => setOpen(false)} className="flex items-center justify-between py-4 text-xl font-medium text-white">

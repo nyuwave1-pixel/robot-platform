@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { useRef, useState } from "react";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
@@ -158,7 +159,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
               )}
               <ul className="mt-2 space-y-1 border-t border-line pt-2 text-xs leading-relaxed text-amber-100/80">
                 {rec.cautions.map((c) => (
-                  <li key={c}>⚠ {t.kb.cautions[c as keyof typeof t.kb.cautions] ?? c}</li>
+                  <li key={c} className="flex gap-1.5"><Icon name="alert" size={15} className="mt-0.5 shrink-0" />{t.kb.cautions[c as keyof typeof t.kb.cautions] ?? c}</li>
                 ))}
               </ul>
             </div>
@@ -342,7 +343,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
                   data-testid={`product-${p}`}
                   className="mt-auto pt-3 text-xs text-scan2 hover:underline"
                 >
-                  {t.care.viewProduct} ↗
+                  {t.care.viewProduct} <Icon name="external" size={13} className="ml-0.5" />
                 </a>
               </article>
             );

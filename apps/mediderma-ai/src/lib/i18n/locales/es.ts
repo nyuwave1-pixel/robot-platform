@@ -335,7 +335,7 @@ const es: Dict = {
   },
   compareGlance: {
     title: "Tu cambio de un vistazo",
-    headlineImproved: "{n} zonas se ven mejor 👏",
+    headlineImproved: "{n} zonas se ven mejor",
     headlineSame: "Aún no hay un gran cambio. Sigue con tu cuidado.",
     headlineCondition: "Las dos fotos se tomaron en condiciones distintas y es difícil compararlas con precisión.",
     conditionWarn: "Repite la foto en el mismo lugar y con la misma luz, de frente, para un resultado más preciso.",

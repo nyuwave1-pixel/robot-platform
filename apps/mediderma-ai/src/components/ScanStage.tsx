@@ -6,6 +6,7 @@
  *  - 아래: 0→100% 진행 막대와 단계별 체크(478 포인트 인식 → … → 맞춤 케어 매칭)
  * 진행률은 실제 분석 단계(stage)와 최소 연출 시간(minMs)을 함께 따른다. 실제 결과보다 앞서 '완료'를 표시하지 않는다.
  */
+import Icon from "@/components/ui/Icon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import facedata from "@/lib/analysis/facedata.json";
 import { useI18n } from "@/lib/i18n";
@@ -159,7 +160,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
           <ol className="mx-auto mt-4 grid max-w-[16rem] grid-cols-1 gap-y-1.5 text-left text-sm sm:max-w-none sm:grid-cols-2 sm:gap-x-3">
             {s.steps.map((label, i) => (
               <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver-soft"}`}>
-                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? "✓" : ""}</span>
+                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? <Icon name="check" size={11} strokeWidth={2.6} /> : ""}</span>
                 {label}
               </li>
             ))}
@@ -171,7 +172,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
               {onCancel && <button onClick={onCancel} className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">{t.common.retake}</button>}
             </div>
           )}
-          <p className="mt-4 text-xs text-silver-soft">🔒 {s.privacy}</p>
+          <p className="mt-4 text-xs text-silver-soft"><Icon name="lock" size={14} className="mr-1" />{s.privacy}</p>
         </div>
       </div>
     </div>

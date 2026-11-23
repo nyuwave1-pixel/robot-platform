@@ -8,6 +8,7 @@
  *  ④ 결과 확인: 4주 뒤 같은 조건으로 다시 찍어 전후 비교
  * 관리 방법은 모두 공식 CARE GUIDE 루틴(knowledge.ts ROUTINES)의 실제 단계에서 가져온다.
  */
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
@@ -182,7 +183,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                 <article key={c.key} className="flex flex-col rounded-3xl border border-line bg-ink/60 p-5" data-testid="glance-card">
                   <p className="text-lg font-bold text-amber-200">{c.axes.map((a) => g.axes[a]).join(" · ")}</p>
                   <p className="mt-1 text-lg">
-                    <span className="mr-1">{r.time === "night" ? "🌙" : "☀️"}</span>
+                    <Icon name={r.time === "night" ? "moon" : "sun"} size={16} className="mr-1" />
                     <b>{g.when[r.time]}</b> · {freq}
                   </p>
 
@@ -211,7 +212,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                     {!blocked && (
                       <div className="rounded-2xl bg-white/5 p-3">
                         <p className="text-sm text-silver">{g.step3}</p>
-                        <p className="mt-0.5 text-lg leading-snug">👉 {kb.directions[dirIdx]}</p>
+                        <p className="mt-0.5 text-lg leading-snug"><Icon name="arrowRight" size={18} className="mr-1 text-brand" />{kb.directions[dirIdx]}</p>
                       </div>
                     )}
                   </div>
@@ -220,7 +221,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
               );
             })}
           </div>
-          <p className="mt-3 text-base text-scan2">✓ {g.finish}</p>
+          <p className="mt-3 text-base text-scan2"><Icon name="checkCircle" size={18} className="mr-1" />{g.finish}</p>
         </div>
       )}
 
