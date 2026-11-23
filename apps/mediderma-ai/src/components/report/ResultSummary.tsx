@@ -74,7 +74,7 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
               <stop offset="1" stopColor="#34d399" />
             </linearGradient>
           </defs>
-          <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#1c232d" strokeWidth="14" strokeLinecap="round" />
+          <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#dce1e5" strokeWidth="14" strokeLinecap="round" />
           {score !== null && <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#hg)" strokeWidth="14" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={len * (1 - frac)} />}
         </svg>
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">

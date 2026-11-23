@@ -25,25 +25,25 @@ export default function FaceFallback({ active = null, onHover, mesh = false }: {
     <svg viewBox="0 0 200 220" className="h-full w-full" aria-hidden>
       <defs>
         <radialGradient id="ff-glow" cx="50%" cy="45%" r="60%">
-          <stop offset="0" stopColor="rgba(79,182,255,0.22)" />
-          <stop offset="1" stopColor="rgba(79,182,255,0)" />
+          <stop offset="0" stopColor="rgba(108,174,208,0.22)" />
+          <stop offset="1" stopColor="rgba(108,174,208,0)" />
         </radialGradient>
         <linearGradient id="ff-scan" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="rgba(127,224,255,0)" />
-          <stop offset="0.5" stopColor="rgba(127,224,255,0.55)" />
-          <stop offset="1" stopColor="rgba(127,224,255,0)" />
+          <stop offset="0" stopColor="rgba(108,174,208,0)" />
+          <stop offset="0.5" stopColor="rgba(36,112,150,0.55)" />
+          <stop offset="1" stopColor="rgba(108,174,208,0)" />
         </linearGradient>
       </defs>
       <ellipse cx="100" cy="105" rx="92" ry="104" fill="url(#ff-glow)" />
-      {mesh && <path d={edges} stroke="rgba(143,170,198,0.28)" strokeWidth="0.25" fill="none" />}
+      {mesh && <path d={edges} stroke="rgba(94,104,115,0.3)" strokeWidth="0.25" fill="none" />}
       {polys.map((z, i) => {
         const on = active === z.id;
         return (
           <polygon
             key={z.id}
             points={z.d}
-            fill={on ? "rgba(79,182,255,0.42)" : "rgba(79,182,255,0.07)"}
-            stroke={on ? "#9fe6ff" : "rgba(127,224,255,0.5)"}
+            fill={on ? "rgba(108,174,208,0.42)" : "rgba(108,174,208,0.07)"}
+            stroke={on ? "#246f96" : "rgba(108,174,208,0.75)"}
             strokeWidth={on ? 0.9 : 0.4}
             style={{ transition: "fill .25s, stroke .25s", cursor: onHover ? "pointer" : undefined, animation: active === null && onHover ? `pulse-zone 3.2s ease-in-out ${i * 0.18}s infinite` : undefined, filter: on ? "drop-shadow(0 0 4px rgba(127,224,255,0.9))" : undefined }}
             onPointerEnter={() => onHover?.(z.id)}
@@ -52,7 +52,7 @@ export default function FaceFallback({ active = null, onHover, mesh = false }: {
         );
       })}
       {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="0.5" fill="#c9d1d9" opacity="0.65" />
+        <circle key={i} cx={x} cy={y} r="0.5" fill="#aeb7c0" opacity="0.65" />
       ))}
       {mesh && (
         <rect x="6" y="0" width="188" height="26" fill="url(#ff-scan)">

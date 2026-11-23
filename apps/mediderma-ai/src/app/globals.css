@@ -3,15 +3,47 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC", "Malgun Gothic", sans-serif;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC", "Noto Sans Thai", "Leelawadee UI", "Malgun Gothic", sans-serif;
   --font-display: "Helvetica Neue", "Inter", "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+  /* FUTURE SKIN LAB — Pure White / Clinical White / Platinum / Titanium / Deep Graphite / AI Blue */
+  --c-bg: 246 247 248;      /* Clinical White #F6F7F8 */
+  --c-panel: 255 255 255;   /* Pure White */
+  --c-line: 220 225 229;    /* Platinum Silver #DCE1E5 */
+  --c-silver: 94 104 115;   /* 보조 글자 (Titanium 계열, 대비 확보) */
+  --c-fg: 32 37 43;         /* Deep Graphite #20252B */
+  --c-on: 255 255 255;
+  --c-scan: 108 174 208;    /* AI Blue #6CAED0 */
+  --c-scan2: 36 112 150;    /* AI Blue 진한 단계 — 흰 바탕 글자용 */
+  --amber-100: 120 53 15; --amber-200: 146 64 14; --amber-300: 180 83 9;
+  --rose-100: 136 19 55; --rose-200: 159 18 57; --rose-300: 190 18 60;
+  --emerald-100: 6 78 59; --emerald-200: 6 95 70; --emerald-300: 4 120 87;
+  --violet-200: 91 33 182; --violet-300: 109 40 217;
+  --sky-100: 12 74 110; --sky-200: 7 89 133;
+}
+/* 시네마틱 장면(기술 쇼케이스·스캔)은 Midnight Black 으로 유지 */
+.theme-dark {
   color-scheme: dark;
+  --c-bg: 16 19 24;         /* Midnight Black #101318 */
+  --c-panel: 24 28 34;
+  --c-line: 44 51 60;
+  --c-silver: 199 207 214;
+  --c-fg: 255 255 255;
+  --c-on: 16 19 24;
+  --c-scan: 108 174 208;
+  --c-scan2: 199 232 242;   /* Ice Blue #C7E8F2 */
+  --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77;
+  --rose-100: 255 228 230; --rose-200: 254 205 211; --rose-300: 253 164 175;
+  --emerald-100: 209 250 229; --emerald-200: 167 243 208; --emerald-300: 110 231 183;
+  --violet-200: 221 214 254; --violet-300: 196 181 253;
+  --sky-100: 224 242 254; --sky-200: 186 230 253;
+  color: rgb(var(--c-fg));
 }
 html { scroll-behavior: smooth; }
 /* 큰 글씨 모드 (헤더의 '가+' 버튼) */
 html.big-text { font-size: 118%; }
-body { font-family: var(--font-sans); background: #05070a; }
-::selection { background: rgba(79, 182, 255, 0.35); }
+body { font-family: var(--font-sans); background: rgb(var(--c-bg)); color: rgb(var(--c-fg)); }
+::selection { background: rgb(var(--c-scan) / 0.35); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
@@ -24,24 +56,37 @@ body { font-family: var(--font-sans); background: #05070a; }
 .depth-xl { font-size: clamp(2.3rem, 6.4vw, 4.6rem); --depth: 7; }
 /* 글자 본체 = 압출(깊이) 레이어, ::after = 앞면(그라디언트) 레이어 */
 .depth-ch { position: relative; display: inline-block; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform, opacity;
-  color: #1b2733;
-  text-shadow: 0 1px 0 #2a3947, 0 2px 0 #223040, 0 3px 0 #1a2631, 0 calc(var(--depth) * 1px) 0 #121b24, 0 calc(var(--depth) * 1px + 6px) 14px rgba(0,0,0,0.7); }
+  color: var(--d-body);
+  text-shadow: 0 1px 0 var(--d-e1), 0 2px 0 var(--d-e2), 0 3px 0 var(--d-e3), 0 calc(var(--depth) * 1px) 0 var(--d-e4), 0 calc(var(--depth) * 1px + 6px) 14px var(--d-shadow); }
 .depth-ch::after { content: attr(data-ch); position: absolute; left: 0; top: 0; text-shadow: none; color: transparent;
-  background: linear-gradient(180deg, #ffffff 0%, #e3e9f0 48%, #93a1b0 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.depth-acc { color: #0b4f9c;
-  text-shadow: 0 1px 0 #0d5db6, 0 2px 0 #0b4f9c, 0 3px 0 #093f7d, 0 calc(var(--depth) * 1px) 0 #062a54, 0 calc(var(--depth) * 1px + 8px) 24px rgba(47,155,255,0.55), 0 0 26px rgba(79,182,255,0.35); }
-.depth-acc::after { background: linear-gradient(180deg, #ffffff 0%, #a9e3ff 42%, #3aa2ff 100%); -webkit-background-clip: text; background-clip: text; }
+  background: var(--d-face); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.depth-acc { color: var(--a-body);
+  text-shadow: 0 1px 0 var(--a-e1), 0 2px 0 var(--a-body), 0 3px 0 var(--a-e3), 0 calc(var(--depth) * 1px) 0 var(--a-e4), 0 calc(var(--depth) * 1px + 8px) 24px var(--a-glow), 0 0 26px var(--a-halo); }
+.depth-acc::after { background: var(--a-face); -webkit-background-clip: text; background-clip: text; }
+/* 입체 글자 색 — 밝은 테마: 티타늄 압출 + 그래파이트 앞면 */
+:root {
+  --d-body: #c3cbd2; --d-e1: #d0d7dd; --d-e2: #c3cbd2; --d-e3: #b4bdc6; --d-e4: #aeb7c0; --d-shadow: rgba(32,37,43,0.18);
+  --d-face: linear-gradient(180deg, #3a434d 0%, #20252b 55%, #101318 100%);
+  --a-body: #8fc4dd; --a-e1: #a7d3e7; --a-e3: #7ab7d3; --a-e4: #6caed0; --a-glow: rgba(108,174,208,0.35); --a-halo: rgba(108,174,208,0.18);
+  --a-face: linear-gradient(180deg, #6caed0 0%, #3b8fb8 50%, #246f96 100%);
+}
+.theme-dark {
+  --d-body: #1b2733; --d-e1: #2a3947; --d-e2: #223040; --d-e3: #1a2631; --d-e4: #121b24; --d-shadow: rgba(0,0,0,0.7);
+  --d-face: linear-gradient(180deg, #ffffff 0%, #e3e9f0 48%, #93a1b0 100%);
+  --a-body: #0b4f9c; --a-e1: #0d5db6; --a-e3: #093f7d; --a-e4: #062a54; --a-glow: rgba(47,155,255,0.55); --a-halo: rgba(79,182,255,0.35);
+  --a-face: linear-gradient(180deg, #ffffff 0%, #c7e8f2 42%, #6caed0 100%);
+}
 
 /* ── 모션 그래픽 보조 ───────────────────────────────────── */
 @keyframes marquee { to { transform: translateX(-50%); } }
 .marquee-track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
 @keyframes sheen { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(320%) skewX(-18deg); } }
 .sheen { position: relative; overflow: hidden; }
-.sheen::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent); animation: sheen 3.6s ease-in-out infinite; mix-blend-mode: overlay; pointer-events: none; }
+.sheen::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); animation: sheen 3.6s ease-in-out infinite; mix-blend-mode: overlay; pointer-events: none; }
 @keyframes dash { to { stroke-dashoffset: -40; } }
 @keyframes pulse-zone { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
 @keyframes orbit { to { transform: rotate(360deg); } }
-.grid-floor { background-image: linear-gradient(rgba(79,182,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(79,182,255,0.14) 1px, transparent 1px);
+.grid-floor { background-image: linear-gradient(rgb(var(--c-scan) / 0.22) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--c-scan) / 0.22) 1px, transparent 1px);
   background-size: 44px 44px; transform: perspective(700px) rotateX(62deg); transform-origin: 50% 0; mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 75%); }
 
 /* 모바일 메뉴 항목 등장 */
