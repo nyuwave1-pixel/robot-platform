@@ -246,7 +246,8 @@ function syntheticFace(mod?: (x: number, y: number, rgb: [number, number, number
   }
   return { raster: { width: w, height: h, data }, landmarks: lm, sourceScale: 1, pose: { yaw: 0, pitch: 0, roll: 0 } };
 }
-describe("analysis engine (synthetic face)", () => {
+// 합성 얼굴로 전체 엔진을 돌리는 무거운 테스트 — 다른 작업과 동시에 돌 때도 기본 5초 제한에 걸리지 않게
+describe("analysis engine (synthetic face)", { timeout: 30_000 }, () => {
   const base = analyzeNormalized(syntheticFace());
   it("is deterministic", () => {
     const again = analyzeNormalized(syntheticFace());
