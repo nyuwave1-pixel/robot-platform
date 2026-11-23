@@ -84,7 +84,14 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
 
   // 진행률: 시간 진행(최대 92%)과 실제 단계 하한 중 큰 값. 완료는 실제 분석이 끝나고 최소 시간이 지난 뒤에만.
   const timeP = Math.min(0.92, now / minMs);
-  const done = stage === "done" && now >= minMs;
+  // 최소 연출 시간은 화면 애니메이션(rAF)과 별개의 타이머로 잰다 — 창이 가려지거나 백그라운드여서
+  // rAF 가 멈춰도, 분석이 끝났다면 92% 에 머무르지 않고 넘어가게
+  const [minPassed, setMinPassed] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setMinPassed(true), minMs);
+    return () => clearTimeout(id);
+  }, [minMs]);
+  const done = stage === "done" && (minPassed || now >= minMs);
   const progress = done ? 1 : Math.max(timeP, Math.min(STAGE_FLOOR[stage], 0.92));
   const pct = Math.round(progress * 100);
   const stepCount = s.steps.length;
