@@ -8,7 +8,7 @@
  * 배경 그래픽은 기술 설명을 위한 연출이며 실제 기기 작동 모습이 아님을 화면에 밝힌다.
  */
 import dynamic from "next/dynamic";
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, m, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/client/telemetry";
@@ -28,22 +28,22 @@ function Device({ active, label, note, alt }: { active: number; label: string; n
   const s = SCENES[active];
   return (
     <div className="relative mx-auto w-[min(34vw,140px)] sm:w-[240px] lg:w-[340px]">
-      <motion.div aria-hidden className="absolute -inset-6 rounded-full blur-3xl" animate={{ backgroundColor: s.glow }} transition={{ duration: 0.9 }} style={{ opacity: 0.55 }} />
-      <motion.figure
+      <m.div aria-hidden className="absolute -inset-6 rounded-full blur-3xl" animate={{ backgroundColor: s.glow }} transition={{ duration: 0.9 }} style={{ opacity: 0.55 }} />
+      <m.figure
         className="relative overflow-hidden rounded-[28px] bg-gradient-to-b from-white via-[#f6f7f8] to-[#dce1e5] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-white/40"
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       >
         <div className="relative aspect-square w-full">
           <AnimatePresence initial={false}>
-            <motion.img key={s.head} src={s.head} alt={alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-3" initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} />
+            <m.img key={s.head} src={s.head} alt={alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-3" initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} />
           </AnimatePresence>
         </div>
         <figcaption className="border-t border-black/5 px-3 py-2 text-[10px] leading-tight text-[#20252b] sm:flex sm:items-center sm:justify-between sm:gap-2">
           <span className="block font-display font-semibold tracking-[0.18em] max-sm:hidden">DERMA-HOME</span>
           <span className="block text-[#4f5964]">{note}</span>
         </figcaption>
-      </motion.figure>
+      </m.figure>
       <ul className="mt-2 flex justify-center gap-1.5 sm:mt-3" aria-label={label}>
         {SCENES.map((x, i) => (
           <li key={x.id} className={`rounded-full px-2.5 py-1 font-display text-[10px] tracking-[0.2em] transition-colors duration-500 ${i === active ? "bg-white text-[#101318]" : "border border-white/15 text-white/45"}`}>
@@ -82,7 +82,7 @@ function Backdrop({ index, webgl }: { index: number; webgl: boolean }) {
   return (
     <div className="absolute inset-0">
       {/* 공식 사이트(dermahome.unincore.com)의 작용 원리 이미지 — 천천히 다가오는 켄 번스 */}
-      <motion.img src={s.art} alt="" aria-hidden loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-70 lg:object-[70%_50%]" initial={{ scale: 1.14 }} animate={{ scale: 1.02 }} transition={{ duration: 9, ease: "easeOut" }} />
+      <m.img src={s.art} alt="" aria-hidden loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-70 lg:object-[70%_50%]" initial={{ scale: 1.14 }} animate={{ scale: 1.02 }} transition={{ duration: 9, ease: "easeOut" }} />
       {webgl ? <ShaderCanvas kind={s.shader} className="absolute inset-0 opacity-45 mix-blend-screen" /> : <div className="absolute inset-0 opacity-60" style={{ background: s.fallback }} />}
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,#101318_0%,rgba(16,19,24,0.35)_22%,rgba(16,19,24,0.2)_50%,rgba(16,19,24,0.88)_82%,#101318_100%)]" />
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,19,24,0.85),transparent_55%)] max-lg:hidden" />
@@ -153,15 +153,15 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
     <section id="technology" ref={ref} className="theme-dark relative border-y border-line/70 bg-[#101318]" style={{ height: `${SCENES.length * 90 + 30}svh` }} data-testid="tech-showcase" data-mode="pinned" data-active={active}>
       <div className="sticky top-14 h-[calc(100svh-3.5rem)] overflow-hidden">
         <AnimatePresence initial={false}>
-          <motion.div key={active} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeInOut" }}>
+          <m.div key={active} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeInOut" }}>
             <Backdrop index={active} webgl={webgl} />
-          </motion.div>
+          </m.div>
         </AnimatePresence>
 
         {/* 장면 번호 — 배경에 깔리는 큰 윤곽 숫자 */}
-        <motion.span aria-hidden style={{ x: ghostX, WebkitTextStroke: "1px rgba(220,225,229,0.16)" }} className="pointer-events-none absolute -right-2 top-[8%] select-none font-display text-[42vw] font-semibold leading-none text-transparent lg:top-[2%] lg:text-[26vw]">
+        <m.span aria-hidden style={{ x: ghostX, WebkitTextStroke: "1px rgba(220,225,229,0.16)" }} className="pointer-events-none absolute -right-2 top-[8%] select-none font-display text-[42vw] font-semibold leading-none text-transparent lg:top-[2%] lg:text-[26vw]">
           0{active + 1}
-        </motion.span>
+        </m.span>
 
         <div className="relative mx-auto flex h-full max-w-6xl flex-col px-4 pb-24 pt-4 md:pb-6 lg:pb-10 lg:pt-8">
           <div className="flex items-start justify-between gap-4">
@@ -178,7 +178,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
           <div className="grid min-h-0 flex-1 content-center items-center gap-3 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
             <div className="order-2 lg:order-1">
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div
+                <m.div
                   key={active}
                   initial={{ opacity: 0, y: 28, clipPath: "inset(0 0 100% 0)", filter: "blur(8px)" }}
                   animate={{ opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", filter: "blur(0px)" }}
@@ -187,7 +187,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
                   data-testid="tech-copy"
                 >
                   <Copy index={active} />
-                </motion.div>
+                </m.div>
               </AnimatePresence>
             </div>
             <div className="order-1 lg:order-2">
@@ -197,7 +197,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
 
           <div>
             <div className="h-px w-full bg-white/10">
-              <motion.div className="h-px origin-left bg-gradient-to-r from-[#6caed0] via-white to-[#c7e8f2]" style={{ scaleX: railScale }} />
+              <m.div className="h-px origin-left bg-gradient-to-r from-[#6caed0] via-white to-[#c7e8f2]" style={{ scaleX: railScale }} />
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[10px] text-[#aeb7c0]/80 max-md:hidden">
               <span>{t.landing.techVisualNote}</span>

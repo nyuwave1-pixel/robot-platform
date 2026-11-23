@@ -7,7 +7,7 @@
  * 점수는 모두 사진 관찰 지수이며, '추정 나이'처럼 검증되지 않은 값은 만들지 않는다.
  */
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/client/telemetry";
 import type { ScanProfile } from "@/lib/client/store";
@@ -172,8 +172,8 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
 
       <AnimatePresence>
         {open && item && (
-          <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
-            <motion.div
+          <m.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
+            <m.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="sheet-title"
@@ -202,8 +202,8 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
               <button onClick={() => setOpen(null)} className="mt-5 w-full rounded-full bg-white py-3.5 text-lg font-bold text-black" data-testid="skin-sheet-close">
                 {c.close}
               </button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>

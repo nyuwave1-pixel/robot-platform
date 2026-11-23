@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
@@ -199,7 +199,7 @@ export default function AnalyzeFlow() {
     <StepBar current={step === "consent" ? 0 : step === "profile" ? 1 : 2} />
     <div className="mx-auto max-w-3xl px-4 py-6">
       <AnimatePresence mode="wait">
-        <motion.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+        <m.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
           {step === "consent" && (
             <div data-testid="consent">
               <h1 className="text-2xl font-bold sm:text-3xl">{t.consent.title}</h1>
@@ -319,7 +319,7 @@ export default function AnalyzeFlow() {
               <ReportProblem context={`error:${errorCode}`} />
             </div>
           )}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
     </>
