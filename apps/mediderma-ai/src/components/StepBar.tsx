@@ -17,12 +17,12 @@ export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
               {i > 0 && <span aria-hidden className={`absolute top-[17px] h-0.5 rounded ${i <= current ? "bg-scan/60" : "bg-line"}`} style={{ left: "calc(-50% + 24px)", right: "calc(50% + 24px)" }} />}
               <span
                 className={`relative flex h-9 w-9 items-center justify-center rounded-full text-base font-bold transition ${
-                  cur ? "bg-scan2 text-ink shadow-glow" : done ? "bg-scan/30 text-scan2" : "border border-line text-silver/60"
+                  cur ? "bg-scan2 text-ink shadow-glow" : done ? "bg-scan/30 text-scan2" : "border border-line text-silver-soft"
                 }`}
               >
                 {done ? "✓" : i + 1}
               </span>
-              <span className={`text-center text-[11px] leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver/70"}`}>{s}</span>
+              <span className={`text-center text-[11px] leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver-soft"}`}>{s}</span>
             </li>
           );
         })}

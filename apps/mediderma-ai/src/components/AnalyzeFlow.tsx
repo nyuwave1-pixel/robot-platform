@@ -144,6 +144,7 @@ export default function AnalyzeFlow() {
     }
     consented.current = true;
     setHistoryConsent(keep);
+    track("consent_given", { history: keep });
     setStep("profile");
   };
   const choose = (f: File) => {
@@ -156,6 +157,12 @@ export default function AnalyzeFlow() {
   };
   const afterProfile = (p: ScanProfile) => {
     setProfile(p);
+    track("profile_done", {
+      ...(p.forWhom ? { who: p.forWhom } : {}),
+      ...(p.makeup !== null ? { makeup: p.makeup } : {}),
+      ...(p.age !== null ? { age: String(p.age) } : {}),
+      ...(p.skinType ? { skin: p.skinType } : {}),
+    });
     if (pendingFile) {
       const f = pendingFile;
       setPendingFile(null);
@@ -210,13 +217,13 @@ export default function AnalyzeFlow() {
                 <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">{fmt(t.consent.history, { days: config.retention.historyDays })}</span>
               </label>
-              <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver/80">
+              <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver">
                 <p>{t.consent.stats}</p>
                 <p>{t.consent.age}</p>
                 <Link href="/privacy" className="inline-block text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               {consentError && <p role="alert" className="mt-3 text-base text-rose-300" data-testid="consent-error">{t.consent.required}</p>}
-              <button onClick={acceptConsent} data-testid="consent-agree" className={`mt-5 w-full rounded-full px-8 py-4 text-lg font-bold transition sm:w-auto ${agree ? "bg-white text-black hover:bg-scan2" : "bg-white/30 text-black/70"}`}>{t.consent.agree} →</button>
+              <button onClick={acceptConsent} data-testid="consent-agree" className={`mt-5 w-full rounded-full px-8 py-4 text-lg font-bold transition sm:w-auto ${agree ? "bg-white text-black hover:bg-scan2" : "bg-line text-silver"}`}>{t.consent.agree} →</button>
             </div>
           )}
 

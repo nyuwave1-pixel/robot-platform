@@ -43,7 +43,7 @@ export default function CompareSlider({ left, right, leftLabel, rightLabel, hint
         <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[11px] text-scan2">{rightLabel}</span>
       </div>
       <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} aria-label={hint} className="mt-2 w-full accent-[#3b8fb8]" />
-      <p className="text-center text-[11px] text-silver/70">{hint}</p>
+      <p className="text-center text-[11px] text-silver-soft">{hint}</p>
     </div>
   );
 }

@@ -163,7 +163,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
               ))}
             </ol>
           )}
-          <p className="mt-3 text-sm text-silver/70">{g.scaleNote}</p>
+          <p className="mt-3 text-sm text-silver-soft">{g.scaleNote}</p>
         </div>
       </div>
 

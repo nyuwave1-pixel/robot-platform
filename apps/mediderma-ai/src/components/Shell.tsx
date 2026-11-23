@@ -94,7 +94,7 @@ function MobileMenu({ freeTrial }: { freeTrial: string }) {
                   ) : (
                     <Link href={l.href} onClick={() => setOpen(false)} className="flex items-center justify-between py-4 text-xl font-medium text-white">
                       {l.label}
-                      <span aria-hidden className="text-silver/50">→</span>
+                      <span aria-hidden className="text-silver-soft">→</span>
                     </Link>
                   )}
                 </li>
@@ -150,7 +150,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       )}
       <main className="flex-1">{children}</main>
       <footer className="border-t border-line/70 bg-panel/60">
-        <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 text-xs leading-relaxed text-silver/70">
+        <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 text-xs leading-relaxed text-silver-soft">
           <p>{t.common.footerDisclaimer}</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <span className="text-silver">{t.common.footerCompany}</span>

@@ -21,6 +21,8 @@ const config: Config = {
         panel: v("c-panel"),
         line: v("c-line"),
         silver: v("c-silver"),
+        // 보조 글자 중 한 단계 옅은 것 — 밝은 테마에서도 대비 4.5:1 이상
+        "silver-soft": v("c-silver-soft"),
         scan: v("c-scan"),
         scan2: v("c-scan2"),
         // 테마와 무관하게 고정된 색 (사진 위 글자 등)

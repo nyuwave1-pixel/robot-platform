@@ -147,13 +147,13 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
           </div>
           <ol className="mx-auto mt-4 grid max-w-[16rem] grid-cols-1 gap-y-1.5 text-left text-sm sm:max-w-none sm:grid-cols-2 sm:gap-x-3">
             {s.steps.map((label, i) => (
-              <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver/40"}`}>
+              <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver-soft"}`}>
                 <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? "✓" : ""}</span>
                 {label}
               </li>
             ))}
           </ol>
-          <p className="mt-4 text-xs text-silver/70">🔒 {s.privacy}</p>
+          <p className="mt-4 text-xs text-silver-soft">🔒 {s.privacy}</p>
         </div>
       </div>
     </div>

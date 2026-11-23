@@ -128,7 +128,7 @@ function StickyStart({ label }: { label: string }) {
   }, []);
   return (
     <div className={`pb-safe pointer-events-none fixed inset-x-0 bottom-0 z-30 px-3 pt-3 transition-all duration-500 md:hidden ${show ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`} data-testid="sticky-start" data-show={show}>
-      <Link href="/analyze" tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(32,37,43,0.28)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
+      <Link href="/analyze" onClick={() => track("cta_click", { place: "sticky" })} tabIndex={show ? 0 : -1} className={`flex items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-bold text-black shadow-[0_10px_40px_rgba(32,37,43,0.28)] ring-1 ring-black/10 ${show ? "pointer-events-auto" : ""}`}>
         {label} <span aria-hidden>→</span>
       </Link>
     </div>
@@ -161,7 +161,7 @@ export default function Landing() {
         <div aria-hidden className="grid-floor pointer-events-none absolute inset-x-0 bottom-0 h-64 opacity-60" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-4 pb-12 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
           <div className="order-2 lg:order-1">
-            <motion.p initial={{ opacity: 0, letterSpacing: "0.6em" }} animate={{ opacity: 1, letterSpacing: "0.3em" }} transition={{ duration: 1.1 }} className="text-[10px] text-scan2/80 sm:text-xs">
+            <motion.p initial={{ opacity: 0, letterSpacing: "0.6em" }} animate={{ opacity: 1, letterSpacing: "0.3em" }} transition={{ duration: 1.1 }} className="text-[10px] text-scan2 sm:text-xs">
               {t.landing.eyebrow}
             </motion.p>
             {/* 실제 헤딩(스크린리더·검색엔진용). 3D 타이틀이 준비되면 시각적으로만 대체한다 */}
@@ -194,15 +194,15 @@ export default function Landing() {
             </p>
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
               <p className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">{t.landing.tagline}</p>
-              <p className="mt-3 text-[11px] tracking-[0.2em] text-silver/70">{t.common.slogan}</p>
+              <p className="mt-3 text-[11px] tracking-[0.2em] text-silver-soft">{t.common.slogan}</p>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-silver">{t.landing.desc}</p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 <Magnetic>
-                  <Link href="/analyze" className="sheen inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-black hover:bg-scan2" data-testid="hero-start">
+                  <Link href="/analyze" className="sheen inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-black hover:bg-scan2" data-testid="hero-start" onClick={() => track("cta_click", { place: "hero" })}>
                     {t.common.start} <span aria-hidden>→</span>
                   </Link>
                 </Magnetic>
-                <a href="#technology" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-3.5 text-sm text-white hover:border-white/60" data-testid="hero-explore">
+                <a href="#technology" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-3.5 text-sm text-white hover:border-white/60" data-testid="hero-explore" onClick={() => track("cta_click", { place: "explore" })}>
                   {t.landing.exploreTech} <span aria-hidden>↓</span>
                 </a>
               </div>
@@ -228,7 +228,7 @@ export default function Landing() {
         </div>
         {/* 키워드 마키 */}
         <div aria-hidden className="relative border-y border-line/70 bg-panel/40 py-3 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-          <div className="marquee-track gap-10 font-display text-[11px] tracking-[0.35em] text-silver/70">
+          <div className="marquee-track gap-10 font-display text-[11px] tracking-[0.35em] text-silver-soft">
             {[...KEYWORDS, ...KEYWORDS, ...KEYWORDS, ...KEYWORDS].map((k, i) => (
               <span key={i} className="flex items-center gap-10 whitespace-nowrap">
                 {k}
@@ -307,11 +307,11 @@ export default function Landing() {
               >
                 <BeforeAfter before={before} after={after} beforeLabel={t.landing.galleryBefore} afterLabel={t.landing.galleryAfter} alt="UNI&CORE DERMA HOME" phase={i * 0.8} animate={!reduce} />
                 <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/85 to-transparent" />
-                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white/80">DERMA HOME · 0{i + 1}</figcaption>
+                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white">DERMA HOME · 0{i + 1}</figcaption>
               </motion.figure>
             ))}
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-silver/70" data-testid="gallery-note">{t.landing.galleryNote}</p>
+          <p className="mt-3 text-[11px] leading-relaxed text-silver-soft" data-testid="gallery-note">{t.landing.galleryNote}</p>
         </div>
       </section>
 
@@ -339,7 +339,7 @@ export default function Landing() {
                     </motion.li>
                   ))}
                 </ul>
-                {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver/80">{t.ai.exception}</p>}
+                {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver">{t.ai.exception}</p>}
                 <Link href="/privacy" className="mt-5 inline-block text-xs text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               <div className="mx-auto aspect-[16/10] w-full max-w-sm">
@@ -363,7 +363,7 @@ export default function Landing() {
           <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>
           <motion.div {...rise} className="mt-8 flex flex-wrap justify-center gap-4">
             <Magnetic>
-              <Link href="/analyze" className="sheen inline-block rounded-full bg-white px-9 py-4 text-sm font-semibold text-black shadow-glow transition hover:bg-scan2">{t.common.start}</Link>
+              <Link href="/analyze" onClick={() => track("cta_click", { place: "bottom" })} className="sheen inline-block rounded-full bg-white px-9 py-4 text-sm font-semibold text-black shadow-glow transition hover:bg-scan2">{t.common.start}</Link>
             </Magnetic>
             <Magnetic>
               <a href={config.links.freeTrial} target="_blank" rel="noopener noreferrer" onClick={() => track("trial_click")} className="inline-block rounded-full border border-silver/40 bg-ink/60 px-9 py-4 text-sm backdrop-blur transition hover:border-scan">{t.nav.trial}</a>

@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
+import { track } from "@/lib/client/telemetry";
 import type { ScanProfile } from "@/lib/client/store";
 import type { CategoryScores, MetricKey, ZoneResult } from "@/lib/analysis/types";
 import { HIGHER_IS_BETTER } from "@/lib/analysis/types";
@@ -45,6 +46,7 @@ export function weakestAxes(c: CategoryScores, n = 2): AxisId[] {
 
 export function SummaryHero({ score, profile }: { score: number | null; profile?: ScanProfile | null }) {
   const { t } = useI18n();
+  useEffect(() => track("report_viewed"), []);
   const h = t.fit.hero;
   const [shown, setShown] = useState(0);
   useEffect(() => {
@@ -101,7 +103,7 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
         </div>
       )}
       {profile?.makeup && <p className="mx-auto mt-3 max-w-md rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100">💡 {h.makeupWarn}</p>}
-      <p className="mt-3 text-xs text-silver/70">{h.note}</p>
+      <p className="mt-3 text-xs text-silver-soft">{h.note}</p>
     </section>
   );
 }
@@ -196,7 +198,7 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
                   📍 {c.whereLabel}: <b>{worstZone(open)}</b>
                 </p>
               )}
-              <p className="mt-3 text-sm text-silver/70">{t.glance.scaleNote}</p>
+              <p className="mt-3 text-sm text-silver-soft">{t.glance.scaleNote}</p>
               <button onClick={() => setOpen(null)} className="mt-5 w-full rounded-full bg-white py-3.5 text-lg font-bold text-black" data-testid="skin-sheet-close">
                 {c.close}
               </button>
@@ -213,6 +215,7 @@ export function ShareButton({ score, categories, plan }: { score: number | null;
   const s = t.fit.share;
   const [toast, setToast] = useState(false);
   const share = async () => {
+    track("share_click");
     const url = typeof window !== "undefined" ? window.location.origin : "";
     const weak = weakestAxes(categories).map((id) => t.glance.axes[id]).join(", ") || "—";
     const products = (plan?.products ?? []).filter((p) => p !== "device").slice(0, 2).map((p) => t.kb.products[p].name).join(", ") || "—";
@@ -235,7 +238,7 @@ export function ShareButton({ score, categories, plan }: { score: number | null;
   };
   return (
     <div className="relative">
-      <button onClick={share} className="w-full rounded-full bg-[#FEE500] px-6 py-4 text-lg font-bold text-black hover:brightness-95" data-testid="share-result">
+      <button onClick={share} className="w-full rounded-full bg-[#FEE500] px-6 py-4 text-lg font-bold text-[#191600] hover:brightness-95" data-testid="share-result">
         💬 {s.button}
       </button>
       {toast && (

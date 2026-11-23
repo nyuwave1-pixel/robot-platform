@@ -10,7 +10,8 @@
   --c-bg: 246 247 248;      /* Clinical White #F6F7F8 */
   --c-panel: 255 255 255;   /* Pure White */
   --c-line: 220 225 229;    /* Platinum Silver #DCE1E5 */
-  --c-silver: 94 104 115;   /* 보조 글자 (Titanium 계열, 대비 확보) */
+  --c-silver: 82 92 103;    /* 보조 글자 (Titanium 계열, 흰 바탕 대비 6.6:1) */
+  --c-silver-soft: 98 108 119; /* 옅은 보조 글자 (흰·클리니컬 화이트 바탕 대비 5:1 이상) */
   --c-fg: 32 37 43;         /* Deep Graphite #20252B */
   --c-on: 255 255 255;
   --c-scan: 108 174 208;    /* AI Blue #6CAED0 */
@@ -28,6 +29,7 @@
   --c-panel: 24 28 34;
   --c-line: 44 51 60;
   --c-silver: 199 207 214;
+  --c-silver-soft: 160 170 180;
   --c-fg: 255 255 255;
   --c-on: 16 19 24;
   --c-scan: 108 174 208;

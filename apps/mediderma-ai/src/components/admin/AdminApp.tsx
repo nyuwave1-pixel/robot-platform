@@ -46,7 +46,7 @@ function Kpi({ label, value, sub }: { label: string; value: string | number; sub
     <div className={card}>
       <p className="text-[11px] text-silver">{label}</p>
       <p className="mt-1 font-display text-2xl font-light">{value}</p>
-      {sub && <p className="text-[10px] text-silver/60">{sub}</p>}
+      {sub && <p className="text-[10px] text-silver-soft">{sub}</p>}
     </div>
   );
 }
@@ -64,6 +64,37 @@ function TopList({ title, rows, label }: { title: string; rows: { key: string; c
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+const DEVICE: Record<string, string> = { mobile: "모바일", tablet: "태블릿", desktop: "PC", unknown: "알 수 없음" };
+const SOURCE: Record<string, string> = { direct: "직접 방문 · 북마크", internal: "사이트 내부 이동" };
+const TECH: Record<string, string> = { rf: "RF 고주파", ultrasonic: "울트라소닉", iontophoresis: "이온토포레시스" };
+const CTA: Record<string, string> = { hero: "첫 화면 시작 버튼", sticky: "모바일 하단 고정 버튼", explore: "더마홈 기술 보기", bottom: "페이지 하단 시작 버튼" };
+const STEP: Record<string, string> = {
+  visit: "방문", consent_given: "분석 동의", profile_done: "촬영 전 정보", photo_selected: "사진 선택",
+  analysis_started: "분석 시작", analysis_succeeded: "분석 성공", report_viewed: "결과 확인", action: "후속 행동 (체험·상품·공유·저장)",
+};
+
+/** 이용 흐름: 세션 기준. 각 단계에 도달한 세션 수와 직전 단계 대비·방문 대비 비율 */
+function Funnel({ rows }: { rows: Stats["funnel"] }) {
+  const max = Math.max(1, ...rows.map((r) => r.sessions));
+  return (
+    <div className={card} data-testid="admin-funnel">
+      <h3 className="text-sm font-semibold">이용 흐름 (세션 기준)</h3>
+      <p className="mt-0.5 text-[11px] text-silver">각 단계까지 온 세션 수입니다. 괄호는 직전 단계 대비 비율, 오른쪽은 방문 대비 비율입니다.</p>
+      <ol className="mt-3 space-y-1.5">
+        {rows.map((r) => (
+          <li key={r.step} className="grid grid-cols-[9.5rem_1fr_6.5rem] items-center gap-2 text-xs max-sm:grid-cols-[7rem_1fr_5rem]">
+            <span className="truncate">{STEP[r.step] ?? r.step}</span>
+            <div className="h-5 rounded bg-line/60">
+              <div className="flex h-full items-center rounded bg-scan/70 px-1.5 text-[10px] font-semibold text-abyss" style={{ width: `${Math.max(4, (r.sessions / max) * 100)}%` }}>{r.sessions}</div>
+            </div>
+            <span className="text-right tabular-nums text-silver">{r.fromPrev === null ? "" : `(${r.fromPrev ?? "—"}%) `}{r.fromVisit ?? "—"}%</span>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -91,7 +122,7 @@ function Dashboard() {
         {[7, 30, 90].map((d) => (
           <button key={d} onClick={() => setDays(d)} className={`rounded-full border px-3 py-1 ${days === d ? "border-scan text-scan2" : "border-line text-silver"}`}>{d}일</button>
         ))}
-        <span className="ml-auto text-silver/60">저장소: {data.storage.kind}</span>
+        <span className="ml-auto text-silver-soft">저장소: {data.storage.kind}</span>
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="전체 분석 횟수" value={s.totals.started} sub={`방문 세션 ${s.totals.visits}`} />
@@ -119,6 +150,38 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
+      <Funnel rows={s.funnel} />
+      <div className="grid gap-3 md:grid-cols-3">
+        <TopList title="기기 종류 (방문 세션)" rows={s.devices} label={(k) => DEVICE[k] ?? k} />
+        <TopList title="유입 경로 (방문 세션)" rows={s.sources} label={(k) => SOURCE[k] ?? k} />
+        <TopList title="사진 입력 방식" rows={s.captures} label={(k) => (k === "camera" ? "카메라 촬영" : k === "upload" ? "사진 선택" : k)} />
+        <TopList title="연령대 (촬영 전 자기 응답)" rows={s.ages} label={(k) => ko.fit.pf.age.bands[Number(k)] ?? k} />
+        <TopList title="피부 타입 (촬영 전 자기 응답)" rows={s.skins} label={(k) => (ko.fit.pf.skin.types as Record<string, string>)[k] ?? k} />
+        <TopList title="분석 대상" rows={s.who} label={(k) => (ko.fit.pf.forWhom as Record<string, string>)[k] ?? k} />
+        <TopList title="더마홈 기술 관심도 (장면 조회)" rows={s.techViews} label={(k) => TECH[k] ?? k} />
+        <TopList title="분석 시작 버튼 위치" rows={s.ctas} label={(k) => CTA[k] ?? k} />
+        <div className={card}>
+          <h3 className="text-sm font-semibold">동의 · 공유</h3>
+          <ul className="mt-2 space-y-1 text-xs">
+            <li className="flex justify-between"><span>분석 동의</span><span className="tabular-nums">{s.consent.total}</span></li>
+            <li className="flex justify-between"><span>기록 보관(선택) 동의율</span><span className="tabular-nums">{pct(s.consent.historyOptInRate)}</span></li>
+            <li className="flex justify-between"><span>결과 공유 클릭</span><span className="tabular-nums">{s.shares}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div className={card}>
+        <h3 className="text-sm font-semibold">시간대별 분석 시작 (한국 시간)</h3>
+        <div className="mt-2 h-40">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={s.hours}>
+              <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "#5e6873" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#5e6873" }} />
+              <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #dce1e5", fontSize: 12 }} labelFormatter={(h) => `${h}시`} />
+              <Bar dataKey="count" name="분석 시작" fill="#6caed0" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
       <div className="grid gap-3 md:grid-cols-3">
         <TopList title="분석 실패 현황 (사유)" rows={s.failReasons} label={issueName} />
         <TopList title="피부 고민 통계 (상위 고민 지표)" rows={s.concerns} label={metricName} />
@@ -137,7 +200,7 @@ function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-silver/60">ZZ = 국가 정보 없음(로컬·CDN 헤더 없음). 언어: {s.locales.map((l) => `${l.key} ${l.count}`).join(" · ")}</p>
+          <p className="text-[10px] text-silver-soft">ZZ = 국가 정보 없음(로컬·CDN 헤더 없음). 언어: {s.locales.map((l) => `${l.key} ${l.count}`).join(" · ")}</p>
         </div>
       </div>
     </div>
@@ -183,7 +246,7 @@ function Settings({ tab }: { tab: Tab }) {
           <label className="mt-3 block text-xs text-silver">보정(캘리브레이션) 버전 — 점수 기준을 바꾸면 버전도 올리세요. 리포트의 '분석 모델 버전'에 표시됩니다.
             <input value={cal.version} onChange={(e) => setCal({ version: e.target.value })} className={input} data-testid="cal-version" />
           </label>
-          <p className="mt-2 text-[11px] text-silver/70">변경 이력: {history.slice(-5).map((h) => `${h.ts.slice(0, 16)} ${h.calibration}`).join(" → ") || "없음"}</p>
+          <p className="mt-2 text-[11px] text-silver-soft">변경 이력: {history.slice(-5).map((h) => `${h.ts.slice(0, 16)} ${h.calibration}`).join(" → ") || "없음"}</p>
         </div>
         <div className={card} data-testid="admin-gemini">
           <h3 className="text-sm font-semibold">Gemini AI 해설 (외부 Vision AI · 선택 기능)</h3>
@@ -214,14 +277,14 @@ function Settings({ tab }: { tab: Tab }) {
           <h3 className="text-sm font-semibold">피부 분석 점수 기준 (원시값 → 0~100 지수)</h3>
           <p className="text-[11px] text-amber-200/80">엔지니어링 보정값입니다. 임상 검증된 기준이 아닙니다. lo 이하 = 0, hi 이상 = 100.</p>
           <table className="mt-2 w-full text-xs">
-            <thead><tr className="text-left text-silver"><th className="py-1">지표</th><th>lo</th><th>hi</th><th className="text-silver/50">기본값</th></tr></thead>
+            <thead><tr className="text-left text-silver"><th className="py-1">지표</th><th>lo</th><th>hi</th><th className="text-silver-soft">기본값</th></tr></thead>
             <tbody>
               {(Object.keys(cal.ranges) as MetricKey[]).map((m) => (
                 <tr key={m}>
                   <td className="py-1 pr-2">{ko.metrics[m].name}</td>
                   <td className="pr-2">{num(cal.ranges[m].lo, (n) => setCal({ ranges: { ...cal.ranges, [m]: { ...cal.ranges[m], lo: n } } }))}</td>
                   <td className="pr-2">{num(cal.ranges[m].hi, (n) => setCal({ ranges: { ...cal.ranges, [m]: { ...cal.ranges[m], hi: n } } }))}</td>
-                  <td className="text-silver/50">{defaults.calibration.ranges[m].lo} ~ {defaults.calibration.ranges[m].hi}</td>
+                  <td className="text-silver-soft">{defaults.calibration.ranges[m].lo} ~ {defaults.calibration.ranges[m].hi}</td>
                 </tr>
               ))}
             </tbody>
@@ -280,7 +343,7 @@ function Settings({ tab }: { tab: Tab }) {
         <div className={card}>
           <h3 className="text-sm font-semibold">추천 알고리즘 관리</h3>
           <label className="mt-2 block max-w-xs text-xs text-silver">관찰값을 '고민'으로 보는 기준 지수 (10~90){num(cfg.recommendation.noticeThreshold, (n) => setCfg({ ...cfg, recommendation: { noticeThreshold: n } }), "1")}</label>
-          <p className="mt-1 text-[11px] text-silver/70">낮출수록 더 많은 기능·부위가 추천 근거로 잡힙니다. 민감·붉은 기 우선(진정 버전) 규칙은 안전 규칙이라 변경할 수 없습니다.</p>
+          <p className="mt-1 text-[11px] text-silver-soft">낮출수록 더 많은 기능·부위가 추천 근거로 잡힙니다. 민감·붉은 기 우선(진정 버전) 규칙은 안전 규칙이라 변경할 수 없습니다.</p>
         </div>
         <SaveBar />
       </div>
@@ -306,7 +369,7 @@ function Settings({ tab }: { tab: Tab }) {
           <label>비회원 세션 만료(분){num(cfg.retention.sessionMinutes, (n) => setCfg({ ...cfg, retention: { ...cfg.retention, sessionMinutes: n } }), "1")}</label>
           <label>기기 내 기록 보관(일){num(cfg.retention.historyDays, (n) => setCfg({ ...cfg, retention: { ...cfg.retention, historyDays: n } }), "1")}</label>
         </div>
-        <p className="mt-2 text-[11px] text-silver/70">얼굴 사진은 서버에 저장되지 않습니다(기기 내 처리). 서버에는 익명 이벤트와 텍스트 신고만 있습니다.</p>
+        <p className="mt-2 text-[11px] text-silver-soft">얼굴 사진은 서버에 저장되지 않습니다(기기 내 처리). 서버에는 익명 이벤트와 텍스트 신고만 있습니다.</p>
         <button
           onClick={async () => { const d = prompt("며칠보다 오래된 익명 이벤트·신고를 삭제할까요?", "365"); if (!d) return; const r = await fetch(`/api/admin/config?olderThanDays=${Number(d)}`, { method: "DELETE" }); setMsg(`삭제된 항목: ${(await r.json()).removed}`); }}
           className="mt-3 rounded-full border border-rose-400/50 px-4 py-1.5 text-xs text-rose-200"
