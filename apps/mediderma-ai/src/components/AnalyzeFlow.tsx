@@ -59,6 +59,8 @@ export default function AnalyzeFlow() {
   const [stage, setStage] = useState<ProgressStage>("loading_model");
   const [quality, setQuality] = useState<ImageQuality | null>(null);
   const [errorCode, setErrorCode] = useState<AnalysisError["code"] | null>(null);
+  /** 오류 화면에 보여 줄 진단 코드 (예: timeout:detecting) */
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [neckFile, setNeckFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const pending = useRef<{ out: ProviderOutput; neck: ZoneResult | null } | null>(null);
@@ -132,6 +134,7 @@ export default function AnalyzeFlow() {
         const code = e instanceof AnalysisError ? e.code : "analysisFailed";
         track("analysis_failed", { reason: e instanceof AnalysisError && e.detail ? `${code}:${e.detail}` : code });
         setErrorCode(code);
+        setErrorDetail(e instanceof AnalysisError ? (e.detail ?? null) : String((e as Error)?.message ?? e).slice(0, 60));
         setStep("error");
       }
     },
@@ -329,8 +332,9 @@ export default function AnalyzeFlow() {
           {step === "error" && (
             <div className="text-center" data-testid="analysis-error">
               <p role="alert" className="rounded-xl border border-rose-400/50 bg-rose-400/10 p-4 text-sm text-rose-100">{t.errors[errorCode ?? "analysisFailed"]}</p>
+              {errorDetail && <p className="mt-2 font-mono text-[11px] text-silver-soft" data-testid="error-diag">CODE {errorDetail.toUpperCase()}</p>}
               <button onClick={() => setStep("capture")} className="mt-5 rounded-full bg-white px-8 py-3 text-sm font-semibold text-black">{t.common.retake}</button>
-              <ReportProblem context={`error:${errorCode}`} />
+              <ReportProblem context={`error:${errorCode}${errorDetail ? `:${errorDetail}` : ""}`} />
             </div>
           )}
         </m.div>

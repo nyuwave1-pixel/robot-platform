@@ -13,6 +13,21 @@ import { useI18n } from "@/lib/i18n";
 import type { ProgressStage } from "@/lib/analysis/provider";
 import type { AnalysisResult, VisualData } from "@/lib/analysis/types";
 import AnalysisReveal from "./fx/AnalysisReveal";
+import { Component, type ReactNode } from "react";
+
+/** 완료 연출에서 오류가 나도 결과로 넘어가게 하는 안전장치 */
+class RevealBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 const STAGE_FLOOR: Record<ProgressStage, number> = { loading_model: 0.08, detecting: 0.25, quality: 0.4, analyzing: 0.6, done: 1 };
 
@@ -83,6 +98,13 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
     }
   }, [done, onVisualDone, reveal]);
   const showReveal = done && !!reveal;
+  // 완료 연출이 어떤 이유로 8초 안에 끝나지 않으면 결과로 넘어간다
+  useEffect(() => {
+    if (!showReveal) return;
+    const id = setTimeout(() => revealDone(), 8000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showReveal]);
   const revealDone = () => {
     if (finished.current) return;
     finished.current = true;
@@ -144,7 +166,11 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
               <p>ZONE {Math.min(13, Math.floor(progress * 16))}/13</p>
               <p>RGB Δ {(0.12 + 0.05 * Math.sin(now / 300)).toFixed(3)}</p>
             </div>
-            {showReveal && reveal && <AnalysisReveal visual={reveal.visual} result={reveal.result} onDone={revealDone} />}
+            {showReveal && reveal && (
+              <RevealBoundary onError={revealDone}>
+                <AnalysisReveal visual={reveal.visual} result={reveal.result} onDone={revealDone} />
+              </RevealBoundary>
+            )}
           </div>
         </div>
 
@@ -169,6 +195,8 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
           {!done && now > 20000 && (
             <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100" role="status" data-testid="scan-slow">
               <p>{t.iq.slow}</p>
+              {/* 진단 코드: 이 화면을 캡처해 주면 어느 단계에서 멈췄는지 알 수 있다 */}
+              <p className="mt-1 font-mono text-[11px] opacity-80" data-testid="scan-diag">CODE {stage.toUpperCase()} · {Math.floor(now / 1000)}s · {typeof navigator !== "undefined" ? (navigator.hardwareConcurrency ?? "?") : "?"}C</p>
               {onCancel && <button onClick={onCancel} className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">{t.common.retake}</button>}
             </div>
           )}
