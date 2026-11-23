@@ -169,7 +169,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
             <div className="flex shrink-0 gap-1.5 pt-1" role="tablist" aria-label={t.landing.techTitle}>
               {SCENES.map((s, i) => (
                 <button key={s.id} type="button" role="tab" aria-selected={i === active} aria-label={t.care.tech[s.id].name} onClick={() => jump(i)} className="group flex h-8 w-8 items-center justify-center" data-testid={`tech-tab-${s.id}`}>
-                  <span className={`block h-1.5 rounded-full transition-all duration-500 ${i === active ? "w-7 bg-white" : "w-1.5 bg-white/30 group-hover:bg-white/60"}`} />
+                  <span className={`block h-1.5 rounded-full transition-[width,background-color] duration-500 ${i === active ? "w-7 bg-white" : "w-1.5 bg-white/30 group-hover:bg-white/60"}`} />
                 </button>
               ))}
             </div>

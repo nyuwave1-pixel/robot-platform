@@ -95,3 +95,6 @@ body { font-family: var(--font-sans); background: rgb(var(--c-bg)); color: rgb(v
 @keyframes menu-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 /* 기기 하단 안전 영역(홈 바) 만큼 띄우기 */
 .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+
+/* 번역 적용 전: 본문만 잠시 숨긴다(자리는 유지 · 헤더는 그대로) */
+html.i18n-pending main, html.i18n-pending footer { visibility: hidden; }

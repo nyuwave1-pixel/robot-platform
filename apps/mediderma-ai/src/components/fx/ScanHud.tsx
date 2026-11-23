@@ -29,7 +29,7 @@ export default function ScanHud({ labels, animate = true, marks = MARKS }: { lab
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full overflow-visible">
         {marks.map((m, i) => (
           <g key={i}>
-            <line x1={m.x} y1={m.y} x2={m.lx} y2={m.ly} stroke="rgba(125,211,252,0.55)" strokeWidth="0.25" strokeDasharray="1 1" style={animate ? { animation: "dash 2.4s linear infinite" } : undefined} />
+            <line x1={m.x} y1={m.y} x2={m.lx} y2={m.ly} stroke="rgba(125,211,252,0.55)" strokeWidth="0.25" strokeDasharray="1 1" style={animate ? { animation: "pulse-zone 2.4s ease-in-out infinite" } : undefined} />
             <circle cx={m.x} cy={m.y} r="1.1" fill="rgba(125,211,252,0.95)" />
             <circle cx={m.x} cy={m.y} r="2.6" fill="none" stroke="rgba(125,211,252,0.6)" strokeWidth="0.3" style={animate ? { animation: `pulse-zone 2.6s ease-in-out ${i * 0.5}s infinite` } : undefined} />
           </g>
