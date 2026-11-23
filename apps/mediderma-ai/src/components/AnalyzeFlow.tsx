@@ -215,8 +215,9 @@ export default function AnalyzeFlow() {
     <>
     <StepBar current={step === "consent" ? 0 : step === "profile" ? 1 : 2} />
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <AnimatePresence mode="wait">
-        <m.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+      {/* 이전 화면의 퇴장 애니메이션을 기다리지 않는다 — 기기가 바쁠 때(분석 중 취소 등) 새 화면이 반투명하게 걸려 버튼이 안 눌리는 문제 방지 */}
+      <AnimatePresence initial={false}>
+        <m.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
           {step === "consent" && (
             <div data-testid="consent">
               <h1 className="text-2xl font-bold sm:text-3xl">{t.consent.title}</h1>

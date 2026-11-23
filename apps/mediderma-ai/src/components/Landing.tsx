@@ -150,6 +150,9 @@ export default function Landing() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const faceY = useTransform(scrollYProgress, [0, 1], [0, 90]);
   const faceScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  // 스크롤 따라 사진이 움직이는 효과는 마우스 기기에서만 (아이폰 관성 스크롤에서 사진이 떨려 보인다)
+  const [finePointer, setFinePointer] = useState(false);
+  useEffect(() => setFinePointer(window.matchMedia("(hover: hover) and (pointer: fine)").matches), []);
   const start = (f: File) => {
     setPendingFile(f);
     router.push("/analyze");
@@ -222,7 +225,7 @@ export default function Landing() {
               </div>
             </m.div>
           </div>
-          <m.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
+          <m.div style={reduce || !finePointer ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
             {/* 브랜드 모델 사진 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
             <HeroPortrait alt="MEDIDERMA" priority />
             {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
