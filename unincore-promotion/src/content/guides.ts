@@ -553,6 +553,64 @@ export const GUIDES: Guide[] = [
     published: "2026-11-23",
     updated: "2026-11-23",
   },
+  {
+    slug: "how-to-choose-vitamin-c-serum",
+    title: "How to Choose a Vitamin C Serum: 5 Checks | UNI&CORE USA",
+    description:
+      "Before buying a vitamin C serum, check five things: the form of vitamin C, its strength, how it stays stable, what it is paired with and your skin type.",
+    h1: "How to Choose a Vitamin C Serum: 5 Things to Check on the Label",
+    intro:
+      "Vitamin C serums look alike on the shelf but differ a lot inside. Five quick checks on the label tell you what you are buying: the form of vitamin C, how much is in it, how it is kept stable, what it is paired with and whether it suits your skin.",
+    keywords: ["how to choose vitamin c serum", "what to look for in vitamin c serum", "best form of vitamin c serum", "vitamin c serum percentage", "stable vitamin c serum"],
+    sections: [
+      {
+        heading: "1. The form of vitamin C",
+        paragraphs: [
+          "Pure vitamin C is listed on the label as ascorbic acid (also called L-ascorbic acid). Many serums use gentler derivatives instead, which behave differently. If you want pure vitamin C, look for ascorbic acid in the ingredient list.",
+          "The UNI&CORE Vita C 13.5 ampoule uses ascorbic acid, listed second on its US label right after water.",
+        ],
+        product: "ampoule",
+      },
+      {
+        heading: "2. How much vitamin C it contains",
+        paragraphs: [
+          "Brands that state a percentage make it easy to compare. Higher is not automatically better: a strength your skin tolerates and that you will use every day matters more than the biggest number.",
+          "The UNI&CORE ampoule states its strength clearly: 13.5% pure vitamin C.",
+        ],
+      },
+      {
+        heading: "3. How it is kept stable",
+        paragraphs: [
+          "Pure ascorbic acid is easily degraded by water, air and light, so formulation and packaging matter. Look for a closed pump or dropper bottle, and keep the serum in a cool, dry place away from direct sunlight.",
+          "The UNI&CORE ampoule uses a dual-layer formulation to keep its vitamin C stable, in a 1.06 oz (30 g) pump bottle.",
+        ],
+      },
+      {
+        heading: "4. What it is paired with",
+        paragraphs: [
+          "Vitamin C is often combined with other ingredients that support a brighter-looking, comfortable complexion. Read the next few names on the ingredient list to see what you are getting alongside it.",
+          "The UNI&CORE ampoule pairs its vitamin C with glutathione and camu camu. Its natural yellow color comes from turmeric root extract and beta-carotene.",
+        ],
+      },
+      {
+        heading: "5. Whether it suits your skin",
+        paragraphs: [
+          "Check the texture you prefer, whether the brand lists your skin type, and the usage directions. If your skin is sensitive, patch test first and introduce the serum gradually.",
+          "The UNI&CORE ampoule absorbs quickly and leaves skin fresh rather than tacky. Apply 2 pumps after cleansing, avoiding the eye area, and finish with sunscreen in the morning.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "What is the best form of vitamin C in a serum?", a: "Ascorbic acid (L-ascorbic acid) is pure vitamin C. Derivatives can be gentler but work differently. Check the ingredient list to see which one a serum uses." },
+      { q: "Is a higher percentage of vitamin C always better?", a: "No. A strength your skin tolerates and that you use consistently matters more. Choose a product that states its percentage so you know what you are using." },
+      { q: "How can I tell if a vitamin C serum is stable?", a: "Look for how the brand protects the vitamin C, such as a stabilized formula, and for packaging that limits air and light, like a pump bottle. Store it in a cool, dry place and use it within the period on the package." },
+      { q: "Should I patch test a vitamin C serum?", a: "Yes, especially if your skin is sensitive. Apply a small amount to one area for a few days before using it on your whole face, and stop if irritation occurs." },
+      { q: "Where can I buy the UNI&CORE vitamin C serum?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
+    ],
+    products: ["ampoule"],
+    published: "2026-11-23",
+    updated: "2026-11-23",
+  },
 ];
 
 export const ROUTINE_GUIDE = {
