@@ -487,6 +487,72 @@ export const GUIDES: Guide[] = [
     published: "2026-11-16",
     updated: "2026-11-16",
   },
+  {
+    slug: "glass-skin-routine",
+    title: "Glass Skin Routine: 4 Simple Korean Steps | UNI&CORE USA",
+    description:
+      "A simple Korean glass skin routine: a gentle enzyme cleanse, a weekly vitamin C sheet mask, a vitamin C ampoule and a hydrating serum mist, then SPF.",
+    h1: "Glass Skin Routine: 4 Simple Korean Steps for Dewy-Looking Skin",
+    intro:
+      "Glass skin is the Korean beauty look of skin so smooth and hydrated it seems to reflect light. It is less about the number of steps and more about steady hydration, gentle care and daily sunscreen. Here is a short routine built around four steps.",
+    keywords: ["glass skin routine", "how to get glass skin", "korean glass skin steps", "glass skin products", "dewy skin routine"],
+    sections: [
+      {
+        heading: "What glass skin really means",
+        paragraphs: [
+          "The goal is skin that looks smooth, even and dewy, not oily. That comes from a clean, comfortable surface, layers of hydration and protection from the sun. You don't need ten products; you need a few you will use every day.",
+        ],
+      },
+      {
+        heading: "Step 1: Cleanse gently",
+        product: "wash",
+        paragraphs: [
+          "A rough, dull surface scatters light, so start with a gentle cleanse that also clears away dead skin. Harsh scrubs can leave skin irritated, which works against the look.",
+          "The UNI&CORE Vita C Enzyme Powder Wash uses papain, bromelain and lipase enzymes at a mildly acidic pH of 5–5.5. Add water to one pouch, lather it into a creamy foam and rinse; skin is left soft, not tight.",
+        ],
+      },
+      {
+        heading: "Step 2: Mask for a quick boost",
+        product: "mask",
+        paragraphs: [
+          "A sheet mask floods freshly cleansed skin with essence in one sitting, which makes it a good weekly step or a pick-me-up before an event.",
+          "The UNI&CORE Vita C Super Brightening Mask holds 2% pure vitamin C and glutathione on a 100% TENCEL™ sheet. Leave it on for 10–20 minutes, then pat the remaining essence in.",
+        ],
+      },
+      {
+        heading: "Step 3: Add a vitamin C ampoule",
+        product: "ampoule",
+        paragraphs: [
+          "An ampoule is a concentrated serum. Vitamin C is a favorite for a brighter-looking, more even complexion, which is a big part of the glass skin look.",
+          "The UNI&CORE Vita C 13.5 ampoule combines 13.5% pure vitamin C with glutathione and camu camu in a dual-layer stabilized formula. Apply 2 pumps after cleansing, avoiding the eye area.",
+        ],
+      },
+      {
+        heading: "Step 4: Keep hydration going with a mist",
+        product: "mist",
+        paragraphs: [
+          "Dewy skin depends on hydration that lasts through the day. A fine mist adds moisture after cleansing, before the rest of your skincare, over makeup or midday.",
+          "The UNI&CORE Hydrating Skin Barrier Serum Mist pairs copper tripeptide-1 with CICA in nano liposomes for serum-level hydration in an ultra-fine spray. It is sold on TikTok Shop.",
+        ],
+      },
+      {
+        heading: "Finish with moisturizer and sunscreen",
+        paragraphs: [
+          "Seal everything in with a moisturizer, and in the morning always finish with a broad-spectrum sunscreen. Sun-damaged skin looks dull, so sunscreen is the step glass skin depends on most.",
+        ],
+      },
+    ],
+    faqs: [
+      { q: "What is glass skin?", a: "A Korean beauty term for skin that looks so smooth, even and hydrated it seems to reflect light, like glass. It describes a dewy finish, not an oily one." },
+      { q: "How many steps do I need for glass skin?", a: "Fewer than you might think. A gentle cleanse, hydration, a serum such as vitamin C, moisturizer and daily sunscreen cover the essentials. Consistency matters more than the number of products." },
+      { q: "How often should I use a sheet mask for glass skin?", a: "Follow the product directions. Many people use a sheet mask once or twice a week, or before an event. The UNI&CORE mask comes as 5 individually sealed sheets." },
+      { q: "Can I use a face mist over makeup to keep a dewy look?", a: "Yes. Spray a light veil from 20–30 cm away and let it dry without rubbing. The UNI&CORE serum mist is fine enough to use over makeup." },
+      { q: "Where can I buy UNI&CORE glass skin products?", a: "The enzyme powder wash, sheet mask and vitamin C ampoule are on Amazon.com, and the serum mist is on TikTok Shop. Use the shop buttons in this guide." },
+    ],
+    products: ["wash", "mask", "ampoule", "mist"],
+    published: "2026-11-23",
+    updated: "2026-11-23",
+  },
 ];
 
 export const ROUTINE_GUIDE = {
