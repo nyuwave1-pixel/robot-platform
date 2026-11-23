@@ -33,7 +33,7 @@ function Login({ enabled }: { enabled: boolean }) {
   };
   return (
     <form onSubmit={submit} className="mx-auto max-w-sm px-4 py-20" data-testid="admin-login">
-      <h1 className="font-display text-xl tracking-[0.2em]">MEDIDERMA AI · ADMIN</h1>
+      <h1 className="font-display text-xl tracking-[0.2em]">MEDIDERMA SKIN IQ · ADMIN</h1>
       <input type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="관리자 비밀번호" className={`${input} mt-6 py-2`} data-testid="admin-password" />
       {err && <p role="alert" className="mt-2 text-sm text-rose-300">{err}</p>}
       <button className="mt-4 w-full rounded-full bg-white py-2.5 text-sm font-semibold text-black" data-testid="admin-submit">로그인</button>

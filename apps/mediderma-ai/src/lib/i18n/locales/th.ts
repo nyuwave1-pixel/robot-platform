@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const th: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "สแกนผิว แล้วค้นพบการดูแลด้วย DERMA HOME ที่เหมาะกับคุณ",
     start: "เริ่มวิเคราะห์ผิว",
@@ -22,15 +22,15 @@ const th: Dict = {
     learnMore: "ดูเพิ่มเติม",
     notAvailable: "วัดไม่ได้",
     footerDisclaimer:
-      "MEDIDERMA AI เป็นบริการที่สังเกตลักษณะผิวชั้นนอกที่มองเห็นได้ในรูปถ่ายและให้ข้อมูลการดูแลผิว ไม่ใช่เครื่องมือแพทย์และไม่ได้ให้การวินิจฉัยทางการแพทย์ หากสงสัยว่ามีโรคผิวหนัง โปรดปรึกษาแพทย์ผู้เชี่ยวชาญ",
+      "MEDIDERMA SKIN IQ เป็นบริการที่สังเกตลักษณะผิวชั้นนอกที่มองเห็นได้ในรูปถ่ายและให้ข้อมูลการดูแลผิว ไม่ใช่เครื่องมือแพทย์และไม่ได้ให้การวินิจฉัยทางการแพทย์ หากสงสัยว่ามีโรคผิวหนัง โปรดปรึกษาแพทย์ผู้เชี่ยวชาญ",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "โหมด MOCK — ผลลัพธ์นี้ไม่ใช่ผลการวิเคราะห์จาก AI จริง",
   },
   nav: { analyze: "วิเคราะห์ผิว", compare: "ก่อน & หลัง", history: "บันทึกผิว", privacy: "ความเป็นส่วนตัว", dermahome: "DERMA HOME", trial: "จองทดลองใช้ฟรี", menu: "เมนู" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "วิธีใหม่ในการทำความเข้าใจผิวของคุณ",
     exploreTech: "สำรวจเทคโนโลยี DERMA HOME",
     oneDevice: "อุปกรณ์เดียว สามเทคโนโลยี",
@@ -255,7 +255,7 @@ const th: Dict = {
   },
   report: {
     analysisInfo: "รายละเอียดการวิเคราะห์",
-    title: "รายงาน AI Skin Score",
+    title: "รายงาน Skin IQ",
     overall: "สภาพผิวโดยรวมจาก AI",
     overallDesc: "ค่าเฉลี่ยถ่วงน้ำหนักของดัชนีการสังเกตใน 13 โซน ค่ายิ่งสูง ผิวชั้นนอกในรูปยิ่งดูสม่ำเสมอ",
     indexNote: "ดัชนีการสังเกตจากรูปถ่าย · ยังไม่ผ่านการรับรองทางคลินิก",
@@ -350,7 +350,7 @@ const th: Dict = {
     scan: {"title": "AI กำลังวิเคราะห์ผิวของคุณอย่างละเอียด", "steps": ["ตรวจจับจุดบนใบหน้า 478 จุด", "แบ่งผิวเป็น 13 โซน", "วัดเนื้อผิวและริ้วรอย", "วัดรูขุมขนและจุดด่างดำ", "วิเคราะห์ความสม่ำเสมอของสีผิว", "จับคู่การดูแลที่เหมาะกับคุณ"], "privacy": "รูปของคุณถูกวิเคราะห์บนอุปกรณ์นี้เท่านั้น"},
     hero: {"scoreLabel": "สภาพผิว", "sentence": "สภาพผิวจากรูปถ่ายของคุณได้ {n} คะแนนจาก 100", "skinType": "ประเภทผิว", "age": "ช่วงอายุ", "makeupWarn": "รูปถ่ายขณะแต่งหน้า ผลลัพธ์อาจแม่นยำน้อยลง", "types": {"dry": "ผิวแห้ง", "normal": "ผิวธรรมดา", "oily": "ผิวมัน", "combination": "ผิวผสม"}, "note": "ดัชนีอ้างอิงจากรูปถ่ายโดย AI ไม่ใช่การวินิจฉัยทางการแพทย์"},
     cards: {"title": "รายละเอียดผิว", "tapHint": "แตะการ์ดเพื่อดูรายละเอียด", "badges": ["ควรดูแล", "ยังดีขึ้นได้", "ดี", "ดีมาก"], "whereLabel": "เห็นชัดที่สุดที่", "close": "ปิด"},
-    share: {"button": "แชร์ผลลัพธ์", "copied": "คัดลอกแล้ว วางในแอปแชทได้เลย", "text": "[MEDIDERMA AI SKIN SCORE]\nสภาพผิว {score}/100\nดูแลก่อน: {weak}\nแนะนำ: {products}\nลองเลย 👉 {url}"},
+    share: {"button": "แชร์ผลลัพธ์", "copied": "คัดลอกแล้ว วางในแอปแชทได้เลย", "text": "[MEDIDERMA SKIN IQ]\nสภาพผิว {score}/100\nดูแลก่อน: {weak}\nแนะนำ: {products}\nลองเลย 👉 {url}"},
   },
   care: {
     title: "การดูแลด้วย DERMA HOME เฉพาะคุณ",

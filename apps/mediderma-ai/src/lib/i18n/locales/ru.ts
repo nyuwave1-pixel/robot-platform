@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const ru: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Анализируйте свою кожу и откройте уход DERMA HOME, который подходит именно вам.",
     start: "Начать анализ кожи",
@@ -22,15 +22,15 @@ const ru: Dict = {
     learnMore: "Подробнее",
     notAvailable: "Не измеряется",
     footerDisclaimer:
-      "MEDIDERMA AI — сервис, который наблюдает видимые на фото особенности поверхности кожи и даёт информацию по уходу. Это не медицинское изделие и не медицинский диагноз. При подозрении на заболевание кожи обратитесь к врачу-специалисту.",
+      "MEDIDERMA SKIN IQ — сервис, который наблюдает видимые на фото особенности поверхности кожи и даёт информацию по уходу. Это не медицинское изделие и не медицинский диагноз. При подозрении на заболевание кожи обратитесь к врачу-специалисту.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "Режим MOCK — это не результат реального ИИ-анализа.",
   },
   nav: { analyze: "Анализ кожи", compare: "До и после", history: "История изменений", privacy: "Конфиденциальность", dermahome: "DERMA HOME", trial: "Запись на бесплатный тест", menu: "Меню" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "Новый способ понять свою кожу.",
     exploreTech: "Технологии DERMA HOME",
     oneDevice: "Одно устройство — три технологии",
@@ -350,7 +350,7 @@ const ru: Dict = {
     scan: {"title": "ИИ подробно анализирует вашу кожу", "steps": ["Распознавание 478 точек лица", "Разделение на 13 зон", "Измерение текстуры и морщин", "Измерение пор и пятен", "Анализ равномерности тона", "Подбор ухода"], "privacy": "Фото анализируется только на этом устройстве"},
     hero: {"scoreLabel": "Состояние кожи", "sentence": "Состояние кожи по фото — {n} из 100.", "skinType": "Тип кожи", "age": "Возраст", "makeupWarn": "Фото сделано с макияжем, результат может быть менее точным.", "types": {"dry": "Сухая", "normal": "Нормальная", "oily": "Жирная", "combination": "Комбинированная"}, "note": "Справочный индекс ИИ по фото, не медицинский диагноз."},
     cards: {"title": "Подробности о коже", "tapHint": "Нажмите на карточку для подробностей.", "badges": ["Нужен уход", "Можно лучше", "Хорошо", "Отлично"], "whereLabel": "Заметнее всего", "close": "Закрыть"},
-    share: {"button": "Поделиться", "copied": "Скопировано. Вставьте в мессенджер.", "text": "[MEDIDERMA AI SKIN SCORE]\nСостояние {score}/100\nВ первую очередь: {weak}\nРекомендуем: {products}\nПопробуйте 👉 {url}"},
+    share: {"button": "Поделиться", "copied": "Скопировано. Вставьте в мессенджер.", "text": "[MEDIDERMA SKIN IQ]\nСостояние {score}/100\nВ первую очередь: {weak}\nРекомендуем: {products}\nПопробуйте 👉 {url}"},
   },
   care: {
     title: "Персональный уход DERMA HOME",

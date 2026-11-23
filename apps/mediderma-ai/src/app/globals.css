@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC", "Noto Sans Thai", "Leelawadee UI", "Malgun Gothic", sans-serif;
-  --font-display: "Helvetica Neue", "Inter", "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-display: "Helvetica Neue", Inter, "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --font-brand: "Arial Black", "Helvetica Neue", Inter, "Segoe UI", Roboto, system-ui, sans-serif;
   color-scheme: light;
   /* FUTURE SKIN LAB — Pure White / Clinical White / Platinum / Titanium / Deep Graphite / AI Blue */
   --c-bg: 246 247 248;      /* Clinical White #F6F7F8 */
@@ -15,7 +16,8 @@
   --c-fg: 32 37 43;         /* Deep Graphite #20252B */
   --c-on: 255 255 255;
   --c-scan: 108 174 208;    /* AI Blue #6CAED0 */
-  --c-scan2: 36 112 150;    /* AI Blue 진한 단계 — 흰 바탕 글자용 */
+  --c-scan2: 31 108 178;    /* 강조 글자 — 브랜드 블루 계열 (흰 바탕 대비 5.3:1) */
+  --c-brand: 31 116 190;    /* MEDIDERMA SKIN IQ 브랜드 블루 #1F74BE */
   --amber-100: 120 53 15; --amber-200: 146 64 14; --amber-300: 180 83 9;
   --rose-100: 136 19 55; --rose-200: 159 18 57; --rose-300: 190 18 60;
   --emerald-100: 6 78 59; --emerald-200: 6 95 70; --emerald-300: 4 120 87;
@@ -34,6 +36,7 @@
   --c-on: 16 19 24;
   --c-scan: 108 174 208;
   --c-scan2: 199 232 242;   /* Ice Blue #C7E8F2 */
+  --c-brand: 120 182 236;
   --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77;
   --rose-100: 255 228 230; --rose-200: 254 205 211; --rose-300: 253 164 175;
   --emerald-100: 209 250 229; --emerald-200: 167 243 208; --emerald-300: 110 231 183;
@@ -69,8 +72,8 @@ body { font-family: var(--font-sans); background: rgb(var(--c-bg)); color: rgb(v
 :root {
   --d-body: #c3cbd2; --d-e1: #d0d7dd; --d-e2: #c3cbd2; --d-e3: #b4bdc6; --d-e4: #aeb7c0; --d-shadow: rgba(32,37,43,0.18);
   --d-face: linear-gradient(180deg, #3a434d 0%, #20252b 55%, #101318 100%);
-  --a-body: #8fc4dd; --a-e1: #a7d3e7; --a-e3: #7ab7d3; --a-e4: #6caed0; --a-glow: rgba(108,174,208,0.35); --a-halo: rgba(108,174,208,0.18);
-  --a-face: linear-gradient(180deg, #6caed0 0%, #3b8fb8 50%, #246f96 100%);
+  --a-body: #8dbbe6; --a-e1: #a9cdef; --a-e3: #77abdc; --a-e4: #5f9bd3; --a-glow: rgba(31,116,190,0.3); --a-halo: rgba(31,116,190,0.15);
+  --a-face: linear-gradient(180deg, #4fa3e0 0%, #1f74be 52%, #155a99 100%);
 }
 .theme-dark {
   --d-body: #1b2733; --d-e1: #2a3947; --d-e2: #223040; --d-e3: #1a2631; --d-e4: #121b24; --d-shadow: rgba(0,0,0,0.7);
@@ -98,3 +101,17 @@ body { font-family: var(--font-sans); background: rgb(var(--c-bg)); color: rgb(v
 
 /* 번역 적용 전: 본문만 잠시 숨긴다(자리는 유지 · 헤더는 그대로) */
 html.i18n-pending main, html.i18n-pending footer { visibility: hidden; }
+
+/* 첫 화면 인물 사진의 느린 부유 (transform 만 써서 메인 스레드를 쓰지 않는다) */
+@keyframes hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.hero-float { animation: hero-float 7s ease-in-out infinite; }
+
+/* DepthText 글자별 등장 — CSS transition 으로 (JS 애니메이션 없이) */
+.depth-text .depth-ch { opacity: 0; transform: translateY(0.55em) translateZ(-60px) rotateX(-85deg);
+  transition: opacity 0.75s cubic-bezier(0.2, 0.75, 0.2, 1), transform 0.75s cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition-delay: calc(min(var(--i, 0), 32) * 28ms); }
+.depth-text.is-in .depth-ch { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .depth-text .depth-ch { opacity: 1; transform: none; transition: none; } }
+
+/* 화면 밖 푸터는 보일 때까지 배치 계산을 건너뛴다 */
+footer.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 320px; }

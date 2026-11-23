@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const vi: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Phân tích làn da của bạn và khám phá liệu trình DERMA HOME phù hợp với chính mình.",
     start: "Bắt đầu phân tích da",
@@ -22,15 +22,15 @@ const vi: Dict = {
     learnMore: "Xem chi tiết",
     notAvailable: "Không đo được",
     footerDisclaimer:
-      "MEDIDERMA AI là dịch vụ quan sát các đặc điểm bề mặt da nhìn thấy trong ảnh để cung cấp thông tin chăm sóc; đây không phải thiết bị y tế và không phải chẩn đoán y khoa. Nếu nghi ngờ có bệnh lý về da, hãy tham khảo ý kiến bác sĩ chuyên khoa.",
+      "MEDIDERMA SKIN IQ là dịch vụ quan sát các đặc điểm bề mặt da nhìn thấy trong ảnh để cung cấp thông tin chăm sóc; đây không phải thiết bị y tế và không phải chẩn đoán y khoa. Nếu nghi ngờ có bệnh lý về da, hãy tham khảo ý kiến bác sĩ chuyên khoa.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "Chế độ MOCK — đây không phải kết quả phân tích AI thực tế.",
   },
   nav: { analyze: "Phân tích da", compare: "So sánh trước–sau", history: "Nhật ký thay đổi", privacy: "Quyền riêng tư", dermahome: "DERMA HOME", trial: "Đặt lịch trải nghiệm miễn phí", menu: "Menu" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "Một cách mới để thấu hiểu làn da của bạn.",
     exploreTech: "Khám phá công nghệ DERMA HOME",
     oneDevice: "Một thiết bị, ba công nghệ",
@@ -350,7 +350,7 @@ const vi: Dict = {
     scan: {"title": "AI đang phân tích chi tiết làn da của bạn", "steps": ["Nhận diện 478 điểm trên mặt", "Chia 13 vùng da", "Đo kết cấu và nếp nhăn", "Đo lỗ chân lông và đốm", "Phân tích độ đều màu", "Ghép chăm sóc phù hợp"], "privacy": "Ảnh chỉ được phân tích trên thiết bị này"},
     hero: {"scoreLabel": "Tình trạng da", "sentence": "Tình trạng da qua ảnh đạt {n}/100 điểm.", "skinType": "Loại da", "age": "Độ tuổi", "makeupWarn": "Ảnh chụp khi trang điểm nên kết quả có thể kém chính xác.", "types": {"dry": "Da khô", "normal": "Da thường", "oily": "Da dầu", "combination": "Da hỗn hợp"}, "note": "Chỉ số tham khảo do AI quan sát từ ảnh, không phải chẩn đoán y khoa."},
     cards: {"title": "Chi tiết làn da", "tapHint": "Chạm vào thẻ để xem chi tiết.", "badges": ["Cần chăm sóc", "Hơi kém", "Tốt", "Rất tốt"], "whereLabel": "Rõ nhất ở", "close": "Đóng"},
-    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA AI SKIN SCORE]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
+    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA SKIN IQ]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
   },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",

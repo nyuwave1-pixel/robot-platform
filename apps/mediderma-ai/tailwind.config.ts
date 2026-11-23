@@ -25,6 +25,8 @@ const config: Config = {
         "silver-soft": v("c-silver-soft"),
         scan: v("c-scan"),
         scan2: v("c-scan2"),
+        // MEDIDERMA SKIN IQ 브랜드 블루 (워드마크·핵심 강조)
+        brand: v("c-brand"),
         // 테마와 무관하게 고정된 색 (사진 위 글자 등)
         pure: "#ffffff",
         abyss: "#101318",
@@ -36,6 +38,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "ui-sans-serif", "system-ui"],
+        brand: ["var(--font-brand)", "ui-sans-serif", "system-ui"],
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "Apple SD Gothic Neo", "Malgun Gothic", "sans-serif"],
       },
       boxShadow: { glow: "0 0 40px rgb(var(--c-scan) / 0.28)" },
