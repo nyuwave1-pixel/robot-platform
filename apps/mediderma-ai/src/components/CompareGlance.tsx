@@ -90,7 +90,7 @@ export default function CompareGlance({ cmp, before, after }: { cmp: CompareResu
           </ul>
         </div>
       </div>
-      <p className="mt-4 text-sm text-silver/70">{g.note}</p>
+      <p className="mt-4 text-sm text-silver-soft">{g.note}</p>
     </section>
   );
 }

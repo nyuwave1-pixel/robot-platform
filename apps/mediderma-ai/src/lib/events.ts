@@ -16,6 +16,14 @@ export const EVENT_TYPES = [
   "history_saved",
   "ai_insight",
   "video_play",
+  // ── 확장 측정 (모두 익명·범주형) ──
+  "consent_given",
+  "profile_done",
+  "photo_selected",
+  "report_viewed",
+  "share_click",
+  "tech_view",
+  "cta_click",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -34,10 +42,18 @@ export interface TrackEvent {
     format?: string; // report_saved: pdf|image
     needsRetake?: boolean;
     verdicts?: string; // compare_run 요약
+    source?: string; // visit: 유입 경로(utm_source 또는 참조 사이트 도메인, 없으면 direct) · photo_selected: camera|upload
+    device?: string; // 서버가 User-Agent 로 판별해 채운다 (mobile|tablet|desktop)
+    age?: string; // profile_done: 연령대 구간 번호
+    skin?: string; // profile_done: 자기 응답 피부 타입
+    who?: string; // profile_done: self|other
+    makeup?: boolean; // profile_done
+    history?: boolean; // consent_given: 기록 보관 동의 여부
+    place?: string; // cta_click·photo_selected: 누른 위치
   };
 }
 
-const PROP_KEYS = ["reason", "concerns", "routine", "tech", "product", "format", "needsRetake", "verdicts"] as const;
+const PROP_KEYS = ["reason", "concerns", "routine", "tech", "product", "format", "needsRetake", "verdicts", "source", "device", "age", "skin", "who", "makeup", "history", "place"] as const;
 
 /** 서버 측 검증: 알 수 없는 타입·키·과도한 길이를 버린다 */
 export function sanitizeEvent(input: unknown): TrackEvent | null {

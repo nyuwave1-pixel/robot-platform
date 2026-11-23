@@ -9,8 +9,9 @@
  */
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { track } from "@/lib/client/telemetry";
 import type { ShaderKind } from "./fx/ShaderCanvas";
 
 const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
@@ -40,7 +41,7 @@ function Device({ active, label, note, alt }: { active: number; label: string; n
         </div>
         <figcaption className="border-t border-black/5 px-3 py-2 text-[10px] leading-tight text-[#20252b] sm:flex sm:items-center sm:justify-between sm:gap-2">
           <span className="block font-display font-semibold tracking-[0.18em] max-sm:hidden">DERMA-HOME</span>
-          <span className="block text-[#6b7480]">{note}</span>
+          <span className="block text-[#4f5964]">{note}</span>
         </figcaption>
       </motion.figure>
       <ul className="mt-2 flex justify-center gap-1.5 sm:mt-3" aria-label={label}>
@@ -99,6 +100,16 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
   const railScale = useTransform(smooth, [0, 1], [0.04, 1]);
   const ghostX = useTransform(smooth, [0, 1], ["4%", "-10%"]);
   useMotionValueEvent(scrollYProgress, "change", (v) => setActive(Math.max(0, Math.min(SCENES.length - 1, Math.floor(v * SCENES.length)))));
+  // 장면별 관심도: 실제로 스크롤해 들어온 장면만 세션당 한 번 센다
+  const seen = useRef(new Set<string>());
+  useEffect(() => {
+    const p = scrollYProgress.get();
+    if (p <= 0 || p >= 1) return;
+    const id = SCENES[active].id;
+    if (seen.current.has(id)) return;
+    seen.current.add(id);
+    track("tech_view", { tech: [id] });
+  }, [active, scrollYProgress]);
 
   const jump = (i: number) => {
     const el = ref.current;
@@ -131,7 +142,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-[11px] text-silver/60">{t.landing.techVisualNote}</p>
+          <p className="mt-6 text-[11px] text-silver-soft">{t.landing.techVisualNote}</p>
         </div>
       </section>
     );

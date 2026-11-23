@@ -314,3 +314,4 @@ describe("config locales", () => {
     expect(off.locales).toEqual(["ko", "en"]);
   });
 });
+

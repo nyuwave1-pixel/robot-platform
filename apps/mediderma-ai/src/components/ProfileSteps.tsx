@@ -70,7 +70,7 @@ export default function ProfileSteps({ initial, onDone }: { initial: ScanProfile
       {q === "makeup" && p.makeup === true && <p className="mt-4 rounded-2xl bg-amber-300/10 p-4 text-base text-amber-100">💡 {f.makeup.note}</p>}
 
       <div className="mt-auto pt-8">
-        <button onClick={next} disabled={!answered} data-testid="profile-next" className="w-full rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-scan2 disabled:bg-white/25 disabled:text-black/50">
+        <button onClick={next} disabled={!answered} data-testid="profile-next" className="w-full rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-scan2 disabled:bg-line disabled:text-silver">
           {f.next} →
         </button>
       </div>

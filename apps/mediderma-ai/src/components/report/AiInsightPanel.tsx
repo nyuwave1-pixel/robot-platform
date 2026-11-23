@@ -110,7 +110,7 @@ export default function AiInsightPanel({ data }: { data: CurrentAnalysis }) {
               <p className="mt-1 text-xs leading-relaxed text-silver">{insight.careExplanation}</p>
             </div>
           )}
-          <p className="border-t border-line pt-2 text-[10px] text-silver/60">{t.ai.badge} · {t.ai.limits} · {insight.model}</p>
+          <p className="border-t border-line pt-2 text-[10px] text-silver-soft">{t.ai.badge} · {t.ai.limits} · {insight.model}</p>
         </div>
       )}
     </section>
