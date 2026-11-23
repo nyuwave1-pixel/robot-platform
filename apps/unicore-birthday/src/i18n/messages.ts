@@ -19,7 +19,7 @@ export type Strip<T> = T extends CopyLine
 
 export type CopyMessages = Strip<typeof copy>;
 
-export type IngredientId = "pdrn" | "gf" | "peptide" | "cica";
+export type IngredientId = "pdrn" | "gf" | "peptide" | "barrier";
 export type ClinicalId = "cheek-lifting" | "neck-wrinkle" | "adverse-events";
 
 /** 한 언어의 모든 번역 문자열. ko 는 데이터 원문에서 생성하고 en/zh 는 이 타입을 완전하게 채워야 컴파일됩니다. */
@@ -88,7 +88,7 @@ export const ko: Messages = {
     pdrn: { name: ing("pdrn").name, claim1: ing("pdrn").claim1, claim2: ing("pdrn").claim2 },
     gf: { name: ing("gf").name, claim1: ing("gf").claim1, claim2: ing("gf").claim2 },
     peptide: { name: ing("peptide").name, claim1: ing("peptide").claim1, claim2: ing("peptide").claim2, sub: ing("peptide").sub },
-    cica: { name: ing("cica").name, claim1: ing("cica").claim1, claim2: ing("cica").claim2, sub: ing("cica").sub },
+    barrier: { name: ing("barrier").name, claim1: ing("barrier").claim1, claim2: ing("barrier").claim2, sub: ing("barrier").sub },
   },
   pdrn: { gens: pdrnGenerations.map((g) => ({ name: g.name, line1: g.line1, line2: g.line2 })), purity: purityClaim.text, purityNote: "원료 순도 표기는 원료사 자료 기준이며, 제품 처방 근거는 검토 중입니다." },
   trial: { institute: trial.institute, subjects: trial.subjects, period: trial.period, usage: trial.usage, disclaimer: trial.disclaimer },
@@ -111,7 +111,7 @@ export const ko: Messages = {
     productExplore: "제품 살펴보기", productJar: "용기", productPoints: "제품 포인트",
     inspectorHint: "제품 3D 인스펙터: 드래그로 회전, 더블클릭으로 초기화", zoomIn: "확대", zoomOut: "축소",
     pdrnCompare: "PDRN 세대 비교", pdrnImage: "{name} 이미지",
-    moistureAlt: "시카 컴플렉스·우레아 비주얼",
+    moistureAlt: "레시틴이 피부 지질막을 보조하는 개념 비주얼",
     clinicalEyebrow: "Clinical · 인체적용시험", instrument: "기기 측정", before: "사용 전", after: "4주 후", conditions: "시험 조건 보기", safety: "Safety", casesUnit: "건",
     nobelBadge: "NOBEL PRIZE INGREDIENT", nobelEyebrow: "Nobel Prize Ingredient", peptideEyebrow: "Expression Lines Care", peptides: "핵심 펩타이드 2종",
     purchasePending: "구매 페이지 URL 확정 전 — 임시로 사용법 섹션으로 연결됩니다.",

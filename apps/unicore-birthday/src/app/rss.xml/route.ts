@@ -14,7 +14,7 @@ export function GET() {
   const ko = getDict("ko");
   const sections: { hash: string; title: string; desc: string }[] = [
     { hash: "#clinical", title: `${ko.copy.s04.h1a} ${ko.copy.s04.h1b} — 4주 인체적용시험`, desc: ko.clinicalList.filter((c) => c.verified).map((c) => `${c.label} ${c.value}${c.unitLabel}`).join(", ") },
-    { hash: "#ingredients", title: "핵심 성분 4가지 — 인삼 PDRN · EGF 4GF · 아세틸헥사펩타이드-8 · 시카", desc: ko.ingredientsList.map((i) => `${i.name}: ${i.claim1} ${i.claim2}`).join(" / ") },
+    { hash: "#ingredients", title: "핵심 성분 4가지 — 인삼 PDRN · EGF 4GF · 아세틸헥사펩타이드-8 · 레시틴 2.5%", desc: ko.ingredientsList.map((i) => `${i.name}: ${i.claim1} ${i.claim2}`).join(" / ") },
     { hash: "#how-to-use", title: `HOW TO USE — ${ko.howto.intro}`, desc: `${ko.howto.intro}. ${ko.howto.steps.map((s) => `${s.step} ${s.area}`).join(", ")}` },
   ];
   const items: string[] = [];

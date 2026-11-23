@@ -17,7 +17,7 @@ export interface Ingredient {
   nobel?: boolean;
 }
 
-/** 상세페이지 「기억할 건 딱 4가지」 원문 */
+/** 상세페이지 「기억할 건 딱 4가지」 원문. 04는 2026-11-23 교육자료 8쪽 수정본(레시틴 2.5% 강조) */
 export const keyIngredients: Ingredient[] = [
   { id: "pdrn", index: "01", name: "3세대 인삼유래 PDRN", claim1: "내려앉은 피부에", claim2: "차세대 PDRN 리프팅", color: "#C6A16A", image: detail.ingGinseng, video: clips.pdrnGinseng },
   { id: "gf", index: "02", name: "EGF IGF FGF KGF", claim1: "4GF 4종 성장인자로", claim2: "매끈하고 쫀쫀한 피부", color: "#E5C58D", image: detail.ingGoldDrop, video: clips.goldenRing, nobel: true },
@@ -26,12 +26,8 @@ export const keyIngredients: Ingredient[] = [
     sub: [{ name: "아세틸헥사펩타이드-8", desc: "집중 표정주름 케어" }, { name: "카퍼트라이펩타이드-1", desc: "" }],
   },
   {
-    id: "cica", index: "04", name: "시카컴플렉스 & 우레아 · 세라마이드", claim1: "지친 피부 진정 케어,", claim2: "수분 충전 & 보습", color: "#7FB08A", image: detail.ingCica, video: clips.cicaLeaves,
-    sub: [
-      { name: "자작나무껍질추출물", desc: "피부를 정돈하는 자작나무 껍질" },
-      { name: "병풀 유래 3종 성분", desc: "지친 피부를 차분하게 진정" },
-      { name: "베타-글루칸", desc: "건조한 피부를 촉촉하게 진정" },
-    ],
+    id: "barrier", index: "04", name: "레시틴 2.5% & 우레아 & 세라마이드", claim1: "바르는 즉시, 수분 충전.", claim2: "당기고 거친 피부결을 촉촉하고 매끄럽게", color: "#E0B878", image: detail.ingCica,
+    sub: [{ name: "레시틴 2.5%", desc: "산화에 안정적으로 구현한 크림 제형" }],
   },
 ];
 

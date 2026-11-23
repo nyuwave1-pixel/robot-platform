@@ -1,8 +1,9 @@
 /**
  * 섹션별 카피. source 가 'detail-page-261102' 인 문구는 상세페이지 수정본 원문이며 재작성 금지.
  * 'directive' 는 기획 지시문의 영문 보조 카피, 'film' 은 시네마틱 필름 번인 텍스트.
+ * 'edu-261123' 은 2026-11-23 교육자료 수정 요청(레시틴 2.5% 강조 — 교육자료 8·19쪽) 원문.
  */
-export type CopySource = "detail-page-261102" | "directive" | "film" | "package";
+export type CopySource = "detail-page-261102" | "directive" | "film" | "package" | "edu-261123";
 
 export interface CopyLine {
   text: string;
@@ -13,6 +14,7 @@ export interface CopyLine {
 const dp = (text: string, legalReview = false): CopyLine => ({ text, source: "detail-page-261102", legalReview });
 const dir = (text: string): CopyLine => ({ text, source: "directive" });
 const film = (text: string): CopyLine => ({ text, source: "film" });
+const edu = (text: string): CopyLine => ({ text, source: "edu-261123" });
 
 export const copy = {
   intro: {
@@ -115,12 +117,20 @@ export const copy = {
     pepDesc3: dp("집중 표정주름 케어"),
     conceptLabel: dir("교육적 개념 시각화"),
   },
+  /** 레시틴 2.5% · LipoBarrier Complex™ (교육자료 19쪽) + 우레아·세라마이드 (교육자료 8쪽 4번) */
   s09: {
-    cica1: dp("마무리 진정 솔루션"),
-    cica2: dp("시카 카밍 컴플렉스"),
-    cicaBridge1: dp("핵심 성분이 많을수록"),
-    cicaBridge2: dp("매일 편안하게 사용해야 하니까"),
-    h: dp("우레아 & 세라마이드"),
+    eyebrow: edu("피부장벽의 핵심 · LipoBarrier Complex™"),
+    big: edu("레시틴 2.5%"),
+    pair: edu("(세라마이드와 레시틴)"),
+    p1: edu("세포막 구조와 유사한 천연 인지질"),
+    p2: edu("리포좀 전달체의 핵심으로 유효성분 침투력↑"),
+    p3: edu("피부 지질막을 보조하여 장벽 회복·제형 안정화"),
+    p4: edu("산화에 안정적으로 구현한 크림 제형"),
+    h: edu("레시틴 2.5% & 우레아 & 세라마이드"),
+    lead1: edu("바르는 즉시, 수분 충전"),
+    lead2: edu("당기고 거친 피부결을 촉촉하고 매끄럽게."),
+    cicaLabel: dp("시카 카밍 컴플렉스"),
+    cicaItems: dp("자작나무껍질추출물 · 병풀 유래 3종 성분 · 베타-글루칸"),
     l1: dp("우레아로 수분을 채우고"),
     l2: dp("세라마이드로 수분을 지키는"),
     l3: dp("수분의 공급과 잠금을 한 번에!"),
