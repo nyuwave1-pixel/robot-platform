@@ -30,16 +30,18 @@ function BigTextToggle({ label }: { label: string }) {
   };
   return (
     <button onClick={flip} aria-pressed={on} title={label} aria-label={`가+ ${label}`} data-testid="big-text" className={`shrink-0 rounded border px-1.5 py-0.5 text-sm font-bold leading-none ${on ? "border-scan bg-scan/20 text-white" : "border-line text-silver"}`}>
-      가<span className="text-[10px]">+</span>
+      가<span className="text-[11px]">+</span>
     </button>
   );
 }
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-baseline gap-1.5 font-display tracking-[0.16em] min-[400px]:gap-2 min-[400px]:tracking-[0.28em] ${className}`}>
-      <span className="font-semibold text-white">MEDIDERMA</span>{" "}
-      <span className="bg-gradient-to-r from-scan to-scan2 bg-clip-text text-transparent">AI</span>
+    // 브랜드 워드마크: MEDIDERMA SKIN IQ (굵은 브랜드 블루)
+    <span className={`inline-flex items-baseline gap-[0.32em] whitespace-nowrap font-brand text-[1.08em] font-extrabold leading-none tracking-[0.01em] text-brand ${className}`}>
+      <span>MEDIDERMA</span>{" "}
+      <span>SKIN</span>{" "}
+      <span>IQ</span>
     </span>
   );
 }
@@ -149,7 +151,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         </div>
       )}
       <main className="flex-1">{children}</main>
-      <footer className="border-t border-line/70 bg-panel/60">
+      <footer className="cv-auto border-t border-line/70 bg-panel/60">
         <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 text-xs leading-relaxed text-silver-soft">
           <p>{t.common.footerDisclaimer}</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

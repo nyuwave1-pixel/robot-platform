@@ -39,11 +39,11 @@ export default function CompareSlider({ left, right, leftLabel, rightLabel, hint
         <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow-[0_0_12px_rgba(108,174,208,0.9)]" style={{ left: `${pos}%` }}>
           <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xs font-bold text-black">⇆</span>
         </div>
-        <span className="pointer-events-none absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-[11px]">{leftLabel}</span>
-        <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[11px] text-scan2">{rightLabel}</span>
+        <span className="pointer-events-none absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-xs">{leftLabel}</span>
+        <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-xs text-scan2">{rightLabel}</span>
       </div>
       <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} aria-label={hint} className="mt-2 w-full accent-[#3b8fb8]" />
-      <p className="text-center text-[11px] text-silver-soft">{hint}</p>
+      <p className="text-center text-xs text-silver-soft">{hint}</p>
     </div>
   );
 }

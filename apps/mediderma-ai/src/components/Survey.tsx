@@ -59,7 +59,7 @@ export default function Survey({ onSubmit, onSkip }: { onSubmit: (s: SurveyAnswe
         <fieldset className="rounded-xl border border-amber-400/40 bg-amber-400/5 p-4">
           <legend className="px-1 text-sm font-semibold text-amber-100">{t.survey.contraTitle}</legend>
           <p className="text-xs leading-relaxed text-silver">{t.survey.contraDesc}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-silver">
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-silver">
             {CONTRAINDICATIONS.map((c) => (
               <li key={c}>{t.kb.contra[c]}</li>
             ))}

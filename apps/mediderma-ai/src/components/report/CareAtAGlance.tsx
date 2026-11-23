@@ -9,7 +9,7 @@
  * 관리 방법은 모두 공식 CARE GUIDE 루틴(knowledge.ts ROUTINES)의 실제 단계에서 가져온다.
  */
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { ROUTINES, PRODUCTS, type ProductId, type RoutineId, type Technology } from "@/lib/care/knowledge";
 import type { CarePlan } from "@/lib/care/recommend";
@@ -72,7 +72,7 @@ export function Radar({ values, weak, labels, before, testId = "glance-radar" }:
         return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#dce1e5" />;
       })}
       {before && <polygon points={before.map((v, i) => pt(i, v ?? 0).join(",")).join(" ")} fill="rgba(148,163,184,0.10)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="5 4" />}
-      <motion.polygon
+      <m.polygon
         points={poly}
         fill="rgba(108,174,208,0.28)"
         stroke="#3b8fb8"
@@ -158,7 +158,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                     <span className="block text-xl font-bold">{g.axes[AXES[i].id]}</span>
                     <span className="block text-base text-amber-100/90">{g.levels[level(v)]}</span>
                   </span>
-                  <span className="text-3xl font-light tabular-nums">{v}</span>
+                  <span className="text-3xl font-normal tabular-nums">{v}</span>
                 </li>
               ))}
             </ol>

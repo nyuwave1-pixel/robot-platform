@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const en: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Scan your skin and discover the DERMA HOME care that fits you.",
     start: "Start skin analysis",
@@ -22,15 +22,15 @@ const en: Dict = {
     learnMore: "Learn more",
     notAvailable: "Not measurable",
     footerDisclaimer:
-      "MEDIDERMA AI is a service that observes skin surface features visible in a photo and provides care information. It is not a medical device and does not provide a medical diagnosis. If you suspect a skin condition, please consult a specialist.",
+      "MEDIDERMA SKIN IQ is a service that observes skin surface features visible in a photo and provides care information. It is not a medical device and does not provide a medical diagnosis. If you suspect a skin condition, please consult a specialist.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK mode — these are not real AI analysis results.",
   },
   nav: { analyze: "Skin Analysis", compare: "Before & After", history: "Skin Log", privacy: "Privacy", dermahome: "DERMA HOME", trial: "Book a Free Trial", menu: "Menu" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "A new way to understand your skin.",
     exploreTech: "Explore DERMA HOME technology",
     oneDevice: "One device, three technologies",
@@ -255,7 +255,7 @@ const en: Dict = {
   },
   report: {
     analysisInfo: "Analysis details",
-    title: "AI Skin Score Report",
+    title: "Skin IQ Report",
     overall: "AI Overall Skin Condition",
     overallDesc: "A weighted average of the observation indices across 13 zones. The higher the value, the more even the skin surface appears in the photo.",
     indexNote: "Photo-based observation index · Not yet clinically validated",
@@ -350,7 +350,7 @@ const en: Dict = {
     scan: {"title": "AI is analyzing your skin in detail", "steps": ["Detecting 478 face points", "Dividing 13 skin zones", "Measuring texture and wrinkles", "Measuring pores and spots", "Analyzing tone evenness", "Matching your care"], "privacy": "Your photo is analyzed only on this device"},
     hero: {"scoreLabel": "Skin condition", "sentence": "Your skin condition from the photo scores {n} out of 100.", "skinType": "Skin type", "age": "Age range", "makeupWarn": "The photo was taken with makeup, so results may be less accurate.", "types": {"dry": "Dry", "normal": "Normal", "oily": "Oily", "combination": "Combination"}, "note": "A photo-based reference index from AI, not a medical diagnosis."},
     cards: {"title": "Skin details", "tapHint": "Tap a card for details.", "badges": ["Needs care", "Could be better", "Good", "Excellent"], "whereLabel": "Most visible in", "close": "Close"},
-    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA AI SKIN SCORE]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
+    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA SKIN IQ]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
   },
   care: {
     title: "Personalized DERMA HOME Care",
@@ -620,6 +620,7 @@ const en: Dict = {
     disabled: "You have not consented to keeping a history.",
     enable: "Consent to keeping a history",
   },
+  iq: {"slow": "This is taking longer than usual. Wait a little longer or try again.", "decoding": "Decoding your skin data", "complete": "Analysis complete", "skip": "Tap to see your results", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "Analysis details", "sub": "The real measurements behind this result. Your photo was processed only on this device.", "landmarks": "Face landmarks", "zonesAnalyzed": "Zones analyzed", "metricsComputed": "Metrics computed", "duration": "Analysis time", "sec": "s", "capture": "Capture conditions", "pose": "Face angle", "yaw": "Turn", "pitch": "Tilt up/down", "roll": "Tilt sideways", "faceSize": "Face width", "imageSize": "Original resolution", "zoneConf": "Confidence by zone", "excluded": "Excluded zones", "none": "None", "ideal": "0° = facing forward"},
   privacy: {
     title: "Privacy Notice",
     updated: "Effective date: 2026-11-13",

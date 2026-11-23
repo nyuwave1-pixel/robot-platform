@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { m, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
@@ -13,6 +13,7 @@ import type { FaceZoneId } from "@/lib/analysis/types";
 import { MEASURABLE } from "@/lib/analysis/providers/localCv";
 import UploadBox from "./UploadBox";
 // 얼굴 영역 메쉬 SVG 는 크다(약 77KB) — 첫 HTML 에서 빼고 브라우저에서 따로 불러온다
+import LazyHydrate from "./fx/LazyHydrate";
 const FaceFallback = dynamic(() => import("./FaceFallback"), { ssr: false, loading: () => <div className="h-full w-full animate-pulse rounded-2xl bg-line/40" /> });
 import DepthText from "./fx/DepthText";
 import HeroPortrait from "./fx/HeroPortrait";
@@ -25,7 +26,7 @@ const ShaderCanvas = dynamic(() => import("./fx/ShaderCanvas"), { ssr: false });
 
 const Title3D = dynamic(() => import("./fx/Title3D"), { ssr: false });
 
-const KEYWORDS = ["MEDICAL BEAUTY TECH", "AI SKIN INTELLIGENCE", "FUTURE SKIN LAB", "PREMIUM CLINICAL EXPERIENCE", "AI SKIN SCORE", "SCAN · ANALYZE · CARE · TRANSFORM"];
+const KEYWORDS = ["MEDICAL BEAUTY TECH", "AI SKIN INTELLIGENCE", "FUTURE SKIN LAB", "PREMIUM CLINICAL EXPERIENCE", "SKIN IQ", "SCAN · ANALYZE · CARE · TRANSFORM"];
 const BRAND_LINE = ["THE", "FUTURE", "OF", "SKIN", "INTELLIGENCE."];
 
 const rise = { initial: { opacity: 0, y: 36 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.7, ease: [0.2, 0.75, 0.2, 1] as const } };
@@ -38,10 +39,10 @@ function Process({ steps }: { steps: { title: string; desc: string }[] }) {
     <ol ref={ref} className="relative mt-10 grid gap-4 lg:grid-cols-5">
       {/* 스크롤 진행에 맞춰 채워지는 연결선 */}
       <div aria-hidden className="absolute left-5 top-0 h-full w-px bg-line lg:left-0 lg:top-6 lg:h-px lg:w-full" />
-      <motion.div aria-hidden className="absolute left-5 top-0 h-full w-px origin-top bg-gradient-to-b from-scan to-scan2 shadow-glow lg:hidden" style={{ scaleY: p }} />
-      <motion.div aria-hidden className="absolute left-0 top-6 hidden h-px w-full origin-left bg-gradient-to-r from-scan to-scan2 shadow-glow lg:block" style={{ scaleX: p }} />
+      <m.div aria-hidden className="absolute left-5 top-0 h-full w-px origin-top bg-gradient-to-b from-scan to-scan2 shadow-glow lg:hidden" style={{ scaleY: p }} />
+      <m.div aria-hidden className="absolute left-0 top-6 hidden h-px w-full origin-left bg-gradient-to-r from-scan to-scan2 shadow-glow lg:block" style={{ scaleX: p }} />
       {steps.map((s, i) => (
-        <motion.li
+        <m.li
           key={i}
           initial={{ opacity: 0, rotateX: -55, y: 40 }}
           whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
@@ -55,7 +56,7 @@ function Process({ steps }: { steps: { title: string; desc: string }[] }) {
             <h3 className="text-sm font-semibold">{s.title}</h3>
             <p className="mt-1.5 text-xs leading-relaxed text-silver">{s.desc}</p>
           </Tilt>
-        </motion.li>
+        </m.li>
       ))}
     </ol>
   );
@@ -162,15 +163,15 @@ export default function Landing() {
         <div aria-hidden className="grid-floor pointer-events-none absolute inset-x-0 bottom-0 h-64 opacity-60" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-4 pb-12 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
           <div className="order-2 lg:order-1">
-            <motion.p initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1 }} className="text-[10px] tracking-[0.3em] text-scan2 sm:text-xs">
+            <m.p initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1 }} className="text-[11px] tracking-[0.3em] text-scan2 sm:text-xs">
               {t.landing.eyebrow}
-            </motion.p>
+            </m.p>
             {/* 실제 헤딩(스크린리더·검색엔진용). 3D 타이틀이 준비되면 시각적으로만 대체한다 */}
             <h1 className="sr-only">{t.landing.title1} {t.landing.title2}</h1>
             {use3d ? (
               <div className="relative -ml-1 mt-2 aspect-[2.35/1] w-full max-w-[640px]">
                 {!titleReady && (
-                  <div aria-hidden className="absolute inset-0 flex flex-col justify-center font-display text-5xl font-light leading-[0.95] tracking-tight text-white/30 sm:text-7xl">
+                  <div aria-hidden className="absolute inset-0 flex flex-col justify-center font-display text-5xl font-normal leading-[0.95] tracking-tight text-white/30 sm:text-7xl">
                     <span>{t.landing.title1}</span>
                     <span className="font-semibold">{t.landing.title2}</span>
                   </div>
@@ -179,7 +180,7 @@ export default function Landing() {
               </div>
             ) : (
               <div className="mt-3" aria-hidden>
-                <DepthText as="p" text={t.landing.title1} size="xl" accent="none" className="!font-light" />
+                <DepthText as="p" text={t.landing.title1} size="xl" accent="none" className="" />
                 <DepthText as="p" text={t.landing.title2} size="xl" accent="all" />
               </div>
             )}
@@ -188,15 +189,15 @@ export default function Landing() {
               <span className="sr-only">{BRAND_LINE.join(" ")}</span>
               {BRAND_LINE.map((w, i) => (
                 <span key={w} aria-hidden className="inline-block overflow-hidden pb-0.5">
-                  <motion.span className="inline-block" initial={reduce ? false : { y: "115%", opacity: 0 }} animate={{ y: "0%", opacity: 1 }} transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}>
+                  <m.span className="inline-block" initial={reduce ? false : { y: "115%", opacity: 0 }} animate={{ y: "0%", opacity: 1 }} transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}>
                     {w}
-                  </motion.span>
+                  </m.span>
                 </span>
               ))}
             </p>
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
+            <m.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
               <p className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">{t.landing.tagline}</p>
-              <p className="mt-3 text-[11px] tracking-[0.2em] text-silver-soft">{t.common.slogan}</p>
+              <p className="mt-3 text-xs tracking-[0.2em] text-silver-soft">{t.common.slogan}</p>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-silver">{t.landing.desc}</p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 <Magnetic>
@@ -219,18 +220,18 @@ export default function Landing() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
-          <motion.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
+          <m.div style={reduce ? undefined : { y: faceY, scale: faceScale }} className="relative order-1 mx-auto aspect-square w-full max-w-[320px] sm:max-w-md lg:order-2 lg:max-w-none">
             {/* 브랜드 모델 사진 + 분석 HUD. WebGL 없이도 모든 기기에서 같은 품질로 보인다. */}
             <HeroPortrait alt="MEDIDERMA" priority />
             {/* 표식 위치 = 이 사진의 얼굴 랜드마크(이마·오른쪽 볼·왼쪽 눈밑·오른쪽 턱선) 좌표(%) */}
             <ScanHud labels={[t.zones.forehead, t.zones.right_cheek, t.zones.left_under_eye, t.zones.right_jawline]} animate={!reduce} marks={PORTRAIT_MARKS} />
-          </motion.div>
+          </m.div>
         </div>
         {/* 키워드 마키 */}
         <div aria-hidden className="relative border-y border-line/70 bg-panel/40 py-3 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-          <div className="marquee-track gap-10 font-display text-[11px] tracking-[0.35em] text-silver-soft">
+          <div className="marquee-track gap-10 font-display text-xs tracking-[0.35em] text-silver-soft">
             {[...KEYWORDS, ...KEYWORDS, ...KEYWORDS, ...KEYWORDS].map((k, i) => (
               <span key={i} className="flex items-center gap-10 whitespace-nowrap">
                 {k}
@@ -242,24 +243,25 @@ export default function Landing() {
       </section>
 
       {/* ── ZONES ──────────────────────────────────────────── */}
+      <LazyHydrate size={1500}>
       <section className="mx-auto max-w-6xl px-4 py-16">
         <DepthText text={t.landing.zonesTitle} />
-        <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.zonesDesc}</motion.p>
+        <m.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.zonesDesc}</m.p>
         <div className="mt-8 grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <motion.div {...rise}>
+          <m.div {...rise}>
             <Tilt className="mx-auto aspect-[10/11] w-full max-w-sm rounded-3xl border border-line bg-gradient-to-b from-white/[0.05] to-transparent p-4" max={12}>
               <div className="h-full w-full [transform:translateZ(40px)]">
                 <FaceFallback active={zone} onHover={setZone} mesh />
               </div>
               <p className="absolute bottom-4 left-0 right-0 text-center text-sm font-medium text-scan2 [transform:translateZ(60px)]">{zone ? t.zones[zone] : " "}</p>
             </Tilt>
-          </motion.div>
+          </m.div>
           <div className="space-y-4">
             <ul className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
               {zoneIds.map((id, i) => {
                 const on = zone === id;
                 return (
-                  <motion.li
+                  <m.li
                     key={id}
                     initial={{ opacity: 0, x: 24 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -269,37 +271,39 @@ export default function Landing() {
                     onPointerLeave={() => setZone(null)}
                     className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${on ? "border-scan bg-scan/15 shadow-glow" : "border-line bg-panel"}`}
                   >
-                    <span className="font-display text-[10px] text-scan2">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-display text-[11px] text-scan2">{String(i + 1).padStart(2, "0")}</span>
                     <span>{t.zones[id]}</span>
-                  </motion.li>
+                  </m.li>
                 );
               })}
             </ul>
-            <motion.div {...rise} className="rounded-xl border border-line bg-panel p-4">
+            <m.div {...rise} className="rounded-xl border border-line bg-panel p-4">
               <h3 className="text-sm font-semibold">{t.landing.observeTitle}</h3>
               <ul className="mt-2 flex flex-wrap gap-1.5">
                 {MEASURABLE.map((m) => (
                   <li key={m} className="rounded-full border border-scan/30 px-2.5 py-1 text-xs text-scan2">{t.metrics[m].name}</li>
                 ))}
               </ul>
-            </motion.div>
-            <motion.div {...rise} className="rounded-xl border border-line bg-panel p-4">
+            </m.div>
+            <m.div {...rise} className="rounded-xl border border-line bg-panel p-4">
               <h3 className="text-sm font-semibold">{t.landing.notMeasureTitle}</h3>
               <p className="mt-2 text-xs leading-relaxed text-silver">{t.landing.notMeasureDesc}</p>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>
+      </LazyHydrate>
 
       {/* ── TECHNOLOGY ─────────────────────────────────────── */}
+      <LazyHydrate size={1000}>
       <section className="relative border-y border-line/70 bg-panel/50">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <DepthText text={t.landing.techTitle} className="tracking-wide" />
-          <motion.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</motion.p>
+          <m.p {...rise} className="mt-3 max-w-3xl text-sm text-silver">{t.landing.techDesc}</m.p>
           {/* 사용 전/후 비교 갤러리 (AI 연출 이미지임을 아래에 밝힌다) */}
           <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" data-testid="brand-gallery">
             {BRAND_CUTS.map(({ before, after }, i) => (
-              <motion.figure
+              <m.figure
                 key={after}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -309,36 +313,42 @@ export default function Landing() {
               >
                 <BeforeAfter before={before} after={after} beforeLabel={t.landing.galleryBefore} afterLabel={t.landing.galleryAfter} alt="UNI&CORE DERMA HOME" phase={i * 0.8} animate={!reduce} />
                 <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/85 to-transparent" />
-                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white">DERMA HOME · 0{i + 1}</figcaption>
-              </motion.figure>
+                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[11px] tracking-[0.3em] text-white">DERMA HOME · 0{i + 1}</figcaption>
+              </m.figure>
             ))}
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-silver-soft" data-testid="gallery-note">{t.landing.galleryNote}</p>
+          <p className="mt-3 text-xs leading-relaxed text-silver-soft" data-testid="gallery-note">{t.landing.galleryNote}</p>
         </div>
       </section>
+      </LazyHydrate>
 
       {/* ── DERMA HOME TECHNOLOGY: 스크롤 연동 3장면 전시 ───────────────── */}
+      <LazyHydrate size={0}>
       <TechShowcase webgl={use3d === true} />
+      </LazyHydrate>
 
       {/* ── PROCESS ────────────────────────────────────────── */}
+      <LazyHydrate size={1300}>
       <section className="mx-auto max-w-6xl px-4 py-16">
         <DepthText text={t.landing.processTitle} />
         <Process steps={t.landing.process} />
       </section>
+      </LazyHydrate>
 
       {/* ── PRIVACY ────────────────────────────────────────── */}
+      <LazyHydrate size={900}>
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <motion.div {...rise}>
+        <m.div {...rise}>
           <Tilt className="rounded-3xl border border-scan/25 bg-scan/[0.04] p-6 sm:p-10" max={4}>
             <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
               <div>
                 <DepthText as="h2" size="md" text={t.landing.privacyTitle} />
                 <ul className="mt-5 space-y-2.5 text-sm text-silver">
                   {t.landing.privacyPoints.map((p, i) => (
-                    <motion.li key={i} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 + i * 0.1 }} className="flex gap-2.5">
+                    <m.li key={i} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 + i * 0.1 }} className="flex gap-2.5">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-scan2 shadow-glow" />
                       <span>{p}</span>
-                    </motion.li>
+                    </m.li>
                   ))}
                 </ul>
                 {config.aiInsight.available && <p className="mt-3 text-xs leading-relaxed text-silver">{t.ai.exception}</p>}
@@ -349,10 +359,12 @@ export default function Landing() {
               </div>
             </div>
           </Tilt>
-        </motion.div>
+        </m.div>
       </section>
+      </LazyHydrate>
 
       {/* ── CTA ────────────────────────────────────────────── */}
+      <LazyHydrate size={800}>
       <section className="relative mt-10 overflow-hidden border-t border-line/70">
         <div aria-hidden className="absolute inset-0 opacity-80">{use3d ? <ShaderCanvas kind="aurora" /> : <div className="h-full w-full bg-[radial-gradient(60%_80%_at_50%_100%,rgba(108,174,208,0.3),transparent)]" />}</div>
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink via-ink/40 to-ink/80" />
@@ -362,17 +374,18 @@ export default function Landing() {
             <HeroPortrait alt="" />
           </div>
           <DepthText text={t.landing.ctaTitle} size="lg" className="mx-auto" />
-          <motion.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</motion.p>
-          <motion.div {...rise} className="mt-8 flex flex-wrap justify-center gap-4">
+          <m.p {...rise} className="mt-3 text-sm text-silver">{t.landing.ctaDesc}</m.p>
+          <m.div {...rise} className="mt-8 flex flex-wrap justify-center gap-4">
             <Magnetic>
               <Link href="/analyze" onClick={() => track("cta_click", { place: "bottom" })} className="sheen inline-block rounded-full bg-white px-9 py-4 text-sm font-semibold text-black shadow-glow transition hover:bg-scan2">{t.common.start}</Link>
             </Magnetic>
             <Magnetic>
               <a href={config.links.freeTrial} target="_blank" rel="noopener noreferrer" onClick={() => track("trial_click")} className="inline-block rounded-full border border-silver/40 bg-ink/60 px-9 py-4 text-sm backdrop-blur transition hover:border-scan">{t.nav.trial}</a>
             </Magnetic>
-          </motion.div>
+          </m.div>
         </div>
       </section>
+      </LazyHydrate>
     </div>
   );
 }

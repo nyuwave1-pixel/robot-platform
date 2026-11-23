@@ -22,7 +22,7 @@ export default function StepBar({ current }: { current: 0 | 1 | 2 | 3 | 4 }) {
               >
                 {done ? "✓" : i + 1}
               </span>
-              <span className={`text-center text-[11px] leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver-soft"}`}>{s}</span>
+              <span className={`text-center text-xs leading-tight [overflow-wrap:anywhere] sm:text-sm ${cur ? "font-semibold text-white" : "text-silver-soft"}`}>{s}</span>
             </li>
           );
         })}

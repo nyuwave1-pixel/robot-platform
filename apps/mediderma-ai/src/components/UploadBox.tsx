@@ -133,7 +133,7 @@ export default function UploadBox({ onFile, compact = false, large = false, test
           ) : (
             <>
               <p className="text-sm text-silver">{t.landing.uploadHint}</p>
-              <p className="mt-1 text-[11px] text-silver-soft">{t.landing.uploadFormats}</p>
+              <p className="mt-1 text-xs text-silver-soft">{t.landing.uploadFormats}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 <button onClick={() => inputRef.current?.click()} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-scan2">{t.landing.pickFile}</button>
                 <button onClick={() => startCam("user")} className="rounded-full border border-silver/40 px-5 py-2.5 text-sm text-white transition hover:border-scan hover:text-scan2">{t.landing.useCamera}</button>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
@@ -9,7 +9,7 @@ import { hasHistoryConsent, setHistoryConsent } from "@/lib/client/session";
 import { AnalysisError, runFaceAnalysis, runNeckAnalysis } from "@/lib/client/runAnalysis";
 import { buildCarePlan } from "@/lib/care/recommend";
 import type { ProgressStage, ProviderOutput } from "@/lib/analysis/provider";
-import type { ImageQuality, SurveyAnswers, ZoneResult } from "@/lib/analysis/types";
+import type { AnalysisResult, ImageQuality, SurveyAnswers, VisualData, ZoneResult } from "@/lib/analysis/types";
 import UploadBox from "./UploadBox";
 import Survey from "./Survey";
 import Report from "./report/Report";
@@ -33,7 +33,7 @@ function ReportProblem({ context }: { context: string }) {
       <button onClick={() => setOpen((v) => !v)} className="text-xs text-silver underline underline-offset-4" data-testid="report-problem">{t.errors.reportTitle}</button>
       {open && (
         <div className="mt-2 rounded-xl border border-line bg-panel p-3">
-          <p className="text-[11px] text-silver">{t.errors.reportDesc}</p>
+          <p className="text-xs text-silver">{t.errors.reportDesc}</p>
           <textarea value={msg} onChange={(e) => setMsg(e.target.value.slice(0, 1000))} placeholder={t.errors.reportPlaceholder} rows={3} className="mt-2 w-full rounded-lg border border-line bg-black p-2 text-sm focus:outline-none focus:ring-1 focus:ring-scan" />
           <button
             disabled={msg.trim().length < 3}
@@ -65,6 +65,11 @@ export default function AnalyzeFlow() {
   const [chosen, setChosen] = useState<File | null>(null);
   const visualDone = useRef<(() => void) | null>(null);
   const visualFinished = useRef(false);
+  const [reveal, setReveal] = useState<{ visual: VisualData; result: AnalysisResult } | null>(null);
+  const startedAt = useRef(0);
+  /** 사용자가 기다리다 취소하면 늦게 끝난 분석 결과는 버린다 */
+  const cancelled = useRef(false);
+  const durationMs = useRef<number | null>(null);
   // 단계가 바뀌면 화면 맨 위(단계 표시·제목)부터 보이게
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -87,6 +92,8 @@ export default function AnalyzeFlow() {
     async (file: File) => {
       visualFinished.current = false;
       visualDone.current = null;
+      setReveal(null);
+      cancelled.current = false;
       setStep("running");
       setStage("loading_model");
       setErrorCode(null);
@@ -96,7 +103,10 @@ export default function AnalyzeFlow() {
       });
       track("analysis_started");
       try {
+        startedAt.current = performance.now();
         const out = await runFaceAnalysis(file, sessionId, config, setStage);
+        durationMs.current = performance.now() - startedAt.current;
+        if (cancelled.current) return;
         setQuality(out.result.imageQuality);
         if (!out.result.imageQuality.passed || !out.visual) {
           const first = out.result.imageQuality.issues.find((i) => i.severity === "blocker");
@@ -107,6 +117,8 @@ export default function AnalyzeFlow() {
         const neck = neckFile ? await runNeckAnalysis(neckFile, config) : null;
         track("analysis_succeeded", { concerns: out.result.analysis.topConcerns.map((c) => c.metric), needsRetake: out.result.analysis.needsRetake });
         pending.current = { out, neck };
+        // 스캔 연출이 끝나면 실제 결과로 '분석 완료 연출'을 보여 준다
+        setReveal({ visual: out.visual, result: out.result });
         // 스캔 연출이 100% 를 채운 뒤 넘어간다
         await new Promise<void>((resolve) => {
           if (visualFinished.current) return resolve();
@@ -115,8 +127,9 @@ export default function AnalyzeFlow() {
         });
         setStep("survey");
       } catch (e) {
+        if (cancelled.current) return;
         const code = e instanceof AnalysisError ? e.code : "analysisFailed";
-        track("analysis_failed", { reason: code });
+        track("analysis_failed", { reason: e instanceof AnalysisError && e.detail ? `${code}:${e.detail}` : code });
         setErrorCode(code);
         setStep("error");
       }
@@ -131,7 +144,7 @@ export default function AnalyzeFlow() {
     const result = { ...p.out.result, survey: survey ? { ...survey, deviceContraindication: false } : null, careRecommendations: plan.recommendations };
     if (survey) track("survey_submitted");
     track("care_selected", { routine: plan.night ?? "none", tech: plan.recommendations.map((r) => r.technology) });
-    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile });
+    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile, durationMs: durationMs.current });
     pending.current = null;
     setStep("report");
     window.scrollTo({ top: 0 });
@@ -199,7 +212,7 @@ export default function AnalyzeFlow() {
     <StepBar current={step === "consent" ? 0 : step === "profile" ? 1 : 2} />
     <div className="mx-auto max-w-3xl px-4 py-6">
       <AnimatePresence mode="wait">
-        <motion.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+        <m.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
           {step === "consent" && (
             <div data-testid="consent">
               <h1 className="text-2xl font-bold sm:text-3xl">{t.consent.title}</h1>
@@ -286,7 +299,7 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
-          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} />}
+          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} reveal={reveal} onCancel={() => { cancelled.current = true; setStep("capture"); }} />}
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">
@@ -319,7 +332,7 @@ export default function AnalyzeFlow() {
               <ReportProblem context={`error:${errorCode}`} />
             </div>
           )}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
     </>

@@ -25,8 +25,8 @@ function Lines({ line1, line2, onReady }: { line1: string; line2: string; onRead
   const mats = useMemo(() => {
     const face = new THREE.MeshStandardMaterial({ color: "#2b323b", metalness: 0.55, roughness: 0.26, envMapIntensity: 0.9 });
     const side = new THREE.MeshStandardMaterial({ color: "#c9d1d8", metalness: 0.9, roughness: 0.3, envMapIntensity: 1.1 });
-    const accentFace = new THREE.MeshStandardMaterial({ color: "#2f86b0", metalness: 0.5, roughness: 0.2, envMapIntensity: 1 });
-    const accentSide = new THREE.MeshStandardMaterial({ color: "#a7d3e7", metalness: 0.7, roughness: 0.3, emissive: "#6caed0", emissiveIntensity: 0.25 });
+    const accentFace = new THREE.MeshStandardMaterial({ color: "#1f74be", metalness: 0.5, roughness: 0.2, envMapIntensity: 1 });
+    const accentSide = new THREE.MeshStandardMaterial({ color: "#a9cdef", metalness: 0.7, roughness: 0.3, emissive: "#1f74be", emissiveIntensity: 0.2 });
     return { plain: [face, side], accent: [accentFace, accentSide] };
   }, []);
   useEffect(() => () => [...mats.plain, ...mats.accent].forEach((m) => m.dispose()), [mats]);

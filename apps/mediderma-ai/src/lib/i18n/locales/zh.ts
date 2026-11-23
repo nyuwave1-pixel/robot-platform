@@ -3,8 +3,8 @@ import type { Dict } from "./ko";
 /** 简体中文资源。键结构与 ko.ts 完全一致；{name} 形式的占位符保持不变。 */
 const zh: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "扫描你的肌肤，发现适合你的 DERMA HOME 护理。",
     start: "开始肌肤分析",
@@ -23,15 +23,15 @@ const zh: Dict = {
     learnMore: "了解更多",
     notAvailable: "无法测量",
     footerDisclaimer:
-      "MEDIDERMA AI 通过观察照片中可见的皮肤表面特征来提供护理信息，不是医疗器械，也不构成医学诊断。如怀疑有皮肤疾病，请咨询专科医生。",
+      "MEDIDERMA SKIN IQ 通过观察照片中可见的皮肤表面特征来提供护理信息，不是医疗器械，也不构成医学诊断。如怀疑有皮肤疾病，请咨询专科医生。",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK 模式 — 并非真实的 AI 分析结果。",
   },
   nav: { analyze: "肌肤分析", compare: "前后对比", history: "变化记录", privacy: "隐私说明", dermahome: "DERMA HOME", trial: "预约免费体验", menu: "菜单" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "读懂你肌肤的全新方式。",
     exploreTech: "了解 DERMA HOME 技术",
     oneDevice: "一台设备，三种技术",
@@ -351,7 +351,7 @@ const zh: Dict = {
     scan: {"title": "AI 正在精密分析您的皮肤", "steps": ["识别面部478个点", "划分13个皮肤区域", "测量肤质与皱纹", "测量毛孔与斑点", "分析肤色均匀度", "匹配护理方案"], "privacy": "照片只在本设备内分析"},
     hero: {"scoreLabel": "皮肤状态", "sentence": "照片显示的皮肤状态为 {n} 分（满分100）。", "skinType": "肤质", "age": "年龄段", "makeupWarn": "照片带妆拍摄，结果可能不够准确。", "types": {"dry": "干性", "normal": "中性", "oily": "油性", "combination": "混合性"}, "note": "这是 AI 基于照片的参考指数，并非医学诊断。"},
     cards: {"title": "皮肤详情", "tapHint": "点击卡片查看详细说明。", "badges": ["需要护理", "有点不足", "良好", "很好"], "whereLabel": "最明显的位置", "close": "关闭"},
-    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA AI SKIN SCORE]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
+    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA SKIN IQ]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
   },
   care: {
     title: "DERMA HOME 定制护理",
@@ -621,6 +621,7 @@ const zh: Dict = {
     disabled: "你尚未同意保存记录。",
     enable: "同意保存记录",
   },
+  iq: {"slow": "比平时耗时更长。请稍候或重新尝试。", "decoding": "正在解读皮肤数据", "complete": "分析完成", "skip": "点击查看结果", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析明细", "sub": "生成此结果的实际测量值。照片仅在本设备中处理。", "landmarks": "面部特征点", "zonesAnalyzed": "已分析区域", "metricsComputed": "已计算指标", "duration": "分析用时", "sec": "秒", "capture": "拍摄条件", "pose": "面部角度", "yaw": "左右转动", "pitch": "上下倾斜", "roll": "左右倾斜", "faceSize": "脸部宽度", "imageSize": "原始分辨率", "zoneConf": "各区域可信度", "excluded": "排除的区域", "none": "无", "ideal": "正面 = 0°"},
   privacy: {
     title: "个人信息处理说明",
     updated: "生效日期：2026-11-13",

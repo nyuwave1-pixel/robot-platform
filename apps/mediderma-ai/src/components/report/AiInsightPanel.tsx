@@ -56,8 +56,8 @@ export default function AiInsightPanel({ data }: { data: CurrentAnalysis }) {
   return (
     <section className="rounded-2xl border border-violet-300/30 bg-gradient-to-b from-violet-400/[0.07] to-transparent p-5" data-testid="ai-insight">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="font-display text-xl font-light">{t.ai.title}</h2>
-        <span className="rounded-full border border-violet-300/40 px-2 py-0.5 text-[10px] text-violet-200">{t.ai.badge}</span>
+        <h2 className="font-display text-xl font-normal">{t.ai.title}</h2>
+        <span className="rounded-full border border-violet-300/40 px-2 py-0.5 text-[11px] text-violet-200">{t.ai.badge}</span>
       </div>
       <p className="mt-1 text-xs leading-relaxed text-silver">{t.ai.desc}</p>
       {!insight ? (
@@ -83,7 +83,7 @@ export default function AiInsightPanel({ data }: { data: CurrentAnalysis }) {
               <ul className="mt-1.5 space-y-1.5">
                 {insight.observations.map((o, i) => (
                   <li key={i} className="flex gap-2 text-xs leading-relaxed">
-                    <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-silver">{t.zones[o.zone]}</span>
+                    <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[11px] text-silver">{t.zones[o.zone]}</span>
                     <span className="text-silver">{o.note}</span>
                   </li>
                 ))}
@@ -97,7 +97,7 @@ export default function AiInsightPanel({ data }: { data: CurrentAnalysis }) {
                 {insight.agreement.map((o, i) => (
                   <li key={i} className="flex flex-wrap items-baseline gap-2 text-xs leading-relaxed">
                     <span>{t.metrics[o.metric].name}</span>
-                    <span className={`rounded-full border px-2 py-0.5 text-[10px] ${VIEW_STYLE[o.view]}`}>{t.ai[o.view]}</span>
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] ${VIEW_STYLE[o.view]}`}>{t.ai[o.view]}</span>
                     <span className="text-silver">{o.note}</span>
                   </li>
                 ))}
@@ -110,7 +110,7 @@ export default function AiInsightPanel({ data }: { data: CurrentAnalysis }) {
               <p className="mt-1 text-xs leading-relaxed text-silver">{insight.careExplanation}</p>
             </div>
           )}
-          <p className="border-t border-line pt-2 text-[10px] text-silver-soft">{t.ai.badge} · {t.ai.limits} · {insight.model}</p>
+          <p className="border-t border-line pt-2 text-[11px] text-silver-soft">{t.ai.badge} · {t.ai.limits} · {insight.model}</p>
         </div>
       )}
     </section>

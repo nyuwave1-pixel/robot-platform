@@ -3,8 +3,8 @@ import type { Dict } from "./ko";
 /** Recursos en español (neutro). Misma estructura de claves que ko.ts; los marcadores {name} no se traducen. */
 const es: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN SCORE",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Analiza tu piel y descubre el cuidado DERMA HOME que va contigo.",
     start: "Iniciar análisis de piel",
@@ -23,15 +23,15 @@ const es: Dict = {
     learnMore: "Más información",
     notAvailable: "No medible",
     footerDisclaimer:
-      "MEDIDERMA AI es un servicio que ofrece información de cuidado a partir de la observación de las características superficiales de la piel visibles en una foto. No es un producto sanitario ni un diagnóstico médico. Si sospechas de una afección cutánea, consulta a un especialista.",
+      "MEDIDERMA SKIN IQ es un servicio que ofrece información de cuidado a partir de la observación de las características superficiales de la piel visibles en una foto. No es un producto sanitario ni un diagnóstico médico. Si sospechas de una afección cutánea, consulta a un especialista.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "Modo MOCK: estos no son resultados reales del análisis con IA.",
   },
   nav: { analyze: "Análisis de piel", compare: "Antes y después", history: "Historial", privacy: "Privacidad", dermahome: "DERMA HOME", trial: "Reservar prueba gratuita", menu: "Menú" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "SCORE",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
     tagline: "Una nueva forma de entender tu piel.",
     exploreTech: "Descubre la tecnología DERMA HOME",
     oneDevice: "Un dispositivo, tres tecnologías",
@@ -351,7 +351,7 @@ const es: Dict = {
     scan: {"title": "La IA está analizando tu piel en detalle", "steps": ["Detectando 478 puntos del rostro", "Dividiendo 13 zonas", "Midiendo textura y arrugas", "Midiendo poros y manchas", "Analizando la uniformidad del tono", "Eligiendo tu cuidado"], "privacy": "Tu foto se analiza solo en este dispositivo"},
     hero: {"scoreLabel": "Estado de la piel", "sentence": "El estado de tu piel en la foto es de {n} sobre 100.", "skinType": "Tipo de piel", "age": "Edad", "makeupWarn": "La foto tiene maquillaje; el resultado puede ser menos preciso.", "types": {"dry": "Seca", "normal": "Normal", "oily": "Grasa", "combination": "Mixta"}, "note": "Índice de referencia de IA basado en la foto, no es un diagnóstico médico."},
     cards: {"title": "Detalles de la piel", "tapHint": "Toca una tarjeta para ver más.", "badges": ["Necesita cuidado", "Podría mejorar", "Bien", "Excelente"], "whereLabel": "Más visible en", "close": "Cerrar"},
-    share: {"button": "Compartir resultado", "copied": "Copiado. Pégalo en tu mensajería.", "text": "[MEDIDERMA AI SKIN SCORE]\nEstado {score}/100\nCuidar primero: {weak}\nRecomendado: {products}\nPruébalo 👉 {url}"},
+    share: {"button": "Compartir resultado", "copied": "Copiado. Pégalo en tu mensajería.", "text": "[MEDIDERMA SKIN IQ]\nEstado {score}/100\nCuidar primero: {weak}\nRecomendado: {products}\nPruébalo 👉 {url}"},
   },
   care: {
     title: "Cuidado a medida DERMA HOME",
@@ -621,6 +621,7 @@ const es: Dict = {
     disabled: "No has aceptado conservar el historial.",
     enable: "Aceptar conservar el historial",
   },
+  iq: {"slow": "Está tardando más de lo normal. Espera un poco más o vuelve a intentarlo.", "decoding": "Descifrando los datos de tu piel", "complete": "Análisis completo", "skip": "Toca para ver tus resultados", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "Detalles del análisis", "sub": "Las mediciones reales detrás de este resultado. Tu foto se procesó solo en este dispositivo.", "landmarks": "Puntos del rostro", "zonesAnalyzed": "Zonas analizadas", "metricsComputed": "Indicadores calculados", "duration": "Tiempo de análisis", "sec": "s", "capture": "Condiciones de la foto", "pose": "Ángulo del rostro", "yaw": "Giro", "pitch": "Inclinación arriba/abajo", "roll": "Inclinación lateral", "faceSize": "Ancho del rostro", "imageSize": "Resolución original", "zoneConf": "Confianza por zona", "excluded": "Zonas excluidas", "none": "Ninguna", "ideal": "0° = de frente"},
   privacy: {
     title: "Aviso de privacidad",
     updated: "Fecha de entrada en vigor: 2026-11-13",

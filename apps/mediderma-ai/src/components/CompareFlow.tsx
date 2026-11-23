@@ -150,7 +150,7 @@ export default function CompareFlow() {
   const zc = cmp && zone !== null ? cmp.zones.find((z) => z.zone === FACE_ZONES[zone].id) ?? null : null;
   return (
     <div className="mx-auto max-w-6xl px-4 py-8" data-testid="compare">
-      <h1 className="font-display text-3xl font-light">{t.compare.title}</h1>
+      <h1 className="font-display text-3xl font-normal">{t.compare.title}</h1>
       <p className="mt-2 text-sm text-silver">{t.compare.desc}</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {picker(t.compare.beforeLabel, t.compare.before, before, setBefore, "before")}
@@ -187,7 +187,7 @@ export default function CompareFlow() {
                       <span>{t.metrics[c.metric].name}</span>
                       <span className="flex items-center gap-2">
                         <span className="tabular-nums text-xs text-silver">{c.before ?? "—"} → {c.after ?? "—"}</span>
-                        <span className={`rounded-full border px-2 py-0.5 text-[11px] ${VERDICT_STYLE[c.verdict]}`}>{t.compare.verdictShort[c.verdict]}</span>
+                        <span className={`rounded-full border px-2 py-0.5 text-xs ${VERDICT_STYLE[c.verdict]}`}>{t.compare.verdictShort[c.verdict]}</span>
                       </span>
                     </li>
                   ))}
@@ -195,10 +195,10 @@ export default function CompareFlow() {
               </div>
               <div className="rounded-2xl border border-line bg-panel p-4">
                 <h2 className="text-sm font-semibold">{t.compare.byZone}</h2>
-                <p className="text-[11px] text-silver">{t.compare.zoneHint}</p>
+                <p className="text-xs text-silver">{t.compare.zoneHint}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {cmp.zones.map((z, i) => (
-                    <button key={z.zone} onClick={() => setZone(i)} data-testid={`cz-${z.zone}`} className={`rounded-full border px-2.5 py-1 text-[11px] ${zone === i ? "bg-white/10" : ""} ${VERDICT_STYLE[z.verdict]}`}>{t.zones[z.zone]}</button>
+                    <button key={z.zone} onClick={() => setZone(i)} data-testid={`cz-${z.zone}`} className={`rounded-full border px-2.5 py-1 text-xs ${zone === i ? "bg-white/10" : ""} ${VERDICT_STYLE[z.verdict]}`}>{t.zones[z.zone]}</button>
                   ))}
                 </div>
                 {zc && (
@@ -210,7 +210,7 @@ export default function CompareFlow() {
                           <span className="text-silver">{t.metrics[m.metric].name}</span>
                           <span className="flex items-center gap-2">
                             <span className="tabular-nums">{m.before ?? "—"} → {m.after ?? "—"}</span>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] ${VERDICT_STYLE[m.verdict]}`}>{t.compare.verdictShort[m.verdict]}</span>
+                            <span className={`rounded-full border px-2 py-0.5 text-[11px] ${VERDICT_STYLE[m.verdict]}`}>{t.compare.verdictShort[m.verdict]}</span>
                           </span>
                         </li>
                       ))}

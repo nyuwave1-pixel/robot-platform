@@ -7,7 +7,7 @@
  * 점수는 모두 사진 관찰 지수이며, '추정 나이'처럼 검증되지 않은 값은 만들지 않는다.
  */
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/client/telemetry";
 import type { ScanProfile } from "@/lib/client/store";
@@ -80,7 +80,7 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
           {score !== null && <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#hg)" strokeWidth="14" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={len * (1 - frac)} />}
         </svg>
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-          <p className="font-display text-5xl font-light tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
+          <p className="font-display text-5xl font-normal tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
             {score === null ? "—" : shown}
             <span className="ml-1 text-lg text-silver">/100</span>
           </p>
@@ -172,8 +172,8 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
 
       <AnimatePresence>
         {open && item && (
-          <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
-            <motion.div
+          <m.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
+            <m.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="sheet-title"
@@ -202,8 +202,8 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
               <button onClick={() => setOpen(null)} className="mt-5 w-full rounded-full bg-white py-3.5 text-lg font-bold text-black" data-testid="skin-sheet-close">
                 {c.close}
               </button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>

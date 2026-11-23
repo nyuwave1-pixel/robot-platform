@@ -40,7 +40,7 @@ export default function ScanHud({ labels, animate = true, marks = MARKS }: { lab
           <span
             key={i}
             // 좁은 화면에서는 라벨이 틀 밖으로 잘리지 않도록 가장자리 안쪽에 붙이고, sm 이상에서만 지정 좌표에 둔다.
-            className={`absolute top-[var(--ly)] -translate-y-1/2 whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[10px] tracking-wide text-scan2 backdrop-blur ${
+            className={`absolute top-[var(--ly)] -translate-y-1/2 whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[11px] tracking-wide text-scan2 backdrop-blur ${
               m.align === "end" ? "left-1 sm:left-[var(--lx)] sm:-translate-x-full" : "right-1 sm:right-auto sm:left-[var(--lx)]"
             }`}
             style={{ "--lx": `${m.lx}%`, "--ly": `${m.ly}%` } as React.CSSProperties}

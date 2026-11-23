@@ -25,6 +25,8 @@ export interface CurrentAnalysis {
   survey: SurveyAnswers | null;
   plan: CarePlan | null;
   neck: ZoneResult | null;
+  /** 사진 분석에 걸린 시간(ms, 이 기기에서 측정) */
+  durationMs?: number | null;
 }
 
 interface AppState {
