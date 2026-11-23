@@ -114,6 +114,18 @@ namespace SpecialSoldier.PlayModeTests
         }
 
         [UnityTest]
+        public IEnumerator Opening_EnemiesHesitateBeforeFiring()
+        {
+            yield return LoadSlice();
+            var hp = GameDirector.Instance.player.GetComponent<Damageable>();
+            float max = hp.Model.Health;
+            yield return Wait(0.3f);   // the fastest possible reaction (ELITE on VETERAN) is 0.5 × 0.65 × 0.7 ≈ 0.23 s after it spots you
+            Assert.AreEqual(max, hp.Model.Health, 1e-3, "took fire in the first 0.3 s");
+            yield return Wait(5.7f);
+            Debug.Log($"[Balance] standing still at spawn on {GameDirector.CurrentDifficulty.Label}: HP {hp.Model.Health:F0}/{max:F0} after 6 s");
+        }
+
+        [UnityTest]
         public IEnumerator PlayerDeath_Loses()
         {
             yield return LoadSlice();

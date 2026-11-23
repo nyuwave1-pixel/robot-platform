@@ -103,3 +103,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   `Packages/manifest.json` 에 `"testables": ["com.unity.inputsystem"]` 추가(InputTestFixture 사용) — 그래서 Input System 패키지 자체 테스트 4개(2 통과, 2 건너뜀)도 함께 돈다.
 - `find-tools.ps1`: MSIX(스토어) Unity Hub 탐지, `Get-MsixUnityLicence`. `setup.ps1 -Install` 이 MSIX Hub의 라이선스를 Editor 위치로 복사(항목마다 확인).
 - 관찰: 시작 6초 만에 적이 교전 상태가 되고 HP 100 → 60. 직접 플레이해서 난이도(적 반응·명중) 조정이 필요한지 확인할 것.
+
+## 2026-11-23 (3) 난이도·적 반응 이식
+
+- 웹 게임의 `DIFFICULTY`(RECRUIT / REGULAR / VETERAN)를 `Core/Difficulty.cs`로 이식. 값은 `save.js`와 EditMode 테스트가 대조한다.
+- 적이 전투에 들어가면 바로 쏘지 않고 반응 지연(`type.react × 난이도 × 0.7~1.3`, 소리로만 알면 ×0.6) 후 사격.
+- 첫 1.2초 동안 탄퍼짐 ×1.8, 이동 중 ×1.6, 연사 간 휴식 0.7~2.0초 × 난이도, 피해 × 난이도 — 모두 웹 게임과 같은 규칙.
+- 빌드 실행 시 `IslandSlice.exe -difficulty recruit|regular|veteran`로 난이도 지정(기본 REGULAR).
+- 결과: EditMode 163/163, PlayMode 8/8(새 테스트 `Opening_EnemiesHesitateBeforeFiring`).
+  시작 지점에 6초 가만히 서 있을 때 HP 60 → **100/100**(REGULAR).

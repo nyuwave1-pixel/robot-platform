@@ -12,6 +12,15 @@ namespace SpecialSoldier
         /// <summary>Tests only: a batch-mode Editor has no window, so the cursor can never be locked there.</summary>
         public static bool AssumeCursorCaptured;
         public static bool CursorCaptured => AssumeCursorCaptured || Cursor.lockState == CursorLockMode.Locked;
+        /// <summary>Campaign difficulty for this run (RECRUIT / REGULAR / VETERAN). Set it before the scene loads;
+        /// the player build reads <c>-difficulty recruit|regular|veteran</c> from the command line.</summary>
+        public static SpecialSoldier.Core.Difficulty CurrentDifficulty = FromCommandLine();
+        static SpecialSoldier.Core.Difficulty FromCommandLine()
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-difficulty") return SpecialSoldier.Core.Difficulty.FromId(args[i + 1]);
+            return SpecialSoldier.Core.Difficulty.Regular;
+        }
         public PlayerMotor player;
         public readonly List<EnemyAgent> enemies = new List<EnemyAgent>();
         public enum Outcome { Playing, Won, Lost }

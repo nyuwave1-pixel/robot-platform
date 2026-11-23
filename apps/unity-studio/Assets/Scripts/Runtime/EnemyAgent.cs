@@ -24,14 +24,16 @@ namespace SpecialSoldier
         PlayerMotor _player;
         Damageable _playerHp;
         Vector3 _lastKnown, _home;
-        float _think, _noise, _burstGap, _shotT;
+        float _think, _noise, _burstGap, _shotT, _reactT;
         int _burstLeft, _patrolIndex;
         bool _seesNow;
 
         void Awake()
         {
             Type = System.Array.Find(EnemyType.All, t => t.Id == typeId) ?? EnemyType.Sentry;
-            Brain = new AwarenessBrain(Type) { Hold = hold };
+            Brain = new AwarenessBrain(Type) { Hold = hold, DifficultyDetect = GameDirector.CurrentDifficulty.Detect };
+            // like the web game's engage(): a short, randomised pause before the first burst (shorter when it only heard you)
+            Brain.StateChanged += (from, to) => { if (to == AlertState.Combat) _reactT = GameDirector.CurrentDifficulty.ReactionDelay(Type, Random.value, _seesNow); };
             _agent = GetComponent<NavMeshAgent>();
             _hp = GetComponent<Damageable>();
             _hp.Configure(Type.Hp, Type.Armor, 0.5f);
@@ -134,23 +136,26 @@ namespace SpecialSoldier
         void Shoot(float dt)
         {
             if (!_seesNow || !_playerHp || !_playerHp.Alive) { _burstLeft = 0; return; }
+            if (_reactT > 0f) { _reactT -= dt; return; }
+            var diff = GameDirector.CurrentDifficulty;
             if (_burstLeft <= 0)
             {
                 if ((_burstGap -= dt) > 0f) return;
                 _burstLeft = Random.Range(Type.BurstMin, Type.BurstMax + 1);
-                _burstGap = Random.Range(0.6f, 1.4f) * Type.React;
+                _burstGap = Random.Range(0.7f, 2.0f) * diff.React;     // web: 0.7–2.0 s pause between bursts
             }
             if ((_shotT -= dt) > 0f) return;
             _shotT = 60f / Type.Rpm; _burstLeft--;
 
             Vector3 eye = transform.position + Vector3.up * eyeHeight;
             Vector3 dir = (_player.Eye - Vector3.up * 0.35f - eye).normalized;
-            Vector2 r = Random.insideUnitCircle * Mathf.Tan(Type.Spread * Mathf.Deg2Rad);
+            float spread = diff.ShotSpread(Type, _agent.velocity.sqrMagnitude > 0.25f, Brain.StateTime);
+            Vector2 r = Random.insideUnitCircle * Mathf.Tan(spread * Mathf.Deg2Rad);
             dir = (dir + transform.right * r.x + Vector3.up * r.y).normalized;
             if (Physics.Raycast(eye + dir * 0.4f, dir, out RaycastHit hit, Type.Vision * 1.5f, sightMask, QueryTriggerInteraction.Ignore))
             {
                 var target = hit.collider.GetComponentInParent<Damageable>();
-                if (target == _playerHp) target.ApplyDamage(Type.GunDamage, eye);
+                if (target == _playerHp) target.ApplyDamage(Type.GunDamage * diff.Dmg, eye);
             }
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(eye, 110f);
         }
