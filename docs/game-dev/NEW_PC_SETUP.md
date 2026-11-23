@@ -88,3 +88,17 @@ Blender 빌드는 에셋 51종 이상과 `src\assets\assets.glb` 를 만들고, 
 | `.gitattributes` | 위 작업 후 `git status` 깨끗함(줄바꿈 변환으로 인한 가짜 변경 없음) |
 
 참고: 이 PC의 PowerShell 프로필이 실행마다 `VBCSCompilerPreWarmer ...` 3줄을 출력합니다. 스크립트 결과와 무관합니다.
+
+### 6-b. 설치 진행 (2026-11-23, 사용자 승인 "다 설치")
+
+| 도구 | 결과 |
+|---|---|
+| .NET 8 SDK 8.0.428 | ✅ winget 설치(관리자 승인 창 1회) → `dotnet test "apps/unity-studio/CoreTests~"` **159/159 통과** |
+| VS Code 1.146.0 | ✅ winget |
+| uv 0.13.9 | ✅ winget |
+| Unity Hub | ❌ winget이 "이미 설치됨"으로 잘못 판정(Unity Editor의 제거 항목과 혼동). `--force` 로 다시 실행하니 "설치 성공"이라 했지만 파일이 생기지 않음(무인 설치에 관리자 권한이 안 붙은 것으로 추정). → **사용자가 https://unity.com/download 에서 직접 설치** |
+| Unity CLI | ❌ 공식 스크립트(`irm https://unity.com/install.ps1 \| iex`)를 Claude 세션 안에서 실행하는 것이 자동 안전 검사에 막힘 → **사용자가 PowerShell에서 직접 실행** |
+
+`setup.ps1` 수정 두 가지:
+- winget 설치에 `--force` 추가(위 Unity Hub 오판정 대비).
+- 시작할 때와 각 설치 뒤에 레지스트리에서 PATH를 다시 읽음 — 이전에는 방금 설치한 도구를 새 창을 열기 전까지 "없음"으로 표시했다.

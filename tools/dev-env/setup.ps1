@@ -10,6 +10,8 @@
 # Never uninstalls or upgrades anything that is already installed.
 # Unity ID sign-in and the Unity licence cannot be automated: the script tells you when to do them.
 param([switch]$Install, [switch]$Yes)
+# Reload PATH from the registry so tools installed by winget earlier (or in this run) are found without a new shell.
+function Update-Path { $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User') }; Update-Path
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'find-tools.ps1')
 $V = $script:DevEnvVersions
@@ -22,7 +24,8 @@ function WingetInstall($id, $label) {
   if (-not $Install) { return $false }
   if (-not (Has 'winget')) { Write-Host "  winget not found: install $label manually."; return $false }
   if (-not (Ask "Install $label ($id) with winget?")) { return $false }
-  winget install --id $id -e --accept-source-agreements --accept-package-agreements
+  # --force: winget can mistake the Unity Editor's uninstall entry for an installed Unity Hub (seen 2026-11-23)
+  winget install --id $id -e --force --accept-source-agreements --accept-package-agreements; Update-Path
   $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
   return $LASTEXITCODE -eq 0
 }
