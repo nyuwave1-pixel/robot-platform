@@ -64,7 +64,7 @@ export function cleanEntry(v: unknown): Entry | null {
 }
 
 /** 이 기기의 콘테스트 비밀값 (처음 한 번 만들고 저장) */
-function secret() {
+export function secret() {
   const k = "mdl-contest-secret";
   try {
     const old = localStorage.getItem(k);
@@ -77,7 +77,7 @@ function secret() {
   return s;
 }
 
-async function rpc<T>(fn: string, body: Record<string, unknown>): Promise<T> {
+export async function rpc<T>(fn: string, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(`${REST}/${fn}`, { method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(`${fn} ${res.status}`);
   return (await res.json()) as T;

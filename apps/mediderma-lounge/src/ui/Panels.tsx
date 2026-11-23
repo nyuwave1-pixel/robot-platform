@@ -15,6 +15,7 @@ import { Chips, StyleChips, Swatches } from "./Screens";
 import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
+import { GuestbookPanel } from "./Guestbook";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -56,6 +57,7 @@ export function PanelHost() {
       {panel === "rank" && <Sheet title="LOUNGE RANK"><RankBody /></Sheet>}
       {panel === "life" && <Sheet title="MY BEAUTY LIFE"><LifeBody /></Sheet>}
       {panel === "events" && <EventsPanel />}
+      {panel === "guestbook" && <GuestbookPanel />}
       {panel === "minigame" && <Sheet title="BEAUTY CARD MATCH"><MiniGameBody /></Sheet>}
       {consult && <ConsultModal id={consult} />}
     </>

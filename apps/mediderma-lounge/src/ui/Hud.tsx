@@ -298,6 +298,7 @@ function VisitBanner() {
           <p className="text-[12px] text-ink/50">{liveHost ? t("live.shopLive") : t("plaza.shopNote")}</p>
         </div>
         {entry && entry.code !== g.friendCode && <button disabled={voted} className="btn-ghost !px-3 !py-2 text-xs disabled:opacity-50" onClick={() => void castVote(entry.code, t)} data-testid="banner-vote">{voted ? "♥" : `♥ ${t("contest.voteBtn")}`}</button>}
+        {shop.code !== g.friendCode && <button className="btn-ghost !px-3 !py-2 text-xs" onClick={() => useUI.setState({ panel: "guestbook" })} data-testid="banner-guestbook">{t("gb.btn")}</button>}
         <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ shop: null, visiting: null, world: "plaza" })}>{t("plaza.toPlaza")}</button>
       </div>
     );

@@ -20,6 +20,8 @@ interface EventsState {
   daily: { date: string; hosted: number; visits: number; owners: string[] };
   /** 보상을 받은 콘테스트 주 */
   contestClaimed: string[];
+  /** 내 방명록을 마지막으로 본 시각 (ISO) */
+  gbSeen: string;
 
   setOpen: (v: boolean) => void;
   markSeen: (ids: string[]) => void;
@@ -31,6 +33,7 @@ interface EventsState {
   eventVisit: (owner: string, id: number, until: number, now?: number) => { coins: number; stars: number } | null;
   /** 지난 주 콘테스트 순위 보상 (주마다 한 번) */
   claimContest: (week: string, reward: { coins: number; gems: number } | null) => boolean;
+  markGuestbook: (at: string) => void;
 }
 
 const day = (d: EventsState["daily"]) => (d.date === today() ? d : { date: today(), hosted: 0, visits: 0, owners: [] });
@@ -38,7 +41,7 @@ const day = (d: EventsState["daily"]) => (d.date === today() ? d : { date: today
 export const useEvents = create<EventsState>()(
   persist(
     (set, get) => ({
-      claimed: [], seen: [], open: true, hosting: null, contestClaimed: [],
+      claimed: [], seen: [], open: true, hosting: null, contestClaimed: [], gbSeen: "",
       daily: { date: today(), hosted: 0, visits: 0, owners: [] },
 
       setOpen: (v) => set({ open: v }),
@@ -65,6 +68,7 @@ export const useEvents = create<EventsState>()(
         return "ok";
       },
       endLoungeEvent: () => set({ hosting: null }),
+      markGuestbook: (at) => set((s) => (at > s.gbSeen ? { gbSeen: at } : {})),
       claimContest: (week, reward) => {
         const s = get();
         if (!reward || !/^\d{4}-W\d{2}$/.test(week) || s.contestClaimed.includes(week)) return false;
@@ -92,7 +96,7 @@ export const useEvents = create<EventsState>()(
         setItem: (k, v) => { try { localStorage.setItem(k, v); } catch { /* 저장 불가 환경 */ } },
         removeItem: (k) => { try { localStorage.removeItem(k); } catch { /* 저장 불가 환경 */ } },
       })),
-      partialize: (s) => ({ claimed: s.claimed, seen: s.seen, open: s.open, hosting: s.hosting, daily: s.daily, contestClaimed: s.contestClaimed }),
+      partialize: (s) => ({ claimed: s.claimed, seen: s.seen, open: s.open, hosting: s.hosting, daily: s.daily, contestClaimed: s.contestClaimed, gbSeen: s.gbSeen }),
     },
   ),
 );

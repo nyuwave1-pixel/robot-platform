@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { ContestTab } from "./Contest";
+import { MyGuestbook, useGuestbookBadge } from "./Guestbook";
 import { LOUNGE_EVENTS, LOUNGE_EVENT_MAP, NOTICES, isActive, isUpcoming, type OfficialEvent } from "../data/events";
 import { activeHosting, loadOfficialEvents, useEvents, useOfficial } from "../store/events";
 import { normCode, useGame } from "../store/game";
@@ -31,8 +32,9 @@ export function useEventBadge() {
   const seen = useEvents((s) => s.seen);
   const claimed = useEvents((s) => s.claimed);
   useEffect(() => { void loadOfficialEvents(); }, []);
+  const book = useGuestbookBadge();
   const now = Date.now();
-  return list.filter((e) => isActive(e, now) && (!seen.includes(e.id) || (e.reward && !claimed.includes(e.id)))).length;
+  return list.filter((e) => isActive(e, now) && (!seen.includes(e.id) || (e.reward && !claimed.includes(e.id)))).length + book;
 }
 
 // ───────────── 장소에 맞는 방 배정 ─────────────
@@ -138,7 +140,7 @@ export async function visitByCode(raw: string): Promise<"ok" | "closed" | "self"
 }
 
 // ───────────── 패널 ─────────────
-export type EvTab = "news" | "contest" | "open" | "mine";
+export type EvTab = "news" | "contest" | "open" | "mine" | "book";
 /** 다른 화면에서 특정 탭으로 열 때 */
 export const useEvTab = create<{ tab: EvTab }>(() => ({ tab: "news" }));
 export function EventsPanel() {
@@ -147,11 +149,12 @@ export function EventsPanel() {
   const setTab = (v: EvTab) => useEvTab.setState({ tab: v });
   return (
     <Sheet title="EVENT & OPEN LOUNGE">
-      <Tabs tabs={[["news", t("ev.tabNews")], ["contest", t("ev.tabContest")], ["open", t("ev.tabOpen")], ["mine", t("ev.tabMine")]]} value={tab} onPick={setTab} />
+      <Tabs tabs={[["news", t("ev.tabNews")], ["contest", t("ev.tabContest")], ["open", t("ev.tabOpen")], ["mine", t("ev.tabMine")], ["book", t("ev.tabBook")]]} value={tab} onPick={setTab} />
       {tab === "news" && <News />}
       {tab === "contest" && <ContestTab />}
       {tab === "open" && <OpenLounges />}
       {tab === "mine" && <MyLounge />}
+      {tab === "book" && <MyGuestbook />}
     </Sheet>
   );
 }

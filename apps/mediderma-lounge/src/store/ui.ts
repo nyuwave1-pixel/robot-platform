@@ -6,7 +6,7 @@ import type { ExpKey } from "../data/game";
 import type { Furniture, Look } from "./game";
 
 export type Screen = "splash" | "intro" | "create" | "game";
-export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank" | "life" | "events";
+export type Panel = null | "character" | "lounge" | "care" | "shop" | "social" | "quests" | "profile" | "settings" | "customers" | "growth" | "pets" | "minigame" | "rank" | "life" | "events" | "guestbook";
 export type GameMode = "explore" | "care" | "edit" | "cinematic" | "photo";
 export type ZoneKey = "shelf" | "device" | "reception" | "vanity" | "photo" | "game" | "garden";
 

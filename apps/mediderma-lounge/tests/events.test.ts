@@ -136,3 +136,21 @@ describe("주간 라운지 꾸미기 콘테스트", async () => {
     expect(e.stage).toBe(5);
   });
 });
+
+describe("라운지 방명록", async () => {
+  const { GB_MESSAGES, GB_STICKERS, cleanNote } = await import("../src/net/guestbook");
+  it("문구·스티커 번호가 서버 범위(문구 0–19, 스티커 0–9) 안이고 겹치지 않는다", () => {
+    expect(new Set(GB_MESSAGES.map((m) => m.id)).size).toBe(GB_MESSAGES.length);
+    expect(GB_MESSAGES.every((m) => m.id >= 0 && m.id <= 19 && m.ko && m.en)).toBe(true);
+    expect(GB_STICKERS.every((s, i) => s.id === i && s.id <= 9 && /^#[0-9a-f]{6}$/i.test(s.color))).toBe(true);
+  });
+  it("서버 값은 아는 형식만 받는다", () => {
+    const ok = cleanNote({ writer: "ABC123", name: "<b>Mina</b>", msg: 3, sticker: 2, at: "2026-11-23T01:00:00Z" });
+    expect(ok?.writer).toBe("ABC123");
+    expect(ok?.name).not.toMatch(/[<>]/);
+    expect(cleanNote({ writer: "bad", msg: 1, sticker: 0, at: "2026-11-23T01:00:00Z" })).toBeNull();
+    expect(cleanNote({ writer: "ABC123", msg: 99, sticker: 0, at: "2026-11-23T01:00:00Z" })).toBeNull();
+    expect(cleanNote({ writer: "ABC123", msg: 1, sticker: 77, at: "2026-11-23T01:00:00Z" })?.sticker).toBe(0);
+    expect(cleanNote(null)).toBeNull();
+  });
+});
