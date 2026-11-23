@@ -44,13 +44,13 @@ function Ring({ value, label, sub }: { value: number | null; label: string; sub:
             <stop offset="1" stopColor="#246f96" />
           </linearGradient>
         </defs>
-        <text x="64" y="64" transform="rotate(90 64 64)" textAnchor="middle" dominantBaseline="central" className="fill-white font-display text-[34px] font-light" data-testid="overall-score" data-value={value ?? ""}>
+        <text x="64" y="64" transform="rotate(90 64 64)" textAnchor="middle" dominantBaseline="central" className="fill-white font-display text-[34px] font-normal" data-testid="overall-score" data-value={value ?? ""}>
           {value === null ? "—" : shown}
         </text>
       </svg>
       <div>
         <p className="text-sm font-semibold">{label}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-silver">{sub}</p>
+        <p className="mt-1 text-xs leading-relaxed text-silver">{sub}</p>
       </div>
     </div>
   );
@@ -61,7 +61,7 @@ function Bar({ name, value, better, hint }: { name: string; value: number | null
     <div>
       <div className="flex items-baseline justify-between gap-2 text-xs">
         <span>{name}</span>
-        <span className="tabular-nums text-silver">{value ?? "—"}<span className="ml-1 text-[10px] text-silver-soft">{hint}</span></span>
+        <span className="tabular-nums text-silver">{value ?? "—"}<span className="ml-1 text-[11px] text-silver-soft">{hint}</span></span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-line">
         {value !== null && <m.div className={`h-full rounded-full ${better ? "bg-gradient-to-r from-scan to-white" : "bg-gradient-to-r from-silver/60 to-amber-300"}`} initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.9, ease: [0.2, 0.75, 0.2, 1] }} />}
@@ -89,7 +89,7 @@ function ZoneDetail({ zone }: { zone: ZoneResult }) {
           {keys.filter((k) => config.enabledMetrics.includes(k)).map((k) => (
             <div key={k}>
               <Bar name={t.metrics[k].name} value={zone[k]} better={HIGHER_IS_BETTER[k]} hint={HIGHER_IS_BETTER[k] ? t.metrics.higherBetter : t.metrics.higherVisible} />
-              <p className="mt-0.5 text-[10px] text-silver-soft">{t.metrics[k].desc}</p>
+              <p className="mt-0.5 text-[11px] text-silver-soft">{t.metrics[k].desc}</p>
             </div>
           ))}
         </div>
@@ -177,9 +177,9 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
             <p className="font-display text-xs tracking-[0.3em] text-scan2">MEDIDERMA SKIN IQ</p>
             <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{t.report.title}</h1>
           </div>
-          <details className="text-[11px] text-silver">
+          <details className="text-xs text-silver">
             <summary className="cursor-pointer text-sm text-silver">{t.report.analysisInfo}</summary>
-                      <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] text-silver">
+                      <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-silver">
             <dt>{t.report.analyzedAt}</dt><dd className="text-white">{dt}</dd>
             <dt>{t.report.imageQuality}</dt><dd className="text-white">{result.imageQuality.score} / 100</dd>
             <dt>{t.report.confidence}</dt><dd className="text-white" data-testid="confidence">{a.confidence !== null ? `${Math.round(a.confidence * 100)}%` : "—"}</dd>
@@ -200,14 +200,14 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
           <div className="rounded-2xl border border-line bg-panel p-5">
             <Ring value={a.overallConditionScore} label={t.report.overall} sub={t.report.overallDesc} />
-            <p className="mt-3 inline-block rounded-full border border-amber-300/40 px-2.5 py-1 text-[10px] text-amber-200">{t.report.indexNote}</p>
+            <p className="mt-3 inline-block rounded-full border border-amber-300/40 px-2.5 py-1 text-[11px] text-amber-200">{t.report.indexNote}</p>
             {a.needsRetake && (
               <div role="alert" className="mt-3 rounded-lg border border-amber-400/50 bg-amber-400/10 p-3 text-xs text-amber-100" data-testid="needs-retake">
                 <p className="font-semibold">{t.quality.needRetake}</p>
                 <p className="mt-1">{t.quality.needRetakeDesc}</p>
               </div>
             )}
-            <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px] text-silver">
+            <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[11px] text-silver">
               {([["frontal", result.imageQuality.frontalScore], ["lighting", result.imageQuality.lightingScore], ["sharpness", result.imageQuality.sharpnessScore], ["resolution", result.imageQuality.resolutionScore]] as const).map(([k, v]) => (
                 <div key={k} className="rounded-lg bg-white/5 py-2">
                   <p className="text-base text-white">{v}</p>
@@ -216,7 +216,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
               ))}
             </div>
             {result.imageQuality.issues.length > 0 && (
-              <ul className="mt-3 space-y-1 text-[11px] text-amber-100/80">
+              <ul className="mt-3 space-y-1 text-xs text-amber-100/80">
                 {result.imageQuality.issues.map((i) => (
                   <li key={i.code}>⚠ {t.quality.issues[i.code]}</li>
                 ))}
@@ -238,14 +238,14 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
           <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="font-display text-2xl font-light">{t.report.mapTitle}</h2>
+                <h2 className="font-display text-2xl font-normal">{t.report.mapTitle}</h2>
                 <div className="flex gap-1 rounded-full border border-line p-0.5 text-xs" data-no-export>
                   <button onClick={() => setView("2d")} className={`rounded-full px-3 py-1 ${view === "2d" ? "bg-white text-black" : "text-silver"}`}>{t.report.view2d}</button>
                   {can3d && <button onClick={() => setView("3d")} data-testid="view-3d" className={`rounded-full px-3 py-1 ${view === "3d" ? "bg-white text-black" : "text-silver"}`}>{t.report.view3d}</button>}
                 </div>
               </div>
               <p className="mt-1 text-xs text-silver">{view === "3d" ? t.report.view3dHint : t.report.mapHint}</p>
-              {!can3d && <p className="mt-1 text-[11px] text-silver-soft" data-no-export>{t.report.fallback2d}</p>}
+              {!can3d && <p className="mt-1 text-xs text-silver-soft" data-no-export>{t.report.fallback2d}</p>}
               <div className="mt-3 overflow-hidden rounded-xl border border-line bg-black">
                 {view === "3d" && can3d ? (
                   <div className="aspect-[4/5] w-full"><Face3D visual={visual} heatmap={heatmap} selected={selected} showZones={showZones} /></div>
@@ -264,7 +264,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
                   {t.report.zonesLayer}
                 </label>
               </div>
-              <p className="mt-2 text-[10px] text-silver-soft">{t.zones.sideNote}</p>
+              <p className="mt-2 text-[11px] text-silver-soft">{t.zones.sideNote}</p>
             </div>
             <div className="space-y-4">
               <div className="rounded-2xl border border-line bg-panel p-5">
@@ -283,10 +283,10 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
                           }}
                           className="flex w-full items-center gap-3 rounded-lg bg-white/5 px-3 py-2 text-left text-sm hover:bg-white/10"
                         >
-                          <span className="font-display text-lg font-light text-scan">{i + 1}</span>
+                          <span className="font-display text-lg font-normal text-scan">{i + 1}</span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate">{t.metrics[c.metric].name}</span>
-                            <span className="block text-[11px] text-silver">{t.zones[c.zone]}</span>
+                            <span className="block text-xs text-silver">{t.zones[c.zone]}</span>
                           </span>
                           <span className="tabular-nums text-silver">{c.severity}</span>
                         </button>
@@ -301,13 +301,13 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
                   {FACE_ZONES.map((z, i) => {
                     const zr = a.zones.find((x) => x.zone === z.id);
                     return (
-                      <button key={z.id} data-testid={`zone-btn-${z.id}`} onClick={() => { setSelected(i); setNeckOpen(false); }} className={`rounded-full border px-2.5 py-1 text-[11px] ${selected === i && !neckOpen ? "border-scan bg-scan/15 text-scan2" : "border-line text-silver"}`}>
+                      <button key={z.id} data-testid={`zone-btn-${z.id}`} onClick={() => { setSelected(i); setNeckOpen(false); }} className={`rounded-full border px-2.5 py-1 text-xs ${selected === i && !neckOpen ? "border-scan bg-scan/15 text-scan2" : "border-line text-silver"}`}>
                         {t.zones[z.id]} {zr?.conditionIndex ?? "—"}
                       </button>
                     );
                   })}
                   {neck && (
-                    <button onClick={() => setNeckOpen(true)} className={`rounded-full border px-2.5 py-1 text-[11px] ${neckOpen ? "border-scan bg-scan/15 text-scan2" : "border-line text-silver"}`}>
+                    <button onClick={() => setNeckOpen(true)} className={`rounded-full border px-2.5 py-1 text-xs ${neckOpen ? "border-scan bg-scan/15 text-scan2" : "border-line text-silver"}`}>
                       {t.zones.neck} {neck.conditionIndex ?? "—"}
                     </button>
                   )}
@@ -323,10 +323,10 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         {/* 사진 기반 vs 설문 기반 · 측정 가능/불가 */}
         <section className="grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-line bg-panel p-4">
-            <h3 className="text-sm font-semibold">{t.report.measurable} <span className="ml-1 rounded bg-scan/15 px-1.5 py-0.5 text-[10px] font-normal text-scan2">{t.report.photoBased}</span></h3>
+            <h3 className="text-sm font-semibold">{t.report.measurable} <span className="ml-1 rounded bg-scan/15 px-1.5 py-0.5 text-[11px] font-normal text-scan2">{t.report.photoBased}</span></h3>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {a.measurable.filter((m) => config.enabledMetrics.includes(m)).map((m) => (
-                <li key={m} className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-silver">{t.metrics[m].name}</li>
+                <li key={m} className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-silver">{t.metrics[m].name}</li>
               ))}
             </ul>
           </div>
@@ -334,7 +334,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
             <h3 className="text-sm font-semibold">{t.report.notMeasurable}</h3>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {a.notMeasurable.map((m) => (
-                <li key={m} className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-silver-soft line-through decoration-silver/30">{t.notMeasurable[m as keyof typeof t.notMeasurable] ?? m}</li>
+                <li key={m} className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-silver-soft line-through decoration-silver/30">{t.notMeasurable[m as keyof typeof t.notMeasurable] ?? m}</li>
               ))}
             </ul>
           </div>
@@ -343,7 +343,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
             {!survey ? (
               <p className="mt-2 text-xs text-silver">{t.report.surveyNone}</p>
             ) : (
-              <ul className="mt-2 space-y-1 text-[11px] text-silver">
+              <ul className="mt-2 space-y-1 text-xs text-silver">
                 {(["dryness", "oiliness", "sensitivity", "tightness", "troubleFrequency"] as const).map((k) => (survey[k] !== null ? <li key={k}>{t.survey.q[k]} — <b className="text-white">{t.survey.levels[survey[k] as number]}</b></li> : null))}
                 {survey.goals.length > 0 && <li>{t.survey.goalsTitle}: <b className="text-white">{survey.goals.map((g) => t.survey.goals[g]).join(", ")}</b></li>}
               </ul>
@@ -362,7 +362,7 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
               <li key={i}>{l}</li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-silver-soft">{t.common.footerDisclaimer}</p>
+          <p className="mt-3 text-xs text-silver-soft">{t.common.footerDisclaimer}</p>
         </section>
       </div>
 
@@ -380,9 +380,9 @@ export default function Report({ data, onRestart }: { data: CurrentAnalysis; onR
         <button onClick={onRestart} data-testid="reanalyze" className="rounded-full border border-silver/40 px-5 py-2.5 text-sm">{t.common.reanalyze}</button>
         <button onClick={() => { wipe(); onRestart(); }} data-testid="delete-now" className="ml-auto rounded-full border border-rose-400/50 px-5 py-2.5 text-sm text-rose-200">{t.report.deleteNow}</button>
       </div>
-      {!consent && visual && <p className="mt-2 text-[11px] text-silver-soft">{t.report.historyNeedConsent} {fmt(t.consent.history, { days: config.retention.historyDays })}</p>}
+      {!consent && visual && <p className="mt-2 text-xs text-silver-soft">{t.report.historyNeedConsent} {fmt(t.consent.history, { days: config.retention.historyDays })}</p>}
       <button onClick={() => setShowJson((v) => !v)} className="mt-4 text-xs text-silver underline underline-offset-4" data-testid="toggle-json">{t.report.json}</button>
-      {showJson && <pre className="mt-2 max-h-96 overflow-auto rounded-lg border border-line bg-black p-3 text-[10px] leading-relaxed text-silver" data-testid="json">{JSON.stringify({ ...result, analysis: { ...a, zones } }, null, 2)}</pre>}
+      {showJson && <pre className="mt-2 max-h-96 overflow-auto rounded-lg border border-line bg-black p-3 text-[11px] leading-relaxed text-silver" data-testid="json">{JSON.stringify({ ...result, analysis: { ...a, zones } }, null, 2)}</pre>}
     </div>
   );
 }

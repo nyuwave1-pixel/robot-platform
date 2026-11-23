@@ -158,7 +158,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                     <span className="block text-xl font-bold">{g.axes[AXES[i].id]}</span>
                     <span className="block text-base text-amber-100/90">{g.levels[level(v)]}</span>
                   </span>
-                  <span className="text-3xl font-light tabular-nums">{v}</span>
+                  <span className="text-3xl font-normal tabular-nums">{v}</span>
                 </li>
               ))}
             </ol>

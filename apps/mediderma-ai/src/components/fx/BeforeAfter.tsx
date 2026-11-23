@@ -93,7 +93,7 @@ export default function BeforeAfter({
         className={`absolute inset-0 h-full w-full object-cover object-top transition-[opacity,transform] duration-700 ease-out ${showAfter ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"}`}
       />
       {/* 전/후 표시: 현재 보이는 쪽이 강조된다 */}
-      <div className="theme-dark pointer-events-none absolute left-3 top-3 flex overflow-hidden rounded-full border border-white/20 bg-ink/60 text-[10px] tracking-wide backdrop-blur">
+      <div className="theme-dark pointer-events-none absolute left-3 top-3 flex overflow-hidden rounded-full border border-white/20 bg-ink/60 text-[11px] tracking-wide backdrop-blur">
         <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "text-white/70" : "bg-white/90 text-ink"}`}>{beforeLabel}</span>
         <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "bg-scan text-ink" : "text-white/70"}`}>{afterLabel}</span>
       </div>

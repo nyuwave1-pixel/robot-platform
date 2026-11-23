@@ -30,7 +30,7 @@ function BigTextToggle({ label }: { label: string }) {
   };
   return (
     <button onClick={flip} aria-pressed={on} title={label} aria-label={`가+ ${label}`} data-testid="big-text" className={`shrink-0 rounded border px-1.5 py-0.5 text-sm font-bold leading-none ${on ? "border-scan bg-scan/20 text-white" : "border-line text-silver"}`}>
-      가<span className="text-[10px]">+</span>
+      가<span className="text-[11px]">+</span>
     </button>
   );
 }

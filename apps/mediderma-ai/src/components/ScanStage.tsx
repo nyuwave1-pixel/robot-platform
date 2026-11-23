@@ -47,7 +47,7 @@ function useMeshPath() {
 }
 
 /** reveal: 실제 분석이 끝나면 넘겨받는 결과 — 스캔 연출 뒤 '분석 완료 연출'(AnalysisReveal)을 보여 준다 */
-export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, reveal = null }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void; reveal?: { visual: VisualData; result: AnalysisResult } | null }) {
+export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, reveal = null, onCancel }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void; reveal?: { visual: VisualData; result: AnalysisResult } | null; onCancel?: () => void }) {
   const { t } = useI18n();
   const s = t.fit.scan;
   const { d, pts } = useMeshPath();
@@ -92,7 +92,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
   const scanY = 50 + 46 * Math.sin(now / 520);
 
   return (
-    <div className="theme-dark relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running">
+    <div className="theme-dark relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running" data-stage={stage}>
       {/* 배경: 홀로그램 스캔 루프 영상 */}
       {videoOk ? (
         <video className="absolute inset-0 h-full w-full object-cover opacity-55" src="/scan/scan-bg.mp4" autoPlay muted loop playsInline onError={() => setVideoOk(false)} aria-hidden />
@@ -102,7 +102,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
       <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/30 via-ink/20 to-ink/90" />
 
       <div className="relative px-5 pb-6 pt-6 text-center">
-        <p className="font-display text-[11px] tracking-[0.35em] text-scan2">AI DEEP SKIN SCAN</p>
+        <p className="font-display text-xs tracking-[0.35em] text-scan2">AI DEEP SKIN SCAN</p>
         <h1 className="mt-2 text-[22px] font-bold [word-break:keep-all] sm:text-2xl">{showReveal ? t.iq.complete : s.title}</h1>
 
         <div className="relative mx-auto mt-6 aspect-[4/5] w-full max-w-[300px]">
@@ -138,7 +138,7 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
               <span key={c} aria-hidden className={`absolute h-6 w-6 border-scan2 ${c}`} />
             ))}
             {/* 실시간 판독 수치(연출) */}
-            <div aria-hidden className="absolute left-3 top-10 space-y-0.5 text-left font-mono text-[9px] leading-tight text-scan2/90">
+            <div aria-hidden className="absolute left-3 top-10 space-y-0.5 text-left font-mono text-[11px] leading-tight text-scan2/90">
               <p>PTS {Math.min(478, Math.floor(progress * 600))}/478</p>
               <p>ZONE {Math.min(13, Math.floor(progress * 16))}/13</p>
               <p>RGB Δ {(0.12 + 0.05 * Math.sin(now / 300)).toFixed(3)}</p>
@@ -159,11 +159,18 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, 
           <ol className="mx-auto mt-4 grid max-w-[16rem] grid-cols-1 gap-y-1.5 text-left text-sm sm:max-w-none sm:grid-cols-2 sm:gap-x-3">
             {s.steps.map((label, i) => (
               <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver-soft"}`}>
-                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? "✓" : ""}</span>
+                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? "✓" : ""}</span>
                 {label}
               </li>
             ))}
           </ol>
+          {/* 20초가 지나도 끝나지 않으면: 상황 안내 + 다시 시도 (60초가 지나면 자동으로 오류 화면으로 넘어간다) */}
+          {!done && now > 20000 && (
+            <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100" role="status" data-testid="scan-slow">
+              <p>{t.iq.slow}</p>
+              {onCancel && <button onClick={onCancel} className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">{t.common.retake}</button>}
+            </div>
+          )}
           <p className="mt-4 text-xs text-silver-soft">🔒 {s.privacy}</p>
         </div>
       </div>

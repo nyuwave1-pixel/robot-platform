@@ -620,7 +620,7 @@ const ja: Dict = {
     disabled: "記録の保存に同意していません。",
     enable: "記録の保存に同意する",
   },
-  iq: {"decoding": "肌データを解析中", "complete": "分析完了", "skip": "タップして結果へ", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析の内訳", "sub": "この結果をつくった実際の測定値です。写真はこの端末の中だけで処理されました。", "landmarks": "顔のランドマーク", "zonesAnalyzed": "分析したエリア", "metricsComputed": "算出した指標", "duration": "分析時間", "sec": "秒", "capture": "撮影条件", "pose": "顔の角度", "yaw": "左右の向き", "pitch": "上下の傾き", "roll": "左右の傾き", "faceSize": "顔の幅", "imageSize": "元の解像度", "zoneConf": "エリア別の信頼度", "excluded": "除外したエリア", "none": "なし", "ideal": "正面 = 0°"},
+  iq: {"slow": "いつもより時間がかかっています。もう少し待つか、もう一度お試しください。", "decoding": "肌データを解析中", "complete": "分析完了", "skip": "タップして結果へ", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析の内訳", "sub": "この結果をつくった実際の測定値です。写真はこの端末の中だけで処理されました。", "landmarks": "顔のランドマーク", "zonesAnalyzed": "分析したエリア", "metricsComputed": "算出した指標", "duration": "分析時間", "sec": "秒", "capture": "撮影条件", "pose": "顔の角度", "yaw": "左右の向き", "pitch": "上下の傾き", "roll": "左右の傾き", "faceSize": "顔の幅", "imageSize": "元の解像度", "zoneConf": "エリア別の信頼度", "excluded": "除外したエリア", "none": "なし", "ideal": "正面 = 0°"},
   privacy: {
     title: "個人情報の取り扱いについて",
     updated: "施行日：2026-11-13",

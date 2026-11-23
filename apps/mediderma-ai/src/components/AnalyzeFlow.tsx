@@ -33,7 +33,7 @@ function ReportProblem({ context }: { context: string }) {
       <button onClick={() => setOpen((v) => !v)} className="text-xs text-silver underline underline-offset-4" data-testid="report-problem">{t.errors.reportTitle}</button>
       {open && (
         <div className="mt-2 rounded-xl border border-line bg-panel p-3">
-          <p className="text-[11px] text-silver">{t.errors.reportDesc}</p>
+          <p className="text-xs text-silver">{t.errors.reportDesc}</p>
           <textarea value={msg} onChange={(e) => setMsg(e.target.value.slice(0, 1000))} placeholder={t.errors.reportPlaceholder} rows={3} className="mt-2 w-full rounded-lg border border-line bg-black p-2 text-sm focus:outline-none focus:ring-1 focus:ring-scan" />
           <button
             disabled={msg.trim().length < 3}
@@ -67,6 +67,8 @@ export default function AnalyzeFlow() {
   const visualFinished = useRef(false);
   const [reveal, setReveal] = useState<{ visual: VisualData; result: AnalysisResult } | null>(null);
   const startedAt = useRef(0);
+  /** 사용자가 기다리다 취소하면 늦게 끝난 분석 결과는 버린다 */
+  const cancelled = useRef(false);
   const durationMs = useRef<number | null>(null);
   // 단계가 바뀌면 화면 맨 위(단계 표시·제목)부터 보이게
   useEffect(() => {
@@ -91,6 +93,7 @@ export default function AnalyzeFlow() {
       visualFinished.current = false;
       visualDone.current = null;
       setReveal(null);
+      cancelled.current = false;
       setStep("running");
       setStage("loading_model");
       setErrorCode(null);
@@ -103,6 +106,7 @@ export default function AnalyzeFlow() {
         startedAt.current = performance.now();
         const out = await runFaceAnalysis(file, sessionId, config, setStage);
         durationMs.current = performance.now() - startedAt.current;
+        if (cancelled.current) return;
         setQuality(out.result.imageQuality);
         if (!out.result.imageQuality.passed || !out.visual) {
           const first = out.result.imageQuality.issues.find((i) => i.severity === "blocker");
@@ -123,8 +127,9 @@ export default function AnalyzeFlow() {
         });
         setStep("survey");
       } catch (e) {
+        if (cancelled.current) return;
         const code = e instanceof AnalysisError ? e.code : "analysisFailed";
-        track("analysis_failed", { reason: code });
+        track("analysis_failed", { reason: e instanceof AnalysisError && e.detail ? `${code}:${e.detail}` : code });
         setErrorCode(code);
         setStep("error");
       }
@@ -294,7 +299,7 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
-          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} reveal={reveal} />}
+          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} reveal={reveal} onCancel={() => { cancelled.current = true; setStep("capture"); }} />}
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">

@@ -44,9 +44,9 @@ function Login({ enabled }: { enabled: boolean }) {
 function Kpi({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className={card}>
-      <p className="text-[11px] text-silver">{label}</p>
-      <p className="mt-1 font-display text-2xl font-light">{value}</p>
-      {sub && <p className="text-[10px] text-silver-soft">{sub}</p>}
+      <p className="text-xs text-silver">{label}</p>
+      <p className="mt-1 font-display text-2xl font-normal">{value}</p>
+      {sub && <p className="text-[11px] text-silver-soft">{sub}</p>}
     </div>
   );
 }
@@ -83,13 +83,13 @@ function Funnel({ rows }: { rows: Stats["funnel"] }) {
   return (
     <div className={card} data-testid="admin-funnel">
       <h3 className="text-sm font-semibold">이용 흐름 (세션 기준)</h3>
-      <p className="mt-0.5 text-[11px] text-silver">각 단계까지 온 세션 수입니다. 괄호는 직전 단계 대비 비율, 오른쪽은 방문 대비 비율입니다.</p>
+      <p className="mt-0.5 text-xs text-silver">각 단계까지 온 세션 수입니다. 괄호는 직전 단계 대비 비율, 오른쪽은 방문 대비 비율입니다.</p>
       <ol className="mt-3 space-y-1.5">
         {rows.map((r) => (
           <li key={r.step} className="grid grid-cols-[9.5rem_1fr_6.5rem] items-center gap-2 text-xs max-sm:grid-cols-[7rem_1fr_5rem]">
             <span className="truncate">{STEP[r.step] ?? r.step}</span>
             <div className="h-5 rounded bg-line/60">
-              <div className="flex h-full items-center rounded bg-scan/70 px-1.5 text-[10px] font-semibold text-abyss" style={{ width: `${Math.max(4, (r.sessions / max) * 100)}%` }}>{r.sessions}</div>
+              <div className="flex h-full items-center rounded bg-scan/70 px-1.5 text-[11px] font-semibold text-abyss" style={{ width: `${Math.max(4, (r.sessions / max) * 100)}%` }}>{r.sessions}</div>
             </div>
             <span className="text-right tabular-nums text-silver">{r.fromPrev === null ? "" : `(${r.fromPrev ?? "—"}%) `}{r.fromVisit ?? "—"}%</span>
           </li>
@@ -200,7 +200,7 @@ function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-silver-soft">ZZ = 국가 정보 없음(로컬·CDN 헤더 없음). 언어: {s.locales.map((l) => `${l.key} ${l.count}`).join(" · ")}</p>
+          <p className="text-[11px] text-silver-soft">ZZ = 국가 정보 없음(로컬·CDN 헤더 없음). 언어: {s.locales.map((l) => `${l.key} ${l.count}`).join(" · ")}</p>
         </div>
       </div>
     </div>
@@ -246,16 +246,16 @@ function Settings({ tab }: { tab: Tab }) {
           <label className="mt-3 block text-xs text-silver">보정(캘리브레이션) 버전 — 점수 기준을 바꾸면 버전도 올리세요. 리포트의 '분석 모델 버전'에 표시됩니다.
             <input value={cal.version} onChange={(e) => setCal({ version: e.target.value })} className={input} data-testid="cal-version" />
           </label>
-          <p className="mt-2 text-[11px] text-silver-soft">변경 이력: {history.slice(-5).map((h) => `${h.ts.slice(0, 16)} ${h.calibration}`).join(" → ") || "없음"}</p>
+          <p className="mt-2 text-xs text-silver-soft">변경 이력: {history.slice(-5).map((h) => `${h.ts.slice(0, 16)} ${h.calibration}`).join(" → ") || "없음"}</p>
         </div>
         <div className={card} data-testid="admin-gemini">
           <h3 className="text-sm font-semibold">Gemini AI 해설 (외부 Vision AI · 선택 기능)</h3>
-          <p className="mt-1 text-[11px] leading-relaxed text-silver">켜면 리포트에 'Gemini AI 해설' 영역이 생기고, 이용자가 그 자리에서 따로 동의한 경우에만 축소된 얼굴 사진이 Google Gemini API로 전송됩니다. 점수는 바뀌지 않습니다.</p>
+          <p className="mt-1 text-xs leading-relaxed text-silver">켜면 리포트에 'Gemini AI 해설' 영역이 생기고, 이용자가 그 자리에서 따로 동의한 경우에만 축소된 얼굴 사진이 Google Gemini API로 전송됩니다. 점수는 바뀌지 않습니다.</p>
           <dl className="mt-2 grid grid-cols-[140px_1fr] gap-y-1 text-xs text-silver">
             <dt>서버 API 키</dt><dd className={gemini.key ? "text-emerald-300" : "text-amber-200"}>{gemini.key ? "설정됨 (GEMINI_API_KEY)" : "없음 — 서버 환경변수 GEMINI_API_KEY 를 설정하세요"}</dd>
             <dt>모델</dt><dd className="text-white">{gemini.model} (GEMINI_MODEL 로 변경)</dd>
           </dl>
-          <p role="note" className="mt-2 rounded-lg border border-amber-400/40 bg-amber-400/10 p-2 text-[11px] leading-relaxed text-amber-100">
+          <p role="note" className="mt-2 rounded-lg border border-amber-400/40 bg-amber-400/10 p-2 text-xs leading-relaxed text-amber-100">
             Google 약관상 <b>무료 등급 키</b>로 보낸 내용은 Google이 제품 개선에 사용하고 사람이 검토할 수 있으며, 개인정보를 보내지 말라고 명시되어 있습니다. 얼굴 사진을 보내려면 반드시 <b>결제가 연결된 유료 등급 키</b>를 사용하세요. 국외 이전 고지·처리위탁 등 법무 검토도 필요합니다.
           </p>
           <label className="mt-2 flex items-center gap-2 text-xs"><input type="checkbox" data-testid="gemini-paid" checked={cfg.aiInsight.paidTierConfirmed} onChange={(e) => setCfg({ ...cfg, aiInsight: { ...cfg.aiInsight, paidTierConfirmed: e.target.checked } })} /> 사용 중인 키가 유료 등급(결제 연결)임을 확인했습니다</label>
@@ -263,7 +263,7 @@ function Settings({ tab }: { tab: Tab }) {
         </div>
         <div className={card}>
           <h3 className="text-sm font-semibold">분석 항목 관리</h3>
-          <p className="text-[11px] text-silver">끄면 리포트에서 해당 지표가 표시되지 않습니다.</p>
+          <p className="text-xs text-silver">끄면 리포트에서 해당 지표가 표시되지 않습니다.</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {defaults.enabledMetrics.map((m) => (
               <label key={m} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs">
@@ -275,7 +275,7 @@ function Settings({ tab }: { tab: Tab }) {
         </div>
         <div className={card}>
           <h3 className="text-sm font-semibold">피부 분석 점수 기준 (원시값 → 0~100 지수)</h3>
-          <p className="text-[11px] text-amber-200/80">엔지니어링 보정값입니다. 임상 검증된 기준이 아닙니다. lo 이하 = 0, hi 이상 = 100.</p>
+          <p className="text-xs text-amber-200/80">엔지니어링 보정값입니다. 임상 검증된 기준이 아닙니다. lo 이하 = 0, hi 이상 = 100.</p>
           <table className="mt-2 w-full text-xs">
             <thead><tr className="text-left text-silver"><th className="py-1">지표</th><th>lo</th><th>hi</th><th className="text-silver-soft">기본값</th></tr></thead>
             <tbody>
@@ -313,7 +313,7 @@ function Settings({ tab }: { tab: Tab }) {
       <div className="space-y-4">
         <div className={card}>
           <h3 className="text-sm font-semibold">더마홈 케어 가이드 관리</h3>
-          <p className="text-[11px] text-silver">루틴 내용(시간·순서·제품)은 공식 CARE GUIDE 를 따르며 코드(지식베이스)에서 관리합니다. 여기서는 추천 대상 여부만 켜고 끕니다.</p>
+          <p className="text-xs text-silver">루틴 내용(시간·순서·제품)은 공식 CARE GUIDE 를 따르며 코드(지식베이스)에서 관리합니다. 여기서는 추천 대상 여부만 켜고 끕니다.</p>
           <div className="mt-2 space-y-1.5">
             {(Object.keys(cfg.routinesEnabled) as (keyof typeof cfg.routinesEnabled)[]).map((r) => (
               <label key={r} className="flex items-center gap-2 text-xs">
@@ -325,7 +325,7 @@ function Settings({ tab }: { tab: Tab }) {
         </div>
         <div className={card}>
           <h3 className="text-sm font-semibold">추천 상품 관리</h3>
-          <p className="text-[11px] text-silver">URL 은 unincore.com 도메인만 허용됩니다.</p>
+          <p className="text-xs text-silver">URL 은 unincore.com 도메인만 허용됩니다.</p>
           <div className="mt-2 space-y-2">
             {(Object.keys(cfg.products) as (keyof typeof cfg.products)[]).map((p) => (
               <div key={p} className="grid grid-cols-[auto_180px_1fr] items-center gap-2 text-xs">
@@ -343,7 +343,7 @@ function Settings({ tab }: { tab: Tab }) {
         <div className={card}>
           <h3 className="text-sm font-semibold">추천 알고리즘 관리</h3>
           <label className="mt-2 block max-w-xs text-xs text-silver">관찰값을 '고민'으로 보는 기준 지수 (10~90){num(cfg.recommendation.noticeThreshold, (n) => setCfg({ ...cfg, recommendation: { noticeThreshold: n } }), "1")}</label>
-          <p className="mt-1 text-[11px] text-silver-soft">낮출수록 더 많은 기능·부위가 추천 근거로 잡힙니다. 민감·붉은 기 우선(진정 버전) 규칙은 안전 규칙이라 변경할 수 없습니다.</p>
+          <p className="mt-1 text-xs text-silver-soft">낮출수록 더 많은 기능·부위가 추천 근거로 잡힙니다. 민감·붉은 기 우선(진정 버전) 규칙은 안전 규칙이라 변경할 수 없습니다.</p>
         </div>
         <SaveBar />
       </div>
@@ -353,7 +353,7 @@ function Settings({ tab }: { tab: Tab }) {
     <div className="space-y-4">
       <div className={card}>
         <h3 className="text-sm font-semibold">다국어 관리</h3>
-        <p className="text-[11px] text-silver">번역 문구는 리소스 파일(src/lib/i18n/locales)에서 관리합니다. 여기서는 노출 언어를 선택합니다. 한국어는 항상 켜져 있습니다.</p>
+        <p className="text-xs text-silver">번역 문구는 리소스 파일(src/lib/i18n/locales)에서 관리합니다. 여기서는 노출 언어를 선택합니다. 한국어는 항상 켜져 있습니다.</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {LOCALES.map((l) => (
             <label key={l} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs">
@@ -369,7 +369,7 @@ function Settings({ tab }: { tab: Tab }) {
           <label>비회원 세션 만료(분){num(cfg.retention.sessionMinutes, (n) => setCfg({ ...cfg, retention: { ...cfg.retention, sessionMinutes: n } }), "1")}</label>
           <label>기기 내 기록 보관(일){num(cfg.retention.historyDays, (n) => setCfg({ ...cfg, retention: { ...cfg.retention, historyDays: n } }), "1")}</label>
         </div>
-        <p className="mt-2 text-[11px] text-silver-soft">얼굴 사진은 서버에 저장되지 않습니다(기기 내 처리). 서버에는 익명 이벤트와 텍스트 신고만 있습니다.</p>
+        <p className="mt-2 text-xs text-silver-soft">얼굴 사진은 서버에 저장되지 않습니다(기기 내 처리). 서버에는 익명 이벤트와 텍스트 신고만 있습니다.</p>
         <button
           onClick={async () => { const d = prompt("며칠보다 오래된 익명 이벤트·신고를 삭제할까요?", "365"); if (!d) return; const r = await fetch(`/api/admin/config?olderThanDays=${Number(d)}`, { method: "DELETE" }); setMsg(`삭제된 항목: ${(await r.json()).removed}`); }}
           className="mt-3 rounded-full border border-rose-400/50 px-4 py-1.5 text-xs text-rose-200"
@@ -413,7 +413,7 @@ function Logs() {
     <div className={card} data-testid="admin-logs">
       <h3 className="text-sm font-semibold">분석 로그 (최근 7일 · 최대 300건 · 익명)</h3>
       <div className="mt-2 max-h-[60vh] overflow-auto">
-        <table className="w-full text-[11px]">
+        <table className="w-full text-xs">
           <thead className="text-left text-silver"><tr><th className="py-1">시각(UTC)</th><th>이벤트</th><th>세션</th><th>국가</th><th>언어</th><th>속성</th></tr></thead>
           <tbody>
             {rows.map((e) => (

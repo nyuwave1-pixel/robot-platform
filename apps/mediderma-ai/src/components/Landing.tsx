@@ -163,7 +163,7 @@ export default function Landing() {
         <div aria-hidden className="grid-floor pointer-events-none absolute inset-x-0 bottom-0 h-64 opacity-60" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-4 pb-12 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
           <div className="order-2 lg:order-1">
-            <m.p initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1 }} className="text-[10px] tracking-[0.3em] text-scan2 sm:text-xs">
+            <m.p initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1.1 }} className="text-[11px] tracking-[0.3em] text-scan2 sm:text-xs">
               {t.landing.eyebrow}
             </m.p>
             {/* 실제 헤딩(스크린리더·검색엔진용). 3D 타이틀이 준비되면 시각적으로만 대체한다 */}
@@ -171,7 +171,7 @@ export default function Landing() {
             {use3d ? (
               <div className="relative -ml-1 mt-2 aspect-[2.35/1] w-full max-w-[640px]">
                 {!titleReady && (
-                  <div aria-hidden className="absolute inset-0 flex flex-col justify-center font-display text-5xl font-light leading-[0.95] tracking-tight text-white/30 sm:text-7xl">
+                  <div aria-hidden className="absolute inset-0 flex flex-col justify-center font-display text-5xl font-normal leading-[0.95] tracking-tight text-white/30 sm:text-7xl">
                     <span>{t.landing.title1}</span>
                     <span className="font-semibold">{t.landing.title2}</span>
                   </div>
@@ -180,7 +180,7 @@ export default function Landing() {
               </div>
             ) : (
               <div className="mt-3" aria-hidden>
-                <DepthText as="p" text={t.landing.title1} size="xl" accent="none" className="!font-light" />
+                <DepthText as="p" text={t.landing.title1} size="xl" accent="none" className="" />
                 <DepthText as="p" text={t.landing.title2} size="xl" accent="all" />
               </div>
             )}
@@ -197,7 +197,7 @@ export default function Landing() {
             </p>
             <m.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
               <p className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">{t.landing.tagline}</p>
-              <p className="mt-3 text-[11px] tracking-[0.2em] text-silver-soft">{t.common.slogan}</p>
+              <p className="mt-3 text-xs tracking-[0.2em] text-silver-soft">{t.common.slogan}</p>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-silver">{t.landing.desc}</p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 <Magnetic>
@@ -231,7 +231,7 @@ export default function Landing() {
         </div>
         {/* 키워드 마키 */}
         <div aria-hidden className="relative border-y border-line/70 bg-panel/40 py-3 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
-          <div className="marquee-track gap-10 font-display text-[11px] tracking-[0.35em] text-silver-soft">
+          <div className="marquee-track gap-10 font-display text-xs tracking-[0.35em] text-silver-soft">
             {[...KEYWORDS, ...KEYWORDS, ...KEYWORDS, ...KEYWORDS].map((k, i) => (
               <span key={i} className="flex items-center gap-10 whitespace-nowrap">
                 {k}
@@ -271,7 +271,7 @@ export default function Landing() {
                     onPointerLeave={() => setZone(null)}
                     className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${on ? "border-scan bg-scan/15 shadow-glow" : "border-line bg-panel"}`}
                   >
-                    <span className="font-display text-[10px] text-scan2">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-display text-[11px] text-scan2">{String(i + 1).padStart(2, "0")}</span>
                     <span>{t.zones[id]}</span>
                   </m.li>
                 );
@@ -313,11 +313,11 @@ export default function Landing() {
               >
                 <BeforeAfter before={before} after={after} beforeLabel={t.landing.galleryBefore} afterLabel={t.landing.galleryAfter} alt="UNI&CORE DERMA HOME" phase={i * 0.8} animate={!reduce} />
                 <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/85 to-transparent" />
-                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[10px] tracking-[0.3em] text-white">DERMA HOME · 0{i + 1}</figcaption>
+                <figcaption className="pointer-events-none absolute bottom-3 left-4 font-display text-[11px] tracking-[0.3em] text-white">DERMA HOME · 0{i + 1}</figcaption>
               </m.figure>
             ))}
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-silver-soft" data-testid="gallery-note">{t.landing.galleryNote}</p>
+          <p className="mt-3 text-xs leading-relaxed text-silver-soft" data-testid="gallery-note">{t.landing.galleryNote}</p>
         </div>
       </section>
       </LazyHydrate>

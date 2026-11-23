@@ -71,7 +71,7 @@ function Dial({ label, deg, on }: { label: string; deg: number; on: boolean }) {
         <circle cx="32" cy="36" r="3" fill="rgb(var(--c-brand))" />
       </svg>
       <p className="text-sm font-semibold tabular-nums">{deg > 0 ? "+" : ""}{deg.toFixed(1)}°</p>
-      <p className="text-[11px] text-silver">{label}</p>
+      <p className="text-xs text-silver">{label}</p>
     </div>
   );
 }
@@ -103,7 +103,7 @@ export default function AnalysisDetails({ result, visual, durationMs }: { result
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((k) => (
           <div key={k.label} className="rounded-xl border border-line bg-ink/40 p-4">
-            <p className="font-display text-3xl font-light tabular-nums text-brand sm:text-4xl">{k.node}</p>
+            <p className="font-display text-3xl font-normal tabular-nums text-brand sm:text-4xl">{k.node}</p>
             <p className="mt-1 text-xs text-silver">{k.label}</p>
           </div>
         ))}
@@ -132,14 +132,14 @@ export default function AnalysisDetails({ result, visual, durationMs }: { result
               <Dial label={iq.pitch} deg={iqd.pose.pitch} on={on} />
               <Dial label={iq.roll} deg={iqd.pose.roll} on={on} />
             </div>
-            <p className="mt-2 text-center text-[11px] text-silver">{iq.ideal}</p>
+            <p className="mt-2 text-center text-xs text-silver">{iq.ideal}</p>
           </div>
         )}
         <div>
           <h3 className="text-sm font-semibold">{iq.zoneConf}</h3>
           <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 min-[440px]:grid-cols-2">
             {faceZones.map((z, i) => (
-              <li key={z.zone} className="text-[11px]">
+              <li key={z.zone} className="text-xs">
                 <div className="flex items-start justify-between gap-2"><span className="leading-snug text-silver">{t.zones[z.zone]}</span><span className="shrink-0 tabular-nums">{z.confidence === null ? "—" : `${Math.round(z.confidence * 100)}%`}</span></div>
                 <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-line">
                   <div className="h-full rounded-full bg-brand transition-[width] duration-700 ease-out" style={{ width: on && z.confidence !== null ? `${z.confidence * 100}%` : "0%", transitionDelay: `${i * 45}ms` }} />
@@ -147,7 +147,7 @@ export default function AnalysisDetails({ result, visual, durationMs }: { result
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-silver">
+          <p className="mt-3 text-xs text-silver">
             {iq.excluded}: {excluded.length ? excluded.map((z) => t.zones[z.zone]).join(", ") : iq.none}
           </p>
         </div>

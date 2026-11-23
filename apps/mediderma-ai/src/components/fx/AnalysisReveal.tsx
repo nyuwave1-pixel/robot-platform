@@ -168,7 +168,7 @@ export default function AnalysisReveal({ visual, result, onDone }: { visual: Vis
       <div className="absolute" style={fit ?? { inset: 0 }}>
       <canvas ref={canvasRef} width={visual.width} height={visual.height} className="absolute inset-0 h-full w-full" />
       {/* 실측 카운터 */}
-      <div className="pointer-events-none absolute left-3 top-3 space-y-0.5 font-mono text-[10px] leading-tight text-scan2">
+      <div className="pointer-events-none absolute left-3 top-3 space-y-0.5 font-mono text-[11px] leading-tight text-scan2">
         <p>{t.iq.points} {shownPts}/{nPoints}</p>
         <p>{t.iq.zones} {zonesLit}/{FACE_ZONES.length}</p>
         {phase === 2 && <p>{t.iq.metrics} {metricsComputed}</p>}
@@ -177,7 +177,7 @@ export default function AnalysisReveal({ visual, result, onDone }: { visual: Vis
       {cur && (
         <span
           key={cur.id}
-          className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/40 bg-ink/75 px-2.5 py-1 text-[11px] font-semibold text-white shadow-glow backdrop-blur [animation:menu-in_.25s_ease-out]"
+          className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/40 bg-ink/75 px-2.5 py-1 text-xs font-semibold text-white shadow-glow backdrop-blur [animation:menu-in_.25s_ease-out]"
           style={{ left: `${cur.cx * 100}%`, top: `${cur.cy * 100}%` }}
         >
           {t.zones[cur.id]} <span className="tabular-nums text-scan2">{cur.value ?? "—"}</span>
@@ -197,12 +197,12 @@ export default function AnalysisReveal({ visual, result, onDone }: { visual: Vis
               </linearGradient>
             </defs>
           </svg>
-          <p className="relative font-brand text-[11px] font-extrabold tracking-[0.3em] text-scan2">{t.iq.scoreLabel}</p>
-          <p className="relative font-display text-6xl font-light tabular-nums text-white [text-shadow:0_0_30px_rgba(120,182,236,0.7)]" data-testid="reveal-score">{shownScore ?? "—"}</p>
+          <p className="relative font-brand text-xs font-extrabold tracking-[0.3em] text-scan2">{t.iq.scoreLabel}</p>
+          <p className="relative font-display text-6xl font-normal tabular-nums text-white [text-shadow:0_0_30px_rgba(120,182,236,0.7)]" data-testid="reveal-score">{shownScore ?? "—"}</p>
           <p className="relative mt-1 text-xs text-silver">{t.iq.zonesAnalyzed} {zonesAnalyzed}/{FACE_ZONES.length}</p>
         </div>
       )}
-      <p className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] text-silver">{t.iq.skip}</p>
+      <p className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[11px] text-silver">{t.iq.skip}</p>
     </button>
   );
 }

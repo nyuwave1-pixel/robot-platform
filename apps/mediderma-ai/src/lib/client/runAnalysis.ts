@@ -1,15 +1,19 @@
 "use client";
-import { blobToCanvas } from "../analysis/detect";
+import { blobToCanvas, resetLandmarker } from "../analysis/detect";
 import { analyzeNeck } from "../analysis/neck";
 import { getProvider, type ProgressStage, type ProviderOutput } from "../analysis/provider";
 import type { ZoneResult } from "../analysis/types";
 import type { AppConfig } from "../appConfig";
 
 export class AnalysisError extends Error {
-  constructor(public code: "decodeFailed" | "modelLoadFailed" | "analysisFailed") {
+  /** detail: 통계용 짧은 원인 (예: "timeout:analyzing") */
+  constructor(public code: "decodeFailed" | "modelLoadFailed" | "analysisFailed", public detail?: string) {
     super(code);
   }
 }
+
+/** 분석 전체 제한 시간 — 넘기면 진행 화면에 멈춰 있지 않고 다시 시도 화면으로 보낸다 */
+const ANALYSIS_TIMEOUT_MS = 60_000;
 
 /** 파일 1장 → Provider 분석. 오류는 사용자에게 보여줄 코드로 정규화한다. */
 export async function runFaceAnalysis(file: Blob, sessionId: string, config: AppConfig, onProgress?: (s: ProgressStage) => void): Promise<ProviderOutput> {
@@ -23,7 +27,25 @@ export async function runFaceAnalysis(file: Blob, sessionId: string, config: App
     const provider = await getProvider(config.provider.id);
     // 이미지를 기기 밖으로 보내는 Provider 는 별도 동의 플로우가 구현되기 전까지 실행하지 않는다
     if (provider.transmitsImage) throw new AnalysisError("analysisFailed");
-    return await provider.analyze({ canvas, sessionId, calibration: config.calibration }, onProgress);
+    let last: ProgressStage = "loading_model";
+    const track = (s: ProgressStage) => {
+      last = s;
+      onProgress?.(s);
+    };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        provider.analyze({ canvas, sessionId, calibration: config.calibration }, track),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => {
+            if (last === "loading_model") resetLandmarker();
+            reject(new AnalysisError(last === "loading_model" ? "modelLoadFailed" : "analysisFailed", `timeout:${last}`));
+          }, ANALYSIS_TIMEOUT_MS);
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
   } catch (e) {
     if (e instanceof AnalysisError) throw e;
     const msg = String((e as Error)?.message ?? e);

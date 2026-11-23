@@ -29,7 +29,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className="bg-ink text-white antialiased">
+      <body className="bg-ink text-white">
         <Providers>
           <Shell>{children}</Shell>
         </Providers>

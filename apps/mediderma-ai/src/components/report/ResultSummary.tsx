@@ -80,7 +80,7 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
           {score !== null && <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#hg)" strokeWidth="14" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={len * (1 - frac)} />}
         </svg>
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-          <p className="font-display text-5xl font-light tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
+          <p className="font-display text-5xl font-normal tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
             {score === null ? "—" : shown}
             <span className="ml-1 text-lg text-silver">/100</span>
           </p>

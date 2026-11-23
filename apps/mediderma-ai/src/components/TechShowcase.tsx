@@ -39,14 +39,14 @@ function Device({ active, label, note, alt }: { active: number; label: string; n
             <m.img key={s.head} src={s.head} alt={alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-3" initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6, ease: EASE }} />
           </AnimatePresence>
         </div>
-        <figcaption className="border-t border-black/5 px-3 py-2 text-[10px] leading-tight text-[#20252b] sm:flex sm:items-center sm:justify-between sm:gap-2">
+        <figcaption className="border-t border-black/5 px-3 py-2 text-[11px] leading-tight text-[#20252b] sm:flex sm:items-center sm:justify-between sm:gap-2">
           <span className="block font-display font-semibold tracking-[0.18em] max-sm:hidden">DERMA-HOME</span>
           <span className="block text-[#4f5964]">{note}</span>
         </figcaption>
       </m.figure>
       <ul className="mt-2 flex justify-center gap-1.5 sm:mt-3" aria-label={label}>
         {SCENES.map((x, i) => (
-          <li key={x.id} className={`rounded-full px-2.5 py-1 font-display text-[10px] tracking-[0.2em] transition-colors duration-500 ${i === active ? "bg-white text-[#101318]" : "border border-white/15 text-white/45"}`}>
+          <li key={x.id} className={`rounded-full px-2.5 py-1 font-display text-[11px] tracking-[0.2em] transition-colors duration-500 ${i === active ? "bg-white text-[#101318]" : "border border-white/15 text-white/45"}`}>
             {x.short}
           </li>
         ))}
@@ -61,7 +61,7 @@ function Copy({ index }: { index: number }) {
   const c = t.care.tech[s.id];
   return (
     <div>
-      <p className="font-display text-[11px] tracking-[0.35em]" style={{ color: s.accent }}>
+      <p className="font-display text-xs tracking-[0.35em]" style={{ color: s.accent }}>
         0{index + 1} / 03 · {c.en}
       </p>
       <h3 className="mt-1.5 font-display text-[clamp(1.7rem,6.4vw,4.2rem)] font-semibold leading-[1.05] tracking-tight text-white">{c.name}</h3>
@@ -121,7 +121,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
 
   const heading = (
     <div>
-      <p className="text-[10px] tracking-[0.25em] text-[#aeb7c0]">{t.landing.oneDevice}</p>
+      <p className="text-[11px] tracking-[0.25em] text-[#aeb7c0]">{t.landing.oneDevice}</p>
       <h2 className="mt-1 whitespace-nowrap font-display text-[13px] font-semibold tracking-[0.1em] text-white min-[400px]:text-sm sm:text-xl sm:tracking-[0.14em]">{t.landing.techTitle}</h2>
     </div>
   );
@@ -142,7 +142,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-[11px] text-silver-soft">{t.landing.techVisualNote}</p>
+          <p className="mt-6 text-xs text-silver-soft">{t.landing.techVisualNote}</p>
         </div>
       </section>
     );
@@ -199,7 +199,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
             <div className="h-px w-full bg-white/10">
               <m.div className="h-px origin-left bg-gradient-to-r from-[#6caed0] via-white to-[#c7e8f2]" style={{ scaleX: railScale }} />
             </div>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[10px] text-[#aeb7c0]/80 max-md:hidden">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px] text-[#aeb7c0]/80 max-md:hidden">
               <span>{t.landing.techVisualNote}</span>
               <a className="underline underline-offset-2 hover:text-white" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">
                 dermahome.unincore.com ↗
@@ -209,7 +209,7 @@ export default function TechShowcase({ webgl }: { webgl: boolean }) {
         </div>
       </div>
     </section>
-    <p className="theme-dark border-b border-line/70 bg-[#101318] px-4 py-3 text-[11px] leading-relaxed text-[#aeb7c0]/80 md:hidden" data-testid="tech-note-mobile">
+    <p className="theme-dark border-b border-line/70 bg-[#101318] px-4 py-3 text-xs leading-relaxed text-[#aeb7c0]/80 md:hidden" data-testid="tech-note-mobile">
       {t.landing.techVisualNote}{" "}
       <a className="underline underline-offset-2" href="https://dermahome.unincore.com/" target="_blank" rel="noopener noreferrer">
         dermahome.unincore.com ↗

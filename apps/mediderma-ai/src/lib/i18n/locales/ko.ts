@@ -623,7 +623,7 @@ const ko = {
     disabled: "기록 보관에 동의하지 않았습니다.",
     enable: "기록 보관 동의",
   },
-  iq: {"decoding": "피부 데이터 해독 중", "complete": "분석 완료", "skip": "탭하면 결과로 넘어갑니다", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "분석 내역", "sub": "이 결과를 만든 실제 측정값입니다. 사진은 내 기기 안에서만 처리됐습니다.", "landmarks": "얼굴 랜드마크", "zonesAnalyzed": "분석된 영역", "metricsComputed": "계산된 지표", "duration": "분석 시간", "sec": "초", "capture": "촬영 조건", "pose": "얼굴 각도", "yaw": "좌우 회전", "pitch": "상하 기울기", "roll": "좌우 기울기", "faceSize": "얼굴 폭", "imageSize": "원본 해상도", "zoneConf": "영역별 신뢰도", "excluded": "제외된 영역", "none": "없음", "ideal": "정면 기준 0°"},
+  iq: {"slow": "평소보다 오래 걸리고 있어요. 잠시 더 기다리거나 다시 시도해 주세요.", "decoding": "피부 데이터 해독 중", "complete": "분석 완료", "skip": "탭하면 결과로 넘어갑니다", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "분석 내역", "sub": "이 결과를 만든 실제 측정값입니다. 사진은 내 기기 안에서만 처리됐습니다.", "landmarks": "얼굴 랜드마크", "zonesAnalyzed": "분석된 영역", "metricsComputed": "계산된 지표", "duration": "분석 시간", "sec": "초", "capture": "촬영 조건", "pose": "얼굴 각도", "yaw": "좌우 회전", "pitch": "상하 기울기", "roll": "좌우 기울기", "faceSize": "얼굴 폭", "imageSize": "원본 해상도", "zoneConf": "영역별 신뢰도", "excluded": "제외된 영역", "none": "없음", "ideal": "정면 기준 0°"},
   privacy: {
     title: "개인정보 처리 안내",
     updated: "시행일: 2026-11-13",
