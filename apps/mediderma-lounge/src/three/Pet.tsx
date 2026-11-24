@@ -1,5 +1,8 @@
 /** 라운지 펫 (고양이·강아지): 프로시저럴 모델 + 배회 AI. 쓰다듬으면 하트가 올라온다. */
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
+import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { makeGLTFLoader } from "./gltf";
 import { useFrame } from "@react-three/fiber";
 import { Sparkles } from "@react-three/drei";
 import * as THREE from "three";
@@ -73,6 +76,49 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
   );
 }
 
+// ───────────── 애니메이션 펫 (Quaternius Ultimate Animated Animals, CC0) ─────────────
+const petCache = new Map<string, Promise<GLTF | null>>();
+function loadPet(name: string) {
+  let p = petCache.get(name);
+  if (!p) {
+    p = new Promise<GLTF | null>((resolve) => makeGLTFLoader().load(`./models/${name}.glb`, resolve, undefined, () => resolve(null)));
+    petCache.set(name, p);
+  }
+  return p;
+}
+
+/** 모델을 불러오는 동안·실패하면 코드 모델(PetModel)을 그대로 보여 준다 */
+export function AnimatedPet({ t, walking, happy }: { t: PetType; walking?: { current: boolean }; happy?: { current: number } }) {
+  const [gltf, setGltf] = useState<GLTF | null>(null);
+  useEffect(() => { let on = true; if (t.model) void loadPet(t.model).then((g) => on && setGltf(g)); return () => { on = false; }; }, [t.model]);
+  const rig = useMemo(() => {
+    if (!gltf) return null;
+    const obj = cloneSkinned(gltf.scene) as THREE.Group;
+    obj.traverse((o) => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+    const mixer = new THREE.AnimationMixer(obj);
+    const act = (n: string) => { const c = gltf.animations.find((a) => a.name === n); return c ? mixer.clipAction(c) : null; };
+    const idle = act("Idle"), walk = act("Walk"), joy = act("Jump_ToIdle"), sniff = act("Idle_2_HeadLow");
+    joy?.setLoop(THREE.LoopOnce, 1);
+    if (joy) joy.clampWhenFinished = false;
+    idle?.play();
+    return { obj, mixer, idle, walk, joy, sniff, cur: idle, lastHappy: 0, t: 0 };
+  }, [gltf]);
+  useEffect(() => () => { rig?.mixer.stopAllAction(); }, [rig]);
+  useFrame((_, dt) => {
+    if (!rig) return;
+    rig.t += dt;
+    const h = happy?.current ?? 0;
+    let want = walking?.current ? rig.walk : rig.idle;
+    // 쓰다듬으면 한 번 깡충 → 다시 평소 동작
+    if (h > rig.lastHappy && rig.joy) { rig.joy.reset().play(); rig.lastHappy = h; }
+    if (!walking?.current && rig.sniff && Math.sin(rig.t * 0.21) > 0.93) want = rig.sniff; // 가끔 바닥 냄새 맡기
+    if (want && want !== rig.cur) { want.reset().fadeIn(0.25).play(); rig.cur?.fadeOut(0.25); rig.cur = want; }
+    rig.mixer.update(Math.min(dt, 0.05));
+  });
+  if (!rig) return <PetModel t={t} walking={walking} />;
+  return <primitive object={rig.obj} />;
+}
+
 export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }) {
   const t = PET_MAP[pet.type];
   const g = useRef<THREE.Group>(null!);
@@ -81,6 +127,7 @@ export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }
   const rest = useRef(1 + seed);
   const walking = useRef(false);
   const fx = useRef(0);
+  const happy = useRef(0);
   const hearts = useRef<THREE.Group>(null!);
   useEffect(() => () => { delete petPos[pet.id]; delete petFx[pet.id]; }, [pet.id]);
 
@@ -110,16 +157,16 @@ export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }
         if (g.current) { let dy = Math.atan2(dx, dz) - g.current.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); g.current.rotation.y += dy * Math.min(1, dt * 8); }
       }
     }
-    if (g.current) g.current.position.set(p.x, walking.current ? Math.abs(Math.sin(clock.elapsedTime * 12)) * 0.015 : 0, p.z);
+    if (g.current) g.current.position.set(p.x, walking.current && !t.model ? Math.abs(Math.sin(clock.elapsedTime * 12)) * 0.015 : 0, p.z);
     petPos[pet.id] = { x: p.x, z: p.z };
-    if (petFx[pet.id]) { fx.current = 1.6; petFx[pet.id] = 0; goal.current = null; rest.current = 2.5; }
+    if (petFx[pet.id]) { fx.current = 1.6; happy.current += 1; petFx[pet.id] = 0; goal.current = null; rest.current = 2.5; }
     fx.current = Math.max(0, fx.current - dt);
     if (hearts.current) hearts.current.visible = fx.current > 0;
   });
   if (!t) return null;
   return (
     <group ref={g}>
-      <PetModel t={t} walking={walking} />
+      {t.model ? <AnimatedPet t={t} walking={walking} happy={happy} /> : <PetModel t={t} walking={walking} />}
       <group ref={hearts} visible={false}>
         <Sparkles count={14} scale={[0.6, 0.7, 0.6]} position={[0, 0.7, 0]} size={5} speed={1.6} color="#ff7fa5" />
       </group>

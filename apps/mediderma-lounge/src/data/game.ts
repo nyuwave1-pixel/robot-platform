@@ -248,7 +248,7 @@ export const LOOK_PRESETS: { id: string; ko: string; en: string; look: Record<st
 ];
 
 // ───────────── 라운지 펫 ─────────────
-export interface PetType { id: string; kind: "cat" | "dog" | "rabbit"; ko: string; en: string; color: string; accent: string; price: number }
+export interface PetType { id: string; kind: "cat" | "dog" | "rabbit"; ko: string; en: string; color: string; accent: string; price: number; /** 애니메이션 모델 (public/models/<model>.glb, Quaternius CC0). 불러오는 동안은 코드 모델 */ model?: string }
 export const PET_TYPES: PetType[] = [
   { id: "cat-cream", kind: "cat", ko: "크림 고양이", en: "Cream Cat", color: "#fff3e2", accent: "#f2c9a0", price: 300 },
   { id: "cat-gray", kind: "cat", ko: "회색 고양이", en: "Gray Cat", color: "#9aa0a8", accent: "#e9ecef", price: 300 },
@@ -258,6 +258,9 @@ export const PET_TYPES: PetType[] = [
   { id: "rabbit-white", kind: "rabbit", ko: "솜사탕 토끼", en: "Cotton Bunny", color: "#fffaf6", accent: "#f6c9d4", price: 350 },
   { id: "rabbit-lop", kind: "rabbit", ko: "롭이어 토끼", en: "Lop Bunny", color: "#d8b493", accent: "#fff1e2", price: 500 },
   { id: "dog-brown", kind: "dog", ko: "초코 강아지", en: "Choco Puppy", color: "#7a5236", accent: "#d9b48a", price: 450 },
+  { id: "dog-shiba", kind: "dog", ko: "시바견", en: "Shiba Inu", color: "#c98a4b", accent: "#fff3e2", price: 650, model: "pet_shiba" },
+  { id: "dog-husky", kind: "dog", ko: "허스키", en: "Husky", color: "#6f7378", accent: "#ffffff", price: 750, model: "pet_husky" },
+  { id: "fox-red", kind: "dog", ko: "아기 여우", en: "Baby Fox", color: "#d9733f", accent: "#fff3e2", price: 850, model: "pet_fox" },
 ];
 export const PET_MAP: Record<string, PetType> = Object.fromEntries(PET_TYPES.map((p) => [p.id, p]));
 export const MAX_PETS = 4;

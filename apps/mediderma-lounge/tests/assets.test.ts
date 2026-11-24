@@ -7,7 +7,7 @@ const ledger = readFileSync(join(root, "docs/ASSET_LICENSES.md"), "utf8");
 const files = [
   ...readdirSync(join(root, "public/tex")).map((f) => `public/tex/${f}`),
   ...readdirSync(join(root, "public/audio")).map((f) => `public/audio/${f}`),
-  ...readdirSync(join(root, "public/models")).filter((f) => f.startsWith("qn_") || f.startsWith("real_") || f === "signature.glb" || f.startsWith("guest_")).map((f) => `public/models/${f}`),
+  ...readdirSync(join(root, "public/models")).filter((f) => f.startsWith("qn_") || f.startsWith("real_") || f === "signature.glb" || f.startsWith("guest_") || f.startsWith("pet_")).map((f) => `public/models/${f}`),
 ];
 
 describe("무료 에셋 라이선스 대장", () => {

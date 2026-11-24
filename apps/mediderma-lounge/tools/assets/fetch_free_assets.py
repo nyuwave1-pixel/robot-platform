@@ -19,6 +19,11 @@ SOURCES = [
     ("quaternius_nature/Bush_Leaves.png", GD + "1yBz894w6XWBFvcQ75GDaRoQaunCHx4Q0", "9f662296a285ca56b1ed56e952a198b93b466ae39ab7b6ee1c1ac1bd1c46242f"),
     ("quaternius_nature/Flowers.png", GD + "1aVoa3KmIjIlIA5MhvUn7Z5trLRBlM1r6", "23673fc87e55d8f7cbc699581a164cffec505376bd8b0b90b593dc387aa569fd"),
     ("quaternius_nature/Grass.png", GD + "1JOnNDiQhoUzB637HUMaOASCySSEW9UFx", "facde747020acfefdc84d176dd4037282895d200a66fc20b0d9baca470f310f1"),
+    # Quaternius — Ultimate Animated Animals (CC0) · https://quaternius.com/packs/ultimateanimatedanimals.html (glTF 폴더)
+    ("quaternius_animals/ShibaInu.gltf", GD + "1XWUVbmMbiG9E90OqrumueD_pBdnYdyHZ", "3236979b94a840eb72d9ce091b1361da327a96f5ce068e666680297480f30f6b"),
+    ("quaternius_animals/Husky.gltf", GD + "1oYn47mfq9JAdkJJDcUftbhHNsgQ_CWdt", "0cfd85ddfcc5c07caf1bdeb296b21017b0da4c8558a92086daf4a172e0bf8d97"),
+    ("quaternius_animals/Fox.gltf", GD + "1z-CWoUC2vJxrqgGFTYlMaywpE1ooV-bA", "2f36e3c9c75ecddda85c5f9944e98ee1e88e7c679a546534aff1cea8ecde64c7"),
+    ("quaternius_animals/License.txt", GD + "1F2uy8T2fRpdc6gZ4mnS02_C2E63WvKtn", "83d8959f9fc56353ed571fbe2dc52e4bcd64508e2399501cd45ac2ce3df0bf8c"),
     # Poly Haven (CC0) · https://polyhaven.com/a/kloofendal_43d_clear_puresky
     ("polyhaven/kloofendal_43d_clear_puresky_1k.hdr", "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloofendal_43d_clear_puresky_1k.hdr", "de7ba9d0b070470dbb70d0144294c8708068df353537b26ab59c394707e84377"),
     # ambientCG (CC0) · https://ambientcg.com/view?id=…
