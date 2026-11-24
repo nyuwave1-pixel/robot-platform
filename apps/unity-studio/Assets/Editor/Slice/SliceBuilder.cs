@@ -99,7 +99,15 @@ namespace SpecialSoldier.EditorTools
             var surface = level.AddComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Children;
             surface.BuildNavMesh();
-            Debug.Log($"[Slice] navmesh built: {(surface.navMeshData != null ? "ok" : "MISSING")}");
+            // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
+            // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
+            if (surface.navMeshData != null)
+            {
+                const string navPath = "Assets/Scenes/IslandSlice_NavMesh.asset";
+                AssetDatabase.DeleteAsset(navPath);
+                AssetDatabase.CreateAsset(surface.navMeshData, navPath);
+            }
+            Debug.Log($"[Slice] navmesh built: {(surface.navMeshData != null ? "ok, saved " + AssetDatabase.GetAssetPath(surface.navMeshData) : "MISSING")}");
 
             var player = BuildPlayer(new Vector3(0f, 0.1f, -40f));
             var visual = LoadSoldierVisual();

@@ -29,3 +29,4 @@ crashlytics-build.properties
 /CoreTests~/bin/
 /CoreTests~/obj/
 !/CoreTests~/CoreTests.csproj
+/Data/
