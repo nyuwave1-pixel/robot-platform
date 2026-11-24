@@ -334,6 +334,8 @@ export async function applyDeepLink(t: (k: string, v?: Record<string, string | n
   } catch { /* 주소를 못 바꾸는 환경 */ }
   const tab: EvTab | null = open === "contest" ? "contest" : open === "events" ? "news" : open === "lounges" ? "open" : null;
   if (visit) {
+    // 게임 화면이 막 뜬 순간에는 내 라운지 방 배정(LiveLoungeSync)이 먼저 돌므로 잠시 기다린 뒤 방문한다
+    await new Promise((r) => setTimeout(r, 1500));
     const r = await visitByCode(visit);
     if (r === "ok") return;
     useUI.getState().toast(t(`live.visit.${r}`), "error");
