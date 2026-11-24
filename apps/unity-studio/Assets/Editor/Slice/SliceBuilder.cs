@@ -34,6 +34,21 @@ namespace SpecialSoldier.EditorTools
             EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 11);
         }
 
+        /// <summary>Browser build for the BIT PARK portal: Builds/WebGL/index.html (static files, no server code).
+        /// Gzip + decompression fallback so it also runs on hosts that do not send Content-Encoding headers.</summary>
+        public static void BuildWebGL()
+        {
+            if (!System.IO.File.Exists(ScenePath) && !BuildScene()) { EditorApplication.Exit(12); return; }
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+            PlayerSettings.WebGL.decompressionFallback = true;
+            PlayerSettings.WebGL.dataCaching = true;
+            PlayerSettings.productName = "SPECIAL SOLDIER - Island Slice";
+            var opts = new BuildPlayerOptions { scenes = new[] { ScenePath }, locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
+            var report = BuildPipeline.BuildPlayer(opts);
+            Debug.Log($"[Slice] webgl build {report.summary.result}, {report.summary.totalSize / 1024} kB, errors {report.summary.totalErrors} -> Builds/WebGL/index.html");
+            EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 13);
+        }
+
         public static bool BuildScene()
         {
             EnsureUrp();

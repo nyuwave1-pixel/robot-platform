@@ -13,6 +13,7 @@
 | **SPECIAL SOLDIER — PC Blender 빌드** | 사용자 PC | Windows Blender 5.3으로 `tools/blender/build.py` 실행 검증, FBX→GLB 변환, Mixamo 리타깃(Chrome 로그인), Kenney·Sketchfab 등 로그인/403 출처 다운로드 |
 | **퍼즐 게임** | 사용자 PC | 같은 파이프라인으로 퍼즐 게임 UI·아이콘·사운드(Kenney UI/Audio, game-icons.net) 적용 |
 | **Unity 연동 (PC Blender 세션이 겸임)** | 사용자 PC | 설치된 Unity 6000.6.9f1(Unity 6.6) 사용, Unity 공식 Claude Code 플러그인 연동, `apps/unity-studio` 에서 공용 Blender GLB(glTFast) 임포트 검증. 기록: `docs/game-dev/UNITY_SETUP.md` |
+| **BIT PARK 게임 브랜드 포털 기획** | 사용자 PC (`C:\개발\bitpark-portal`, 별도 저장소) | 게임 브랜드 포털. 이 저장소의 `docs/game-dev/bitpark/feed.json` 을 읽어 **GAME DEV LAB** 섹션 표시(계약: `docs/game-dev/bitpark/README.md`) |
 | **메디더마라운지게임** | 클라우드 | WORLD PLAZA(라운지)에 Quaternius/Kenney 스타일 에셋 적용, 기존 Blender 맵과 스타일 통일 |
 
 UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝트(Project Leonida 등)가 이 저장소나 PC에 생겼을 때만 적용합니다.
@@ -44,4 +45,6 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 허브 → PC Blender (Unity) | **Claude Code × Unity 통합**: `docs/game-dev/UNITY_CLAUDE_INTEGRATION.md` §2 환경 체크리스트 → (라이선스 후) run-batch.ps1 → Unity CLI·Pipeline 패키지로 에디터 실시간 제어 왕복 테스트 → 테스트·빌드 자동화 | §2 체크리스트·run-batch 완료 2026-11-23. **남은 것**: Unity CLI 설치(사용자 실행) → Pipeline 패키지 → `unity command` 실시간 제어 왕복 테스트 |
 | 허브 → PC Blender (Unity) | **Unity 슬라이스 첫 검증**: 라이선스 활성화 후 `run-batch.ps1` 전체(packages → build → slice → tests). `SpecialSoldier.Runtime`·`Slice.Editor` 는 Unity에서 처음 컴파일됨 → 컴파일 오류 수정, `IslandSlice.exe` 실행·조작 확인, EditMode 결과 기록 | **통과** 2026-11-23 — 라이선스(MSIX Hub 가상화 경로 문제) 해결, 컴파일 오류 1(CS0104 BodyPart) 수정, Windows·슬라이스 빌드 성공, EditMode 159/159, `IslandSlice.exe` 실행·HUD 확인(직접 조작은 미확인). 기록: `docs/game-dev/UNITY_SETUP.md` 2026-11-23 절 |
 | 허브 → PC Blender | **새 PC 환경 스크립트 Windows 검증** (`tools/dev-env/*`, `build.ps1`, `run-batch.ps1` 경로 탐색) | **완료** 2026-11-23 — 수정 없음. setup.ps1 판정 일치, build.ps1 결과가 커밋된 GLB와 동일, Unity.exe 자동 탐색 성공. `-Install` 미실행. 기록: `docs/game-dev/NEW_PC_SETUP.md` §6 |
+| 허브 → BIT PARK 포털 | `feed.json`(schemaVersion 1)을 읽는 GAME DEV LAB 섹션 추가: 현황 카드·학습 로드맵·에셋 파이프라인·개발 로그, WebGL 빌드가 있으면 플레이 버튼 | 요청함 2026-11-24 |
+| 허브 → PC Blender (Unity) | `run-batch.ps1 -WebGL` 로 브라우저 빌드(`Builds/WebGL`) 만들고 feed 재생성. Unity CLI는 설치 스크립트 실패 → winget(MSIX) 경로로 재시도(설치는 사용자 승인 후) | 요청함 2026-11-24 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |

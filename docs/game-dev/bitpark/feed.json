@@ -1,0 +1,603 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-24T04:53:07.790Z",
+  "source": {
+    "repo": "nyuwave1-pixel/robot-platform",
+    "branch": "claude/relaxed-ramanujan-83okpi",
+    "commit": "67c4037"
+  },
+  "section": {
+    "id": "game-dev-lab",
+    "title": "GAME DEV LAB",
+    "subtitle": "무료 에셋·오픈소스로 웹 게임과 Unity를 함께 개발하는 과정",
+    "honesty": "모든 수치는 저장소의 테스트 보고서·문서·Git 기록에서 자동으로 읽은 값입니다."
+  },
+  "projects": [
+    {
+      "slug": "special-soldier",
+      "name": "SPECIAL SOLDIER",
+      "engine": "Three.js (web)",
+      "version": "0.19",
+      "tests": {
+        "e2e": {
+          "passed": 65,
+          "total": 65
+        },
+        "lastRegression": {
+          "passed": 17,
+          "total": 17
+        }
+      },
+      "docs": [
+        "apps/special-soldier/README.md",
+        "apps/special-soldier/docs/GAME_DESIGN.md"
+      ]
+    },
+    {
+      "slug": "unity-island-slice",
+      "name": "SPECIAL SOLDIER — Unity Island Slice",
+      "engine": "Unity 6000.6.9f1 (URP)",
+      "status": "pilot",
+      "tests": {
+        "editMode": {
+          "passed": 163,
+          "total": 163
+        },
+        "playMode": {
+          "passed": 8,
+          "total": 8
+        }
+      },
+      "playable": {
+        "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
+        "webgl": null
+      },
+      "screenshots": [
+        "docs/game-dev/screenshots/unity-island-slice-first-run.png",
+        "docs/game-dev/screenshots/unity-island-slice-lighting.png"
+      ],
+      "docs": [
+        "apps/unity-studio/README.md",
+        "docs/game-dev/UNITY_SETUP.md"
+      ]
+    }
+  ],
+  "pipeline": {
+    "steps": [
+      "무료 에셋 조사·라이선스 확인(CC0 우선)",
+      "Blender 5.3 변환(GLB)",
+      "웹 게임·Unity 양쪽 적용",
+      "자동 테스트(E2E·EditMode·PlayMode)",
+      "라이선스 대장 기록"
+    ],
+    "sources": [
+      {
+        "name": "Poly Haven",
+        "url": "https://polyhaven.com",
+        "license": "CC0"
+      },
+      {
+        "name": "ambientCG",
+        "url": "https://ambientcg.com",
+        "license": "CC0"
+      },
+      {
+        "name": "Quaternius",
+        "url": "https://quaternius.com",
+        "license": "CC0"
+      },
+      {
+        "name": "Kenney",
+        "url": "https://kenney.nl/assets",
+        "license": "CC0"
+      },
+      {
+        "name": "Sketchfab",
+        "url": "https://sketchfab.com",
+        "license": "모델마다 다름(CC0/CC-BY/NC/유료)"
+      },
+      {
+        "name": "Fab",
+        "url": "https://www.fab.com",
+        "license": "Fab 라이선스(무료 항목 포함)"
+      },
+      {
+        "name": "Mixamo",
+        "url": "https://www.mixamo.com",
+        "license": "Adobe 약관: 게임 내 사용 무료, 원본 재배포 금지"
+      },
+      {
+        "name": "Freesound",
+        "url": "https://freesound.org",
+        "license": "파일마다 CC0 / CC-BY / CC-BY-NC"
+      },
+      {
+        "name": "Sonniss GDC Bundle",
+        "url": "https://sonniss.com/gameaudiogdc",
+        "license": "상업 사용 가능, 크레딧 불요(번들 약관 확인)"
+      },
+      {
+        "name": "OpenGameArt",
+        "url": "https://opengameart.org",
+        "license": "파일마다 다름"
+      },
+      {
+        "name": "game-icons.net",
+        "url": "https://game-icons.net",
+        "license": "CC-BY 3.0"
+      },
+      {
+        "name": "itch.io game assets",
+        "url": "https://itch.io/game-assets/free",
+        "license": "팩마다 다름"
+      },
+      {
+        "name": "KayKit (Kay Lousberg)",
+        "url": "https://kaylousberg.itch.io",
+        "license": "무료판 CC0 (팩마다 itch 페이지 확인)"
+      },
+      {
+        "name": "Poly Pizza",
+        "url": "https://poly.pizza",
+        "license": "모델마다 CC0 또는 CC-BY(대부분 CC-BY)"
+      },
+      {
+        "name": "Rokoko 무료 모션",
+        "url": "https://www.rokoko.com/resources/download-263-rokoko-motion-capture-assets",
+        "license": "상업 사용 가능(게임 포함) 명시"
+      },
+      {
+        "name": "ActorCore 무료 모션 (Reallusion)",
+        "url": "https://actorcore.reallusion.com",
+        "license": "무료 항목 상업 사용 가능"
+      },
+      {
+        "name": "CMU Graphics Lab Mocap",
+        "url": "http://mocap.cs.cmu.edu",
+        "license": "사용료 없음, 상업 사용 전 CMU 약관 확인"
+      },
+      {
+        "name": "Unity Asset Store 무료 에셋",
+        "url": "https://assetstore.unity.com",
+        "license": "Standard EULA(타 엔진 사용 허용) / Unity Companion License"
+      },
+      {
+        "name": "glTFast",
+        "url": "https://docs.unity3d.com/Packages/com.unity.cloud.gltfast@latest",
+        "license": "Unity 패키지"
+      }
+    ],
+    "openSource": [
+      {
+        "repo": "tranek/GASDocumentation",
+        "url": "https://github.com/tranek/GASDocumentation",
+        "stars": 5999,
+        "license": "MIT",
+        "verdict": "UE5 GAS 설계 참고서. 신뢰도 높음, UE 5.4+ 변경분은 별도 확인"
+      },
+      {
+        "repo": "ellisonleao/magictools",
+        "url": "https://github.com/ellisonleao/magictools",
+        "stars": 17824,
+        "license": "MIT",
+        "verdict": "활발히 관리되는 게임 개발 리소스 목록 — 목록 출발점으로 추천"
+      },
+      {
+        "repo": "Calinou/awesome-gamedev",
+        "url": "https://github.com/Calinou/awesome-gamedev",
+        "stars": 3229,
+        "license": "CC-BY-SA-4.0",
+        "verdict": "무료·오픈소스 도구/에셋 목록"
+      },
+      {
+        "repo": "madjin/awesome-cc0",
+        "url": "https://github.com/madjin/awesome-cc0",
+        "stars": 563,
+        "license": "CC0",
+        "verdict": "CC0 출처만 모은 목록"
+      },
+      {
+        "repo": "XistGG/XistCommonGameSample",
+        "url": "https://github.com/XistGG/XistCommonGameSample",
+        "stars": 47,
+        "license": "MIT",
+        "verdict": "UE5 CommonUI/입력 샘플"
+      },
+      {
+        "repo": "motionforge/Unreal-Engine-5-Game-Starter-Template",
+        "url": "https://github.com/motionforge/Unreal-Engine-5-Game-Starter-Template",
+        "stars": 29,
+        "license": "MIT",
+        "verdict": "UE5 스타터. 별이 적어 코드 검토 후 일부만"
+      },
+      {
+        "repo": "A19200332/awesome-game-assets",
+        "url": "https://github.com/A19200332/awesome-game-assets",
+        "stars": 1,
+        "license": "없음",
+        "verdict": "링크 참고만. 내용 복사 금지"
+      },
+      {
+        "repo": "jjones26/free-and-open-source-game-dev-resources",
+        "url": "https://github.com/jjones26/free-and-open-source-game-dev-resources",
+        "stars": null,
+        "license": "없음",
+        "verdict": "링크 참고만. 내용 복사 금지"
+      }
+    ],
+    "claudeUnityLiveControl": "pending"
+  },
+  "learning": {
+    "courses": [
+      {
+        "title": "Unity Essentials",
+        "duration": "약 2주",
+        "practice": "에디터 창, 씬·게임오브젝트·컴포넌트 → IslandSlice.unity 를 열어 Player, Enemies, Level 구조 살펴보기",
+        "url": "https://learn.unity.com/pathway/unity-essentials"
+      },
+      {
+        "title": "Junior Programmer",
+        "duration": "약 12주",
+        "practice": "C#·MonoBehaviour 생명주기 → 아래 2장 코드 읽기 순서대로",
+        "url": "https://learn.unity.com/pathway/junior-programmer"
+      },
+      {
+        "title": "Creative Core",
+        "duration": "약 10주",
+        "practice": "조명·VFX·애니메이션·오디오·UI → 3장 \"다음 업데이트\" 과제",
+        "url": "https://learn.unity.com/pathway/creative-core"
+      }
+    ],
+    "units": [
+      {
+        "unit": "2-1 어셈블리 정의",
+        "files": "Assets/Scripts/Core/SpecialSoldier.Core.asmdef (noEngineReferences: true)",
+        "learn": "asmdef로 컴파일 단위 나누기, 엔진 의존 금지"
+      },
+      {
+        "unit": "2-2 데이터",
+        "files": "Core/WeaponStats.cs, Core/WeaponTable.g.cs (Tools~/gen-core-data.mjs 가 웹 데이터에서 생성)",
+        "learn": "데이터 주도 설계, 두 엔진이 한 데이터 공유"
+      },
+      {
+        "unit": "2-3 순수 로직",
+        "files": "Core/Ballistics.cs, Core/HealthModel.cs, Core/WeaponState.cs",
+        "learn": "시간(Tick(dt))으로 움직이는 상태 기계, 엔진 없이 테스트 가능한 코드"
+      },
+      {
+        "unit": "2-4 AI 상태 기계",
+        "files": "Core/AwarenessBrain.cs",
+        "learn": "PATROL→SUSPICIOUS→SEARCH→COMBAT↔RETREAT, 인지 게이지"
+      },
+      {
+        "unit": "2-5 테스트",
+        "files": "Assets/Tests/EditMode/*.cs",
+        "learn": "NUnit, Unity Test Framework, 웹 JS와 숫자 대조(패리티) 테스트"
+      },
+      {
+        "unit": "2-6 컴포넌트",
+        "files": "Runtime/Damageable.cs, HitZone.cs",
+        "learn": "이벤트, GetComponentInParent, 부위별 피해"
+      },
+      {
+        "unit": "2-7 플레이어",
+        "files": "Runtime/PlayerMotor.cs",
+        "learn": "CharacterController, Input System 장치 직접 읽기, 반동"
+      },
+      {
+        "unit": "2-8 무기",
+        "files": "Runtime/WeaponController.cs",
+        "learn": "Physics.Raycast 히트스캔, 탄퍼짐·블룸, LineRenderer 예광"
+      },
+      {
+        "unit": "2-9 적",
+        "files": "Runtime/EnemyAgent.cs",
+        "learn": "NavMeshAgent, 시야각+가시선, 생각 주기(0.13/0.45 s)"
+      },
+      {
+        "unit": "2-10 게임 규칙·HUD",
+        "files": "Runtime/GameDirector.cs, Runtime/Hud.cs",
+        "learn": "승패, 소음 전파, 즉시 모드 GUI"
+      },
+      {
+        "unit": "2-11 에디터 자동화",
+        "files": "Assets/Editor/Slice/SliceBuilder.cs, Assets/Editor/StudioBootstrap.cs",
+        "learn": "-batchmode -executeMethod, 코드로 씬·NavMesh·URP 생성, BuildPipeline"
+      },
+      {
+        "unit": "2-12 조건부 컴파일",
+        "files": "Runtime/*.asmdef 의 versionDefines + defineConstraints",
+        "learn": "패키지가 설치되기 전에는 그 코드를 컴파일하지 않기"
+      }
+    ],
+    "next": [
+      {
+        "task": "HUD를 UI Toolkit으로 교체",
+        "feature": "UXML·USS, 데이터 바인딩",
+        "resource": "Unity 기본"
+      },
+      {
+        "task": "총소리·발소리·피격음",
+        "feature": "AudioSource, AudioMixer 그룹",
+        "resource": "Freesound CC0(웹 게임 v0.14 사운드 재사용)"
+      },
+      {
+        "task": "총구 화염·탄착 먼지",
+        "feature": "VFX Graph 또는 Particle System",
+        "resource": "Unity 기본"
+      },
+      {
+        "task": "하늘·조명",
+        "feature": "URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스",
+        "resource": "Poly Haven HDRI(CC0)"
+      },
+      {
+        "task": "지형·바닥 재질",
+        "feature": "Terrain, PBR 머티리얼",
+        "resource": "ambientCG / Poly Haven(CC0)"
+      },
+      {
+        "task": "병사 애니메이션",
+        "feature": "Humanoid 리그, Animator, 리타깃",
+        "resource": "Quaternius UAL / Rokoko 무료 모션"
+      },
+      {
+        "task": "적 엄폐·측면 우회",
+        "feature": "NavMesh 쿼리, 엄폐 점수",
+        "resource": "웹 게임 enemies.js findCover 이식"
+      },
+      {
+        "task": "PlayMode 테스트",
+        "feature": "씬을 띄워 플레이어 이동·사격 자동 검증",
+        "resource": "Unity Test Framework"
+      },
+      {
+        "task": "Claude Code 에디터 실시간 제어",
+        "feature": "Unity CLI unity command eval",
+        "resource": "UNITY_CLAUDE_INTEGRATION.md"
+      }
+    ]
+  },
+  "devlog": [
+    {
+      "hash": "67c4037",
+      "date": "2026-11-24",
+      "area": "unity",
+      "subject": "docs(unity): Unity CLI install left PATH entry but no binary; live control still pending"
+    },
+    {
+      "hash": "3cfbe52",
+      "date": "2026-11-23",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): port web difficulty table and enemy reaction delay; enemies no longer shred the player at spawn"
+    },
+    {
+      "hash": "0354b0a",
+      "date": "2026-11-23",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): PlayMode tests play the slice with simulated input; Linear colour + ACES fix washed-out lighting; detect MSIX Unity Hub"
+    },
+    {
+      "hash": "42ad299",
+      "date": "2026-11-23",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): first Unity build on the PC — licence fixed, compile error fixed, slice built, EditMode 159/159"
+    },
+    {
+      "hash": "3be53e0",
+      "date": "2026-11-23",
+      "area": "dev-env",
+      "subject": "fix(dev-env): reload PATH after installs, force winget for Unity Hub; record PC installs and Core tests 159/159"
+    },
+    {
+      "hash": "6b08950",
+      "date": "2026-11-23",
+      "area": "game-dev",
+      "subject": "docs(game-dev): Windows verification of dev-env scripts; Unity integration checklist on the PC"
+    },
+    {
+      "hash": "9bf2be9",
+      "date": "2026-11-22",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record v0.19 regression (17/17)"
+    },
+    {
+      "hash": "e22c0f7",
+      "date": "2026-11-22",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): intel collectibles verified in game (v0.19)"
+    },
+    {
+      "hash": "8c4533f",
+      "date": "2026-11-22",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): playable Island Slice pilot with engine-free Core, parity tests and learning path"
+    },
+    {
+      "hash": "b8ceb25",
+      "date": "2026-11-22",
+      "area": "special-soldier",
+      "subject": "wip(special-soldier): intel collectibles and archive (not yet verified in game)"
+    },
+    {
+      "hash": "766b7b8",
+      "date": "2026-11-22",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): grenade danger indicator (v0.18)"
+    },
+    {
+      "hash": "8d6b244",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record v0.17 full e2e (65/65)"
+    },
+    {
+      "hash": "7c3d611",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): genre benchmark and entry-flow overhaul — title card, BOOT CAMP, first-run prompt, tips (v0.17)"
+    },
+    {
+      "hash": "f44f7d0",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record regression with the Higgsfield characters"
+    },
+    {
+      "hash": "f7e5239",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): Higgsfield-designed models for all six enemy types"
+    },
+    {
+      "hash": "82ec3d1",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "refactor(special-soldier): load every soldier_hf*.glb and choose the Higgsfield model per soldier kind"
+    },
+    {
+      "hash": "553c560",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): Higgsfield-designed squad operator (image-to-3D), rigged to game pivots"
+    },
+    {
+      "hash": "ce6be06",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record campaign regression and live deployment check"
+    },
+    {
+      "hash": "dd45024",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): live play URL and redeploy notes"
+    },
+    {
+      "hash": "fe9c267",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "chore(special-soldier): Vercel config for the game folder (output dist, not the root .next)"
+    },
+    {
+      "hash": "9a384c1",
+      "date": "2026-11-21",
+      "area": "special-soldier",
+      "subject": "chore(special-soldier): cross-platform dev setup — setup scripts, npm run assets, Codespaces, line endings"
+    },
+    {
+      "hash": "f7ac070",
+      "date": "2026-11-21",
+      "area": "dev-env",
+      "subject": "chore(dev-env): reproducible Windows setup for game work on any PC"
+    },
+    {
+      "hash": "7d160f8",
+      "date": "2026-11-20",
+      "area": "game-dev",
+      "subject": "docs(game-dev): Claude Code x Unity integration plan (Unity CLI first, MCP for Unity as fallback)"
+    },
+    {
+      "hash": "94651e4",
+      "date": "2026-11-20",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): game design document summarising v0.1–v0.16"
+    },
+    {
+      "hash": "033a988",
+      "date": "2026-11-20",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): in-game third-party credits screen"
+    },
+    {
+      "hash": "435ad88",
+      "date": "2026-11-20",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): v0.16 burlap photo texture for sandbags and canvas"
+    },
+    {
+      "hash": "da5d001",
+      "date": "2026-11-20",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): v0.15 grid A* pathfinding for stuck enemies and squad"
+    },
+    {
+      "hash": "0b49a4c",
+      "date": "2026-11-19",
+      "area": "unity-studio",
+      "subject": "chore(unity-studio): record installed Unity 6000.6.9f1, licence blocker, batch scripts"
+    },
+    {
+      "hash": "f87a969",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): v0.14 recorded CC0 audio layer, music, asset license ledger"
+    },
+    {
+      "hash": "ee677a1",
+      "date": "2026-11-19",
+      "area": "game-dev",
+      "subject": "docs(game-dev): use the installed Unity 6000.6.9f1 on the PC; Unity work moves to the PC Blender session"
+    },
+    {
+      "hash": "2e607d6",
+      "date": "2026-11-19",
+      "area": "game-dev",
+      "subject": "docs(game-dev): second-round free asset research, Unity track in skill and hub"
+    },
+    {
+      "hash": "9f8c73f",
+      "date": "2026-11-19",
+      "area": "game-dev",
+      "subject": "docs(game-dev): record PC session working files"
+    },
+    {
+      "hash": "aa54372",
+      "date": "2026-11-19",
+      "area": "game-dev",
+      "subject": "docs(game-dev): PC session claims first CC0 asset batch for SPECIAL SOLDIER"
+    },
+    {
+      "hash": "854a569",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): free asset / open-source research report; hub status"
+    },
+    {
+      "hash": "1efbede",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): v0.13 bullpup + revolver, soldier detail, -13% tris; fix gun marker lookup"
+    },
+    {
+      "hash": "68ea2ab",
+      "date": "2026-11-19",
+      "area": "game-dev",
+      "subject": "docs(game-dev): shared free-asset pipeline skill, source catalog and session hub"
+    },
+    {
+      "hash": "b6c4587",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record v0.12 campaign regression"
+    },
+    {
+      "hash": "b333426",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): rework soldier faces, anatomy and per-type kits; fix dark uniforms (v0.12.0)"
+    },
+    {
+      "hash": "7129149",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "docs(special-soldier): record v0.11 campaign regression"
+    },
+    {
+      "hash": "d21fac4",
+      "date": "2026-11-19",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): knee joints and grounded walk cycle for soldiers (v0.11.0)"
+    }
+  ]
+}
