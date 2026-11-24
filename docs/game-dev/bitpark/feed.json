@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T05:48:35.834Z",
+  "generatedAt": "2026-11-24T09:42:20.138Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "6564123"
+    "commit": "14b5776"
   },
   "section": {
     "id": "game-dev-lab",
@@ -347,9 +347,9 @@
         "resource": "Quaternius UAL / Rokoko 무료 모션"
       },
       {
-        "task": "적 엄폐·측면 우회",
-        "feature": "NavMesh 쿼리, 엄폐 점수",
-        "resource": "웹 게임 enemies.js findCover 이식"
+        "task": "적 엄폐·측면 우회 — Core 완료(2026-11-24): Core/TacticsPlanner.cs + 테스트 10개, EnemyAgent 연결(Unity 컴파일·플레이 확인 전)",
+        "feature": "NavMesh 쿼리, 엄폐 점수, 숨기·고개 내밀기",
+        "resource": "웹 게임 enemies.js findCover/plan 이식"
       },
       {
         "task": "PlayMode 테스트",
@@ -364,6 +364,12 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "14b5776",
+      "date": "2026-11-24",
+      "area": "general",
+      "subject": "Portal: report mission results to the host page; add play links to the BIT PARK feed"
+    },
     {
       "hash": "6564123",
       "date": "2026-11-24",
@@ -597,12 +603,6 @@
       "date": "2026-11-19",
       "area": "game-dev",
       "subject": "docs(game-dev): PC session claims first CC0 asset batch for SPECIAL SOLDIER"
-    },
-    {
-      "hash": "854a569",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): free asset / open-source research report; hub status"
     }
   ]
 }

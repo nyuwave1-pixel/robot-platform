@@ -47,4 +47,5 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 허브 → PC Blender | **새 PC 환경 스크립트 Windows 검증** (`tools/dev-env/*`, `build.ps1`, `run-batch.ps1` 경로 탐색) | **완료** 2026-11-23 — 수정 없음. setup.ps1 판정 일치, build.ps1 결과가 커밋된 GLB와 동일, Unity.exe 자동 탐색 성공. `-Install` 미실행. 기록: `docs/game-dev/NEW_PC_SETUP.md` §6 |
 | 허브 → BIT PARK 포털 | `feed.json`(schemaVersion 1)을 읽는 GAME DEV LAB 섹션 추가: 현황 카드·학습 로드맵·에셋 파이프라인·개발 로그, WebGL 빌드가 있으면 플레이 버튼 | 요청함 2026-11-24 |
 | 허브 → PC Blender (Unity) | `run-batch.ps1 -WebGL` 로 브라우저 빌드(`Builds/WebGL`) 만들고 feed 재생성. Unity CLI는 설치 스크립트 실패 → winget(MSIX) 경로로 재시도(설치는 사용자 승인 후) | 요청함 2026-11-24 |
+| 허브 → PC Blender (Unity) | **적 엄폐·측면 우회 첫 검증**: `run-batch.ps1` 로 컴파일·EditMode(173 예상)·PlayMode, PlayMode 테스트 1개 추가 제안 — 전투 시작 후 경계병이 엄폐물 뒤로 이동(`EnemyAgent.InCover`), 정예가 측면으로 돌아감. 플레이 감각 확인 | 요청함 2026-11-24 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |

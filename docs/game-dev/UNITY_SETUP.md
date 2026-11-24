@@ -136,3 +136,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - PowerShell 에서 `--code '...'` 는 따옴표가 깨지므로 C# 은 `--file` 로 넘길 것.
 - 에디터를 GUI로 처음 열면서 URP 기본값이 기록됨: `GraphicsSettings` 조명 선형 강도·색온도 켜짐, `QualitySettings` MSAA 2→4, `URPProjectSettings`·`PackageManagerSettings` 생성.
 - 결론: `unity command` 왕복 테스트 성공 (BIT PARK feed 의 `claudeUnityLiveControl` 이 이 줄을 읽음).
+
+## 2026-11-24 — 적 엄폐·측면 우회 AI (허브 세션, 클라우드)
+
+- `Core/TacticsPlanner.cs`: 웹 `Enemies.findCover()`·`plan()` 이식. 병종별 행동 — 경계병 엄폐(Cover), 돌격병 전진(Push), 정예 측면 우회(Flank),
+  중화기병 제압(Suppress), 저격수 고수(Hold). 체력 33% 미만이면 70% 확률로 한 번 후퇴하고 분대를 부름(80 m). 다른 적이 잡은 자리(1.6 m)는 피함.
+  `PeekCycle`: 엄폐 중 숨기 0.9–2.7 s / 고개 내밀기 1.4–3.0 s, 숨은 동안 사격 안 함.
+- `Runtime/EnemyAgent.cs`: 전투 중 판단 주기마다 반경 40 m의 정적 충돌체를 엄폐물로 모아 계획 → NavMesh 위로 스냅해 이동, 숨을 때 모델이 0.55 m 내려감.
+- 검증: dotnet `CoreTests~` **173/173 통과**(새 테스트 10개 + PC 세션의 `DifficultyTests` 도 이제 Unity 없이 실행 — `UnityEngine.Application` 의존 제거).
+  **EnemyAgent 변경은 Unity에서 아직 컴파일·플레이하지 않았습니다.**

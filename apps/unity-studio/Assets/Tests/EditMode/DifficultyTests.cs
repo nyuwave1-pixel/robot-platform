@@ -8,11 +8,26 @@ namespace SpecialSoldier.Core.Tests
 {
     public class DifficultyTests
     {
+        /// <summary>Finds apps/&lt;parts&gt; by walking up from the test's working folder, so the test runs both in
+        /// Unity (cwd = project folder) and in dotnet test CoreTests~ (cwd = bin folder).</summary>
+        static string FindWebFile(params string[] parts)
+        {
+            foreach (var start in new[] { Directory.GetCurrentDirectory(), System.AppContext.BaseDirectory })
+                for (var dir = new DirectoryInfo(start); dir != null; dir = dir.Parent)
+                {
+                    string p = Path.Combine(dir.FullName, Path.Combine(parts));
+                    if (File.Exists(p)) return p;
+                    p = Path.Combine(dir.FullName, "apps", Path.Combine(parts));
+                    if (File.Exists(p)) return p;
+                }
+            return Path.Combine(parts);
+        }
+
         [Test]
         public void MatchesTheWebGameDifficultyTable()
         {
             // apps/unity-studio/../special-soldier/src/core/save.js holds DIFFICULTY = { recruit: { ..., detect: 0.7, react: 1.5, acc: 1.6, dmg: 0.6 }, ... }
-            string save = Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "..", "special-soldier", "src", "core", "save.js"));
+            string save = FindWebFile("special-soldier", "src", "core", "save.js");
             if (!File.Exists(save)) Assert.Ignore("web game source not found next to the Unity project: " + save);
             string js = File.ReadAllText(save);
             foreach (var d in Difficulty.All)

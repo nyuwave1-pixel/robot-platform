@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using SpecialSoldier.Core;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,6 +17,19 @@ namespace SpecialSoldier
         public LayerMask sightMask = ~0;
 
         public AwarenessBrain Brain { get; private set; }
+        public TacticsPlanner Tactics { get; private set; }
+        public Vector3? Goal { get; private set; }            // current combat move goal (cover spot, flank point, ...)
+        public bool InCover => _goalIsCover && AtGoal;
+        public bool Hidden { get; private set; }               // ducked behind cover: does not shoot this moment
+        bool AtGoal => Goal.HasValue && _agent && _agent.isOnNavMesh && !_agent.pathPending && _agent.remainingDistance < 0.7f;
+
+        static readonly List<EnemyAgent> Active = new List<EnemyAgent>();
+        static readonly Collider[] Nearby = new Collider[96];
+        readonly List<CoverBox> _boxes = new List<CoverBox>();
+        readonly List<Vec2> _taken = new List<Vec2>();
+        PeekCycle _peek;
+        bool _goalIsCover;
+        Transform _visual; float _visualBaseY;
         public EnemyType Type { get; private set; }
         public bool Alive => _hp && _hp.Alive;
 
@@ -34,19 +48,27 @@ namespace SpecialSoldier
             Brain = new AwarenessBrain(Type) { Hold = hold, DifficultyDetect = GameDirector.CurrentDifficulty.Detect };
             // like the web game's engage(): a short, randomised pause before the first burst (shorter when it only heard you)
             Brain.StateChanged += (from, to) => { if (to == AlertState.Combat) _reactT = GameDirector.CurrentDifficulty.ReactionDelay(Type, Random.value, _seesNow); };
+            var rng = new System.Random(GetInstanceID());
+            Tactics = new TacticsPlanner(hold ? CombatBehavior.Hold : TacticsPlanner.BehaviorFor(Type), rng);
+            _peek = new PeekCycle(rng);
             _agent = GetComponent<NavMeshAgent>();
             _hp = GetComponent<Damageable>();
             _hp.Configure(Type.Hp, Type.Armor, 0.5f);
-            _hp.Hit += (dmg, from) => { _lastKnown = from; Brain.OnDamaged(); if (_hp.Model.Health < Type.Hp * 0.35f) Brain.Retreat(); };
+            _hp.Hit += (dmg, from) => { _lastKnown = from; Brain.OnDamaged(); };   // falling back is decided by TacticsPlanner
             _hp.Died += OnDied;
             _home = transform.position;
         }
+
+        void OnEnable() => Active.Add(this);
+        void OnDisable() => Active.Remove(this);
 
         void Start()
         {
             _player = FindAnyObjectByType<PlayerMotor>();
             _playerHp = _player ? _player.GetComponent<Damageable>() : null;
             _agent.speed = 1.5f;
+            _visual = transform.Find("Visual");
+            if (_visual) _visualBaseY = _visual.localPosition.y;
         }
 
         public void Hear(Vector3 pos, float radius)
@@ -88,6 +110,44 @@ namespace SpecialSoldier
             var p = new Perception { SeesTarget = _seesNow, Distance = dist, TargetSprinting = _player && _player.IsSprinting, NoiseRadius = _noise };
             _noise = 0f;
             Brain.Tick(td, p);
+            PlanCombat(td);
+        }
+
+        static Vec2 V(Vector3 v) => new Vec2(v.x, v.z);
+
+        /// <summary>Re-plans the combat move with the engine-free TacticsPlanner (web: Enemies.plan + findCover).</summary>
+        void PlanCombat(float td)
+        {
+            if (Brain.State < AlertState.Combat) { Goal = null; _goalIsCover = false; Hidden = false; return; }
+            if (Brain.State != AlertState.Combat || hold) return;
+            GatherCover();
+            _taken.Clear();
+            foreach (var o in Active) if (o != this && o.Alive && o.Goal.HasValue) _taken.Add(V(o.Goal.Value));
+            var r = Tactics.Plan(td, V(transform.position), V(_lastKnown), _hp.Model.Health / _hp.Model.MaxHealth, InCover, _seesNow, _boxes, _taken);
+            if (!r.HasGoal) return;
+            var g = new Vector3(r.Goal.X, transform.position.y, r.Goal.Z);
+            if (NavMesh.SamplePosition(g, out NavMeshHit nh, 3f, NavMesh.AllAreas)) g = nh.position;
+            Goal = g; _goalIsCover = r.InCover; _peek.Reset();
+            if (r.Retreat)
+            {
+                Brain.Retreat();
+                if (GameDirector.Instance) GameDirector.Instance.ReportNoise(transform.position, 80f);   // calls the squad (web: alertSquad 80 m)
+            }
+        }
+
+        /// <summary>Static, solid obstacles within 40 m as top-down boxes. Enemies, the player and triggers are skipped.</summary>
+        void GatherCover()
+        {
+            _boxes.Clear();
+            int n = Physics.OverlapSphereNonAlloc(transform.position, 40f, Nearby, sightMask, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < n; i++)
+            {
+                var c = Nearby[i];
+                if (!c || c.attachedRigidbody || c.GetComponentInParent<Damageable>() || c is CharacterController) continue;
+                var b = c.bounds;
+                bool usable = !c.gameObject.name.Contains("Glass") && !c.gameObject.name.Contains("Fence");
+                _boxes.Add(new CoverBox(b.min.x, b.min.z, b.max.x, b.max.z, b.max.y - transform.position.y, usable));
+            }
         }
 
         void Move()
@@ -112,17 +172,32 @@ namespace SpecialSoldier
                     if (!hold) _agent.SetDestination(_lastKnown); else Face(_lastKnown);
                     break;
                 case AlertState.Combat:
-                    _agent.speed = Type.Speed;
-                    float d = Vector3.Distance(transform.position, _lastKnown);
-                    if (hold || (_seesNow && d < 28f && d > 8f)) _agent.ResetPath();      // in a good band: stand and shoot
-                    else if (_seesNow && d <= 8f) _agent.SetDestination(transform.position + (transform.position - _lastKnown).normalized * 6f);
-                    else _agent.SetDestination(_lastKnown);
-                    Face(_lastKnown);
-                    break;
                 case AlertState.Retreat:
-                    _agent.speed = Type.Speed * 1.1f;
-                    if (!hold && !_agent.hasPath) _agent.SetDestination(transform.position + (transform.position - _lastKnown).normalized * 18f);
+                    _agent.speed = Type.Speed * (Brain.State == AlertState.Retreat ? 1.1f : 1f);
+                    if (hold) _agent.ResetPath();
+                    else if (Goal.HasValue)
+                    {
+                        if (!_agent.hasPath || (_agent.destination - Goal.Value).sqrMagnitude > 0.5f) _agent.SetDestination(Goal.Value);
+                    }
+                    else
+                    {
+                        // no plan yet: hold a sensible range (fallback from the first version)
+                        float d = Vector3.Distance(transform.position, _lastKnown);
+                        if (_seesNow && d < 28f && d > 8f) _agent.ResetPath();
+                        else if (_seesNow && d <= 8f) _agent.SetDestination(transform.position + (transform.position - _lastKnown).normalized * 6f);
+                        else if (Brain.State == AlertState.Combat) _agent.SetDestination(_lastKnown);
+                    }
+                    Hidden = _goalIsCover && AtGoal && _peek.Tick(Time.deltaTime);
+                    if (!_goalIsCover || !AtGoal) _peek.Reset();
+                    if (_seesNow || Brain.SinceSeen < 3f) Face(_lastKnown);
                     break;
+            }
+            if (_visual)
+            {
+                // duck behind cover: the model sinks 0.55 m (a stand-in until crouch animations arrive)
+                var lp = _visual.localPosition;
+                lp.y = Mathf.MoveTowards(lp.y, _visualBaseY - (Hidden ? 0.55f : 0f), Time.deltaTime * 3f);
+                _visual.localPosition = lp;
             }
         }
 
@@ -135,7 +210,7 @@ namespace SpecialSoldier
 
         void Shoot(float dt)
         {
-            if (!_seesNow || !_playerHp || !_playerHp.Alive) { _burstLeft = 0; return; }
+            if (!_seesNow || !_playerHp || !_playerHp.Alive || Hidden) { _burstLeft = 0; return; }
             if (_reactT > 0f) { _reactT -= dt; return; }
             var diff = GameDirector.CurrentDifficulty;
             if (_burstLeft <= 0)
@@ -162,6 +237,7 @@ namespace SpecialSoldier
 
         void OnDied()
         {
+            Goal = null; Hidden = false;
             _agent.enabled = false;
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
             transform.rotation = Quaternion.Euler(-80f, transform.eulerAngles.y, 0f);   // simple fall until ragdolls arrive
