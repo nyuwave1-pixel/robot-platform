@@ -112,3 +112,9 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 빌드 실행 시 `IslandSlice.exe -difficulty recruit|regular|veteran`로 난이도 지정(기본 REGULAR).
 - 결과: EditMode 163/163, PlayMode 8/8(새 테스트 `Opening_EnemiesHesitateBeforeFiring`).
   시작 지점에 6초 가만히 서 있을 때 HP 60 → **100/100**(REGULAR).
+
+## 2026-11-24 Unity CLI 설치 확인 — 미완료
+
+- 설치 스크립트가 사용자 PATH에 `%LOCALAPPDATA%\Unity\bin` 을 추가했지만 **그 폴더가 없고 `unity.exe` 도 없음**(새 셸에서 `unity` 명령 없음).
+  다운로드·압축 해제 단계에서 실패한 것으로 보임. 설치 스크립트를 다시 실행하고 출력(오류 줄)을 확인해야 함.
+- 그래서 Pipeline 패키지 설치·`unity command` 왕복 테스트는 아직 못 함. 플러그인 스킬(`unity:unity-cli` 등)은 Claude Code 에 이미 로드돼 있어 `unity setup` 은 생략 가능.
