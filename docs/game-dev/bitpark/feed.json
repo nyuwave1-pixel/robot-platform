@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T05:01:54.954Z",
+  "generatedAt": "2026-11-24T05:48:35.834Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "d4b0e53"
+    "commit": "6564123"
   },
   "section": {
     "id": "game-dev-lab",
@@ -17,7 +17,7 @@
       "slug": "special-soldier",
       "name": "SPECIAL SOLDIER",
       "engine": "Three.js (web)",
-      "version": "0.19",
+      "version": "0.20",
       "tests": {
         "e2e": {
           "passed": 65,
@@ -27,6 +27,11 @@
           "passed": 17,
           "total": 17
         }
+      },
+      "playable": {
+        "web": "https://special-soldier.vercel.app",
+        "portal": "https://www.airobotphysical.com/games/play/special-soldier/",
+        "rpMessage": "game_result"
       },
       "docs": [
         "apps/special-soldier/README.md",
@@ -360,6 +365,30 @@
   },
   "devlog": [
     {
+      "hash": "6564123",
+      "date": "2026-11-24",
+      "area": "general",
+      "subject": "QA: v0.20 campaign regression 17/17"
+    },
+    {
+      "hash": "2d8fb19",
+      "date": "2026-11-24",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): any-order objectives; mission 03 lets you sabotage the motor pool or hit HQ first (v0.20)"
+    },
+    {
+      "hash": "4d4a871",
+      "date": "2026-11-24",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed — Unity live control done, EditMode 163/163, PlayMode 8/8"
+    },
+    {
+      "hash": "e6eca67",
+      "date": "2026-11-24",
+      "area": "portal",
+      "subject": "chore(portal): fold Unity status into the hub's BIT PARK feed (live control done); drop duplicate portal-feed.json"
+    },
+    {
       "hash": "d4b0e53",
       "date": "2026-11-24",
       "area": "unity-studio",
@@ -574,30 +603,6 @@
       "date": "2026-11-19",
       "area": "special-soldier",
       "subject": "docs(special-soldier): free asset / open-source research report; hub status"
-    },
-    {
-      "hash": "1efbede",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): v0.13 bullpup + revolver, soldier detail, -13% tris; fix gun marker lookup"
-    },
-    {
-      "hash": "68ea2ab",
-      "date": "2026-11-19",
-      "area": "game-dev",
-      "subject": "docs(game-dev): shared free-asset pipeline skill, source catalog and session hub"
-    },
-    {
-      "hash": "b6c4587",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record v0.12 campaign regression"
-    },
-    {
-      "hash": "b333426",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): rework soldier faces, anatomy and per-type kits; fix dark uniforms (v0.12.0)"
     }
   ]
 }

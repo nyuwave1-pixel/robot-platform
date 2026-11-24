@@ -76,6 +76,7 @@ const feed = {
     {
       slug: 'special-soldier', name: 'SPECIAL SOLDIER', engine: 'Three.js (web)', version: ssVersion,
       tests: { e2e: e2e ? { passed: +e2e[1], total: +e2e[2] } : null, lastRegression: regression ? { passed: +regression[1], total: +regression[2] } : null },
+      playable: { web: 'https://special-soldier.vercel.app', portal: 'https://www.airobotphysical.com/games/play/special-soldier/', rpMessage: 'game_result' },
       docs: ['apps/special-soldier/README.md', 'apps/special-soldier/docs/GAME_DESIGN.md'],
     },
     {

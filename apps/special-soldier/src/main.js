@@ -83,6 +83,8 @@ G.onMissionComplete = () => {
   const res = { code: m.def.code, name: m.def.name, grade, time: st.time, kills: st.kills, headshots: st.headshots, acc, hits: st.hits, shots: st.shots, alarms: st.alarms, deaths: st.deaths, intel: st.intel || 0, intelMax: (INTEL[i] ? INTEL[i].docs.length : 0), score: Math.round(st.score), unlocks: first ? m.def.unlocks : [], last: i === MISSIONS.length - 1 };
   s.progress = Math.max(s.progress, i + 1); const old = s.best[i]; if (!old || 'CBAS'.indexOf(grade) >= 'CBAS'.indexOf(old.grade)) s.best[i] = { grade, time: Math.round(st.time), kills: st.kills, acc, alarms: st.alarms };
   s.stats.kills += st.kills; s.stats.headshots += st.headshots; s.stats.shots += st.shots; s.stats.hits += st.hits; s.stats.deaths += st.deaths; s.stats.time += st.time; storeSave(s);
+  // Portal hook: when embedded (AI RobotVerse /games/play/special-soldier), report the result so the host credits RP.
+  if (window.parent !== window) { const rp = { S: 60, A: 45, B: 30, C: 15 }[grade]; try { window.parent.postMessage({ type: 'game_result', game: 'special-soldier', score: res.score, rp, mission: res.code, grade }, '*'); } catch (e) {} }
   G.state = 'result'; G.lastResult = res; G.input.unlock(); G.audio.hush(); G.audio.stopLoops(); G.hud.show(false); G.player.frozen = false; G.menu.result(res);
 };
 

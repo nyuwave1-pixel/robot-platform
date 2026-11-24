@@ -18,7 +18,7 @@ BIT PARK 포털(별도 저장소 `bitpark-portal`, PC의 `C:\개발\bitpark-port
 
 ```text
 section            { id: "game-dev-lab", title, subtitle, honesty }
-projects[]         { slug, name, engine, version?, status?, tests{...}, playable?{ windows, webgl|null }, screenshots[], docs[] }
+projects[]         { slug, name, engine, version?, status?, tests{...}, playable?{ windows, webgl|null } | { web, portal, rpMessage }, screenshots[], docs[] }
 pipeline           { steps[], sources[{name,url,license}], openSource[{repo,url,stars,license,verdict}], claudeUnityLiveControl: "done"|"pending" }
 learning           { courses[{title,duration,practice,url}], units[{unit,files,learn}], next[{task,feature,resource}] }
 devlog[]           { hash, date, area, subject }      // 게임 관련 경로만, 최신순
@@ -44,3 +44,9 @@ node tools/portal/export-bitpark-feed.mjs
 ```
 
 포털 쪽에서는 자기 `collect-content` 스크립트가 이 파일과 스크린샷(필요하면 `Builds/WebGL`)을 복사하도록 합니다.
+
+## airobotphysical.com 연동
+
+웹판 SPECIAL SOLDIER는 airobotphysical.com `/games/play/special-soldier/` 에서 iframe으로 열립니다(`playable.portal`).
+미션을 마치면 게임이 부모 창에 `{type:"game_result", game:"special-soldier", score, rp, mission, grade}` 를 보내고, 사이트가 로그인 사용자에게 RP를 적립합니다(하루 1회). RP: S 60 · A 45 · B 30 · C 15 (사이트 상한 65).
+사이트의 GAME DEV LAB 섹션은 이 `feed.json` 을 복사해 씁니다(`src/data/gamedev-lab.json`). 게임을 바꾼 뒤 피드를 다시 만들고 사이트 쪽 복사본도 갱신하세요.
