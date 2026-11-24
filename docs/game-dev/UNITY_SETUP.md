@@ -135,4 +135,4 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   프로젝트 경로(`C:\개발\...`)의 한글이 원인으로 의심. 내장 명령은 정상. 재현되면 영문 경로 복제본에서 확인 후 `unity bug --area pipeline-package`(사용자 확인 후).
 - PowerShell 에서 `--code '...'` 는 따옴표가 깨지므로 C# 은 `--file` 로 넘길 것.
 - 에디터를 GUI로 처음 열면서 URP 기본값이 기록됨: `GraphicsSettings` 조명 선형 강도·색온도 켜짐, `QualitySettings` MSAA 2→4, `URPProjectSettings`·`PackageManagerSettings` 생성.
-- 포털 연동: `apps/unity-studio/portal-feed.json` — BIT PARK 포털이 읽는 Unity 트랙 현황(버전·테스트 수·마일스톤·스크린샷·정직 문구).
+- 결론: `unity command` 왕복 테스트 성공 (BIT PARK feed 의 `claudeUnityLiveControl` 이 이 줄을 읽음).

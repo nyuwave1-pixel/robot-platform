@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T04:53:07.790Z",
+  "generatedAt": "2026-11-24T05:01:54.954Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "67c4037"
+    "commit": "d4b0e53"
   },
   "section": {
     "id": "game-dev-lab",
@@ -225,7 +225,7 @@
         "verdict": "링크 참고만. 내용 복사 금지"
       }
     ],
-    "claudeUnityLiveControl": "pending"
+    "claudeUnityLiveControl": "done"
   },
   "learning": {
     "courses": [
@@ -359,6 +359,18 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "d4b0e53",
+      "date": "2026-11-24",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): Unity CLI + Pipeline package; live Editor round trip verified; portal feed for BIT PARK"
+    },
+    {
+      "hash": "518e22a",
+      "date": "2026-11-24",
+      "area": "portal",
+      "subject": "feat(portal): GAME DEV LAB feed for the BIT PARK portal and a Unity WebGL build"
+    },
     {
       "hash": "67c4037",
       "date": "2026-11-24",
@@ -586,18 +598,6 @@
       "date": "2026-11-19",
       "area": "special-soldier",
       "subject": "feat(special-soldier): rework soldier faces, anatomy and per-type kits; fix dark uniforms (v0.12.0)"
-    },
-    {
-      "hash": "7129149",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record v0.11 campaign regression"
-    },
-    {
-      "hash": "d21fac4",
-      "date": "2026-11-19",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): knee joints and grounded walk cycle for soldiers (v0.11.0)"
     }
   ]
 }
