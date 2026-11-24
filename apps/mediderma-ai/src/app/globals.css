@@ -108,7 +108,7 @@ html.i18n-pending main, html.i18n-pending footer { visibility: hidden; }
 
 /* 첫 화면 인물 사진의 느린 부유 (transform 만 써서 메인 스레드를 쓰지 않는다) */
 @keyframes hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-.hero-float { animation: hero-float 7s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { .hero-float { animation: hero-float 7s ease-in-out infinite; } }
 
 /* DepthText 글자별 등장 — CSS transition 으로 (JS 애니메이션 없이) */
 .depth-text .depth-ch { opacity: 0; transform: translateY(0.55em) translateZ(-60px) rotateX(-85deg);
