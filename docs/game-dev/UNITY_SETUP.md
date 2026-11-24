@@ -118,3 +118,21 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 설치 스크립트가 사용자 PATH에 `%LOCALAPPDATA%\Unity\bin` 을 추가했지만 **그 폴더가 없고 `unity.exe` 도 없음**(새 셸에서 `unity` 명령 없음).
   다운로드·압축 해제 단계에서 실패한 것으로 보임. 설치 스크립트를 다시 실행하고 출력(오류 줄)을 확인해야 함.
 - 그래서 Pipeline 패키지 설치·`unity command` 왕복 테스트는 아직 못 함. 플러그인 스킬(`unity:unity-cli` 등)은 Claude Code 에 이미 로드돼 있어 `unity setup` 은 생략 가능.
+
+## 2026-11-24 (2) Unity CLI · 에디터 실시간 제어 — 완료
+
+- 사용자가 설치 스크립트를 다시 실행 → `%LOCALAPPDATA%\Unity\bin\unity.exe` **1.0.1** (새 셸에서 PATH 인식).
+- `unity pipeline install --project-path apps/unity-studio` → `com.unity.pipeline` 1.0.1 이 `Packages/manifest.json` 에 추가.
+- `unity open apps/unity-studio` → `unity status --until-ready` 로 `ready` 확인(포트 7800).
+- 왕복 테스트(모두 `unity command ... --project-path apps/unity-studio`):
+  1. `scene create --path Scenes/_CliRoundTrip --template default`
+  2. `gameobject create --name CliCube --primitive cube`
+  3. `script eval --file <cs>` → `CliCube at (1.00, 2.00, 3.00), scene roots 3, Unity 6000.6.9f1`
+  4. `scene save` → 디스크의 .unity 파일에 `m_Name: CliCube`, `m_LocalPosition: {x: 1, y: 2, z: 3}` 확인
+  5. `scene open --path Scenes/IslandSlice` → `gameobject find --type EnemyAgent` = 7개
+  6. `asset delete --asset Assets/Scenes/_CliRoundTrip.unity --confirm` 로 임시 씬 삭제
+- **알려진 문제**: 씬을 바꾼 뒤부터 `script eval` 이 `return 1+1;` 까지 `ROSLYN001 String conversion error: Illegal byte sequence` 로 실패.
+  프로젝트 경로(`C:\개발\...`)의 한글이 원인으로 의심. 내장 명령은 정상. 재현되면 영문 경로 복제본에서 확인 후 `unity bug --area pipeline-package`(사용자 확인 후).
+- PowerShell 에서 `--code '...'` 는 따옴표가 깨지므로 C# 은 `--file` 로 넘길 것.
+- 에디터를 GUI로 처음 열면서 URP 기본값이 기록됨: `GraphicsSettings` 조명 선형 강도·색온도 켜짐, `QualitySettings` MSAA 2→4, `URPProjectSettings`·`PackageManagerSettings` 생성.
+- 포털 연동: `apps/unity-studio/portal-feed.json` — BIT PARK 포털이 읽는 Unity 트랙 현황(버전·테스트 수·마일스톤·스크린샷·정직 문구).
