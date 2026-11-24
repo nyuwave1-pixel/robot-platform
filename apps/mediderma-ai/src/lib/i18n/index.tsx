@@ -37,13 +37,26 @@ function detect(): Locale {
   return "ko";
 }
 
+/**
+ * 한국어가 아닌 방문자는 이 모듈이 실행되는 즉시(하이드레이션 전) 언어 파일을 내려받기 시작한다.
+ * 화면이 다 뜬 뒤에 받기 시작하면 번역 화면으로 바뀌는 시점이 그만큼 늦어진다.
+ */
+const early: { locale: Locale; promise: Promise<{ default: Dict }> } | null = (() => {
+  if (typeof window === "undefined") return null;
+  const l = detect();
+  if (l === "ko") return null;
+  const promise = loaders[l]();
+  promise.catch(() => {});
+  return { locale: l, promise };
+})();
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ko");
   const [t, setT] = useState<Dict>(ko);
   const target = useRef<Locale | null>(null);
   const apply = useCallback((l: Locale) => {
     target.current = l;
-    loaders[l]()
+    (early && early.locale === l ? early.promise : loaders[l]())
       .then((m) => {
         setT(m.default);
         setLocaleState(l);
