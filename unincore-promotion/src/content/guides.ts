@@ -120,12 +120,14 @@ export const GUIDES: Guide[] = [
       { q: "Can I use an enzyme powder wash every day?", a: "Gentle, low-pH formulas made for daily use can be. The UNI&CORE Vita C Enzyme Powder Wash is mildly acidic (pH 5–5.5) and designed for everyday cleansing." },
       { q: "Is an enzyme powder cleanser OK for sensitive skin?", a: "It depends on the formula and your skin. If your skin is reactive, patch test first and start with a few washes a week before moving to daily use. The UNI&CORE Vita C Enzyme Powder Wash uses low-irritation enzymes at a mildly acidic pH of 5–5.5." },
       { q: "Can I double cleanse with an enzyme powder cleanser?", a: "Yes. Use an oil or balm cleanser first to remove makeup and sunscreen, then the enzyme powder as the second, water-based cleanse. On makeup-free mornings the powder cleanser alone is enough." },
+      // Search research 2026-11-24: "enzyme powder cleanser how often to use".
+      { q: "Should I use an enzyme powder cleanser in the morning or at night?", a: "Either works. A gentle, low-pH wash made for daily use can be your morning or evening cleanse. At night, use it after an oil cleanser if you wear makeup or sunscreen; in the morning, follow with your serum and finish with sunscreen." },
       { q: "Is an enzyme powder cleanser good for oily skin?", a: "It can be a gentle daily option. The UNI&CORE Vita C Enzyme Powder Wash lists oily, normal, combination and dry skin on the box, and its lipase enzyme helps break down excess sebum. It is a cleanser, not an acne product; for persistent breakouts, see a dermatologist." },
       { q: "Where can I buy the UNI&CORE enzyme powder wash?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
     ],
     products: ["wash"],
     published: "2026-11-05",
-    updated: "2026-11-14",
+    updated: "2026-11-24",
   },
   {
     slug: "vitamin-c-and-glutathione",
