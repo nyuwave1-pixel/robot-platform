@@ -259,3 +259,16 @@ export async function intel({ page, sim, shot }) {
   console.log('buried:', JSON.stringify(await page.evaluate(() => { const res = []; for (let i = 0; i < 5; i++) { SS.startMission(i, true); for (const it of SS.mission.intelItems) { const hits = SS.world.colliders.filter((c) => c.alive && !c.noStand && c.kind !== 'tree' && it.x > c.min.x - 0.25 && it.x < c.max.x + 0.25 && it.z > c.min.z - 0.25 && it.z < c.max.z + 0.25 && it.y + 0.3 > c.min.y && it.y + 0.3 < c.max.y); if (hits.length) res.push([i + 1, it.k, hits.map((c) => (c.kind || c.mat) + ' ' + c.min.toArray().map((v) => v.toFixed(1)) + '→' + c.max.toArray().map((v) => v.toFixed(1)))]); } } return res; })));
   await page.evaluate(() => { SS.save.intel = { 0: [0, 1, 2], 2: [1] }; SS.toMenu(); SS.menu.intelArchive(); }); await page.waitForTimeout(400); await shot('I2-archive');
 }
+
+// mission 03 any-order objective: sabotage the motor pool first (APC destroyed), then HQ, then the terminal unlocks
+export async function anyorder({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const st = () => page.evaluate(() => `oi ${SS.mission.oi} | ${SS.mission.objText()} | APC alive ${SS.enemies.list.some((e) => e.alive && e.type.vehicle)}`);
+  await page.evaluate(() => { SS.startMission(2, true); SS.godMode = true; QA.tp(0, -12); }); await sim(0.5); console.log('gate    :', await st());
+  await shot('O1-any');
+  const m = await page.evaluate(() => { const p = SS.mission.marker(); return [Math.round(p.x), Math.round(p.z)]; }); console.log('marker  :', m);
+  await page.evaluate(() => { const p = SS.POI ? SS.POI.motor : { x: -55, z: -100 }; QA.tp(-55 + 0.6, -100 + 0.6); SS.input.keys.add('KeyE'); QA.key('KeyE'); }); await sim(3.6); await page.evaluate(() => SS.input.keys.delete('KeyE'));
+  console.log('sabotage:', await st(), '| flag', await page.evaluate(() => !!SS.mission.flags.sabotage));
+  await shot('O2-sabotage');
+  await page.evaluate(() => QA.fight('hq', 40)); await sim(0.5); console.log('hq      :', await st());
+}

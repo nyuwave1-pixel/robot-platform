@@ -103,7 +103,12 @@ export const MISSIONS = [
       const h = 'hq'; sp('heavy', 0, -116, { group: h, yaw: 3.1 }); sp('elite', -7, -128, { group: h, y, yaw: 3 }); sp('elite', 9, -129, { group: h, y, yaw: 3.2 }); sp('guard', -9, -137, { group: h, y }); sp('guard', 18, -118, { group: h, yaw: 2.6 }); },
     objectives: [
       { type: 'reach', x: 0, z: -16, r: 13, text: 'Breach the south gate', marker: () => ({ x: 0, z: -2 }) },
-      { type: 'kill', group: 'hq', text: 'Eliminate HQ security', marker: () => POI.hq },
+      { type: 'any', text: 'Two tasks — any order', radio: 'REAPER: Two jobs before the terminal. Hit the motor pool first and their armour never leaves the shed — or go straight for HQ. Your call.', parts: [
+        { type: 'kill', group: 'hq', text: 'Eliminate HQ security', marker: () => POI.hq },
+        { type: 'interact', at: () => ({ x: POI.motor.x, y: G.world.heightAt(POI.motor.x, POI.motor.z) + 1, z: POI.motor.z }), label: 'SET CHARGE ON THE FUEL BOWSER', hold: 3, text: 'Sabotage the motor pool',
+          done(M) { const p = POI.motor, y = G.world.heightAt(p.x, p.z); G.fx.explode(p.x, y + 1, p.z, 9, 'player', 0); setTimeout(() => G.fx.explode(p.x + 4, y + 1, p.z - 3, 7, 'player', 0), 300);
+            for (const e of E().list) if (e.alive && e.type.vehicle && Math.hypot(e.pos.x - p.x, e.pos.z - p.z) < 70) E().kill(e, 'torso', 'player');
+            M.flags.sabotage = true; G.hud.radio('NOMAD: Fuel went up — that APC is scrap. Nice.'); } } ] },
       { type: 'interact', at: () => POI.intel, label: 'DOWNLOAD FACILITY ACCESS DATA', hold: 4, text: 'Download the intel from the HQ terminal', done(M) { G.audio.play('alarm', POI.hq); G.hud.radio('COMMAND: Data received. The whole base just lit up — get to the bunker!'); wave([['assault', -4, -178], ['assault', 4, -180], ['elite', 0, -176], ['assault', -30, -170], ['heavy', 30, -172]], 'qrf', POI.hq.x, POI.hq.z); M.flags.alarmed = true; } },
       { type: 'reach', x: 91, z: -150, r: 3.2, text: 'Reach the bunker elevator', marker: () => POI.bunker } ],
     alarm(M) { G.hud.radio('NOMAD: Base alarm! Armour is waking up!'); G.audio.play('alarm', POI.hq); wave([['assault', 70, -70], ['assault', 76, -74]], 'qrf'); for (const e of E().list) if (e.alive && e.type.vehicle) { e.state = ST.SEARCH; e.lk.copy(G.player.pos); e.alerted = true; } } },
@@ -193,11 +198,17 @@ export class MissionSys {
     const P = G.player; if (this.oi > 0 && !this.def.training) { this.checkpoint = { x: P.pos.x, z: P.pos.z, y: P.pos.y, yaw: P.yaw, oi: this.oi }; G.hud.toast('CHECKPOINT REACHED'); G.audio.play('ui:ok'); }
     if (o.type === 'interact') { const a = o.at(); this.interactables.push({ x: a.x, y: a.y, z: a.z, r: o.r || 2.6, label: o.label, hold: o.hold, once: true, enabled: o.enabled, act: () => this.advance() }); }
     if (o.type === 'defend') this.defT = o.time;
+    if (o.type === 'any') { this.parts = o.parts.map((p) => ({ ...p, ok: false })); this.parts.forEach((p, k) => { if (p.type === 'interact') { const a = p.at(); this.interactables.push({ x: a.x, y: a.y, z: a.z, r: p.r || 2.6, label: p.label, hold: p.hold, once: true, act: () => this.partDone(k) }); } }); }
     if (o.start) o.start(this); if (o.radio) G.hud.radio(o.radio);
     G.hud.objective(this.objText(), true);
   }
-  objText() { const o = this.obj; if (!o) return 'Mission complete'; if (o.type === 'kill') return `${o.text} — ${G.enemies.count(o.group)} left`; if (o.type === 'defend') return `${o.text} — ${fmtTime(this.defT)}`; return o.text; }
-  marker() { const o = this.obj; if (!o) return null; if (o.marker) return o.marker(); if (o.at) return o.at(); if (o.x !== undefined) return o; if (o.type === 'kill') { let best = null, bd = 1e9; for (const e of G.enemies.list) if (e.alive && e.group === o.group) { const d = e.pos.distanceToSquared(G.player.pos); if (d < bd) { bd = d; best = e.pos; } } return best; } return null; }
+  /** One task of an any-order objective finished; the objective completes when every task is done. */
+  partDone(k) { const p = this.parts && this.parts[k]; if (!p || p.ok) return; p.ok = true; if (p.done) p.done(this); G.audio.play('ui:ok');
+    if (this.parts.every((q) => q.ok)) this.advance(); else { G.hud.toast('TASK COMPLETE — ' + p.text.toUpperCase()); G.hud.objective(this.objText(), true); } }
+  objText() { const o = this.obj; if (!o) return 'Mission complete';
+    if (o.type === 'any' && this.parts) return o.text + ': ' + this.parts.map((p) => (p.ok ? '✓ ' : '○ ') + (p.type === 'kill' && !p.ok ? `${p.text} (${G.enemies.count(p.group)})` : p.text)).join('   '); if (o.type === 'kill') return `${o.text} — ${G.enemies.count(o.group)} left`; if (o.type === 'defend') return `${o.text} — ${fmtTime(this.defT)}`; return o.text; }
+  marker() { let o = this.obj; if (!o) return null;
+    if (o.type === 'any' && this.parts) { const P = G.player.pos; let best = null, bd = 1e9; for (const p of this.parts) { if (p.ok) continue; const m = p.marker ? p.marker() : p.at ? p.at() : p; const d = Math.hypot(m.x - P.x, m.z - P.z); if (d < bd) { bd = d; best = m; } } return best; } if (o.marker) return o.marker(); if (o.at) return o.at(); if (o.x !== undefined) return o; if (o.type === 'kill') { let best = null, bd = 1e9; for (const e of G.enemies.list) if (e.alive && e.group === o.group) { const d = e.pos.distanceToSquared(G.player.pos); if (d < bd) { bd = d; best = e.pos; } } return best; } return null; }
   event(name, e) {
     if (name === 'alarm' && !this.flags.alarm) { this.flags.alarm = true; this.stats.alarms++; G.hud.toast('ENEMY CALLED FOR REINFORCEMENTS', true); this.def.alarm(this, e); }
     if (name === 'bossPhase2') { G.hud.radio('VIPER: All units — converge on the runway! Kill them all!'); G.audio.play('alarm', e.pos); wave([['elite', 60, -336], ['elite', 66, -340], ['assault', 54, -334], ['assault', 200, -270]], 'air', e.pos.x, e.pos.z); e.type = { ...e.type, speed: 5.2, spread: 2.1 }; }
@@ -209,6 +220,7 @@ export class MissionSys {
     if (o.type === 'kill') { if (G.enemies.count(o.group) === 0) this.advance(); }
     else if (o.type === 'reach') { const a = o.at ? o.at() : o; if (Math.hypot(P.pos.x - a.x, P.pos.z - a.z) < o.r && (a.y === undefined || Math.abs(P.pos.y - a.y) < 6)) this.advance(); }
     else if (o.type === 'custom') { if (o.check(this)) this.advance(); }
+    else if (o.type === 'any' && this.parts) { this.parts.forEach((p, k) => { if (p.ok) return; if ((p.type === 'kill' && G.enemies.count(p.group) === 0) || (p.type === 'reach' && Math.hypot(P.pos.x - p.x, P.pos.z - p.z) < p.r) || (p.type === 'custom' && p.check(this))) this.partDone(k); }); }
     else if (o.type === 'defend') { this.defT -= dt; if (o.tick) o.tick(this, dt); if (this.defT <= 0) this.advance(); }
     if (this.heli) this.updateHeli(dt);
     if ((this.hudT = (this.hudT || 0) - dt) <= 0) { this.hudT = 0.25; G.hud.objective(this.objText(), false); }

@@ -1,6 +1,6 @@
 {
   "name": "special-soldier",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "private": true,
   "type": "module",
   "description": "SPECIAL SOLDIER — Operation: Island Invasion. Playable browser FPS prototype (Three.js).",

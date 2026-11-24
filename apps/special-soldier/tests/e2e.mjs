@@ -90,7 +90,7 @@ for (let mi = 0; mi < 5; mi++) {
   while (guard++ < 400) {
     const st = await ev(() => SS.state); if (st === 'result') break; if (st === 'video') { await page.waitForTimeout(300); guard--; continue; } if (process.env.TRACE) console.log('  step', mi + 1, guard, st, JSON.stringify(await ev(() => QA.info())).slice(0, 220));
     if (st === 'cinematic') { cineSeen++; if (cineSeen % 2 === 1 && mi > 0) { await run(2.5); await shot(`m${mi + 1}-cine${cineSeen}`); } await ev(() => { QA.key('Enter'); QA.run(0.1); }); continue; }
-    const o = await ev(() => { const m = SS.mission, o = m.obj; if (!o) return null; const at = o.at ? o.at() : o; return { type: o.type, group: o.group, x: at.x, y: at.y, z: at.z, hold: o.hold || 0, oi: m.oi, text: m.objText() }; });
+    const o = await ev(() => { const m = SS.mission; let o = m.obj; if (!o) return null; if (o.type === 'any') o = m.parts.find((p) => !p.ok); if (!o) return null; const at = o.at ? o.at() : o; return { type: o.type, group: o.group, x: at.x, y: at.y, z: at.z, hold: o.hold || 0, oi: m.oi, text: m.objText() }; });
     if (!o) { await run(1); continue; }
     if (o.type === 'kill') await ev((g) => QA.fight(g, 40), o.group);
     else if (o.type === 'reach') { await ev((o) => { QA.tp(o.x, o.z, o.y !== undefined ? o.y - (o.y < -30 ? 1 : 0) : undefined); }, o); await run(0.3); }
