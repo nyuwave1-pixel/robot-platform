@@ -316,3 +316,30 @@ function MyLounge() {
     </>
   );
 }
+
+// ───────────── 바깥 링크로 들어오기 (포털 연동) ─────────────
+/** 포털 등 바깥에서 여는 링크: ?visit=친구코드 (열린 라운지 바로 방문) · ?open=contest|events|lounges (해당 탭 열기). 게임을 시작한 뒤 한 번만 적용한다 */
+let deepLinkDone = false;
+export async function applyDeepLink(t: (k: string, v?: Record<string, string | number>) => string) {
+  if (deepLinkDone || typeof location === "undefined" || !useGame.getState().started) return;
+  const q = new URLSearchParams(location.search);
+  const visit = q.get("visit");
+  const open = q.get("open");
+  if (!visit && !open) return;
+  deepLinkDone = true;
+  try {
+    const u = new URL(location.href);
+    u.searchParams.delete("visit"); u.searchParams.delete("open");
+    history.replaceState(null, "", u.toString());
+  } catch { /* 주소를 못 바꾸는 환경 */ }
+  const tab: EvTab | null = open === "contest" ? "contest" : open === "events" ? "news" : open === "lounges" ? "open" : null;
+  if (visit) {
+    const r = await visitByCode(visit);
+    if (r === "ok") return;
+    useUI.getState().toast(t(`live.visit.${r}`), "error");
+    useEvTab.setState({ tab: "open" });
+    useUI.setState({ panel: "events" });
+    return;
+  }
+  if (tab) { useEvTab.setState({ tab }); useUI.setState({ panel: "events" }); }
+}

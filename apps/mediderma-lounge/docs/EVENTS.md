@@ -45,3 +45,8 @@
 - 내 라운지에 남겨진 글은 EVENT 패널 **방명록** 탭에서 최근 30개를 본다. 새 글이 오면 EVENT 버튼에 숫자가 붙는다.
 - 서버: `supabase/mdl_lounge_guestbook.sql` (테이블 `mdl_contest.guestbook`, RPC `mdl_guest_write` · `mdl_guest_list`). 본인 확인은 콘테스트와 같은 기기 비밀값을 쓴다. 라운지마다 최근 100개만 보관한다.
 - 문구·스티커를 늘릴 때는 `src/net/guestbook.ts` 의 목록에 추가한다 (서버 허용 범위: 문구 0–19, 스티커 0–9).
+
+## 6. 포털(AIRobotVerse) 연동
+- 포털 게임 섹션(`airobotverse-` 저장소 `src/components/MedidermaLoungeSection.tsx`)이 콘테스트 순위 · 이벤트 · 지금 열린 라운지를 보여 준다.
+- 포털은 `/events.json` 을 읽는다 (`vercel.json` 에서 이 파일만 CORS 허용). events.json 을 고치면 포털에도 5분 안에 반영된다.
+- 게임으로 들어오는 링크: `?visit=친구코드` (열린 라운지 바로 방문, 닫혀 있으면 열린 라운지 탭) · `?open=contest|events|lounges` (해당 탭 열기). 게임을 시작한 뒤 한 번만 적용되고 주소에서 지워진다.

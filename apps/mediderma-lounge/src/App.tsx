@@ -9,6 +9,8 @@ import { Hud } from "./ui/Hud";
 import { PanelHost } from "./ui/Panels";
 import { CarePanel } from "./ui/CarePanel";
 import { Tweaks } from "./ui/Tweaks";
+import { applyDeepLink } from "./ui/Events";
+import { useT } from "./i18n";
 
 /** WebGL 미지원·렌더 오류 시에도 흰 화면 대신 안내와 복구 버튼을 보여 준다. */
 class Boundary extends Component<{ children: ReactNode }, { err: string | null }> {
@@ -32,7 +34,8 @@ export function App() {
   const screen = useUI((s) => s.screen);
   const mode = useUI((s) => s.mode);
   // 초대 링크로 들어온 기존 플레이어
-  useEffect(() => { if (screen === "game") applyPendingInvite(); }, [screen]);
+  const t = useT();
+  useEffect(() => { if (screen === "game") { applyPendingInvite(); void applyDeepLink(t); } }, [screen, t]);
   // 화면에 맞는 배경음악·환경음
   const world = useUI((s) => s.world);
   const sound = useGame((s) => s.settings.sound ?? true);
