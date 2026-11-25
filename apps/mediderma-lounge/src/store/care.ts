@@ -25,7 +25,7 @@ export function beginRoutine(routineId: string, opts?: { express?: boolean; like
   if (!r) return;
   const steps = opts?.express ? r.steps.slice(0, 2) : r.steps;
   const zones = opts?.express ? r.zones.slice(0, 2) : r.zones;
-  useUI.getState().patchCare({ routineId, title: r.ko, phase: "step", steps, zones, step: 0, applied: false, product: null, zone: null, done: [], progress: 0, mistAllowed: r.mistFinish, liked: opts?.liked });
+  useUI.getState().patchCare({ routineId, title: r.ko, phase: "step", steps, zones, step: 0, applied: false, product: null, zone: null, done: [], progress: 0, mistAllowed: r.mistFinish, liked: opts?.liked, dirGood: 0, dirAll: 0, dirLast: undefined });
   careFx.mode = steps[0].mode;
 }
 
@@ -33,7 +33,7 @@ export function beginRoutine(routineId: string, opts?: { express?: boolean; like
 export function beginFree(mode: ModeId) {
   const products = CARE_PRODUCTS.filter((p) => p.modes.includes(mode)).map((p) => p.id);
   const step: RoutineStep = { mode, minutes: 5, products };
-  useUI.getState().patchCare({ routineId: null, title: MODES[mode].label, phase: "step", steps: [step], zones: ["forehead", "cheek", "jaw", "neck"], step: 0, applied: false, product: null, zone: null, done: [], progress: 0, mistAllowed: true });
+  useUI.getState().patchCare({ routineId: null, title: MODES[mode].label, phase: "step", steps: [step], zones: ["forehead", "cheek", "jaw", "neck"], step: 0, applied: false, product: null, zone: null, done: [], progress: 0, mistAllowed: true, dirGood: 0, dirAll: 0, dirLast: undefined });
   careFx.mode = mode;
 }
 
@@ -57,12 +57,31 @@ export function selectZone(z: ZoneId) {
   useUI.getState().patchCare({ zone: z, progress: 0 });
 }
 
-export function addProgress(amount: number) {
+/** 결 방향 판정: 민 방향과 가이드 방향의 코사인 → 1 좋음 · 0 보통 · -1 반대 */
+export function strokeGrade(cos: number): 1 | 0 | -1 {
+  return cos > 0.6 ? 1 : cos < -0.3 ? -1 : 0;
+}
+/** 결 정확도(%) — 문지른 거리가 거의 없으면 없음 */
+export function dirAccuracy(c: { dirGood?: number; dirAll?: number }): number | undefined {
+  return c.dirAll && c.dirAll > 1e-4 ? Math.round(((c.dirGood ?? 0) / c.dirAll) * 100) : undefined;
+}
+
+/** 진행도를 더한다. cos 를 주면(문지름) 결 방향을 판정해 진행 배율과 정확도에 반영한다 */
+export function addProgress(amount: number, cos?: number, dist = 0) {
   const ui = useUI.getState();
   const c = ui.care;
   if (!c || c.phase !== "step" || !c.applied || !c.zone) return;
+  const dirPatch: Partial<typeof c> = {};
+  if (cos !== undefined) {
+    const g = strokeGrade(cos);
+    amount *= g === 1 ? tune("care.dir_good_mult") : g === -1 ? tune("care.dir_bad_mult") : 1;
+    dirPatch.dirAll = (c.dirAll ?? 0) + dist;
+    dirPatch.dirGood = (c.dirGood ?? 0) + (g === 1 ? dist : 0);
+    dirPatch.dirLast = g;
+  }
   const p = c.progress + amount;
-  if (p < 1) return ui.patchCare({ progress: p });
+  if (p < 1) return ui.patchCare({ progress: p, ...dirPatch });
+  ui.patchCare(dirPatch);
   // 부위 완료
   careFx.burst = 1;
   const done = [...c.done, c.zone];
@@ -96,6 +115,10 @@ export function finishCare(withMist: boolean) {
     knowledge: c.steps.length * tune("care.step_knowledge_exp") + (full ? tune("care.full_routine_knowledge_exp") : 0) + (firstTime ? tune("care.first_clear_knowledge_exp") : 0),
   };
   let coins = c.steps.length * tune("care.step_coins");
+  // 결 정확도 보너스: 가이드 방향대로 꼼꼼히 밀었으면
+  const accuracy = dirAccuracy(c);
+  const dirBonus = accuracy !== undefined && accuracy >= tune("care.dir_bonus_pct");
+  if (dirBonus) gain.skin = (gain.skin ?? 0) + tune("care.dir_bonus_skin_exp");
   let stars: number | undefined; let lp: number | undefined;
   let customer: { name: string; type: string; stars: number; lp: number } | undefined;
   if (c.subject !== "player") {
@@ -110,8 +133,9 @@ export function finishCare(withMist: boolean) {
     gain.skin = Math.round((gain.skin ?? 0) * tune("customer.skin_exp_ratio"));
     if (cu) { customer = { name: cu.name, type: cu.type, stars, lp }; ui.patchCustomer(cu.id, { stars }); }
   }
+  if (dirBonus) coins += tune("care.dir_bonus_coins");
   g.finishCare({ routineId: full ? c.routineId : null, modes: c.modes, gain, coins, customer });
-  useUI.getState().patchCare({ phase: "result", mist: withMist, result: { gain, coins, stars, lp, firstTime } });
+  useUI.getState().patchCare({ phase: "result", mist: withMist, result: { gain, coins, stars, lp, firstTime, accuracy, dirBonus } });
 }
 
 export function closeCare() {

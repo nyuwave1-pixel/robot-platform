@@ -4,7 +4,7 @@ import { EXP_META, type ExpKey } from "../data/game";
 import { PRODUCT_MAP, productImage } from "../data/products";
 import { useGame } from "../store/game";
 import { useUI } from "../store/ui";
-import { applyProduct, availableProduct, beginFree, beginRoutine, closeCare, finishCare, routineUnlocked, selectZone } from "../store/care";
+import { applyProduct, availableProduct, beginFree, beginRoutine, closeCare, dirAccuracy, finishCare, routineUnlocked, selectZone } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
 
@@ -87,6 +87,11 @@ export function CarePanel() {
           <p className="mt-1 text-center text-xl font-black text-ink">{isCustomer ? t("care.customerDone") : t("care.done")}</p>
           {r.stars !== undefined && <p className="mt-1 text-center text-2xl text-gold">{"★".repeat(r.stars)}<span className="text-ink/15">{"★".repeat(5 - r.stars)}</span></p>}
           {r.firstTime && <p className="mt-1 text-center text-xs font-bold text-pink-deep"><Icon n="party" /> {t("care.first")}</p>}
+          {r.accuracy !== undefined && (
+            <p className={`mt-2 rounded-xl px-3 py-1.5 text-center text-[12px] font-bold ${r.dirBonus ? "bg-gold/20 text-ink" : "bg-ink/5 text-ink/55"}`} data-testid="care-accuracy">
+              {t("care.dir.acc", { n: r.accuracy })}{r.dirBonus ? ` · ${t("care.dir.bonus")}` : ` · ${t("care.dir.tip")}`}
+            </p>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-2">
             {(Object.entries(r.gain) as [ExpKey, number][]).filter(([, v]) => v > 0).map(([k, v]) => (
               <div key={k} className="rounded-2xl bg-cream px-3 py-2">
@@ -198,6 +203,13 @@ export function CarePanel() {
                       <b className="text-ink/80">{stroking ? t("care.contactOn") : t("care.contactOff")}</b> · {t(`care.tech.${step.mode}`)}
                     </p>
                   </div>
+                  {/* 결 방향 판정: 마지막 문지름 + 지금까지 정확도 */}
+                  {care.dirLast !== undefined && (
+                    <p className={`mt-1 text-[12px] font-bold ${care.dirLast === 1 ? "text-gold" : care.dirLast === -1 ? "text-pink-deep" : "text-ink/55"}`} data-testid="care-dir">
+                      {t(`care.dir.${care.dirLast === 1 ? "good" : care.dirLast === -1 ? "bad" : "ok"}`)}
+                      {dirAccuracy(care) !== undefined && <span className="ml-1 font-semibold text-ink/45">· {t("care.dir.acc", { n: dirAccuracy(care)! })}</span>}
+                    </p>
+                  )}
                 </>
               )}
             </div>

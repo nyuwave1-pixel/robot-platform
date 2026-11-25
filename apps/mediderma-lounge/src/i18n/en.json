@@ -543,5 +543,11 @@
   "makeup.note.makeup": "Blush adds a soft flush to both cheeks.",
   "makeup.note.shadow": "Eyeshadow adds color to the lids for defined eyes.",
   "makeup.note.lip": "Lip color changes your lips; take it off to return to your default lip color.",
-  "makeup.noteDesigned": "Designed characters share one texture for skin and outfit, so base makeup won't show. Blush, shadow and lip still apply."
+  "makeup.noteDesigned": "Designed characters share one texture for skin and outfit, so base makeup won't show. Blush, shadow and lip still apply.",
+  "care.dir.good": "✓ Right direction — progress speeds up",
+  "care.dir.ok": "Glide the way the guide dots flow",
+  "care.dir.bad": "Against the guide — follow the dots",
+  "care.dir.acc": "Direction accuracy {n}%",
+  "care.dir.bonus": "Careful-care bonus!",
+  "care.dir.tip": "70%+ earns a bonus"
 }

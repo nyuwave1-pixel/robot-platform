@@ -33,13 +33,17 @@ export interface CareSession {
   done: ZoneId[];
   /** 현재 부위 진행도 0..1 */
   progress: number;
+  /** 결 방향 판정: 가이드 방향으로 민 거리 / 전체 문지른 거리, 마지막 한 번의 판정(1 좋음 · 0 보통 · -1 반대) */
+  dirGood?: number;
+  dirAll?: number;
+  dirLast?: number;
   modes: ModeId[];
   zonesDone: number;
   mist: boolean;
   mistAllowed: boolean;
   /** 고객 추천 적중 여부 */
   liked?: boolean;
-  result?: { gain: Partial<Record<ExpKey, number>>; coins: number; stars?: number; lp?: number; firstTime: boolean };
+  result?: { gain: Partial<Record<ExpKey, number>>; coins: number; stars?: number; lp?: number; firstTime: boolean; accuracy?: number; dirBonus?: boolean };
 }
 
 interface UIState {

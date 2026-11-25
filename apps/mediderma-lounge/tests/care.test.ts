@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { tune } from "../src/data/config";
 import { ROUTINE_MAP } from "../src/data/devices";
 import { CUSTOMER_TYPES } from "../src/data/game";
-import { addProgress, applyProduct, availableProduct, beginRoutine, closeCare, finishCare, openCare } from "../src/store/care";
+import { addProgress, applyProduct, availableProduct, beginRoutine, closeCare, dirAccuracy, finishCare, openCare, strokeGrade } from "../src/store/care";
 import { DEFAULT_LOOK, earnedStage, totalExp, useGame } from "../src/store/game";
 import { useUI } from "../src/store/ui";
 
@@ -123,5 +123,37 @@ describe("고객 케어", () => {
     openCare("c1"); beginRoutine("calming", { express: true, liked: true });
     closeCare();
     expect(useUI.getState().customers[0].state).toBe("leave");
+  });
+});
+
+describe("결 방향 판정", () => {
+  it("가이드 방향은 빠르게, 반대 방향은 느리게 진행된다", () => {
+    expect([strokeGrade(0.9), strokeGrade(0.2), strokeGrade(-0.8)]).toEqual([1, 0, -1]);
+    openCare("player"); beginRoutine("calming");
+    applyProduct(availableProduct(care().steps[0])!);
+    addProgress(0.1, 1, 0.01);
+    expect(care().progress).toBeCloseTo(0.1 * tune("care.dir_good_mult"));
+    const p = care().progress;
+    addProgress(0.1, -1, 0.01);
+    expect(care().progress - p).toBeCloseTo(0.1 * tune("care.dir_bad_mult"));
+    expect(dirAccuracy(care())).toBe(50);
+    expect(care().dirLast).toBe(-1);
+  });
+  it("결 정확도가 기준 이상이면 결과에 보너스가 붙는다", () => {
+    const r = ROUTINE_MAP["calming"];
+    openCare("player"); beginRoutine("calming");
+    const c0 = useGame.getState().coins;
+    for (let i = 0; i < r.steps.length; i++) {
+      const c = care();
+      applyProduct(availableProduct(c.steps[c.step])!);
+      const step = c.step;
+      for (let k = 0; k < 40 && care().phase === "step" && care().step === step; k++) addProgress(0.5, 1, 0.01);
+    }
+    finishCare(false);
+    const res = care().result!;
+    expect(res.accuracy).toBe(100);
+    expect(res.dirBonus).toBe(true);
+    expect(res.coins).toBe(r.steps.length * tune("care.step_coins") + tune("care.dir_bonus_coins"));
+    expect(useGame.getState().coins).toBeGreaterThan(c0);
   });
 });

@@ -89,6 +89,8 @@ export function Care3D({ L }: { L: Layout }) {
     return { a, sd: new THREE.Vector3(-a.z, 0, a.x) };
   }, [rigVer]);
   const guide = useRef<THREE.Group>(null!);
+  const dv = useMemo(() => new THREE.Vector3(), []);
+  const gv = useMemo(() => new THREE.Vector3(), []);
   const tilt = useRef<THREE.Group>(null!);
   const d = bodyDims(growth);
   const hitR = Math.max(0.1, d.head * 0.42);
@@ -241,7 +243,16 @@ export function Care3D({ L }: { L: Layout }) {
     // 피부 표면에 붙도록 부위 중심에서 살짝만 벗어나게
     if (off > hitR) cp.sub(zp).setLength(hitR).add(zp);
     careFx.pos.copy(cp).setY(Math.max(cp.y, zp.y + 0.012));
-    if (last.current) addProgress(Math.min(0.08, last.current.distanceTo(cp) / (hitR * tune("care.stroke_length"))));
+    if (last.current) {
+      // 결 방향 판정: 이번에 민 방향과 가이드 방향(ZONE_DIR) 비교 — 바닥(XZ)에서
+      const mv = dv.copy(cp).sub(last.current).setY(0);
+      const dist = mv.length();
+      if (dist > 1e-5) {
+        const [da, ds] = ZONE_DIR[c.zone];
+        const gd = gv.copy(axes.a).multiplyScalar(da).addScaledVector(axes.sd, ds).setY(0).normalize();
+        addProgress(Math.min(0.08, dist / (hitR * tune("care.stroke_length"))), mv.dot(gd) / dist, dist);
+      }
+    }
     last.current = (last.current ?? new THREE.Vector3()).copy(cp);
   };
   const up = () => { hold.current = false; onZone.current = false; last.current = null; careFx.active = false; useUI.setState({ stroking: false }); };
