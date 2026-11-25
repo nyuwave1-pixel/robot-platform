@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T13:40:18.345Z",
+  "generatedAt": "2026-11-25T13:45:31.389Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "bdc1ceb"
+    "commit": "86717f5"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "86717f5",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity squad teammates"
+    },
+    {
+      "hash": "26a08f2",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: fix four issues from a compile review; Mission 01 boat intro"
+    },
+    {
       "hash": "bdc1ceb",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Unity: instance the island vegetation instead of merging meshes (WebGL size)"
-    },
-    {
-      "hash": "85d4c73",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim vegetation instancing (WebGL size)"
-    },
-    {
-      "hash": "ddb8e4f",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "QA: v0.21 campaign regression 17/17; refresh BIT PARK feed"
     }
   ]
 }

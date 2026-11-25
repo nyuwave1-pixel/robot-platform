@@ -46,6 +46,7 @@ namespace SpecialSoldier
             _paused.Clear();
             if (player) foreach (var b in player.GetComponentsInChildren<Behaviour>()) if ((b is PlayerMotor || b is WeaponController || b is GrenadeThrower || b is GearController) && b.enabled) { b.enabled = false; _paused.Add(b); }
             foreach (var e in d.enemies) if (e && e.enabled) { e.enabled = false; _paused.Add(e); }
+            foreach (var m in FindObjectsByType<SquadMate>()) if (m.enabled) { m.enabled = false; _paused.Add(m); }
 
             var root = GetComponent<UIDocument>().rootVisualElement;
             VisualElement Bar(bool top) { var v = new VisualElement(); v.style.position = Position.Absolute; v.style.left = 0; v.style.right = 0; v.style.height = Length.Percent(11); v.style.backgroundColor = Color.black; if (top) v.style.top = 0; else v.style.bottom = 0; v.pickingMode = PickingMode.Ignore; root.Add(v); return v; }

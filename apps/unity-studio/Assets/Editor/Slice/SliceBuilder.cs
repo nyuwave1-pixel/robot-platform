@@ -251,6 +251,32 @@ namespace SpecialSoldier.EditorTools
             return ok;
         }
 
+        /// <summary>SQUAD 07 — REAPER, NOMAD, ATLAS (web squad.js): soldiers with a teal tint so they never read as hostiles, the same
+        /// animation rig as the enemies, a NavMeshAgent and SquadMate (Core.Squad rules). Placed in formation behind the player.</summary>
+        static void BuildSquad(GameObject player, GameObject visual)
+        {
+            var root = new GameObject("Squad");
+            var teal = new Color(0.55f, 0.85f, 0.8f, 1f);
+            for (int i = 0; i < Squad.Names.Length; i++)
+            {
+                var o = Squad.Offsets[i];
+                var go = new GameObject($"Squad_{Squad.Names[i]}"); go.transform.SetParent(root.transform);
+                go.transform.position = player.transform.TransformPoint(new Vector3((float)o.x, 0f, -(float)o.z)); go.transform.rotation = player.transform.rotation;
+                var body = go.AddComponent<CapsuleCollider>(); body.height = 1.8f; body.radius = 0.35f; body.center = new Vector3(0f, 0.9f, 0f);
+                go.AddComponent<Damageable>();
+                var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.acceleration = 14f; agent.angularSpeed = 0f; agent.enabled = false;
+                go.AddComponent<SquadMate>().index = i;
+                if (visual)
+                {
+                    var v = Object.Instantiate(visual, go.transform); v.name = "Visual"; v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                    foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                    var mpb = new MaterialPropertyBlock();
+                    foreach (var r in v.GetComponentsInChildren<Renderer>()) { r.GetPropertyBlock(mpb); mpb.SetColor("_BaseColor", teal); mpb.SetColor("baseColorFactor", teal); r.SetPropertyBlock(mpb); }
+                    var anim = go.AddComponent<SoldierAnimator>(); anim.visual = v.transform; anim.rig = SoldierAnimBuilder.AddRig(go);
+                }
+            }
+        }
+
         /// <summary>Mission 01's assault boat "MAKO" with SQUAD 07 aboard (web cinematics.js: Blender Boat, SEATS_NEW, seated pose).
         /// It starts beached at (3.2, 331.5) with the driver and one operator; IntroDirector sails it in for the intro.</summary>
         static void BuildIntroBoat(IntroDirector intro, GameObject soldier)
@@ -331,6 +357,7 @@ namespace SpecialSoldier.EditorTools
 
             var parent = new GameObject("Enemies");
             for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn, props);
+            BuildSquad(player, visual);   // SQUAD 07 follows you (web: every campaign mission spawns three)
             var waveParent = new GameObject("AlarmWave");
             var wave = new System.Collections.Generic.List<GameObject>();
             for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn, props));

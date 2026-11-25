@@ -26,6 +26,7 @@ namespace SpecialSoldier
             g._kills0 = d.Mission != null ? d.Mission.Stats.Kills : 0;
             // web: G.enemies.clear() — whoever is left on the airfield is out of the picture
             foreach (var e in d.enemies) if (e) e.gameObject.SetActive(false);
+            foreach (var m in FindObjectsByType<SquadMate>()) m.gameObject.SetActive(false);   // web: G.squad.clear() — they are aboard
             d.enemies.RemoveAll(e => !e || !e.gameObject.activeSelf);
             var p = d.player;
             if (p)

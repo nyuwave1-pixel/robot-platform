@@ -46,6 +46,13 @@ namespace SpecialSoldier
         public bool FirstClear { get; private set; }
         /// <summary>A mission intro is playing (IntroDirector): the mission clock and objectives wait.</summary>
         public bool Cinematic { get; set; }
+        /// <summary>SQUAD 07 may shoot anyone (web squad.weaponsFree: the first shot or the first enemy in combat).</summary>
+        public bool SquadWeaponsFree { get; private set; }
+        public void WeaponsFree()
+        {
+            if (SquadWeaponsFree) return; SquadWeaponsFree = true;
+            if (State == Outcome.Playing && FindAnyObjectByType<SquadMate>()) Radio("REAPER: Contact! Weapons free!");
+        }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -348,6 +355,7 @@ namespace SpecialSoldier
         /// <summary>Tells every enemy within <paramref name="radius"/> that something was heard at <paramref name="pos"/>.</summary>
         public void ReportNoise(Vector3 pos, float radius)
         {
+            if (!Cinematic) WeaponsFree();   // any shot or blast: the squad goes weapons free (web weapons.js / enemies.js)
             foreach (var e in enemies) if (e && e.Alive) e.Hear(pos, radius);
         }
     }
