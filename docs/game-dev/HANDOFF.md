@@ -9,7 +9,7 @@
 | 무엇 | 방법 |
 |---|---|
 | 이 저장소만 | `gh repo clone nyuwave1-pixel/robot-platform` → `git checkout claude/relaxed-ramanujan-83okpi` → `cd apps/special-soldier && npm ci` |
-| **게임 전부 + BIT PARK 포털** | `gh repo clone nyuwave1-pixel/bitpark-portal C:\개발\bitpark-portal` → `scripts\setup.ps1` (macOS·Linux `bash scripts/setup.sh`). 게임 19종 저장소가 옆 폴더로 받아지고 설치됨. 목록: bitpark-portal `content/workspace.json`, 설명: bitpark-portal `docs/WORKSPACE.md` (PR #1 병합 후) |
+| **게임 전부 + BIT PARK 포털** | `gh repo clone nyuwave1-pixel/bitpark-portal C:\개발\bitpark-portal` → `scripts\setup.ps1` (macOS·Linux `bash scripts/setup.sh`). 게임 33종 저장소가 옆 폴더로 받아지고 설치됨. 목록: bitpark-portal `content/workspace.json`, 설명: bitpark-portal `docs/WORKSPACE.md` (PR #1 병합 후) |
 | 설치 없이 | GitHub Codespaces (`.devcontainer/`) |
 | 클라우드 세션 | 환경 `robot-platform` (설치 스크립트가 `pip install bpy==5.3.0` + `npm ci`) |
 
@@ -18,7 +18,7 @@
 ## 2. 현재 상태
 | 영역 | 위치 | 상태 | 확인 방법 |
 |---|---|---|---|
-| SPECIAL SOLDIER 웹 | `apps/special-soldier` | **v0.22**: 캠페인 5미션 + BOOT CAMP, 순서 자유 목표(미션 02·03), 정보 아이템 15개, 온라인 멀티(1v1·최대 15v15), HUD 표시 설정, 브리핑 작전 지도 | `npm test`(33), `node tests/e2e.mjs`(66), `CAMPAIGN_ONLY=1 node tests/e2e.mjs`(17), `node tests/mp.mjs`, `MP=supabase node tests/mp.mjs`, `node tests/mp-load.mjs` |
+| SPECIAL SOLDIER 웹 | `apps/special-soldier` | **v0.23**: 캠페인 5미션 + BOOT CAMP, 순서 자유 목표(미션 02·03), 정보 아이템 15개, 온라인 멀티(1v1·최대 15v15), HUD 표시 설정, 브리핑 작전 지도, 헬기 도어 거너(미션 05), **한국어 인터페이스**(설정 → 언어) | `npm test`(33), `node tests/e2e.mjs`(66), `CAMPAIGN_ONLY=1 node tests/e2e.mjs`(17), `node tests/mp.mjs`, `MP=supabase node tests/mp.mjs`, `node tests/mp-load.mjs` |
 | 멀티 전용 서버 | `apps/special-soldier/server` | 코드·Docker·Fly.io 설정 완료, **인터넷에 아직 안 올림** | `npm run mp:server` → `ws://localhost:8787/health` |
 | Unity판 | `apps/unity-studio` | **캠페인 미션 01–05 전부 이식**(웹 미션·구조물과 자동 대조), 브리핑·진행 저장·다음 미션(N)·일시정지 메뉴 미션 목록, 장갑차·보안 카메라·보스·헬기 탈출, 병사 애니메이션(Quaternius UAL), 공용 섬 지형·식생(GPU 인스턴싱), WebGL 빌드. 미션 인트로 컷신(M02–M05)·전술 장비(야간투시·열상·드론 등). **M01·애니메이션은 PC 확인 완료, M02–M05·캠페인 흐름·장비·인트로는 PC 확인 대기(PC Unity 세션 보관됨 — 다시 열어야 함)**. 웹 v0.23 미션 05 문사수 장면은 아직 미이식 | [UNITY_SETUP.md](UNITY_SETUP.md), `dotnet test "apps/unity-studio/CoreTests~"`(Unity 없이 320개), `run-batch.ps1` (Windows + Unity 라이선스), `?mission=m01…m05` |
 | 공용 섬 | `apps/special-soldier/src/world/{terrain,vegetation}.js` | 웹이 원본, Unity가 같은 결과(픽스처 테스트) | 바꾼 뒤 `gen-terrain-fixture.mjs`·`gen-vegetation-fixture.mjs` → `dotnet test "apps/unity-studio/CoreTests~"` |
@@ -29,7 +29,7 @@
 ## 3. 다음 할 일 (우선순위)
 1. **결정 필요**: PR #31을 `main`에 병합할지 (코드 테스트는 통과, Vercel 쪽 실패는 배포 한도·다른 프로젝트).
 2. **결정 필요**: 멀티 전용 서버 호스팅(Fly.io·Render·Railway 계정) — 공개 15v15에 필요. 그 전까지 공개 사이트는 Supabase 방식(최대 8명 권장).
-3. 시점 전환 미션(헬기 사수 / 드론 지원) — 남은 마지막 로드맵 항목 (`apps/special-soldier/docs/GAME_DESIGN.md` §10.3).
+3. 장르 벤치마크 로드맵(§10.3)은 v0.23으로 모두 완료. 다음 후보: 번역 검수(사람), 사람 플레이 테스트, 멀티 서버 호스팅.
 4. 사람 플레이 테스트(실제 GPU·인터넷 2인 대전) — 자동 테스트는 SwiftShader·로컬에서만 함.
 5. 막힌 것: Gemini 키(400), Flow 영상, PC 원격 연결 없을 때의 Unity 작업.
 

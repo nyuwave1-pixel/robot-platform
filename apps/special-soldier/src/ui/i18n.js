@@ -16,6 +16,7 @@ export function tr(s) {
   const t = s.trim(); if (!t || KOSET.has(t)) return s;
   const pre = s.slice(0, s.indexOf(t)), post = s.slice(s.indexOf(t) + t.length), wrap = (x) => pre + x + post;
   if (KO[t]) return wrap(KO[t]);
+  const mk = t.match(/^([▸◢]) (.+)$/); if (mk) { const inner = tr(mk[2]); if (inner !== mk[2]) return wrap(`${mk[1]} ${inner}`); } // HUD markers in front of a line
   // objective with tasks: "Two tasks — any order: ○ A (8)   ✓ B"
   const c = t.match(/^(.+?): ((?:[✓○] .+?)(?: {3}[✓○] .+?)*)$/);
   if (c) return wrap(`${KO[c[1]] || c[1]}: ` + c[2].split('   ').map((p) => { const m = p.match(/^([✓○]) (.+?)(?: \((\d+)\))?$/); return m ? `${m[1]} ${KO[m[2]] || m[2]}${m[3] ? ` (${m[3]})` : ''}` : p; }).join('   '));
