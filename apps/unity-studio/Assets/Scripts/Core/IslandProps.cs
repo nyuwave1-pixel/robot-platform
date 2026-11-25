@@ -47,8 +47,8 @@ namespace SpecialSoldier.Core
     /// <summary>A whole Blender model placed at its origin (web: new THREE.Mesh(assetGeo(name)) — e.g. the jungle relay mast).</summary>
     public readonly struct PropModel
     {
-        public readonly string Geo; public readonly double X, Y, Z;
-        public PropModel(string geo, double x, double y, double z) { Geo = geo; X = x; Y = y; Z = z; }
+        public readonly string Geo; public readonly double X, Y, Z, RotY;
+        public PropModel(string geo, double x, double y, double z, double rotY = 0) { Geo = geo; X = x; Y = y; Z = z; RotY = rotY; }
     }
 
     public sealed class PropSet
@@ -90,9 +90,32 @@ namespace SpecialSoldier.Core
                 if (alongX) Box(x, y, z, len, 1.15, 0.8, "sand", "P_sandbags", kind: "cover", surf: "sand");
                 else Box(x, y, z, 0.8, 1.15, len, "sand", "P_sandbags", rot90: true, kind: "cover", surf: "sand");
             }
-            public void Crate(double x, double z, double s = 1.1) => Box(x, H(x, z) - 0.05, z, s, s, s, "wood", "P_crate", kind: "crate", surf: "wood");
-            public void AmmoBox(double x, double z) => Box(x, H(x, z), z, 0.9, 0.5, 0.6, "olive", "P_ammo", kind: "cover", surf: "metal");
-            public void Barrel(double x, double z) => Box(x, H(x, z) - 0.05, z, 0.75, 1.15, 0.75, "red", "P_barrel", kind: "barrel", surf: "metal");
+            public void Crate(double x, double z, double s = 1.1, double? y = null) => Box(x, y ?? H(x, z) - 0.05, z, s, s, s, "wood", "P_crate", kind: "crate", surf: "wood");
+            public void AmmoBox(double x, double z, double? y = null) => Box(x, y ?? H(x, z), z, 0.9, 0.5, 0.6, "olive", "P_ammo", kind: "cover", surf: "metal");
+            public void Barrel(double x, double z, double? y = null) => Box(x, y ?? H(x, z) - 0.05, z, 0.75, 1.15, 0.75, "red", "P_barrel", kind: "barrel", surf: "metal");
+
+            /// <summary>build.js container(): a 6.1 × 2.6 × 2.5 box (Blender P_container) tinted by its paint.</summary>
+            public void Container(double x, double z, string paint, bool alongX = true, double? y = null)
+            {
+                double[] tint = paint == "rust" ? new[] { 1.35, 0.62, 0.4 } : paint == "blue" ? new[] { 0.5, 0.8, 1.3 } : new[] { 0.78, 0.86, 0.56 };
+                Box(x, y ?? H(x, z) - 0.1, z, alongX ? 6.1 : 2.5, 2.6, alongX ? 2.5 : 6.1, paint, "P_container", rot90: !alongX, kind: "cover", surf: "metal", tint: tint);
+            }
+
+            /// <summary>build.js truck(): the Blender truck (faces +z, turned to lie along x) and its 7.2 × 2.6 collider, 3.1 m high.</summary>
+            public void Truck(double x, double z, bool alongX = true)
+            {
+                double y = H(x, z), L = 7.2, Wd = 2.6;
+                S.Models.Add(new PropModel("Truck", x, y, z, alongX ? Math.PI / 2 : 0));
+                double sx = alongX ? L : Wd, sz = alongX ? Wd : L;
+                Box(x, y, z, sx, 3.1, sz, "", hidden: true, kind: "vehicle", surf: "metal");   // web: W.addCollider (hp 260, explosive 8)
+            }
+
+            /// <summary>build.js glass(): Blender window frame + a breakable see-through pane.</summary>
+            public void Glass(double x, double y, double z, double sx, double sy, double sz)
+            {
+                if (sx >= sz) Static("P_window", x, y, z, sx, sy, sz * 1.4); else Static("P_window", x, y, z, sz, sy, sx * 1.4, Math.PI / 2);
+                Box(x, y, z, sx, sy, sz, "glass", kind: "glass", surf: "glass");
+            }
 
             public void Lamp(double x, double z, double h = 6, bool light = false)
             {
@@ -218,6 +241,51 @@ namespace SpecialSoldier.Core
                 b.Box(x, b.H(x, z) - 0.15, z, ax ? len : 0.8, 1.15, ax ? 0.8 : len, "sand", "P_sandbags", rot90: !ax, kind: "cover", surf: "sand");
             }
             foreach (var (dx, dz) in new[] { (3.4, -1.2), (3.4, 0.2) }) { double x = g.x + dx, z = g.z + dz; b.Barrel(x, z); }
+            return b.S;
+        }
+
+        /// <summary>ZONE 03 — MILITARY BASE (build.js): perimeter wall with three gates, corner sniper towers, gate sandbags and
+        /// barriers, two barracks with bunks, the armory, HQ (two rooms, windows, the intel terminal desk), comms hut + radar,
+        /// motor pool (trucks, containers), the bunker elevator, yard cover, flagpole and lamps.</summary>
+        public static PropSet Base(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            const double y = 16;
+            b.Walls(-120, -185, 120, 0, y, 3.2, "concrete", new Dictionary<char, double[][]> { ['s'] = new[] { new[] { -6.0, 6.0 } }, ['n'] = new[] { new[] { -6.0, 6.0 } }, ['e'] = new[] { new[] { -154.0, -146.0 } } }, 0.8, "concrete");
+            foreach (var (tx, tz) in new[] { (-112.0, -8.0), (112.0, -8.0), (-112.0, -177.0), (112.0, -177.0) }) b.Tower(tx, tz, 7);
+            b.Sandbags(-10, -10, 6); b.Sandbags(11, -12, 6); b.Sandbags(0, -26, 8);
+            b.Box(-8.5, y, 2, 3, 1.1, 0.8, "red", "P_barrier", kind: "cover"); b.Box(8.5, y, 2, 3, 1.1, 0.8, "red", "P_barrier", kind: "cover");
+            // barracks ×2
+            b.Building(62, -40, 26, 12, 3.4, "olive", new Dictionary<char, double[][]> { ['w'] = new[] { new[] { -41.5, -38.5 } }, ['n'] = new[] { new[] { 55.0, 58.0 } } });
+            b.Building(62, -72, 26, 12, 3.4, "olive", new Dictionary<char, double[][]> { ['w'] = new[] { new[] { -73.5, -70.5 } } });
+            foreach (var bz in new[] { -40.0, -72.0 }) for (int i = 0; i < 4; i++) b.Box(54 + i * 5.5, y, bz + 3.6, 2, 1.7, 1, "dark", "P_bunk", surf: "metal");
+            // armory / warehouse
+            b.Building(-72, -48, 30, 20, 5, "metal", new Dictionary<char, double[][]> { ['e'] = new[] { new[] { -51.0, -45.0 } }, ['s'] = new[] { new[] { -80.0, -76.0 } } }, "metal", "rust");
+            for (int i = 0; i < 6; i++) b.Crate(-82 + (i % 3) * 7, -54 + (i / 3) * 7, 1.4, y);
+            b.Crate(-82, -54, 1.2, y + 1.4); b.Barrel(-62, -41, y); b.Barrel(-61, -42.2, y); b.AmmoBox(-66, -55, y);
+            b.Box(-70, y, -48, 4, 1.1, 1.2, "dark", "P_desk", kind: "cover", surf: "metal");
+            // HQ: two rooms, windows, intel terminal
+            b.Building(0, -132, 28, 18, 4, "concrete", new Dictionary<char, double[][]> { ['s'] = new[] { new[] { -10.0, -6.0 }, new[] { -2.0, 2.0 }, new[] { 6.0, 10.0 } }, ['e'] = new[] { new[] { -131.0, -128.0 } }, ['w'] = new[] { new[] { -136.0, -133.0 } } });
+            b.Box(0, y, -134, 0.4, 4, 9, "concrete", hidden: true);
+            foreach (var pz in new[] { -136.25, -131.75 }) b.Static("P_wall_concrete", 0, y, pz, 4.5, 4, 0.45, Math.PI / 2);   // partition
+            b.Glass(-8, y, -123, 4, 4, 0.3); b.Glass(8, y, -123, 4, 4, 0.3);
+            b.Box(8, y, -138, 5, 1, 1.4, "dark", "P_desk", kind: "cover", surf: "metal"); b.Box(-7, y, -136, 3, 1, 1.4, "dark", "P_desk", kind: "cover", surf: "metal");
+            b.S.Points["intel"] = (8, y + 1.2, -137);
+            // comms hut + radar, motor pool
+            b.Building(-78, -152, 12, 10, 3.4, "concrete", new Dictionary<char, double[][]> { ['e'] = new[] { new[] { -153.5, -150.5 } } }); b.Radar(-92, -168, 8);
+            b.Truck(-62, -92); b.Truck(-62, -100); b.Truck(-40, -112, false);
+            b.Container(-30, -88, "rust"); b.Container(-30, -84.5, "blue", true, y + 0); b.Container(-84, -112, "olive", false);
+            b.Barrel(-48, -92, y); b.Barrel(-47, -93.2, y); b.Sandbags(-48, -122, 7); b.Sandbags(-20, -70, 7, false);
+            // bunker (elevator to the underground facility)
+            b.Building(90, -150, 12, 12, 3.6, "dark", new Dictionary<char, double[][]> { ['w'] = new[] { new[] { -152.0, -148.0 } } }, roof: "concrete");
+            // yard clutter / cover lanes
+            b.Sandbags(30, -100, 7); b.Sandbags(-18, -105, 6); b.Sandbags(40, -128, 6, false);
+            b.Container(28, -60, "blue", false); b.Container(96, -100, "rust"); b.Container(96, -96.6, "olive");
+            b.Crate(20, -82, 1.2, y); b.Crate(21.4, -82.3, 1.2, y); b.Crate(60, -112, 1.3, y);
+            b.Barrel(34, -62, y); b.Barrel(70, -120, y); b.Barrel(-100, -70, y); b.AmmoBox(24, -98, y);
+            b.Static("Flagpole", 0, y, -60, 1, 1, 1, 0, null, true); b.Box(0, y, -60, 0.3, 11, 0.3, "metal", hidden: true, surf: "metal");
+            foreach (var (lx, lz, on) in new[] { (-30.0, -20.0, true), (30.0, -20.0, false), (-30.0, -80.0, false), (30.0, -80.0, true), (-30.0, -160.0, false), (40.0, -165.0, true), (80.0, -120.0, false), (-95.0, -90.0, false) })
+                b.Lamp(lx, lz, 7, on);
             return b.S;
         }
 

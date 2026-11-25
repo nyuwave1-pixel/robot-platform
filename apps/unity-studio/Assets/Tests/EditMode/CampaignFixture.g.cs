@@ -80,5 +80,46 @@ namespace SpecialSoldier.Core.Tests
                 ("start 4", "{\"powerCut\":true}", 1, new string[] { "ATLAS: Only one squad heard the call — they are coming for the relay!" }, new string[] { "reinf:assault@-110,90;assault@-120,84;elite@-100,88" }, "{\"powerCut\":true}"),
             },
         };
+        public static readonly MissionFixture MISSION03 = new MissionFixture
+        {
+            Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", Sky = "storm", SpawnX = 0.0000000000000000, SpawnZ = 46.000000000000000, SpawnYaw = 0.0000000000000000,
+            Spawns = new (string, double, double, string, double?, double[], bool)[]
+            {
+                ("guard", -8.0000000000000000, -8.0000000000000000, "base", 3.1000000000000001, null, false),
+                ("guard", 10.000000000000000, -10.000000000000000, "base", 3.1000000000000001, null, false),
+                ("sniper", -112.00000000000000, -8.0000000000000000, "base", 2.3999999999999999, null, true),
+                ("sniper", 112.00000000000000, -8.0000000000000000, "base", -2.3999999999999999, null, true),
+                ("guard", -20.000000000000000, -42.000000000000000, "base", (double?)null, new double[] { -20.000000000000000, -42.000000000000000, 22.000000000000000, -44.000000000000000, 22.000000000000000, -84.000000000000000, -20.000000000000000, -80.000000000000000 }, false),
+                ("assault", 44.000000000000000, -46.000000000000000, "base", -1.6000000000000001, null, false),
+                ("assault", 46.000000000000000, -62.000000000000000, "base", (double?)null, new double[] { 46.000000000000000, -62.000000000000000, 46.000000000000000, -92.000000000000000, 80.000000000000000, -92.000000000000000 }, false),
+                ("assault", 60.000000000000000, -40.000000000000000, "base", -1.5000000000000000, null, false),
+                ("guard", -50.000000000000000, -48.000000000000000, "base", 1.6000000000000001, null, false),
+                ("heavy", -64.000000000000000, -46.000000000000000, "base", 1.6000000000000001, null, false),
+                ("guard", -50.000000000000000, -96.000000000000000, "base", 0.50000000000000000, null, false),
+                ("guard", -74.000000000000000, -150.00000000000000, "base", 1.5000000000000000, null, false),
+                ("apc", -14.000000000000000, -96.000000000000000, "armor", 0.29999999999999999, null, false),
+                ("heavy", 0.0000000000000000, -116.00000000000000, "hq", 3.1000000000000001, null, false),
+                ("elite", -7.0000000000000000, -128.00000000000000, "hq", 3.0000000000000000, null, false),
+                ("elite", 9.0000000000000000, -129.00000000000000, "hq", 3.2000000000000002, null, false),
+                ("guard", -9.0000000000000000, -137.00000000000000, "hq", (double?)null, null, false),
+                ("guard", 18.000000000000000, -118.00000000000000, "hq", 2.6000000000000001, null, false),
+            },
+            Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
+            {
+                (-1, "reach", "Breach the south gate", "", 0.0000000000000000, -16.000000000000000, 13.000000000000000, "", null, ""),
+                (-1, "any", "Two tasks — any order", "", null, null, null, "", null, "REAPER: Two jobs before the terminal. Hit the motor pool first and their armour never leaves the shed — or go straight for HQ. Your call."),
+                (1, "kill", "Eliminate HQ security", "hq", null, null, null, "", null, ""),
+                (1, "interact", "Sabotage the motor pool", "", -55.000000000000000, -100.00000000000000, null, "SET CHARGE ON THE FUEL BOWSER", 3.0000000000000000, ""),
+                (-1, "interact", "Download the intel from the HQ terminal", "", 8.0000000000000000, -137.00000000000000, null, "DOWNLOAD FACILITY ACCESS DATA", 4.0000000000000000, ""),
+                (-1, "reach", "Reach the bunker elevator", "", 91.000000000000000, -150.00000000000000, 3.2000000000000002, "", null, ""),
+            },
+            Hooks = new (string, string, int, string[], string[], string)[]
+            {
+                ("alarm", "{}", 1, new string[] { "NOMAD: Base alarm! Armour is waking up!" }, new string[] { "qrf:assault@70,-70;assault@76,-74" }, "{}"),
+                ("done 1.1", "{}", 1, new string[] { "NOMAD: Fuel went up — that APC is scrap. Nice." }, new string[] {  }, "{\"sabotage\":true}"),
+                ("done 1.1", "{}", 0, new string[] { "NOMAD: Fuel went up — that APC is scrap. Nice." }, new string[] {  }, "{\"sabotage\":true}"),
+                ("done 2", "{}", 1, new string[] { "COMMAND: Data received. The whole base just lit up — get to the bunker!" }, new string[] { "qrf:assault@-4,-178;assault@4,-180;elite@0,-176;assault@-30,-170;heavy@30,-172" }, "{\"alarmed\":true}"),
+            },
+        };
     }
 }

@@ -177,6 +177,28 @@ namespace SpecialSoldier
         void OnMissionEvent(string evt)
         {
             if (evt == "detonate") StartCoroutine(Detonate());
+            else if (evt == "sabotage") StartCoroutine(Sabotage());
+            else if (evt == "siren") SliceFx.I.Alarm(IslandGround(Campaign.Hq.x, Campaign.Hq.z));
+        }
+
+        /// <summary>A point on the island (web coordinates) at ground height in this scene.</summary>
+        static Vector3 IslandGround(double ix, double iz)
+        {
+            var w = IslandTerrain.ToWorld(ix, 0, iz); var p = new Vector3((float)w.x, 0f, (float)w.z);
+            var t = Terrain.activeTerrain; if (t) p.y = t.SampleHeight(p) + t.transform.position.y;
+            return p;
+        }
+
+        /// <summary>Mission 03 motor-pool charge (web: two blasts at the fuel bowser, then every vehicle within 70 m is destroyed, credited to you).</summary>
+        System.Collections.IEnumerator Sabotage()
+        {
+            var m = Campaign.Motor; Vector3 a = IslandGround(m.x, m.z) + Vector3.up, b = IslandGround(m.x + 4, m.z - 3) + Vector3.up;
+            Grenade.Flash(a); SliceFx.I.Explosion(a); ReportNoise(a, 120f);
+            yield return new WaitForSeconds(0.3f);
+            Grenade.Flash(b); SliceFx.I.Explosion(b);
+            foreach (var e in enemies.ToArray())
+                if (e && e.Alive && e.Type != null && e.Type.Vehicle && Vector3.Distance(e.transform.position, a) < 70f)
+                    e.GetComponent<Damageable>().ApplyDamage(1e6f, a, BodyPart.Torso, true, true);
         }
 
         /// <summary>The C4 on the relay mast goes off (web detonateTower: three blasts, the mast topples). Stand-in for the web cinematic.</summary>

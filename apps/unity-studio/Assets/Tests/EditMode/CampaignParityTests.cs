@@ -12,6 +12,7 @@ namespace SpecialSoldier.Core.Tests
         {
             yield return new TestCaseData(Campaign.M01, CampaignFixture.MISSION01).SetName("MISSION 01");
             yield return new TestCaseData(Campaign.M02, CampaignFixture.MISSION02).SetName("MISSION 02");
+            yield return new TestCaseData(Campaign.M03, CampaignFixture.MISSION03).SetName("MISSION 03");
         }
 
         sealed class FakeWorld : IMissionWorld
@@ -65,7 +66,7 @@ namespace SpecialSoldier.Core.Tests
             }
         }
 
-        static string Wave(string group, IEnumerable<SpawnDef> list) => group + ":" + string.Join(";", list.Select(s => $"{s.Kind}@{s.X},{s.Z}"));
+        static string Wave(IEnumerable<SpawnDef> list) => list.First().Group + ":" + string.Join(";", list.Select(s => $"{s.Kind}@{s.X},{s.Z}"));
 
         [TestCaseSource(nameof(Missions))]
         public void HooksSayAndSendWhatTheWebGameDoes(CampaignMission m, MissionFixture f)
@@ -76,20 +77,20 @@ namespace SpecialSoldier.Core.Tests
                 if (h.name == "alarm")
                 {
                     radio.Add(m.AlarmRadio);
-                    if (m.AlarmWave != null) waves.Add(Wave(m.AlarmWave[0].Group, m.AlarmWave));
+                    if (m.AlarmWave != null) waves.Add(Wave(m.AlarmWave));
                     if (h.waves.Length == 0) Assert.IsNotNull(m.AlarmSearchPrefix, "an alarm without a wave sends the patrols searching");
                 }
                 else
                 {
                     var r = m.NewRunner(); var w = new FakeWorld { AliveCount = h.alive };
                     r.Begin(w);
-                    r.RadioSaid += radio.Add; r.WaveRequested += (name, n) => waves.Add(Wave(name, m.Waves[name].Take(n)));
-                    if (h.flags.Contains("powerCut")) r.Flags.Add("powerCut");
+                    r.RadioSaid += radio.Add; r.WaveRequested += (name, n) => waves.Add(Wave(m.Waves[name].Take(n)));
+                    foreach (System.Text.RegularExpressions.Match fm in System.Text.RegularExpressions.Regex.Matches(h.flags, "\"(\\w+)\":true")) r.Flags.Add(fm.Groups[1].Value);
                     var idx = h.name.Split(' ')[1].Split('.').Select(int.Parse).ToArray();
                     var o = r.Objectives[idx[0]];
-                    if (h.name.StartsWith("start")) o.OnStart(r); else o.Parts[idx[1]].OnDone(r);
-                    bool after = r.Flags.Contains("powerCut");
-                    Assert.AreEqual(h.flagsAfter.Contains("\"powerCut\":true"), after, h.name + " flags");
+                    if (h.name.StartsWith("start")) o.OnStart(r); else if (idx.Length == 1) o.OnDone(r); else o.Parts[idx[1]].OnDone(r);
+                    var expect = System.Text.RegularExpressions.Regex.Matches(h.flagsAfter, "\"(\\w+)\":true").Cast<System.Text.RegularExpressions.Match>().Select(x => x.Groups[1].Value).OrderBy(x => x);
+                    Assert.That(r.Flags.OrderBy(x => x), Is.EqualTo(expect), h.name + " flags");
                 }
                 Assert.That(radio, Is.EqualTo(h.radio), $"{h.name} {h.flags} alive {h.alive}: radio");
                 Assert.That(waves, Is.EqualTo(h.waves), $"{h.name} {h.flags}: waves");

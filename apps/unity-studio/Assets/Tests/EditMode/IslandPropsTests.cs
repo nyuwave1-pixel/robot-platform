@@ -11,6 +11,16 @@ namespace SpecialSoldier.Core.Tests
         [Test] public void BeachCallsMatchTheWebGame() => Same(PropsFixture.Beach, Beach);
         [Test] public void JungleStationCallsMatchTheWebGame() => Same(PropsFixture.Jungle, IslandProps.Jungle());
         [Test] public void GenOutpostCallsMatchTheWebGame() => Same(PropsFixture.GenOutpost, IslandProps.GenOutpost());
+        [Test] public void BaseCallsMatchTheWebGame() => Same(PropsFixture.Base, IslandProps.Base());
+
+        [Test]
+        public void BaseIntelTerminalAndSniperTowersMatchTheWebGame()
+        {
+            var b = IslandProps.Base();
+            Assert.That(b.Points["intel"], Is.EqualTo(PropsFixture.Intel));
+            foreach (var (x, z) in new[] { (-112.0, -8.0), (112.0, -8.0) }) Assert.That(IslandProps.Top(b, x, z), Is.EqualTo(16 + 7.25).Within(0.3), $"corner tower deck at ({x}, {z})");
+            Assert.AreEqual(3, b.Models.Count(m => m.Geo == "Truck")); Assert.AreEqual(1, b.Radars.Count);
+        }
 
         [Test]
         public void JunglePointsMatchTheWebGame()

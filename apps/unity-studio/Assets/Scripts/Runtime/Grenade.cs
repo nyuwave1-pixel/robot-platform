@@ -58,7 +58,7 @@ namespace SpecialSoldier
                            || hit.collider.GetComponentInParent<Damageable>() == d;
                 float dmg = Explosives.Damage(dist, los, radius, damage);
                 if (thrownByPlayer && d.GetComponent<PlayerMotor>()) dmg *= Explosives.SelfDamageFactor;
-                if (dmg > 1f) d.ApplyDamage(dmg, c);
+                if (dmg > 1f) d.ApplyDamage(dmg, c, true);   // explosive: full damage to vehicles too
             }
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(c, Explosives.HearingRadius);
             Flash(c);

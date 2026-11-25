@@ -142,6 +142,8 @@ namespace SpecialSoldier
         public void Whiz() => Synth("whiz", Vector3.zero, false);
         /// <summary>Distant thunder after a storm lightning strike (web: play('thunder')).</summary>
         public void Thunder() => Synth("thunder", Vector3.zero, false, 0.9f);
+        /// <summary>Base alarm siren (web audio 'alarm', played at HQ).</summary>
+        public void Alarm(Vector3 pos) => Synth("alarm", pos, true, 1f);
 
         /// <summary>Surface of a collider for impact sounds, from the slice's object names (Ground = sand, Cover = wood crates,
         /// walls = concrete). Real projects would use a PhysicsMaterial or a tag.</summary>
