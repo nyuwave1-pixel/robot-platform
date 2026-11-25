@@ -72,10 +72,12 @@ describe("Amazon links", () => {
 });
 
 describe("Promotions", () => {
-  // The shipped promos are off until the Amazon deal is confirmed; test the window logic on an enabled copy.
-  const p = { ...AMPOULE.promotion, enabled: true };
-  it("ships disabled until the Amazon deal is confirmed", () => {
-    for (const x of DEFAULT_PRODUCTS) expect(isPromoActive(x.promotion, new Date("2026-11-25T12:00:00Z"))).toBe(false);
+  // The 20% Amazon BFCM deal was confirmed live on 2026-11-25, so the three Amazon products ship enabled.
+  const p = AMPOULE.promotion;
+  it("BFCM is on for the three Amazon products only, inside the window", () => {
+    const during = new Date("2026-11-25T12:00:00Z");
+    for (const x of DEFAULT_PRODUCTS) expect(isPromoActive(x.promotion, during)).toBe(!x.shop);
+    for (const x of DEFAULT_PRODUCTS) expect(isPromoActive(x.promotion, new Date("2026-12-01T08:00:00Z"))).toBe(false);
   });
   it("is active only inside the BFCM window (US Pacific)", () => {
     expect(isPromoActive(p, new Date("2026-11-19T07:59:59Z"))).toBe(false); // Nov 18 23:59:59 PST

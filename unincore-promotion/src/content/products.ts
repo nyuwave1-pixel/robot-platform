@@ -30,9 +30,10 @@ const AMPOULE_TEST =
 
 function bfcm(discountPct: number, extra: Partial<Promotion> = {}): Promotion {
   return {
-    // Off until the actual Amazon deal (rate + dates per product) is confirmed —
+    // On: the client confirmed the 20% Amazon BFCM deal is live on all three products (2026-11-25).
+    // Turns itself off after Nov 30 (PT). If Amazon stops the deal early, set this back to false —
     // the site must never advertise a discount Amazon isn't running.
-    enabled: false,
+    enabled: true,
     ...BFCM_2026,
     discountPct,
     headline: `Black Friday: ${discountPct}% off on Amazon`,
@@ -48,7 +49,8 @@ export const AMPOULE: ProductContent = {
   published: true,
 
   asin: "B0HJRKRKT7",
-  asinVerified: false,
+  // Client checked the live Amazon page for this ASIN (2026-11-25).
+  asinVerified: true,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Glutathione-Stabilized/dp/B0HJRKRKT7/",
   attribution: {},
   // Amazon Attribution link (Meta ads) for this landing page and the home product buttons (JYT, 2026-11-16 / 2026-11-24). Do not edit the parameters.
@@ -253,7 +255,8 @@ export const MASK: ProductContent = {
   published: true,
 
   asin: "B0HGR6V48S",
-  asinVerified: false,
+  // Client checked the live Amazon page for this ASIN (2026-11-25).
+  asinVerified: true,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Brightening-Moisturizing-Radiant-Skin/dp/B0HGR6V48S/",
   attribution: {},
   // Amazon Attribution link (Meta ads) for this landing page and the home product buttons (JYT, 2026-11-16 / 2026-11-24). Do not edit the parameters.
@@ -454,7 +457,8 @@ export const WASH: ProductContent = {
   published: true,
 
   asin: "B0HGQYFF13",
-  asinVerified: false,
+  // Client checked the live Amazon page for this ASIN (2026-11-25).
+  asinVerified: true,
   amazonUrl: "https://www.amazon.com/UNI-CORE-Single-Use-bromelain-exfoliation/dp/B0HGQYFF13/",
   attribution: {},
   // Amazon Attribution link (Meta ads) for this landing page and the home product buttons (JYT, 2026-11-16 / 2026-11-24). Do not edit the parameters.
