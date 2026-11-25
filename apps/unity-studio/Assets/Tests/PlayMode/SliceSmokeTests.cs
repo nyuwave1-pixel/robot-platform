@@ -24,6 +24,7 @@ namespace SpecialSoldier.PlayModeTests
             base.Setup();
             _kb = InputSystem.AddDevice<Keyboard>();
             _mouse = InputSystem.AddDevice<Mouse>();
+            SliceFx.Shots = SliceFx.Steps = SliceFx.Impacts = 0;
         }
 
         public override void TearDown() { GameDirector.AssumeCursorCaptured = false; base.TearDown(); }
@@ -64,6 +65,7 @@ namespace SpecialSoldier.PlayModeTests
             Press(_kb.wKey);
             yield return Wait(1f);
             Release(_kb.wKey);
+            Assert.Greater(SliceFx.Steps, 0, "no footstep sound while walking");
             float moved = Vector3.Dot(p.transform.position - start, fwd);
             Assert.Greater(moved, 1.5f, $"moved {moved:F2} m in 1 s (walk speed 4.2 m/s)");
         }
@@ -93,6 +95,8 @@ namespace SpecialSoldier.PlayModeTests
             var flat = target.transform.position - spot; flat.y = 0f; p.transform.rotation = Quaternion.LookRotation(flat);
             cc.enabled = true;
             GameDirector.AssumeCursorCaptured = true;   // the gun only fires while the cursor is captured; batch mode cannot lock it
+            // this test checks the gun, not the AI: freeze the target so the shot noise does not make it duck behind cover (model sinks 0.55 m)
+            target.enabled = false; var agent = target.GetComponent<NavMeshAgent>(); if (agent.isOnNavMesh) agent.isStopped = true;
             var hp = target.GetComponent<Damageable>(); float before = hp.Model.Health;
             yield return null;
             Press(_mouse.leftButton);
@@ -100,6 +104,7 @@ namespace SpecialSoldier.PlayModeTests
             Release(_mouse.leftButton);
             yield return null;
             Assert.Less(hp.Model.Health, before, $"enemy {target.name} took no damage ");
+            Assert.Greater(SliceFx.Shots, 0, "no gunshot sound"); Assert.Greater(SliceFx.Impacts, 0, "no impact effect");
         }
 
         [UnityTest]
@@ -123,6 +128,45 @@ namespace SpecialSoldier.PlayModeTests
             Assert.AreEqual(max, hp.Model.Health, 1e-3, "took fire in the first 0.3 s");
             yield return Wait(5.7f);
             Debug.Log($"[Balance] standing still at spawn on {GameDirector.CurrentDifficulty.Label}: HP {hp.Model.Health:F0}/{max:F0} after 6 s");
+        }
+
+        [UnityTest]
+        public IEnumerator Combat_SentriesTakeCover_EliteFlanks()
+        {
+            yield return LoadSlice();
+            var d = GameDirector.Instance; var p = d.player; MakeInvulnerable(p);
+            // a 1-damage shot "from the player" puts every enemy into COMBAT with the player as last known position
+            foreach (var e in d.enemies) e.GetComponent<Damageable>().ApplyDamage(1f, p.Eye);
+            bool sentryInCover = false, eliteOffLine = false;
+            for (float t = 0; t < 8f && !(sentryInCover && eliteOffLine); t += Time.deltaTime)
+            {
+                foreach (var e in d.enemies)
+                {
+                    if (!e.Alive) continue;
+                    if (e.typeId == "guard" && e.InCover) sentryInCover = true;
+                    if (e.typeId == "elite" && e.Goal.HasValue)
+                    {
+                        // flanking goal sits clearly to the side of the straight enemy → player line
+                        Vector3 a = e.transform.position, b = p.transform.position, g = e.Goal.Value;
+                        Vector3 line = b - a; line.y = 0f; Vector3 off = g - a; off.y = 0f;
+                        if (line.sqrMagnitude > 1f && Vector3.Cross(line.normalized, off).magnitude > 3f) eliteOffLine = true;
+                    }
+                }
+                yield return null;
+            }
+            Assert.IsTrue(sentryInCover, "no SENTRY reached cover within 8 s of combat");
+            Assert.IsTrue(eliteOffLine, "the ELITE never picked a goal off the straight line to the player (no flank)");
+        }
+
+        [UnityTest]
+        public IEnumerator Grenade_DroppedNextToEnemy_DamagesIt()
+        {
+            yield return LoadSlice();
+            var d = GameDirector.Instance; MakeInvulnerable(d.player);
+            var e = d.enemies[0]; var hp = e.GetComponent<Damageable>(); float before = hp.Model.Health;
+            Grenade.Throw(e.transform.position + e.transform.right * 1.5f + Vector3.up * 0.5f, Vector3.zero, true, 0.5f);
+            yield return Wait(1.5f);
+            Assert.Less(hp.Model.Health, before, "a grenade 1.5 m away did no damage");
         }
 
         [UnityTest]

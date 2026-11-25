@@ -49,7 +49,7 @@ namespace SpecialSoldier
             Brain = new AwarenessBrain(Type) { Hold = hold, DifficultyDetect = GameDirector.CurrentDifficulty.Detect };
             // like the web game's engage(): a short, randomised pause before the first burst (shorter when it only heard you)
             Brain.StateChanged += (from, to) => { if (to == AlertState.Combat) _reactT = GameDirector.CurrentDifficulty.ReactionDelay(Type, Random.value, _seesNow); };
-            var rng = new System.Random(GetInstanceID());
+            var rng = new System.Random(name.GetHashCode() ^ transform.position.GetHashCode());   // GetInstanceID() is obsolete (error) in Unity 6.6
             Tactics = new TacticsPlanner(hold ? CombatBehavior.Hold : TacticsPlanner.BehaviorFor(Type), rng);
             _peek = new PeekCycle(rng);
             _agent = GetComponent<NavMeshAgent>();
@@ -244,8 +244,10 @@ namespace SpecialSoldier
             if (Physics.Raycast(eye + dir * 0.4f, dir, out RaycastHit hit, Type.Vision * 1.5f, sightMask, QueryTriggerInteraction.Ignore))
             {
                 var target = hit.collider.GetComponentInParent<Damageable>();
+                if (target != _playerHp) SliceFx.I.Impact(hit.point, hit.normal, false);   // misses kick up dust near you
                 if (target == _playerHp) target.ApplyDamage(Type.GunDamage * diff.Dmg, eye);
             }
+            SliceFx.I.Shot(eye, false); SliceFx.I.MuzzleFlash(eye + dir * 0.6f);
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(eye, 110f);
         }
 

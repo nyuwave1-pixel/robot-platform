@@ -10,8 +10,8 @@
 | 묶음 | 수 | 라이선스 | 표기 의무 | 게임 파일 | 만든 도구 |
 |---|---|---|---|---|---|
 | Poly Haven 사진 텍스처 (v0.8–0.9, v0.16) | 12 | CC0 1.0 | 없음 | `src/assets/tex/*.jpg` | `tools/blender/textures.py` |
-| Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` | `tools/assets/build_audio.py` |
-| Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` | `tools/assets/build_audio.py` |
+| Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` (Unity: `shot`·`step_gravel1-4` 를 `apps/unity-studio/Assets/Resources/Audio/` 에 복사, 2026-11-24) | `tools/assets/build_audio.py` |
+| Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` (Unity: `music_stealth`·`music_combat` 복사, 2026-11-24) | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
 | Higgsfield 생성 캐릭터 (분대원 + 적 6종) | 7 | Higgsfield 생성물 — 이용 조건은 Higgsfield 약관(Ultra 플랜 계정)을 따름 | 약관 확인 필요 | `src/assets/soldier_hf*.glb` | Higgsfield `gpt_image_2_6` → `image_to_3d`(Meshy) → `tools/blender/hf_soldier.py` |
 

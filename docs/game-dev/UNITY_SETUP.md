@@ -154,3 +154,18 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - `Runtime`: `Grenade.cs`(튀는 리지드바디, 반발 0.38, 폭발 시 시야 판정·소음 170 m, 임시 화염·조명 `ExplosionFade.cs`),
   `GrenadeThrower.cs`(G 키), `EnemyAgent` 재계획 때 투척, HUD에 남은 수류탄과 근처 적 수류탄 경고 "GRENADE! 2.1".
 - 검증: dotnet `CoreTests~` **180/180**(새 테스트 7개, 웹 `fx.js` 상수와 대조 포함). **Runtime 변경은 Unity에서 아직 컴파일·플레이하지 않았습니다.**
+
+## 2026-11-25 엄폐 AI · 수류탄 · 사운드/이펙트 · WebGL — Unity 첫 컴파일·검증
+
+- 허브 커밋 6f56803(엄폐·측면 우회 AI)·a8d46b3(수류탄)를 PC Unity에서 처음 컴파일.
+  오류 1건 수정: `EnemyAgent` 의 `GetInstanceID()` 가 Unity 6.6에서 **사용 금지(CS0619)** → 이름·위치 해시로 난수 시드.
+  `PhysicsMaterial`·`PhysicsMaterialCombine`·`Rigidbody.linearVelocity` 는 그대로 컴파일됨.
+- 사운드·이펙트(학습 과제 #2·#3): `Runtime/SliceFx.cs` — 총성(플레이어 2D·적 3D 위치음), 자갈 발소리, 총구 화염(점광원 0.05초),
+  탄착 먼지·피격 불꽃 파티클, 잠입/전투 음악 교차 페이드. 소리는 웹 게임의 Freesound CC0 파일을 `Assets/Resources/Audio/` 에 복사(대장 갱신).
+- WebGL: 내비메시가 메모리에만 있어 새 프로세스의 WebGL 빌드에서 적 7명 모두 `no valid NavMesh` → `Assets/Scenes/IslandSlice_NavMesh.asset` 로 저장해 해결(e609bb1).
+  `run-batch.ps1 -WebGL` → `Builds/WebGL` 15.3 MB(Gzip). 로컬 서버에서 로드·HUD·적 이동·교전 확인.
+  Claude 앱 내장 브라우저(숨김 창·자동 클릭)에서는 포인터 잠금이 걸리지 않아 이동·사격은 사람 확인 필요.
+- 결과: EditMode **180/180**, PlayMode **10/10**(입력 패키지 자체 테스트 2개 생략). 새 PlayMode 테스트:
+  `Combat_SentriesTakeCover_EliteFlanks`(8초 안에 경계병 엄폐 도착·정예 측면 목표), `Grenade_DroppedNextToEnemy_DamagesIt`,
+  발소리·총성·탄착 횟수 확인. `LeftMouse_ShootsAndDamagesAnEnemy` 는 사격 소리에 표적이 엄폐로 숙여 머리 높이 탄이 빗나가므로 표적 AI를 정지시켜 총 피해만 검사.
+- 시작 지점 6초 정지 시 HP 100/100(REGULAR) 유지.

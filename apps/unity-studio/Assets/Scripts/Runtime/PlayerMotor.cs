@@ -68,6 +68,7 @@ namespace SpecialSoldier
             if (_cc.isGrounded && move.sqrMagnitude > 0.01f && !IsCrouching && (_stepT -= dt) <= 0f)
             {
                 _stepT = IsSprinting ? 0.32f : 0.5f;
+                SliceFx.I.Step(transform.position, IsSprinting);
                 if (GameDirector.Instance) GameDirector.Instance.ReportNoise(transform.position, IsSprinting ? 14f : 6f);
             }
         }

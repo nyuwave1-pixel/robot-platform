@@ -80,6 +80,7 @@ namespace SpecialSoldier
                     end = hit.point;
                     var zone = hit.collider.GetComponent<HitZone>();
                     var target = zone ? zone.Owner : hit.collider.GetComponentInParent<Damageable>();
+                    SliceFx.I.Impact(hit.point, hit.normal, target);
                     if (target && target.Alive && (!motor || target.gameObject != motor.gameObject))
                     {
                         float dmg = (float)Ballistics.DamageAt(w, hit.distance) * Ballistics.BodyMultiplier(zone ? zone.part : BodyPart.Torso);
@@ -92,6 +93,7 @@ namespace SpecialSoldier
             if (motor) motor.AddRecoil(w.RecoilV * (Aiming ? 0.55f : 1f), Random.Range(-w.RecoilH, w.RecoilH) * 0.5f);
             _tracer.SetPosition(0, eye.position + eye.forward * 0.6f - eye.up * 0.12f + eye.right * 0.12f);
             _tracer.SetPosition(1, end); _tracer.enabled = true; _tracerT = 0.04f;
+            SliceFx.I.Shot(eye.position, true); SliceFx.I.MuzzleFlash(eye.position + eye.forward * 0.7f - eye.up * 0.1f);
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(eye.position, w.Loud);
         }
     }

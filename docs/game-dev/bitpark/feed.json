@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T01:13:01.992Z",
+  "generatedAt": "2026-11-25T01:34:28.838Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "6f56803"
+    "commit": "e609bb1"
   },
   "section": {
     "id": "game-dev-lab",
@@ -45,17 +45,17 @@
       "status": "pilot",
       "tests": {
         "editMode": {
-          "passed": 163,
-          "total": 163
+          "passed": 180,
+          "total": 180
         },
         "playMode": {
-          "passed": 8,
-          "total": 8
+          "passed": 10,
+          "total": 10
         }
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": null
+        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
       },
       "screenshots": [
         "docs/game-dev/screenshots/unity-island-slice-first-run.png",
@@ -370,6 +370,18 @@
   },
   "devlog": [
     {
+      "hash": "e609bb1",
+      "date": "2026-11-24",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): save the baked navmesh as an asset so builds made in a fresh process (WebGL) keep it"
+    },
+    {
+      "hash": "a8d46b3",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): frag grenades for the player (G) and COBRA ELITE, with the web game's blast rules"
+    },
+    {
       "hash": "6f56803",
       "date": "2026-11-24",
       "area": "unity-studio",
@@ -596,18 +608,6 @@
       "date": "2026-11-19",
       "area": "game-dev",
       "subject": "docs(game-dev): use the installed Unity 6000.6.9f1 on the PC; Unity work moves to the PC Blender session"
-    },
-    {
-      "hash": "2e607d6",
-      "date": "2026-11-19",
-      "area": "game-dev",
-      "subject": "docs(game-dev): second-round free asset research, Unity track in skill and hub"
-    },
-    {
-      "hash": "9f8c73f",
-      "date": "2026-11-19",
-      "area": "game-dev",
-      "subject": "docs(game-dev): record PC session working files"
     }
   ]
 }
