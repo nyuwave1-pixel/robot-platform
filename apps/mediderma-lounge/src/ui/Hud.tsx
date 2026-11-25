@@ -13,6 +13,7 @@ import { LiveBar, LiveLoungeSync, useEventBadge } from "./Events";
 import { useRoom } from "../net/room";
 import { useContest } from "../net/contest";
 import { castVote } from "./Contest";
+import { GroupPhotoButton, GroupPhotoOverlay, captureCanvas, useShot } from "./GroupPhoto";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -162,6 +163,7 @@ export function Hud() {
           </div>
         </nav>
       )}
+      <GroupPhotoOverlay />
       <Overlays />
     </>
   );
@@ -373,22 +375,17 @@ function PhotoBar() {
   const look = useGame((s) => s.look);
   const [tag, setTag] = useState(TAGS[0]);
   const [text, setText] = useState("");
-  const [shot, setShot] = useState<string | null>(null);
+  const { shot, group } = useShot();
+  const setShot = (v: string | null) => useShot.setState({ shot: v, group: 0 });
+  // 사진 모드를 나가면 찍은 사진은 버린다
+  useEffect(() => () => useShot.setState({ shot: null, group: 0 }), []);
   const snap = () => {
-    try {
-      const cv = document.querySelector("canvas") as HTMLCanvasElement | null;
-      if (!cv) return;
-      const s = Math.min(cv.width, cv.height);
-      const out = document.createElement("canvas"); out.width = out.height = 360;
-      out.getContext("2d")!.drawImage(cv, (cv.width - s) / 2, (cv.height - s) / 2, s, s, 0, 0, 360, 360);
-      setShot(out.toDataURL("image/jpeg", 0.72));
-      useUI.setState({ flash: 0.9 });
-      setTimeout(() => useUI.setState({ flash: 0 }), 160);
-    } catch { useUI.getState().toast(t("photo.fail")); }
+    const url = captureCanvas();
+    if (url) setShot(url); else useUI.getState().toast(t("photo.fail"));
   };
   const post = () => {
     if (!shot) return;
-    useGame.getState().addPost({ text: text.trim() || t("photo.defaultText"), tag, img: shot });
+    useGame.getState().addPost({ text: text.trim() || (group ? t("group.defaultText", { n: group }) : t("photo.defaultText")), tag: group ? "#GroupShot" : tag, img: shot });
     useUI.getState().toast(t("photo.posted"));
     useUI.setState({ mode: "explore", panel: "social" });
   };
@@ -406,6 +403,7 @@ function PhotoBar() {
             </div>
             <p className="mt-2 text-[13px] text-ink/50">{t("photo.hint")}</p>
             <button className="btn-primary mt-2 w-full" onClick={snap}>● {t("photo.shoot")}</button>
+            <GroupPhotoButton />
           </>
         ) : (
           <div className="mt-2 flex gap-3">

@@ -5,12 +5,16 @@ import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { guests, useRoom, type Guest } from "../net/room";
 import { Character } from "./Character";
+import { useUI } from "../store/ui";
 import { Label } from "./Label";
 import { NameTag } from "./Plaza";
 
 function LiveAvatar({ r }: { r: Guest }) {
   const g = useRef<THREE.Group>(null!);
   const moving = useRef(false);
+  // 사진 모드에서는 이름표가 사진을 가리지 않게 숨기고, 단체 사진 중에는 함께 포즈를 취한다
+  const photo = useUI((s) => s.mode === "photo");
+  const group = useRoom((s) => !!s.group);
   useFrame((_, dt) => {
     const k = 1 - Math.pow(0.001, dt);
     r.rx += (r.x - r.rx) * k; r.rz += (r.z - r.rz) * k;
@@ -23,11 +27,13 @@ function LiveAvatar({ r }: { r: Guest }) {
   });
   return (
     <group ref={g} position={[r.rx, 0, r.rz]}>
-      <Character look={r.look} growth={r.stage} anim="idle" movingRef={moving} rank={r.rank} seed={r.id.length} />
-      <NameTag name={r.name} rank={r.rank} y={1.25 + r.stage * 0.2} say={r.say} sayAt={r.sayAt} />
-      <Billboard position={[0, 1.62 + r.stage * 0.2, 0]}>
-        <Label text={r.host ? "HOST" : "GUEST"} width={0.55} color="#ffffff" bg={r.host ? "rgba(201,166,107,0.95)" : "rgba(185,162,232,0.95)"} size={150} weight={800} spacing={0.04} />
-      </Billboard>
+      <Character look={r.look} growth={r.stage} anim={group ? "pose" : "idle"} movingRef={moving} rank={r.rank} seed={r.id.length} />
+      {!photo && <NameTag name={r.name} rank={r.rank} y={1.25 + r.stage * 0.2} say={r.say} sayAt={r.sayAt} />}
+      {!photo && (
+        <Billboard position={[0, 1.62 + r.stage * 0.2, 0]}>
+          <Label text={r.host ? "HOST" : "GUEST"} width={0.55} color="#ffffff" bg={r.host ? "rgba(201,166,107,0.95)" : "rgba(185,162,232,0.95)"} size={150} weight={800} spacing={0.04} />
+        </Billboard>
+      )}
     </group>
   );
 }

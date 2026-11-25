@@ -20,7 +20,7 @@ import { PetActor, petPos } from "./Pet";
 import { Garden3D } from "./Garden3D";
 import { Curios3D } from "./Curios3D";
 import { LiveGuests } from "./LiveGuests";
-import { useRoom } from "../net/room";
+import { activeGroup, groupPositions, useRoom } from "../net/room";
 
 const lerp = THREE.MathUtils.lerp;
 /** 카메라가 바라보는 지점 — 피사계 심도의 초점 */
@@ -416,6 +416,15 @@ function CameraRig({ L }: { L: Layout }) {
         // 오른쪽 패널에 가리지 않게 캐릭터를 화면 왼쪽으로
         const ox = Math.cos(c.yaw) * dist * 0.2, oz = -Math.sin(c.yaw) * dist * 0.2;
         wantT.x += ox; wantT.z += oz; want.x += ox; want.z += oz;
+      }
+      // 단체 사진: 나와 함께 있는 사람들이 모두 들어오게 가운데를 잡고 뒤로 물러난다
+      if (ui.mode === "photo" && activeGroup()) {
+        const pts = [{ x: p.x, z: p.z }, ...groupPositions()];
+        const cx = pts.reduce((a, q) => a + q.x, 0) / pts.length, cz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+        const spread = Math.max(...pts.map((q) => Math.hypot(q.x - cx, q.z - cz)));
+        const gd = Math.max(3.4, spread * 2.1 + 2.4) * (narrow ? 1.35 : 1), gp = 0.2;
+        wantT.set(cx, d.height * 0.6, cz);
+        want.set(cx + Math.sin(c.yaw) * Math.cos(gp) * gd, wantT.y + Math.sin(gp) * gd, cz + Math.cos(c.yaw) * Math.cos(gp) * gd);
       }
       // 카메라가 벽 밖으로 나가지 않게 (벽·입구 프레임에 가리지 않도록)
       want.x = THREE.MathUtils.clamp(want.x, -L.w / 2 + 0.35, L.w / 2 - 0.35);

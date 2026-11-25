@@ -518,5 +518,13 @@
   "gb.fail.limit": "오늘 남길 수 있는 방명록을 다 썼어요",
   "gb.fail.auth": "이 기기에서는 이 친구 코드로 남길 수 없어요",
   "gb.fail.bad": "잘못된 요청이에요",
-  "gb.fail.error": "방명록을 남기지 못했어요. 잠시 후 다시 시도해 주세요"
+  "gb.fail.error": "방명록을 남기지 못했어요. 잠시 후 다시 시도해 주세요",
+  "group.btn": "단체 사진 ({n}명 함께)",
+  "group.title": "단체 사진 · {n}명",
+  "group.started": "{name}님이 단체 사진을 찍어요. 포즈를 골라 주세요!",
+  "group.reward": "단체 사진 기념 +1 SOCIAL STAR",
+  "group.defaultText": "라운지에서 {n}명이 함께 찰칵 ✨",
+  "group.fail.alone": "함께 찍을 사람이 라운지에 없어요",
+  "group.fail.busy": "이미 단체 사진을 찍는 중이에요",
+  "group.fail.offline": "실시간 연결 중일 때만 단체 사진을 찍을 수 있어요"
 }
