@@ -51,13 +51,26 @@ namespace SpecialSoldier.Core.Tests
         }
 
         [Test]
-        public void GoesSuspiciousThenSearchesThenGivesUp()
+        public void ASingleNoiseOnlyMakesThemSuspiciousForAWhile()
         {
             var b = new AwarenessBrain(EnemyType.Sentry);
-            b.Tick(0.13f, new Perception { Distance = 10, NoiseRadius = 30 });     // heard something
+            b.Tick(0.13f, new Perception { Distance = 10, NoiseRadius = 30 });     // heard something once
             Assert.That(b.State, Is.EqualTo(AlertState.Suspicious));
-            for (int i = 0; i < 20; i++) b.Tick(0.13f, default);
-            Assert.That(b.State, Is.EqualTo(AlertState.Search));
+            for (int i = 0; i < 45; i++) b.Tick(0.13f, default);                   // the meter bleeds off at 0.18/s
+            Assert.That(b.State, Is.EqualTo(AlertState.Patrol), "after 5 s of quiet they go back to patrol (web)");
+        }
+
+        [Test]
+        public void KeptMakingNoiseTheySearchThenGiveUp()
+        {
+            var b = new AwarenessBrain(EnemyType.Sentry);
+            for (int i = 0; i < 12; i++) b.Tick(0.13f, new Perception { Distance = 10, NoiseRadius = 30 });   // 1.6 s of noise: meter ≈ 0.93
+            Assert.That(b.State, Is.EqualTo(AlertState.Suspicious));
+            for (int i = 0; i < 6; i++) b.Tick(0.13f, default);
+            Assert.That(b.State, Is.EqualTo(AlertState.Search), "still above 0.3 after 2.2 s suspicious → search");
+            var c = new AwarenessBrain(EnemyType.Sentry);
+            for (int i = 0; i < 30; i++) c.Tick(0.13f, new Perception { Distance = 10, NoiseRadius = 30 });
+            Assert.That(c.State, Is.EqualTo(AlertState.Combat), "keep making noise and the meter fills (web: +0.5/s)");
             for (int i = 0; i < 160; i++) b.Tick(0.13f, default);
             Assert.That(b.State, Is.EqualTo(AlertState.Patrol));
         }

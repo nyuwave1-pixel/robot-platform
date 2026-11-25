@@ -35,7 +35,10 @@ namespace SpecialSoldier.Core
         public float Distance;           // metres to the target
         public bool TargetSprinting;
         public float NoiseRadius;        // radius of the loudest noise the target made this tick (0 = silent)
+        public float VisionRange;        // metres this enemy can see right now (AwarenessBrain.VisionRange); 0 = the type's base vision
     }
+
+    public enum Stance { Stand = 0, Crouch = 1, Prone = 2 }
 
     /// <summary>Awareness meter + finite state machine: PATROL → SUSPICIOUS → SEARCH → COMBAT ↔ RETREAT.
     /// Ported from Enemies.perceive() in the web game, with the random parts removed so it is deterministic and testable.</summary>
@@ -53,17 +56,35 @@ namespace SpecialSoldier.Core
 
         public AwarenessBrain(EnemyType type) { Type = type ?? throw new ArgumentNullException(nameof(type)); }
 
-        /// <summary>Advances the brain by <paramref name="dt"/> seconds (the web game thinks every 0.13–0.45 s).</summary>
+        /// <summary>How far this enemy sees right now (web: Enemies.perceive `vr`): base vision × (1 − night × 0.5) × stance
+        /// (stand 1, crouch 0.72, prone 0.5) × difficulty × 1.25 when alerted × 1.5 if your light is on × (1 − min(0.3, rain × 0.2));
+        /// in COMBAT never below 90 % of the base vision.</summary>
+        public float VisionRange(float night, Stance stance, float rain, bool flashlight = false)
+        {
+            float vr = Type.Vision * (1f - night * 0.5f) * StanceFactor(stance) * DifficultyDetect * (Alerted ? 1.25f : 1f)
+                       * (flashlight ? 1.5f : 1f) * (1f - Math.Min(0.3f, rain * 0.2f));
+            if (State == AlertState.Combat) vr = Math.Max(vr, Type.Vision * 0.9f);
+            return vr;
+        }
+
+        public static float StanceFactor(Stance s) => s == Stance.Prone ? 0.5f : s == Stance.Crouch ? 0.72f : 1f;
+
+        /// <summary>Advances the brain by <paramref name="dt"/> seconds (the web game thinks every 0.13–0.45 s).
+        /// Same order as the web: sight raises the meter (or it bleeds off at 0.18/s while unseen), noise, then one transition.</summary>
         public void Tick(float dt, in Perception p)
         {
-            float vision = Type.Vision; // the web game also scales this by weather/night; the slice uses clear daylight
+            float vision = p.VisionRange > 0 ? p.VisionRange : Type.Vision;
             if (p.SeesTarget)
             {
                 SinceSeen = 0;
                 if (State < AlertState.Combat)
                     Detect += dt * (1.35f - p.Distance / vision) * 0.95f * DifficultyDetect / Type.React * (Alerted ? 1.8f : 1f) * (p.TargetSprinting ? 1.5f : 1f);
             }
-            else SinceSeen += dt;
+            else
+            {
+                SinceSeen += dt;
+                Detect = Math.Max(0, Detect - dt * 0.18f);   // web: forgets a glimpse; also drains during COMBAT so SEARCH starts near 0
+            }
 
             if (p.NoiseRadius > 0 && p.Distance < p.NoiseRadius * DifficultyDetect && State < AlertState.Combat)
                 Detect = Math.Max(Detect, 0.42f) + dt * 0.5f;
@@ -84,7 +105,6 @@ namespace SpecialSoldier.Core
             {
                 case AlertState.Patrol:
                     if (Detect > 0.35f) Set(AlertState.Suspicious);
-                    else Detect = Math.Max(0, Detect - dt * 0.12f); // slow bleed-off so a glimpse is forgotten (slice addition)
                     break;
                 case AlertState.Suspicious:
                     if (StateTime > 2.2f)
@@ -94,10 +114,10 @@ namespace SpecialSoldier.Core
                     }
                     break;
                 case AlertState.Search:
-                    if (StateTime > 18f) { Set(AlertState.Patrol); Detect = 0.2f; }
+                    if (StateTime > 18f) Set(AlertState.Patrol);
                     break;
                 case AlertState.Combat:
-                    if (SinceSeen > (Hold ? 12f : 6f)) { Set(AlertState.Search); Detect = 0.6f; } // below 1, or it would re-engage at once
+                    if (SinceSeen > (Hold ? 12f : 6f)) Set(AlertState.Search);   // the meter has drained by now (web behaviour)
                     break;
                 case AlertState.Retreat:
                     if (StateTime > 7f) Set(AlertState.Combat);
