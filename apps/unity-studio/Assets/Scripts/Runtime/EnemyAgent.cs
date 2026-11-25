@@ -301,6 +301,7 @@ namespace SpecialSoldier
                 var target = hit.collider.GetComponentInParent<Damageable>();
                 if (target != _playerHp) SliceFx.I.Impact(hit.point, hit.normal, false, SliceFx.SurfaceOf(hit.collider));   // misses kick up dust near you
                 if (target == _playerHp) target.ApplyDamage(Type.GunDamage * diff.Dmg, eye);
+                else if (target && target.GetComponent<SquadMate>()) target.ApplyDamage(Type.GunDamage * diff.Dmg, eye);   // a team-mate in the way (its filter: 35 %)
                 else
                 {
                     // near miss: the round passed within 1.6 m of your head before it hit something (web: fx bullets → 'whiz')

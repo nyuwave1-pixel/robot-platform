@@ -437,3 +437,36 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   Unity 미션 05 는 아직 탑승에서 끝남 — `CampaignParityTests.MissionFiveDoorGunnerGap` 이 경고로 계속 보여 줌(이식하면 지우기).
 - dotnet `CoreTests~` **333 통과 + 경고 1**(문사수 미이식). **Unity 확인 전**. PC Unity 세션은 09:57 에 보관됨 → 다시 열어야 확인 가능.
 
+## 2026-11-25 (21) — 미션 05 헬기 문사수: 웹 v0.23 따라잡기 (허브 세션, 클라우드)
+
+- **규칙(`Core/DoorGun`)**: 웹 gunner.js 그대로 — 6초 이륙 + 항구(60, −385) 둘레 반지름 82 m·고도 36 m·0.12 rad/s 반시계 선회 40초, 오른쪽 문 카메라(1.45 m 밖·2.35 m 위),
+  조준 ±1.25 rad·위아래 −1.15…0.3, M134 46 피해·1500 rpm·퍼짐 1.1°·거리 감쇠 90–320 m(×0.7), 회전 가속(6)·감속(2)·0.6 이상에서 발사, 한 발 +0.0105 열·식힘 0.05/0.32 초당·1 에서 과열·0.35 아래 회복,
+  2·14·26초에 항구 증원 4명씩(첫·마지막에 장갑차). 웹 원문 문자열 대조 + 비행 경로·과열 테스트.
+- **미션 05**: 탑승 뒤 새 목표 "Cover the exfil — man the door gun" → 끝나면 임무 완료(웹과 같은 목표 6개). 문사수 공백 테스트 제거 — **Unity 캠페인이 다시 웹과 목표 단위로 일치**.
+  NavMesh 구역을 항구까지 넓힘. 웹의 마지막 카메라 아웃트로(헬기 귀환)는 무전 한 줄로 대신.
+- **Unity(`Runtime/DoorGunner`)**: 남은 적 정리, 플레이어를 헬기 문에 태우고 Core 경로로 비행, 마우스 조준·사격(히트스캔, 부위·거리 피해, 명중·사살·점수 집계), 과열 무전, HUD 줄.
+- dotnet `CoreTests~` **336/336**(경고 없음). **Unity 확인 전**.
+
+## 2026-11-25 (22) — 컴파일 검토 + 미션 01 보트 인트로 (허브 세션, 클라우드)
+
+- **Unity 없이 코드 검토**(PC Unity 세션이 보관돼 컴파일을 못 하는 동안): M02 이후 Runtime·Editor·PlayMode 30여 파일을 Unity 6.6 API 기준으로 따로 검토 →
+  ① `Mission03Tests` 에 `using SpecialSoldier.Core` 빠짐(PlayMode 테스트 어셈블리 전체 컴파일 실패였을 것) — 고침
+  ② `GameDirector` 경보 루프가 도는 중에 증원이 `enemies` 에 추가됨(InvalidOperationException) — 복사본으로 순회
+  ③ 보안문 `NavMeshObstacle` 크기를 이미 스케일된 문에 또 곱함(약 25 m 폭으로 막힘) — `Vector3.one`
+  ④ 런타임 카메라의 URP 데이터는 `GetUniversalAdditionalCameraData()`(중복 추가 방지).
+  나머지 Unity 6 API(RenderMeshInstanced, Volume, NavMeshSurface, 애니메이터 편집 API, UI Toolkit 스타일 등)는 이상 없음으로 판단 — **실제 컴파일은 여전히 PC 필요**.
+- **미션 01 보트 인트로**: 웹 playBoatIntro 그대로 — 보트가 35초 동안 z 760 에서 해변(3.2, 331.5)까지 들어오고, 여섯 샷이 보트를 따라 움직임(선형, 카메라 0.9 m 이상),
+  자막·무전("Bravo Team, this is Command…"). Blender `Boat` + 분대원 6명(웹 좌석, 앉은 자세 — 운전수는 서 있음). 끝나면 보트는 해변에 정박, 운전수와 한 명만 남음.
+  보트·대원의 앞 방향(z 반전 + glTF x 반전)은 **화면 확인 필요**.
+- dotnet `CoreTests~` **337/337**.
+
+## 2026-11-25 (23) — 분대원 SQUAD 07 (허브 세션, 클라우드)
+
+- **규칙(`Core/Squad`)**: 웹 squad.js 그대로 — REAPER·NOMAD·ATLAS, 대형 오프셋(−2.6, 3.2)·(2.6, 3.8)·(0, 6.4)을 플레이어 시선에 맞춰 회전, 1.6 m(교전 중 14 m) 넘게 멀면 min(7.2, 1.5 + 1.2·거리) m/s로 따라옴,
+  75 m 이상 떨어지거나 층이 15 m 다르면 순간 재집결, 0.4초마다 60 m 안 보이는 가장 가까운 적(무기 자유 전에는 교전 중인 적만), 2–4발 점사(0.1초 간격)·1.4–3.6초 쉬기·조준 0.25 rad 안에서만,
+  8 피해(50–140 m 감쇠 ×0.6), 체력 200·초당 4 회복, 0이 되면 18초 쓰러졌다 120으로 복귀, 빗나간 탄 35 %·폭발 50 %, 무전 대사. 웹 원문 문자열 대조 테스트.
+- **Unity(`Runtime/SquadMate`)**: NavMeshAgent 로 대형 지점 추적, 사격은 히트스캔(사살은 집계, 플레이어 스타일 점수 없음), 적 애니메이션 리그 재사용(쓰러지면 무릎 꿇기, 웹처럼 웅크림 0.8·조준 −0.35/0),
+  청록색 틴트로 적과 구분. "무기 자유"는 첫 총성·폭발(`GameDirector.ReportNoise`) — "REAPER: Contact! Weapons free!". 인트로 동안 정지, 문사수 시작 때 사라짐(웹 squad.clear).
+- 아직 다른 점: **웹의 적은 분대원도 노리지만 Unity 의 적은 플레이어만 노림**(분대원은 빗나간 탄에만 맞음). 분대원 이름표 HUD 없음.
+- dotnet `CoreTests~` **340/340**. PlayMode `SquadPlayTests`. **Unity 확인 전**.
+

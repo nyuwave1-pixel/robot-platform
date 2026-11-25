@@ -113,7 +113,7 @@ namespace SpecialSoldier
             {
                 _droneCam = new GameObject("DroneCam").AddComponent<Camera>(); _droneCam.enabled = false;
                 _droneCam.nearClipPlane = 0.1f; _droneCam.fieldOfView = view ? view.fieldOfView : 70f;
-                if (GraphicsSettings.defaultRenderPipeline) _droneCam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
+                if (GraphicsSettings.defaultRenderPipeline) _droneCam.GetUniversalAdditionalCameraData().renderPostProcessing = true;   // adds the component only if missing
             }
             _droneCam.transform.position = (motor ? motor.Eye : p) + Vector3.up * 2f;
             _dyaw = transform.eulerAngles.y; _dpitch = 17f;   // web: dpitch −0.3 rad (looking down)

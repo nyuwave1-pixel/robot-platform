@@ -46,6 +46,13 @@ namespace SpecialSoldier
         public bool FirstClear { get; private set; }
         /// <summary>A mission intro is playing (IntroDirector): the mission clock and objectives wait.</summary>
         public bool Cinematic { get; set; }
+        /// <summary>SQUAD 07 may shoot anyone (web squad.weaponsFree: the first shot or the first enemy in combat).</summary>
+        public bool SquadWeaponsFree { get; private set; }
+        public void WeaponsFree()
+        {
+            if (SquadWeaponsFree) return; SquadWeaponsFree = true;
+            if (State == Outcome.Playing && FindAnyObjectByType<SquadMate>()) Radio("REAPER: Contact! Weapons free!");
+        }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -148,7 +155,8 @@ namespace SpecialSoldier
                 ElapsedTime += Time.deltaTime;
                 Mission.Tick(Time.deltaTime, this);
                 // alarm: an enemy that survives 5 s in combat calls for reinforcements — counted once per mission (web: flags.alarm)
-                foreach (var e in enemies)
+                // (a copy: the alarm's reinforcements join `enemies` while this loop runs)
+                foreach (var e in enemies.ToArray())
                     if (e && e.Alive && !e.AlarmRaised && e.Brain != null && e.Brain.State == AlertState.Combat && e.Brain.StateTime > AlarmDelay)
                     {
                         e.AlarmRaised = true;
@@ -179,7 +187,7 @@ namespace SpecialSoldier
             Activate(alarmWave, int.MaxValue);
         }
 
-        void SendWave(string name, int count)
+        public void SendWave(string name, int count)
         {
             foreach (var w in waves) if (w != null && w.name == name) { Activate(w.members, count); return; }
             Debug.LogWarning($"[Mission] wave '{name}' is not in this scene");
@@ -213,6 +221,7 @@ namespace SpecialSoldier
             else if (evt == "sirenServer") SliceFx.I.Alarm(player ? player.transform.position : Vector3.zero);
             else if (evt == "smoke") SmokeColumn.Spawn(IslandGround(IslandProps.Helipad.x + 6, IslandProps.Helipad.z + 5), new Color(0.25f, 0.82f, 0.38f), 160f);   // web 0x40d060
             else if (evt == "heliArrive") StartCoroutine(HeliArrive());
+            else if (evt == "gunner") DoorGunner.Begin(this);   // web v0.23: the door-gunner orbit
         }
 
         /// <summary>VIPER at half health (web Missions.event bossPhase2): his shout, the siren, and four more onto the runway.</summary>
@@ -234,6 +243,7 @@ namespace SpecialSoldier
             var p = IslandProps.Helipad; var rotor = FindChild(heli, "rotor"); var tail = FindChild(heli, "tail");
             for (float t = 0f; ; t += Time.deltaTime)
             {
+                if (DoorGunner.Instance) yield break;   // the door-gunner orbit flies it from here
                 float k = Mathf.Clamp01(t / 8.5f), e = 1f - Mathf.Pow(1f - k, 3f);
                 var w = IslandTerrain.ToWorld(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Mathf.Sin(Time.time * 2f) * 0.3f : 0f), p.z - (1 - e) * 120);
                 heli.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
@@ -345,6 +355,7 @@ namespace SpecialSoldier
         /// <summary>Tells every enemy within <paramref name="radius"/> that something was heard at <paramref name="pos"/>.</summary>
         public void ReportNoise(Vector3 pos, float radius)
         {
+            if (!Cinematic) WeaponsFree();   // any shot or blast: the squad goes weapons free (web weapons.js / enemies.js)
             foreach (var e in enemies) if (e && e.Alive) e.Hear(pos, radius);
         }
     }

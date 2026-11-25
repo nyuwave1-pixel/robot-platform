@@ -251,6 +251,66 @@ namespace SpecialSoldier.EditorTools
             return ok;
         }
 
+        /// <summary>SQUAD 07 — REAPER, NOMAD, ATLAS (web squad.js): soldiers with a teal tint so they never read as hostiles, the same
+        /// animation rig as the enemies, a NavMeshAgent and SquadMate (Core.Squad rules). Placed in formation behind the player.</summary>
+        static void BuildSquad(GameObject player, GameObject visual)
+        {
+            var root = new GameObject("Squad");
+            var teal = new Color(0.55f, 0.85f, 0.8f, 1f);
+            for (int i = 0; i < Squad.Names.Length; i++)
+            {
+                var o = Squad.Offsets[i];
+                var go = new GameObject($"Squad_{Squad.Names[i]}"); go.transform.SetParent(root.transform);
+                go.transform.position = player.transform.TransformPoint(new Vector3((float)o.x, 0f, -(float)o.z)); go.transform.rotation = player.transform.rotation;
+                var body = go.AddComponent<CapsuleCollider>(); body.height = 1.8f; body.radius = 0.35f; body.center = new Vector3(0f, 0.9f, 0f);
+                go.AddComponent<Damageable>();
+                var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.acceleration = 14f; agent.angularSpeed = 0f; agent.enabled = false;
+                go.AddComponent<SquadMate>().index = i;
+                if (visual)
+                {
+                    var v = Object.Instantiate(visual, go.transform); v.name = "Visual"; v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                    foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                    var mpb = new MaterialPropertyBlock();
+                    foreach (var r in v.GetComponentsInChildren<Renderer>()) { r.GetPropertyBlock(mpb); mpb.SetColor("_BaseColor", teal); mpb.SetColor("baseColorFactor", teal); r.SetPropertyBlock(mpb); }
+                    var anim = go.AddComponent<SoldierAnimator>(); anim.visual = v.transform; anim.rig = SoldierAnimBuilder.AddRig(go);
+                }
+            }
+        }
+
+        /// <summary>Mission 01's assault boat "MAKO" with SQUAD 07 aboard (web cinematics.js: Blender Boat, SEATS_NEW, seated pose).
+        /// It starts beached at (3.2, 331.5) with the driver and one operator; IntroDirector sails it in for the intro.</summary>
+        static void BuildIntroBoat(IntroDirector intro, GameObject soldier)
+        {
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var node = glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Boat") : null;
+            if (!node) { Debug.LogWarning("[Slice] intro boat: GLB has no 'Boat' — Mission 01 starts without its intro"); return; }
+            var boat = Object.Instantiate(node.gameObject); boat.name = "IntroBoat";
+            foreach (var c in boat.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
+            var w = IslandTerrain.ToWorld(3.2, 0, 331.5);
+            boat.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); boat.transform.rotation = Quaternion.Euler(2f, 187f, 1.7f);
+            double[][] seats = { new[] { 1.02, 2.5 }, new[] { -1.02, 2.5 }, new[] { 1.02, 1.1 }, new[] { -1.02, 1.1 }, new[] { 1.02, -0.3 }, new[] { 0.0, -1.75 } };   // web SEATS_NEW
+            var crew = new System.Collections.Generic.List<GameObject>();
+            var sit = SoldierPose.Pose(sit: true);
+            for (int i = 0; i < seats.Length && soldier; i++)
+            {
+                var c = Object.Instantiate(soldier, boat.transform); c.name = $"Crew{i}";
+                foreach (var col in c.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(col);
+                double x = seats[i][0], z = seats[i][1], r = i == 5 ? 0 : x > 0 ? -1.25 : 1.25;   // web: the driver stands, the rest face inboard
+                c.transform.localPosition = new Vector3((float)x, i == 5 ? 0.6f : 0.7f, (float)-z);   // boat-local z mirrored with the island
+                c.transform.localRotation = Quaternion.Euler(0f, (float)(180 - r * Mathf.Rad2Deg), 0f);
+                if (i != 5)
+                {
+                    void Pitch(string n, double rad) { var t = c.GetComponentsInChildren<Transform>(true).FirstOrDefault(x2 => x2.name == n); if (t) t.localRotation *= Quaternion.Euler((float)(rad * Mathf.Rad2Deg), 0f, 0f); }
+                    Pitch("legL", sit.LegL); Pitch("legR", sit.LegR); Pitch("shinL", sit.ShinL); Pitch("shinR", sit.ShinR); Pitch("upper", sit.Upper); Pitch("arms", sit.Arms);
+                    var body = c.GetComponentsInChildren<Transform>(true).FirstOrDefault(x2 => x2.name == "body"); if (body) body.localPosition += Vector3.up * (float)sit.BodyY;
+                }
+                c.SetActive(i == 4 || i == 5);   // beached: driver + one operator (web placeBoat)
+                crew.Add(c);
+            }
+            intro.boat = boat.transform; intro.crew = crew.ToArray();
+            Debug.Log($"[Slice] intro boat: Blender Boat + {crew.Count} crew");
+        }
+
         /// <summary>Island point at a fixed height (underground: FAC_Y) or, when null, on the terrain.</summary>
         static Vector3 SpawnPoint(double ix, double iz, double? iy)
         {
@@ -288,7 +348,7 @@ namespace SpecialSoldier.EditorTools
             named.TryGetValue("P_door", out var door);
             if (door) door.gameObject.SetActive(false);
             BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset", true);
-            if (door) { door.gameObject.SetActive(true); var ob = door.gameObject.AddComponent<NavMeshObstacle>(); ob.carving = true; ob.shape = NavMeshObstacleShape.Box; ob.size = new Vector3(5f, 4.2f, 0.4f); ob.center = Vector3.zero; }
+            if (door) { door.gameObject.SetActive(true); var ob = door.gameObject.AddComponent<NavMeshObstacle>(); ob.carving = true; ob.shape = NavMeshObstacleShape.Box; ob.size = Vector3.one; ob.center = Vector3.zero; }   // local units: the door's transform is already scaled to 5 × 4.2 × 0.4
 
             var spawn = SpawnPoint(m.SpawnX, m.SpawnZ, m.SpawnY);
             var player = BuildPlayer(spawn + Vector3.up * 0.1f);
@@ -297,6 +357,7 @@ namespace SpecialSoldier.EditorTools
 
             var parent = new GameObject("Enemies");
             for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn, props);
+            BuildSquad(player, visual);   // SQUAD 07 follows you (web: every campaign mission spawns three)
             var waveParent = new GameObject("AlarmWave");
             var wave = new System.Collections.Generic.List<GameObject>();
             for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn, props));
@@ -323,7 +384,8 @@ namespace SpecialSoldier.EditorTools
             var briefGo = new GameObject("Briefing");
             var briefDoc = briefGo.AddComponent<UnityEngine.UIElements.UIDocument>(); briefDoc.panelSettings = director.GetComponent<UnityEngine.UIElements.UIDocument>().panelSettings; briefDoc.sortingOrder = 20;
             briefGo.AddComponent<BriefingScreen>().style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
-            briefGo.AddComponent<IntroDirector>();   // the mission intro camera after the briefing
+            var intro = briefGo.AddComponent<IntroDirector>();   // the mission intro camera after the briefing
+            if (m.IntroKind == "boat") BuildIntroBoat(intro, visual);   // Mission 01: the assault boat ride (web playBoatIntro)
             if (m.Id == "m05")
             {
                 // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve

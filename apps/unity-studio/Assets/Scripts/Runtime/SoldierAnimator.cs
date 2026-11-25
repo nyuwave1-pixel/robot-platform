@@ -25,7 +25,7 @@ namespace SpecialSoldier
         static readonly int SpeedId = Animator.StringToHash("Speed"), CrouchId = Animator.StringToHash("Crouch"),
             DeadId = Animator.StringToHash("Dead"), HitId = Animator.StringToHash("Hit"), HitHeadId = Animator.StringToHash("HitHead");
 
-        EnemyAgent _enemy; NavMeshAgent _nav; Damageable _hp; PlayerMotor _player;
+        EnemyAgent _enemy; SquadMate _mate; NavMeshAgent _nav; Damageable _hp; PlayerMotor _player;
         Transform _body, _legL, _legR, _shinL, _shinR, _upper, _arms, _head;
         Quaternion _rLegL, _rLegR, _rShinL, _rShinR, _rUpper, _rArms, _rVisual; Vector3 _bodyRest;
         struct Link { public Transform bone, pivot; public Quaternion boneRest, pivotRest; }
@@ -38,7 +38,7 @@ namespace SpecialSoldier
 
         void Awake()
         {
-            _enemy = GetComponent<EnemyAgent>(); _nav = GetComponent<NavMeshAgent>(); _hp = GetComponent<Damageable>();
+            _enemy = GetComponent<EnemyAgent>(); _mate = GetComponent<SquadMate>(); _nav = GetComponent<NavMeshAgent>(); _hp = GetComponent<Damageable>();
             if (!visual) visual = transform.Find("Visual");
             if (visual)
             {
@@ -97,8 +97,8 @@ namespace SpecialSoldier
             float dt = Time.deltaTime;
             Vector3 v = _nav && _nav.enabled ? _nav.velocity : Vector3.zero; v.y = 0f;
             Speed = v.magnitude;
-            bool alive = !_hp || _hp.Alive;
-            double wantCrouch = alive && _enemy && _enemy.WantsCrouch ? 1 : 0;
+            bool alive = _mate != null || !_hp || _hp.Alive;   // a downed team-mate kneels (WantsCrouch), it never plays the death clip
+            double wantCrouch = alive && (_enemy != null ? _enemy.WantsCrouch : _mate != null && _mate.WantsCrouch) ? (_mate != null ? 0.8 : 1) : 0;   // web squad: crouch × 0.8
             _gait.Step(dt, Speed, alive && Speed > 0.15f, wantCrouch);
             if (!alive) _dead = SoldierPose.Damp(_dead, 1, 6, dt);
             if (UsesRig)
@@ -112,7 +112,7 @@ namespace SpecialSoldier
         void LateUpdate()
         {
             bool alive = !_hp || _hp.Alive;
-            double aim = -0.25;
+            double aim = _mate != null ? (_mate.Down ? -0.9 : _mate.Fighting ? 0 : -0.35) : -0.25;   // web squad aim
             if (alive && _enemy && _enemy.Brain != null && _enemy.Brain.State >= AlertState.Combat && _player)
             {
                 Vector3 to = _player.transform.position - transform.position;

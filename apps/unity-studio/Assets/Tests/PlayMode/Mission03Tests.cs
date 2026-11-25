@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
+using SpecialSoldier.Core;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;

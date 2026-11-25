@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T13:47:54.577Z",
+  "generatedAt": "2026-11-25T13:48:00.574Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "9d1294a"
+    "commit": "d69469b"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,12 @@
   },
   "devlog": [
     {
+      "hash": "d69469b",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Korean interface: edition screen, tips, HUD labels, objective markers; QA v0.23 (door gunner, Korean)"
+    },
+    {
       "hash": "9d1294a",
       "date": "2026-11-25",
       "area": "general",
@@ -617,12 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "hub: claim U3 soldier animation (Quaternius UAL CC0)"
-    },
-    {
-      "hash": "e509344",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "fix: URL difficulty is adopted into settings once; pointer-lock refusals no longer alert; main menu fits 8 items"
     }
   ]
 }

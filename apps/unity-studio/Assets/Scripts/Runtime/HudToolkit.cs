@@ -202,7 +202,7 @@ namespace SpecialSoldier
 
             var m = _dir ? _dir.Mission : null;
             _objective.text = _dir ? AsciiGlyphs(_dir.ObjectiveLine) : "";
-            _gear.text = GearController.Instance ? GearController.Instance.StatusLine : "";
+            _gear.text = DoorGunner.Instance ? DoorGunner.Instance.StatusLine : GearController.Instance ? GearController.Instance.StatusLine : "";
             bool radioOn = _dir && _dir.RadioLine != null && Time.time - _dir.RadioTime < RadioSeconds;
             _radio.text = radioOn ? AsciiGlyphs(_dir.RadioLine) : "";
             _radio.style.display = radioOn ? DisplayStyle.Flex : DisplayStyle.None;

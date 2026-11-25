@@ -59,6 +59,8 @@ namespace SpecialSoldier.Core
         public Func<MissionRunner, IMissionWorld, bool> Check;
         /// <summary>Interact objectives: usable only while this is true (web: enabled() — e.g. board once the helicopter has landed).</summary>
         public Func<MissionRunner, bool> Enabled;
+        /// <summary>The web objective type when it is not one of the kinds above (e.g. "gunner" — a Custom objective here).</summary>
+        public string WebType;
 
         public static Objective Kill(string group, string text) => new Objective { Kind = ObjectiveKind.Kill, Group = group, Text = text };
         public static Objective Reach(Vec2 at, float radius, string text) => new Objective { Kind = ObjectiveKind.Reach, At = at, Radius = radius, Text = text };
@@ -69,6 +71,7 @@ namespace SpecialSoldier.Core
         /// <summary>Get farther than <paramref name="radius"/> from a point (web: 'Get clear of the blast (30 m)').</summary>
         public static Objective Leave(Vec2 from, float radius, string text) =>
             new Objective { Kind = ObjectiveKind.Custom, Text = text, At = from, Radius = radius, Check = (m, w) => Vec2.Distance(w.PlayerPosition, from) > radius };
+        public Objective Tagged(string webType) { WebType = webType; return this; }
         public Objective With(string radio = null, Action<MissionRunner> onStart = null, Action<MissionRunner> onDone = null, Action<MissionRunner, float> onTick = null)
         { if (radio != null) Radio = radio; if (onStart != null) OnStart = onStart; if (onDone != null) OnDone = onDone; if (onTick != null) OnTick = onTick; return this; }
     }
