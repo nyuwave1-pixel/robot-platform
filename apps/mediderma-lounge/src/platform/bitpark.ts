@@ -6,6 +6,7 @@
  */
 import type { LinkParams, Platform, PlayEvent } from "./types";
 import { cleanLink, cleanStatus, useAccountLink, usePlatformStatus } from "./status";
+import { newNonce, OFFER_MAP, settleExchange, useExchange } from "./exchange";
 
 export const BITPARK_GAME_ID = "beauty-life";
 export const BITPARK_ORIGINS = ["https://airobotphysical.com", "https://www.airobotphysical.com", "https://airobotphysical.web.app"];
@@ -65,6 +66,8 @@ export const bitpark: Platform = {
       if (d.type === "portal_status") { const st = cleanStatus(d); if (st) usePlatformStatus.setState(st); }
       // 비트파크 계정에 연결해 둔 게임 계정 (본인만 읽을 수 있는 곳에서 포털이 꺼내 준다)
       if (d.type === "portal_link") useAccountLink.setState({ known: true, link: cleanLink(d) });
+      // RP 교환 결과
+      if (d.type === "rp_exchange_result") { const r = settleExchange(d); if (r) exchangeListeners.forEach((f) => f(r)); }
     });
     try { window.parent.postMessage({ type: "game_ready", game: BITPARK_GAME_ID }, origin); } catch { /* 부모 창이 사라짐 */ }
   },
@@ -84,3 +87,15 @@ export function sendAccountLink(code: string, secret: string, name: string) {
   if (!origin || !/^[A-Z0-9]{6}$/.test(code) || !/^[0-9a-f]{32}$/.test(secret)) return false;
   try { window.parent.postMessage({ type: "game_link", game: BITPARK_GAME_ID, code, secret, name: name.slice(0, 12) }, origin); return true; } catch { return false; }
 }
+
+/** RP 교환 요청 (포털이 확인 창을 띄운다). 보냈으면 true */
+export function requestExchange(offerId: string) {
+  const origin = bitparkOrigin();
+  if (!origin || !OFFER_MAP[offerId]) return false;
+  const nonce = newNonce();
+  useExchange.setState((s) => ({ pending: { ...s.pending, [nonce]: offerId } }));
+  try { window.parent.postMessage({ type: "rp_exchange", game: BITPARK_GAME_ID, offer: offerId, rp: OFFER_MAP[offerId].rp, nonce }, origin); return true; } catch { return false; }
+}
+type ExchangeResult = NonNullable<ReturnType<typeof settleExchange>>;
+const exchangeListeners = new Set<(r: ExchangeResult) => void>();
+export function onExchange(f: (r: ExchangeResult) => void) { exchangeListeners.add(f); return () => { exchangeListeners.delete(f); }; }

@@ -17,7 +17,7 @@ import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
 import { GuestbookPanel } from "./Guestbook";
 import { BragButton, BragFeed } from "./Brag";
-import { CloudSettings } from "./Cloud";
+import { CloudSettings, RpExchange } from "./Cloud";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -230,6 +230,7 @@ function ShopPanel() {
   return (
     <Sheet title={tab === "codex" ? "PRODUCT COLLECTION" : tab === "fashion" ? "FASHION SHOP" : tab === "interior" ? "INTERIOR SHOP" : "SKINCARE ITEM SHOP"} wide>
       <Tabs tabs={[["product", t("shop.product")], ["codex", t("shop.codex")], ["fashion", t("shop.fashion")], ["interior", t("shop.interior")]]} value={tab} onPick={(v) => useUI.setState({ shopTab: v })} />
+      <RpExchange />
       {(tab === "product" || tab === "codex") && (
         <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] leading-relaxed text-ink/60">
           ⓘ {t("shop.virtual")} <a className="font-bold text-pink-deep underline" href={MALL_URL} target="_blank" rel="noreferrer">{t("shop.mall")}</a>

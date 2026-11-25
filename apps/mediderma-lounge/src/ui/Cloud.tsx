@@ -6,9 +6,11 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../store/game";
 import { useUI } from "../store/ui";
-import { useT } from "../i18n";
+import { useL, useT } from "../i18n";
 import { accountMeta, backupNow, claimTransfer, createTransfer, linkToPlatform, loadFromAccount, normPin, useCloud, type CloudMeta } from "../net/cloud";
 import { useAccountLink, usePlatformStatus } from "../platform/status";
+import { onExchange, requestExchange } from "../platform/bitpark";
+import { EXCHANGE_OFFERS } from "../platform/exchange";
 import { Icon } from "./Icon";
 
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—");
@@ -110,6 +112,36 @@ export function AccountLinkBox({ compact = false }: { compact?: boolean }) {
       <button disabled={busy} className="btn-primary mt-2 w-full !py-2 text-xs disabled:opacity-40" onClick={load} data-testid="account-load">{t("acct.load")}</button>
       {started && <button disabled={busy} className="btn-ghost mt-1.5 w-full !py-2 text-xs disabled:opacity-40" onClick={() => { linkToPlatform(true); useUI.getState().toast(t("acct.relinked")); }}>{t("acct.useThis")}</button>}
       <p className="mt-1.5 text-[12px] text-ink/45">{started ? t("acct.warn") : t("acct.fresh")}</p>
+    </div>
+  );
+}
+
+/** 비트파크 RP 교환소 (비트파크에 로그인해 있을 때만) */
+export function RpExchange() {
+  const t = useT();
+  const L = useL();
+  const st = usePlatformStatus();
+  useEffect(() => onExchange((r) => {
+    if (r.ok) useUI.getState().toast(t("ex.done", { item: L(r.offer) }), "reward");
+    else if (r.reason !== "cancel") useUI.getState().toast(t(`ex.fail.${r.reason === "balance" ? "balance" : "error"}`), "error");
+  }), [t, L]);
+  if (!st.known || !st.loggedIn) return null;
+  return (
+    <div className="mb-3 rounded-2xl border border-gold/40 bg-ink p-3 text-cream" data-testid="rp-exchange">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-black text-gold">{t("ex.title")}</p>
+        <span className="text-[12px] font-bold text-cream/70">{(st.rp ?? 0).toLocaleString()} RP</span>
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5">
+        {EXCHANGE_OFFERS.map((o) => (
+          <button key={o.id} disabled={(st.rp ?? 0) < o.rp} className="rounded-xl bg-white/10 px-2 py-2 text-left disabled:opacity-40" data-testid={`ex-${o.id}`}
+            onClick={() => { if (!requestExchange(o.id)) useUI.getState().toast(t("ex.fail.error"), "error"); }}>
+            <span className="block text-[12px] font-black leading-tight">{L(o)}</span>
+            <span className="mt-0.5 block text-[12px] font-bold text-gold">{o.rp} RP</span>
+          </button>
+        ))}
+      </div>
+      <p className="mt-1.5 text-[12px] text-cream/55">{t("ex.note")}</p>
     </div>
   );
 }

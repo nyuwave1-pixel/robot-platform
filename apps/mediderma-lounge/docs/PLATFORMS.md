@@ -48,6 +48,18 @@ src/platform/
 - `game_ready` 를 받으면, 그리고 로그인 · RP 가 바뀔 때마다 포털이 보낸다. uid · 이메일은 보내지 않는다.
 - 게임은 `src/platform/status.ts` 의 `usePlatformStatus` 에 담아 화면 안내에만 쓴다: 상단 RP 표시(`1,234 RP +40` / 오늘 받음 ✓ / 로그인 안내), 새 게임 이름 자동 입력.
 
+### RP 교환소 (포털 RP → 게임 재화)
+
+```js
+// 게임 → 포털: 상점의 '비트파크 RP 교환소'에서 상품을 고르면
+{ type: "rp_exchange", game: "beauty-life", offer: "coins-1000", rp: 50, nonce: "<16자 16진수>" }
+// 포털 → 게임: 확인 창에서 '교환' → spendPoints 로 RP 차감 뒤 (취소 · 잔액 부족 · 하루 5번 초과면 ok:false)
+{ type: "rp_exchange_result", game: "beauty-life", offer: "coins-1000", nonce: "…", ok: true }
+```
+
+- 가격 · 차감은 포털 표(`airobotverse-` `src/lib/gameExchange.ts`), 지급량은 게임 표(`src/platform/exchange.ts`) — 같은 값으로 유지. 포털은 게임이 보낸 가격이 자기 표와 다르면 거절한다.
+- 게임은 자기가 보낸 요청(nonce) · 같은 상품의 결과만, 한 번만 지급한다.
+
 ### 계정 연결 (다른 기기에서 이어하기)
 
 ```js

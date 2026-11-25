@@ -36,3 +36,20 @@ describe("비트파크 계정 연결", async () => {
     expect(cleanLink({})).toBeNull();
   });
 });
+
+describe("비트파크 RP 교환소", async () => {
+  const { settleExchange, useExchange, OFFER_MAP } = await import("../src/platform/exchange");
+  const { useGame, DEFAULT_LOOK } = await import("../src/store/game");
+  it("내가 보낸 요청 · 같은 상품일 때만 한 번 지급한다", () => {
+    useGame.getState().reset(); useGame.getState().startNew("교환", DEFAULT_LOOK);
+    const c0 = useGame.getState().coins;
+    useExchange.setState({ pending: { n1: "coins-1000" } });
+    expect(settleExchange({ nonce: "n1", offer: "gems-10", ok: true })).toBeNull(); // 다른 상품
+    expect(settleExchange({ nonce: "zz", offer: "coins-1000", ok: true })).toBeNull(); // 모르는 요청
+    expect(settleExchange({ nonce: "n1", offer: "coins-1000", ok: true })?.ok).toBe(true);
+    expect(useGame.getState().coins).toBe(c0 + OFFER_MAP["coins-1000"].grant.coins!);
+    expect(settleExchange({ nonce: "n1", offer: "coins-1000", ok: true })).toBeNull(); // 두 번 지급 안 함
+    useExchange.setState({ pending: { n2: "gems-10" } });
+    expect(settleExchange({ nonce: "n2", offer: "gems-10", ok: false, reason: "balance" })).toMatchObject({ ok: false, reason: "balance" });
+  });
+});

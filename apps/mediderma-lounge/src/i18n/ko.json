@@ -667,5 +667,10 @@
   "acct.fresh": "로그인한 비트파크 계정의 진행을 이어서 플레이해요.",
   "acct.fail.auth": "계정 확인에 실패했어요 (다른 기기로 이전된 진행일 수 있어요)",
   "acct.fail.nosave": "불러올 백업이 없어요",
-  "acct.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요"
+  "acct.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요",
+  "ex.title": "비트파크 RP 교환소",
+  "ex.note": "비트파크 창에서 한 번 더 확인한 뒤 RP 가 차감돼요.",
+  "ex.done": "{item} 받았어요!",
+  "ex.fail.balance": "RP 가 부족해요",
+  "ex.fail.error": "교환하지 못했어요. 잠시 후 다시 해 주세요"
 }

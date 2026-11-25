@@ -667,5 +667,10 @@
   "acct.fresh": "Continue your BitPark account's progress.",
   "acct.fail.auth": "Couldn't verify (the progress may have moved to another device)",
   "acct.fail.nosave": "No backup to load",
-  "acct.fail.error": "Connection is unstable. Try again soon"
+  "acct.fail.error": "Connection is unstable. Try again soon",
+  "ex.title": "BitPark RP Exchange",
+  "ex.note": "RP is deducted after you confirm in the BitPark window.",
+  "ex.done": "Received {item}!",
+  "ex.fail.balance": "Not enough RP",
+  "ex.fail.error": "Exchange failed. Try again soon"
 }
