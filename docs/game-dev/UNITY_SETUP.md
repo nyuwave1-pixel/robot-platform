@@ -309,3 +309,18 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **열기**: 플레이어 빌드는 빌드 목록의 모든 씬을 넣음(Island Slice가 첫 씬). `SceneRouter` 가 `-mission m01`(명령줄)·`?mission=m01`(WebGL 주소)로 미션 01을 엶.
 - 아직 없는 것: 감시탑·레이더·모래주머니 초소·보트(저격수는 탑 대신 땅에서 자리를 지킴), 브리핑 화면. dotnet `CoreTests~` **275/275**. **Unity 컴파일·화면 확인 전.**
 
+## 2026-11-25 (11) — 병사 애니메이션: Quaternius UAL(CC0) + 웹 절차 포즈 (허브 세션, 클라우드, U3)
+
+- **에셋**: Quaternius Universal Animation Library [Standard] — itch.io 공식 무료 받기(가격 0, 결제 없음), 팩 안 `License.txt` 와 itch 페이지 모두 CC0.
+  `Assets/ThirdParty/Quaternius/UAL/UAL1_Standard.fbx`(23.8 MB, 동작 43개, 루트 모션 없는 판)를 커밋. 다시 받기·검증: `node apps/unity-studio/Tools~/fetch-ual.mjs`(SHA-256). 대장: `apps/unity-studio/ASSET_LICENSES.md`.
+  Standard 판에는 **소총 동작이 없음**(권총·근접·구르기 등). 그래서 다리·몸통·머리만 UAL을 쓰고 소총 팔은 웹 규칙으로 움직임.
+- **방식**: 게임 병사는 스킨 메시가 아니라 관절별 단단한 부품(body·legL/R·shinL/R·upper·arms·head, 웹과 같은 리그). 적마다 보이지 않는 UAL Humanoid 마네킹(`Rig`)이
+  Animator로 동작을 재생하고, `Runtime/SoldierAnimator` 가 뼈가 쉬는 자세에서 회전한 만큼을 부품에 옮김(엉덩이→body, 허벅지→legL/R, 종아리→shinL/R, 가슴→upper, 머리→head).
+  컨트롤러는 코드로 생성(`Editor/Slice/SoldierAnimBuilder.cs` → `Assets/Animation/Soldier.controller`): 속도×웅크림 2D 블렌드(Idle·Walk·Jog·Sprint·Crouch Idle/Fwd), 피격(가슴·머리), 사망(Death01).
+  import 설정은 Quaternius Unity 안내 그대로(Bake Axis Conversion, Humanoid, `_Loop` 반복).
+- **UAL이 없을 때**: `Core/SoldierPose` — 웹 `models.js` poseSoldier 와 `enemies.js` 걸음 갱신을 그대로 옮김(`Tools~/gen-pose-fixture.mjs` 가 웹 함수 원문을 실행해 만든 93개 자세·10개 걸음 표본과 1e-12 이내 일치).
+  소총 조준(목표 쪽 ±0.6 rad, 평소 −0.25)·사격 반동은 두 방식 모두 이 규칙.
+- **게임 연결**: `EnemyAgent.WantsCrouch`(엄폐 숨기 + 후퇴 지점 도착, 웹 규칙) → 웅크림, 피격 부위 → Hit_Chest/Hit_Head, 사망 → Death01. 예전 대체 동작(모델 0.55 m 가라앉기, 사망 시 −80° 넘어뜨리기)은 애니메이터가 없을 때만.
+- 테스트: dotnet `CoreTests~` **281/281**(포즈·걸음 웹 대조, 클립 선택, 필요한 클립 9개가 FBX 안에 있는지). PlayMode `SoldierAnimTests` 2개 추가(PC). **Unity 컴파일·화면 확인 전** —
+  뼈 방향 가정(마네킹·병사 모두 +z를 봄, glTFast x축 반전)이 틀리면 `pitchSign`·`rigYaw` 로 조정.
+

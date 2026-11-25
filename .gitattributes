@@ -31,3 +31,6 @@
 *.zip   binary
 *.ttf   binary
 *.woff2 binary
+
+# third-party packs stay byte-identical to the download (fetch scripts check SHA-256)
+apps/unity-studio/Assets/ThirdParty/** -text

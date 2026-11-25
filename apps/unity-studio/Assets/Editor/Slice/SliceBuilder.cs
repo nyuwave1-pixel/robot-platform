@@ -126,7 +126,7 @@ namespace SpecialSoldier.EditorTools
 
             var player = BuildPlayer(new Vector3(0f, 0.1f, -40f));
             var visual = LoadSoldierVisual();
-            Debug.Log($"[Slice] soldier visual: {(visual ? "Blender GLB 'Soldier' node" : "capsule fallback (run StudioBootstrap.ImportAndBuild first)")}");
+            Debug.Log($"[Slice] soldier visual: {(visual ? "Blender GLB 'Soldier' node" : "capsule fallback (run StudioBootstrap.ImportAndBuild first)")}, animation: {(visual && SoldierAnimBuilder.RigPrefab() && SoldierAnimBuilder.Controller() ? "Quaternius UAL rig" : "procedural (web pose)")}");
             var enemies = new (string type, Vector3 pos, Vector3[] patrol, bool hold)[]
             {
                 ("guard",   new Vector3(-20f, 0f, -10f), new[] { new Vector3(-20f, 0f, -10f), new Vector3(-30f, 0f, 5f) }, false),
@@ -358,6 +358,9 @@ namespace SpecialSoldier.EditorTools
                 var v = Object.Instantiate(visual, go.transform); v.name = "Visual";
                 v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
                 foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                // U3: Quaternius UAL clips on an invisible Humanoid rig drive the soldier's pivots (web procedural pose without it)
+                var anim = go.AddComponent<SoldierAnimator>(); anim.visual = v.transform;
+                anim.rig = SoldierAnimBuilder.AddRig(go);
             }
             else
             {

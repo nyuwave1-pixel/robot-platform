@@ -25,6 +25,10 @@ namespace SpecialSoldier
         public Vector3? Goal { get; private set; }            // current combat move goal (cover spot, flank point, ...)
         public bool InCover => _goalIsCover && AtGoal;
         public bool Hidden { get; private set; }               // ducked behind cover: does not shoot this moment
+        /// <summary>Kneels: ducked behind cover, or reached its fall-back spot while retreating (web enemies.js wantCrouch).</summary>
+        public bool WantsCrouch => Hidden || (Brain != null && Brain.State == AlertState.Retreat && AtGoal);
+        /// <summary>A SoldierAnimator poses the model (crouch, death): the stand-in sink and tip-over below are skipped.</summary>
+        public bool PoseDriven { get; set; }
         bool AtGoal => Goal.HasValue && _agent && _agent.isOnNavMesh && !_agent.pathPending && _agent.remainingDistance < 0.7f;
 
         static readonly List<EnemyAgent> Active = new List<EnemyAgent>();
@@ -226,9 +230,9 @@ namespace SpecialSoldier
                     if (_seesNow || Brain.SinceSeen < 3f) Face(_lastKnown);
                     break;
             }
-            if (_visual)
+            if (_visual && !PoseDriven)
             {
-                // duck behind cover: the model sinks 0.55 m (a stand-in until crouch animations arrive)
+                // duck behind cover: the model sinks 0.55 m (stand-in when there is no SoldierAnimator)
                 var lp = _visual.localPosition;
                 lp.y = Mathf.MoveTowards(lp.y, _visualBaseY - (Hidden ? 0.55f : 0f), Time.deltaTime * 3f);
                 _visual.localPosition = lp;
@@ -282,7 +286,8 @@ namespace SpecialSoldier
             Goal = null; Hidden = false;
             _agent.enabled = false;
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
-            transform.rotation = Quaternion.Euler(-80f, transform.eulerAngles.y, 0f);   // simple fall until ragdolls arrive
+            if (PoseDriven) return;   // SoldierAnimator plays the death (UAL Death01, or the web pose's fall)
+            transform.rotation = Quaternion.Euler(-80f, transform.eulerAngles.y, 0f);   // simple fall (no SoldierAnimator)
             transform.position += Vector3.up * 0.3f;
         }
     }

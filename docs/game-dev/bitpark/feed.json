@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:42:33.729Z",
+  "generatedAt": "2026-11-25T09:01:46.436Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "1b20dde"
+    "commit": "f52919d"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,24 @@
   },
   "devlog": [
     {
+      "hash": "f52919d",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim U3 soldier animation (Quaternius UAL CC0)"
+    },
+    {
+      "hash": "e509344",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "fix: URL difficulty is adopted into settings once; pointer-lock refusals no longer alert; main menu fits 8 items"
+    },
+    {
+      "hash": "4027b57",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port campaign Mission 01 SILENT LANDING (U4)"
+    },
+    {
       "hash": "1b20dde",
       "date": "2026-11-25",
       "area": "general",
@@ -605,24 +623,6 @@
       "date": "2026-11-24",
       "area": "unity-studio",
       "subject": "feat(unity-studio): Unity CLI + Pipeline package; live Editor round trip verified; portal feed for BIT PARK"
-    },
-    {
-      "hash": "518e22a",
-      "date": "2026-11-24",
-      "area": "portal",
-      "subject": "feat(portal): GAME DEV LAB feed for the BIT PARK portal and a Unity WebGL build"
-    },
-    {
-      "hash": "67c4037",
-      "date": "2026-11-24",
-      "area": "unity",
-      "subject": "docs(unity): Unity CLI install left PATH entry but no binary; live control still pending"
-    },
-    {
-      "hash": "3cfbe52",
-      "date": "2026-11-23",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): port web difficulty table and enemy reaction delay; enemies no longer shred the player at spawn"
     }
   ]
 }

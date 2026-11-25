@@ -78,3 +78,4 @@ SPECIAL SOLDIER 전용 후보 38건과 Top 10 적용 순서는 PC 세션 보고�
 출처: [Unity Asset Store 타 엔진 사용 FAQ](https://support.unity.com/hc/en-us/articles/34387186019988-Can-I-use-assets-from-the-Asset-Store-with-other-engines),
 [KayKit Block Bits](https://kaylousberg.itch.io/block-bits), [Poly Pizza 소개](https://poly.pizza/docs/press),
 [Rokoko 무료 모캡](https://www.rokoko.com/resources/download-263-rokoko-motion-capture-assets), [CG Channel: CMU 데이터베이스](https://cgpress.org/archives/carnegie-mellon-university-motion-capture-database.html)
+- 2026-11-25: Quaternius **Universal Animation Library** 를 itch.io 무료 받기로 클라우드에서 스크립트로 내려받음(`apps/unity-studio/Tools~/fetch-ual.mjs`) — itch.io 는 클라우드에서 접근 가능. Standard 판(CC0, 43동작)에는 소총 동작 없음.
