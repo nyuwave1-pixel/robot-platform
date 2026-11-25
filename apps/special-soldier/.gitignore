@@ -9,3 +9,5 @@ __pycache__/
 *.pyc
 *.blend1
 tools/assets/.cache/
+# local test-run logs (results go into docs/QA_REPORT.md)
+e2e*.log
