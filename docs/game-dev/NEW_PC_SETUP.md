@@ -1,5 +1,7 @@
 # 새 PC에서 게임 개발 환경 만들기
 
+> 지금 상태·다음 할 일: [HANDOFF.md](HANDOFF.md). 게임 저장소 전부를 한 번에 받으려면 BIT PARK 포털의 `scripts/setup.ps1` (bitpark-portal `docs/WORKSPACE.md`).
+
 어느 Windows PC에서든 같은 저장소·같은 도구 버전으로 이어서 작업하기 위한 순서입니다.
 도구 버전은 [`tools/dev-env/versions.json`](../../tools/dev-env/versions.json) 한 곳에서 관리합니다(현재 Unity 6000.6.9f1, Blender 5.3, Node 22+, Python 3.13).
 
