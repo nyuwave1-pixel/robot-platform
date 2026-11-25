@@ -169,6 +169,7 @@ namespace SpecialSoldier.EditorTools
             body.height = 1.5f; body.center = new Vector3(0f, 0.75f, 0f);
             go.AddComponent<Damageable>();
             var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.angularSpeed = 360f; agent.acceleration = 12f;
+            agent.enabled = false;   // EnemyAgent.Start enables it once the NavMeshSurface has loaded its data (WebGL ran agents first)
             var e = go.AddComponent<EnemyAgent>(); e.typeId = type; e.hold = hold;
             if (patrol != null)
             {

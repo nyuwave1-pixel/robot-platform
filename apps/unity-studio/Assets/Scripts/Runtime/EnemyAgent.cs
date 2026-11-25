@@ -68,6 +68,17 @@ namespace SpecialSoldier
             _player = FindAnyObjectByType<PlayerMotor>();
             _playerHp = _player ? _player.GetComponent<Damageable>() : null;
             _agent.speed = 1.5f;
+            // In the WebGL player the agents' OnEnable can run before NavMeshSurface.OnEnable adds the baked data,
+            // leaving every agent "not on a NavMesh" for good. Start runs after all OnEnable calls: re-attach here.
+            // The scene ships the agent disabled (SliceBuilder) so it never tries to attach before the data exists.
+            if (!_agent.enabled) _agent.enabled = true;
+            if (!_agent.isOnNavMesh)
+            {
+                bool found = NavMesh.SamplePosition(transform.position, out NavMeshHit nh, 4f, NavMesh.AllAreas);
+                _agent.enabled = false; _agent.enabled = true;
+                if (found && !_agent.isOnNavMesh) _agent.Warp(nh.position);
+                if (!_agent.isOnNavMesh) Debug.LogWarning($"[Enemy] {name}: still no NavMesh (navmesh triangles: {NavMesh.CalculateTriangulation().indices.Length / 3})");
+            }
             _visual = transform.Find("Visual");
             if (_visual) _visualBaseY = _visual.localPosition.y;
         }

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T01:34:28.838Z",
+  "generatedAt": "2026-11-25T02:05:17.324Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "e609bb1"
+    "commit": "ca0e945"
   },
   "section": {
     "id": "game-dev-lab",
@@ -370,6 +370,12 @@
   },
   "devlog": [
     {
+      "hash": "ca0e945",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): sound + muzzle flash/impact FX; first Unity compile of cover AI and grenades; WebGL build verified"
+    },
+    {
       "hash": "e609bb1",
       "date": "2026-11-24",
       "area": "unity-studio",
@@ -602,12 +608,6 @@
       "date": "2026-11-19",
       "area": "special-soldier",
       "subject": "feat(special-soldier): v0.14 recorded CC0 audio layer, music, asset license ledger"
-    },
-    {
-      "hash": "ee677a1",
-      "date": "2026-11-19",
-      "area": "game-dev",
-      "subject": "docs(game-dev): use the installed Unity 6000.6.9f1 on the PC; Unity work moves to the PC Blender session"
     }
   ]
 }

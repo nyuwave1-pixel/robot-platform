@@ -169,3 +169,11 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   `Combat_SentriesTakeCover_EliteFlanks`(8초 안에 경계병 엄폐 도착·정예 측면 목표), `Grenade_DroppedNextToEnemy_DamagesIt`,
   발소리·총성·탄착 횟수 확인. `LeftMouse_ShootsAndDamagesAnEnemy` 는 사격 소리에 표적이 엄폐로 숙여 머리 높이 탄이 빗나가므로 표적 AI를 정지시켜 총 피해만 검사.
 - 시작 지점 6초 정지 시 HP 100/100(REGULAR) 유지.
+
+## 2026-11-25 (2) WebGL 내비메시 경고 — 실제 원인과 수정
+
+- 포털 세션 보고: WebGL에서 `Failed to create agent because there is no valid NavMesh` ×7 가 남아 있었음.
+  앞서(e609bb1) "해결"로 적은 것은 **틀린 확인**이었다 — 콘솔을 패턴 필터로 읽어 결과가 비어 보였을 뿐, 경고는 그대로였다.
+- 진짜 원인: WebGL 플레이어에서는 적의 `NavMeshAgent.OnEnable` 이 `NavMeshSurface.OnEnable`(구운 데이터 등록)보다 먼저 실행돼 에이전트가 영구히 내비메시 밖에 남음.
+- 수정: SliceBuilder가 씬의 `NavMeshAgent` 를 **꺼진 상태로 저장**, `EnemyAgent.Start`(모든 OnEnable 이후)에서 켜고, 그래도 밖이면 `SamplePosition`→`Warp`, 실패 시 `[Enemy] ... still no NavMesh` 경고.
+- 확인: 새 빌드(15.3 MB)를 캐시 우회로 열어 콘솔 전체(필터 없이) 확인 → 내비메시 경고 0건. 4초 간격 화면에서 적 위치 변화 확인. EditMode 180/180, PlayMode 10/10.
