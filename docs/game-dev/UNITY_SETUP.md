@@ -373,3 +373,16 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 일시 오류: Windows 빌드 단계에서 `[CoreBusinessMetrics] … SQLite "disk I/O error"`(디스크 670 GB 여유) — 다른 프로젝트 Unity가 같은 캐시를 쓰던 때, 재실행으로 해결.
 - **미션 01(4027b57)·병사 애니메이션(5997b22)**: `MISSION 01 SILENT LANDING: scene saved … 9 enemies + 3 QRF, sky night`,
   `soldier animation: controller ok Assets/Animation/Soldier.controller (9 UAL clips)`, `animation: Quaternius UAL rig`, Humanoid 아바타 경고 없음.
+
+## 2026-11-25 (15) — 미션 03 BLACK COBRA BASE + 장갑차 (허브 세션, 클라우드, U4)
+
+- **기지 구조물(`Core/IslandProps.Base`)**: 외벽(남·북·동 문), 모서리 저격탑 4, 병영 2(침상), 무기고, HQ(두 방·유리창·정보 단말 책상), 통신 오두막·레이더,
+  모터풀(트럭 3·컨테이너), 벙커 엘리베이터 건물, 마당 엄폐물, 깃대, 가로등 8. 웹 build.js 기지 부분 원문 실행 결과와 **449개 호출 일치**(새 도우미: truck·container·glass).
+- **장갑차(APC)**: `EnemyType.Apc`(웹 표와 숫자 대조 — 이번에 기존 5종도 전부 웹 표 대조 테스트 추가), 소화기 피해 10%·폭발물 100%(`Damageable.DamageFilter`, 수류탄은 explosive),
+  포탑만 1.3 rad/s 로 회전·조준이 맞아야 사격, 포구 높이 2.85 m·3.2 m 앞, 파괴 시 폭발과 그을린 차체(넘어지지 않음). Blender `APC`·`turret` 사용.
+- **미션 03(`Core/Campaign.M03`)**: 폭풍, 남문 돌파 → [HQ 경비 소탕 / 모터풀 연료차 폭파(70 m 안 차량 파괴)] 순서 자유 → HQ 단말 다운로드 4초(사이렌 + 증원 5) → 벙커 엘리베이터.
+  경보 시 장갑차 수색 + 증원 2. 웹 미션 객체 실행 결과(배치·목표·훅·플래그)와 대조.
+- **소리**: 웹 audio.js 의 `alarm` 사이렌을 `SfxSynth` 에 옮김.
+- 구조물은 정적이지만 **static batching 에서 제외**(메시 복사로 WebGL 이 커지는 것 방지).
+- dotnet `CoreTests~` **302/302**. PlayMode `Mission03Tests` 2개. **Unity 확인 전**(그다음 묶음).
+

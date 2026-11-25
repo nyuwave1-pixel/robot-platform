@@ -42,6 +42,7 @@ namespace SpecialSoldier.Core
                 case "hurt": Noise(b, 0.14f, 500, g: 0.7f); Osc(b, 0.18f, 140, f2: 70, g: 0.5f); break;
                 case "whiz": Noise(b, 0.14f, 4200, f2: 1400, q: 6, type: FilterType.Bandpass, g: 0.35f); break;
                 case "ui": Osc(b, 0.05f, 880, wave: Wave.Triangle, g: 0.12f); break;
+                case "alarm": for (int i = 0; i < 4; i++) Osc(b, 0.4f, 620, f2: 880, wave: Wave.Square, g: 0.14f, t: i * 0.5f); break;   // web: base siren, 4 rising blips
                 case "thunder": Noise(b, 3.5f, 260, f2: 50, g: 1.5f, a: 0.08f); Noise(b, 0.3f, 2200, g: 0.7f); break;
                 case "explosion-body":   // the synthetic layer under the recorded explosion (web: k = 0.5 when the sample plays)
                     Noise(b, 1.6f, 900, f2: 60, g: 1.1f); Osc(b, 1.1f, 90, f2: 24, g: 2.0f); Noise(b, 0.12f, 4000, g: 0.6f);

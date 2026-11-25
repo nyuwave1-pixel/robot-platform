@@ -62,6 +62,19 @@ namespace SpecialSoldier.Core.Tests
         }
 
         [Test]
+        public void AlarmIsTheWebSiren()
+        {
+            var a = new SfxSynth().Render("alarm");
+            Assert.That(a.Length / (float)SfxSynth.SampleRate, Is.EqualTo(1.9f).Within(0.05f), "4 blips 0.5 s apart, 0.4 s each");
+            string js = null;
+            foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
+                for (var dir = new DirectoryInfo(start); dir != null && js == null; dir = dir.Parent)
+                    foreach (var p in new[] { Path.Combine(dir.FullName, "special-soldier", "src", "core", "audio.js"), Path.Combine(dir.FullName, "apps", "special-soldier", "src", "core", "audio.js") })
+                        if (File.Exists(p)) { js = File.ReadAllText(p); break; }
+            if (js != null) StringAssert.Contains("case 'alarm': for (let i = 0; i < 4; i++) this.osc(0.4, { f: 620, f2: 880, type: 'square', g: 0.14, dest: d, t: i * 0.5 }); break;", js);
+        }
+
+        [Test]
         public void ShotProfilesMatchTheWebSource()
         {
             string js = null;

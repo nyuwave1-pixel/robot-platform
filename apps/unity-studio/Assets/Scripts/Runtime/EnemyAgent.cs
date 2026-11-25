@@ -17,6 +17,9 @@ namespace SpecialSoldier
         public float VisionNow { get; private set; }                // current sight range in metres (night, rain, your stance)
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)
+        /// <summary>Vehicles (APC): the part that turns toward the target (web: parts.turret, 1.3 rad/s). The hull never moves.</summary>
+        public Transform turret;
+        Quaternion _turretRest = Quaternion.identity;
         public float eyeHeight = 1.6f;
         public LayerMask sightMask = ~0;
 
@@ -54,6 +57,8 @@ namespace SpecialSoldier
         void Awake()
         {
             Type = System.Array.Find(EnemyType.All, t => t.Id == typeId) ?? EnemyType.Sentry;
+            if (Type.Vehicle) { hold = true; eyeHeight = 2.6f; }   // web: vehicles hold, perceive from 2.6 m
+            if (turret) _turretRest = Quaternion.Inverse(transform.rotation) * turret.rotation;
             Brain = new AwarenessBrain(Type) { Hold = hold, DifficultyDetect = GameDirector.CurrentDifficulty.Detect };
             // like the web game's engage(): a short, randomised pause before the first burst (shorter when it only heard you)
             Brain.StateChanged += (from, to) => { if (to == AlertState.Combat) _reactT = GameDirector.CurrentDifficulty.ReactionDelay(Type, Random.value, _seesNow); };
@@ -63,6 +68,7 @@ namespace SpecialSoldier
             _agent = GetComponent<NavMeshAgent>();
             _hp = GetComponent<Damageable>();
             _hp.Configure(Type.Hp, Type.Armor, 0.5f);
+            _hp.DamageFilter = Type.DamageTaken;   // vehicles: small arms ×0.1 (web damage())
             _hp.Hit += (dmg, from) => { _lastKnown = from; Brain.OnDamaged(); };   // falling back is decided by TacticsPlanner
             _hp.Died += OnDied;
             _home = transform.position;
@@ -230,6 +236,7 @@ namespace SpecialSoldier
                     if (_seesNow || Brain.SinceSeen < 3f) Face(_lastKnown);
                     break;
             }
+            if (Type.Vehicle && Brain.State >= AlertState.Search) Face(_lastKnown);   // web: the turret tracks the last known position
             if (_visual && !PoseDriven)
             {
                 // duck behind cover: the model sinks 0.55 m (stand-in when there is no SoldierAnimator)
@@ -243,12 +250,25 @@ namespace SpecialSoldier
         {
             Vector3 dir = p - transform.position; dir.y = 0f;
             if (dir.sqrMagnitude < 0.01f) return;
+            if (Type.Vehicle)
+            {
+                if (turret) turret.rotation = Quaternion.RotateTowards(turret.rotation, Quaternion.LookRotation(dir) * _turretRest, 1.3f * Mathf.Rad2Deg * Time.deltaTime);
+                return;
+            }
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(dir), 240f * Time.deltaTime);
         }
 
         void Shoot(float dt)
         {
             if (!_seesNow || !_playerHp || !_playerHp.Alive || Hidden) { _burstLeft = 0; return; }
+            Vector3 gunFwd = Vector3.forward;
+            if (Type.Vehicle && turret)
+            {
+                // the turret must be on target before it fires (web: fireLogic(..., |angle| small))
+                gunFwd = turret.forward; gunFwd.y = 0f; gunFwd.Normalize();
+                Vector3 toP = _player.transform.position - transform.position; toP.y = 0f;
+                if (Vector3.Angle(gunFwd, toP) > 12f) return;
+            }
             if (_reactT > 0f) { _reactT -= dt; return; }
             var diff = GameDirector.CurrentDifficulty;
             if (_burstLeft <= 0)
@@ -260,7 +280,8 @@ namespace SpecialSoldier
             if ((_shotT -= dt) > 0f) return;
             _shotT = 60f / Type.Rpm; _burstLeft--; LastFireTime = Time.time;
 
-            Vector3 eye = transform.position + Vector3.up * eyeHeight;
+            Vector3 eye = transform.position + Vector3.up * (Type.Vehicle ? Type.MuzzleHeight : eyeHeight);
+            if (Type.Vehicle) eye += gunFwd * 3.2f;   // web: muzzle 3.2 m out along the turret
             Vector3 dir = (_player.Eye - Vector3.up * 0.35f - eye).normalized;
             float spread = diff.ShotSpread(Type, _agent.velocity.sqrMagnitude > 0.25f, Brain.StateTime);
             Vector2 r = Random.insideUnitCircle * Mathf.Tan(spread * Mathf.Deg2Rad);
@@ -286,6 +307,17 @@ namespace SpecialSoldier
             Goal = null; Hidden = false;
             _agent.enabled = false;
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
+            if (Type.Vehicle)
+            {
+                // web: fx.explode(9 m) and the hull turns to burnt metal
+                Vector3 c = transform.position + Vector3.up * 1.5f;
+                Grenade.Flash(c); SliceFx.I.Explosion(c);
+                if (GameDirector.Instance) GameDirector.Instance.ReportNoise(c, 120f);
+                var mpb = new MaterialPropertyBlock(); var burnt = new Color(0.08f, 0.07f, 0.06f, 1f);
+                foreach (var r in GetComponentsInChildren<Renderer>())
+                { r.GetPropertyBlock(mpb); mpb.SetColor("_BaseColor", burnt); mpb.SetColor("baseColorFactor", burnt); r.SetPropertyBlock(mpb); }
+                return;
+            }
             if (PoseDriven) return;   // SoldierAnimator plays the death (UAL Death01, or the web pose's fall)
             transform.rotation = Quaternion.Euler(-80f, transform.eulerAngles.y, 0f);   // simple fall (no SoldierAnimator)
             transform.position += Vector3.up * 0.3f;

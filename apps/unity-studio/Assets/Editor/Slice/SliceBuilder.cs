@@ -334,6 +334,8 @@ namespace SpecialSoldier.EditorTools
                 go.name = pm.Geo == "CommsTower" ? "RelayMast" : pm.Geo;
                 go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z) + (node ? Vector3.zero : Vector3.up * 15f);
                 go.transform.rotation = Quaternion.identity;
+                go.transform.rotation = Quaternion.Euler(0f, (float)(-pm.RotY * Mathf.Rad2Deg), 0f);   // z mirror: yaw changes sign (trucks lie along x)
+                if (pm.Geo != "CommsTower") foreach (var t in go.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(t.gameObject, (StaticEditorFlags)~0 & ~StaticEditorFlags.BatchingStatic);
                 named[pm.Geo] = go.transform; drawn++;
             }
             foreach (var c in set.Calls)
@@ -370,7 +372,9 @@ namespace SpecialSoldier.EditorTools
                     go.GetComponent<Renderer>().sharedMaterial = Mat("Prop_" + c.Mat, c.Mat == "wood" ? new Color(0.45f, 0.33f, 0.2f) : c.Mat == "sand" ? new Color(0.66f, 0.6f, 0.45f) : new Color(0.5f, 0.5f, 0.48f), 0.85f);
                 }
                 go.transform.position = pos; go.transform.rotation = turn ? Quaternion.Euler(0f, yaw, 0f) : Quaternion.identity; go.transform.localScale = scale;
-                go.isStatic = true;
+                // static for lighting / occlusion, but not batching: static batching copies every mesh into the build (the
+                // vegetation lesson — merged copies were 76 % of the WebGL download); the GLB meshes are shared as they are
+                foreach (var t in go.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(t.gameObject, (StaticEditorFlags)~0 & ~StaticEditorFlags.BatchingStatic);
                 if (c.Tint != null)
                 {
                     var mpb = new MaterialPropertyBlock();
@@ -451,6 +455,7 @@ namespace SpecialSoldier.EditorTools
 
         static GameObject BuildEnemy(GameObject parent, int i, string type, Vector3 pos, Vector3[] patrol, bool hold, GameObject visual, Vector3 face)
         {
+            if (EnemyType.All.Any(t => t.Id == type && t.Vehicle)) return BuildVehicle(parent, i, type, pos, face);
             var go = new GameObject($"Enemy{i}_{type}");
             go.transform.SetParent(parent.transform); go.transform.position = pos;
             Vector3 look = face - pos; look.y = 0f; go.transform.rotation = Quaternion.LookRotation(look.sqrMagnitude > 0.01f ? look : Vector3.forward);
@@ -487,6 +492,39 @@ namespace SpecialSoldier.EditorTools
                 cap.name = "Visual"; cap.transform.SetParent(go.transform, false); cap.transform.localPosition = new Vector3(0f, 0.9f, 0f); cap.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
                 cap.GetComponent<Renderer>().sharedMaterial = Mat("Enemy_" + type, type == "heavy" ? new Color(0.25f, 0.27f, 0.22f) : new Color(0.4f, 0.38f, 0.3f), 0.7f);
             }
+            return go;
+        }
+
+        /// <summary>An APC (web makeAPC / Blender 'APC' with its 'turret'): one box collider for the hull and turret (the web game
+        /// tests three 1.75 m spheres along the hull), the turret turns, the hull never moves (EnemyAgent vehicle rules).</summary>
+        static GameObject BuildVehicle(GameObject parent, int i, string type, Vector3 pos, Vector3 face)
+        {
+            var go = new GameObject($"Enemy{i}_{type}");
+            go.transform.SetParent(parent.transform); go.transform.position = pos;
+            Vector3 look = face - pos; look.y = 0f; go.transform.rotation = Quaternion.LookRotation(look.sqrMagnitude > 0.01f ? look : Vector3.forward);
+            var body = go.AddComponent<BoxCollider>(); body.size = new Vector3(3.5f, 3.3f, 7.3f); body.center = new Vector3(0f, 1.65f, 0f);
+            go.AddComponent<HitZone>().part = BodyPart.Torso;
+            go.AddComponent<Damageable>();
+            var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 1.8f; agent.height = 3.3f; agent.speed = 0f; agent.enabled = false;
+            var e = go.AddComponent<EnemyAgent>(); e.typeId = type; e.hold = true;
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var node = glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "APC") : null;
+            if (node)
+            {
+                var v = Object.Instantiate(node.gameObject, go.transform); v.name = "Visual";
+                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                e.turret = v.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "turret");
+            }
+            else
+            {
+                var hull = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(hull.GetComponent<Collider>());
+                hull.name = "Visual"; hull.transform.SetParent(go.transform, false); hull.transform.localPosition = new Vector3(0f, 1.2f, 0f); hull.transform.localScale = new Vector3(3.2f, 2.2f, 7f);
+                var tur = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(tur.GetComponent<Collider>());
+                tur.name = "turret"; tur.transform.SetParent(go.transform, false); tur.transform.localPosition = new Vector3(0f, 2.6f, 0.2f); tur.transform.localScale = new Vector3(1.5f, 0.7f, 1.7f);
+                e.turret = tur.transform;
+            }
+            Debug.Log($"[Slice] vehicle {type}: {(node ? "Blender APC" : "box stand-in")}, turret {(e.turret ? "ok" : "MISSING")}");
             return go;
         }
 

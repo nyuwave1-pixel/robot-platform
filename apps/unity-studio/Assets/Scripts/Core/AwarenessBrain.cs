@@ -11,13 +11,19 @@ namespace SpecialSoldier.Core
         public readonly float Hp, Armor, Speed, Spread, Rpm, GunDamage, Vision, Fov, React;
         public readonly int BurstMin, BurstMax;
         public readonly bool Grenades;            // web: grenades: true (COBRA ELITE, COMMANDER VIPER)
-        public int Score => Id switch { "guard" => 100, "assault" => 150, "sniper" => 200, "heavy" => 300, "elite" => 350, _ => 100 };   // web: type.score
+        /// <summary>web vehicle: true (APC): a turret on a hull — never moves, sees all round, small arms do a tenth of their damage.</summary>
+        public readonly bool Vehicle;
+        public int Score => Id switch { "guard" => 100, "assault" => 150, "sniper" => 200, "heavy" => 300, "elite" => 350, "apc" => 800, _ => 100 };   // web: type.score
+        /// <summary>web enemies.js damage(): <c>if (e.type.vehicle &amp;&amp; !explosive) dmg *= 0.1</c>.</summary>
+        public float DamageTaken(float dmg, bool explosive) => Vehicle && !explosive ? dmg * 0.1f : dmg;
+        /// <summary>Gun height: web shot origin y + 2.85 for vehicles (turret), else the soldier's 1.45.</summary>
+        public float MuzzleHeight => Vehicle ? 2.85f : 1.45f;
 
         public EnemyType(string id, string name, float hp, float armor, float speed, float spread, int burstMin, int burstMax, float rpm,
-            float gunDamage, float vision, float fov, float react, bool grenades = false)
+            float gunDamage, float vision, float fov, float react, bool grenades = false, bool vehicle = false)
         {
             Id = id; Name = name; Hp = hp; Armor = armor; Speed = speed; Spread = spread; BurstMin = burstMin; BurstMax = burstMax;
-            Rpm = rpm; GunDamage = gunDamage; Vision = vision; Fov = fov; React = react; Grenades = grenades;
+            Rpm = rpm; GunDamage = gunDamage; Vision = vision; Fov = fov; React = react; Grenades = grenades; Vehicle = vehicle;
         }
 
         public static readonly EnemyType Sentry = new EnemyType("guard", "SENTRY", 90, 0, 3.6f, 3.3f, 2, 4, 520, 11, 72, 1.9f, 0.9f);
@@ -25,7 +31,8 @@ namespace SpecialSoldier.Core
         public static readonly EnemyType Sniper = new EnemyType("sniper", "SNIPER", 80, 0, 2.6f, 0.45f, 1, 1, 30, 58, 190, 1.3f, 1.7f);
         public static readonly EnemyType Heavy = new EnemyType("heavy", "HEAVY GUNNER", 260, 160, 2.1f, 4.6f, 10, 18, 600, 10, 75, 1.9f, 1.1f);
         public static readonly EnemyType Elite = new EnemyType("elite", "COBRA ELITE", 150, 90, 4.9f, 2.3f, 3, 5, 700, 13, 92, 2.2f, 0.5f, grenades: true);
-        public static readonly EnemyType[] All = { Sentry, Assault, Sniper, Heavy, Elite };
+        public static readonly EnemyType Apc = new EnemyType("apc", "APC", 950, 0, 0f, 2.8f, 8, 14, 520, 14, 130, 7f, 1.3f, vehicle: true);
+        public static readonly EnemyType[] All = { Sentry, Assault, Sniper, Heavy, Elite, Apc };
     }
 
     /// <summary>What the enemy perceived this think-tick. Filled in by the engine layer (raycasts, distances).</summary>

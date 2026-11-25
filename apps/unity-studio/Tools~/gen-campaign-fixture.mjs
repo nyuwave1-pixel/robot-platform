@@ -12,7 +12,9 @@ const missions = src('game', 'missions.js'), build = src('world', 'build.js');
 const obj = (text) => JSON.parse(text.replace(/(\w+):/g, '"$1":').replace(/\.\.\.\{[^}]*\}/g, '"_": 0').replace(/'/g, '"'));
 const POI = {}; for (const m of build.matchAll(/(\w+): \{ x: (-?[\d.]+), z: (-?[\d.]+) \}/g)) POI[m[1]] = { x: +m[2], z: +m[3] };
 const GEN = obj(missions.match(/export const GEN = (\{[^}]+\})/)[1]);
-const CODES = ['MISSION 01', 'MISSION 02'];
+{ // buildIsland() moves the intel point onto the HQ desk at run time: POI.intel = { x: 8, y: y + 1.2, z: -137 } with the base at y = 16
+  const m = build.match(/POI\.intel = \{ x: (-?[\d.]+), y: y \+ ([\d.]+), z: (-?[\d.]+) \}/); POI.intel = { x: +m[1], y: 16 + +m[2], z: +m[3] }; }
+const CODES = ['MISSION 01', 'MISSION 02', 'MISSION 03'];
 
 function block(code) {
   const a = missions.indexOf(`{ code: '${code}'`); if (a < 0) throw new Error(code + ' not found');
@@ -36,10 +38,11 @@ function run(code) {
   def.objectives.forEach((o, i) => { one(o, -1); (o.parts || []).forEach((p) => one(p, i)); });
   const hooks = [];
   const hook = (name, fn, flags, aliveNow) => { const r0 = rec.radio.length, w0 = rec.waves.length; const m = { flags: { ...flags } }; alive = aliveNow; fn(m); hooks.push({ name, flags: JSON.stringify(flags), alive: aliveNow, radio: rec.radio.slice(r0), waves: rec.waves.slice(w0), setFlags: JSON.stringify(m.flags) }); };
-  if (def.alarm) hook('alarm', () => def.alarm(), {}, 1);
+  if (def.alarm) hook('alarm', (m) => def.alarm(m), {}, 1);
   def.objectives.forEach((o, i) => {
     if (o.start) for (const f of [{}, { powerCut: true }]) hook(`start ${i}`, (m) => o.start(m), f, 1);
     (o.parts || []).forEach((p, k) => { if (p.done) for (const a of [1, 0]) hook(`done ${i}.${k}`, (m) => p.done(m), {}, a); });
+    if (o.done && o.type !== 'custom') hook(`done ${i}`, (m) => o.done(m), {}, 1);
   });
   return { code, name: def.name, zone: def.zone, sky: def.sky, spawn: s, spawns: rec.spawns, objectives, hooks };
 }

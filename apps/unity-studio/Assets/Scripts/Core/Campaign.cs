@@ -142,7 +142,72 @@ namespace SpecialSoldier.Core
             };
         }
 
-        public static readonly CampaignMission[] All = { M01, M02 };
+        /// <summary>MISSION 03 — BLACK COBRA BASE (web missions.js MISSIONS[2]): storm, the walled base with corner snipers and an APC.
+        /// Breach the south gate, then in any order clear HQ security / sabotage the motor pool (kills the APC), download the intel
+        /// (the base lights up: a QRF comes for HQ) and reach the bunker elevator.</summary>
+        public static readonly CampaignMission M03 = MakeM03();
+
+        /// <summary>web POI (build.js): HQ, motor pool, bunker elevator; the intel terminal sits on the HQ desk (IslandProps.Base "intel").</summary>
+        public static readonly (double x, double z) Hq = (0, -130), Motor = (-55, -100), Bunker = (90, -150);
+
+        static CampaignMission MakeM03()
+        {
+            const string b = "base", h = "hq";
+            var spawns = new[]
+            {
+                new SpawnDef("guard", -8, -8, b, yaw: 3.1), new SpawnDef("guard", 10, -10, b, yaw: 3.1),
+                new SpawnDef("sniper", -112, -8, b, yaw: 2.4, onStructure: true), new SpawnDef("sniper", 112, -8, b, yaw: -2.4, onStructure: true),
+                new SpawnDef("guard", -20, -42, b, patrol: R(-20, -42, 22, -44, 22, -84, -20, -80)), new SpawnDef("assault", 44, -46, b, yaw: -1.6),
+                new SpawnDef("assault", 46, -62, b, patrol: R(46, -62, 46, -92, 80, -92)), new SpawnDef("assault", 60, -40, b, yaw: -1.5),
+                new SpawnDef("guard", -50, -48, b, yaw: 1.6), new SpawnDef("heavy", -64, -46, b, yaw: 1.6), new SpawnDef("guard", -50, -96, b, yaw: 0.5), new SpawnDef("guard", -74, -150, b, yaw: 1.5),
+                new SpawnDef("apc", -14, -96, "armor", yaw: 0.3),
+                new SpawnDef("heavy", 0, -116, h, yaw: 3.1), new SpawnDef("elite", -7, -128, h, yaw: 3), new SpawnDef("elite", 9, -129, h, yaw: 3.2),
+                new SpawnDef("guard", -9, -137, h), new SpawnDef("guard", 18, -118, h, yaw: 2.6),
+            };
+            return new CampaignMission
+            {
+                Id = "m03", Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", SkyId = "storm",
+                SpawnX = 0, SpawnZ = 46, SpawnYaw = 0,
+                Brief = new[]
+                {
+                    "09:10 — A thunderstorm is rolling over the island. Thunder masks gunfire; rain cuts their sight lines.",
+                    "The base is walled, with snipers in the corner towers and an APC in the motor pool. Small arms barely scratch armour — use grenades [G] or explosive barrels.",
+                    "Breach the south gate, eliminate HQ security and pull the facility access data from the HQ terminal.",
+                    "When the alarm goes, get to the bunker elevator on the east side.",
+                },
+                Spawns = spawns,
+                AlarmRadio = "NOMAD: Base alarm! Armour is waking up!", AlarmSearchPrefix = "armor",
+                AlarmWave = new[] { new SpawnDef("assault", 70, -70, "qrf"), new SpawnDef("assault", 76, -74, "qrf") },
+                Waves = new Dictionary<string, SpawnDef[]>
+                {
+                    ["intel"] = new[] { new SpawnDef("assault", -4, -178, "qrf"), new SpawnDef("assault", 4, -180, "qrf"), new SpawnDef("elite", 0, -176, "qrf"),
+                        new SpawnDef("assault", -30, -170, "qrf"), new SpawnDef("heavy", 30, -172, "qrf") },
+                },
+                NewRunner = () => new MissionRunner("MISSION 03", "BLACK COBRA BASE",
+                    Objective.Reach(W(0, -16), 13, "Breach the south gate"),
+                    Objective.Any("Two tasks — any order",
+                        Objective.Kill("hq", "Eliminate HQ security"),
+                        Objective.Interact(W(Motor.x, Motor.z), "SET CHARGE ON THE FUEL BOWSER", 3, "Sabotage the motor pool").With(onDone: m =>
+                        {
+                            m.Raise("sabotage");   // web: two blasts at the fuel bowser, every vehicle within 70 m destroyed
+                            m.Flags.Add("sabotage");
+                            m.Say("NOMAD: Fuel went up — that APC is scrap. Nice.");
+                        }))
+                        .With(radio: "REAPER: Two jobs before the terminal. Hit the motor pool first and their armour never leaves the shed — or go straight for HQ. Your call."),
+                    Objective.Interact(W(8, -137), "DOWNLOAD FACILITY ACCESS DATA", 4, "Download the intel from the HQ terminal").With(onDone: m =>
+                    {
+                        m.Raise("siren");
+                        m.Say("COMMAND: Data received. The whole base just lit up — get to the bunker!");
+                        m.SendWave("intel", 5);
+                        m.Flags.Add("alarmed");
+                    }),
+                    Objective.Reach(W(91, -150), 3.2f, "Reach the bunker elevator")),
+                Area = (-125, -190, 125, 55),
+                Props = () => IslandProps.Base(),
+            };
+        }
+
+        public static readonly CampaignMission[] All = { M01, M02, M03 };
 
         public static CampaignMission Get(string id)
         {

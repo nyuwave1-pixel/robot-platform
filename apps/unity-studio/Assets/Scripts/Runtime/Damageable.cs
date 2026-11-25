@@ -15,6 +15,8 @@ namespace SpecialSoldier
         public event Action Died;
         public BodyPart LastHitPart { get; private set; } = BodyPart.Torso;
         public bool LastHitByPlayer { get; private set; }
+        /// <summary>Changes incoming damage before armour (amount, explosive) → amount. Vehicles: EnemyType.DamageTaken (small arms ×0.1).</summary>
+        public Func<float, bool, float> DamageFilter;
 
         void Awake() => Init();
 
@@ -34,15 +36,16 @@ namespace SpecialSoldier
         }
 
         /// <summary>Damage that remembers who hit where (mission stats count player headshot kills).</summary>
-        public float ApplyDamage(float amount, Vector3 from, BodyPart part, bool byPlayer)
+        public float ApplyDamage(float amount, Vector3 from, BodyPart part, bool byPlayer, bool explosive = false)
         {
             LastHitPart = part; LastHitByPlayer = byPlayer;
-            return ApplyDamage(amount, from);
+            return ApplyDamage(amount, from, explosive);
         }
 
-        public float ApplyDamage(float amount, Vector3 from)
+        public float ApplyDamage(float amount, Vector3 from, bool explosive = false)
         {
             Init();
+            if (DamageFilter != null) amount = DamageFilter(amount, explosive);
             float lost = Model.TakeDamage(amount);
             if (lost > 0) Hit?.Invoke(lost, from);
             return lost;
