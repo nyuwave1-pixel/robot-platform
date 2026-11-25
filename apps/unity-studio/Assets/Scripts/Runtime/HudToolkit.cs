@@ -24,7 +24,7 @@ namespace SpecialSoldier
         VisualElement _root, _compass, _minimap, _overlay, _hitmarker, _awareFill, _awareBox, _hpFill, _arFill, _vitals, _promptFill, _prompt, _reload, _reloadFill, _waypoint, _flash, _result, _feedBox, _slots;
         /// <summary>How long a radio line stays on screen.</summary>
         public const float RadioSeconds = 6f;
-        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN, _radio, _resHint;
+        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN, _radio, _resHint, _gear;
         readonly Label[] _cardinals = new Label[8];
         readonly VisualElement[] _arms = new VisualElement[4];
         Damageable _playerHp;
@@ -72,6 +72,7 @@ namespace SpecialSoldier
             _awareBox = E(tl, null); _awareLabel = T(_awareBox, "hud-small", "HIDDEN"); var ab = E(_awareBox, "aware-bar"); _awareFill = E(ab, "aware-fill");
             T(tl, "objective-title", "OBJECTIVE"); _objective = T(tl, "objective");
             _counters = T(tl, "hud-small hud-dim");
+            _gear = T(tl, "hud-small hud-dim");   // tactical equipment (GearController)
             _radio = T(tl, "radio");   // mission radio call-outs (web: hud.radio), shown for a few seconds
 
             var tr = E(r, "top-right");
@@ -201,6 +202,7 @@ namespace SpecialSoldier
 
             var m = _dir ? _dir.Mission : null;
             _objective.text = _dir ? AsciiGlyphs(_dir.ObjectiveLine) : "";
+            _gear.text = GearController.Instance ? GearController.Instance.StatusLine : "";
             bool radioOn = _dir && _dir.RadioLine != null && Time.time - _dir.RadioTime < RadioSeconds;
             _radio.text = radioOn ? AsciiGlyphs(_dir.RadioLine) : "";
             _radio.style.display = radioOn ? DisplayStyle.Flex : DisplayStyle.None;
@@ -309,7 +311,7 @@ namespace SpecialSoldier
             if (_dir)
                 foreach (var e in _dir.enemies)
                 {
-                    if (!e || !e.Alive || !HudMath.OnRadar(float.PositiveInfinity, Time.time - e.LastFireTime)) continue;
+                    if (!e || !e.Alive || !HudMath.OnRadar(Time.time - e.MarkedTime, Time.time - e.LastFireTime)) continue;
                     var q = HudMath.MinimapPoint(me, _heading0, V(e.transform.position), out bool outside);
                     if (outside) continue;
                     p.fillColor = Red; p.BeginPath(); p.Arc(c + new Vector2(q.x, q.y) * (R - 2f), 3f, Angle.Degrees(0f), Angle.Degrees(360f)); p.Fill();

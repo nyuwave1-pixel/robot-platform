@@ -14,6 +14,8 @@ namespace SpecialSoldier
         public string group = "outer";          // mission kill objectives count enemies by group
         public bool AlarmRaised { get; set; }    // this enemy's squad already called it in (mission stats)
         public float LastFireTime { get; private set; } = -999f;   // HUD radar shows enemies for 2.5 s after they fire
+        /// <summary>When the recon drone last tagged this enemy (radar shows it for 30 s, web e.marked).</summary>
+        public float MarkedTime { get; set; } = -999f;
         public float VisionNow { get; private set; }                // current sight range in metres (night, rain, your stance)
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)

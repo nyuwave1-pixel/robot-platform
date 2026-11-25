@@ -538,6 +538,7 @@ namespace SpecialSoldier.EditorTools
             if (GraphicsSettings.defaultRenderPipeline) cam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
             var weapon = pivot.gameObject.AddComponent<WeaponController>(); weapon.motor = motor; weapon.view = cam;
             pivot.gameObject.AddComponent<GrenadeThrower>().motor = motor;
+            var gear = go.AddComponent<GearController>(); gear.motor = motor; gear.view = cam;   // N/T/L/H/B equipment
             return go;
         }
 

@@ -87,7 +87,7 @@ namespace SpecialSoldier
                     { text = $"{m.Code.Replace("MISSION ", "M")} {m.Name}" + (best != null ? $"  [{best.Grade}]" : open ? "" : "  — LOCKED") };
                 b.AddToClassList("pause-choice"); b.SetEnabled(open); missions.Add(b);
             }
-            Text(card, "WASD move · Shift sprint · C crouch · Space jump · LMB fire · RMB aim · R reload · V mode · 1–3 weapon · G grenade · E interact · K weather", "pause-keys");
+            Text(card, "WASD move · Shift sprint · C crouch · Space jump · LMB fire · RMB aim · R reload · V mode · 1–3 weapon · G grenade · E interact · K weather · N night vision · T thermal · L light · H med kit · B drone · X/F select/use", "pause-keys");
         }
 
         static Label Text(VisualElement parent, string text, string cls) { var l = new Label(text); l.AddToClassList(cls); parent.Add(l); return l; }

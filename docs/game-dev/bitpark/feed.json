@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T12:48:11.563Z",
+  "generatedAt": "2026-11-25T12:52:18.534Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "57de40a"
+    "commit": "c00a7b1"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "c00a7b1",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity tactical gear"
+    },
+    {
+      "hash": "d3a8018",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: campaign flow — briefing, saved progress, next mission"
+    },
+    {
       "hash": "57de40a",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "feat: one SPECIAL SOLDIER, two editions — PLAY MODE screen in the classic menu, CLASSIC EDITION button in Unity"
-    },
-    {
-      "hash": "88ad854",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "feat: shared island vegetation for both editions; fix the Unity island being a mirror image"
-    },
-    {
-      "hash": "fb27f35",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims the shared island vegetation work (web + Unity)"
     }
   ]
 }
