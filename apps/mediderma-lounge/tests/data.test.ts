@@ -127,4 +127,15 @@ describe("메이크업 (베이스 · 블러셔 · 아이섀도 · 립)", () => {
     const bad = cleanLook({ base: "<script>", shadow: 3, lip: "hair-bob-x" });
     expect([bad.base, bad.shadow, bad.lip]).toEqual([null, null, null]);
   });
+  it("완성형 캐릭터마다 얼굴 위치(블러셔 · 섀도 · 립)가 있다", async () => {
+    const { DESIGNED_FACE } = await import("../src/data/makeup");
+    const { DESIGNED_BODIES } = await import("../src/store/game");
+    for (const b of DESIGNED_BODIES) {
+      const f = DESIGNED_FACE[b];
+      expect(f, b).toBeDefined();
+      expect(f.headY).toBeGreaterThan(1.1); // 얼굴 확대 카메라 높이
+      expect(f.shadow[1]).toBeGreaterThan(f.blush[1]); // 섀도는 볼보다 위
+      expect(f.blush[1]).toBeGreaterThan(f.lip[0]); // 볼은 입술보다 위
+    }
+  });
 });

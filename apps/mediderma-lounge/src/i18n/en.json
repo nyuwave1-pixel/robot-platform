@@ -417,7 +417,7 @@
   "slot.makeup": "Makeup",
   "slot.nail": "Nails",
   "look.body.signature": "Signature (designed look)",
-  "look.body.sigNote": "The Signature character is a finished design, so hair, outfit and makeup colours don't change.",
+  "look.body.sigNote": "The Signature character is a finished design, so hair and outfit colours don't change. Colour makeup (blush, shadow, lip) still shows on the face.",
   "ev.tabNews": "Events",
   "ev.tabOpen": "Open lounges",
   "ev.tabMine": "My lounge",
@@ -543,5 +543,5 @@
   "makeup.note.makeup": "Blush adds a soft flush to both cheeks.",
   "makeup.note.shadow": "Eyeshadow adds color to the lids for defined eyes.",
   "makeup.note.lip": "Lip color changes your lips; take it off to return to your default lip color.",
-  "makeup.noteDesigned": "Designed characters have makeup baked into their texture, so makeup won't show. Try it on a standard character."
+  "makeup.noteDesigned": "Designed characters share one texture for skin and outfit, so base makeup won't show. Blush, shadow and lip still apply."
 }

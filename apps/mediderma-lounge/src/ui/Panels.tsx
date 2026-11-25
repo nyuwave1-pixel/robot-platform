@@ -132,7 +132,7 @@ function CharacterPanel() {
           <div className="mb-2 flex gap-1 overflow-x-auto pb-1">{SLOT_TABS.map(([s, k]) => <button key={s} onClick={() => setSlot(s)} className={`chip shrink-0 ${slot === s ? "chip-on" : ""}`}>{t(k)}</button>)}</div>
           {(slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip") && (
             <p className="mb-2 rounded-xl bg-pink-soft/60 px-3 py-2 text-[12px] leading-relaxed text-ink/65">
-              {(DESIGNED_BODIES as readonly string[]).includes(look.body ?? "") ? t("makeup.noteDesigned") : t(`makeup.note.${slot}`)}
+              {slot === "base" && (DESIGNED_BODIES as readonly string[]).includes(look.body ?? "") ? t("makeup.noteDesigned") : t(`makeup.note.${slot}`)}
             </p>
           )}
           <div className="grid grid-cols-2 gap-2">{wear(slot).map((f) => <Item key={f.id} id={f.id} s={slot} />)}</div>

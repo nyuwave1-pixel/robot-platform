@@ -8,7 +8,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { makeGLTFLoader } from "./gltf";
-import { BASE_FX, FACE_PATCH } from "../data/makeup";
+import { BASE_FX, DESIGNED_FACE, FACE_PATCH } from "../data/makeup";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { FASHION_MAP } from "../data/game";
 import { DESIGNED_BODIES, type Look } from "../store/game";
@@ -160,32 +160,81 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
     });
   }, [obj, look.hair, look.hairColor, look.skin, look.lipColor, look.lip, look.base, look.outfit, look.shoes, male, cut, col, acc, shoe, outfit.id]);
 
-  // 색조 메이크업: 블러셔 · 아이섀도를 머리 뼈에 붙인 부드러운 색 패치로 (실사 기본 모델만)
+  // 색조 메이크업: 블러셔 · 아이섀도(· 완성형 모델은 립도)를 머리 뼈에 붙인 부드러운 색 패치로
   const blush = look.makeup ? FASHION_MAP[look.makeup]?.color ?? null : null;
   const shadow = look.shadow ? FASHION_MAP[look.shadow]?.color ?? null : null;
+  const lipPatch = sig && look.lip ? FASHION_MAP[look.lip]?.color ?? null : null;
+  const face = sig ? DESIGNED_FACE[look.body ?? ""] : undefined;
   useEffect(() => {
-    if (!obj || sig || (!blush && !shadow)) return;
+    if (!obj || (!blush && !shadow && !lipPatch) || (sig && !face)) return;
     const head = obj.getObjectByName("Head");
     if (!head) return;
     const g = new THREE.Group();
     g.name = "makeup";
-    const add = (p: typeof FACE_PATCH.blush, color: string) => {
-      for (const side of [-1, 1]) {
-        const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshBasicMaterial({ map: softDot(), color, transparent: true, opacity: p.opacity, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, toneMapped: false }));
-        m.position.set(side * p.x, p.y, p.z);
-        m.rotation.y = side * p.turn;
-        m.renderOrder = 2;
-        g.add(m);
-      }
+    const patch = (w: number, h: number, color: string, opacity: number) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: softDot(), color, transparent: true, opacity, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, toneMapped: false }));
+      m.renderOrder = 2;
+      g.add(m);
+      return m;
     };
-    if (blush) add(FACE_PATCH.blush, blush);
-    if (shadow) add(FACE_PATCH.shadow, shadow);
-    head.add(g);
+    if (!sig) {
+      // 실사 기본 모델: 머리 뼈 축 그대로 (X 옆 · Y 위 · Z 앞)
+      const add = (p: typeof FACE_PATCH.blush, color: string) => {
+        for (const side of [-1, 1]) {
+          const m = patch(p.w, p.h, color, p.opacity);
+          m.position.set(side * p.x, p.y, p.z);
+          m.rotation.y = side * p.turn;
+        }
+      };
+      if (blush) add(FACE_PATCH.blush, blush);
+      if (shadow) add(FACE_PATCH.shadow, shadow);
+      head.add(g);
+    } else {
+      // 완성형 모델: 뼈 축이 모델마다 달라서 모델 공간(Y 위 · Z 앞)에서 놓고 머리 뼈에 그대로 붙인다.
+      // 얼굴 굴곡도 모델마다 달라서, 표의 위치 앞에서 얼굴 쪽으로 광선을 쏴 실제 피부 표면에 살짝 띄워 붙인다.
+      obj.updateMatrixWorld(true);
+      const objInv = obj.matrixWorld.clone().invert();
+      const headInObj = objInv.clone().multiply(head.matrixWorld);
+      const hp = new THREE.Vector3().setFromMatrixPosition(headInObj);
+      const f = face!;
+      const skins: THREE.Object3D[] = [];
+      obj.traverse((o) => { if ((o as THREE.SkinnedMesh).isSkinnedMesh) skins.push(o); });
+      const ray = new THREE.Raycaster();
+      const objRot = new THREE.Matrix3().setFromMatrix4(obj.matrixWorld);
+      const back = new THREE.Vector3(0, 0, -1).applyMatrix3(objRot).normalize();
+      /** 모델 공간 (x, y) 앞의 피부 표면: 표의 깊이(z)에 가장 가까운 면 (앞머리 등은 건너뛴다) */
+      const surface = (x: number, y: number, z: number) => {
+        ray.set(new THREE.Vector3(x, y, z + 0.25).applyMatrix4(obj.matrixWorld), back);
+        let best: { p: THREE.Vector3; n: THREE.Vector3 } | null = null, bd = 0.05;
+        for (const h of ray.intersectObjects(skins, false)) {
+          const p = h.point.clone().applyMatrix4(objInv);
+          const d = Math.abs(p.z - z);
+          if (d < bd && h.face) { bd = d; best = { p, n: h.face.normal.clone() }; }
+        }
+        return best?.p ?? null;
+      };
+      const put = (m: THREE.Mesh, x: number, y: number, z: number, turn: number) => {
+        const p = surface(x, y, z);
+        if (!p) { m.visible = false; return; } // 피부를 못 찾으면(머리카락에 가림 등) 그리지 않는다
+        m.position.copy(p).add(new THREE.Vector3(Math.sin(turn), 0, Math.cos(turn)).multiplyScalar(0.003));
+        m.rotation.y = turn;
+      };
+      const k = f.size;
+      const pair = (at: [number, number, number], w: number, h: number, color: string, opacity: number, turn: number) => {
+        for (const side of [-1, 1]) put(patch(w * k, h * k, color, opacity), hp.x + side * at[0], hp.y + at[1], hp.z + at[2], side * turn);
+      };
+      if (blush) pair(f.blush, 0.046, 0.03, blush, 0.4, f.turn);
+      if (shadow) pair(f.shadow, 0.032, 0.015, shadow, 0.6, f.turn * 0.6);
+      if (lipPatch) put(patch(0.03 * k, 0.012 * k, lipPatch, 0.7), hp.x, hp.y + f.lip[0], hp.z + f.lip[1], 0);
+      // 모델 공간 → 머리 뼈 공간
+      g.applyMatrix4(headInObj.clone().invert());
+      head.add(g);
+    }
     return () => {
       head.remove(g);
       g.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.geometry.dispose(); (m.material as THREE.Material).dispose(); } });
     };
-  }, [obj, sig, blush, shadow]);
+  }, [obj, sig, face, blush, shadow, lipPatch]);
 
   // 등급 7 이상: 머리 뼈에 티아라/왕관
   useEffect(() => {
