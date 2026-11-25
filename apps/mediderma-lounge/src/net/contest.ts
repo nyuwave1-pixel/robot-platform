@@ -64,6 +64,17 @@ export function cleanEntry(v: unknown): Entry | null {
 }
 
 /** 이 기기의 콘테스트 비밀값 (처음 한 번 만들고 저장) */
+/** 기기 이전으로 계정을 넘겨받으면 새 비밀값으로 바꾼다 */
+export function setSecret(s: string) {
+  if (!/^[0-9a-f]{32}$/.test(s)) return;
+  try { localStorage.setItem("mdl-contest-secret", s); } catch { /* 저장 불가 환경 */ }
+}
+export function newSecret() {
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  return [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
 export function secret() {
   const k = "mdl-contest-secret";
   try {

@@ -17,6 +17,7 @@ import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
 import { GuestbookPanel } from "./Guestbook";
 import { BragButton, BragFeed } from "./Brag";
+import { CloudSettings } from "./Cloud";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -722,6 +723,7 @@ function SettingsPanel() {
       </div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.controls")}</p>
       <p className="mt-1 whitespace-pre-line rounded-2xl bg-cream p-3 text-[13px] leading-relaxed text-ink/65">{t("set.controlsBody")}</p>
+      <CloudSettings />
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.save")}</p>
       <p className="mt-1 text-[13px] text-ink/60">{saveStatus.ok ? `✔ ${t("set.saveOk")}` : <><Icon n="warn" /> {t("set.saveFail")}</>}</p>
       {!confirm ? (
