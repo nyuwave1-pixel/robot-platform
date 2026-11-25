@@ -35,7 +35,7 @@ function run(code) {
   const rec = { spawns: [], radio: [], waves: [] }; let alive = 1;
   const sp = (kind, x, z, o = {}) => { rec.spawns.push({ kind, x, z, group: o.group || '', yaw: o.yaw ?? null, patrol: o.patrol || null, top: o.y === 'TOP', y: typeof o.y === 'number' && !Number.isNaN(o.y) ? o.y : null }); return { lk: { set() {} }, pos: { y: 0 } }; };
   const wave = (list, group) => rec.waves.push({ group, list: list.map(([k, x, z]) => ({ kind: k, x, z })) });
-  const G = { hud: { radio: (t) => rec.radio.push(t), toast() {}, banner() {}, objective() {} }, enemies: { count: () => alive }, world: { heightAt: () => NaN, groundAt: () => NaN, interactables: [], animated: [], los: () => true }, player: { pos: { x: 0, z: 0 } }, cine: any(), fx: any(), audio: any(), squad: any(), weapons: any(), gear: any() };
+  const G = { gunner: { start() {}, stop() {}, update: () => false, active: false }, hud: { radio: (t) => rec.radio.push(t), toast() {}, banner() {}, objective() {} }, enemies: { count: () => alive }, world: { heightAt: () => NaN, groundAt: () => NaN, interactables: [], animated: [], los: () => true }, player: { pos: { x: 0, z: 0 } }, cine: any(), fx: any(), audio: any(), squad: any(), weapons: any(), gear: any() };
   const MathR = Object.assign(Object.create(Math), { random: () => 0.3 });   // deterministic hooks (Mission 04 uplink: 0.3 < 0.5 → elite)
   const scope = new Proxy({ G, POI, GEN, FAC_Y, sp, wave, top: () => 'TOP', E: () => ({ list: [], count: () => 0 }), ST: { SEARCH: 2, COMBAT: 3 }, buildGenOutpost() {}, Math: MathR, console }, { has: (t, k) => !['def', 'name', 'e'].includes(k), get: (t, k) => (k === Symbol.unscopables ? undefined : k in t ? t[k] : any()) });
   const def = new Function('scope', `with (scope) { return (${block(code)}); }`)(scope);
@@ -62,7 +62,8 @@ function run(code) {
     const e = { pos: { x: 120, z: -296 }, type: {} };
     hook('bossPhase2', () => new Function('scope', 'name', 'e', `with (scope) { ${ev.slice(0, be)} }`)(scope, 'bossPhase2', e), {}, 1);
   }
-  return { code, name: def.name, zone: def.zone, sky: def.sky, spawn: s, spawns: rec.spawns, objectives, hooks };
+  const intro = Array.isArray(def.intro) ? def.intro.map((sh) => ({ from: sh.from, to: sh.to, look: typeof sh.look === 'function' ? null : sh.look, dur: sh.dur, text: sh.text || '', fov: sh.fov || 50 })) : [];
+  return { code, name: def.name, zone: def.zone, sky: def.sky, spawn: s, spawns: rec.spawns, objectives, hooks, intro, introKind: typeof def.intro === 'string' ? def.intro : Array.isArray(def.intro) ? 'shots' : '' };
 }
 
 const d = (v) => (v === null || v === undefined ? 'null' : Number(v).toPrecision(17));
@@ -77,6 +78,11 @@ ${m.spawns.map((s) => `                (${str(s.kind)}, ${d(s.x)}, ${d(s.z)}, ${
             Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
             {
 ${m.objectives.map((o) => `                (${o.parent}, ${str(o.type)}, ${str(o.text)}, ${str(o.group)}, ${d(o.x)}, ${d(o.z)}, ${d(o.r)}, ${str(o.label)}, ${d(o.hold)}, ${str(o.radio)}),`).join('\n')}
+            },
+            IntroKind = ${str(m.introKind)},
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+${m.intro.map((sh) => `                (new double[] { ${sh.from.map(d).join(', ')} }, new double[] { ${sh.to.map(d).join(', ')} }, ${sh.look ? `new double[] { ${sh.look.map(d).join(', ')} }` : 'null'}, ${d(sh.dur)}, ${str(sh.text)}, ${d(sh.fov)}),`).join('\n')}
             },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
@@ -94,6 +100,9 @@ namespace SpecialSoldier.Core.Tests
         public (int parent, string type, string text, string group, double? x, double? z, double? r, string label, double? hold, string radio)[] Objectives;
         /// <summary>A hook run with the given flags (JSON) and living-enemy count: radio lines, waves "group:kind@x,z;…", flags after.</summary>
         public (string name, string flags, int alive, string[] radio, string[] waves, string flagsAfter)[] Hooks;
+        /// <summary>The intro: "boat" (Mission 01's boat ride), "shots" (camera moves below) or "".</summary>
+        public string IntroKind;
+        public (double[] from, double[] to, double[] look, double dur, string text, double fov)[] Intro;
     }
 
     public static class CampaignFixture

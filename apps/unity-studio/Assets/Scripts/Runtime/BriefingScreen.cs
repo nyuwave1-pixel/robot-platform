@@ -56,6 +56,7 @@ namespace SpecialSoldier
             IsOpen = false; Time.timeScale = 1f;
             if (_panel != null) _panel.style.display = DisplayStyle.None;
             UnityEngine.Cursor.lockState = CursorLockMode.Locked; UnityEngine.Cursor.visible = false;
+            if (IntroDirector.Instance) IntroDirector.Instance.Play();   // then the mission's intro camera (web: brief → intro → play)
         }
 
         void OnDestroy() { if (IsOpen) { IsOpen = false; Time.timeScale = 1f; } }

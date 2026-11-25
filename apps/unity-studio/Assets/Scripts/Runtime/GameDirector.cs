@@ -44,6 +44,8 @@ namespace SpecialSoldier
         public bool LastMission => CampaignIndex == Campaign.All.Length - 1;
         /// <summary>The win was this mission's first clear (web: unlocks are announced).</summary>
         public bool FirstClear { get; private set; }
+        /// <summary>A mission intro is playing (IntroDirector): the mission clock and objectives wait.</summary>
+        public bool Cinematic { get; set; }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -141,7 +143,7 @@ namespace SpecialSoldier
 
         void Update()
         {
-            if (State == Outcome.Playing)
+            if (State == Outcome.Playing && !Cinematic)
             {
                 ElapsedTime += Time.deltaTime;
                 Mission.Tick(Time.deltaTime, this);

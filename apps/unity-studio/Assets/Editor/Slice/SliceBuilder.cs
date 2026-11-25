@@ -323,6 +323,7 @@ namespace SpecialSoldier.EditorTools
             var briefGo = new GameObject("Briefing");
             var briefDoc = briefGo.AddComponent<UnityEngine.UIElements.UIDocument>(); briefDoc.panelSettings = director.GetComponent<UnityEngine.UIElements.UIDocument>().panelSettings; briefDoc.sortingOrder = 20;
             briefGo.AddComponent<BriefingScreen>().style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
+            briefGo.AddComponent<IntroDirector>();   // the mission intro camera after the briefing
             if (m.Id == "m05")
             {
                 // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve
