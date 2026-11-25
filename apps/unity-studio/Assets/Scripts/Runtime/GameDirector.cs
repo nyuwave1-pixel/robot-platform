@@ -32,8 +32,9 @@ namespace SpecialSoldier
         public static bool AssumeCursorCaptured;
         public static bool CursorCaptured => AssumeCursorCaptured || Cursor.lockState == CursorLockMode.Locked;
         /// <summary>Campaign difficulty for this run (RECRUIT / REGULAR / VETERAN): a value set by code (tests), else
-        /// <c>-difficulty recruit|regular|veteran</c> on the command line, else <c>?difficulty=</c> in the WebGL page URL (sent by
-        /// the classic edition's PLAY MODE screen), else the saved setting (pause menu). Read lazily, so
+        /// <c>-difficulty recruit|regular|veteran</c> on the command line, else the saved setting (pause menu). A WebGL page opened
+        /// from the classic edition with <c>?difficulty=</c> writes that into the saved setting once (<see cref="AdoptUrlDifficulty"/>),
+        /// so the pause menu shows it and can still change it. Read lazily, so
         /// enemies get the right value whatever order their Awake runs in.</summary>
         public static SpecialSoldier.Core.Difficulty CurrentDifficulty
         {
@@ -45,9 +46,7 @@ namespace SpecialSoldier
         {
             var args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-difficulty") return SpecialSoldier.Core.Difficulty.FromId(args[i + 1]);
-            // WebGL: the classic edition's PLAY MODE screen opens this build with ?difficulty= (Core/EditionLinks)
-            string id = SpecialSoldier.Core.EditionLinks.DifficultyId(Application.absoluteURL);
-            return id != null ? SpecialSoldier.Core.Difficulty.FromId(id) : null;
+            return null;
         }
         public PlayerMotor player;
         public readonly List<EnemyAgent> enemies = new List<EnemyAgent>();
@@ -56,7 +55,18 @@ namespace SpecialSoldier
         public float ElapsedTime { get; private set; }
         public int Kills { get; private set; }
 
-        void Awake() { Instance = this; }
+        void Awake() { Instance = this; AdoptUrlDifficulty(); }
+
+        static bool _urlDifficultyAdopted;
+        /// <summary>Once per page load: the classic edition's PLAY MODE screen sends the player's difficulty as ?difficulty=
+        /// (Core/EditionLinks). Saving it (instead of overriding every read) keeps the pause menu truthful and editable;
+        /// a mission restart reloads the scene but not the page, so it is adopted only the first time.</summary>
+        static void AdoptUrlDifficulty()
+        {
+            if (_urlDifficultyAdopted) return; _urlDifficultyAdopted = true;
+            string id = SpecialSoldier.Core.EditionLinks.DifficultyId(Application.absoluteURL);
+            if (id != null && id != SettingsStore.Current.DifficultyId) SettingsStore.Edit(s => s.DifficultyId = id);
+        }
 
         void Start()
         {

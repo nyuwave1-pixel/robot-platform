@@ -61,8 +61,15 @@ namespace SpecialSoldier.EditorTools
             const string off = "// config.devicePixelRatio = 1;", on = "config.devicePixelRatio = 1;   // SliceBuilder: UI Toolkit HUD double-scaled on HiDPI";
             string html = File.Exists(indexPath) ? File.ReadAllText(indexPath) : null;
             if (html == null || !html.Contains(off)) { Debug.LogWarning("[Slice] webgl: could not pin devicePixelRatio (template changed?) in " + indexPath); return; }
-            File.WriteAllText(indexPath, html.Replace(off, on));
-            Debug.Log("[Slice] webgl: devicePixelRatio pinned to 1 (UI Toolkit HUD fits on HiDPI screens)");
+            html = html.Replace(off, on);
+            // A refused pointer lock (clicking within ~1 s of pressing Esc, or an embedding page that forbids it) rejects
+            // requestPointerLock()'s promise; Unity's handler turned that into an "An error occurred running the Unity content"
+            // alert although the game keeps running (seen in the browser 2026-11-25). Swallow only that rejection, before Unity's
+            // listeners: the next click simply asks again.
+            const string guard = "<script>window.addEventListener('unhandledrejection',function(e){var r=e.reason,m=r&&(r.message||'')+' '+(r.name||'');if(/pointer ?lock/i.test(m)){e.preventDefault();e.stopImmediatePropagation();}},true);</script>";
+            if (!html.Contains("unhandledrejection") && html.Contains("</head>")) html = html.Replace("</head>", "    " + guard + "\n  </head>");
+            File.WriteAllText(indexPath, html);
+            Debug.Log("[Slice] webgl: devicePixelRatio pinned to 1 (UI Toolkit HUD fits on HiDPI screens), pointer-lock rejections no longer alert");
         }
 
         public static bool BuildScene()
