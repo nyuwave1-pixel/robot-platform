@@ -31,7 +31,7 @@ for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['operations', 'OPERATIONS'
 }
 await shot('menu-main');
 check('menu: boot camp entry', !!(await page.$('nav [data-a="training"]')));
-await page.click('nav [data-a="operations"]'); await page.click('[data-a="multiplayer"]'); check('menu: multiplayer design status (from operations)', (await page.textContent('#menu h2')).includes('MULTIPLAYER')); await page.click('.panel header [data-a]');
+await page.click('nav [data-a="operations"]'); await page.click('[data-a="multiplayer"]'); check('menu: multiplayer lobby (from operations)', (await page.textContent('#menu h2')).includes('MULTIPLAYER')); await page.click('.panel header [data-a]');
 if (!(await page.$('nav'))) await page.evaluate(() => SS.menu.main());
 await page.click('nav [data-a="settings"]'); await page.selectOption('[data-set="quality"]', 'low'); check('settings: quality preset applies', await ev(() => SS.settings.quality === 'low' && SS.renderer.shadowMap.enabled === false));
 await page.selectOption('[data-set="quality"]', process.env.Q || 'medium'); await page.fill('[data-set="fov"]', '90'); check('settings: FOV slider applies', await ev(() => SS.settings.fov === 90)); await page.fill('[data-set="fov"]', '78');

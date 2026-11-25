@@ -3,13 +3,13 @@
   "version": "0.20.0",
   "private": true,
   "type": "module",
-  "description": "SPECIAL SOLDIER — Operation: Island Invasion. Playable browser FPS prototype (Three.js).",
+  "description": "SPECIAL SOLDIER \u2014 Operation: Island Invasion. Playable browser FPS prototype (Three.js).",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite --port 5180",
     "build": "vite build",
     "preview": "vite preview --port 5181",
-    "test": "node --test tests/balance.test.mjs tests/nav.test.mjs tests/credits.test.mjs tests/terrain.test.mjs tests/vegetation.test.mjs",
+    "test": "node --test tests/balance.test.mjs tests/nav.test.mjs tests/credits.test.mjs tests/terrain.test.mjs tests/vegetation.test.mjs tests/mp-authority.test.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "test:nav": "node tests/nav-scenario.mjs",
     "desktop": "electron .",
@@ -17,10 +17,13 @@
     "package:win": "electron-packager . SpecialSoldier --platform=win32 --arch=x64 --out=release --overwrite --ignore=\"^/(src|tests|docs|release|node_modules|index.html|vite.config.js)\"",
     "build:single": "SINGLE=1 vite build",
     "setup": "node -e \"require('child_process').execFileSync(process.platform==='win32'?'powershell':'bash',process.platform==='win32'?['-ExecutionPolicy','Bypass','-File','../../tools/dev-env/setup.ps1']:['scripts/setup.sh'],{stdio:'inherit'})\"",
-    "assets": "node scripts/build-assets.mjs"
+    "assets": "node scripts/build-assets.mjs",
+    "mp:server": "node server/mp-server.mjs"
   },
   "dependencies": {
-    "three": "^0.170.0"
+    "@supabase/realtime-js": "^2.119.2",
+    "three": "^0.170.0",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "@electron/packager": "^18.4.4",

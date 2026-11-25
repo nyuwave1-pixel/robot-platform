@@ -22,6 +22,7 @@ import { clamp } from './core/util.js';
 import { loadAssets, ASSETS } from './game/assets.js';
 import { TunePanel } from './ui/tune.js';
 import { makeSoldier, makeAPC, makeHeli, poseSoldier, PALETTE, HOT } from './game/models.js';
+import { MP } from './net/mp.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
 const step = (pct, text) => new Promise((r) => { $('loadBar').style.width = pct + '%'; $('loadText').textContent = text; setTimeout(r, 30); });
@@ -49,7 +50,7 @@ async function boot() {
   await step(40, 'SKY · OCEAN · WEATHER'); G.sky = new Sky(); G.post = new Post(); G.fx = new FX();
   await step(55, 'ZONES 01–05 — STRUCTURES & VEGETATION'); buildIsland();
   await step(75, 'OPERATORS · WEAPONS · AI'); G.player = new Player(); G.weapons = new Weapons(); G.enemies = new Enemies(); G.squad = new Squad(); G.gear = new Gear(); G.mission = new MissionSys(); G.cine = new Cine();
-  await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
+  await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.mp = new MP(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
   G.tune = new TunePanel();
   G.applySettings(); addEventListener('resize', G.applySettings);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && G.state === 'playing' && !G.test) G.pause(); }); // hidden tab: pause instead of running a huge catch-up frame
@@ -57,7 +58,7 @@ async function boot() {
   { const warm = new THREE.Group(); for (const k of Object.keys(PALETTE)) warm.add(makeSoldier(k)); warm.add(makeAPC(), makeHeli(), new THREE.Mesh(G.fx.nadeGeo, G.fx.nadeMat), new THREE.Mesh(G.fx.nadeGeo, HOT), new THREE.Mesh(G.fx.nadeGeo, new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 1 })));
     G.scene.add(warm); G.weapons.root.visible = true; r.compile(G.scene, G.camera); G.scene.remove(warm); G.weapons.root.visible = false; }
   await step(100, 'READY'); $('loading').style.display = 'none';
-  G.toMenu(); if (!G.test) G.menu.title(); last = performance.now(); requestAnimationFrame(frame); // title card first (skipped in automated tests)
+  G.toMenu(); if (!G.mp.fromUrl() && !G.test) G.menu.title(); last = performance.now(); requestAnimationFrame(frame); // title card first (skipped in automated tests)
 }
 
 // ---------------- state transitions ----------------
@@ -129,6 +130,7 @@ function frame(now) {
 function tick(dt) {
   const st = G.state; G.dt = dt; G.frame++;
   if (st !== 'paused' && st !== 'result') G.time += dt;
+  if (G.mp) G.mp.update(dt); // network runs in every state (lobby, paused, dead)
   if (st === 'menu') { G.cine.updateMenu(dt); G.cine.update(dt); G.world.update(dt); G.sky.update(dt); G.fx.update(dt); }
   else if (st === 'cinematic') { G.cine.update(dt); G.world.update(dt); if (G.cine.showSquad) G.squad.update(dt); G.sky.update(dt); G.fx.update(dt); ambient(dt); }
   else if (st === 'playing' || st === 'dead') {
