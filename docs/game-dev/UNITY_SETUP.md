@@ -333,3 +333,13 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - `BuildWebGL`: `PlayerSettings.SplashScreen.show = false`(Unity 6 Personal 허용).
 - 예상: 식생 메시 55.7 MB → 1 MB 미만. **PC 측정 전.** PlayMode `VegetationTests` 추가.
 
+## 2026-11-25 (13) — 미션 01 해변 구조물 (허브 세션, 클라우드, U4)
+
+- `Core/IslandProps.cs`: 웹 `src/world/build.js` 의 소품 함수(sandbags·crate·barrel·ammoBox·lamp·tower·radar·building)와 `world.js` walls 를 옮김.
+  해변 구역: 모래주머니 6, 나무 오두막(문은 바다 쪽), 감시탑 2(저격수 탑 10, 284), 해안 레이더, 상자 3·드럼통 2·탄약 상자, 불 켜진 가로등 2, 대전차 장애물 9(mulberry(1337) 순서까지 같음).
+- 대조: `Tools~/gen-props-fixture.mjs` 가 **웹 build.js 해변 부분 원문을 그대로 실행**해(가짜 world 에 호출 기록) 50개 호출을 픽스처로 씀 → C# 이 같은 순서·같은 값(1e-9)으로 만드는지 테스트.
+  웹 `top(x, z)`(world.groundAt) 도 옮겨서 저격수가 서는 탑 갑판 높이 10.913 m 일치.
+- Unity: `BuildCampaignScene` 이 GLB의 Blender 모델(Watchtower·Radar·LampPost·Hedgehog·P_sandbags·P_crate·P_barrel·P_ammo·P_wall_wood·P_roof)을 웹 위치·크기로 놓고,
+  웹과 같은 상자 충돌체(이름으로 탄착음 재질 구분), 가로등 점광원, 레이더 접시 회전(`Runtime/Spinner`). 미션 씬 NavMesh 는 충돌체 기준으로 구워 탑 갑판도 걸을 수 있는 면 → 저격수가 탑 위에서 지킴.
+- dotnet `CoreTests~` **284/284**. **Unity 화면 확인 전**(다음 묶음).
+

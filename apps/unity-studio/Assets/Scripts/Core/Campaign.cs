@@ -24,6 +24,8 @@ namespace SpecialSoldier.Core
         public string[] Brief;
         public SpawnDef[] Spawns, AlarmWave;
         public Func<MissionRunner> NewRunner;      // objectives in Unity world coordinates
+        /// <summary>The man-made props of the mission's zone (web build.js), or null.</summary>
+        public Func<PropSet> Props;
         /// <summary>Island-space bounds of everything the mission uses (NavMesh bake volume): minX, minZ, maxX, maxZ.</summary>
         public (double minX, double minZ, double maxX, double maxZ) Area;
     }
@@ -72,6 +74,7 @@ namespace SpecialSoldier.Core
                 Objective.Kill("beach", "Eliminate the beach sentries"),
                 Objective.Reach(W(0, 240), 10, "Move to the jungle trail head")),
             Area = (-90, 215, 100, 345),
+            Props = () => IslandProps.Beach(),
         };
 
         public static readonly CampaignMission[] All = { M01 };

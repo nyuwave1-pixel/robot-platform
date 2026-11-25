@@ -205,10 +205,12 @@ namespace SpecialSoldier.EditorTools
             return director;
         }
 
-        static void BakeNavMesh(GameObject level, Vector3 center, Vector3 size, string navPath)
+        static void BakeNavMesh(GameObject level, Vector3 center, Vector3 size, string navPath, bool colliders = false)
         {
             var surface = level.AddComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Volume; surface.center = center; surface.size = size;
+            // campaign scenes: walk on what blocks (terrain + prop colliders); the web props' visuals have no colliders of their own
+            if (colliders) surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             surface.BuildNavMesh();
             // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
             // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
@@ -268,12 +270,14 @@ namespace SpecialSoldier.EditorTools
             var island = BuildIsland(level);
             if (!island) { Debug.LogError($"[Slice] {m.Code}: needs the island terrain (web textures missing)"); return false; }
             BuildVegetation(level);
+            var props = m.Props?.Invoke();
+            if (props != null) BuildProps(level, props);
 
             // bake only the mission area (island coords → world; z flips, so take min/max of both corners)
             Vector3 a = IslandPoint(m.Area.minX, m.Area.minZ), b = IslandPoint(m.Area.maxX, m.Area.maxZ);
             var min = Vector3.Min(a, b); var max = Vector3.Max(a, b);
             float yMid = 0f; foreach (var sp in m.Spawns) yMid += IslandPoint(sp.X, sp.Z).y; yMid /= Mathf.Max(1, m.Spawns.Length);
-            BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset");
+            BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset", true);
 
             var spawn = IslandPoint(m.SpawnX, m.SpawnZ);
             var player = BuildPlayer(spawn + Vector3.up * 0.1f);
@@ -281,10 +285,10 @@ namespace SpecialSoldier.EditorTools
             var visual = LoadSoldierVisual();
 
             var parent = new GameObject("Enemies");
-            for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn);
+            for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn, props);
             var waveParent = new GameObject("AlarmWave");
             var wave = new System.Collections.Generic.List<GameObject>();
-            for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn));
+            for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn, props));
             foreach (var go in wave) go.SetActive(false);   // switched on by the mission's first alarm (GameDirector.OnAlarm)
 
             var director = BuildDirectorRig(player);
@@ -298,9 +302,95 @@ namespace SpecialSoldier.EditorTools
             return saved;
         }
 
-        static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player)
+        /// <summary>The zone's props (Core.IslandProps = web build.js): Blender models from the shared GLB at the web game's
+        /// positions and sizes, box colliders where the web game has them (named so SliceFx picks the impact surface), lamps
+        /// with point lights, the radar dish turning.</summary>
+        static void BuildProps(GameObject level, PropSet set)
+        {
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var root = new GameObject("Props"); root.transform.SetParent(level.transform);
+            var cols = new GameObject("PropColliders"); cols.transform.SetParent(root.transform);
+            Transform Node(string n) => glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == n) : null;
+            int drawn = 0, colliders = 0, missing = 0;
+            foreach (var c in set.Calls)
+            {
+                var bottom = IslandTerrain.ToWorld(c.X, c.Y, c.Z);
+                Vector3 b = new Vector3((float)bottom.x, (float)bottom.y, (float)bottom.z);
+                if (c.HasCollider)
+                {
+                    string surf = c.Surface == "sand" ? "Ground_sandbag" : c.Surface == "wood" ? "Cover_wood" : c.Surface == "metal" ? "Metal_prop" : "Prop_concrete";
+                    var col = new GameObject($"{surf}_{colliders}"); col.transform.SetParent(cols.transform); col.isStatic = true;
+                    col.transform.position = b + Vector3.up * (float)(c.Sy / 2);
+                    col.AddComponent<BoxCollider>().size = new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
+                    colliders++;
+                }
+                if (!c.Drawn) continue;
+                Vector3 pos = c.Origin ? b : b + Vector3.up * (float)(c.Sy / 2);
+                bool turn = c.Rot90 || System.Math.Abs(c.RotY) > 1e-9;
+                float yaw = c.Rot90 ? -90f : (float)(-c.RotY * Mathf.Rad2Deg);   // the island's z is mirrored: yaw changes sign
+                Vector3 scale = c.Rot90 ? new Vector3((float)c.Sz, (float)c.Sy, (float)c.Sx) : new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
+                GameObject go;
+                var node = c.Geo.Length > 0 ? Node(c.Geo) : null;
+                if (node)
+                {
+                    go = Object.Instantiate(node.gameObject, root.transform); go.name = c.Geo;
+                    foreach (var cc in go.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(cc);
+                }
+                else
+                {
+                    if (c.Geo.Length > 0) missing++;
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(go.GetComponent<Collider>());
+                    go.name = "Box_" + c.Mat; go.transform.SetParent(root.transform);
+                    go.GetComponent<Renderer>().sharedMaterial = Mat("Prop_" + c.Mat, c.Mat == "wood" ? new Color(0.45f, 0.33f, 0.2f) : c.Mat == "sand" ? new Color(0.66f, 0.6f, 0.45f) : new Color(0.5f, 0.5f, 0.48f), 0.85f);
+                }
+                go.transform.position = pos; go.transform.rotation = turn ? Quaternion.Euler(0f, yaw, 0f) : Quaternion.identity; go.transform.localScale = scale;
+                go.isStatic = true;
+                if (c.Tint != null)
+                {
+                    var mpb = new MaterialPropertyBlock();
+                    var tint = new Color((float)c.Tint[0], (float)c.Tint[1], (float)c.Tint[2], 1f);
+                    foreach (var r in go.GetComponentsInChildren<Renderer>())
+                    {
+                        r.GetPropertyBlock(mpb);
+                        var src = r.sharedMaterial;
+                        if (src && src.HasProperty("baseColorFactor")) mpb.SetColor("baseColorFactor", src.GetColor("baseColorFactor") * tint);
+                        if (src && src.HasProperty("_BaseColor")) mpb.SetColor("_BaseColor", src.GetColor("_BaseColor") * tint);
+                        r.SetPropertyBlock(mpb);
+                    }
+                }
+                drawn++;
+            }
+            foreach (var r in set.Radars)
+            {
+                var w = IslandTerrain.ToWorld(r.X, r.Y, r.Z);
+                var node = Node("Radar"); if (!node) { missing++; continue; }
+                var go = Object.Instantiate(node.gameObject, root.transform); go.name = "Radar";
+                go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); go.transform.rotation = Quaternion.identity;
+                go.transform.localScale = new Vector3(1f, (float)(r.Height / 7.0), 1f);
+                var dish = go.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "dish");
+                if (dish) dish.gameObject.AddComponent<Spinner>();
+                drawn++;
+            }
+            foreach (var l in set.Lights)
+            {
+                var w = IslandTerrain.ToWorld(l.X, l.Y, l.Z);
+                var light = new GameObject("LampLight").AddComponent<Light>(); light.transform.SetParent(root.transform);
+                light.type = LightType.Point; light.range = (float)l.Range; light.intensity = 2.5f; light.color = new Color(1f, 0.886f, 0.627f);   // web 0xffe2a0
+                light.shadows = LightShadows.None; light.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+            }
+            Physics.SyncTransforms();
+            Debug.Log($"[Slice] props: {drawn} drawn, {colliders} colliders, {set.Lights.Count} lamp lights, {set.Radars.Count} radar{(missing > 0 ? $", {missing} GLB models MISSING (boxes instead)" : "")}");
+        }
+
+        static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player, PropSet props)
         {
             var pos = IslandPoint(sp.X, sp.Z);
+            if (sp.OnStructure && props != null)
+            {
+                // web y: top(x, z) — the deck of the watch tower (the NavMesh is baked on colliders, so the deck is walkable)
+                var w = IslandTerrain.ToWorld(sp.X, IslandProps.Top(props, sp.X, sp.Z), sp.Z);
+                pos = new Vector3((float)w.x, (float)w.y, (float)w.z);
+            }
             Vector3[] route = sp.Patrol?.Select(p => IslandPoint(p.x, p.z)).ToArray();
             Vector3 face = player;
             if (sp.Yaw.HasValue)
