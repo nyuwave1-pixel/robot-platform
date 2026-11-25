@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T09:01:46.436Z",
+  "generatedAt": "2026-11-25T09:05:02.493Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "f52919d"
+    "commit": "5997b22"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,12 @@
   },
   "devlog": [
     {
+      "hash": "5997b22",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: soldier animation with Quaternius UAL (CC0) + web procedural pose (U3)"
+    },
+    {
       "hash": "f52919d",
       "date": "2026-11-25",
       "area": "general",
@@ -617,12 +623,6 @@
       "date": "2026-11-24",
       "area": "portal",
       "subject": "chore(portal): fold Unity status into the hub's BIT PARK feed (live control done); drop duplicate portal-feed.json"
-    },
-    {
-      "hash": "d4b0e53",
-      "date": "2026-11-24",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): Unity CLI + Pipeline package; live Editor round trip verified; portal feed for BIT PARK"
     }
   ]
 }
