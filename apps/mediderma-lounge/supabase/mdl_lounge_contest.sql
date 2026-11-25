@@ -1,4 +1,4 @@
--- MEDIDERMA LOUNGE: 주간 라운지 꾸미기 콘테스트
+-- BEAUTY LIFE (뷰티 라이프): 주간 라운지 꾸미기 콘테스트
 -- 2026-11-22 Supabase 프로젝트에 마이그레이션 "mdl_lounge_contest" 로 적용한 것과 같은 내용 (기록용).
 -- 테이블은 공개되지 않는 별도 스키마에 두고, 게임은 아래 검증 함수(RPC)로만 접근한다.
 create schema if not exists mdl_contest;

@@ -64,7 +64,7 @@ Windows 에서는 `.bl/bin/python` 대신 `.\.bl\Scripts\python.exe` 를 씁니�
 ## 5. 배포
 
 Vercel 프로젝트 `mediderma-lounge` (Root Directory = `apps/mediderma-lounge`) 로 배포합니다.
-공개 주소: https://mediderma-lounge-parkjong-s-projects.vercel.app
+공개 주소: https://beautylife-game.vercel.app (예전 주소 https://mediderma-lounge-parkjong-s-projects.vercel.app 도 같은 게임)
 Vercel 무료 플랜은 하루 배포 100회 제한이 있습니다 (같은 저장소에 연결된 다른 프로젝트들의 빌드도 함께 셉니다).
 
 ## 6. 작업 흐름 팁

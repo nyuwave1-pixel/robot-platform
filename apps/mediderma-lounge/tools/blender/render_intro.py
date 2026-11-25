@@ -1,5 +1,5 @@
 """
-MEDIDERMA LOUNGE — 타이틀 영상 렌더 스크립트.
+BEAUTY LIFE — 타이틀 영상 렌더 스크립트.
 
 build_assets.py 가 만든 GLB 로 라운지 세트를 차리고 카메라가 천천히 들어가는 컷을 Cycles 로 렌더한다.
     .bl/bin/python tools/blender/render_intro.py OUT_DIR [--frames 96] [--test]

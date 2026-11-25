@@ -1,4 +1,4 @@
-# MEDIDERMA LOUNGE 개발 환경 한 번에 준비 (Windows PowerShell)
+# BEAUTY LIFE(뷰티 라이프) 개발 환경 한 번에 준비 (Windows PowerShell)
 #   powershell -ExecutionPolicy Bypass -File scripts\setup.ps1            # 게임 개발만
 #   powershell -ExecutionPolicy Bypass -File scripts\setup.ps1 -Blender   # + Blender 파이프라인 (.bl)
 #   powershell -ExecutionPolicy Bypass -File scripts\setup.ps1 -Assets    # + 무료 에셋 원본 (수백 MB)

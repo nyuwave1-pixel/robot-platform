@@ -1,4 +1,4 @@
--- MEDIDERMA LOUNGE: 라운지 방명록
+-- BEAUTY LIFE (뷰티 라이프): 라운지 방명록
 -- 2026-11-23 Supabase 프로젝트에 마이그레이션 "mdl_lounge_guestbook" 로 적용한 것과 같은 내용 (기록용).
 -- 콘테스트와 같은 비공개 스키마 · 같은 본인 확인(mdl_contest.auth)을 쓴다.
 -- 자유 글은 받지 않는다: 정해진 문구 번호와 스티커 번호만 저장한다.

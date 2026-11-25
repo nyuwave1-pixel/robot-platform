@@ -1,5 +1,5 @@
 """
-MEDIDERMA LOUNGE — Blender 에셋 빌드 스크립트.
+BEAUTY LIFE — Blender 에셋 빌드 스크립트.
 
 Blender(bpy)로 모델을 만들고 public/models/*.glb 로 내보낸다. 손으로 만든 .blend 파일 없이
 이 스크립트가 원본이므로, 치수를 바꾸면 다시 실행해 GLB 를 재생성한다.

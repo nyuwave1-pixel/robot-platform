@@ -140,7 +140,7 @@ export function InviteBody() {
     const url = inviteLink();
     const text = t("invite.shareText", { name: g.name });
     try {
-      if (navigator.share) { await navigator.share({ title: "MEDIDERMA LOUNGE", text, url }); return; }
+      if (navigator.share) { await navigator.share({ title: "BEAUTY LIFE", text, url }); return; }
       await navigator.clipboard.writeText(`${text} ${url}`);
       toast(t("invite.copied"));
     } catch { /* 공유를 취소했거나 클립보드 권한이 없음 */ toast(url); }

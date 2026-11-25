@@ -1,7 +1,9 @@
-# MEDIDERMA LOUNGE
+# BEAUTY LIFE (뷰티 라이프)
+
+> 2026-11-25 게임 이름을 MEDIDERMA LOUNGE 에서 **뷰티 라이프(BEAUTY LIFE)** 로 바꿨습니다. 폴더 이름(`apps/mediderma-lounge`), 저장 데이터 키, 서버 스키마(`mdl_*`), 기존 주소는 호환을 위해 그대로 둡니다.
 
 **BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.**
-UNI&CORE 제품과 DERMA HOME 디바이스로 캐릭터를 직접 케어해 5단계로 성장시키고, 나만의 메디더마 라운지를 운영하는 브라우저 3D 게임 (v0.1 플레이어블 MVP).
+UNI&CORE 제품과 DERMA HOME 디바이스로 캐릭터를 직접 케어해 5단계로 성장시키고, 나만의 뷰티 라이프 라운지를 운영하는 브라우저 3D 게임 (v0.1 플레이어블 MVP).
 
 독립 Vite 앱이다. 루트의 Next.js 로봇 플랫폼, `apps/unicore-birthday` 와 빌드·의존성을 공유하지 않는다.
 
@@ -26,7 +28,7 @@ npm run docs:db    # src/data → docs/PRODUCT_ITEM_DATABASE.md 재생성
 - Netlify: 이 폴더의 `netlify.toml` 사용 (base = `apps/mediderma-lounge`)
 - Vercel: 새 프로젝트의 Root Directory 를 `apps/mediderma-lounge` 로 지정 (Framework: Vite)
 - 루트 `vercel.json` 은 로봇 플랫폼용이므로 건드리지 않았다.
-- 공개 주소: https://mediderma-lounge-parkjong-s-projects.vercel.app (Vercel 프로젝트 `mediderma-lounge`)
+- 공개 주소: https://beautylife-game.vercel.app (예전 주소 https://mediderma-lounge-parkjong-s-projects.vercel.app 도 같은 게임) (Vercel 프로젝트 `mediderma-lounge`)
 
 ## 플레이 방법
 1. 새로 시작 → 캐릭터 이름·첫 모습 선택

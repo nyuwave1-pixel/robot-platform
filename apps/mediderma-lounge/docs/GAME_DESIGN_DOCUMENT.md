@@ -1,4 +1,4 @@
-# MEDIDERMA LOUNGE — Game Design Document
+# BEAUTY LIFE — Game Design Document
 
 > BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.
 > 장르: 3D 캐릭터 육성 · 뷰티 시뮬레이션 · 라운지 경영 · 소셜
@@ -6,7 +6,7 @@
 이 문서는 **현재 구현된 것(v0.1 MVP)** 과 **이후 단계 계획**을 구분해서 적는다. `[구현]` 표시는 저장소 코드에 실제로 들어 있는 기능이다.
 
 ## 1. 한 줄 콘셉트
-작고 귀여운 캐릭터를 만나, UNI&CORE 제품과 DERMA HOME 디바이스로 직접 케어하며 5단계에 걸쳐 성장시키고, 나만의 메디더마 라운지를 키워 가는 게임.
+작고 귀여운 캐릭터를 만나, UNI&CORE 제품과 DERMA HOME 디바이스로 직접 케어하며 5단계에 걸쳐 성장시키고, 나만의 뷰티 라이프 라운지를 키워 가는 게임.
 
 ## 2. 핵심 루프 `[구현]`
 1. 캐릭터 생성(이름·피부 톤·헤어·눈) → 라운지 입장
@@ -25,7 +25,7 @@
 | 2 | LOVELY GIRL | 120 | 비율 성장, 헤어·패션 확장 |
 | 3 | BEAUTY LADY | 420 | 성인 비율, 글램 웨이브·유니폼 해금 |
 | 4 | PREMIUM BEAUTY | 950 | 골드 벨트, 블랙 드레스·티아라 해금 |
-| 5 | MEDIDERMA ICON | 1800 | 상시 스파클 오라, 샴페인 골드 가운 |
+| 5 | BEAUTY LIFE ICON | 1800 | 상시 스파클 오라, 샴페인 골드 가운 |
 
 - EXP 6종: Skin Care / Device Care / Beauty Knowledge / Social / Fashion / Lounge. 합계가 단계 기준.
 - **시간 경과로는 성장하지 않는다.** 모든 EXP 는 플레이어 행동(케어·고객·게시·구매·확장)에서만 나온다.

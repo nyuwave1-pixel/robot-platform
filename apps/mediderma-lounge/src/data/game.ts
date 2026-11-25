@@ -30,7 +30,7 @@ export const STAGES: Stage[] = [
   { n: 2, name: "LOVELY GIRL", ko: "표정이 풍부해진 러블리 걸", need: 120, rewardGems: 5, body: { head: 0.35, torso: 0.38, leg: 0.38, arm: 0.32, shoulder: 0.18, eye: 0.92, limb: 0.065, neck: 0.03 } },
   { n: 3, name: "BEAUTY LADY", ko: "세련된 비율의 뷰티 레이디", need: 420, rewardGems: 10, body: { head: 0.27, torso: 0.48, leg: 0.68, arm: 0.52, shoulder: 0.2, eye: 0.74, limb: 0.058, neck: 0.07 } },
   { n: 4, name: "PREMIUM BEAUTY", ko: "럭셔리 무드의 프리미엄 뷰티", need: 950, rewardGems: 20, body: { head: 0.245, torso: 0.5, leg: 0.78, arm: 0.57, shoulder: 0.205, eye: 0.68, limb: 0.055, neck: 0.085 } },
-  { n: 5, name: "MEDIDERMA ICON", ko: "시그니처 메디더마 아이콘", need: 1800, rewardGems: 50, body: { head: 0.235, torso: 0.52, leg: 0.84, arm: 0.6, shoulder: 0.21, eye: 0.64, limb: 0.053, neck: 0.095 } },
+  { n: 5, name: "BEAUTY LIFE ICON", ko: "시그니처 뷰티 라이프 아이콘", need: 1800, rewardGems: 50, body: { head: 0.235, torso: 0.52, leg: 0.84, arm: 0.6, shoulder: 0.21, eye: 0.64, limb: 0.053, neck: 0.095 } },
 ];
 export const stageFor = (total: number) => {
   let s = 1;
@@ -44,7 +44,7 @@ export const LOUNGE_LEVELS: LoungeLevel[] = [
   { n: 1, name: "MY MINI LOUNGE", w: 13, d: 11, customers: 1, cost: 0, lp: 0, unlocks: "리셉션 · 스킨케어 진열대 · DERMA HOME 존" },
   { n: 2, name: "SWEET BEAUTY LOUNGE", w: 16, d: 13, customers: 2, cost: 600, lp: 40, unlocks: "포토존 · 헤드 스파 존 · 두피 루틴" },
   { n: 3, name: "PREMIUM DERMA LOUNGE", w: 19, d: 15, customers: 3, cost: 1800, lp: 140, unlocks: "바디 케어 존 · 바디 루틴 · 브랜드 아이템 진열" },
-  { n: 4, name: "LUXURY MEDIDERMA LOUNGE", w: 22, d: 17, customers: 4, cost: 4200, lp: 320, unlocks: "VIP 뷰티 룸 · 블랙&골드 인테리어" },
+  { n: 4, name: "LUXURY BEAUTY LIFE LOUNGE", w: 22, d: 17, customers: 4, cost: 4200, lp: 320, unlocks: "VIP 뷰티 룸 · 블랙&골드 인테리어" },
   { n: 5, name: "GLOBAL BEAUTY FLAGSHIP", w: 25, d: 19, customers: 5, cost: 9000, lp: 700, unlocks: "소셜 라운지 · 플래그십 파사드" },
 ];
 
