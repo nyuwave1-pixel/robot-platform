@@ -13,8 +13,8 @@ namespace SpecialSoldier
         public string typeId = "guard";
         public string group = "outer";          // mission kill objectives count enemies by group
         public bool AlarmRaised { get; set; }    // this enemy's squad already called it in (mission stats)
-        public float LastFireTime { get; private set; } = -999f;
-        public float VisionNow { get; private set; }   // current sight range in metres (night, rain, your stance)   // HUD radar shows enemies for 2.5 s after they fire
+        public float LastFireTime { get; private set; } = -999f;   // HUD radar shows enemies for 2.5 s after they fire
+        public float VisionNow { get; private set; }                // current sight range in metres (night, rain, your stance)
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)
         public float eyeHeight = 1.6f;
