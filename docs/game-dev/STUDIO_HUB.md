@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 허브(클라우드) | 설정·일시정지 메뉴: 새 `Core/GameSettings.cs`·`Runtime/PauseMenu.cs`·`Assets/UI/PauseMenu.uss`·테스트, 수정 `Runtime/{PlayerMotor,GameDirector,SliceFx,SkyDirector}.cs`(설정 적용 부분), `Editor/Slice/SliceBuilder.cs`(메뉴 추가) | 2026-11-25 |
 | 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Core/AwarenessBrain.cs`, `Runtime/EnemyAgent.cs`(Perceive 부분만), `Tests/EditMode/HealthAndAwarenessTests.cs`·새 `AwarenessParityTests.cs` — 적 인지 웹 일치(감쇠 0.18/s, 밤·웅크림·비·경계 시야). **PC 세션의 4묶음 푸시 뒤에 병합** | 2026-11-25 (병합·푸시 완료) |
 | 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Runtime/{SliceFx,WeaponController,EnemyAgent,Grenade,PlayerMotor}.cs`, `Core/SfxSynth.cs` — 효과음 2차 | 2026-11-25 (이 커밋에서 완료) |
 | 클라우드 (Special Soldier) | `apps/special-soldier/{SETUP.md,scripts/,package.json}`, `.devcontainer/` — macOS/Linux/Codespaces 세팅, `npm run assets` | 2026-11-21 (이 커밋에서 완료) |
