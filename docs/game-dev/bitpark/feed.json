@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T09:05:02.493Z",
+  "generatedAt": "2026-11-25T09:10:42.984Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "5997b22"
+    "commit": "85d4c73"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "85d4c73",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim vegetation instancing (WebGL size)"
+    },
+    {
+      "hash": "ddb8e4f",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "QA: v0.21 campaign regression 17/17; refresh BIT PARK feed"
+    },
+    {
       "hash": "5997b22",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-24",
       "area": "special-soldier",
       "subject": "feat(special-soldier): any-order objectives; mission 03 lets you sabotage the motor pool or hit HQ first (v0.20)"
-    },
-    {
-      "hash": "4d4a871",
-      "date": "2026-11-24",
-      "area": "portal",
-      "subject": "docs(portal): regenerate BIT PARK feed — Unity live control done, EditMode 163/163, PlayMode 8/8"
-    },
-    {
-      "hash": "e6eca67",
-      "date": "2026-11-24",
-      "area": "portal",
-      "subject": "chore(portal): fold Unity status into the hub's BIT PARK feed (live control done); drop duplicate portal-feed.json"
     }
   ]
 }

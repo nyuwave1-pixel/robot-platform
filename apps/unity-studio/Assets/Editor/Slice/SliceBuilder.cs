@@ -43,6 +43,8 @@ namespace SpecialSoldier.EditorTools
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.dataCaching = true;
+            // Unity 6 lets Personal licences turn the splash off; the logo was 2.7 MB of the WebGL download (PC build report)
+            PlayerSettings.SplashScreen.show = false;
             PlayerSettings.productName = "SPECIAL SOLDIER - Island Slice";
             var opts = new BuildPlayerOptions { scenes = BuildScenes(), locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
             var report = BuildPipeline.BuildPlayer(opts);
@@ -488,60 +490,83 @@ namespace SpecialSoldier.EditorTools
         const string VegDir = "Assets/Imported/Vegetation";
 
         /// <summary>The web island's trees, palms and rocks (Core.IslandVegetation = vegetation.js, same seed → same places) using the
-        /// Blender Tree / Palm / Rock models from the shared GLB. Merged into one mesh per 160 m cell and material, like the web
-        /// game's per-cell instancing, so WebGL draws a few dozen meshes instead of ~2,000 objects. No colliders: they all stand
-        /// outside the arena walls. Ferns are left out for now.</summary>
+        /// Blender Tree / Palm / Rock models from the shared GLB, drawn with GPU instancing (Runtime/InstancedVegetation): each model's
+        /// meshes once, one transform per plant, 160 m cells like the web game. Merging every plant into per-cell meshes made the
+        /// vegetation 55.7 MB of a 73 MB WebGL build (PC build report, 2026-11-25). No colliders: they all stand outside the arena
+        /// walls. Ferns are left out for now.</summary>
         static void BuildVegetation(GameObject level)
         {
             var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
             if (!glb) { Debug.LogWarning("[Slice] vegetation skipped: GLB not imported (run StudioBootstrap.ImportAndBuild first)"); return; }
             var layout = IslandVegetation.Build();
             AssetDatabase.DeleteAsset(VegDir); Directory.CreateDirectory(VegDir);
-            var root = new GameObject("Vegetation"); root.transform.SetParent(level.transform); root.isStatic = true;
-            int meshes = 0;
-            meshes += Plant(root, glb, "Tree", layout.Trunks);
-            meshes += Plant(root, glb, "Palm", layout.Palms);
-            meshes += Plant(root, glb, "Rock", layout.Rocks);
+            var root = new GameObject("Vegetation"); root.transform.SetParent(level.transform);
+            var veg = root.AddComponent<InstancedVegetation>();
+            var models = new System.Collections.Generic.List<InstancedVegetation.Model>();
+            var cells = new System.Collections.Generic.List<InstancedVegetation.Cell>();
+            var mats = new System.Collections.Generic.Dictionary<Material, Material>();
+            Plant(glb, "Tree", layout.Trunks, models, cells, mats);
+            Plant(glb, "Palm", layout.Palms, models, cells, mats);
+            Plant(glb, "Rock", layout.Rocks, models, cells, mats);
+            veg.models = models.ToArray(); veg.cells = cells.ToArray();
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Slice] vegetation: {layout.Trunks.Count} trees, {layout.Palms.Count} palms, {layout.Rocks.Count} rocks → {meshes} merged meshes");
+            int parts = models.Sum(m => m.parts.Length);
+            Debug.Log($"[Slice] vegetation: {layout.Trunks.Count} trees, {layout.Palms.Count} palms, {layout.Rocks.Count} rocks → instanced: {models.Count} models ({parts} mesh parts, {mats.Count} instancing materials), {cells.Count} cells");
         }
 
-        static int Plant(GameObject root, GameObject glb, string node, System.Collections.Generic.List<IslandVegetation.Item> items)
+        static void Plant(GameObject glb, string node, System.Collections.Generic.List<IslandVegetation.Item> items,
+            System.Collections.Generic.List<InstancedVegetation.Model> models, System.Collections.Generic.List<InstancedVegetation.Cell> cells,
+            System.Collections.Generic.Dictionary<Material, Material> mats)
         {
             var src = glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == node);
-            if (!src) { Debug.LogWarning($"[Slice] vegetation: GLB has no '{node}' node"); return 0; }
-            // every mesh under the model, with its transform relative to the model's root (the GLB lays models out in a row)
-            var parts = src.GetComponentsInChildren<MeshFilter>(true).Where(f => f.sharedMesh)
-                .Select(f => (mesh: f.sharedMesh, mats: f.GetComponent<MeshRenderer>().sharedMaterials, rel: src.worldToLocalMatrix * f.transform.localToWorldMatrix)).ToList();
-            var groups = new System.Collections.Generic.Dictionary<(int cx, int cz, Material m), System.Collections.Generic.List<CombineInstance>>();
+            if (!src) { Debug.LogWarning($"[Slice] vegetation: GLB has no '{node}' node"); return; }
+            // every mesh (and sub-mesh) under the model, with its transform relative to the model's root (the GLB lays models out in a row)
+            var parts = new System.Collections.Generic.List<InstancedVegetation.Part>();
+            foreach (var f in src.GetComponentsInChildren<MeshFilter>(true).Where(f => f.sharedMesh))
+            {
+                var srcMats = f.GetComponent<MeshRenderer>().sharedMaterials;
+                for (int sub = 0; sub < f.sharedMesh.subMeshCount && sub < srcMats.Length; sub++)
+                    parts.Add(new InstancedVegetation.Part { mesh = f.sharedMesh, subMesh = sub, material = Instancing(srcMats[sub], mats), rel = src.worldToLocalMatrix * f.transform.localToWorldMatrix });
+            }
+            int model = models.Count;
+            models.Add(new InstancedVegetation.Model { name = node, parts = parts.ToArray() });
+
+            var byCell = new System.Collections.Generic.Dictionary<(int, int), System.Collections.Generic.List<Matrix4x4>>();
+            var bounds = new System.Collections.Generic.Dictionary<(int, int), Bounds>();
+            var local = new Bounds(); bool first = true;   // the model's own bounds, to size each cell's bounds
+            foreach (var p in parts) { var b = TransformBounds(p.rel, p.mesh.bounds); if (first) { local = b; first = false; } else local.Encapsulate(b); }
             foreach (var it in items)
             {
                 var w = IslandTerrain.ToWorld(it.X, it.Y, it.Z);
                 // web: rotation (tx, r, tz) radians, uniform scale s; yaw sign flips with the z mirror
                 var trs = Matrix4x4.TRS(new Vector3((float)w.x, (float)w.y, (float)w.z),
                     Quaternion.Euler((float)(-it.Tx * Mathf.Rad2Deg), (float)(-it.R * Mathf.Rad2Deg), (float)(it.Tz * Mathf.Rad2Deg)), Vector3.one * (float)it.S);
-                int cx = Mathf.FloorToInt((float)w.x / 160f), cz = Mathf.FloorToInt((float)w.z / 160f);
-                foreach (var (mesh, mats, rel) in parts)
-                    for (int sub = 0; sub < mesh.subMeshCount && sub < mats.Length; sub++)
-                    {
-                        var key = (cx, cz, mats[sub]);
-                        if (!groups.TryGetValue(key, out var list)) groups[key] = list = new System.Collections.Generic.List<CombineInstance>();
-                        list.Add(new CombineInstance { mesh = mesh, subMeshIndex = sub, transform = trs * rel });
-                    }
+                var key = (Mathf.FloorToInt((float)w.x / 160f), Mathf.FloorToInt((float)w.z / 160f));
+                if (!byCell.TryGetValue(key, out var list)) byCell[key] = list = new System.Collections.Generic.List<Matrix4x4>();
+                list.Add(trs);
+                var b = TransformBounds(trs, local);
+                if (bounds.TryGetValue(key, out var cb)) { cb.Encapsulate(b); bounds[key] = cb; } else bounds[key] = b;
             }
-            int n = 0;
-            foreach (var g in groups)
-            {
-                var combined = new Mesh { name = $"{node}_{g.Key.cx}_{g.Key.cz}_{n}", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
-                combined.CombineMeshes(g.Value.ToArray(), true, true);
-                combined.RecalculateBounds();
-                AssetDatabase.CreateAsset(combined, $"{VegDir}/{combined.name}.asset");
-                var go = new GameObject(combined.name); go.transform.SetParent(root.transform, false); go.isStatic = true;
-                go.AddComponent<MeshFilter>().sharedMesh = combined;
-                var mr = go.AddComponent<MeshRenderer>(); mr.sharedMaterial = g.Key.m; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-                n++;
-            }
-            return n;
+            foreach (var kv in byCell) cells.Add(new InstancedVegetation.Cell { model = model, bounds = bounds[kv.Key], items = kv.Value.ToArray() });
+        }
+
+        /// <summary>The GLB's materials are read-only import sub-assets: an instancing-enabled copy of each is saved next to the data.</summary>
+        static Material Instancing(Material src, System.Collections.Generic.Dictionary<Material, Material> mats)
+        {
+            if (!src) return null;
+            if (mats.TryGetValue(src, out var m)) return m;
+            m = new Material(src) { name = src.name + "_Instanced", enableInstancing = true };
+            AssetDatabase.CreateAsset(m, $"{VegDir}/{m.name}_{mats.Count}.mat");
+            mats[src] = m;
+            return m;
+        }
+
+        static Bounds TransformBounds(Matrix4x4 m, Bounds b)
+        {
+            var r = new Bounds(m.MultiplyPoint3x4(b.center), Vector3.zero);
+            for (int i = 0; i < 8; i++)
+                r.Encapsulate(m.MultiplyPoint3x4(b.center + Vector3.Scale(b.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1))));
+            return r;
         }
 
         /// <summary>PanelSettings for the HUD: default runtime theme (Assets/UI/SliceTheme.tss), scale with screen size from 1920×1080.</summary>

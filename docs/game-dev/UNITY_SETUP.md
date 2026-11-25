@@ -324,3 +324,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 테스트: dotnet `CoreTests~` **281/281**(포즈·걸음 웹 대조, 클립 선택, 필요한 클립 9개가 FBX 안에 있는지). PlayMode `SoldierAnimTests` 2개 추가(PC). **Unity 컴파일·화면 확인 전** —
   뼈 방향 가정(마네킹·병사 모두 +z를 봄, glTFast x축 반전)이 틀리면 `pitchSign`·`rigYaw` 로 조정.
 
+## 2026-11-25 (12) — WebGL 크기: 식생을 GPU 인스턴싱으로 (허브 세션, 클라우드)
+
+- PC 측정(88ad854 빌드 리포트): WebGL 33.6 MB, 비압축 사용자 에셋 73.3 MB 중 **메시 55.7 MB(76%)** — 거의 다 식생 칸별로 합친 메시(칸 하나 1~3 MB).
+  나무마다 정점을 복사해 합쳤기 때문. 지형 텍스처는 작음. Unity 로고 스플래시 2.7 MB.
+- 수정: `Runtime/InstancedVegetation` 이 모델 메시는 한 번만(GLB 그대로), 나무마다 변환 행렬 하나(64바이트, 전체 약 125 KB)로 `Graphics.RenderMeshInstanced` 로 그림.
+  160 m 칸, 카메라 시야 밖·420 m 밖(안개 끝 240 m) 칸은 건너뜀, 그림자는 화면 밖 40 m 까지. 기울기·크기·위치는 웹 배치 그대로. 재질은 인스턴싱을 켠 복사본(`Assets/Imported/Vegetation`, 커밋 안 함).
+- `BuildWebGL`: `PlayerSettings.SplashScreen.show = false`(Unity 6 Personal 허용).
+- 예상: 식생 메시 55.7 MB → 1 MB 미만. **PC 측정 전.** PlayMode `VegetationTests` 추가.
+
