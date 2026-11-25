@@ -50,3 +50,5 @@
 - 포털 게임 섹션(`airobotverse-` 저장소 `src/components/MedidermaLoungeSection.tsx`)이 콘테스트 순위 · 이벤트 · 지금 열린 라운지를 보여 준다.
 - 포털은 `/events.json` 을 읽는다 (`vercel.json` 에서 이 파일만 CORS 허용). events.json 을 고치면 포털에도 5분 안에 반영된다.
 - 게임으로 들어오는 링크: `?visit=친구코드` (열린 라운지 바로 방문, 닫혀 있으면 열린 라운지 탭) · `?open=contest|events|lounges` (해당 탭 열기). 게임을 시작한 뒤 한 번만 적용되고 주소에서 지워진다.
+- 포털 안 플레이 (2026-11-25): 포털 `/games/play/beauty-life/` 가 이 게임을 iframe 으로 띄운다 (`games-config.ts` 의 `beauty-life`). 포털 주소의 `?visit=` · `?open=` 은 게임 주소로 그대로 넘어간다.
+- 포털 RP: 포털 안에서 뷰티 케어를 마칠 때마다 `src/net/portal.ts` 가 `{type:"game_result", game:"beauty-life", score, rp:40}` 을 허용된 포털 주소(airobotphysical.com · www · web.app)로만 보낸다. 포털이 로그인 사용자에게 하루 1회 RP 를 준다.
