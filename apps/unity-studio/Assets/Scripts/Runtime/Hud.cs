@@ -64,6 +64,20 @@ namespace SpecialSoldier
                 }
             }
 
+            var thrower = weapon ? weapon.GetComponent<GrenadeThrower>() : null;
+            if (thrower) GUI.Label(new Rect(W - 300, H - 126, 280, 30), $"GRENADES {thrower.grenades}  [G]", _small);
+            if (player)
+            {
+                // danger indicator (web v0.18): an enemy grenade about to go off near you
+                foreach (var g in Grenade.Live)
+                    if (g && !g.thrownByPlayer && Vector3.Distance(g.transform.position, player.transform.position) < g.radius + 3f)
+                    {
+                        GUI.color = new Color(1f, 0.25f, 0.2f);
+                        GUI.Label(new Rect(0, H * 0.28f, W, 50), $"GRENADE!  {g.FuseLeft:0.0}", _center);
+                        GUI.color = Color.white; break;
+                    }
+            }
+
             var dir = GameDirector.Instance;
             if (!dir) return;
             int alive = 0; AlertState worst = AlertState.Patrol;

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T09:42:20.138Z",
+  "generatedAt": "2026-11-25T01:13:01.992Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "14b5776"
+    "commit": "6f56803"
   },
   "section": {
     "id": "game-dev-lab",
@@ -352,6 +352,11 @@
         "resource": "웹 게임 enemies.js findCover/plan 이식"
       },
       {
+        "task": "수류탄 — Core 완료(2026-11-25): Core/Explosives.cs, Runtime/Grenade.cs·GrenadeThrower.cs (Unity 확인 전)",
+        "feature": "Rigidbody·PhysicsMaterial, OverlapSphere, Linecast",
+        "resource": "웹 fx.js 이식"
+      },
+      {
         "task": "PlayMode 테스트",
         "feature": "씬을 띄워 플레이어 이동·사격 자동 검증",
         "resource": "Unity Test Framework"
@@ -364,6 +369,12 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "6f56803",
+      "date": "2026-11-24",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): enemy cover, push, flank, suppress and fall-back tactics (port of web findCover/plan)"
+    },
     {
       "hash": "14b5776",
       "date": "2026-11-24",
@@ -597,12 +608,6 @@
       "date": "2026-11-19",
       "area": "game-dev",
       "subject": "docs(game-dev): record PC session working files"
-    },
-    {
-      "hash": "aa54372",
-      "date": "2026-11-19",
-      "area": "game-dev",
-      "subject": "docs(game-dev): PC session claims first CC0 asset batch for SPECIAL SOLDIER"
     }
   ]
 }

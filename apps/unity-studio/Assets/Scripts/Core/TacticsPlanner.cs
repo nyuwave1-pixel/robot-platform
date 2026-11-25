@@ -39,6 +39,7 @@ namespace SpecialSoldier.Core
         public Vec2 Goal;
         public bool InCover;      // the goal is a cover spot (peek / hide there)
         public bool Retreat;      // fell back: switch the brain to RETREAT and call the squad
+        public bool Replanned;    // the 2.5–5.5 s re-plan happened this call (grenade decisions hang off this, like the web game)
     }
 
     /// <summary>Combat movement planning ported from Enemies.findCover() / Enemies.plan() in the web game.
@@ -110,6 +111,7 @@ namespace SpecialSoldier.Core
             PlanTimer -= dt;
             if (PlanTimer > 0) return r;
             PlanTimer = 2.5f + (float)_rng.NextDouble() * 3f;
+            r.Replanned = true;
 
             Vec2? goal = null; bool cover = Behavior != CombatBehavior.Suppress;
             switch (Behavior)

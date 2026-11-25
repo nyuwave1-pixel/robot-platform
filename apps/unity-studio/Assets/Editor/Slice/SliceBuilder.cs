@@ -144,6 +144,7 @@ namespace SpecialSoldier.EditorTools
             pivot.gameObject.AddComponent<AudioListener>();
             if (GraphicsSettings.defaultRenderPipeline) cam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
             var weapon = pivot.gameObject.AddComponent<WeaponController>(); weapon.motor = motor; weapon.view = cam;
+            pivot.gameObject.AddComponent<GrenadeThrower>().motor = motor;
             return go;
         }
 

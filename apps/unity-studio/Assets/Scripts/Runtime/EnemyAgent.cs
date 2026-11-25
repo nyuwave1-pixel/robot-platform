@@ -28,6 +28,7 @@ namespace SpecialSoldier
         readonly List<CoverBox> _boxes = new List<CoverBox>();
         readonly List<Vec2> _taken = new List<Vec2>();
         PeekCycle _peek;
+        readonly GrenadeDecision _nades = new GrenadeDecision();
         bool _goalIsCover;
         Transform _visual; float _visualBaseY;
         public EnemyType Type { get; private set; }
@@ -124,6 +125,7 @@ namespace SpecialSoldier
             _taken.Clear();
             foreach (var o in Active) if (o != this && o.Alive && o.Goal.HasValue) _taken.Add(V(o.Goal.Value));
             var r = Tactics.Plan(td, V(transform.position), V(_lastKnown), _hp.Model.Health / _hp.Model.MaxHealth, InCover, _seesNow, _boxes, _taken);
+            if (r.Replanned && Type.Grenades) TryThrowGrenade();
             if (!r.HasGoal) return;
             var g = new Vector3(r.Goal.X, transform.position.y, r.Goal.Z);
             if (NavMesh.SamplePosition(g, out NavMeshHit nh, 3f, NavMesh.AllAreas)) g = nh.position;
@@ -135,6 +137,18 @@ namespace SpecialSoldier
             }
         }
 
+        /// <summary>Lobs a grenade at the last known position when the player hides (web: plan → G.fx.grenade, fuse 2.9 s).</summary>
+        void TryThrowGrenade()
+        {
+            if (!_player) return;
+            float dist = Vector3.Distance(transform.position, _lastKnown);
+            bool playerHiding = _player.IsCrouching && !_seesNow;   // the slice has no cover detection for the player yet
+            if (!_nades.ShouldThrow(dist, playerHiding, _seesNow, Brain.SinceSeen)) return;
+            Vector3 from = transform.position + Vector3.up * 1.6f + transform.forward * 0.5f;
+            var v = Explosives.LobVelocity(new Vec3(from.x, from.y, from.z), new Vec3(_lastKnown.x, _lastKnown.y, _lastKnown.z));
+            Grenade.Throw(from, new Vector3(v.X, v.Y, v.Z), false, Explosives.EnemyGrenadeFuse);
+        }
+
         /// <summary>Static, solid obstacles within 40 m as top-down boxes. Enemies, the player and triggers are skipped.</summary>
         void GatherCover()
         {
@@ -143,7 +157,7 @@ namespace SpecialSoldier
             for (int i = 0; i < n; i++)
             {
                 var c = Nearby[i];
-                if (!c || c.attachedRigidbody || c.GetComponentInParent<Damageable>() || c is CharacterController) continue;
+                if (!c || c.attachedRigidbody || c.GetComponent<Grenade>() || c.GetComponentInParent<Damageable>() || c is CharacterController) continue;
                 var b = c.bounds;
                 bool usable = !c.gameObject.name.Contains("Glass") && !c.gameObject.name.Contains("Fence");
                 _boxes.Add(new CoverBox(b.min.x, b.min.z, b.max.x, b.max.z, b.max.y - transform.position.y, usable));

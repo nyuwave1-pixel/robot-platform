@@ -10,19 +10,20 @@ namespace SpecialSoldier.Core
         public readonly string Id, Name;
         public readonly float Hp, Armor, Speed, Spread, Rpm, GunDamage, Vision, Fov, React;
         public readonly int BurstMin, BurstMax;
+        public readonly bool Grenades;            // web: grenades: true (COBRA ELITE, COMMANDER VIPER)
 
         public EnemyType(string id, string name, float hp, float armor, float speed, float spread, int burstMin, int burstMax, float rpm,
-            float gunDamage, float vision, float fov, float react)
+            float gunDamage, float vision, float fov, float react, bool grenades = false)
         {
             Id = id; Name = name; Hp = hp; Armor = armor; Speed = speed; Spread = spread; BurstMin = burstMin; BurstMax = burstMax;
-            Rpm = rpm; GunDamage = gunDamage; Vision = vision; Fov = fov; React = react;
+            Rpm = rpm; GunDamage = gunDamage; Vision = vision; Fov = fov; React = react; Grenades = grenades;
         }
 
         public static readonly EnemyType Sentry = new EnemyType("guard", "SENTRY", 90, 0, 3.6f, 3.3f, 2, 4, 520, 11, 72, 1.9f, 0.9f);
         public static readonly EnemyType Assault = new EnemyType("assault", "ASSAULT", 110, 35, 4.7f, 3.7f, 4, 7, 680, 10, 78, 2.0f, 0.7f);
         public static readonly EnemyType Sniper = new EnemyType("sniper", "SNIPER", 80, 0, 2.6f, 0.45f, 1, 1, 30, 58, 190, 1.3f, 1.7f);
         public static readonly EnemyType Heavy = new EnemyType("heavy", "HEAVY GUNNER", 260, 160, 2.1f, 4.6f, 10, 18, 600, 10, 75, 1.9f, 1.1f);
-        public static readonly EnemyType Elite = new EnemyType("elite", "COBRA ELITE", 150, 90, 4.9f, 2.3f, 3, 5, 700, 13, 92, 2.2f, 0.5f);
+        public static readonly EnemyType Elite = new EnemyType("elite", "COBRA ELITE", 150, 90, 4.9f, 2.3f, 3, 5, 700, 13, 92, 2.2f, 0.5f, grenades: true);
         public static readonly EnemyType[] All = { Sentry, Assault, Sniper, Heavy, Elite };
     }
 

@@ -145,3 +145,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - `Runtime/EnemyAgent.cs`: 전투 중 판단 주기마다 반경 40 m의 정적 충돌체를 엄폐물로 모아 계획 → NavMesh 위로 스냅해 이동, 숨을 때 모델이 0.55 m 내려감.
 - 검증: dotnet `CoreTests~` **173/173 통과**(새 테스트 10개 + PC 세션의 `DifficultyTests` 도 이제 Unity 없이 실행 — `UnityEngine.Application` 의존 제거).
   **EnemyAgent 변경은 Unity에서 아직 컴파일·플레이하지 않았습니다.**
+
+## 2026-11-25 — 수류탄 (허브 세션, 클라우드)
+
+- `Core/Explosives.cs`: 웹 `fx.grenade/explode`·`weapons.throwGrenade` 이식. 피해 170 → 반경 7.5 m까지 선형 감소, 1.5 m 밖에서 벽 뒤면 25%,
+  자기 수류탄 60%. 플레이어 투척 = 시선 × 17 m/s + 위 4.5 m/s + 이동 속도(수평 투척 시 약 20 m), 퓨즈 2.8 s, 3개, 0.9 s 간격.
+  적 투척(정예 `EnemyType.Grenades`) = 1.5 s 궤도 역산, 퓨즈 2.9 s, 9–34 m에서 플레이어가 숨었거나 시야에서 8 s 안에 사라졌을 때, 재계획마다 쿨다운 −3(14).
+- `Runtime`: `Grenade.cs`(튀는 리지드바디, 반발 0.38, 폭발 시 시야 판정·소음 170 m, 임시 화염·조명 `ExplosionFade.cs`),
+  `GrenadeThrower.cs`(G 키), `EnemyAgent` 재계획 때 투척, HUD에 남은 수류탄과 근처 적 수류탄 경고 "GRENADE! 2.1".
+- 검증: dotnet `CoreTests~` **180/180**(새 테스트 7개, 웹 `fx.js` 상수와 대조 포함). **Runtime 변경은 Unity에서 아직 컴파일·플레이하지 않았습니다.**
