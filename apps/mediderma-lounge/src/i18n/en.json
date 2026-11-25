@@ -602,5 +602,16 @@
   "coord.worn": "Changed into outfit {n}",
   "coord.same": "Already wearing this outfit",
   "coord.slot": "Outfit {n}",
-  "coord.empty": "Empty"
+  "coord.empty": "Empty",
+  "pet.play": "Play",
+  "pet.bath": "Bath",
+  "pet.played": "Had a fun play with {name}",
+  "pet.playWait": "Let's rest a bit ({n} min)",
+  "pet.bathed": "{name} is fresh and fluffy!",
+  "pet.bathDone": "Already bathed today",
+  "pet.levelUp": "{name}'s bond leveled up!",
+  "pet.accShop": "Pet head accessories",
+  "pet.accOwned": "Owned",
+  "pet.accBought": "Bought {name}! Try it on your pet",
+  "pet.accNone": "None"
 }

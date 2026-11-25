@@ -5,6 +5,7 @@
 import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { BATH_AFFECTION, BATH_COST, PET_ACC_MAP, PET_BOND, PLAY_AFFECTION, PLAY_COOLDOWN_MIN, petLevel } from "../data/pets";
 import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, PROMOS, QUESTS, RANKS, rankFor, type PV, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
 import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
@@ -43,7 +44,11 @@ export const DEFAULT_LOOK: Look = {
 
 export interface Furniture { uid: string; type: string; x: number; z: number; rot: number }
 export interface Post { id: string; author: string; country?: string; mine: boolean; text: string; tag: string; img?: string; hue?: number; likes: number; liked: boolean; comments: { who: string; text: string }[]; t: number; demo?: boolean }
-export interface Pet { id: string; type: string; name: string; affection: number; lastPet: string }
+export interface Pet {
+  id: string; type: string; name: string; affection: number; lastPet: string;
+  /** 유대감 (돌봄으로 쌓이고 줄지 않음 → 레벨), 씌운 장식, 마지막 놀아주기(ms) · 목욕(날짜) */
+  bond?: number; acc?: string | null; lastPlay?: number; lastBath?: string;
+}
 export interface Friend { code: string; name: string }
 export interface Regular { name: string; type: string; visits: number; lastStars: number }
 
@@ -121,6 +126,14 @@ export interface GameState {
   adoptPet: (type: string, name: string) => boolean;
   petPet: (id: string) => { star: boolean } | null;
   feedPet: (id: string) => boolean;
+  /** 놀아주기 (한 시간에 한 번) */
+  playPet: (id: string, now?: number) => { ok: true; levelUp: boolean } | { ok: false; wait: number };
+  /** 목욕 (하루 한 번, 코인) */
+  bathPet: (id: string) => { ok: true; levelUp: boolean } | { ok: false; why: "done" | "money" };
+  /** 펫 장식 사기 · 씌우기 */
+  petAccs: string[];
+  buyPetAcc: (accId: string) => boolean;
+  wearPetAcc: (petId: string, accId: string | null) => boolean;
   buyStation: (maxStations: number) => boolean;
   autoServe: (r: { name: string; type: string; stars: number; coins: number; lp: number }) => void;
   acceptInvite: (code: string, name: string) => boolean;
@@ -169,6 +182,7 @@ const fresh = () => ({
   rankNotice: null as number | null,
   promo: 0,
   pets: [] as Pet[],
+  petAccs: [] as string[],
   friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
   invitedBy: null as Friend | null,
   friends: [] as Friend[],
@@ -416,7 +430,7 @@ export const useGame = create<GameState>()(
         if (!p) return null;
         const star = p.lastPet !== today();
         set({
-          pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.pet_affection")), lastPet: today() } : x)),
+          pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.pet_affection")), lastPet: today(), bond: (x.bond ?? 0) + PET_BOND.pet } : x)),
           stars: s.stars + (star ? tune("pet.daily_star") : 0),
           stats: { ...s.stats, petted: (s.stats.petted ?? 0) + 1 },
         });
@@ -425,7 +439,41 @@ export const useGame = create<GameState>()(
       feedPet: (id) => {
         const s = get(); const cost = tune("pet.feed_cost");
         if (!s.pets.some((x) => x.id === id) || s.coins < cost) return false;
-        set({ coins: s.coins - cost, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.feed_affection")) } : x)) });
+        set({ coins: s.coins - cost, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.feed_affection")), bond: (x.bond ?? 0) + PET_BOND.feed } : x)) });
+        return true;
+      },
+      playPet: (id, now = Date.now()) => {
+        const s = get(); const p = s.pets.find((x) => x.id === id);
+        if (!p) return { ok: false, wait: 0 };
+        const wait = (p.lastPlay ?? 0) + PLAY_COOLDOWN_MIN * 60_000 - now;
+        if (wait > 0) return { ok: false, wait };
+        const bond = (p.bond ?? 0) + PET_BOND.play;
+        set({ pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + PLAY_AFFECTION), bond, lastPlay: now } : x)), exp: { ...s.exp, lounge: s.exp.lounge + 2 } });
+        return { ok: true, levelUp: petLevel(bond) > petLevel(p.bond ?? 0) };
+      },
+      bathPet: (id) => {
+        const s = get(); const p = s.pets.find((x) => x.id === id);
+        if (!p || p.lastBath === today()) return { ok: false, why: "done" };
+        if (s.coins < BATH_COST) return { ok: false, why: "money" };
+        const bond = (p.bond ?? 0) + PET_BOND.bath;
+        set({ coins: s.coins - BATH_COST, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + BATH_AFFECTION), bond, lastBath: today() } : x)) });
+        return { ok: true, levelUp: petLevel(bond) > petLevel(p.bond ?? 0) };
+      },
+      buyPetAcc: (accId) => {
+        const s = get(); const a = PET_ACC_MAP[accId];
+        const owned = Array.isArray(s.petAccs) ? s.petAccs : [];
+        if (!a || owned.includes(accId) || s.coins < a.price) return false;
+        set({ coins: s.coins - a.price, petAccs: [...owned, accId] });
+        return true;
+      },
+      wearPetAcc: (petId, accId) => {
+        const s = get(); const p = s.pets.find((x) => x.id === petId);
+        if (!p) return false;
+        if (accId !== null) {
+          const a = PET_ACC_MAP[accId];
+          if (!a || !(s.petAccs ?? []).includes(accId) || petLevel(p.bond ?? 0) < a.minLevel) return false;
+        }
+        set({ pets: s.pets.map((x) => (x.id === petId ? { ...x, acc: accId } : x)) });
         return true;
       },
       buyStation: (maxStations) => {

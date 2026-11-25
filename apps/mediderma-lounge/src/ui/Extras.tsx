@@ -10,8 +10,10 @@ import { layout } from "../three/layout";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
 import { BragButton } from "./Brag";
+import { BATH_COST, PET_ACCS, PET_TITLES_EN, PET_TITLES_KO, petLevel, petLevelProgress } from "../data/pets";
+import { petFx } from "../three/Pet";
 
-const toast = (s: string) => useUI.getState().toast(s);
+const toast = (s: string, kind?: "error" | "reward") => useUI.getState().toast(s, kind);
 
 // ───────────── 펫 ─────────────
 export function PetsBody() {
@@ -19,6 +21,8 @@ export function PetsBody() {
   const L = useL();
   const g = useGame();
   const [name, setName] = useState("");
+  const lang = useGame((s) => s.settings.lang);
+  const fx = (id: string) => { petFx[id] = 1; };
   return (
     <>
       <p className="text-[13px] leading-relaxed text-ink/60">{t("pet.desc")}</p>
@@ -38,12 +42,60 @@ export function PetsBody() {
                     <span className="text-[12px] font-bold text-ink/50">♥ {p.affection}</span>
                   </div>
                 </div>
-                <button className="btn-ghost shrink-0 !px-3 !py-2 text-xs" onClick={() => toast(g.feedPet(p.id) ? t("pet.fed") : t("shop.noMoney"))}>{t("pet.feed")} <Price c="coin" n={tune("pet.feed_cost")} /></button>
               </div>
+              {/* 유대감 레벨 */}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="shrink-0 rounded-full bg-gold/15 px-2 py-0.5 text-[12px] font-black text-gold" data-testid="pet-level">Lv.{petLevel(p.bond ?? 0)} {(lang === "ko" ? PET_TITLES_KO : PET_TITLES_EN)[petLevel(p.bond ?? 0) - 1]}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink/10"><div className="h-full rounded-full bg-gold" style={{ width: `${petLevelProgress(p.bond ?? 0) * 100}%` }} /></div>
+              </div>
+              {/* 돌봄: 먹이 · 놀아주기 · 목욕 */}
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                <button className="btn-ghost !px-2 !py-1.5 text-[12px]" onClick={() => { fx(p.id); toast(g.feedPet(p.id) ? t("pet.fed") : t("shop.noMoney")); }}>{t("pet.feed")} <Price c="coin" n={tune("pet.feed_cost")} /></button>
+                <button className="btn-ghost !px-2 !py-1.5 text-[12px]" data-testid="pet-play" onClick={() => {
+                  const r = g.playPet(p.id);
+                  if (r.ok) { fx(p.id); toast(r.levelUp ? t("pet.levelUp", { name: p.name }) : t("pet.played", { name: p.name }), r.levelUp ? "reward" : undefined); }
+                  else toast(t("pet.playWait", { n: Math.ceil(r.wait / 60_000) }), "error");
+                }}>{t("pet.play")}</button>
+                <button className="btn-ghost !px-2 !py-1.5 text-[12px]" data-testid="pet-bath" onClick={() => {
+                  const r = g.bathPet(p.id);
+                  if (r.ok) { fx(p.id); toast(r.levelUp ? t("pet.levelUp", { name: p.name }) : t("pet.bathed", { name: p.name }), r.levelUp ? "reward" : undefined); }
+                  else toast(r.why === "done" ? t("pet.bathDone") : t("shop.noMoney"), "error");
+                }}>{t("pet.bath")} <Price c="coin" n={BATH_COST} /></button>
+              </div>
+              {/* 머리 장식: 가진 장식만, 레벨이 되는 것만 씌울 수 있다 */}
+              {(g.petAccs ?? []).length > 0 && (
+                <div className="mt-2 flex gap-1 overflow-x-auto pb-0.5">
+                  <button className={`chip shrink-0 ${!p.acc ? "chip-on" : ""}`} onClick={() => g.wearPetAcc(p.id, null)}>{t("pet.accNone")}</button>
+                  {PET_ACCS.filter((a) => (g.petAccs ?? []).includes(a.id)).map((a) => {
+                    const ok = petLevel(p.bond ?? 0) >= a.minLevel;
+                    return <button key={a.id} disabled={!ok} className={`chip shrink-0 disabled:opacity-40 ${p.acc === a.id ? "chip-on" : ""}`} onClick={() => g.wearPetAcc(p.id, a.id)}>{L(a)}{!ok && ` · Lv.${a.minLevel}`}</button>;
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
+      {g.pets.length > 0 && (
+        <>
+          <p className="mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("pet.accShop")}</p>
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            {PET_ACCS.map((a) => {
+              const owned = (g.petAccs ?? []).includes(a.id);
+              return (
+                <button key={a.id} disabled={owned} className="card !p-2 text-left disabled:opacity-60" data-testid={`pacc-${a.id}`}
+                  onClick={() => toast(g.buyPetAcc(a.id) ? t("pet.accBought", { name: L(a) }) : t("shop.noMoney"))}>
+                  <span className="flex items-center gap-2">
+                    <span className="h-6 w-6 shrink-0 rounded-full border border-white shadow" style={{ background: `linear-gradient(135deg, ${a.color}, ${a.accent})` }} />
+                    <span className="min-w-0 truncate text-xs font-bold text-ink">{L(a)}</span>
+                  </span>
+                  <span className="mt-1 block text-[12px] font-semibold text-ink/50">{owned ? t("pet.accOwned") : <Price c="coin" n={a.price} />} · Lv.{a.minLevel}+</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
       <p className="mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("pet.adopt")}</p>
       <input value={name} maxLength={10} onChange={(e) => setName(e.target.value)} placeholder={t("pet.namePh")} className="mt-1.5 w-full rounded-full border border-pink-soft px-4 py-2 text-sm outline-none focus:border-pink-deep" />
       <div className="mt-2 grid grid-cols-2 gap-2">

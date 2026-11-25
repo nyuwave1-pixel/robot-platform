@@ -9,6 +9,7 @@ import { create } from "zustand";
 import { PET_MAP, type PetType } from "../data/game";
 import { CURIO_MAP, CURIO_SETS, PLANT_MAP } from "../data/life";
 import { ROUTINE_MAP } from "../data/devices";
+import { PET_ACC_MAP, PET_LEVELS, petLevel } from "../data/pets";
 import { useGame, type Look } from "../store/game";
 import { useLife } from "../store/life";
 import { cleanLook, cleanName } from "./plaza";
@@ -39,7 +40,7 @@ export const BRAG_REWARD = 10;
 
 export interface BragData {
   look?: Look; stage?: number;
-  pet?: { type: string; name: string; affection: number };
+  pet?: { type: string; name: string; affection: number; level?: number; acc?: string | null };
   plants?: { id: string; n: number }[];
   care?: { routine: string | null; acc: number | null; stars: number | null };
   curios?: { owned: number; total: number; sets: string[]; best: string[] };
@@ -55,7 +56,7 @@ export function cleanBragData(kind: BragKind, v: unknown): BragData | null {
   if (kind === "pet") {
     const p = (o.pet && typeof o.pet === "object" ? o.pet : {}) as Record<string, unknown>;
     if (typeof p.type !== "string" || !PET_MAP[p.type]) return null;
-    return { pet: { type: p.type, name: cleanName(p.name).slice(0, 10), affection: int(p.affection, 0, 100) ?? 0 } };
+    return { pet: { type: p.type, name: cleanName(p.name).slice(0, 10), affection: int(p.affection, 0, 100) ?? 0, level: int(p.level, 1, PET_LEVELS.length) ?? 1, acc: typeof p.acc === "string" && PET_ACC_MAP[p.acc] ? p.acc : null } };
   }
   if (kind === "plant") {
     const plants = (Array.isArray(o.plants) ? o.plants : []).slice(0, 3).map((x) => {
@@ -92,7 +93,7 @@ export function bragDataOf(kind: BragKind, extra?: { petId?: string; care?: Brag
   if (kind === "look") return { look: g.look, stage: g.stage };
   if (kind === "pet") {
     const p = g.pets.find((x) => x.id === extra?.petId) ?? [...g.pets].sort((a, b) => b.affection - a.affection)[0];
-    return p ? { pet: { type: p.type, name: p.name, affection: p.affection } } : null;
+    return p ? { pet: { type: p.type, name: p.name, affection: p.affection, level: petLevel(p.bond ?? 0), acc: p.acc ?? null } } : null;
   }
   if (kind === "plant") {
     const plants = Object.entries(useLife.getState().harvested).filter(([id, n]) => PLANT_MAP[id] && n > 0)

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { FASHION_MAP, PET_MAP } from "../data/game";
 import { CURIO_SETS, PLANT_MAP } from "../data/life";
 import { ROUTINE_MAP } from "../data/devices";
+import { PET_ACC_MAP } from "../data/pets";
 import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
@@ -55,6 +56,7 @@ export function BragBody({ kind, data }: { kind: BragKind; data: BragData }) {
         <span className="h-12 w-12 shrink-0 rounded-full border-2 border-white shadow" style={{ background: `linear-gradient(135deg, ${ty?.color}, ${ty?.accent})` }} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-ink">{data.pet.name} <span className="text-[12px] font-semibold text-ink/50">· {ty ? L(ty) : ""}</span></p>
+          <p className="text-[12px] font-bold text-gold">Lv.{data.pet.level ?? 1}{data.pet.acc && PET_ACC_MAP[data.pet.acc] ? ` · ${L(PET_ACC_MAP[data.pet.acc])}` : ""}</p>
           <div className="mt-1 flex items-center gap-2">
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink/10"><div className="h-full rounded-full bg-pink-deep" style={{ width: `${data.pet.affection}%` }} /></div>
             <span className="text-[12px] font-bold text-ink/50">♥ {data.pet.affection}</span>

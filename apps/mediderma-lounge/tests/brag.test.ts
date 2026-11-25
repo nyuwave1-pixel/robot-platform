@@ -52,3 +52,40 @@ describe("내 코디 저장 · 갈아입기", () => {
     expect(g().coords.length).toBe(3);
   });
 });
+
+describe("펫 키우기", () => {
+  it("돌봄으로 유대감이 쌓여 레벨이 오르고, 놀아주기 · 목욕은 쿨타임이 있다", async () => {
+    const { petLevel, PET_BOND, PLAY_COOLDOWN_MIN, BATH_COST } = await import("../src/data/pets");
+    const g = () => useGame.getState();
+    useGame.setState({ coins: 5000 });
+    expect(g().adoptPet("cat-cream", "나비")).toBe(true);
+    const id = g().pets[0].id;
+    const t0 = Date.UTC(2026, 10, 25, 12);
+    expect(g().playPet(id, t0)).toEqual({ ok: true, levelUp: false });
+    const again = g().playPet(id, t0 + 60_000);
+    expect(again.ok).toBe(false);
+    expect(g().playPet(id, t0 + PLAY_COOLDOWN_MIN * 60_000).ok).toBe(true);
+    const c0 = g().coins;
+    expect(g().bathPet(id).ok).toBe(true);
+    expect(g().coins).toBe(c0 - BATH_COST);
+    expect(g().bathPet(id)).toEqual({ ok: false, why: "done" });
+    expect(g().pets[0].bond).toBe(PET_BOND.play * 2 + PET_BOND.bath);
+    expect(petLevel(g().pets[0].bond!)).toBe(2);
+  });
+  it("장식은 사야 씌울 수 있고, 레벨 조건을 지킨다", () => {
+    const g = () => useGame.getState();
+    useGame.setState({ coins: 5000 });
+    g().adoptPet("dog-shiba", "콩");
+    const id = g().pets[0].id;
+    expect(g().wearPetAcc(id, "pacc-ribbon")).toBe(false); // 안 샀음
+    expect(g().buyPetAcc("pacc-ribbon")).toBe(true);
+    expect(g().buyPetAcc("pacc-ribbon")).toBe(false); // 중복
+    expect(g().wearPetAcc(id, "pacc-ribbon")).toBe(true);
+    g().buyPetAcc("pacc-crown");
+    expect(g().wearPetAcc(id, "pacc-crown")).toBe(false); // Lv.6 필요
+    useGame.setState((s) => ({ pets: s.pets.map((p) => ({ ...p, bond: 999 })) }));
+    expect(g().wearPetAcc(id, "pacc-crown")).toBe(true);
+    expect(bragDataOf("pet")?.pet).toMatchObject({ acc: "pacc-crown", level: 7 });
+    expect(cleanBragData("pet", { pet: { type: "dog-shiba", name: "콩", acc: "hack", level: 99 } })?.pet).toMatchObject({ acc: null, level: 7 });
+  });
+});

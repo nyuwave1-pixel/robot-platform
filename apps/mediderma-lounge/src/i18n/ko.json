@@ -602,5 +602,16 @@
   "coord.worn": "코디 {n}로 갈아입었어요",
   "coord.same": "이미 이 코디를 입고 있어요",
   "coord.slot": "코디 {n}",
-  "coord.empty": "비어 있음"
+  "coord.empty": "비어 있음",
+  "pet.play": "놀아주기",
+  "pet.bath": "목욕",
+  "pet.played": "{name}와(과) 신나게 놀았어요",
+  "pet.playWait": "조금 쉬었다 놀아요 ({n}분 후)",
+  "pet.bathed": "{name} 목욕 끝! 뽀송뽀송",
+  "pet.bathDone": "오늘은 이미 목욕했어요",
+  "pet.levelUp": "{name} 유대감 레벨 업!",
+  "pet.accShop": "펫 머리 장식",
+  "pet.accOwned": "보유",
+  "pet.accBought": "{name} 구매 완료! 펫에게 씌워 보세요",
+  "pet.accNone": "장식 없음"
 }
