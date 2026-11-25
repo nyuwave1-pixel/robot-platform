@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 클라우드 (Special Soldier) | **v0.21 미션 02 순서 자유 목표**: `apps/special-soldier/src/game/missions.js`(미션 02 목표·발전기 초소), `tests/plans.mjs`(`anyorder2`), `docs/{GAME_DESIGN,QA_REPORT}.md`. 버전 표시(`src/ui/menu.js`의 v0.20)는 PC 세션 메뉴 작업이 끝난 뒤 올림. HUD 표시 설정도 `menu.js` 가 풀린 뒤 진행 | 2026-11-25 |
 | 허브(클라우드) | **공용 섬 식생(웹+Unity)**: 웹 새 `apps/special-soldier/src/world/vegetation.js` + `src/world/build.js` 의 `buildVegetation` 배치 부분(자체 시드로 분리 → 웹 나무 위치가 한 번 바뀜), Unity 새 `Core/IslandVegetation.cs`·`Tools~/gen-vegetation-fixture.mjs`·테스트, `Editor/Slice/SliceBuilder.cs`(나무·야자수·바위 배치) | 2026-11-25 |
 | 허브(클라우드) | **공용 섬 지형(웹+Unity)**: 웹 새 `apps/special-soldier/src/world/terrain.js`(world.js 의 rawHeight·FLATS·SIZE 를 옮김, 동작 동일) + `src/world/world.js` import 줄, Unity 새 `Core/IslandTerrain.cs`·`Tools~/gen-terrain-fixture.mjs`·테스트, `Editor/Slice/SliceBuilder.cs`(지형·바다·NavMesh 범위) | 2026-11-25 (푸시 완료) |
 | PC Unity | **하나의 게임, 두 판 선택**: `apps/special-soldier/src/{ui/menu.js,config/editions.js}`·`tests/e2e.mjs`(메뉴 루프), `apps/unity-studio/Assets/Scripts/Runtime/{PauseMenu,SettingsStore,PortalBridge}.cs`·`Plugins/WebGL/PortalBridge.jslib`(URL ?difficulty·돌아가기), `docs/game-dev/EDITIONS_ROADMAP.md` | 2026-11-25 |

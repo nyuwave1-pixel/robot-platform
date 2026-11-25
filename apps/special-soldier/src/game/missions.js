@@ -30,6 +30,16 @@ function rangeProp(m, group, x, z, sx, sy, sz, mat, hp, extra = {}) {
   const y = G.world.groundAt(x, z, 999), c = G.world.box(x, y, z, sx, sy, sz, mat, { hp, kind: 'target', mat: 'wood', ...extra });
   c.maxHp = hp; c.alive = false; c.mesh.visible = false; (m.trainGroups[group] = m.trainGroups[group] || []).push(c); m.trainProps.push(c); return c;
 }
+// MISSION 02 backup-power outpost: a generator on the jungle flank that feeds the relay. Built once, then stays as scenery.
+// Added after the world's static batch is finalised, so the props must be dynamic (own meshes) or they would never draw.
+export const GEN = { x: -170, z: 220 };
+let genBuilt = false;
+function buildGenOutpost() {
+  if (genBuilt) return; genBuilt = true; const W = G.world, H = (x, z) => W.heightAt(x, z), g = GEN;
+  W.box(g.x, H(g.x, g.z) - 0.05, g.z, 3, 2.2, 2, MAT.olive, { mat: 'metal', kind: 'cover', geo: 'P_generator', dynamic: true });
+  for (const [dx, dz, len, ax] of [[0, 3.4, 4.2, true], [-3.6, 0, 3.2, false]]) { const x = g.x + dx, z = g.z + dz; W.box(x, H(x, z) - 0.15, z, ax ? len : 0.8, 1.15, ax ? 0.8 : len, MAT.sand, { mat: 'sand', kind: 'cover', geo: 'P_sandbags', rot90: !ax, dynamic: true }); }
+  for (const [dx, dz] of [[3.4, -1.2], [3.4, 0.2]]) { const x = g.x + dx, z = g.z + dz; W.box(x, H(x, z) - 0.05, z, 0.75, 1.15, 0.75, MAT.red, { mat: 'metal', hp: 25, kind: 'barrel', explosive: 6, geo: 'P_barrel' }); }
+}
 const RM = (t) => 'RANGE MASTER: ' + t;
 export const TRAINING = {
   code: 'BOOT CAMP', name: 'FIRING RANGE', zone: 'TRAINING · AIRFIELD RANGE', sky: 'dawn', training: true, noSquad: true, unlocks: [],
@@ -82,13 +92,18 @@ export const MISSIONS = [
       for (const [k, x, z] of [['guard', 62, 192], ['guard', 66, 188], ['assault', 58, 186]]) sp(k, x, z, { group: 'patrolB', patrol: [[x, z], [x + 60, z - 24], [x + 20, z - 50]] });
       sp('sniper', -86, 214, { group: 'patrolA', yaw: 1.6 });
       const g = 'comms'; sp('guard', c.x + 18, c.z + 20, { group: g, yaw: 0.6 }); sp('guard', c.x - 4, c.z + 24, { group: g, yaw: 0.2 }); sp('guard', c.x + 22, c.z + 4, { group: g, yaw: 1.5 }); sp('assault', c.x + 6, c.z + 12, { group: g, patrol: [[c.x + 6, c.z + 12], [c.x + 20, c.z - 8], [c.x - 10, c.z - 12], [c.x - 18, c.z + 16]] });
-      sp('assault', c.x - 10, c.z - 6, { group: g }); sp('sniper', c.x + 26, c.z + 26, { group: g, y: top(c.x + 26, c.z + 26), yaw: 0.8 }); sp('heavy', c.x + 4, c.z + 2, { group: g, yaw: 0.5 }); sp('guard', c.x - 12, c.z + 8, { group: g, y: G.world.heightAt(c.x - 12, c.z + 8) }); },
+      sp('assault', c.x - 10, c.z - 6, { group: g }); sp('sniper', c.x + 26, c.z + 26, { group: g, y: top(c.x + 26, c.z + 26), yaw: 0.8 }); sp('heavy', c.x + 4, c.z + 2, { group: g, yaw: 0.5 }); sp('guard', c.x - 12, c.z + 8, { group: g, y: G.world.heightAt(c.x - 12, c.z + 8) });
+      buildGenOutpost(); sp('guard', GEN.x + 6, GEN.z + 5, { group: 'gen', yaw: 2.4 }); sp('assault', GEN.x - 5, GEN.z + 6, { group: 'gen', patrol: [[GEN.x - 5, GEN.z + 6], [GEN.x - 14, GEN.z - 10], [GEN.x + 8, GEN.z - 8]] }); },
     objectives: [
       { type: 'reach', x: -108, z: 186, r: 24, text: 'Infiltrate through the jungle to the comms relay', marker: () => ({ x: POI.comms.x, z: POI.comms.z }) },
-      { type: 'kill', group: 'comms', text: 'Clear the comms relay', marker: () => ({ x: POI.comms.x, z: POI.comms.z }) },
+      { type: 'any', text: 'Two tasks — any order', radio: 'NOMAD: The relay runs off a backup generator up on the north-west ridge. Cut it first and they cannot call in a full counter-attack — or hit the station now. Your call.', parts: [
+        { type: 'kill', group: 'comms', text: 'Clear the comms relay', marker: () => ({ x: POI.comms.x, z: POI.comms.z }) },
+        { type: 'interact', at: () => ({ x: GEN.x + 1.8, y: G.world.heightAt(GEN.x, GEN.z) + 1, z: GEN.z - 1.4 }), label: 'CUT BACKUP POWER', hold: 3, text: 'Cut the backup generator',
+          done(M) { M.flags.powerCut = G.enemies.count('comms') > 0; G.hud.radio(M.flags.powerCut ? 'ATLAS: Backup power is down. When the relay goes, they will only get half a call out.' : 'ATLAS: Power is down — but the station already sent its distress call. Expect company.'); } } ] },
       { type: 'interact', at: () => ({ x: POI.comms.x + 2, y: G.world.heightAt(POI.comms.x, POI.comms.z) + 1, z: POI.comms.z + 1.5 }), label: 'PLANT C4 CHARGE', hold: 3, text: 'Plant C4 on the relay mast' },
       { type: 'custom', text: 'Get clear of the blast (30 m)', check: (M) => Math.hypot(G.player.pos.x - POI.comms.x, G.player.pos.z - POI.comms.z) > 30, done: (M) => M.detonateTower() },
-      { type: 'kill', group: 'reinf', text: 'Repel the counter-attack', start() { const c = POI.comms; G.hud.radio('ATLAS: Movement north! They are coming for the relay!'); wave([['assault', c.x + 30, c.z - 60], ['assault', c.x + 20, c.z - 66], ['elite', c.x + 40, c.z - 62], ['guard', c.x - 10, c.z - 64], ['assault', c.x + 60, c.z - 40]], 'reinf'); } } ],
+      { type: 'kill', group: 'reinf', text: 'Repel the counter-attack', start(M) { const c = POI.comms, full = [['assault', c.x + 30, c.z - 60], ['assault', c.x + 20, c.z - 66], ['elite', c.x + 40, c.z - 62], ['guard', c.x - 10, c.z - 64], ['assault', c.x + 60, c.z - 40]];
+        if (M && M.flags.powerCut) { G.hud.radio('ATLAS: Only one squad heard the call — they are coming for the relay!'); wave(full.slice(0, 3), 'reinf'); } else { G.hud.radio('ATLAS: Movement north! They are coming for the relay!'); wave(full, 'reinf'); } } } ],
     alarm() { G.hud.radio('REAPER: Patrols are converging on us!'); for (const e of E().list) if (e.alive && e.group.startsWith('patrol') && e.state < ST.SEARCH) { e.state = ST.SEARCH; e.stateT = 0; e.alerted = true; e.goal = G.player.pos.clone(); e.atGoal = false; } } },
 
   { code: 'MISSION 03', name: 'BLACK COBRA BASE', zone: 'ZONE 03 · MILITARY BASE', sky: 'storm', spawn: () => ({ x: 0, z: 46, yaw: 0 }),

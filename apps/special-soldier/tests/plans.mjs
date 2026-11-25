@@ -272,3 +272,27 @@ export async function anyorder({ page, sim, shot }) {
   await shot('O2-sabotage');
   await page.evaluate(() => QA.fight('hq', 40)); await sim(0.5); console.log('hq      :', await st());
 }
+
+// v0.21: Mission 02 any-order — cut the backup generator before the relay falls (counter-attack 3) vs relay first (5).
+export async function anyorder2({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const st = () => page.evaluate(() => `oi ${SS.mission.oi} | ${SS.mission.objText()}`);
+  const toAny = async () => { await page.evaluate(() => { SS.startMission(1, true); SS.godMode = true; QA.tp(-108, 186); }); await sim(0.6); };
+  const cutPower = async () => { await page.evaluate(() => { const p = SS.mission.parts.find((q) => q.type === 'interact').at(); QA.tp(p.x + 0.6, p.z + 0.6); SS.input.keys.add('KeyE'); QA.key('KeyE'); }); await sim(3.6); await page.evaluate(() => SS.input.keys.delete('KeyE')); };
+  const plantAndBlow = async () => {
+    await page.evaluate(() => { const o = SS.mission.obj, a = o.at(); QA.tp(a.x + 0.6, a.z + 0.6); SS.input.keys.add('KeyE'); QA.key('KeyE'); }); await sim(3.6); await page.evaluate(() => SS.input.keys.delete('KeyE'));
+    await page.evaluate(() => QA.tp(SS.player.pos.x + 40, SS.player.pos.z + 30)); await sim(1.2);
+    return page.evaluate(() => SS.enemies.list.filter((e) => e.alive && e.group === 'reinf').length);
+  };
+  // A: generator first
+  await toAny(); console.log('any     :', await st());
+  const mk = await page.evaluate(() => { const p = SS.mission.marker(); return [Math.round(p.x), Math.round(p.z)]; }); console.log('marker  :', mk);
+  await page.evaluate(() => { QA.tp(-166, 214); SS.player.yaw = Math.PI * 0.85; SS.noTarget = true; }); await sim(1.5); await shot('A1-generator');
+  await page.evaluate(() => { SS.noTarget = false; }); await cutPower(); console.log('cut     :', await st(), '| flag', await page.evaluate(() => !!SS.mission.flags.powerCut));
+  await page.evaluate(() => QA.fight('comms', 40)); await sim(0.5); console.log('relay   :', await st());
+  console.log('A reinf :', await plantAndBlow());
+  // B: relay first, generator second
+  await toAny(); await page.evaluate(() => QA.fight('comms', 40)); await sim(0.5); console.log('B relay :', await st());
+  await cutPower(); console.log('B cut   :', await st());
+  console.log('B reinf :', await plantAndBlow(), '| flag', await page.evaluate(() => !!SS.mission.flags.powerCut));
+}
