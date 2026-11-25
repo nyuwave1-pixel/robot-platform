@@ -31,6 +31,9 @@ namespace SpecialSoldier
         {
             change(Current);
             if (!Volatile) try { PlayerPrefs.SetString(Key, _current.ToJson()); PlayerPrefs.Save(); } catch (Exception) { /* keep the change for this run */ }
+            // master volume is global: apply it here, not only in SliceFx.Update — SliceFx is created by the first sound, so a
+            // change made in the menu before any shot or step never reached the listener (PlayMode PauseMenuTests, 2026-11-25)
+            AudioListener.volume = _current.Volume;
             Changed?.Invoke(_current);
         }
 

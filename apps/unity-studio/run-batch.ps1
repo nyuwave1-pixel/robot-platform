@@ -11,7 +11,10 @@ $proj = Join-Path $PSScriptRoot '.'
 $logs = Join-Path $PSScriptRoot 'Logs'; New-Item -ItemType Directory -Force $logs | Out-Null
 function Step($name, $extra, [switch]$NoQuit) {
   $log = Join-Path $logs "batch-$name.log"
-  $p = Start-Process -FilePath $unity -ArgumentList (@('-batchmode', '-nographics', '-projectPath', "`"$proj`"", '-logFile', "`"$log`"") + $extra + $(if ($NoQuit) { @() } else { @('-quit') })) -Wait -PassThru -NoNewWindow
+  $p = Start-Process -FilePath $unity -ArgumentList (@('-batchmode', '-nographics', '-projectPath', "`"$proj`"", '-logFile', "`"$log`"") + $extra + $(if ($NoQuit) { @() } else { @('-quit') })) -PassThru -NoNewWindow
+  # Wait for Unity itself, not its whole process tree: Start-Process -Wait also waited for the VBCSCompiler server Unity
+  # leaves running after a compile, which held a finished step for ~10 min (2026-11-25). Touching Handle keeps ExitCode readable.
+  $null = $p.Handle; $p.WaitForExit()
   Write-Host "== $name exit $($p.ExitCode)"
   Select-String -Path $log -Pattern '\[Studio\]|\[Slice\]|No valid Unity Editor license|error CS|Exception' | ForEach-Object { $_.Line }
   if ($p.ExitCode -ne 0) { throw "$name failed (exit $($p.ExitCode)); see $log" }
