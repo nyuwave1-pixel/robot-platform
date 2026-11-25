@@ -8,6 +8,7 @@ import { useL } from "../i18n";
 import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
+import { HOME_PLATFORM, onHomePlatform } from "../platform";
 import { bodyDims, Character, styleNow, type Anim } from "../three/Character";
 import { Icon, type IconName } from "./Icon";
 
@@ -43,6 +44,14 @@ export function Splash() {
         )}
         <button className={started ? "btn-ghost" : "btn-primary"} onClick={() => set({ screen: "intro" })}>{t("splash.new")}</button>
       </div>
+      {/* 비트파크 우선: 게임 주소로 바로 들어왔으면 포털에서 플레이하도록 안내 (RP 적립 · 친구와 함께) */}
+      {!onHomePlatform() && (
+        <a href={HOME_PLATFORM.playUrl()} target="_top" rel="noopener" className="relative mt-4 flex w-full max-w-xs items-center gap-2 rounded-2xl border border-gold/40 bg-white/80 px-3 py-2 text-left shadow-sm" data-testid="home-platform">
+          <Icon n="sparkle" className="shrink-0 text-gold" />
+          <span className="min-w-0 flex-1 text-[12px] leading-snug text-ink/70"><b className="text-ink">{t("platform.playOn", { name: useGame.getState().settings.lang === "ko" ? HOME_PLATFORM.name.ko : HOME_PLATFORM.name.en })}</b><br />{t("platform.why")}</span>
+          <span className="shrink-0 text-xs font-black text-pink-deep">›</span>
+        </a>
+      )}
       {/* 안내 문구는 흐름 안에 둔다: 화면이 낮으면(휴대폰 · 포털 안 창) 버튼과 겹치지 않게 */}
       <p className="relative mt-6 max-w-md text-[11px] leading-relaxed text-ink/45 sm:text-[12px]">{t("splash.notice")}</p>
     </div>

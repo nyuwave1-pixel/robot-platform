@@ -624,5 +624,7 @@
   "brag.mine": "Mine",
   "brag.mineDesc": "{n} posts · {likes} likes received. New likes add followers.",
   "brag.mineNone": "You haven't posted yet.",
-  "brag.newLikes": "{n} new likes on your posts! Followers +{n}"
+  "brag.newLikes": "{n} new likes on your posts! Followers +{n}",
+  "platform.playOn": "Play on {name}",
+  "platform.why": "Sign in to earn RP from care, show-offs and harvests, and play with friends"
 }

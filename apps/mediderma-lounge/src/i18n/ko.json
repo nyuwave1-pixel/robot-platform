@@ -624,5 +624,7 @@
   "brag.mine": "내 자랑",
   "brag.mineDesc": "내 자랑 {n}개 · 받은 좋아요 {likes}개. 새 좋아요를 받으면 그만큼 팔로워가 늘어요.",
   "brag.mineNone": "아직 올린 자랑이 없어요.",
-  "brag.newLikes": "내 자랑에 좋아요 {n}개! 팔로워 +{n}"
+  "brag.newLikes": "내 자랑에 좋아요 {n}개! 팔로워 +{n}",
+  "platform.playOn": "{name}에서 플레이하기",
+  "platform.why": "로그인하면 케어 · 자랑 · 수확할 때 RP 가 쌓이고, 친구와 함께 즐길 수 있어요"
 }

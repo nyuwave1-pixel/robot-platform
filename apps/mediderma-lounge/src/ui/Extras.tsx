@@ -12,6 +12,7 @@ import { Icon, Price } from "./Icon";
 import { BragButton } from "./Brag";
 import { BATH_COST, PET_ACCS, PET_TITLES_EN, PET_TITLES_KO, petLevel, petLevelProgress } from "../data/pets";
 import { petFx } from "../three/Pet";
+import { reportPlay } from "../platform";
 
 const toast = (s: string, kind?: "error" | "reward") => useUI.getState().toast(s, kind);
 
@@ -53,7 +54,7 @@ export function PetsBody() {
                 <button className="btn-ghost !px-2 !py-1.5 text-[12px]" onClick={() => { fx(p.id); toast(g.feedPet(p.id) ? t("pet.fed") : t("shop.noMoney")); }}>{t("pet.feed")} <Price c="coin" n={tune("pet.feed_cost")} /></button>
                 <button className="btn-ghost !px-2 !py-1.5 text-[12px]" data-testid="pet-play" onClick={() => {
                   const r = g.playPet(p.id);
-                  if (r.ok) { fx(p.id); toast(r.levelUp ? t("pet.levelUp", { name: p.name }) : t("pet.played", { name: p.name }), r.levelUp ? "reward" : undefined); }
+                  if (r.ok) { fx(p.id); reportPlay("pet", p.bond ?? 0); toast(r.levelUp ? t("pet.levelUp", { name: p.name }) : t("pet.played", { name: p.name }), r.levelUp ? "reward" : undefined); }
                   else toast(t("pet.playWait", { n: Math.ceil(r.wait / 60_000) }), "error");
                 }}>{t("pet.play")}</button>
                 <button className="btn-ghost !px-2 !py-1.5 text-[12px]" data-testid="pet-bath" onClick={() => {

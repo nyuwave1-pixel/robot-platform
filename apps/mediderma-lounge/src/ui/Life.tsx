@@ -13,6 +13,7 @@ import { BragButton } from "./Brag";
 import { BoxArt, CurioArt, PlantArt, WorkoutArt } from "./LifeArt";
 import { Preview } from "./Screens";
 import { StyleChallenge } from "./StyleChallenge";
+import { reportPlay } from "../platform";
 
 const toast = (s: string, sound?: Parameters<ReturnType<typeof useUI.getState>["toast"]>[1]) => useUI.getState().toast(s, sound);
 type Tab = "style" | "garden" | "fit" | "collect" | "friends";
@@ -70,7 +71,7 @@ function Garden() {
               </div>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ink/10"><div className="h-full rounded-full" style={{ width: `${g.ratio * 100}%`, background: p.color }} /></div>
               {g.stage >= 3 ? (
-                <button className="btn-primary mt-2 w-full !py-1.5 text-xs" data-testid="harvest" onClick={() => { const r = life.harvest(slot.id); if (r) toast(`${r.golden ? `✨ ${t("garden.golden")} ` : ""}${t("garden.harvested")} ${r.ingredient} · +${r.coins} COIN`, "reward"); }}>{t("garden.harvest")}</button>
+                <button className="btn-primary mt-2 w-full !py-1.5 text-xs" data-testid="harvest" onClick={() => { const r = life.harvest(slot.id); if (r) reportPlay("harvest", r.coins); if (r) toast(`${r.golden ? `✨ ${t("garden.golden")} ` : ""}${t("garden.harvested")} ${r.ingredient} · +${r.coins} COIN`, "reward"); }}>{t("garden.harvest")}</button>
               ) : (
                 <div className="mt-2 flex gap-1.5">
                   <button disabled={!canWater} className="btn-ghost min-w-0 flex-1 !px-2 !py-1.5 text-xs disabled:opacity-40" onClick={() => { if (life.water(slot.id)) toast(t("garden.watered"), "pickup"); }}>

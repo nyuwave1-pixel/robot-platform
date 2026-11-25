@@ -16,6 +16,7 @@ import { checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bra
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
+import { reportPlay } from "../platform";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
 const LOOK_SLOTS = ["outfit", "hair", "makeup", "shadow", "lip", "base", "shoes", "accessory", "earring", "necklace", "bag", "nail"] as const;
@@ -165,6 +166,7 @@ function Composer({ initial, onDone }: { initial: BragKind; onDone: () => void }
   const send = async () => {
     setBusy(true);
     const r = await postBrag(kind, msg, data);
+    if (r === "ok") reportPlay("brag", 1);
     setBusy(false);
     if (r === "ok") { toast(t("brag.posted", { n: BRAG_REWARD }), "reward"); useUI.setState({ bragCare: null }); onDone(); }
     else toast(t(`brag.fail.${r}`), "error");

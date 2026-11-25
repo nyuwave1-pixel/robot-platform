@@ -170,16 +170,31 @@ describe("단체 사진", async () => {
   });
 });
 
-describe("포털 연동", async () => {
-  const { PORTAL_GAME_ID, PORTAL_ORIGINS, portalMessage, portalOrigin } = await import("../src/net/portal");
-  it("포털이 받는 결과 형식 (game_result · 게임 id · 포털 상한 안의 RP)", () => {
-    const m = portalMessage(3.7);
-    expect(m).toEqual({ type: "game_result", game: PORTAL_GAME_ID, score: 3, rp: m.rp });
+describe("플랫폼 연동 (비트파크 우선)", async () => {
+  const { BITPARK_GAME_ID, BITPARK_ORIGINS, BITPARK_PLAY_URL, bitpark, bitparkOrigin, eventMessage, linkQuery, resultMessage } = await import("../src/platform/bitpark");
+  const { HOME_PLATFORM, ADAPTERS, platform, shareUrl, resetPlatformForTest } = await import("../src/platform");
+  it("포털이 받는 결과 형식 (game_result · 게임 id · 포털 상한 안의 RP) + 활동 이벤트", () => {
+    const m = resultMessage(3.7);
+    expect(m).toEqual({ type: "game_result", game: BITPARK_GAME_ID, score: 3, rp: m.rp });
     expect(m.rp).toBeGreaterThan(0);
     expect(m.rp).toBeLessThanOrEqual(65);
+    expect(eventMessage("brag", 1)).toEqual({ type: "game_event", game: BITPARK_GAME_ID, event: "brag", score: 1 });
   });
-  it("허용된 포털 주소만 쓰고, iframe 밖에서는 보내지 않는다", () => {
-    expect(PORTAL_ORIGINS.every((o) => o.startsWith("https://") && o.includes("airobotphysical"))).toBe(true);
-    expect(portalOrigin()).toBeNull();
+  it("허용된 포털 주소만 쓰고, iframe 밖에서는 일반 웹으로 감지한다", () => {
+    expect(BITPARK_ORIGINS.every((o) => o.startsWith("https://") && o.includes("airobotphysical"))).toBe(true);
+    expect(bitparkOrigin()).toBeNull();
+    resetPlatformForTest();
+    expect(platform().id).toBe("web");
+    expect(ADAPTERS[ADAPTERS.length - 1].id).toBe("web");
+    expect(HOME_PLATFORM.id).toBe("bitpark");
+  });
+  it("공유 · 초대 링크는 비트파크 게임 주소로, 형식이 맞는 값만 담는다", () => {
+    const u = new URL(shareUrl({ invite: "ABC123", from: "미나<b>", visit: "bad!" }));
+    expect(u.origin + u.pathname).toBe(BITPARK_PLAY_URL);
+    expect(u.searchParams.get("invite")).toBe("ABC123");
+    expect(u.searchParams.get("from")).toBe("미나b");
+    expect(u.searchParams.has("visit")).toBe(false);
+    expect(linkQuery({ open: "contest" }).get("open")).toBe("contest");
+    expect(bitpark.playUrl()).toBe(BITPARK_PLAY_URL);
   });
 });
