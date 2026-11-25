@@ -95,6 +95,7 @@ for (let mi = 0; mi < 5; mi++) {
     if (o.type === 'kill') await ev((g) => QA.fight(g, 40), o.group);
     else if (o.type === 'reach') { await ev((o) => { QA.tp(o.x, o.z, o.y !== undefined ? o.y - (o.y < -30 ? 1 : 0) : undefined); }, o); await run(0.3); }
     else if (o.type === 'interact') { await ev((o) => { QA.tp(o.x + 0.6, o.z + 0.6, o.y < -30 ? -60 : undefined); SS.input.keys.add('KeyE'); QA.key('KeyE'); }, o); await run(o.hold + 0.4); await ev(() => SS.input.keys.delete('KeyE')); if (await ev((oi) => SS.mission.oi === oi && SS.state === 'playing', o.oi)) await run(1.5); }
+    else if (o.type === 'gunner') { if (!campaign[mi] && !(await ev(() => SS.gunner.shotDone))) { await run(9); await shot(`m${mi + 1}-gunner`); await ev(() => { SS.gunner.shotDone = true; }); } await run(2); }
     else if (o.type === 'custom') { await ev(() => QA.tp(SS.player.pos.x + 40, SS.player.pos.z + 30)); await run(0.3); }
     else if (o.type === 'defend') { if (!campaign[mi]) await shot(`m${mi + 1}-defend`); await ev(() => QA.fight(null, 8)); await run(4); }
     if (guard === 2) await shot(`m${mi + 1}-play`);

@@ -10,6 +10,7 @@ import { WEAPONS } from '../config/weapons.js';
 import { makeHeli } from './models.js';
 import { INTEL } from '../config/intel.js';
 import { storeSave } from '../core/save.js';
+import { Gunner } from './gunner.js';
 
 const E = () => G.enemies, sp = (k, x, z, o) => G.enemies.spawn(k, x, z, o);
 const top = (x, z) => G.world.groundAt(x, z, 999);
@@ -162,7 +163,8 @@ export const MISSIONS = [
       { type: 'reach', at: () => ({ ...POI.helipad, y: 8 }), r: 9, text: 'Get to the helipad', radio: 'COMMAND: Angel One-Two is inbound. Mark the LZ.' },
       { type: 'interact', at: () => ({ x: POI.helipad.x, y: 8, z: POI.helipad.z }), label: 'POP SMOKE — SIGNAL EXTRACTION', text: 'Signal the helicopter with smoke', r: 4, done() { G.fx.smokes.push({ x: POI.helipad.x + 6, y: 7.2, z: POI.helipad.z + 5, life: 160, color: 0x40d060 }); } },
       { type: 'defend', time: 60, text: 'Hold the landing zone', marker: () => POI.helipad, start(M) { M.waveT = 1; G.hud.radio('ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!'); }, tick(M, dt) { if ((M.waveT -= dt) <= 0 && E().count('lz') < 7) { M.waveT = 9; const src = [[120, -300], [150, -338], [238, -262], [160, -270]][Math.random() * 4 | 0]; wave([['assault', src[0], src[1]], ['assault', src[0] + 3, src[1] + 2], [Math.random() < 0.4 ? 'elite' : 'guard', src[0] - 3, src[1] + 3]], 'lz', POI.helipad.x, POI.helipad.z); } }, done: (M) => M.heliArrive() },
-      { type: 'interact', at: () => ({ x: POI.helipad.x - 2.5, y: 8.4, z: POI.helipad.z }), label: 'BOARD HELICOPTER', r: 5, text: 'Board the helicopter', enabled: () => G.mission.heliLanded, done: (M) => M.ending() } ],
+      { type: 'interact', at: () => ({ x: POI.helipad.x - 2.5, y: 8.4, z: POI.helipad.z }), label: 'BOARD HELICOPTER', r: 5, text: 'Board the helicopter', enabled: () => G.mission.heliLanded },
+      { type: 'gunner', text: 'Cover the exfil — man the door gun', start(M) { G.gunner.start(M); } } ],
     alarm() {} },
 ];
 const _a = new THREE.Vector3();
@@ -184,6 +186,7 @@ export class MissionSys {
     for (const c of this.trainProps || []) { c.alive = false; if (c.mesh) G.world.group.remove(c.mesh); } this.trainProps = []; this.trainGroups = {}; this.trainResult = null;
     const d = (this.def = i === 'training' ? TRAINING : MISSIONS[i]); this.idx = i; this.flags = {}; this.stats = this.newStats(); this.interactables.length = 0; this.oi = -1; this.objs = d.objectives; this.boss = null; this.heliLanded = false; this.camDetect = 0; this.waveT = 0; this.defT = 0; this.completeT = -1;
     if (this.heli) { G.scene.remove(this.heli); this.heli = null; G.audio.loop('heli', 0); }
+    if (!G.gunner) G.gunner = new Gunner(); if (G.gunner.active) G.gunner.stop();
     G.enemies.clear(); G.fx.reset(); G.sky.set(d.sky, true); this.restoreWorld();
     const s = d.spawn(), P = G.player; P.reset(); P.medkits = 2; P.place(s.x, s.z, s.yaw, s.y); this.checkpoint = { x: s.x, z: s.z, y: s.y, yaw: s.yaw, oi: 0 };
     G.weapons.equip(G.save.loadout); G.gear.reset(); G.squad.spawn(3); d.setup(this); if (d.noSquad) G.squad.clear();
@@ -237,6 +240,7 @@ export class MissionSys {
     else if (o.type === 'custom') { if (o.check(this)) this.advance(); }
     else if (o.type === 'any' && this.parts) { this.parts.forEach((p, k) => { if (p.ok) return; if ((p.type === 'kill' && G.enemies.count(p.group) === 0) || (p.type === 'reach' && Math.hypot(P.pos.x - p.x, P.pos.z - p.z) < p.r) || (p.type === 'custom' && p.check(this))) this.partDone(k); }); }
     else if (o.type === 'defend') { this.defT -= dt; if (o.tick) o.tick(this, dt); if (this.defT <= 0) this.advance(); }
+    else if (o.type === 'gunner') { if (G.gunner.update(dt)) this.outro(); }
     if (this.heli) this.updateHeli(dt);
     if ((this.hudT = (this.hudT || 0) - dt) <= 0) { this.hudT = 0.25; G.hud.objective(this.objText(), false); }
   }
@@ -261,9 +265,20 @@ export class MissionSys {
   }
   updateHeli(dt) {
     const h = this.heli, p = POI.helipad; this.heliT += dt; h.userData.rotor.rotation.y += dt * 26; h.userData.tail.rotation.x += dt * 40; h.userData.light.visible = Math.sin(G.time * 8) > 0;
+    if (this.heliMode === 'gunner') { G.audio.loop('heli', 0.55); return; } // the door-gunner set piece flies the helicopter
     if (this.heliMode === 'in') { const k = clamp(this.heliT / 8.5, 0, 1), e = 1 - (1 - k) ** 3; h.position.set(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Math.sin(G.time * 2) * 0.3 : 0), p.z - (1 - e) * 120); h.rotation.set(-(1 - k) * 0.25, -1.9 + e * 0.35, 0); if (k >= 1 && !this.heliLanded) { this.heliLanded = true; G.hud.toast('HELICOPTER LANDED — BOARD NOW'); } if (Math.random() < 0.5 && k > 0.6) G.fx.puff(p.x + (Math.random() - 0.5) * 18, 7.4, p.z + (Math.random() - 0.5) * 18, 0x8a8478, 2.2, 1.2, 0.25, (Math.random() - 0.5) * 9, 0.6, (Math.random() - 0.5) * 9); }
     else { const k = this.heliT; h.position.y = 7.2 + k * k * 1.3; h.position.x += dt * k * 4; h.position.z += dt * k * 2.4; h.rotation.x = Math.min(0.2, k * 0.03); h.rotation.y += dt * 0.12; }
     const d = h.position.distanceTo(G.camera.position); G.audio.loop('heli', clamp(1.4 - d / 220, 0, 1));
+  }
+  /** After the door-gunner orbit: the helicopter turns for home, camera follows it, mission complete. */
+  outro() {
+    const h = this.heli, P = h.position; this.heliMode = 'out'; this.heliT = 0; G.player.frozen = true; G.weapons.root.visible = false;
+    G.hud.radio('ANGEL 1-2: Port is clear. All souls aboard — SQUAD 07 is feet dry, heading home.');
+    const a = [P.x - 30, P.y + 6, P.z + 24], b = [P.x - 48, P.y + 16, P.z + 40];
+    G.cine.play([
+      { from: a, to: b, look: () => [h.position.x, h.position.y + 2, h.position.z], dur: 7, text: 'OPERATION: ISLAND INVASION — COMPLETE' },
+      { from: [320, 120, 60], to: [420, 150, 200], look: [0, 10, -100], dur: 8, text: 'BLACK COBRA island facility neutralised. Bio-sample secured.' }],
+      () => { G.audio.loop('heli', 0); this.completeT = 0.01; }, { tick: (dt) => this.updateHeli(dt), noSkipEnd: true });
   }
   ending() {
     const h = this.heli; this.heliMode = 'out'; this.heliT = 0; G.squad.clear(); G.enemies.clear(); G.player.frozen = true;
