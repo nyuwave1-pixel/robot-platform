@@ -194,3 +194,36 @@ export async function deleteBrag(id: number): Promise<boolean> {
 }
 
 export const petOf = (type: string): PetType | undefined => PET_MAP[type];
+
+// ───────────── 주간 자랑왕 ─────────────
+export interface KingRow { code: string; name: string; likes: number; posts: number; rank: number }
+/** 지난 주 1~3위 보상 */
+export function kingReward(rank: number): { coins: number; gems: number } | null {
+  return rank === 1 ? { coins: 2000, gems: 30 } : rank === 2 ? { coins: 1200, gems: 15 } : rank === 3 ? { coins: 800, gems: 10 } : null;
+}
+export function cleanKing(v: unknown): KingRow[] {
+  const out: KingRow[] = [];
+  for (const raw of Array.isArray(v) ? v.slice(0, 10) : []) {
+    const o = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+    const n = (x: unknown) => { const k = typeof x === "number" ? x : typeof x === "string" ? Number(x) : NaN; return isFinite(k) ? Math.max(0, Math.floor(k)) : 0; };
+    if (typeof o.code !== "string" || !/^[A-Z0-9]{6}$/.test(o.code)) continue;
+    out.push({ code: o.code, name: cleanName(o.name), likes: n(o.likes), posts: n(o.posts), rank: Math.max(1, n(o.rank)) });
+  }
+  return out;
+}
+export const useKing = create<{ list: KingRow[] }>(() => ({ list: [] }));
+export async function loadKing() {
+  try { useKing.setState({ list: cleanKing(await rpc<unknown[]>("mdl_brag_king", {})) }); } catch { /* 표시만 안 함 */ }
+}
+/** 지난 주 자랑왕이면 보상 받기 (한 번) → 받은 순위 · 보상 */
+export async function claimKing(): Promise<{ rank: number; coins: number; gems: number } | null> {
+  const g = useGame.getState();
+  if (!g.started || !/^[A-Z0-9]{6}$/.test(g.friendCode ?? "")) return null;
+  try {
+    const r = await rpc<{ ok: boolean; rank?: number }>("mdl_brag_king_claim", { p_code: g.friendCode, p_secret: secret() });
+    const rw = r.ok && typeof r.rank === "number" ? kingReward(r.rank) : null;
+    if (!rw) return null;
+    useGame.setState((s) => ({ coins: s.coins + rw.coins, gems: s.gems + rw.gems }));
+    return { rank: r.rank!, ...rw };
+  } catch { return null; }
+}

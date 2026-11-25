@@ -32,7 +32,7 @@ describe("뷰티 가든", () => {
     expect(useLife.getState().water(id, t0 + 1000)).toBe(true);
     expect(useLife.getState().water(id, t0 + 2000)).toBe(false); // 1시간에 한 번
     expect(useLife.getState().harvest(id, t0 + 1000)).toBeNull(); // 아직 안 자람
-    const r = useLife.getState().harvest(id, t0 + PLANT_MAP.mint.hours * H);
+    const r = useLife.getState().harvest(id, t0 + PLANT_MAP.mint.hours * H, () => 0.99); // 황금 수확이 아닌 경우
     expect(r?.coins).toBe(PLANT_MAP.mint.coins);
     expect(useLife.getState().garden).toHaveLength(0);
     expect(useLife.getState().harvested.mint).toBe(1);

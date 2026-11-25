@@ -12,7 +12,7 @@ import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
-import { checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
+import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
@@ -202,7 +202,11 @@ export function BragFeed() {
   const want = useUI((s) => s.bragKind);
   const [compose, setCompose] = useState<BragKind | null>(want ?? null);
   const [showMine, setShowMine] = useState(false);
-  useEffect(() => { void loadBrags(); void checkBragLikes(); }, []);
+  const king = useKing((s) => s.list);
+  useEffect(() => {
+    void loadBrags(); void checkBragLikes(); void loadKing();
+    void claimKing().then((r) => { if (r) useUI.getState().toast(t("king.reward", { n: r.rank, c: r.coins, g: r.gems }), "reward"); });
+  }, []);
   useEffect(() => { if (want) { setCompose(want); useUI.setState({ bragKind: null }); } }, [want]);
   return (
     <>
@@ -211,6 +215,21 @@ export function BragFeed() {
         {!compose && <button className="btn-primary shrink-0 !px-4 !py-2 text-xs" onClick={() => setCompose("look")} data-testid="brag-open"><Icon n="party" /> {t("brag.btn")}</button>}
       </div>
       {compose && <Composer initial={compose} onDone={() => setCompose(null)} />}
+      {/* 이번 주 자랑왕 (좋아요 합계) — 지난 주 1~3위는 다음 주에 보상 */}
+      <div className="mb-3 rounded-2xl bg-ink p-3 text-cream" data-testid="brag-king">
+        <div className="flex items-center justify-between"><p className="text-xs font-black text-gold">{t("king.title")}</p><span className="text-[12px] text-cream/55">{t("king.rule")}</span></div>
+        {king.length === 0 ? <p className="mt-1.5 text-[12px] text-cream/60">{t("king.none")}</p> : (
+          <ol className="mt-1.5 space-y-1">
+            {king.slice(0, 3).map((k) => (
+              <li key={k.code} className="flex items-center gap-2 text-xs">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-black text-ink" style={{ background: ["#d9a441", "#c7ced6", "#c58b62"][k.rank - 1] ?? "#8a8088" }}>{k.rank}</span>
+                <span className="min-w-0 flex-1 truncate font-bold">{k.name}</span>
+                <span className="font-black text-pink-soft">♥ {k.likes}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
       <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
         {(["new", "hot"] as const).map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
         <span className="mx-1 w-px shrink-0 bg-ink/10" />

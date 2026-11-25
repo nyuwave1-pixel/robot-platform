@@ -699,5 +699,9 @@
   "att.doneToday": "Checked in today! See you tomorrow",
   "att.close": "Close",
   "att.note": "Once a day — days don't need to be consecutive. Big gift on day 7!",
-  "att.open": "7-day check-in"
+  "att.open": "7-day check-in",
+  "king.title": "Show-off King this week",
+  "king.rule": "Top 3 rewarded next week",
+  "king.none": "No liked posts yet this week. Be the first King!",
+  "king.reward": "Last week's Show-off King #{n}! COIN +{c} · GEM +{g}"
 }

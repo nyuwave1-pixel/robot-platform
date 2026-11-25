@@ -128,3 +128,13 @@ describe("7일 출석부", () => {
     expect(g().claimAttendance()!.slot).toBe(0); // 다시 1일차
   });
 });
+
+describe("주간 자랑왕", async () => {
+  const { cleanKing, kingReward } = await import("../src/net/brag");
+  it("1~3위만 보상, 순위표는 아는 값만", () => {
+    expect(kingReward(1)).toEqual({ coins: 2000, gems: 30 });
+    expect(kingReward(3)).toEqual({ coins: 800, gems: 10 });
+    expect(kingReward(4)).toBeNull();
+    expect(cleanKing([{ code: "ABC123", name: "미나<b>", likes: "12", posts: 3, rank: 1 }, { code: "bad", likes: 9 }])).toEqual([{ code: "ABC123", name: "미나b", likes: 12, posts: 3, rank: 1 }]);
+  });
+});
