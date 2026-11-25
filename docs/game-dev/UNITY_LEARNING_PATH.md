@@ -60,7 +60,7 @@ node "apps/unity-studio/Tools~/gen-core-data.mjs"
 
 | # | 과제 | 배우는 Unity 기능 | 무료 리소스 |
 |---|---|---|---|
-| 1 | HUD를 UI Toolkit으로 교체 | UXML·USS, 데이터 바인딩 | Unity 기본 |
+| 1 | HUD를 UI Toolkit으로 교체 — **2026-11-25 클라우드 완료(Unity 화면 확인 전)**: 나침반·미니맵·목표 표시·피격 방향·킬 피드 | UXML·USS, 데이터 바인딩 | Unity 기본 |
 | 2 | 총소리·발소리·피격음 — **1차(PC) + 2차 합성음(2026-11-25) 완료**, Unity 재생 확인 전 | AudioSource, AudioMixer 그룹 | Freesound CC0(웹 게임 v0.14 사운드 재사용) |
 | 3 | 총구 화염·탄착 먼지 | VFX Graph 또는 Particle System | Unity 기본 |
 | 4 | 하늘·조명 — **2026-11-25 클라우드 완료(Unity 화면 확인 전)**: HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO | URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스 | Poly Haven HDRI(CC0) |

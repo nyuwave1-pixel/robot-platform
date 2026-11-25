@@ -18,6 +18,7 @@ namespace SpecialSoldier
         public float Bloom { get; private set; }            // extra spread from sustained fire, degrees
         public float HitMarkerTime { get; private set; }    // > 0 while the hit marker shows
         public bool LastHitWasKill { get; private set; }
+        public bool LastHitWasHead { get; private set; }
         public bool Aiming { get; private set; }
 
         WeaponState[] _slots;
@@ -92,7 +93,7 @@ namespace SpecialSoldier
                         float dmg = (float)Ballistics.DamageAt(w, hit.distance) * Ballistics.BodyMultiplier(zone ? zone.part : BodyPart.Torso);
                         target.ApplyDamage(dmg, eye.position, zone ? zone.part : BodyPart.Torso, true);
                         landed = true;
-                        HitMarkerTime = 0.18f; LastHitWasKill = !target.Alive;
+                        HitMarkerTime = 0.22f; LastHitWasKill = !target.Alive; LastHitWasHead = zone && zone.part == BodyPart.Head;   // web: hitMarker 0.22 s
                         SliceFx.I.HitConfirm(LastHitWasKill);
                     }
                 }

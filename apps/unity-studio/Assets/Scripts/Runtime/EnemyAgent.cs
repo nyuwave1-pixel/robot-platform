@@ -13,6 +13,7 @@ namespace SpecialSoldier
         public string typeId = "guard";
         public string group = "outer";          // mission kill objectives count enemies by group
         public bool AlarmRaised { get; set; }    // this enemy's squad already called it in (mission stats)
+        public float LastFireTime { get; private set; } = -999f;   // HUD radar shows enemies for 2.5 s after they fire
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)
         public float eyeHeight = 1.6f;
@@ -247,7 +248,7 @@ namespace SpecialSoldier
                 _burstGap = Random.Range(0.7f, 2.0f) * diff.React;     // web: 0.7–2.0 s pause between bursts
             }
             if ((_shotT -= dt) > 0f) return;
-            _shotT = 60f / Type.Rpm; _burstLeft--;
+            _shotT = 60f / Type.Rpm; _burstLeft--; LastFireTime = Time.time;
 
             Vector3 eye = transform.position + Vector3.up * eyeHeight;
             Vector3 dir = (_player.Eye - Vector3.up * 0.35f - eye).normalized;

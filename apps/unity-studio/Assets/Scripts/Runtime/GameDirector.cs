@@ -15,6 +15,8 @@ namespace SpecialSoldier
         public Transform intelTerminal, extraction;     // IslandSlice objectives (placed by SliceBuilder)
         public MissionRunner Mission { get; private set; }
         public string ObjectiveLine => Mission != null ? Mission.ObjectiveText(this) : "";
+        /// <summary>An enemy died: (enemy, killed by the player with a headshot). The HUD kill feed listens.</summary>
+        public event System.Action<EnemyAgent, bool> EnemyKilled;
         /// <summary>Enemy in combat this long without dying calls it in (web: callT ≈ 5 s → mission 'alarm').</summary>
         public const float AlarmDelay = 5f;
         public static GameDirector Instance { get; private set; }
@@ -106,8 +108,10 @@ namespace SpecialSoldier
                 if (!e || e.Alive || _counted.Contains(e)) continue;
                 _counted.Add(e);
                 var d = e.GetComponent<Damageable>();
-                if (d && d.LastHitByPlayer) Mission.Stats.AddKill(e.Type.Score, d.LastHitPart == BodyPart.Head);
+                bool head = d && d.LastHitByPlayer && d.LastHitPart == BodyPart.Head;
+                if (d && d.LastHitByPlayer) Mission.Stats.AddKill(e.Type.Score, head);
                 else Mission.Stats.Kills++;   // grenades, scripted kills: still a kill, no style bonus
+                EnemyKilled?.Invoke(e, head);
             }
             Mission.Tick(0f, this);          // the last kill can finish the objective in the same frame
         }

@@ -148,8 +148,13 @@ namespace SpecialSoldier.EditorTools
             director.player = player.GetComponent<PlayerMotor>();
             director.missionMode = GameDirector.MissionMode.IslandSlice;
             director.intelTerminal = terminal.transform; director.extraction = extraction.transform;
-            var hud = director.gameObject.AddComponent<Hud>();
+            // UI Toolkit HUD (compass, minimap, waypoint, damage arcs, kill feed); the IMGUI Hud stays in the project as a fallback
+            var uiDoc = director.gameObject.AddComponent<UnityEngine.UIElements.UIDocument>();
+            uiDoc.panelSettings = HudPanelSettings();
+            var hud = director.gameObject.AddComponent<HudToolkit>();
             hud.player = director.player; hud.weapon = player.GetComponentInChildren<WeaponController>();
+            hud.style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/SliceHud.uss");
+            Debug.Log($"[Slice] HUD: UI Toolkit (panel {(uiDoc.panelSettings ? "ok" : "MISSING")}, style {(hud.style ? "ok" : "MISSING Assets/UI/SliceHud.uss")}, theme {(uiDoc.panelSettings && uiDoc.panelSettings.themeStyleSheet ? "ok" : "MISSING")})");
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
@@ -246,6 +251,21 @@ namespace SpecialSoldier.EditorTools
             vig.intensity.Override(0.22f); vig.smoothness.Override(0.45f);
             EditorUtility.SetDirty(profile); AssetDatabase.SaveAssets();
             return profile;
+        }
+
+        /// <summary>PanelSettings for the HUD: default runtime theme (Assets/UI/SliceTheme.tss), scale with screen size from 1920×1080.</summary>
+        static UnityEngine.UIElements.PanelSettings HudPanelSettings()
+        {
+            string path = SettingsDir + "/SliceHudPanel.asset";
+            var ps = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.PanelSettings>(path);
+            if (!ps) { ps = ScriptableObject.CreateInstance<UnityEngine.UIElements.PanelSettings>(); AssetDatabase.CreateAsset(ps, path); }
+            ps.themeStyleSheet = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.ThemeStyleSheet>("Assets/UI/SliceTheme.tss");
+            ps.scaleMode = UnityEngine.UIElements.PanelScaleMode.ScaleWithScreenSize;
+            ps.referenceResolution = new Vector2Int(1920, 1080);
+            ps.screenMatchMode = UnityEngine.UIElements.PanelScreenMatchMode.MatchWidthOrHeight;
+            ps.match = 0.5f;
+            EditorUtility.SetDirty(ps); AssetDatabase.SaveAssets();
+            return ps;
         }
 
         /// <summary>Skybox/Panoramic material asset (lat-long HDRI). Saved as an asset so the shader is kept in player builds.</summary>

@@ -213,3 +213,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   비 파티클(비 양 × 2600/s, 바람 방향), 번개 섬광·천둥. 선택: 실행 인자 `-sky dusk`, WebGL 주소 `?sky=dusk`, 게임 중 **[K]** 순환. HUD 오른쪽 위에 날씨 라벨.
 - `SliceBuilder`: `Settings/Sky_Panoramic.mat`(빌드에서 셰이더 유지), Sky 오브젝트, 후처리 Bloom(임계 1.0·0.55)·Vignette 0.22·채도 +6, URP SSAO 렌더러 기능(리플렉션으로 추가 — 없으면 건너뜀).
 - 검증: dotnet `CoreTests~` **230/230**(하늘 테스트 15개, `sky.js` 수치 대조 5개 포함). **Unity 화면은 아직 확인하지 않았습니다.**
+
+## 2026-11-25 (5) — UI Toolkit HUD (허브 세션, 클라우드)
+
+- `Core/HudModel.cs`: 웹 `hud.js` 이식 — 나침반 방위(0 = 북 +Z, 시계 방향), 나침반 띠 위치(±90°), 8방위, 미니맵 투영(반경 70 m, 플레이어 방향이 위,
+  목표는 테두리 R−10 에 고정), 인지 단계(HIDDEN / SUSPICIOUS 0.3 / DETECTED 0.75 / COMBAT · N ENGAGING), 조준선 간격 4 + 탄퍼짐 × 7,
+  레이더 표시(사격 후 2.5 s), 피격 방향 호 1.6 s, 킬 피드 5줄·4.5 s.
+- `Runtime/HudToolkit.cs`(UIDocument + 코드로 만든 화면, 스타일 `Assets/UI/SliceHud.uss`, 테마 `Assets/UI/SliceTheme.tss`, 패널 `Settings/SliceHudPanel.asset` 1920×1080 기준):
+  위 가운데 나침반(목표 방향 노란 삼각형) + 방위 숫자, 왼쪽 위 인지 막대·목표·적/사살/시간, 오른쪽 위 날씨·회전 미니맵(N 표시)·킬 피드,
+  왼쪽 아래 체력·방어구·수류탄, 오른쪽 아래 탄약·무기·모드·슬롯, 가운데 동적 조준선·명중 X(헤드샷 노랑, 사살 빨강)·피격 방향 호·재장전 막대·
+  [E] 진행 막대·수류탄 경고(11 m), 월드 목표 표시(거리, 뒤에 있으면 아래쪽), 번개 섬광, 결과 화면(등급).
+- 연결: EnemyAgent.LastFireTime, WeaponController.LastHitWasHead(명중 표시 0.22 s로 웹과 맞춤), GameDirector.EnemyKilled 이벤트. IMGUI `Hud.cs` 는 씬에서 빠지고 예비로 남음.
+- 검증: dotnet `CoreTests~` **242/242**(HUD 테스트 12개, `hud.js` 상수 대조 포함). PlayMode `HudTests.cs` 2개 추가. **Unity 화면은 아직 확인하지 않았습니다.**
