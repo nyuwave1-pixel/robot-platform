@@ -157,7 +157,10 @@ export function Hud() {
             ] as const).map(([id, icon, key]) => (
               <button key={id} onClick={() => (id === "care" ? openCare("player") : open(id))}
                 className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2 text-[12px] font-bold transition-colors ${id === "care" ? "bg-gradient-to-b from-pink-deep to-[#d9799a] text-white shadow" : panel === id ? "bg-pink-soft text-ink" : "text-ink/70"}`}>
-                <Icon n={icon} className="!h-6 !w-6" />{t(key)}
+                <Icon n={icon} className="!h-6 !w-6" />
+                {/* 휴대폰처럼 좁은 화면에서는 짧은 이름 (두 줄로 접혀 메뉴가 높아지지 않게) */}
+                <span className="whitespace-nowrap sm:hidden">{t(`${key}.short`)}</span>
+                <span className="hidden whitespace-nowrap sm:inline">{t(key)}</span>
               </button>
             ))}
           </div>

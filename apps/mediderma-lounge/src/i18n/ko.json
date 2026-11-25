@@ -526,5 +526,10 @@
   "group.defaultText": "라운지에서 {n}명이 함께 찰칵 ✨",
   "group.fail.alone": "함께 찍을 사람이 라운지에 없어요",
   "group.fail.busy": "이미 단체 사진을 찍는 중이에요",
-  "group.fail.offline": "실시간 연결 중일 때만 단체 사진을 찍을 수 있어요"
+  "group.fail.offline": "실시간 연결 중일 때만 단체 사진을 찍을 수 있어요",
+  "nav.character.short": "CHARACTER",
+  "nav.lounge.short": "LOUNGE",
+  "nav.care.short": "CARE",
+  "nav.shop.short": "SHOP",
+  "nav.social.short": "SOCIAL"
 }
