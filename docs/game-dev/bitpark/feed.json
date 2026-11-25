@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T10:27:56.627Z",
+  "generatedAt": "2026-11-25T12:27:41.733Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "e0d526c"
+    "commit": "e00c7e9"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,24 @@
   },
   "devlog": [
     {
+      "hash": "e00c7e9",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): HANDOFF.md — current state of every game workstream and how to resume on another PC"
+    },
+    {
+      "hash": "77cc61d",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): operation map on the mission briefing"
+    },
+    {
+      "hash": "e655422",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "QA: v0.22 full e2e 66/66, multiplayer and HUD settings results; refresh BIT PARK feed"
+    },
+    {
       "hash": "e0d526c",
       "date": "2026-11-25",
       "area": "general",
@@ -605,24 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Merge branch 'hub/awareness-parity' into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "3fa624c",
-      "date": "2026-11-25",
-      "area": "portal",
-      "subject": "docs(portal): regenerate BIT PARK feed after the Unity sky/HUD/mission compile"
-    },
-    {
-      "hash": "9df7fc6",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): first Unity compile of sound fx 2, missions, HDRI sky and UI Toolkit HUD; WebGL HUD fixes"
-    },
-    {
-      "hash": "a40b835",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "style(unity-studio): keep the EnemyAgent field comments on their own fields"
     }
   ]
 }
