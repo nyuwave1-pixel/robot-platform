@@ -64,6 +64,9 @@ namespace SpecialSoldier
                 }
             }
 
+            var sky = SkyDirector.Instance;
+            if (sky != null && sky.Target != null) GUI.Label(new Rect(W - 380, 20, 360, 30), $"{sky.Target.Label}   [K]", new GUIStyle(_small) { alignment = TextAnchor.UpperRight });
+            if (sky != null && sky.Flash > 0.5f) { GUI.color = new Color(0.85f, 0.9f, 1f, 0.12f); GUI.DrawTexture(new Rect(0, 0, W, H), _white); GUI.color = Color.white; }
             var thrower = weapon ? weapon.GetComponent<GrenadeThrower>() : null;
             if (thrower) GUI.Label(new Rect(W - 300, H - 126, 280, 30), $"GRENADES {thrower.grenades}  [G]", _small);
             if (player)

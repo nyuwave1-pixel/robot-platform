@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T04:44:26.963Z",
+  "generatedAt": "2026-11-25T05:42:59.746Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "e0974f6"
+    "commit": "e544ebd"
   },
   "section": {
     "id": "game-dev-lab",
@@ -59,7 +59,8 @@
       },
       "screenshots": [
         "docs/game-dev/screenshots/unity-island-slice-first-run.png",
-        "docs/game-dev/screenshots/unity-island-slice-lighting.png"
+        "docs/game-dev/screenshots/unity-island-slice-lighting.png",
+        "docs/game-dev/screenshots/unity-sky-presets-hdri.jpg"
       ],
       "docs": [
         "apps/unity-studio/README.md",
@@ -332,7 +333,7 @@
         "resource": "Unity 기본"
       },
       {
-        "task": "하늘·조명",
+        "task": "하늘·조명 — 2026-11-25 클라우드 완료(Unity 화면 확인 전): HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO",
         "feature": "URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스",
         "resource": "Poly Haven HDRI(CC0)"
       },
@@ -369,6 +370,12 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "e544ebd",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): mission objectives, S/A/B/C grading and portal result for the Island Slice"
+    },
     {
       "hash": "e0974f6",
       "date": "2026-11-25",
@@ -602,12 +609,6 @@
       "date": "2026-11-20",
       "area": "special-soldier",
       "subject": "feat(special-soldier): in-game third-party credits screen"
-    },
-    {
-      "hash": "435ad88",
-      "date": "2026-11-20",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): v0.16 burlap photo texture for sandbags and canvas"
     }
   ]
 }

@@ -65,6 +65,12 @@ namespace SpecialSoldier.EditorTools
             RenderSettings.ambientMode = AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.8f); RenderSettings.ambientEquatorColor = new Color(0.45f, 0.45f, 0.4f); RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
             RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 60f; RenderSettings.fogEndDistance = 240f; RenderSettings.fogColor = new Color(0.7f, 0.75f, 0.8f);
+            // weather / time of day: CC0 HDRI skybox + web sky.js presets, applied at runtime by SkyDirector (these values are the editor preview)
+            var skyMat = SkyMaterial();
+            RenderSettings.skybox = skyMat;
+            var skyDir = new GameObject("Sky").AddComponent<SkyDirector>();
+            skyDir.sun = sun; skyDir.volume = post; skyDir.skyMaterial = skyMat; skyDir.startPreset = "day";
+            EnsureSsao();
 
             var level = new GameObject("Level");
             var sand = Mat("Sand", new Color(0.62f, 0.55f, 0.42f), 0.9f);
@@ -232,9 +238,47 @@ namespace SpecialSoldier.EditorTools
             if (!profile.TryGet(out Tonemapping tm)) { tm = profile.Add<Tonemapping>(true); tm.name = "Tonemapping"; AssetDatabase.AddObjectToAsset(tm, profile); }
             tm.mode.Override(TonemappingMode.ACES);
             if (!profile.TryGet(out ColorAdjustments ca)) { ca = profile.Add<ColorAdjustments>(true); ca.name = "ColorAdjustments"; AssetDatabase.AddObjectToAsset(ca, profile); }
-            ca.postExposure.Override(0.3f); ca.contrast.Override(8f);
+            ca.postExposure.Override(0.3f); ca.contrast.Override(8f); ca.saturation.Override(6f);
+            // bloom on the sun-lit sky, muzzle flashes and explosions; light vignette to frame the view
+            if (!profile.TryGet(out Bloom bloom)) { bloom = profile.Add<Bloom>(true); bloom.name = "Bloom"; AssetDatabase.AddObjectToAsset(bloom, profile); }
+            bloom.threshold.Override(1.0f); bloom.intensity.Override(0.55f); bloom.scatter.Override(0.65f);
+            if (!profile.TryGet(out Vignette vig)) { vig = profile.Add<Vignette>(true); vig.name = "Vignette"; AssetDatabase.AddObjectToAsset(vig, profile); }
+            vig.intensity.Override(0.22f); vig.smoothness.Override(0.45f);
             EditorUtility.SetDirty(profile); AssetDatabase.SaveAssets();
             return profile;
+        }
+
+        /// <summary>Skybox/Panoramic material asset (lat-long HDRI). Saved as an asset so the shader is kept in player builds.</summary>
+        static Material SkyMaterial()
+        {
+            string path = SettingsDir + "/Sky_Panoramic.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (!m) { m = new Material(Shader.Find("Skybox/Panoramic")); AssetDatabase.CreateAsset(m, path); }
+            m.SetFloat("_Mapping", 1f);       // latitude-longitude layout
+            m.SetFloat("_ImageType", 0f);     // 360 degrees
+            m.SetFloat("_Exposure", SpecialSoldier.Core.SkyPresets.Day.HdriExposure);
+            var day = Resources.Load<Texture>("Sky/sky_day");
+            if (day) m.SetTexture("_MainTex", day);
+            EditorUtility.SetDirty(m);
+            Debug.Log($"[Slice] sky material: {(day ? "HDRI sky_day" : "no HDRI found in Resources/Sky (run Tools~/fetch-hdris.mjs)")}");
+            return m;
+        }
+
+        /// <summary>Adds URP's Screen Space Ambient Occlusion feature to the slice renderer once. Found by name through
+        /// reflection so a URP version that renames or hides the class only skips SSAO instead of breaking the build.</summary>
+        static void EnsureSsao()
+        {
+            var data = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(SettingsDir + "/URP_Renderer.asset");
+            if (!data) { Debug.LogWarning("[Slice] SSAO skipped: renderer data not at " + SettingsDir + "/URP_Renderer.asset"); return; }
+            foreach (var f in data.rendererFeatures) if (f && f.GetType().Name == "ScreenSpaceAmbientOcclusion") return;
+            var type = typeof(UniversalRendererData).Assembly.GetType("UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion");
+            if (type == null) { Debug.LogWarning("[Slice] SSAO skipped: feature type not found in this URP"); return; }
+            var feature = (ScriptableRendererFeature)ScriptableObject.CreateInstance(type);
+            feature.name = "SSAO";
+            AssetDatabase.AddObjectToAsset(feature, data);
+            data.rendererFeatures.Add(feature);
+            EditorUtility.SetDirty(data); AssetDatabase.SaveAssets();
+            Debug.Log("[Slice] SSAO renderer feature added");
         }
 
         static Material Mat(string name, Color c, float roughness)

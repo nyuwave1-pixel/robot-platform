@@ -140,6 +140,8 @@ namespace SpecialSoldier
         public void Hurt() => Synth("hurt", Vector3.zero, false);
         /// <summary>A bullet passed within 1.6 m of your head (web: fx bullets → 'whiz').</summary>
         public void Whiz() => Synth("whiz", Vector3.zero, false);
+        /// <summary>Distant thunder after a storm lightning strike (web: play('thunder')).</summary>
+        public void Thunder() => Synth("thunder", Vector3.zero, false, 0.9f);
 
         /// <summary>Surface of a collider for impact sounds, from the slice's object names (Ground = sand, Cover = wood crates,
         /// walls = concrete). Real projects would use a PhysicsMaterial or a tag.</summary>

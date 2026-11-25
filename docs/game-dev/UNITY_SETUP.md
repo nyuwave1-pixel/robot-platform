@@ -199,3 +199,17 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - WebGL에서 끝나면 `Plugins/WebGL/PortalBridge.jslib` 가 부모 페이지에 웹 게임과 같은 `game_result` 메시지를 보냄(`game: special-soldier-unity`, `engine: unity`).
 - PC 세션의 PlayMode `KillingEveryEnemy_Wins` → `MissionFlow_ClearCompound_DownloadIntel_Extract_WinsWithGrade` 로 교체(새 규칙에 맞춤).
 - 검증: dotnet `CoreTests~` **212/212**(미션 테스트 13개, 웹 `main.js` 등급 공식 문자열 대조 포함). **Unity 컴파일·PlayMode는 아직.**
+
+## 2026-11-25 (4) — 하늘과 조명 (허브 세션, 클라우드)
+
+- **HDRI 하늘 5종**(Poly Haven CC0, 1K, MD5 검증): `Assets/Resources/Sky/sky_{day,dawn,storm,dusk,night}.hdr`, 받기 `Tools~/fetch-hdris.mjs`.
+- `Core/SkyPresets.cs`: 웹 `sky.js` 프리셋 5종(night·dawn·storm·facility·dusk) 그대로 + 슬라이스용 맑은 낮(day). 하늘·안개·햇빛 색·세기·방향·비·바람·폭풍·노출.
+  web→Unity 축 변환(z 반전), 노출 → URP Post Exposure(EV = log2), FogExp2 → ExponentialSquared(같은 공식), 전환은 웹처럼 `min(1, dt × 0.6)`.
+  번개 `LightningClock`: 첫 번개 6 s, 이후 5–17 s, 섬광 5/s 감쇠·두 번 깜빡임, 천둥 0.3–1.8 s 뒤(합성음 `thunder` 추가).
+- **HDRI 노출 자동 보정**: HDRI마다 촬영 밝기가 달라(중앙값 day 0.35 ~ storm 1.49) 노출 1로 두면 폭풍·해 질 녘·밤이 하얗게 뜸 —
+  `HdriExposure` = 웹 프리셋 하늘 그라디언트의 선형 휘도 ÷ HDRI 중앙값(day 1.33, dawn 0.31, storm 0.05, dusk 0.13, night 0.023).
+  톤매핑한 대조 이미지로 눈 확인: `docs/game-dev/screenshots/unity-sky-presets-hdri.jpg`, 도구 `Tools~/hdri-preview.py [--stats]`.
+- `Runtime/SkyDirector.cs`: 하늘(Skybox/Panoramic + HDRI), 해 방향·색·세기, 안개, 하늘 기반 환경광(`DynamicGI.UpdateEnvironment` 0.5 s 간격), 노출,
+  비 파티클(비 양 × 2600/s, 바람 방향), 번개 섬광·천둥. 선택: 실행 인자 `-sky dusk`, WebGL 주소 `?sky=dusk`, 게임 중 **[K]** 순환. HUD 오른쪽 위에 날씨 라벨.
+- `SliceBuilder`: `Settings/Sky_Panoramic.mat`(빌드에서 셰이더 유지), Sky 오브젝트, 후처리 Bloom(임계 1.0·0.55)·Vignette 0.22·채도 +6, URP SSAO 렌더러 기능(리플렉션으로 추가 — 없으면 건너뜀).
+- 검증: dotnet `CoreTests~` **230/230**(하늘 테스트 15개, `sky.js` 수치 대조 5개 포함). **Unity 화면은 아직 확인하지 않았습니다.**

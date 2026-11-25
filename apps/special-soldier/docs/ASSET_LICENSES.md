@@ -10,6 +10,7 @@
 | 묶음 | 수 | 라이선스 | 표기 의무 | 게임 파일 | 만든 도구 |
 |---|---|---|---|---|---|
 | Poly Haven 사진 텍스처 (v0.8–0.9, v0.16) | 12 | CC0 1.0 | 없음 | `src/assets/tex/*.jpg` | `tools/blender/textures.py` |
+| Poly Haven HDRI 하늘 (Unity 슬라이스, 2026-11-25) | 5 | CC0 1.0 | 없음 | `apps/unity-studio/Assets/Resources/Sky/sky_*.hdr` (1K) | `apps/unity-studio/Tools~/fetch-hdris.mjs` (MD5 검증) |
 | Freesound 녹음 효과음 (v0.14) | 6 | CC0 1.0 | 없음 | `public/audio/{shot,explosion,heli,battle,step_*}.mp3` (Unity: `shot`·`step_gravel1-4` 를 `apps/unity-studio/Assets/Resources/Audio/` 에 복사 2026-11-24, `explosion`·`battle` 추가 복사 2026-11-25) | `tools/assets/build_audio.py` |
 | Freesound 음악 루프 (v0.14) | 3 | CC0 1.0 | 없음 | `public/audio/music_{menu,stealth,combat}.mp3` (Unity: `music_stealth`·`music_combat` 복사, 2026-11-24) | `tools/assets/build_audio.py` |
 | 자체 제작 3D 모델 | 53 | 프로젝트 소유 | — | `src/assets/assets.glb` | `tools/blender/*.py` |
@@ -32,6 +33,11 @@ CC-BY 에셋은 아직 없다. 게임 내 크레딧 화면(v0.16, `src/config/cr
 | metal_plate | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 총기 금속 |
 | rusty_painted_metal | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 도장 금속 |
 | bark_brown_02 | Poly Haven | Poly Haven | CC0 1.0 | v0.9 | — | 나무 줄기 |
+| kloofendal_48d_partly_cloudy_puresky (HDRI 1K) | Poly Haven | Poly Haven | CC0 1.0 | 2026-11-25 | MD5 `c69498687e876bf68d2a8b8a62234eb9` | Unity 하늘 — 맑은 낮(day) |
+| kloppenheim_06_puresky (HDRI 1K) | Poly Haven | Poly Haven | CC0 1.0 | 2026-11-25 | MD5 `995d68b1656f26452572645c0ffe898b` | Unity 하늘 — 새벽(dawn) |
+| overcast_soil_puresky (HDRI 1K) | Poly Haven | Poly Haven | CC0 1.0 | 2026-11-25 | MD5 `7fbca6264f4618a787092b9e1679a578` | Unity 하늘 — 폭풍(storm) |
+| belfast_sunset_puresky (HDRI 1K) | Poly Haven | Poly Haven | CC0 1.0 | 2026-11-25 | MD5 `38890f597727936a44d17a97f7f73354` | Unity 하늘 — 해 질 녘(dusk) |
+| qwantani_night_puresky (HDRI 1K) | Poly Haven | Poly Haven | CC0 1.0 | 2026-11-25 | MD5 `e8691211295e505f77c8c3bdcf3055d9` | Unity 하늘 — 밤(night) |
 | hessian_230 | Poly Haven https://polyhaven.com/a/hessian_230 | colormass(촬영)·Rico Cilliers(처리) | CC0 1.0 | 2026-11-20 | — (API 1k JPG → 512 px 재처리) | 모래주머니·트럭 덮개 등 소품 재질 클래스 4 (`burlap_t/_n.jpg`) |
 | Gunshot 4.wav (#166191) | Freesound | ShawnyBoy | CC0 1.0 | 2026-11-19 | `5ba94bfc…2b36` | 소총류 총성 녹음 층 (`shot.mp3`) |
 | Explosion_01.wav (#235968) | Freesound | tommccann | CC0 1.0 | 2026-11-19 | `363b19fb…1c05` | 폭발 (`explosion.mp3`) |
