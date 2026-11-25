@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T09:45:30.061Z",
+  "generatedAt": "2026-11-25T10:27:56.627Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "a0e8695"
+    "commit": "e0d526c"
   },
   "section": {
     "id": "game-dev-lab",
@@ -17,11 +17,11 @@
       "slug": "special-soldier",
       "name": "SPECIAL SOLDIER",
       "engine": "Three.js (web)",
-      "version": "0.20",
+      "version": "0.22",
       "tests": {
         "e2e": {
-          "passed": 65,
-          "total": 65
+          "passed": 66,
+          "total": 66
         },
         "lastRegression": {
           "passed": 17,
@@ -385,6 +385,42 @@
   },
   "devlog": [
     {
+      "hash": "e0d526c",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "2b4fd54",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): HUD visibility settings + dedicated server deploy files"
+    },
+    {
+      "hash": "5c47c33",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "1834d5d",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port Mission 03 BLACK COBRA BASE with the APC (U4)"
+    },
+    {
+      "hash": "ad074e5",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "6a62b67",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): online multiplayer — 1v1 duel and team deathmatch up to 15v15 (v0.22)"
+    },
+    {
       "hash": "a0e8695",
       "date": "2026-11-25",
       "area": "general",
@@ -587,42 +623,6 @@
       "date": "2026-11-25",
       "area": "unity-studio",
       "subject": "style(unity-studio): keep the EnemyAgent field comments on their own fields"
-    },
-    {
-      "hash": "ca9798b",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): enemy perception matches the web game — meter drains while unseen, night/rain/stance vision"
-    },
-    {
-      "hash": "cd6a236",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims enemy-awareness parity work (merged after the PC batch push)"
-    },
-    {
-      "hash": "8ab6049",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): UI Toolkit HUD with compass, rotating minimap, waypoint, damage arcs and kill feed"
-    },
-    {
-      "hash": "6b7e79c",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): HDRI skies, web weather presets, lightning, rain, bloom and SSAO for the Island Slice"
-    },
-    {
-      "hash": "e544ebd",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): mission objectives, S/A/B/C grading and portal result for the Island Slice"
-    },
-    {
-      "hash": "e0974f6",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): web game's procedural sound effects in Unity, per-weapon gunshots, explosions and battle bed"
     }
   ]
 }
