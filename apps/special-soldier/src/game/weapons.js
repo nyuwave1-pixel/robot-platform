@@ -93,7 +93,7 @@ export class Weapons {
     const sp = (this.spreadDeg() * Math.PI) / 180;
     cam.getWorldDirection(_dir); _right.setFromMatrixColumn(cam.matrixWorld, 0); _up.setFromMatrixColumn(cam.matrixWorld, 1);
     for (let i = 0; i < w.pellets; i++) { const a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * Math.tan(sp); _d.copy(_dir).addScaledVector(_right, Math.cos(a) * r).addScaledVector(_up, Math.sin(a) * r).normalize(); G.fx.fire(_o.copy(p.eye).addScaledVector(_dir, 0.3), _d, w, 'player'); }
-    G.mission.stats.shots += 1;
+    G.mission.stats.shots += 1; if (G.mp && G.mp.active) G.mp.onShot(p.eye, _dir);
     // recoil: part permanent climb, part self-recovering kick; horizontal drift alternates as the burst continues
     const stance = [1, 0.8, 0.62][p.stance] * (this.adsT > 0.5 ? 0.82 : 1.1), climb = (w.recoilV * (0.8 + Math.random() * 0.4) * stance * Math.PI) / 180;
     p.pitch = clamp(p.pitch + climb * 0.55, -1.5, 1.5); p.recoilOff += climb * 0.45; p.yaw += ((w.recoilH * (Math.random() - 0.5 + Math.sin(this.shotsSince * 0.9) * 0.35) * stance * Math.PI) / 180) * 1.6;
@@ -105,7 +105,7 @@ export class Weapons {
     G.audio.play('shot:' + w.cls); G.enemies.hear(p.pos.x, p.pos.y, p.pos.z, w.loud, 'shot'); G.squad.weaponsFree();
     if (w.cls !== 'SIDEARM') G.fx.puff(p.eye.x + _dir.x * 1.1, p.eye.y + _dir.y * 1.1 - 0.08, p.eye.z + _dir.z * 1.1, 0x999999, 0.18, 0.5, 0.18, _dir.x, 0.4, _dir.z, false, 0, 4);
   }
-  throwGrenade() { if (this.grenades <= 0 || this.throwT > 0) return; this.grenades--; this.throwT = 0.9; const cam = G.camera; cam.getWorldDirection(_dir); G.fx.grenade(_o.copy(G.player.eye).addScaledVector(_dir, 0.5), _d.copy(_dir).multiplyScalar(17).add(_up.set(0, 4.5, 0)).add(G.player.vel), 'player'); G.audio.play('step:sand', null, { g: 0.3 }); }
+  throwGrenade() { if (G.mp && G.mp.active) return; if (this.grenades <= 0 || this.throwT > 0) return; this.grenades--; this.throwT = 0.9; const cam = G.camera; cam.getWorldDirection(_dir); G.fx.grenade(_o.copy(G.player.eye).addScaledVector(_dir, 0.5), _d.copy(_dir).multiplyScalar(17).add(_up.set(0, 4.5, 0)).add(G.player.vel), 'player'); G.audio.play('step:sand', null, { g: 0.3 }); }
   update(dt) {
     const I = G.input, p = G.player, s = this.slot, w = s.w, active = p.alive && !G.gear.droneActive && !p.frozen;
     this.cool -= dt; this.throwT -= dt; this.bloom = Math.max(0, this.bloom - dt * (3 + this.bloom * 2)); if (G.time - this.lastShot > 0.3) this.shotsSince = 0;

@@ -76,7 +76,8 @@ export class FX {
       b.v.y -= GRAV * dt; b.v.multiplyScalar(1 - 0.00012 * b.v.length() * dt); const sp = b.v.length(); // gravity + air drag
       let len = sp * dt; _d.copy(b.v).multiplyScalar(1 / sp);
       const wh = W.raycast(b.p, _d, len, { bullet: true, water: true }); let tHit = wh ? wh.t : len, target = null;
-      if (b.owner !== 'enemy') { const eh = G.enemies.hitTest(b.p, _d, tHit); if (eh) { tHit = eh.t; target = eh; } }
+      if (b.owner !== 'enemy') { const eh = G.enemies.hitTest(b.p, _d, tHit); if (eh) { tHit = eh.t; target = eh; }
+        if (b.owner === 'player' && G.mp && G.mp.active) { const rh = G.mp.hitTest(b.p, _d, tHit); if (rh) { tHit = rh.t; target = rh; } } } // multiplayer: only our own bullets are tested; the Authority decides
       else {
         const pl = G.player; if (pl.alive) { const hh = pl.height; for (const [oy, r, zone] of [[hh - 0.12, 0.17, 'head'], [hh * 0.62, 0.3, 'torso'], [hh * 0.28, 0.26, 'limb']]) { const t = raySphere(b.p, _d, pl.pos.x, pl.pos.y + oy, pl.pos.z, r, tHit); if (t >= 0 && t < tHit) { tHit = t; target = { player: true, zone }; } }
           if (!target && !b.whiz) { _a.copy(pl.eye).sub(b.p); const t = _a.dot(_d); if (t > 0 && t < len) { const dd = _a.addScaledVector(_d, -t).length(); if (dd < 1.6) { b.whiz = true; G.audio.play('whiz'); pl.suppress = Math.min(1, pl.suppress + 0.25); } } } }
@@ -88,8 +89,9 @@ export class FX {
         if (target.enemy) { G.enemies.damage(target.enemy, dmgBase * BODY_MULT[target.zone], target.zone, b.owner); this.puff(hx, hy, hz, target.enemy.type.vehicle ? 0xaaaaaa : 0x8a0e0e, 0.35, 0.35, 0.7, _d.x, 0.5, _d.z, false, 3); if (target.enemy.type.vehicle) this.sparks(hx, hy, hz, 4, -_d.x, 0.5, -_d.z); G.audio.play(target.enemy.type.vehicle ? 'impact:metal' : 'impact:flesh', { x: hx, y: hy, z: hz }); }
         else if (target.player) G.player.damage(dmgBase * (target.zone === 'head' ? 1.5 : target.zone === 'limb' ? 0.8 : 1), b.p.x - _d.x * b.dist, b.p.z - _d.z * b.dist, 'bullet');
         else if (target.mate) G.squad.damage(target.mate, dmgBase * 0.35);
+        else if (target.remote) { G.mp.claimHit(target.remote, dmgBase * BODY_MULT[target.zone], target.zone); this.puff(hx, hy, hz, 0x8a0e0e, 0.35, 0.35, 0.7, _d.x, 0.5, _d.z, false, 3); }
       } else if (wh) {
-        if (wh.c && wh.c.hp !== undefined) { const glass = wh.c.kind === 'glass'; W.damageCollider(wh.c, dmgBase, wh); if (!glass) { this.impact(wh); dead = true; } else { b.p.addScaledVector(_d, wh.t + 0.05); len = 0; } }
+        if (wh.c && wh.c.hp !== undefined && b.owner !== 'remote') { /* other players' tracers are visual only */ const glass = wh.c.kind === 'glass'; W.damageCollider(wh.c, dmgBase, wh); if (!glass) { this.impact(wh); dead = true; } else { b.p.addScaledVector(_d, wh.t + 0.05); len = 0; } }
         else { this.impact(wh); dead = true; }
       }
       b.dist += tHit; if (len > 0) b.p.addScaledVector(_d, dead ? tHit : len);

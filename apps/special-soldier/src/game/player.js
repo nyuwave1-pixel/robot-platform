@@ -22,14 +22,14 @@ export class Player {
   place(x, z, yaw = 0, y) { this.pos.set(x, y ?? G.world.groundAt(x, z, y ?? 999), z); this.yaw = yaw; this.pitch = 0; this.vel.set(0, 0, 0); this.updateCamera(0); }
   get moving() { return this.speedNow > 0.5; }
   damage(amt, sx, sz, kind) {
-    if (!this.alive || G.state !== 'playing' || G.godMode) return;
+    if (!this.alive || G.state !== 'playing' || G.godMode || (G.mp && G.mp.active)) return; // multiplayer: only the Authority changes health
     amt *= DIFFICULTY[G.settings.difficulty].dmg * TUNE.enemyDmg;
     if (this.armor > 0) { const a = Math.min(this.armor, amt * 0.6); this.armor -= a; amt -= a; }
     this.health -= amt; this.hurt = Math.min(1, this.hurt + amt / 45); this.lastHurt = G.time; this.shake = Math.max(this.shake, 0.25);
     G.hud.hitFrom(Math.atan2(sx - this.pos.x, sz - this.pos.z)); G.audio.play('hurt');
     if (this.health <= 0) { this.health = 0; this.alive = false; G.onPlayerDeath(kind); }
   }
-  heal() { if (this.medkits <= 0 || this.health >= 100) return false; this.medkits--; this.health = Math.min(100, this.health + 65); G.audio.play('heal'); G.hud.toast('MED KIT USED'); return true; }
+  heal() { if (G.mp && G.mp.active) return false; if (this.medkits <= 0 || this.health >= 100) return false; this.medkits--; this.health = Math.min(100, this.health + 65); G.audio.play('heal'); G.hud.toast('MED KIT USED'); return true; }
   update(dt) {
     const I = G.input, W = G.world, wp = G.weapons;
     if (!this.alive) { this.height = damp(this.height, 0.3, 4, dt); this.roll = damp(this.roll, 1.1, 3, dt); this.updateCamera(dt); return; }

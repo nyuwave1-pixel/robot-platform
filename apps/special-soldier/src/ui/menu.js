@@ -58,7 +58,7 @@ export class Menu {
     this.screen = 'main'; const p = G.save.progress;
     this.open(`<div class="title"><div class="kicker">INTERNATIONAL SPECIAL OPERATIONS COMMAND · SQUAD 07</div><h1>SPECIAL<br><span>SOLDIER</span></h1><div class="sub">OPERATION: ISLAND INVASION</div></div>
       <nav>${MAIN.map(([a, t, d], i) => `<button data-a="${a}"><em>0${i + 1}</em><b>${t}</b><small>${d}</small></button>`).join('')}</nav>
-      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.20 · THREE.JS / WEBGL2 · CHARACTERS: HIGGSFIELD · WORLD: BLENDER 5.3 · TEXTURES & AUDIO: CC0</div></div>`, 'main');
+      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.22 · THREE.JS / WEBGL2 · CHARACTERS: HIGGSFIELD · WORLD: BLENDER 5.3 · TEXTURES & AUDIO: CC0</div></div>`, 'main');
   }
   campaign() {
     const p = G.save.progress;
@@ -132,11 +132,8 @@ export class Menu {
     const iv = G.save.intel || {};
     this.open(this.frame('INTEL ARCHIVE — BLACK COBRA FILES', `<p class="lead">Laptops hidden on each mission. Walk over one to collect it; every file adds to the story of the island.</p>${INTEL.map((m, i) => `<h3>${MISSIONS[i].code} — ${MISSIONS[i].name} · ${(iv[i] || []).length}/${m.docs.length}</h3>${m.docs.map(([t, b], k) => (iv[i] || []).includes(k) ? `<div class="intel"><b>${t}</b><p>${b}</p></div>` : `<div class="intel locked"><b>██████ CLASSIFIED</b><p>Not yet recovered — search ${MISSIONS[i].zone}.</p></div>`).join('')}`).join('')}`, 'operations'));
   }
-  multiplayer() {
-    this.open(this.frame('MULTIPLAYER — PLANNED EXPANSION', `<p class="lead"><b>Not playable in this build.</b> The campaign is single-player. This screen documents what the code base is prepared for; nothing here is a working online mode.</p>
-      <table class="tbl"><tr><th>MODE</th><th>STATUS</th><th>NOTES</th></tr><tr><td>5 v 5 Tactical</td><td>Design only</td><td>Round-based, no respawn, plant / defuse on the base map</td></tr><tr><td>10 v 10 Team Deathmatch</td><td>Design only</td><td>Airfield & port</td></tr><tr><td>Co-op Infiltration (4 players)</td><td>Design only</td><td>Campaign missions with squad slots replaced by players</td></tr><tr><td>Survival</td><td>Design only</td><td>Reuses the wave spawner from Missions 04 / 05</td></tr><tr><td>Ranking · matchmaking · customisation</td><td>Not started</td><td>Requires backend services</td></tr></table>
-      <h3>WHAT ALREADY SUPPORTS IT</h3><ul class="plain"><li>Damage, ballistics and AI run in systems separate from input and rendering — they can move to an authoritative server unchanged.</li><li>Every shot is a simulated projectile with an owner id, so server-side hit validation and lag-compensated rewind have a single entry point (<code>FX.fire</code>).</li><li>Weapon balance is pure data (<code>config/weapons.js</code>) shared by client and tests.</li></ul><p class="note">See docs/TECHNICAL.md §8 and docs/UE5_ARCHITECTURE.md for the network design (server authority, lag compensation, anti-cheat).</p>`));
-  }
+  multiplayer() { G.mp.lobby(); } // v0.22: real online play — lobby in src/ui/mp.js, rules in src/net/authority.js
+
   /** One game, two editions: the player picks how to play. CLASSIC is this game; UNITY opens the Unity WebGL build with
    *  the current difficulty and a link back (config/editions.js). */
   edition() {

@@ -296,3 +296,12 @@ export async function anyorder2({ page, sim, shot }) {
   await cutPower(); console.log('B cut   :', await st());
   console.log('B reinf :', await plantAndBlow(), '| flag', await page.evaluate(() => !!SS.mission.flags.powerCut));
 }
+
+// v0.22: multiplayer lobby screens (menu → operations → multiplayer, then a room over Supabase)
+export async function mplobby({ page, sim, shot }) {
+  await page.click('nav [data-a="operations"]'); await page.click('[data-a="multiplayer"]'); await page.waitForTimeout(900); await shot('L1-lobby');
+  await page.click('[data-mp="pickmode"][data-v="tdm"]'); await page.click('[data-mp="create"]');
+  await page.waitForFunction(() => SS.mp.connected && SS.mp.roster, null, { timeout: 20000 }); await page.waitForTimeout(900); await shot('L2-room');
+  console.log('room:', await page.evaluate(() => JSON.stringify({ room: SS.mp.room, mode: SS.mp.roster.mode, players: SS.mp.roster.players.length, host: SS.mp.isHost() })));
+  await page.evaluate(() => SS.mp.leave(true));
+}
