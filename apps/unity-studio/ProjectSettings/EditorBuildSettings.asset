@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/IslandSlice.unity
     guid: b34f315b29e813f4c921700b4eb402f7
+  - enabled: 1
+    path: Assets/Scenes/Mission01.unity
+    guid: d66b17b28807e264796859252511974c
   m_configObjects: {}

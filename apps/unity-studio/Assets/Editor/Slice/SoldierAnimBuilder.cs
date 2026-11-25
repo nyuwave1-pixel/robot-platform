@@ -16,7 +16,7 @@ namespace SpecialSoldier.EditorTools
     {
         public const string Folder = "Assets/ThirdParty/Quaternius/UAL/";
 
-        public override uint GetVersion() => 2;   // bump to reimport the UAL file after changing these settings
+        public override uint GetVersion() => 3;   // bump to reimport the UAL file after changing these settings (3: hip height baked into the pose)
 
         bool IsUal => assetPath.Replace('\\', '/').StartsWith(Folder) && assetPath.EndsWith(".fbx", System.StringComparison.OrdinalIgnoreCase);
 
@@ -44,7 +44,9 @@ namespace SpecialSoldier.EditorTools
                 c.loopTime = loop; c.loopPose = loop;
                 // in place: the NavMeshAgent moves the soldier; the hips keep their height so crouch and death go down
                 c.lockRootRotation = true; c.keepOriginalOrientation = true;
-                c.lockRootHeightY = false; c.keepOriginalPositionY = true;
+                // Bake the hip height into the pose: with lockRootHeightY = false it became root motion, which
+                // applyRootMotion = false throws away, so Death01 played but the hips stayed at 0.91 m (PlayMode, 2026-11-25).
+                c.lockRootHeightY = true; c.keepOriginalPositionY = true;
                 c.lockRootPositionXZ = true; c.keepOriginalPositionXZ = true;
             }
             mi.clipAnimations = clips;

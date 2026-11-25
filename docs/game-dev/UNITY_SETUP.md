@@ -355,3 +355,21 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **Unity**: 이름 붙은 증원(꺼진 채로 씬에 배치, `GameDirector.SendWave`), 폭파 시 폭발 3번 + 철탑 넘어짐(웹 컷신 대신), 경보 수색. `Mission02.unity` 는 `Campaign.All` 로 자동 생성, `?mission=m02`.
 - dotnet `CoreTests~` **294/294**. PlayMode `Mission02Tests` 2개 추가. **Unity 확인 전**(그다음 묶음).
 
+
+## 2026-11-25 (7) — 하늘 재보정·일시정지 메뉴·섬 지형/식생·두 에디션 연결 (PC Unity 세션)
+
+- **하늘 재보정(fd35aa7)**: WebGL storm 화면에서 회색 구름이 보이고 땅 밝기와 맞음(전에는 검은 돔). 
+- **일시정지 메뉴(dd25198)** 첫 컴파일: `PauseMenuTests` 의 `KeyControl` using 누락(CS0246) 수정, 마스터 볼륨이 첫 소리 전엔 적용 안 되던 문제
+  (`SliceFx` 가 첫 소리 때 생성) → `SettingsStore.Edit` 에서 `AudioListener.volume` 설정. PlayMode 14/14.
+- **run-batch.ps1**: `Start-Process -Wait` 가 Unity가 남기는 VBCSCompiler 서버까지 기다려 init 후 ~10분 멈춤 → Unity 프로세스만 `WaitForExit`.
+- **섬 지형(eb0335f)·식생(88ad854)**: `[Slice] island terrain 513² heights (-7.0..31.8 m) … ground at slice origin y = 0.00`,
+  `vegetation: 1565 trees, 221 palms, 176 rocks → 123 merged meshes`. EditMode 269/269, PlayMode 14/14. WebGL 벽 너머 나무·모래 텍스처 확인.
+  **WebGL 18.7 → 33.6 MB**: Build Report 비압축 Meshes 55.7 MB(76 %, 식생 합친 메시 칸당 1–3 MB), Textures 12.9 MB(스플래시 로고 2.7 MB 포함)
+  → 허브가 GPU 인스턴싱·스플래시 끄기로 수정(e3c2443): `vegetation … → instanced: 3 models (6 mesh parts, 6 instancing materials), 65 cells`.
+- **두 에디션 연결**(docs/game-dev/EDITIONS_ROADMAP.md): 클래식 PLAY MODE → 유니티판(?difficulty=&return=) → 일시정지 CLASSIC EDITION → 클래식, 브라우저 왕복 확인.
+  WebGL에서 찾은 문제 2개 수정(e509344): ① 주소 난이도가 매번 설정을 덮어써 일시정지 메뉴가 REGULAR로 보이고 못 바꿈 → 저장 설정에 1회 반영,
+  ② 포인터 잠금 거부 promise 가 Unity 오류 alert 를 띄움(게임은 계속 진행) → index.html 에서 그 rejection 만 삼킴.
+  주의: 캔버스를 CSS로 늘리면 UI Toolkit 클릭 좌표가 어긋남(검증용 늘림에서만 발생, 실제 페이지 아님).
+- 일시 오류: Windows 빌드 단계에서 `[CoreBusinessMetrics] … SQLite "disk I/O error"`(디스크 670 GB 여유) — 다른 프로젝트 Unity가 같은 캐시를 쓰던 때, 재실행으로 해결.
+- **미션 01(4027b57)·병사 애니메이션(5997b22)**: `MISSION 01 SILENT LANDING: scene saved … 9 enemies + 3 QRF, sky night`,
+  `soldier animation: controller ok Assets/Animation/Soldier.controller (9 UAL clips)`, `animation: Quaternius UAL rig`, Humanoid 아바타 경고 없음.
