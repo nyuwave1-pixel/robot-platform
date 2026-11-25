@@ -13,6 +13,11 @@ import type { Lang } from "../i18n";
 
 /** Higgsfield 로 디자인한 완성형 캐릭터 (옷·헤어가 텍스처에 구워져 있다) */
 /** 코디 저장 칸 수와 코디에 담는 슬롯 */
+/** 7일 출석부 보상 (날짜가 이어지지 않아도 출석한 날만큼 칸이 찬다) */
+export interface AttendReward { coins?: number; gems?: number; stars?: number }
+export const ATTEND_REWARDS: AttendReward[] = [
+  { coins: 100 }, { coins: 150 }, { gems: 3 }, { coins: 200 }, { coins: 300 }, { gems: 5 }, { gems: 10, stars: 3 },
+];
 export const COORD_SLOTS = 3;
 export const COORD_KEYS: Slot[] = ["hair", "outfit", "accessory", "earring", "necklace", "bag", "shoes", "makeup", "nail", "base", "shadow", "lip"];
 export interface Coord { items: Partial<Record<Slot, string | null>>; t: number }
@@ -134,6 +139,10 @@ export interface GameState {
   bathPet: (id: string) => { ok: true; levelUp: boolean } | { ok: false; why: "done" | "money" };
   /** 펫 장식 사기 · 씌우기 */
   petAccs: string[];
+  /** 7일 출석부: 마지막으로 받은 날, 받은 칸 수(0~6 → 7칸을 채우면 처음부터) */
+  attend?: { day: string; count: number };
+  /** 오늘 출석 보상 받기 (이미 받았으면 null) */
+  claimAttendance: () => { slot: number; reward: AttendReward } | null;
   buyPetAcc: (accId: string) => boolean;
   wearPetAcc: (petId: string, accId: string | null) => boolean;
   buyStation: (maxStations: number) => boolean;
@@ -185,6 +194,7 @@ const fresh = () => ({
   promo: 0,
   pets: [] as Pet[],
   petAccs: [] as string[],
+  attend: { day: "", count: 0 },
   friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
   invitedBy: null as Friend | null,
   friends: [] as Friend[],
@@ -460,6 +470,17 @@ export const useGame = create<GameState>()(
         const bond = (p.bond ?? 0) + PET_BOND.bath;
         set({ coins: s.coins - BATH_COST, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + BATH_AFFECTION), bond, lastBath: today() } : x)) });
         return { ok: true, levelUp: petLevel(bond) > petLevel(p.bond ?? 0) };
+      },
+      claimAttendance: () => {
+        const s = get(); const a = s.attend ?? { day: "", count: 0 };
+        if (a.day === today()) return null;
+        const slot = a.count % ATTEND_REWARDS.length;
+        const reward = ATTEND_REWARDS[slot];
+        set({
+          attend: { day: today(), count: slot + 1 },
+          coins: s.coins + (reward.coins ?? 0), gems: s.gems + (reward.gems ?? 0), stars: s.stars + (reward.stars ?? 0),
+        });
+        return { slot, reward };
       },
       buyPetAcc: (accId) => {
         const s = get(); const a = PET_ACC_MAP[accId];

@@ -19,6 +19,7 @@ import { GuestbookPanel } from "./Guestbook";
 import { BragButton, BragFeed, GiftInbox } from "./Brag";
 import { useGifts } from "../net/gifts";
 import { CloudSettings, RpExchange } from "./Cloud";
+import { useAttendOpen } from "./Attendance";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -533,6 +534,7 @@ function QuestsPanel() {
   });
   return (
     <Sheet title="QUEST & MISSION">
+      <button className="btn-ghost mb-3 w-full !py-2 text-xs" onClick={() => useAttendOpen.setState({ open: true })} data-testid="attend-open"><Icon n="gift" /> {t("att.open")}</button>
       <p className="mb-1.5 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.daily")}</p>
       <div className="space-y-2">{render(true)}</div>
       <p className="mb-1.5 mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.main")}</p>

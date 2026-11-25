@@ -15,6 +15,7 @@ import { useContest } from "../net/contest";
 import { castVote } from "./Contest";
 import { GroupPhotoButton, GroupPhotoOverlay, captureCanvas, useShot } from "./GroupPhoto";
 import { BragWatcher } from "./Brag";
+import { Attendance } from "./Attendance";
 import { usePlatformStatus } from "../platform/status";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
@@ -171,6 +172,7 @@ export function Hud() {
       )}
       <GroupPhotoOverlay />
       <BragWatcher />
+      <Attendance />
       <Overlays />
     </>
   );

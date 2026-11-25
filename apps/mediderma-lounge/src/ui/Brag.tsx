@@ -307,7 +307,7 @@ export function GiftInbox() {
       <div className="space-y-1.5">
         {list.map((g) => (
           <div key={g.id} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-sm">
-            <span className="text-lg">{g.kind === "heart" ? "♥" : "🪙"}</span>
+            <span className="text-lg text-pink-deep">{g.kind === "heart" ? "♥" : <Icon n="coin" />}</span>
             <p className="min-w-0 flex-1 truncate text-xs font-bold text-ink">{g.name} <span className="font-semibold text-ink/50">· {g.kind === "heart" ? t("gift.heartItem") : `${g.amount} COIN`}</span></p>
             <span className="text-[12px] text-ink/40">{ago(g.at, t)}</span>
           </div>

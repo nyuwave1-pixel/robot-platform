@@ -110,3 +110,21 @@ describe("플레이어 선물", async () => {
     expect(cleanGift({ id: 1, from: "bad", name: "x", kind: "heart", amount: 1, at })).toBeNull();
   });
 });
+
+describe("7일 출석부", () => {
+  it("하루 한 번, 칸이 차고 7칸 뒤 처음부터", async () => {
+    const { ATTEND_REWARDS } = await import("../src/store/game");
+    const g = () => useGame.getState();
+    const c0 = g().coins;
+    const r = g().claimAttendance()!;
+    expect(r.slot).toBe(0);
+    expect(g().coins).toBe(c0 + (ATTEND_REWARDS[0].coins ?? 0));
+    expect(g().claimAttendance()).toBeNull(); // 같은 날 두 번 안 됨
+    useGame.setState({ attend: { day: "2000-01-01", count: 6 } });
+    const gems = g().gems;
+    expect(g().claimAttendance()!.slot).toBe(6);
+    expect(g().gems).toBe(gems + (ATTEND_REWARDS[6].gems ?? 0));
+    useGame.setState({ attend: { day: "2000-01-02", count: 7 } });
+    expect(g().claimAttendance()!.slot).toBe(0); // 다시 1일차
+  });
+});

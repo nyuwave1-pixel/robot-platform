@@ -691,5 +691,13 @@
   "gift.fail.missing": "Recipient not found",
   "gift.fail.auth": "Couldn't verify your player",
   "gift.fail.bad": "This gift can't be sent",
-  "gift.fail.error": "Connection is unstable. Try again soon"
+  "gift.fail.error": "Connection is unstable. Try again soon",
+  "att.title": "7-day check-in",
+  "att.day": "Day {n}",
+  "att.claim": "Claim day {n}",
+  "att.got": "Day {n} reward claimed!",
+  "att.doneToday": "Checked in today! See you tomorrow",
+  "att.close": "Close",
+  "att.note": "Once a day — days don't need to be consecutive. Big gift on day 7!",
+  "att.open": "7-day check-in"
 }
