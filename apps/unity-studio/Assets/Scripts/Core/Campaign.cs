@@ -34,6 +34,8 @@ namespace SpecialSoldier.Core
         public string AlarmSearchPrefix;
         /// <summary>Mission 04: what command says when a security camera locks the facility down (web tick → camAlarm).</summary>
         public string CameraAlarmRadio;
+        /// <summary>Mission 05: what VIPER shouts when he drops under half health; the wave "phase2" comes with it (web event bossPhase2).</summary>
+        public string BossPhase2Radio;
         public Func<MissionRunner> NewRunner;      // objectives in Unity world coordinates
         /// <summary>The man-made props of the mission's zone (web build.js), or null.</summary>
         public Func<PropSet> Props;
@@ -274,7 +276,70 @@ namespace SpecialSoldier.Core
             };
         }
 
-        public static readonly CampaignMission[] All = { M01, M02, M03, M04 };
+        /// <summary>MISSION 05 — LAST EXTRACTION (web missions.js MISSIONS[4]): dusk on the airfield. Kill COMMANDER VIPER (phase 2
+        /// below half health brings four more), reach the helipad, pop smoke, hold the LZ for 60 s, board the helicopter.</summary>
+        public static readonly CampaignMission M05 = MakeM05();
+
+        static CampaignMission MakeM05()
+        {
+            var hp = IslandProps.Helipad;
+            // LZ defence pool (web: every 9 s while fewer than 7 are alive, three from one of four approaches; the third is an elite 40 % of
+            // the time). Unity pre-places 7 waves (60 s / 9 s) and walks the approaches in turn instead of picking at random.
+            (double x, double z)[] src = { (120, -300), (150, -338), (238, -262), (160, -270) };
+            int[] order = { 1, 2, 3, 0, 1, 2, 3 }; string[] third = { "elite", "guard", "guard", "elite", "guard", "guard", "elite" };
+            var lz = new List<SpawnDef>();
+            for (int i = 0; i < order.Length; i++)
+            {
+                var c = src[order[i]];
+                lz.Add(new SpawnDef("assault", c.x, c.z, "lz")); lz.Add(new SpawnDef("assault", c.x + 3, c.z + 2, "lz")); lz.Add(new SpawnDef(third[i], c.x - 3, c.z + 3, "lz"));
+            }
+            return new CampaignMission
+            {
+                Id = "m05", Code = "MISSION 05", Name = "LAST EXTRACTION", Zone = "ZONE 05 · AIRFIELD & PORT", SkyId = "dusk",
+                SpawnX = 40, SpawnZ = -257, SpawnY = 7, SpawnYaw = -1.2,
+                Brief = new[]
+                {
+                    "18:50 — The lift opens into the airfield hangar. A storm front is closing in.",
+                    "COMMANDER VIPER, leader of BLACK COBRA, is on the runway with his elite guard and an APC, between you and the helipad.",
+                    "VIPER wears heavy armour and throws grenades when you sit still — keep moving between cover. The MGL-32 and frag grenades deal with the APC.",
+                    "Kill VIPER, pop smoke on the helipad and hold the landing zone until the helicopter arrives.",
+                },
+                Spawns = new[]
+                {
+                    new SpawnDef("boss", 120, -296, "boss", yaw: -1.57),
+                    new SpawnDef("elite", 106, -301, "air", yaw: -1.5), new SpawnDef("elite", 134, -292, "air", yaw: -1.5), new SpawnDef("elite", 118, -308, "air", yaw: -1.5),
+                    new SpawnDef("assault", 97, -284, "air", yaw: -1.5), new SpawnDef("assault", 64, -306, "air", yaw: -1.2),
+                    new SpawnDef("guard", 144, -300, "air"), new SpawnDef("guard", 150, -284, "air"),
+                    new SpawnDef("sniper", 232, -300, "air", yaw: -1.57, onStructure: true), new SpawnDef("apc", 166, -297, "air", yaw: -1.57),
+                    new SpawnDef("heavy", 126, -284, "air", yaw: -1.5),
+                },
+                BossPhase2Radio = "VIPER: All units — converge on the runway! Kill them all!",
+                Waves = new Dictionary<string, SpawnDef[]>
+                {
+                    ["lz"] = lz.ToArray(),
+                    ["phase2"] = new[] { new SpawnDef("elite", 60, -336, "air"), new SpawnDef("elite", 66, -340, "air"), new SpawnDef("assault", 54, -334, "air"), new SpawnDef("assault", 200, -270, "air") },
+                },
+                NewRunner = () =>
+                {
+                    float waveT = 1f;
+                    var board = Objective.Interact(W(hp.x - 2.5, hp.z), "BOARD HELICOPTER", 0, "Board the helicopter", 5).With(onDone: m => m.Raise("ending"));
+                    board.Enabled = m => m.Flags.Contains("heliLanded");   // web: enabled: () => G.mission.heliLanded
+                    return new MissionRunner("MISSION 05", "LAST EXTRACTION",
+                        Objective.Kill("boss", "Eliminate COMMANDER VIPER").With(onDone: m => m.Say("REAPER: VIPER is down! I say again, VIPER is down!")),
+                        Objective.Reach(W(hp.x, hp.z), 9, "Get to the helipad").With(radio: "COMMAND: Angel One-Two is inbound. Mark the LZ."),
+                        Objective.Interact(W(hp.x, hp.z), "POP SMOKE — SIGNAL EXTRACTION", 0, "Signal the helicopter with smoke", 4).With(onDone: m => m.Raise("smoke")),
+                        Objective.Defend(60, "Hold the landing zone").With(
+                            onStart: m => { waveT = 1f; m.Say("ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!"); },
+                            onTick: (m, dt) => { if ((waveT -= dt) <= 0 && (m.World == null || m.World.Alive("lz") < 7)) { waveT = 9f; m.SendWave("lz", 3); } },
+                            onDone: m => m.Raise("heliArrive")),
+                        board);
+                },
+                Area = (20, -345, 245, -245),
+                Props = () => IslandProps.Airfield(),
+            };
+        }
+
+        public static readonly CampaignMission[] All = { M01, M02, M03, M04, M05 };
 
         public static CampaignMission Get(string id)
         {

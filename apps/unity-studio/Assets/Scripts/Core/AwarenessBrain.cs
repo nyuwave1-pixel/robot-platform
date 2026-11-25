@@ -13,15 +13,20 @@ namespace SpecialSoldier.Core
         public readonly bool Grenades;            // web: grenades: true (COBRA ELITE, COMMANDER VIPER)
         /// <summary>web vehicle: true (APC): a turret on a hull — never moves, sees all round, small arms do a tenth of their damage.</summary>
         public readonly bool Vehicle;
-        public int Score => Id switch { "guard" => 100, "assault" => 150, "sniper" => 200, "heavy" => 300, "elite" => 350, "apc" => 800, _ => 100 };   // web: type.score
+        /// <summary>web boss: true (COMMANDER VIPER): a second phase below half health (Mission 05).</summary>
+        public readonly bool Boss;
+        /// <summary>web type.scale: the model is drawn this much bigger (VIPER 1.2).</summary>
+        public readonly float Scale;
+        public int Score => Id switch { "guard" => 100, "assault" => 150, "sniper" => 200, "heavy" => 300, "elite" => 350, "apc" => 800, "boss" => 2000, _ => 100 };   // web: type.score
         /// <summary>web enemies.js damage(): <c>if (e.type.vehicle &amp;&amp; !explosive) dmg *= 0.1</c>.</summary>
         public float DamageTaken(float dmg, bool explosive) => Vehicle && !explosive ? dmg * 0.1f : dmg;
         /// <summary>Gun height: web shot origin y + 2.85 for vehicles (turret), else the soldier's 1.45.</summary>
         public float MuzzleHeight => Vehicle ? 2.85f : 1.45f;
 
         public EnemyType(string id, string name, float hp, float armor, float speed, float spread, int burstMin, int burstMax, float rpm,
-            float gunDamage, float vision, float fov, float react, bool grenades = false, bool vehicle = false)
+            float gunDamage, float vision, float fov, float react, bool grenades = false, bool vehicle = false, bool boss = false, float scale = 1f)
         {
+            Boss = boss; Scale = scale;
             Id = id; Name = name; Hp = hp; Armor = armor; Speed = speed; Spread = spread; BurstMin = burstMin; BurstMax = burstMax;
             Rpm = rpm; GunDamage = gunDamage; Vision = vision; Fov = fov; React = react; Grenades = grenades; Vehicle = vehicle;
         }
@@ -29,10 +34,15 @@ namespace SpecialSoldier.Core
         public static readonly EnemyType Sentry = new EnemyType("guard", "SENTRY", 90, 0, 3.6f, 3.3f, 2, 4, 520, 11, 72, 1.9f, 0.9f);
         public static readonly EnemyType Assault = new EnemyType("assault", "ASSAULT", 110, 35, 4.7f, 3.7f, 4, 7, 680, 10, 78, 2.0f, 0.7f);
         public static readonly EnemyType Sniper = new EnemyType("sniper", "SNIPER", 80, 0, 2.6f, 0.45f, 1, 1, 30, 58, 190, 1.3f, 1.7f);
-        public static readonly EnemyType Heavy = new EnemyType("heavy", "HEAVY GUNNER", 260, 160, 2.1f, 4.6f, 10, 18, 600, 10, 75, 1.9f, 1.1f);
+        public static readonly EnemyType Heavy = new EnemyType("heavy", "HEAVY GUNNER", 260, 160, 2.1f, 4.6f, 10, 18, 600, 10, 75, 1.9f, 1.1f, scale: 1.14f);
         public static readonly EnemyType Elite = new EnemyType("elite", "COBRA ELITE", 150, 90, 4.9f, 2.3f, 3, 5, 700, 13, 92, 2.2f, 0.5f, grenades: true);
         public static readonly EnemyType Apc = new EnemyType("apc", "APC", 950, 0, 0f, 2.8f, 8, 14, 520, 14, 130, 7f, 1.3f, vehicle: true);
-        public static readonly EnemyType[] All = { Sentry, Assault, Sniper, Heavy, Elite, Apc };
+        public static readonly EnemyType Viper = new EnemyType("boss", "COMMANDER VIPER", 950, 320, 4.3f, 2.5f, 6, 10, 660, 14, 120, 3.0f, 0.5f, grenades: true, boss: true, scale: 1.2f);
+        /// <summary>VIPER in phase 2 (web missions.js event bossPhase2: e.type = { ...e.type, speed: 5.2, spread: 2.1 }).</summary>
+        public static readonly EnemyType ViperEnraged = new EnemyType("boss", "COMMANDER VIPER", 950, 320, 5.2f, 2.1f, 6, 10, 660, 14, 120, 3.0f, 0.5f, grenades: true, boss: true, scale: 1.2f);
+        /// <summary>web: phase 2 starts when health drops under half the type's hp.</summary>
+        public static bool BossPhase2(float health) => health < Viper.Hp * 0.5f;
+        public static readonly EnemyType[] All = { Sentry, Assault, Sniper, Heavy, Elite, Apc, Viper };
     }
 
     /// <summary>What the enemy perceived this think-tick. Filled in by the engine layer (raycasts, distances).</summary>

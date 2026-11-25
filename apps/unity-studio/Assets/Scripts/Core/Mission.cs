@@ -57,6 +57,8 @@ namespace SpecialSoldier.Core
         public Action<MissionRunner, float> OnTick;
         /// <summary>Custom objectives: complete when this returns true (web: type 'custom', check(M)).</summary>
         public Func<MissionRunner, IMissionWorld, bool> Check;
+        /// <summary>Interact objectives: usable only while this is true (web: enabled() — e.g. board once the helicopter has landed).</summary>
+        public Func<MissionRunner, bool> Enabled;
 
         public static Objective Kill(string group, string text) => new Objective { Kind = ObjectiveKind.Kill, Group = group, Text = text };
         public static Objective Reach(Vec2 at, float radius, string text) => new Objective { Kind = ObjectiveKind.Reach, At = at, Radius = radius, Text = text };
@@ -180,6 +182,7 @@ namespace SpecialSoldier.Core
                 case ObjectiveKind.Reach: return Vec2.Distance(w.PlayerPosition, o.At) < o.Radius;
                 case ObjectiveKind.Custom: return o.Check != null && o.Check(this, w);
                 case ObjectiveKind.Interact:
+                    if (o.Enabled != null && !o.Enabled(this)) return false;
                     if (Vec2.Distance(w.PlayerPosition, o.At) > o.Radius) return false;
                     HoldTarget = o;
                     if (!w.InteractHeld) { HoldProgress = 0; return false; }   // letting go starts the hold over (web: interact hold)

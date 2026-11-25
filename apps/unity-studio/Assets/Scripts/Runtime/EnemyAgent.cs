@@ -43,6 +43,8 @@ namespace SpecialSoldier
         bool _goalIsCover;
         Transform _visual; float _visualBaseY;
         public EnemyType Type { get; private set; }
+        /// <summary>Mission 05: VIPER has dropped under half health (web e.phase = 2).</summary>
+        public bool BossPhase2 { get; private set; }
         public bool Alive => _hp && _hp.Alive;
 
         NavMeshAgent _agent;
@@ -70,6 +72,12 @@ namespace SpecialSoldier
             _hp.Configure(Type.Hp, Type.Armor, 0.5f);
             _hp.DamageFilter = Type.DamageTaken;   // vehicles: small arms ×0.1 (web damage())
             _hp.Hit += (dmg, from) => { _lastKnown = from; Brain.OnDamaged(); };   // falling back is decided by TacticsPlanner
+            _hp.Hit += (dmg, from) =>
+            {
+                // web: VIPER below half health → phase 2 (faster, tighter spread, calls four more onto the runway)
+                if (Type.Boss && !BossPhase2 && _hp.Alive && EnemyType.BossPhase2(_hp.Model.Health))
+                { BossPhase2 = true; Type = EnemyType.ViperEnraged; if (GameDirector.Instance) GameDirector.Instance.OnBossPhase2(this); }
+            };
             _hp.Died += OnDied;
             _home = transform.position;
         }

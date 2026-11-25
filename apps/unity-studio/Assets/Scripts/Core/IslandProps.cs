@@ -53,8 +53,16 @@ namespace SpecialSoldier.Core
         public PropModel(string geo, double x, double y, double z, double rotY = 0) { Geo = geo; X = x; Y = y; Z = z; RotY = rotY; }
     }
 
+    /// <summary>A flat painted surface on the ground (web: runway, stripes, helipad — meshes without colliders).</summary>
+    public readonly struct PropFlat
+    {
+        public readonly double X, Y, Z, Sx, Sz; public readonly uint Color; public readonly bool Disc;
+        public PropFlat(double x, double y, double z, double sx, double sz, uint color, bool disc = false) { X = x; Y = y; Z = z; Sx = sx; Sz = sz; Color = color; Disc = disc; }
+    }
+
     public sealed class PropSet
     {
+        public readonly List<PropFlat> Flats = new List<PropFlat>();
         public readonly List<PropModel> Models = new List<PropModel>();
         /// <summary>Floor and ceiling slabs of indoor levels (web: meshes, the facility's floor is the FAC_Y plane) — boxes with colliders.</summary>
         public readonly List<PropCall> Slabs = new List<PropCall>();
@@ -295,6 +303,52 @@ namespace SpecialSoldier.Core
             return b.S;
         }
 
+        /// <summary>web POI: helipad (Mission 05 landing zone) and runway centre.</summary>
+        public static readonly (double x, double z) Helipad = (205, -300), Runway = (110, -295);
+
+        /// <summary>ZONE 05 — AIRFIELD &amp; PORT (build.js): runway, hangar (the facility lift comes up inside), control tower,
+        /// helipad with its sandbag ring, runway cover and parked vehicles, the fuel tank, lamps; the port quay with containers,
+        /// a crane, the cargo ship and the pier.</summary>
+        public static PropSet Airfield(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            const double y = 7;
+            b.S.Flats.Add(new PropFlat(105, y + 0.04, -296, 300, 26, 0x1b1c1e));
+            for (int i = 0; i < 14; i++) b.S.Flats.Add(new PropFlat(-30 + i * 21, y + 0.06, -296, 9, 0.6, 0xcfcfc0));
+            // hangar (facility exit elevator inside) — open to the north (runway side)
+            b.Building(40, -262, 40, 24, 9, "metal", new Dictionary<char, double[][]> { ['n'] = new[] { new[] { 26.0, 54.0 } } }, "metal", "rust");
+            b.Crate(28, -256, 1.4, y); b.Crate(29.6, -256, 1.4, y); b.Container(52, -254, "olive", true, y); b.AmmoBox(34, -253, y);
+            b.Building(120, -262, 16, 12, 9, "concrete", new Dictionary<char, double[][]> { ['n'] = new[] { new[] { 118.0, 122.0 } } });
+            b.Static("TowerCab", 120, y + 9.2, -262, 1, 1, 1, 0, null, true);
+            // helipad
+            var hp = Helipad;
+            b.S.Flats.Add(new PropFlat(hp.x, y + 0.06, hp.z, 22, 22, 0x2a2c2e, true));
+            b.S.Flats.Add(new PropFlat(hp.x, y + 0.13, hp.z, 18.4, 18.4, 0xe8e060, true)); b.S.Flats.Add(new PropFlat(hp.x, y + 0.14, hp.z, 17.2, 17.2, 0x2a2c2e, true));   // yellow ring 8.6–9.2
+            foreach (var (ax, az, sx, sz) in new[] { (-2.4, 0.0, 0.9, 7.0), (2.4, 0.0, 0.9, 7.0), (0.0, 0.0, 4.2, 0.9) }) b.S.Flats.Add(new PropFlat(hp.x + ax, y + 0.15, hp.z + az, sx, sz, 0xf0f0e8));
+            b.Sandbags(190, -286, 7); b.Sandbags(220, -288, 7); b.Sandbags(188, -314, 6); b.Sandbags(222, -312, 6); b.Sandbags(205, -282, 5); b.Sandbags(186, -300, 5, false);
+            b.Container(232, -300, "blue", false, y); b.Container(176, -318, "rust", true, y);
+            b.AmmoBox(205, -310, y); b.Barrel(170, -284, y);
+            // runway cover + parked vehicles + fuel
+            b.Truck(80, -280); b.Truck(150, -312, false); b.Container(100, -280, "rust", true, y); b.Container(60, -312, "blue", true, y); b.Container(130, -280, "olive", true, y);
+            b.Sandbags(110, -305, 8); b.Sandbags(85, -300, 6, false); b.Sandbags(140, -296, 6, false);
+            b.Box(0, y, -300, 6, 3.4, 6, "white", "P_tank", kind: "tank", surf: "metal"); b.Barrel(6, -296, y); b.Barrel(7, -297.4, y);
+            for (int i = 0; i < 8; i++) b.Lamp(-40 + i * 40, -278, 5, i == 2 || i == 6);
+            // port: quay, cranes, cargo ship
+            const double py = 2.2;
+            string[] paints = { "rust", "blue", "olive" };
+            for (int i = 0; i < 5; i++) b.Container(10 + i * 9, -368 - (i % 2) * 4, paints[i % 3], i % 2 == 0, py);
+            b.Container(19, -368, "blue", true, py + 2.6);
+            b.Static("Crane", 100, py, -372, 1, 1, 1, 0, null, true); b.Box(100, py, -372, 1.4, 18, 1.4, "rust", hidden: true, surf: "metal");
+            b.Lamp(40, -356, 7, true); b.Lamp(100, -356, 7);
+            b.Static("CargoShip", 55, -1.5, -452, 1, 1, 1, -Math.PI / 2, null, true);   // Blender freighter: bow towards −x, house aft at x = 88
+            b.Box(55, -1.5, -452, 96, 9, 20, "dark", hidden: true, surf: "metal"); b.Box(88, 7.5, -452, 16, 10, 16, "white", hidden: true, surf: "metal");
+            string[] shipPaints = { "rust", "blue", "olive", "red" };
+            double[][] shipTints = { new[] { 1.35, 0.62, 0.4 }, new[] { 0.5, 0.8, 1.3 }, new[] { 0.78, 0.86, 0.56 }, new[] { 1.5, 0.35, 0.3 } };
+            for (int i = 0; i < 9; i++) b.Box(18 + i * 6.6, 8.7, -452 + ((i % 3) - 1) * 4.2, 6.1, 2.6 * (1 + (i % 2)), 2.5, shipPaints[i % 4], "P_container", surf: "metal", tint: shipTints[i % 4]);
+            b.Static("Pier", 55, 1.6, -432, 1, 1, 1, 0, null, true); b.Box(55, 1.6, -432, 60, 0.6, 22, "concrete", hidden: true);   // pier (Blender deck, piles, bollards)
+            return b.S;
+        }
+
         /// <summary>The underground bio-research facility under the bunker (web POI.fac, world.js FAC_Y / FAC_H).</summary>
         public static readonly (double x, double z) Fac = (90, -150);
         public const double FacY = -60, FacH = 4.2;
@@ -368,7 +422,7 @@ namespace SpecialSoldier.Core
             foreach (var s in sets)
             {
                 m.Calls.AddRange(s.Calls); m.Lights.AddRange(s.Lights); m.Radars.AddRange(s.Radars); m.Models.AddRange(s.Models);
-                m.Slabs.AddRange(s.Slabs); m.Cameras.AddRange(s.Cameras);
+                m.Slabs.AddRange(s.Slabs); m.Cameras.AddRange(s.Cameras); m.Flats.AddRange(s.Flats);
                 foreach (var kv in s.Points) m.Points[kv.Key] = kv.Value;
             }
             return m;

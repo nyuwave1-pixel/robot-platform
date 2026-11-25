@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T12:33:15.402Z",
+  "generatedAt": "2026-11-25T12:39:30.649Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "04ba9dc"
+    "commit": "ca15567"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "ca15567",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Mission 05 port"
+    },
+    {
+      "hash": "b6a40c4",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port Mission 04 UNDERGROUND ZERO with security cameras (U4)"
+    },
+    {
       "hash": "04ba9dc",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "game-dev",
       "subject": "docs(game-dev): hub claims the shared island terrain work (web + Unity)"
-    },
-    {
-      "hash": "d859148",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): pause-menu volume applies before the first sound; PauseMenuTests compile; run-batch waits for Unity only"
-    },
-    {
-      "hash": "dd25198",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): settings and pause menu (Esc) with the web game's options, saved between sessions"
     }
   ]
 }

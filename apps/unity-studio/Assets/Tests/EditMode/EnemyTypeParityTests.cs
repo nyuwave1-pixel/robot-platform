@@ -37,7 +37,18 @@ namespace SpecialSoldier.Core.Tests
                 Assert.AreEqual(float.Parse(Regex.Match(m.Value, @"gun: gun\((\d+)").Groups[1].Value, CultureInfo.InvariantCulture), t.GunDamage, t.Id + " gun");
                 Assert.AreEqual(m.Value.Contains("vehicle: true"), t.Vehicle, t.Id + " vehicle");
                 Assert.AreEqual(m.Value.Contains("grenades: true"), t.Grenades, t.Id + " grenades");
+                Assert.AreEqual(m.Value.Contains("boss: true"), t.Boss, t.Id + " boss");
+                var scale = Regex.Match(m.Value, @"scale: ([\d.]+)"); Assert.AreEqual(scale.Success ? float.Parse(scale.Groups[1].Value, CultureInfo.InvariantCulture) : 1f, t.Scale, 1e-6, t.Id + " scale");
             }
+        }
+
+        [Test]
+        public void BossPhase2IsTheWebRule()
+        {
+            Assert.IsFalse(EnemyType.BossPhase2(475)); Assert.IsTrue(EnemyType.BossPhase2(474.9f));
+            Assert.AreEqual(5.2f, EnemyType.ViperEnraged.Speed); Assert.AreEqual(2.1f, EnemyType.ViperEnraged.Spread);
+            var js = Js(); if (js == null) return;
+            StringAssert.Contains("if (e.type.boss && e.phase === 1 && e.hp < e.type.hp * 0.5)", js);
         }
 
         [Test]

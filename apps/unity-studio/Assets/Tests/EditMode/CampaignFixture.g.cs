@@ -157,5 +157,43 @@ namespace SpecialSoldier.Core.Tests
                 ("tick 4", "{}", 0, new string[] {  }, new string[] { "wave:assault@90,-224;elite@91.2,-221" }, "{}"),
             },
         };
+        public static readonly MissionFixture MISSION05 = new MissionFixture
+        {
+            Code = "MISSION 05", Name = "LAST EXTRACTION", Zone = "ZONE 05 · AIRFIELD & PORT", Sky = "dusk", SpawnX = 40.000000000000000, SpawnZ = -257.00000000000000, SpawnYaw = -1.2000000000000000, SpawnY = 7.0000000000000000,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
+            {
+                ("boss", 120.00000000000000, -296.00000000000000, "boss", -1.5700000000000001, null, false, (double?)null),
+                ("elite", 106.00000000000000, -301.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("elite", 134.00000000000000, -292.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("elite", 118.00000000000000, -308.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("assault", 97.000000000000000, -284.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("assault", 64.000000000000000, -306.00000000000000, "air", -1.2000000000000000, null, false, (double?)null),
+                ("guard", 144.00000000000000, -300.00000000000000, "air", (double?)null, null, false, (double?)null),
+                ("guard", 150.00000000000000, -284.00000000000000, "air", (double?)null, null, false, (double?)null),
+                ("sniper", 232.00000000000000, -300.00000000000000, "air", -1.5700000000000001, null, true, (double?)null),
+                ("apc", 166.00000000000000, -297.00000000000000, "air", -1.5700000000000001, null, false, (double?)null),
+                ("heavy", 126.00000000000000, -284.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+            },
+            Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
+            {
+                (-1, "kill", "Eliminate COMMANDER VIPER", "boss", null, null, null, "", null, ""),
+                (-1, "reach", "Get to the helipad", "", 205.00000000000000, -300.00000000000000, 9.0000000000000000, "", null, "COMMAND: Angel One-Two is inbound. Mark the LZ."),
+                (-1, "interact", "Signal the helicopter with smoke", "", 205.00000000000000, -300.00000000000000, 4.0000000000000000, "POP SMOKE — SIGNAL EXTRACTION", null, ""),
+                (-1, "defend", "Hold the landing zone", "", null, null, null, "", null, ""),
+                (-1, "interact", "Board the helicopter", "", 202.50000000000000, -300.00000000000000, 5.0000000000000000, "BOARD HELICOPTER", null, ""),
+            },
+            Hooks = new (string, string, int, string[], string[], string)[]
+            {
+                ("alarm", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("done 0", "{}", 1, new string[] { "REAPER: VIPER is down! I say again, VIPER is down!" }, new string[] {  }, "{}"),
+                ("done 2", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("start 3", "{}", 1, new string[] { "ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!" }, new string[] {  }, "{}"),
+                ("start 3", "{\"powerCut\":true}", 1, new string[] { "ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!" }, new string[] {  }, "{\"powerCut\":true}"),
+                ("done 3", "{}", 1, new string[] { "@heliArrive" }, new string[] {  }, "{}"),
+                ("tick 3", "{}", 0, new string[] {  }, new string[] { "lz:assault@150,-338;assault@153,-336;elite@147,-335" }, "{}"),
+                ("done 4", "{}", 1, new string[] { "@ending" }, new string[] {  }, "{}"),
+                ("bossPhase2", "{}", 1, new string[] { "VIPER: All units — converge on the runway! Kill them all!" }, new string[] { "air:elite@60,-336;elite@66,-340;assault@54,-334;assault@200,-270" }, "{}"),
+            },
+        };
     }
 }

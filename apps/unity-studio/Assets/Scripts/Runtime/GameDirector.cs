@@ -26,6 +26,9 @@ namespace SpecialSoldier
         public GameObject bioSample;
         /// <summary>Mission 04: a security camera saw you (once; also counts as the mission's alarm).</summary>
         public bool CameraAlarmed { get; private set; }
+        /// <summary>Mission 05: the extraction helicopter (flies in when the LZ is held) and where the smoke goes.</summary>
+        public Transform heli;
+        public bool HeliLanded => Mission != null && Mission.Flags.Contains("heliLanded");
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -190,6 +193,45 @@ namespace SpecialSoldier
             else if (evt == "openDoor") StartCoroutine(OpenDoor());
             else if (evt == "sample" && bioSample) bioSample.SetActive(false);
             else if (evt == "sirenServer") SliceFx.I.Alarm(player ? player.transform.position : Vector3.zero);
+            else if (evt == "smoke") SmokeColumn.Spawn(IslandGround(IslandProps.Helipad.x + 6, IslandProps.Helipad.z + 5), new Color(0.25f, 0.82f, 0.38f), 160f);   // web 0x40d060
+            else if (evt == "heliArrive") StartCoroutine(HeliArrive());
+        }
+
+        /// <summary>VIPER at half health (web Missions.event bossPhase2): his shout, the siren, and four more onto the runway.</summary>
+        public void OnBossPhase2(EnemyAgent boss)
+        {
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            if (campaign?.BossPhase2Radio != null) Radio(campaign.BossPhase2Radio);
+            SliceFx.I.Alarm(boss.transform.position);
+            SendWave("phase2", 4);
+        }
+
+        /// <summary>web heliArrive / updateHeli 'in': over 8.5 s the helicopter eases in from 240 m east, 70 m up and 120 m south
+        /// (cubic ease-out) onto the pad, then you can board. Island coordinates, mapped to Unity with the z mirror.</summary>
+        System.Collections.IEnumerator HeliArrive()
+        {
+            Radio("ANGEL 1-2: On final. Get your people ready!");
+            if (!heli) { Mission?.Flags.Add("heliLanded"); yield break; }
+            heli.gameObject.SetActive(true);
+            var p = IslandProps.Helipad; var rotor = FindChild(heli, "rotor"); var tail = FindChild(heli, "tail");
+            for (float t = 0f; ; t += Time.deltaTime)
+            {
+                float k = Mathf.Clamp01(t / 8.5f), e = 1f - Mathf.Pow(1f - k, 3f);
+                var w = IslandTerrain.ToWorld(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Mathf.Sin(Time.time * 2f) * 0.3f : 0f), p.z - (1 - e) * 120);
+                heli.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                heli.rotation = Quaternion.Euler(-(1 - k) * 0.25f * Mathf.Rad2Deg, -(-1.9f + e * 0.35f) * Mathf.Rad2Deg, 0f);   // island yaw → Unity (mirrored)
+                if (rotor) rotor.Rotate(0f, 26f * Mathf.Rad2Deg * Time.deltaTime, 0f, Space.Self);
+                if (tail) tail.Rotate(40f * Mathf.Rad2Deg * Time.deltaTime, 0f, 0f, Space.Self);
+                if (k >= 1f && !HeliLanded) { Mission?.Flags.Add("heliLanded"); Radio("HELICOPTER LANDED — BOARD NOW"); }
+                if (State != Outcome.Playing) yield break;
+                yield return null;
+            }
+        }
+
+        static Transform FindChild(Transform root, string name)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) return t;
+            return null;
         }
 
         /// <summary>web: door.position.y = FAC_Y + 2.1 + min(4, t × 2.5) — it slides 4 m up into the ceiling in 1.6 s.</summary>

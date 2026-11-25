@@ -13,6 +13,14 @@ namespace SpecialSoldier.Core.Tests
         [Test] public void GenOutpostCallsMatchTheWebGame() => Same(PropsFixture.GenOutpost, IslandProps.GenOutpost());
         [Test] public void BaseCallsMatchTheWebGame() => Same(PropsFixture.Base, IslandProps.Base());
         [Test] public void FacilityCallsMatchTheWebGame() => Same(PropsFixture.Facility, IslandProps.Facility());
+        [Test] public void AirfieldCallsMatchTheWebGame() => Same(PropsFixture.Airfield, IslandProps.Airfield());
+
+        [Test]
+        public void AirfieldSniperStandsOnTheContainer()
+        {
+            var a = IslandProps.Airfield();
+            Assert.That(IslandProps.Top(a, 232, -300), Is.EqualTo(7 + 2.6).Within(1e-9), "M05 sniper: web top(232, -300) = the blue container's roof");
+        }
 
         [Test]
         public void FacilityPointsAndCamerasMatchTheWebGame()

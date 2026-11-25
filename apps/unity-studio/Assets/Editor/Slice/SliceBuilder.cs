@@ -319,6 +319,18 @@ namespace SpecialSoldier.EditorTools
             if (named.TryGetValue("CommsTower", out var relay)) director.relayMast = relay;
             if (door) director.securityDoor = door;
             if (named.TryGetValue("BioSample", out var sample)) director.bioSample = sample.gameObject;
+            if (m.Id == "m05")
+            {
+                // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve
+                var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+                var node = glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Heli") : null;
+                GameObject h;
+                if (node) { h = Object.Instantiate(node.gameObject); foreach (var c in h.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c); }
+                else { h = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(h.GetComponent<Collider>()); h.transform.localScale = new Vector3(2.4f, 2.2f, 6.5f); }
+                h.name = "Heli"; h.transform.position = SpawnPoint(IslandProps.Helipad.x + 240, IslandProps.Helipad.z - 120, 77.2); h.SetActive(false);
+                director.heli = h.transform;
+                Debug.Log($"[Slice] {m.Code}: extraction helicopter {(node ? "Blender Heli" : "box stand-in")}");
+            }
 
             string path = CampaignScenePath(m);
             bool saved = SaveAndList(scene, path, 1 + System.Array.IndexOf(Campaign.All, m));
@@ -431,6 +443,17 @@ namespace SpecialSoldier.EditorTools
                 light.shadows = LightShadows.None; light.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
                 if (l.Red) { var pulse = light.gameObject.AddComponent<LightPulse>(); pulse.baseIntensity = 1.5f; pulse.swing = 1f; pulse.phase = (float)l.X; }
             }
+            // painted ground (web runway, stripes, helipad): thin boxes / discs without colliders
+            foreach (var f in set.Flats)
+            {
+                var w = IslandTerrain.ToWorld(f.X, f.Y, f.Z);
+                var g = GameObject.CreatePrimitive(f.Disc ? PrimitiveType.Cylinder : PrimitiveType.Cube); Object.DestroyImmediate(g.GetComponent<Collider>());
+                g.name = f.Disc ? "Pad" : "Paint"; g.transform.SetParent(root.transform); g.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                g.transform.localScale = new Vector3((float)f.Sx, f.Disc ? 0.01f : 0.02f, (float)f.Sz);
+                var col = new Color(((f.Color >> 16) & 255) / 255f, ((f.Color >> 8) & 255) / 255f, (f.Color & 255) / 255f);
+                g.GetComponent<Renderer>().sharedMaterial = Mat("Paint_" + f.Color.ToString("x6"), col, 0.85f);
+                g.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; g.isStatic = true;
+            }
             // indoor floors and ceilings (web: the facility floor is the FAC_Y plane; here they are solid slabs)
             foreach (var sl in set.Slabs)
             {
@@ -526,6 +549,8 @@ namespace SpecialSoldier.EditorTools
             head.AddComponent<SphereCollider>().radius = 0.14f; head.AddComponent<HitZone>().part = BodyPart.Head;
             // the capsule covers the head too: shrink it so head shots reach the sphere first
             body.height = 1.5f; body.center = new Vector3(0f, 0.75f, 0f);
+            float sc = EnemyType.All.FirstOrDefault(t => t.Id == type)?.Scale ?? 1f;   // web type.scale (VIPER 1.2, heavy 1.14)
+            if (sc != 1f) { body.height *= sc; body.center *= sc; body.radius *= sc; head.transform.localPosition *= sc; head.GetComponent<SphereCollider>().radius *= sc; }
             go.AddComponent<Damageable>();
             var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.angularSpeed = 360f; agent.acceleration = 12f;
             agent.enabled = false;   // EnemyAgent.Start enables it once the NavMeshSurface has loaded its data (WebGL ran agents first)
@@ -541,7 +566,7 @@ namespace SpecialSoldier.EditorTools
             if (visual)
             {
                 var v = Object.Instantiate(visual, go.transform); v.name = "Visual";
-                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity; v.transform.localScale = Vector3.one * sc;
                 foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
                 // U3: Quaternius UAL clips on an invisible Humanoid rig drive the soldier's pivots (web procedural pose without it)
                 var anim = go.AddComponent<SoldierAnimator>(); anim.visual = v.transform;

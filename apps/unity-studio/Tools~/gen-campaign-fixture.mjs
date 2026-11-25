@@ -22,7 +22,7 @@ const FAC_Y = +src('world', 'world.js').match(/FAC_Y = (-?[\d.]+)/)[1];
   const anyP = () => new Proxy(function () {}, { get: (t, k) => (k === Symbol.toPrimitive ? () => 0 : anyP()), apply: () => anyP(), construct: () => anyP() });
   new Function('G', 'THREE', 'MAT', 'POI', 'FAC_Y', 'FAC_H', `${build.match(/const ins = [^\n]+/)[0]}\n${build.slice(fs, fe)}\nbuildFacility();`)({ world: W, fx: anyP() }, new Proxy({}, { get: () => anyP() }), new Proxy({}, { get: () => ({}) }), POI, FAC_Y, 4.2);
 }
-const CODES = ['MISSION 01', 'MISSION 02', 'MISSION 03', 'MISSION 04'];
+const CODES = ['MISSION 01', 'MISSION 02', 'MISSION 03', 'MISSION 04', 'MISSION 05'];
 
 function block(code) {
   const a = missions.indexOf(`{ code: '${code}'`); if (a < 0) throw new Error(code + ' not found');
@@ -37,7 +37,7 @@ function run(code) {
   const wave = (list, group) => rec.waves.push({ group, list: list.map(([k, x, z]) => ({ kind: k, x, z })) });
   const G = { hud: { radio: (t) => rec.radio.push(t), toast() {}, banner() {}, objective() {} }, enemies: { count: () => alive }, world: { heightAt: () => NaN, groundAt: () => NaN, interactables: [], animated: [], los: () => true }, player: { pos: { x: 0, z: 0 } }, cine: any(), fx: any(), audio: any(), squad: any(), weapons: any(), gear: any() };
   const MathR = Object.assign(Object.create(Math), { random: () => 0.3 });   // deterministic hooks (Mission 04 uplink: 0.3 < 0.5 → elite)
-  const scope = new Proxy({ G, POI, GEN, FAC_Y, sp, wave, top: () => 'TOP', E: () => ({ list: [], count: () => 0 }), ST: { SEARCH: 2, COMBAT: 3 }, buildGenOutpost() {}, Math: MathR, console }, { has: (t, k) => k !== 'def', get: (t, k) => (k === Symbol.unscopables ? undefined : k in t ? t[k] : any()) });
+  const scope = new Proxy({ G, POI, GEN, FAC_Y, sp, wave, top: () => 'TOP', E: () => ({ list: [], count: () => 0 }), ST: { SEARCH: 2, COMBAT: 3 }, buildGenOutpost() {}, Math: MathR, console }, { has: (t, k) => !['def', 'name', 'e'].includes(k), get: (t, k) => (k === Symbol.unscopables ? undefined : k in t ? t[k] : any()) });
   const def = new Function('scope', `with (scope) { return (${block(code)}); }`)(scope);
   const M = { flags: {} };
   def.setup(M);
@@ -46,14 +46,22 @@ function run(code) {
   const one = (o, parent) => { const at = o.at ? o.at() : o; objectives.push({ parent, type: o.type, text: o.text, group: o.group || '', x: at.x ?? null, z: at.z ?? null, r: o.r ?? null, label: o.label || '', hold: o.hold ?? null, radio: o.radio || '' }); };
   def.objectives.forEach((o, i) => { one(o, -1); (o.parts || []).forEach((p) => one(p, i)); });
   const hooks = [];
-  const hook = (name, fn, flags, aliveNow) => { const r0 = rec.radio.length, w0 = rec.waves.length; const m = { flags: { ...flags } }; alive = aliveNow; fn(m); hooks.push({ name, flags: JSON.stringify(flags), alive: aliveNow, radio: rec.radio.slice(r0), waves: rec.waves.slice(w0), setFlags: JSON.stringify(m.flags) }); };
+  // mission-object methods the hooks call (helicopter, ending): recorded as '@name' in the radio list
+  const hook = (name, fn, flags, aliveNow) => { const r0 = rec.radio.length, w0 = rec.waves.length; const m = { flags: { ...flags }, heliArrive: () => rec.radio.push('@heliArrive'), ending: () => rec.radio.push('@ending') }; alive = aliveNow; fn(m); hooks.push({ name, flags: JSON.stringify(flags), alive: aliveNow, radio: rec.radio.slice(r0), waves: rec.waves.slice(w0), setFlags: JSON.stringify(m.flags) }); };
   if (def.alarm) hook('alarm', (m) => def.alarm(m), {}, 1);
   def.objectives.forEach((o, i) => {
     if (o.start) for (const f of [{}, { powerCut: true }]) hook(`start ${i}`, (m) => o.start(m), f, 1);
     (o.parts || []).forEach((p, k) => { if (p.done) for (const a of [1, 0]) hook(`done ${i}.${k}`, (m) => p.done(m), {}, a); });
     if (o.done && o.type !== 'custom') hook(`done ${i}`, (m) => o.done(m), {}, 1);
+    if (o.done && o.type === 'defend') { /* already recorded above */ }
     if (o.tick) hook(`tick ${i}`, (m) => { m.waveT = 0; o.tick(m, 0.1); }, {}, 0);   // the first wave of a timed defence
   });
+  if (code === 'MISSION 05') { // Missions.event('bossPhase2', e): the web mission manager's own branch, run on VIPER at his spawn
+    const ev = missions.slice(missions.indexOf("if (name === 'bossPhase2')")); let bd = 0, be = ev.indexOf('{');
+    for (let i = be; i < ev.length; i++) { if (ev[i] === '{') bd++; else if (ev[i] === '}' && --bd === 0) { be = i + 1; break; } }
+    const e = { pos: { x: 120, z: -296 }, type: {} };
+    hook('bossPhase2', () => new Function('scope', 'name', 'e', `with (scope) { ${ev.slice(0, be)} }`)(scope, 'bossPhase2', e), {}, 1);
+  }
   return { code, name: def.name, zone: def.zone, sky: def.sky, spawn: s, spawns: rec.spawns, objectives, hooks };
 }
 

@@ -14,6 +14,7 @@ namespace SpecialSoldier.Core.Tests
             yield return new TestCaseData(Campaign.M02, CampaignFixture.MISSION02).SetName("MISSION 02");
             yield return new TestCaseData(Campaign.M03, CampaignFixture.MISSION03).SetName("MISSION 03");
             yield return new TestCaseData(Campaign.M04, CampaignFixture.MISSION04).SetName("MISSION 04");
+            yield return new TestCaseData(Campaign.M05, CampaignFixture.MISSION05).SetName("MISSION 05");
         }
 
         sealed class FakeWorld : IMissionWorld
@@ -77,16 +78,21 @@ namespace SpecialSoldier.Core.Tests
             foreach (var h in f.Hooks)
             {
                 var radio = new List<string>(); var waves = new List<string>();
-                if (h.name == "alarm")
+                if (h.name == "bossPhase2")
+                {
+                    radio.Add(m.BossPhase2Radio); waves.Add(Wave(m.Waves["phase2"]));
+                }
+                else if (h.name == "alarm")
                 {
                     if (m.AlarmRadio != null) radio.Add(m.AlarmRadio);
                     if (m.AlarmWave != null) waves.Add(Wave(m.AlarmWave));
-                    if (h.waves.Length == 0) Assert.IsNotNull(m.AlarmSearchPrefix, "an alarm without a wave sends the patrols searching");
+                    if (h.waves.Length == 0 && h.radio.Length > 0) Assert.IsNotNull(m.AlarmSearchPrefix, "an alarm without a wave sends the patrols searching");
                 }
                 else
                 {
                     var r = m.NewRunner(); var w = new FakeWorld { AliveCount = h.alive };
                     r.Begin(w);
+                    r.EventRaised += e => { if (h.radio.Contains("@" + e)) radio.Add("@" + e); };   // web mission-object calls (heliArrive, ending)
                     r.RadioSaid += radio.Add; r.WaveRequested += (name, n) => waves.Add(Wave(m.Waves[name].Take(n)));
                     foreach (System.Text.RegularExpressions.Match fm in System.Text.RegularExpressions.Regex.Matches(h.flags, "\"(\\w+)\":true")) r.Flags.Add(fm.Groups[1].Value);
                     var idx = h.name.Split(' ')[1].Split('.').Select(int.Parse).ToArray();

@@ -398,3 +398,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 미션 배치에 높이(`SpawnDef.Y`, `SpawnY`) 추가 — 지하 배치와 M03 건물 안(y 16) 병사. 웹 미션 객체 실행 결과와 높이까지 대조.
 - dotnet `CoreTests~` **310/310**. PlayMode `Mission04Tests` 2개. **Unity 확인 전**.
 
+## 2026-11-25 (17) — 미션 05 LAST EXTRACTION: 캠페인 5개 모두 이식 (허브 세션, 클라우드, U4)
+
+- **비행장·항구(`Core/IslandProps.Airfield`)**: 활주로·띠 표시, 격납고(지하 엘리베이터 출구), 관제탑, 헬리패드(원판·노란 고리·H 표시)와 모래주머니, 활주로 엄폐물·트럭·연료탱크·가로등,
+  항구 컨테이너·크레인·화물선·부두. 웹 build.js 원문 실행 결과와 **110개 호출 일치**. 평면 표시는 충돌체 없는 얇은 판.
+- **보스 COMMANDER VIPER(`EnemyType.Viper`)**: 웹 표 숫자(950 hp·320 armor·1.2배 크기·수류탄). 체력 절반 미만에서 2단계(웹 bossPhase2):
+  고함 무전·사이렌·증원 4명, 속도 5.2·탄 퍼짐 2.1(`ViperEnraged`). 대조 테스트에 크기(scale)를 추가하다 **중보병 1.14배** 가 빠진 것을 찾아 고침.
+- **미션 05(`Core/Campaign.M05`)**: 황혼, VIPER 제거 → 헬리패드 → 녹색 연막(`Runtime/SmokeColumn`) → 착륙지 60초 방어(9초마다 3명, 살아 있는 7명 미만일 때, 네 방향 순환)
+  → 헬기가 웹 곡선(8.5초, 동쪽 240 m·위 70 m·남쪽 120 m 에서 감속 진입)으로 착륙 → 착륙 후에만 탑승 가능(`Objective.Enabled`) → 임무 완료.
+- 웹 대조: 미션 객체 실행에 보스 2단계 이벤트(웹 Missions.event 원문)와 헬기·종료 호출까지 기록 → `CampaignParityTests` 가 M01–M05 전부 대조.
+- dotnet `CoreTests~` **316/316**. PlayMode `Mission05Tests` 2개. **Unity 확인 전**.
+- 캠페인 현황: Unity 판에서 **MISSION 01–05 전부 플레이 가능한 씬**(`Mission01–05.unity`, `?mission=m01…m05`). 아직: 미션 선택·브리핑 화면, 인트로 컷신, 분대원(아군 AI), 드론·열상·야간투시 장비.
+
