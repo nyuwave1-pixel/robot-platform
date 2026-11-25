@@ -4,10 +4,12 @@ import { describe, expect, it } from "vitest";
 
 const root = join(__dirname, "..");
 const ledger = readFileSync(join(root, "docs/ASSET_LICENSES.md"), "utf8");
+/** Kenney Furniture Kit(CC0) 에서 만든 가구 — 나머지 furn_*.glb 는 직접 만든 모델이라 대장 대상이 아니다 */
+const KENNEY_FURN = ["relaxchair", "cornersofa", "ottoman", "squarelamp", "succulent", "radio", "glasstable", "coatrack"].map((id) => `furn_${id}.glb`);
 const files = [
   ...readdirSync(join(root, "public/tex")).map((f) => `public/tex/${f}`),
   ...readdirSync(join(root, "public/audio")).map((f) => `public/audio/${f}`),
-  ...readdirSync(join(root, "public/models")).filter((f) => f.startsWith("qn_") || f.startsWith("real_") || f === "signature.glb" || f.startsWith("guest_") || f.startsWith("pet_")).map((f) => `public/models/${f}`),
+  ...readdirSync(join(root, "public/models")).filter((f) => f.startsWith("qn_") || f.startsWith("real_") || f === "signature.glb" || f.startsWith("guest_") || f.startsWith("pet_") || KENNEY_FURN.includes(f)).map((f) => `public/models/${f}`),
 ];
 
 describe("무료 에셋 라이선스 대장", () => {
@@ -21,6 +23,13 @@ describe("무료 에셋 라이선스 대장", () => {
     // CC0 이거나, 이 프로젝트 계정으로 직접 생성한 에셋(Higgsfield 유료 플랜 — 상업 사용 가능)
     for (const r of rows) expect(r).toMatch(/\| (CC0( 1\.0)?|자체 생성 \(Higgsfield\)) \|/);
     expect(ledger).not.toMatch(/CC-BY-NC|NonCommercial/);
+  });
+  it("Kenney 가구마다 모델 파일과 게임 가구 항목이 있다", async () => {
+    const { INTERIOR_MAP } = await import("../src/data/game");
+    for (const f of KENNEY_FURN) {
+      expect(files).toContain(`public/models/${f}`);
+      expect(INTERIOR_MAP[f.slice(5, -4)]?.kind).toBe("furniture");
+    }
   });
   it("Higgsfield 디자인 캐릭터마다 모델 파일이 있다", async () => {
     const { DESIGNED_BODIES } = await import("../src/store/game");

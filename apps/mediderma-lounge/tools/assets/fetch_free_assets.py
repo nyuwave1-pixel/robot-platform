@@ -35,6 +35,7 @@ SOURCES = [
     ("oga/apple_cider.ogg", OGA + "apple_cider.ogg", "29dfe7f2491fa2cabd159db70db868445be253e395db5f75b30b3113f798f4ca"),  # /content/apple-cider · Zane Little Music
     ("oga/hot_spring_town_1.ogg", OGA + "hot_spring_town_1.ogg", "2a38145b9f898aab620ff6b70e2ceb7604fe01e3eeee1a2e34f885796d654869"),  # /content/hot-springs-town · Kistol
     ("oga/park_ambience_birds.wav", OGA + "park_ambience_birds.wav", "dc1a5ac34b89cab7f8f261b53a23da7c1c5e3cc895aae4cb6fb4a1a04001b2af"),  # /content/park-ambiences · Thimras
+    ("kenney_furniture/kenney_furniturePack.zip", OGA + "kenney_furniturePack.zip", "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067"),  # /content/furniture-kit · Kenney (CC0, Unity 패키지 포함)
     ("oga/sfx_100_v2.zip", OGA + "sfx_100_v2.zip", "0fc61b4494e2e893c0c015ced4877b3f689c7d84a48cb61daecd7ddb52db797b"),  # /content/100-cc0-sfx-2 · rubberduck
 ]
 

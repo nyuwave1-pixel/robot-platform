@@ -146,6 +146,15 @@ export const INTERIOR: InteriorItem[] = [
   I({ id: "cattower", ko: "캣 타워", en: "Cat Tower", price: 320, currency: "coin", minLounge: 1, kind: "furniture" }),
   I({ id: "partition", ko: "라탄 파티션", en: "Rattan Partition", price: 240, currency: "coin", minLounge: 2, kind: "furniture" }),
   I({ id: "aquarium", ko: "아쿠아리움", en: "Aquarium", price: 35, currency: "star", minLounge: 2, kind: "furniture" }),
+  // Kenney Furniture Kit (CC0) — 라운지 팔레트로 다시 칠함 (tools/blender/import_kenney_furniture.py)
+  I({ id: "relaxchair", ko: "릴랙스 라운지 체어", en: "Relax Lounge Chair", price: 230, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "cornersofa", ko: "핑크 코너 소파", en: "Pink Corner Sofa", price: 280, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "ottoman", ko: "벨벳 오토만", en: "Velvet Ottoman", price: 110, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "squarelamp", ko: "스퀘어 플로어 램프", en: "Square Floor Lamp", price: 170, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "succulent", ko: "미니 다육이 화분", en: "Mini Succulent", price: 60, currency: "coin", minLounge: 1, kind: "furniture" }),
+  I({ id: "radio", ko: "레트로 라디오", en: "Retro Radio", price: 140, currency: "coin", minLounge: 2, kind: "furniture" }),
+  I({ id: "glasstable", ko: "유리 커피 테이블", en: "Glass Coffee Table", price: 210, currency: "coin", minLounge: 2, kind: "furniture" }),
+  I({ id: "coatrack", ko: "골드 스탠딩 행거", en: "Gold Coat Rack", price: 150, currency: "coin", minLounge: 1, kind: "furniture" }),
   // themes
   I({ id: "floor-cream", ko: "크림 우드 바닥", en: "Cream Wood Floor", price: 0, currency: "coin", minLounge: 1, kind: "floor", color: "#f3e3cf", accent: "#ead6bd" }),
   I({ id: "floor-pink", ko: "핑크 마블 바닥", en: "Pink Marble Floor", price: 400, currency: "coin", minLounge: 1, kind: "floor", color: "#f9dfe4", accent: "#f3ccd4" }),
