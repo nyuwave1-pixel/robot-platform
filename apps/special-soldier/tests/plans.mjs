@@ -322,3 +322,13 @@ export async function hudprefs({ page, sim, shot }) {
   console.log('minimal after firing + hurt:', JSON.stringify(await vis())); await page.waitForTimeout(500); await shot('H2-minimal-firing');
   await page.evaluate(() => { SS.settings.hud = undefined; }); await sim(0.2); console.log('standard:', JSON.stringify(await vis()));
 }
+
+// v0.22: operation map on the mission briefing (all five missions)
+export async function opmap({ page, sim, shot }) {
+  await page.click('nav [data-a="campaign"]'); await page.waitForTimeout(300);
+  for (let i = 0; i < 5; i++) {
+    await page.evaluate((i) => { SS.save.progress = 5; SS.menu.briefing(i); }, i); await page.waitForTimeout(600);
+    const info = await page.evaluate(() => { const c = document.getElementById('opMap'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let lit = 0; for (let k = 0; k < d.length; k += 4) if (d[k] + d[k + 1] + d[k + 2] > 60) lit++; return { lit: Math.round(lit / (d.length / 4) * 100), objs: [...document.querySelectorAll('ol.objs em')].map((e) => e.textContent).join(' ') }; });
+    console.log(`M0${i + 1}:`, JSON.stringify(info)); await shot(`B${i + 1}-brief`);
+  }
+}

@@ -11,6 +11,7 @@ import { CREDITS } from '../config/credits.js';
 import { INTEL, intelTotal } from '../config/intel.js';
 import { UNITY_EDITION, unityEditionUrl } from '../config/editions.js';
 import { hudSettingsHtml, bindHudSettings } from './hudprefs.js';
+import { drawOpMap, objectiveLabels } from './opmap.js';
 
 const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
@@ -87,9 +88,11 @@ export class Menu {
   }
   briefing(i) {
     const m = MISSIONS[i];
-    this.open(this.frame(`${m.code} — ${m.name}`, `<div class="brief"><div><h3>${m.zone}</h3>${m.brief.map((b) => `<p>${b}</p>`).join('')}<h3>OBJECTIVES</h3><ol>${m.objectives.map((o) => `<li>${o.text}</li>`).join('')}</ol></div>
+    const lab = objectiveLabels(m);
+    this.open(this.frame(`${m.code} — ${m.name}`, `<div class="brief"><div><h3>${m.zone}</h3><canvas id="opMap" class="opmap" width="640" height="300"></canvas>${m.brief.map((b) => `<p>${b}</p>`).join('')}<h3>OBJECTIVES</h3><ol class="objs">${m.objectives.map((o, k) => `<li><em>${lab[k]}</em>${o.type === 'any' ? `${o.text}: ${o.parts.map((q, j) => `<b>${'AB'[j]}</b> ${q.text}`).join(' · ')}` : o.text}</li>`).join('')}</ol></div>
       <aside><h3>LOADOUT</h3><ul>${['primary', 'secondary', 'sidearm'].map((s, k) => `<li><em>${k + 1}</em> ${WEAPONS[G.save.loadout[s]].name}</li>`).join('')}</ul><button data-a="weapons">CHANGE LOADOUT</button><h3>REWARD</h3><ul>${m.unlocks.map((u) => `<li>${u}</li>`).join('')}</ul><h3>DIFFICULTY</h3><p>${DIFFICULTY[G.settings.difficulty].label}</p></aside></div>
       <div class="actions">${tip()}<button class="primary" data-a="deploy" data-v="${i}">▶ DEPLOY</button></div>`, 'campaign'));
+    drawOpMap(document.getElementById('opMap'), m); // insertion point, numbered objectives and route on the real island
   }
   operations() {
     const iv = G.save.intel || {}, ig = Object.values(iv).reduce((n, a) => n + a.length, 0);

@@ -100,3 +100,4 @@ code{background:#fff1;padding:1px 5px}
 
 /* HUD visibility settings (src/ui/hudprefs.js) */
 #mini,#miniInfo,#objPanel,#wp,#ammo,#slots,#gearRow,#vitals,#aware,#squad{transition:opacity .35s}.hudOff{opacity:0!important}
+.opmap{display:block;width:100%;max-width:640px;aspect-ratio:64/30;margin:6px 0 12px;border:1px solid rgba(207,214,212,.2);background:#0b0d0c}ol.objs{list-style:none;padding-left:0}ol.objs em{display:inline-block;min-width:44px;color:var(--amber);font-style:normal;font-weight:700}ol.objs b{color:#ff9a3a}
