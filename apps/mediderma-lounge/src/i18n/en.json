@@ -526,5 +526,10 @@
   "group.defaultText": "{n} of us together in the lounge ✨",
   "group.fail.alone": "No one else is in the lounge to join you",
   "group.fail.busy": "A group photo is already in progress",
-  "group.fail.offline": "Group photos need a live connection"
+  "group.fail.offline": "Group photos need a live connection",
+  "nav.character.short": "CHARACTER",
+  "nav.lounge.short": "LOUNGE",
+  "nav.care.short": "CARE",
+  "nav.shop.short": "SHOP",
+  "nav.social.short": "SOCIAL"
 }

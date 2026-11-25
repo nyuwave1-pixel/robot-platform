@@ -26,19 +26,25 @@ export function Splash() {
       {video && <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/55 via-white/35 to-white/75" />}
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-pink-soft/70 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-lav/70 blur-3xl" />
-      <div className="relative h-56 w-56 sm:h-64 sm:w-64">
+      <div className="relative h-[min(14rem,30vh)] w-[min(14rem,30vh)] sm:h-[min(16rem,32vh)] sm:w-[min(16rem,32vh)]">
         <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} rank={started && !useGame.getState().look.hideRank ? useGame.getState().rank : 0} auto />
       </div>
       <p className="relative mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
       <h1 className="relative mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">BEAUTY <span className="text-pink-deep">LIFE</span></h1>
-      <p className="relative mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">뷰티 라이프 · BEAUTY GROWTH. BEAUTY SOCIAL.</p>
+      <p className="relative mt-3 text-center text-xs font-semibold tracking-[0.12em] text-ink/60 sm:text-sm sm:tracking-[0.2em]">
+        <span className="whitespace-nowrap">뷰티 라이프</span>
+        <span className="hidden sm:inline"> · </span>
+        <br className="sm:hidden" />
+        <span className="whitespace-nowrap">BEAUTY GROWTH · BEAUTY SOCIAL</span>
+      </p>
       <div className="relative mt-8 flex w-full max-w-xs flex-col gap-3">
         {started && (
           <button className="btn-primary" onClick={() => set({ screen: "game" })}>{t("splash.continue", { name })}</button>
         )}
         <button className={started ? "btn-ghost" : "btn-primary"} onClick={() => set({ screen: "intro" })}>{t("splash.new")}</button>
       </div>
-      <p className="absolute bottom-4 px-6 text-[12px] leading-relaxed text-ink/45">{t("splash.notice")}</p>
+      {/* 안내 문구는 흐름 안에 둔다: 화면이 낮으면(휴대폰 · 포털 안 창) 버튼과 겹치지 않게 */}
+      <p className="relative mt-6 max-w-md text-[11px] leading-relaxed text-ink/45 sm:text-[12px]">{t("splash.notice")}</p>
     </div>
   );
 }
