@@ -14,6 +14,12 @@ namespace SpecialSoldier.Core
         /// (270 × 200 m at 16 m), so the slice's 160 m arena (walls at ±80 m) is completely on flat ground.</summary>
         public const double SliceIslandX = 0, SliceIslandY = 16, SliceIslandZ = -95;
 
+        /// <summary>Island (web, three.js: right-handed, +z toward the viewer) → Unity world (left-handed). z is flipped — the same
+        /// conversion SkyPreset.SunDirUnity uses — otherwise the Unity island would be a mirror image of the web island.
+        /// Island (0, 16, −95) lands on world (0, 0, 0).</summary>
+        public static (double x, double y, double z) ToWorld(double ix, double iy, double iz) => (ix - SliceIslandX, iy - SliceIslandY, -(iz - SliceIslandZ));
+        public static (double x, double y, double z) ToIsland(double wx, double wy, double wz) => (wx + SliceIslandX, wy + SliceIslandY, -wz + SliceIslandZ);
+
         public readonly struct Flat
         {
             public readonly double X0, X1, Z0, Z1, H, M; public readonly string Kind;   // double: 2.2f ≠ 2.2 would shift heights by ~5e-8 m

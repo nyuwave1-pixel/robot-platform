@@ -7,7 +7,7 @@ import { clamp, lerp, smooth, fbm, mulberry } from '../core/util.js';
 import { geometry as assetGeo } from '../game/assets.js';
 import { detailMap } from '../game/models.js';
 import { photoMat, splatTerrain, propPhoto } from './textures.js';
-import { SIZE, N, CELL, FLATS, flatDist, rawHeight } from './terrain.js';
+import { SIZE, N, CELL, FLATS, flatDist, rawHeight, gridHeights, heightAtGrid } from './terrain.js';
 export { SIZE, N, CELL, FLATS, flatDist, rawHeight, splatAt } from './terrain.js';
 
 export const FAC_Y = -60, FAC_H = 4.2;
@@ -57,17 +57,12 @@ let qStamp = 0;
 
 export class World {
   constructor() {
-    this.heights = new Float32Array((N + 1) * (N + 1));
+    this.heights = gridHeights();   // shared with the Unity slice (terrain.js)
     this.colliders = []; this.grid = new Map(); this.statics = []; this.animated = []; this.interactables = [];
     this.group = new THREE.Group(); G.scene.add(this.group);
-    for (let r = 0; r <= N; r++) for (let c = 0; c <= N; c++) this.heights[r * (N + 1) + c] = rawHeight(-SIZE / 2 + c * CELL, -SIZE / 2 + r * CELL);
     this.buildTerrain();
   }
-  heightAt(x, z) {
-    const fx = clamp((x + SIZE / 2) / CELL, 0, N - 0.001), fz = clamp((z + SIZE / 2) / CELL, 0, N - 0.001);
-    const c = fx | 0, r = fz | 0, u = fx - c, v = fz - r, H = this.heights, i = r * (N + 1) + c;
-    return lerp(lerp(H[i], H[i + 1], u), lerp(H[i + N + 1], H[i + N + 2], u), v);
-  }
+  heightAt(x, z) { return heightAtGrid(this.heights, x, z); }
   surfaceAt(x, z, y) {
     if (y < -30) return 'metal';
     const h = this.heightAt(x, z);
