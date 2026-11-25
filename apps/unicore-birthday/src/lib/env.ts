@@ -53,3 +53,15 @@ export function hasWebGL(): boolean {
     return false;
   }
 }
+
+/** 인트로가 닫힌 뒤에만 true — 인트로 뒤에 가려진 히어로 영상 등 무거운 리소스를 지연 로드 */
+export function useIntroClosed() {
+  const [closed, set] = useState(false);
+  useEffect(() => {
+    const check = () => set(document.documentElement.dataset.intro === "closed");
+    check();
+    window.addEventListener("uc:intro-closed", check);
+    return () => window.removeEventListener("uc:intro-closed", check);
+  }, []);
+  return closed;
+}

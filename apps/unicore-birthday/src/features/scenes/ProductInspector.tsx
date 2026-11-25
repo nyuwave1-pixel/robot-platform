@@ -105,7 +105,7 @@ function Jar({ rot, zoom, lidOpen }: { rot: React.MutableRefObject<{ x: number; 
   );
 }
 
-export default function ProductInspector({ className, hint, openLabel, resetLabel }: { className?: string; hint: string; openLabel: string; resetLabel: string }) {
+export default function ProductInspector({ className, hint, openLabel, resetLabel, ariaLabel = "Product 3D inspector: drag to rotate, double-click to reset", zoomInLabel = "Zoom in", zoomOutLabel = "Zoom out" }: { className?: string; hint: string; openLabel: string; resetLabel: string; ariaLabel?: string; zoomInLabel?: string; zoomOutLabel?: string }) {
   const rot = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
   const zoom = useRef(1);
   const [lidOpen, setLidOpen] = useState(false);
@@ -145,7 +145,7 @@ export default function ProductInspector({ className, hint, openLabel, resetLabe
   const setZoom = (z: number) => { zoom.current = Math.max(1, Math.min(2.5, z)); setZoomUi(zoom.current); };
 
   return (
-    <div ref={wrap} className={className} style={{ position: "absolute", inset: 0, touchAction: "pan-y", cursor: "grab" }} aria-label="제품 3D 인스펙터: 드래그로 회전, 더블클릭으로 초기화">
+    <div ref={wrap} className={className} style={{ position: "absolute", inset: 0, touchAction: "pan-y", cursor: "grab" }} aria-label={ariaLabel}>
       <Canvas dpr={[1, 2]} shadows camera={{ position: [0, 0.35, 4.3], fov: 32 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
         <ambientLight intensity={0.25} />
         <directionalLight position={[3, 5, 4]} intensity={2.2} color="#FFF1C9" castShadow />
@@ -166,8 +166,8 @@ export default function ProductInspector({ className, hint, openLabel, resetLabe
       <div className="inspector-ctl">
         <button className="btn btn-ghost" onClick={() => setLidOpen((v) => !v)} style={{ padding: "0 16px", minHeight: 40 }}>{lidOpen ? "CLOSE LID" : openLabel}</button>
         <div style={{ display: "flex", gap: 6 }}>
-          <button className="btn btn-ghost" aria-label="축소" onClick={() => setZoom(zoomUi - 0.25)} style={{ padding: 0, width: 40, minHeight: 40 }}>−</button>
-          <button className="btn btn-ghost" aria-label="확대" onClick={() => setZoom(zoomUi + 0.25)} style={{ padding: 0, width: 40, minHeight: 40 }}>+</button>
+          <button className="btn btn-ghost" aria-label={zoomOutLabel} onClick={() => setZoom(zoomUi - 0.25)} style={{ padding: 0, width: 40, minHeight: 40 }}>−</button>
+          <button className="btn btn-ghost" aria-label={zoomInLabel} onClick={() => setZoom(zoomUi + 0.25)} style={{ padding: 0, width: 40, minHeight: 40 }}>+</button>
           <button className="btn btn-ghost" onClick={() => { rot.current = { x: 0, y: 0, vx: 0, vy: 0 }; setZoom(1); setLidOpen(false); }} style={{ padding: "0 14px", minHeight: 40 }}>{resetLabel}</button>
         </div>
       </div>

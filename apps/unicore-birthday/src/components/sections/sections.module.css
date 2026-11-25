@@ -2,8 +2,10 @@
 .pin { position: relative; }
 .stage { position: sticky; top: 0; height: 100svh; width: 100%; overflow: hidden; }
 .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 max(20px, 5vw); }
-.chap { position: absolute; left: max(20px, 5vw); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); font: 400 10px/1 var(--font-ui); letter-spacing: .3em; color: rgba(198,161,106,.85); z-index: 5; }
-.bgStill { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.chap { position: absolute; left: max(20px, 5vw); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); font: 400 11px/1 var(--font-ui); letter-spacing: .3em; color: rgba(198,161,106,.85); z-index: 5; }
+.bgStill { position: absolute; inset: 0; background-size: cover; background-position: center; clip-path: inset(1px); }
+/* 배경 스틸의 상·하 경계를 섹션 배경색으로 녹여 가장자리 선이 보이지 않게 함 */
+.bgEdgeFade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, #080706 0%, rgba(8,7,6,0) 14%, rgba(8,7,6,0) 86%, #080706 100%); }
 .flow { padding-block: clamp(96px, 14vh, 180px); }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: clamp(32px, 5vw, 80px); align-items: center; }
 .stack { display: grid; gap: 18px; }
@@ -52,7 +54,7 @@
 .barBefore { background: linear-gradient(180deg, rgba(244,239,231,.38), rgba(244,239,231,.12)); }
 .barAfter { background: linear-gradient(180deg, var(--gold-metal), var(--gold-deep)); box-shadow: 0 0 40px rgba(198,161,106,.25); }
 .bar em { position: absolute; left: 0; right: 0; top: -40px; text-align: center; font: 400 clamp(18px, 2vw, 28px)/1 var(--font-serif); font-style: normal; color: var(--ivory); }
-.bar span { position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font: 400 10px/1 var(--font-ui); letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.bar span { position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font: 400 11px/1 var(--font-ui); letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
 .chartTitle { font: 400 12px/1 var(--font-ui); letter-spacing: .2em; color: var(--muted); margin: 0 0 56px; text-align: center; }
 .footPanel { margin-top: 28px; border-left: 2px solid var(--gold); padding: 12px 16px; background: rgba(23,17,15,.6); }
 .footPanel summary { cursor: pointer; font: 500 11px/1.6 var(--font-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--gold); list-style: none; }
@@ -63,7 +65,7 @@
 
 /* ---------- S05 masterpiece ---------- */
 .mpTitle { position: absolute; left: 0; right: 0; top: clamp(60px, 10vh, 120px); text-align: center; z-index: 3; display: grid; gap: 10px; justify-items: center; padding: 0 20px; }
-.mpTitle .eyebrow { color: var(--gold-deep); }
+.mpTitle :global(.eyebrow) { color: var(--gold-deep); }
 .mpH { font-size: clamp(34px, 5.5vw, 76px); color: #1a120c; margin: 0; }
 .mpEn { font: 400 clamp(12px, 1.2vw, 16px)/1 var(--font-serif); letter-spacing: .5em; color: #6b5433; }
 .mpBottom { position: absolute; left: 0; right: 0; bottom: clamp(60px, 10vh, 120px); text-align: center; z-index: 3; display: grid; gap: 8px; padding: 0 20px; color: #1a120c; }
@@ -71,7 +73,7 @@
 .mpVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #f1efe9; }
 
 /* ---------- S06 ingredients ---------- */
-.ingTrack { position: absolute; inset: 0; display: flex; align-items: flex-end; padding-bottom: 9svh; gap: clamp(16px, 2vw, 28px); padding: 0 max(20px, 5vw); will-change: transform; }
+.ingTrack { position: absolute; inset: 0; display: flex; align-items: flex-end; gap: clamp(16px, 2vw, 28px); padding: 0 max(20px, 5vw) 9svh; will-change: transform; }
 .ingCard { position: relative; flex: 0 0 min(78vw, 520px); height: min(60svh, 560px); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg-obsidian); display: grid; align-content: end; padding: 28px; gap: 10px; }
 .ingCard .bgStill { opacity: .55; mask-image: linear-gradient(180deg, #000 40%, transparent 95%); -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent 95%); }
 .ingOrb { position: absolute; left: 50%; top: 20%; transform: translateX(-50%); width: clamp(110px, 14vw, 180px); aspect-ratio: 1; border-radius: 50%; }
@@ -98,7 +100,7 @@
 .layer { position: absolute; width: min(80%, 520px); height: 34%; border-radius: 8px; border: 1px solid var(--line); transform-style: preserve-3d; display: grid; align-content: center; padding: 0 22px; will-change: transform; }
 .layer b { font: 500 11px/1 var(--font-ui); letter-spacing: .25em; color: var(--gold); }
 .layer span { font-size: 13px; color: var(--muted); }
-.conceptTag { font: 500 10px/1 var(--font-ui); letter-spacing: .25em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 8px 12px; border-radius: 999px; width: fit-content; }
+.conceptTag { font: 500 11px/1 var(--font-ui); letter-spacing: .25em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 8px 12px; border-radius: 999px; width: fit-content; }
 
 /* ---------- S10 satisfaction ---------- */
 .cards { display: grid; gap: 14px; perspective: 1200px; }
@@ -106,14 +108,14 @@
 .card p { margin: 0; font-size: clamp(15px, 1.3vw, 19px); color: var(--ivory); }
 .card p small { display: block; font-size: 13px; color: var(--muted); font-weight: 200; }
 .card .numeral { font-size: clamp(36px, 4vw, 56px); font-style: italic; }
-.surveyTag { display: inline-flex; align-items: center; gap: 8px; font: 500 10px/1 var(--font-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+.surveyTag { display: inline-flex; align-items: center; gap: 8px; font: 500 11px/1 var(--font-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
 .surveyTag i { width: 10px; height: 8px; border: 1px solid var(--muted); border-radius: 3px 3px 3px 0; }
 
 /* ---------- S11 how to use ---------- */
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 24px; counter-reset: s; }
 .step { position: relative; padding: 28px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; }
 .step b { font: 500 11px/1 var(--font-ui); letter-spacing: .3em; color: var(--gold); }
-.step h4 { margin: 0; font-size: clamp(18px, 1.8vw, 24px); color: var(--white); font-weight: 500; }
+.step h3 { margin: 0; font-size: clamp(18px, 1.8vw, 24px); color: var(--white); font-weight: 500; }
 .step p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
 
 /* ---------- S12 final ---------- */
@@ -125,14 +127,313 @@
 
 /* ---------- S13 lineup ---------- */
 .lineup { background: var(--ivory); color: #1a120c; }
-.lineup .eyebrow { color: #8f6b3a; }
 .lineupGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 40px; }
 .lineupItem { display: grid; gap: 10px; padding: 18px 12px; border-radius: 8px; text-align: center; }
-.lineupItem b { font: 400 clamp(20px, 2.4vw, 34px)/1 var(--font-serif); color: #8f6b3a; }
-.lineupItem i { font: 500 10px/1 var(--font-ui); letter-spacing: .2em; color: #6b5433; font-style: normal; }
+.lineupItem b { font: 400 clamp(20px, 2.4vw, 34px)/1 var(--font-serif); color: #7a5a2a; }
+.lineupItem i { font: 500 11px/1 var(--font-ui); letter-spacing: .2em; color: #6b5433; font-style: normal; }
 .lineupItem span { font-size: 13px; color: #3b2e22; line-height: 1.5; }
 .lineupHi { background: #fff; box-shadow: 0 20px 50px rgba(0,0,0,.08); }
 .lineupHi span { font-weight: 600; color: #1a120c; }
 .routine { display: grid; gap: 6px; margin-top: 24px; font: 500 11px/1.8 var(--font-ui); letter-spacing: .2em; color: #6b5433; }
 @media (max-width: 900px) { .lineupGrid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 560px) { .lineupGrid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- v0.3: 상세페이지 비주얼 적용 ---------- */
+/* hero */
+.heroGrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; gap: clamp(24px, 4vw, 64px); text-align: left; max-width: 1400px; margin: 0 auto; }
+.heroGrid .heroText { justify-items: start; }
+.heroGrid .heroEn { font-size: clamp(40px, 6.4vw, 120px); text-align: left; }
+.heroGrid .heroKo { text-align: left; }
+.heroFrame { position: relative; justify-self: center; width: min(34vw, 400px); max-height: 76svh; aspect-ratio: 9 / 16; border-radius: 26px; overflow: hidden; border: 1px solid rgba(201,168,106,.45); box-shadow: 0 40px 120px rgba(0,0,0,.65); background: #000; will-change: transform; z-index: 3; }
+.heroFrame video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.heroFrameCap { position: absolute; left: 16px; bottom: 14px; font: 500 11px/1 var(--font-ui); letter-spacing: .3em; color: rgba(244,239,231,.75); }
+@media (max-width: 900px) {
+  .heroGrid { grid-template-columns: 1fr; text-align: center; align-content: end; padding-bottom: 110px; }
+  .heroGrid .heroText { justify-items: center; position: relative; z-index: 4; }
+  .heroGrid .heroEn { text-align: center; font-size: clamp(38px, 11vw, 72px); }
+  .heroGrid .heroKo { text-align: center; }
+  .heroFrame { position: absolute; inset: 0; width: auto; max-height: none; aspect-ratio: auto; border-radius: 0; border: 0; box-shadow: none; justify-self: stretch; z-index: 1; }
+  .heroFrame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.3), rgba(8,7,6,.05) 35%, rgba(8,7,6,.94) 100%); }
+  .heroFrameCap { display: none; }
+}
+/* 28 days */
+.skinVideo { width: 100%; height: 100%; object-fit: cover; }
+.kenburns { animation: kenburns 18s ease-in-out infinite alternate; }
+@keyframes kenburns { from { transform: scale(1.05) translate(0, 0); } to { transform: scale(1.18) translate(-2%, -2%); } }
+/* product */
+.productPhoto { position: absolute; inset: 0; background-size: cover; background-position: center 42%; will-change: transform; }
+.productVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.35), transparent 30%, transparent 70%, rgba(8,7,6,.6)); pointer-events: none; }
+.modeBtn { position: absolute; right: max(20px, 5vw); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); z-index: 6; font: 500 11px/1 var(--font-ui); letter-spacing: .24em; color: rgba(244,239,231,.85); border: 1px solid rgba(244,239,231,.3); min-height: 44px; padding: 0 18px; border-radius: 999px; background: rgba(8,7,6,.45); backdrop-filter: blur(8px); cursor: pointer; }
+.modeBtn:hover { border-color: var(--gold-metal); color: var(--gold-metal); }
+@media (max-width: 767px) { .modeBtn { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }
+/* masterpiece (light scene — 흰 배경 선물상자 영상 위 다크 타이포) */
+.mpVideo { background: #efece6; }
+.mpVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(239,236,230,.9), rgba(239,236,230,0) 34%, rgba(239,236,230,0) 56%, rgba(239,236,230,.92) 82%, #efece6 100%); pointer-events: none; }
+.mpTitle :global(.eyebrow) { color: #4a3620; }
+.mpH { color: #1a120c; }
+.mpEn { color: #6b5433; }
+.mpBottom { color: #1a120c; }
+.mpBottom :global(.headline-ko) { color: #1a120c; }
+.mpBottom .mpCap { color: #6b5433; }
+.mpChap { color: #8a6a3a; }
+/* ingredients (real images) */
+.ingImg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .96; transition: transform 1.2s var(--ease-cinematic); }
+.ingCard:hover .ingImg { transform: scale(1.04); }
+.ingShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,17,15,0) 30%, rgba(23,17,15,.55) 60%, rgba(23,17,15,.96) 100%); }
+/* pdrn (light) */
+.light { color: #1a120c; }
+.pdrnHead { position: absolute; left: 0; right: 0; top: clamp(48px, 9vh, 100px); text-align: center; z-index: 3; display: grid; gap: 8px; padding: 0 20px; }
+.pdrnBalls { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-40%); display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 3vw, 40px); padding: 0 max(20px, 6vw); margin: 0; list-style: none; z-index: 3; text-align: center; }
+.pdrnBall { display: grid; gap: 10px; justify-items: center; opacity: .45; transform: scale(.9); transition: opacity .6s, transform .8s var(--ease-cinematic); }
+.pdrnBall figure { margin: 0; width: min(24vw, 250px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 30px 60px rgba(60,40,20,.15); }
+.pdrnBall img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pdrnBall b { font-size: clamp(13px, 1.2vw, 18px); color: #1a120c; font-weight: 600; }
+.pdrnBall span { font-size: clamp(12px, 1vw, 14px); color: #5a4a3a; line-height: 1.5; max-width: 28ch; }
+.pdrnBallOn { opacity: 1; transform: scale(1.06); }
+.pdrnBallOn b { color: #8f6b3a; }
+@media (max-width: 767px) {
+  .pdrnHead { top: 40px; }
+  .pdrnBalls { grid-template-columns: 1fr; top: auto; bottom: 56px; transform: none; gap: 12px; }
+  .pdrnBall { grid-template-columns: 84px 1fr; text-align: left; justify-items: start; align-items: center; column-gap: 14px; row-gap: 4px; transform: none; }
+  .pdrnBall figure { width: 84px; grid-row: span 2; }
+  .pdrnBallOn { transform: none; }
+}
+/* science */
+.sciBand { margin: 0; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.sciBand img { width: 100%; height: clamp(120px, 16vw, 200px); object-fit: cover; display: block; opacity: .85; }
+.sciBand figcaption { position: absolute; inset: 0; display: grid; align-content: center; gap: 6px; padding: 0 22px; background: linear-gradient(90deg, rgba(8,7,6,.88), rgba(8,7,6,.15)); }
+.sciBand span { font-size: 13px; color: var(--muted); }
+.sciBand b { font-size: clamp(16px, 1.5vw, 22px); color: var(--ivory); font-weight: 600; }
+.sciFig { margin: 0; position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; }
+.sciFig img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sciFig figcaption { position: absolute; left: 18px; right: 18px; bottom: 16px; font: 400 12px/1.5 var(--font-serif); letter-spacing: .22em; color: var(--ivory); }
+.sciSkin { height: clamp(160px, 22vw, 280px); border-radius: 10px; background-size: cover; background-position: center; opacity: .9; }
+.sciCircles { display: flex; gap: clamp(14px, 2vw, 28px); flex-wrap: wrap; }
+.sciCircles figure { margin: 0; display: grid; gap: 10px; justify-items: center; width: clamp(120px, 14vw, 180px); }
+.sciCircles img { width: 100%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 1px solid rgba(201,168,106,.4); }
+.sciCircles figcaption { font-size: 12px; color: var(--gold-metal); text-align: center; }
+/* moisture */
+.moistFig { margin: 0; width: min(100%, 320px); border-radius: 10px; overflow: hidden; }
+.moistFig img { width: 100%; display: block; }
+/* lineup */
+.lineupGuide { display: block; width: 100%; height: auto; margin-top: 32px; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.08); background: #fff; }
+
+/* v0.3 fixes */
+.heroGrid .heroEn { padding-bottom: .18em; }
+.heroGrid .heroText { gap: clamp(8px, 1.5vh, 18px); }
+@media (max-width: 767px) {
+  .pdrnHead { top: 72px; padding: 0 56px 0 20px; }
+  .pdrnBalls { bottom: 104px; }
+}
+
+/* how to use */
+.howtoVideo { width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.howtoVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.7), rgba(8,7,6,.45) 50%, rgba(8,7,6,.85)); pointer-events: none; }
+.productVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* emphasis: 시간을 되돌려 · 내 피부의 첫 번째 생일 / 노벨상 성분 */
+.heroEyebrow { font-size: clamp(12px, 1.2vw, 16px); letter-spacing: .42em; color: var(--gold-metal); margin: 0; font-weight: 400; }
+.heroKoBig { margin: 0; display: grid; gap: .1em; transform-origin: 50% 100%; will-change: transform, opacity; text-wrap: balance; }
+.heroKoLine { font-size: clamp(20px, 2.4vw, 36px); font-weight: 300; color: var(--ivory); letter-spacing: -.01em; }
+.heroKoEm { display: block; font-size: clamp(38px, 5.6vw, 96px); font-weight: 700; line-height: 1.12; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; }
+@media (max-width: 900px) { .heroKoEm { font-size: clamp(34px, 10vw, 56px); } .heroKoLine { font-size: clamp(16px, 4.4vw, 22px); } }
+.sciBandBig img { height: clamp(200px, 26vw, 320px); }
+.sciBandBig figcaption { gap: 10px; padding: 0 clamp(20px, 3vw, 40px); background: linear-gradient(90deg, rgba(8,7,6,.92), rgba(8,7,6,.35)); }
+.sciNobel { font-size: clamp(22px, 2.6vw, 40px); line-height: 1.25; color: var(--ivory); font-weight: 700; max-width: 18ch; }
+.sciNobel::after { content: ""; display: block; width: 56px; height: 2px; margin-top: 14px; background: linear-gradient(90deg, var(--gold-metal), transparent); }
+.finalEyebrow { font-size: clamp(11px, 1.1vw, 14px); letter-spacing: .42em; color: var(--gold-metal); margin: 0; font-weight: 400; }
+.finalKoBig { margin: 0; display: grid; gap: .1em; text-align: center; text-wrap: balance; }
+.finalKoBig span { font-size: clamp(18px, 2.2vw, 32px); font-weight: 300; color: var(--ivory); }
+.finalKoBig b { font-size: clamp(34px, 5.4vw, 92px); font-weight: 700; line-height: 1.12; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.heroKoEm { white-space: nowrap; font-size: clamp(36px, 4.9vw, 84px); }
+.heroKoBig, .finalKoBig { word-break: keep-all; }
+@media (max-width: 900px) { .heroGrid { padding-bottom: 160px; } .heroKoEm { white-space: normal; font-size: clamp(32px, 9.4vw, 52px); } }
+
+/* safety video bg (full-bleed inside the section) */
+.metricSafe { position: relative; }
+.safetyBg { position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; z-index: 0; }
+.safetyBg video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.safetyVeil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,7,6,.85), rgba(8,7,6,.35) 45%, rgba(8,7,6,.9)); }
+/* satisfaction: bigger, bolder percentages */
+.cardNum { font-size: clamp(56px, 6.4vw, 100px) !important; font-weight: 700 !important; font-style: normal !important; line-height: 1; letter-spacing: -.02em; background: linear-gradient(180deg, #fff6e4, var(--gold-metal) 70%, var(--gold-deep)); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+.cardNum small { font-size: .5em; font-weight: 500; margin-left: .04em; }
+.card { grid-template-columns: 1fr auto; padding: 26px 30px; }
+.card p { font-size: clamp(16px, 1.5vw, 22px); font-weight: 500; }
+
+/* nobel badge on ingredient card */
+.nobelBadge { position: absolute; top: 18px; left: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(229,197,141,.6); background: rgba(8,7,6,.55); backdrop-filter: blur(6px); font: 600 10px/1 var(--font-ui); letter-spacing: .24em; color: var(--gold-metal); }
+.nobelBadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-metal); box-shadow: 0 0 10px var(--gold-metal); }
+.sciFig video, .sciFig > div { border-radius: 10px; }
+.ingShade { background: linear-gradient(180deg, rgba(23,17,15,.05) 20%, rgba(23,17,15,.6) 50%, rgba(23,17,15,.97) 100%); }
+
+/* ---------- Nobel motion hero ---------- */
+.nobelHero { position: relative; left: 50%; width: 100vw; transform: translateX(-50%); min-height: clamp(520px, 88svh, 860px); display: grid; place-items: center; overflow: hidden; background: #050403; }
+.nobelBg { position: absolute; inset: 0; background-size: cover; background-position: 70% 45%; opacity: 0; filter: saturate(.85) contrast(1.05); will-change: transform, opacity; }
+.nobelVeil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, rgba(8,7,6,.05), rgba(8,7,6,.62) 62%, #050403 100%), linear-gradient(180deg, var(--bg-obsidian), transparent 18%, transparent 82%, var(--bg-obsidian)); }
+.nobelGlow { position: absolute; left: 50%; top: 50%; width: min(70vw, 760px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(229,197,141,.32), rgba(198,161,106,.12) 38%, transparent 68%); filter: blur(24px); opacity: 0; pointer-events: none; animation: nobelPulse 4.5s ease-in-out infinite alternate; }
+@keyframes nobelPulse { from { transform: translate(-50%, -50%) scale(.96); } to { transform: translate(-50%, -50%) scale(1.08); } }
+.nobelInner { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; gap: clamp(10px, 1.6vh, 18px); padding: clamp(56px, 10vh, 120px) max(20px, 5vw); max-width: 1200px; }
+.nobelEyebrow { font: 500 11px/1 var(--font-ui); letter-spacing: .42em; text-transform: uppercase; color: var(--gold-metal); opacity: 0; }
+.nobelL0 { margin: 0; font-size: clamp(14px, 1.4vw, 20px); color: var(--muted); letter-spacing: .02em; }
+.nobelL0 [data-ch] { opacity: 0; }
+.nobelH { margin: 0; display: grid; gap: .05em; justify-items: center; word-break: keep-all; }
+.nobelL1 { display: block; font-size: clamp(22px, 3.2vw, 46px); font-weight: 300; color: var(--ivory); letter-spacing: -.01em; }
+.nobelL1 [data-ch] { opacity: 0; }
+.nobelL2 { display: inline-flex; align-items: baseline; flex-wrap: wrap; justify-content: center; gap: 0 .18em; line-height: 1.05; }
+.nobelEgf { display: inline-flex; font-family: var(--font-serif); font-weight: 800; font-size: clamp(72px, 13vw, 220px); line-height: 1; letter-spacing: .02em; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 28px rgba(229,197,141,.35)); position: relative; }
+.nobelEgf i { display: inline-block; font-style: normal; opacity: 0; will-change: transform, opacity, filter; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nobelEgf::after { content: ""; position: absolute; inset: -10% -6%; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; mix-blend-mode: screen; animation: nobelSweep 5s ease-in-out 3s infinite; pointer-events: none; -webkit-mask: linear-gradient(#000, #000); }
+@keyframes nobelSweep { 0% { background-position: 120% 0; opacity: 0; } 10% { opacity: 1; } 40% { background-position: -40% 0; opacity: 0; } 100% { background-position: -40% 0; opacity: 0; } }
+.nobelTail { display: inline-block; font-size: clamp(30px, 5.2vw, 84px); font-weight: 700; color: var(--ivory); letter-spacing: -.02em; }
+.nobelTail [data-ch] { opacity: 0; }
+.nobelRule { display: block; width: min(60vw, 360px); height: 1px; background: linear-gradient(90deg, transparent, var(--gold-metal), transparent); transform: scaleX(0); margin-top: 6px; }
+.nobelTokens { margin: 4px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 1.4vw, 18px); }
+.nobelToken { font-family: var(--font-serif); font-weight: 400; font-size: clamp(18px, 2.4vw, 34px); line-height: 1; letter-spacing: .14em; color: rgba(244,239,231,.85); padding: 12px clamp(12px, 1.6vw, 22px); border: 1px solid rgba(201,168,106,.35); border-radius: 999px; opacity: 0; background: rgba(8,7,6,.35); backdrop-filter: blur(6px); }
+.nobelTokenHi { color: #1a120c; background: linear-gradient(180deg, #fff3d6, var(--gold-metal)); border-color: transparent; font-weight: 600; box-shadow: 0 10px 40px rgba(229,197,141,.3); }
+.nobelSub { margin: 10px 0 0; max-width: 46ch; font-size: clamp(14px, 1.3vw, 18px); line-height: 1.7; color: var(--muted); opacity: 0; }
+.nobelSub b { color: var(--ivory); font-weight: 600; }
+@media (max-width: 767px) { .nobelHero { min-height: 78svh; } .nobelEgf { font-size: clamp(64px, 24vw, 110px); } .nobelTail { font-size: clamp(26px, 8.4vw, 40px); } .nobelToken { font-size: 15px; padding: 10px 14px; } }
+/* 상세페이지 크롭 가장자리의 흰 테두리 제거 — 살짝 확대해 프레임 밖으로 밀어냄 */
+.moistFig { background: #0f1a14; }
+.moistFig img { transform: scale(1.12); transform-origin: center; }
+img.ingImg { transform: scale(1.1); }
+.ingCard:hover img.ingImg { transform: scale(1.14); }
+
+/* ---------- Peptide motion hero ---------- */
+.pepHero { position: relative; left: 50%; width: 100vw; transform: translateX(-50%); min-height: clamp(560px, 92svh, 900px); display: grid; align-items: center; overflow: hidden; background: #0a0807; }
+.pepBg { position: absolute; inset: 0; background-size: cover; background-position: 60% 40%; opacity: 0; will-change: transform, opacity; animation: kenburns 22s ease-in-out infinite alternate; }
+.pepVeil { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,7,6,.92) 0%, rgba(8,7,6,.7) 45%, rgba(8,7,6,.35) 100%), linear-gradient(180deg, var(--bg-obsidian), transparent 15%, transparent 85%, var(--bg-obsidian)); }
+.pepGlow { position: absolute; left: 22%; top: 50%; width: min(60vw, 640px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(229,197,141,.28), rgba(198,161,106,.1) 40%, transparent 68%); filter: blur(28px); opacity: 0; pointer-events: none; }
+.pepInner { position: relative; z-index: 2; width: min(100%, 1280px); margin: 0 auto; padding: clamp(56px, 10vh, 120px) max(20px, 5vw); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+.pepLeft { display: grid; gap: clamp(10px, 1.6vh, 18px); justify-items: start; word-break: keep-all; }
+.pepQ { margin: 0; font-size: clamp(15px, 1.5vw, 21px); color: var(--ivory); opacity: .9; }
+.pepQ [data-ch] { opacity: 0; }
+.pepBig { margin: 0; font-size: clamp(40px, 6.4vw, 108px); font-weight: 800; line-height: 1.08; letter-spacing: -.03em; filter: drop-shadow(0 0 26px rgba(229,197,141,.3)); }
+.pepBig [data-ch] { opacity: 0; will-change: transform, opacity, filter; background: linear-gradient(180deg, #fff8e8 0%, #f1d9a6 35%, var(--gold-metal) 62%, var(--gold-deep) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pepName { margin: 6px 0 0; font-size: clamp(26px, 3.4vw, 54px); font-weight: 700; color: var(--white); letter-spacing: -.02em; opacity: 0; }
+.pepDesc { margin: 0; max-width: 40ch; font-size: clamp(14px, 1.3vw, 18px); line-height: 1.7; color: var(--muted); opacity: 0; }
+.pepDesc b { color: var(--gold-metal); font-weight: 700; }
+.pepMols { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 2.4vw, 32px); align-items: start; justify-items: center; }
+.pepMol { position: relative; display: grid; justify-items: center; gap: 10px; text-align: center; width: 100%; opacity: 0; }
+.pepMol img { width: min(100%, 220px); aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 1px solid rgba(229,197,141,.55); box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 40px rgba(229,197,141,.18); position: relative; z-index: 1; }
+.pepRing { position: absolute; top: 0; left: 50%; width: min(100%, 220px); aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; border: 1px dashed rgba(229,197,141,.45); scale: 1.18; opacity: 0; pointer-events: none; }
+.pepRing::after { content: ""; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--gold-metal); box-shadow: 0 0 14px var(--gold-metal); transform: translateX(-50%); }
+.pepMol b { font-size: clamp(14px, 1.3vw, 18px); color: var(--ivory); font-weight: 600; margin-top: 10px; }
+.pepMol span { font-size: 13px; color: var(--muted); }
+.pepMol em { position: absolute; top: -6px; right: 8%; font: 500 11px/1 var(--font-ui); letter-spacing: .3em; color: var(--gold); font-style: normal; }
+@media (max-width: 900px) {
+  .pepInner { grid-template-columns: 1fr; gap: 36px; }
+  .pepVeil { background: linear-gradient(180deg, rgba(8,7,6,.9) 0%, rgba(8,7,6,.6) 50%, rgba(8,7,6,.9) 100%); }
+  .pepBig { font-size: clamp(36px, 11vw, 60px); }
+  .pepMols { gap: 14px; }
+  .pepMol img, .pepRing { width: min(100%, 150px); }
+}
+
+/* hero: original candle backdrop, shifted left so it never sits under the film frame */
+.heroBg { opacity: .9; background-position: 24% 48%; }
+.heroGrid { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
+.heroFrame { width: min(30vw, 380px); }
+@media (max-width: 900px) {
+  /* 모바일: 임상 필름을 상단 카드로, 카피는 아래 어두운 영역에 — 색/배치 충돌 없음 */
+  .hero { background: radial-gradient(ellipse at 50% 100%, rgba(56,35,28,.95), var(--bg-midnight) 62%); }
+  .heroBg { opacity: .32; background-position: 50% 78%; }
+  .heroGrid { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: start; justify-items: center; gap: 22px; padding: calc(72px + env(safe-area-inset-top, 0px)) 0 120px; text-align: center; }
+  .heroFrame { position: relative; inset: auto; order: -1; width: min(100%, 300px); height: auto; max-height: 48svh; aspect-ratio: 9 / 16; border-radius: 22px; border: 1px solid rgba(201,168,106,.45); box-shadow: 0 30px 80px rgba(0,0,0,.6); justify-self: center; z-index: 1; }
+  .heroFrame::after { content: none; }
+  .heroFrameCap { display: block; }
+  .heroGrid .heroText { justify-items: center; gap: 8px; padding: 0 8px; }
+  .heroGrid .heroEyebrow { font-size: 11px; letter-spacing: .36em; }
+  .heroGrid .heroKoLine { font-size: clamp(15px, 4.2vw, 20px); color: var(--ivory); }
+  .heroGrid .heroKoEm { font-size: clamp(30px, 8.6vw, 44px); white-space: normal; line-height: 1.15; }
+  .heroHint { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 900px) and (max-height: 700px) { .heroFrame { max-height: 42svh; } .heroGrid { padding-top: 60px; } }
+
+@media (max-width: 767px) {
+  .ctas { flex-direction: column; width: min(100%, 320px); margin: 10px auto 0; }
+  .ctas .btn { width: 100%; }
+  .modeBtn { min-height: 40px; font-size: 10px; letter-spacing: .2em; background: rgba(8,7,6,.6); }
+  .finalKoBig b { font-size: clamp(30px, 9vw, 48px); }
+}
+
+/* mobile: clinical metrics, charts, details */
+@media (max-width: 767px) {
+  .metric { min-height: auto; padding-block: 64px 40px; }
+  .metricInner { gap: 28px; }
+  .bigNum { font-size: clamp(64px, 19vw, 96px); }
+  .metricKind :global(.caption) { letter-spacing: .08em; }
+  .lead { font-size: 17px; }
+  .footPanel summary { letter-spacing: .06em; font-size: 12px; text-transform: none; }
+  .chartTitle { letter-spacing: .04em; font-size: 12px; margin-bottom: 44px; }
+  .bars { height: 200px; padding: 0 6%; }
+  .bar span { letter-spacing: .04em; text-transform: none; font-size: 11px; }
+  .bar em { font-size: 16px; top: -32px; }
+  .safe { gap: 10px; }
+  .safeNum { font-size: clamp(96px, 30vw, 160px); }
+  .pdrnBall b { font-size: 14px; }
+  .nobelToken { letter-spacing: .08em; }
+  .sciBand figcaption { padding: 0 16px; }
+  .sciNobel { font-size: clamp(20px, 6vw, 26px); }
+  .finalEyebrow { letter-spacing: .3em; font-size: 10px; padding: 0 12px; }
+  .finalKoBig span { font-size: 16px; }
+  .ingHead { top: 24px; }
+  .chap { letter-spacing: .2em; font-size: 11px; }
+}
+
+/* forced-dark-proof gold text fills */
+.heroKoEm, .finalKoBig b, .cardNum, .nobelEgf i, .pepBig [data-ch] { background: var(--gold-grad) center / 100% 100% no-repeat !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+.nobelTokenHi { background: var(--gold-grad-btn) center / 100% 100% no-repeat; color: #1a120c; }
+
+/* ---------- mobile: 넓은 자간의 대문자 라벨을 좁혀 영문·중문에서도 한 줄 유지 ---------- */
+@media (max-width: 767px) {
+  .heroEyebrow, .heroGrid .heroEyebrow { letter-spacing: .26em; }
+  .nobelEyebrow { letter-spacing: .24em; text-align: center; }
+  .sciFig figcaption { font-size: 11px; letter-spacing: .14em; }
+  .day b { letter-spacing: .18em; }
+  .step b, .ingIdx { letter-spacing: .22em; }
+  .heroFrameCap { letter-spacing: .2em; }
+  .chartTitle { letter-spacing: .12em; }
+  .nobelL0 { font-size: 14px; line-height: 1.5; }
+  .pepQ { font-size: 15px; line-height: 1.55; }
+}
+
+/* ---------- 영문 히어로/피날레 헤드라인: 영문은 글자 수가 많아 줄바꿈 허용 + 크기 한 단계 축소 ---------- */
+html[lang="en"] .heroKoEm { white-space: normal; font-size: clamp(32px, 4.1vw, 70px); line-height: 1.1; }
+html[lang="en"] .heroKoLine { font-size: clamp(18px, 2vw, 30px); }
+html[lang="en"] .finalKoBig b { font-size: clamp(30px, 4.6vw, 76px); }
+html[lang="en"] .nobelTail { font-size: clamp(28px, 4.6vw, 72px); }
+html[lang="en"] .pepBig { font-size: clamp(36px, 5.6vw, 92px); }
+@media (max-width: 900px) {
+  html[lang="en"] .heroKoEm, html[lang="en"] .heroGrid .heroKoEm { font-size: clamp(28px, 8vw, 42px); }
+  html[lang="en"] .pepBig { font-size: clamp(32px, 9.4vw, 52px); }
+}
+
+@media (max-width: 767px) { .chap { font-size: 11px; letter-spacing: .2em; } }
+
+/* 히어로 캔들 배경 — CSS 에서 URL 지정(preload 와 일치), 모바일은 900px 변형 */
+.heroBg { background-image: url("/media/detail/d01_candle_1st.webp"); }
+@media (max-width: 767px) { .heroBg { background-image: url("/media/detail/d01_candle_1st_m.webp"); } }
+/* 라이트 섹션 명도 대비(WCAG AA) */
+.lineup :global(.eyebrow) { color: #7a5a2a; }
+
+/* ---------- 모바일 최소 글자 크기 12px (Lighthouse legible-text · 가독성) ---------- */
+@media (max-width: 767px) {
+  .chap, .hotspot b, .heroFrameCap, .nobelEyebrow, .nobelBadge, .heroGrid .heroEyebrow, .finalEyebrow, .sciFig figcaption,
+  .ingIdx, .layer b, .conceptTag, .surveyTag, .step b, .lineupItem i, .routine, .bar span, .footPanel summary { font-size: 12px; }
+}
+
+/* 피부장벽 — 레시틴 2.5% (2026-11-23) */
+.barrier { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 20%, #3a2619 0%, #1a130e 55%, #0d0a08 100%); }
+.barrierBig { margin: 0; font-size: clamp(56px, 8vw, 112px); line-height: 1; letter-spacing: -0.02em; }
+.barrierBig b { color: var(--gold-metal); font-weight: 600; }
+.barrierPair { margin: -4px 0 0; color: var(--muted, #b9b0a4); }
+.barrierList { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.barrierList li { padding-left: 14px; border-left: 1px solid var(--line); color: var(--ivory); line-height: 1.55; }
+.barrierList li.barrierKey { border-left: 2px solid var(--gold-metal); color: var(--gold-metal); font-weight: 600; }
+.barrierCica { margin: 6px 0 0; font-size: 13px; line-height: 1.6; color: var(--muted, #b9b0a4); }
+.barrierCica b { color: var(--ivory); font-weight: 500; }
+.lecFig { margin: 0; width: min(100%, 460px); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); }
+.lecFig img { width: 100%; height: auto; display: block; }
+@media (max-width: 767px) {
+  .barrierCica { font-size: 12px; }
+}

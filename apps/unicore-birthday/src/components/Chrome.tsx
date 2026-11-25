@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { product } from "@/data/product";
-import { copy } from "@/data/copy";
+import { useDict, useLocale } from "@/i18n/context";
+import { purchaseLinks } from "@/lib/purchase";
+import { track } from "@/lib/track";
 
 const CHAPTERS: { id: string; label: string }[] = [
   { id: "birthday", label: "Skin Has a Birthday" },
@@ -21,6 +23,7 @@ const CHAPTERS: { id: string; label: string }[] = [
 
 /** 우측 챕터 레일 + 배경색 동기화 + 모바일 고정 CTA */
 export default function Chrome() {
+  const t = useDict();
   const [active, setActive] = useState(0);
   const [showCta, setShowCta] = useState(false);
   useEffect(() => {
@@ -45,10 +48,11 @@ export default function Chrome() {
     const lenis = (window as Window & { __lenis?: { scrollTo: (t: HTMLElement, o?: object) => void } }).__lenis;
     if (lenis) lenis.scrollTo(el, { duration: 1.4 }); else el.scrollIntoView({ behavior: "smooth" });
   };
-  const purchase = product.urls.purchase || "#how-to-use";
+  const locale = useLocale();
+  const links = purchaseLinks(locale);
   return (
     <>
-      <nav className="rail" aria-label="챕터">
+      <nav className="rail" aria-label={t.ui.chapters}>
         {CHAPTERS.map((c, i) => (
           <button key={c.id} className={`rail-dot ${i === active ? "on" : ""}`} onClick={() => go(c.id)} aria-label={`${i + 1}. ${c.label}`} aria-current={i === active ? "true" : undefined}>
             <span className="rail-label">{String(i + 1).padStart(2, "0")} · {c.label}</span>
@@ -57,7 +61,10 @@ export default function Chrome() {
       </nav>
       <div className={`sticky-cta ${showCta ? "show" : ""}`} aria-hidden={!showCta}>
         <div className="sticky-cta-text">{product.name} {product.volume.g} g<small>{product.subtitle}</small></div>
-        <a className="btn btn-primary" href={purchase} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }}>{copy.s12.cta1.text}</a>
+        <div className="sticky-cta-btns">
+          <a className="btn btn-primary" href={links.primary.href} target={product.urls.purchase ? "_blank" : undefined} rel="noopener" style={{ minHeight: 44 }} data-region={links.primary.region} onClick={() => track("buy_click", { placement: "sticky", region: links.primary.region, locale })}>{links.primary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us}</a>
+          {links.secondary && <a className="btn btn-outline sticky-cta-alt" href={links.secondary.href} target="_blank" rel="noopener" style={{ minHeight: 44 }} data-region={links.secondary.region} title={links.secondary.region === "kr" ? t.ui.buy.kr : t.ui.buy.us} onClick={() => track("buy_click", { placement: "sticky", region: links.secondary!.region, locale })}>{links.secondary.region === "kr" ? t.ui.buy.krShort : t.ui.buy.usShort}</a>}
+        </div>
       </div>
     </>
   );

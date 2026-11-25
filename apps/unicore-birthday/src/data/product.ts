@@ -14,8 +14,16 @@ export const product = {
     boxBand: ["NET WT. 1.76 oz", "UNI&CORE", "50 g"],
   },
   urls: {
-    purchase: process.env.NEXT_PUBLIC_PURCHASE_URL || "",
-    brand: process.env.NEXT_PUBLIC_BRAND_URL || "https://www.unicore.co.kr",
+    /** 제품 구매 — 유니앤코어 쇼핑몰 상품 상세(productSeq=507). 환경변수 NEXT_PUBLIC_PURCHASE_URL 로 교체 가능 */
+    purchase:
+      process.env.NEXT_PUBLIC_PURCHASE_URL ||
+      "https://www.unincore.com/shopping/search/view.do?productSeq=507&orderByType=01&page=0&schBigCategoryId=01&shopLoungeFlag=&schMiddleCategoryId=0010&autoshipCount=0",
+    /** 미국 구매 — us.unincore.com 상품 상세(productSeq=510). 환경변수 NEXT_PUBLIC_PURCHASE_URL_US 로 교체 가능 */
+    purchaseUs:
+      process.env.NEXT_PUBLIC_PURCHASE_URL_US ||
+      "https://us.unincore.com/shopping/search/view.do?productSeq=510&orderByType=01&page=0&schBigCategoryId=02&shopLoungeFlag=N&schMiddleCategoryId=0022&autoshipCount=0",
+    /** 브랜드 소개 — 유니앤코어 공식 사이트 */
+    brand: process.env.NEXT_PUBLIC_BRAND_URL || "https://www.unincore.com",
     detail: "#how-to-use",
   },
   images: {

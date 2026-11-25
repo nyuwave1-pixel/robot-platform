@@ -1,0 +1,61 @@
+{
+  "_help": "공식 이벤트 목록. 고쳐서 배포하면 모든 플레이어에게 안내됩니다. id 는 영문 소문자·숫자·하이픈, start/end 는 ISO 시각(한국 시간은 +09:00), reward 는 기간 중 한 번 받는 보상(상한: 코인 5000 · 젬 50 · 스타 30), cta 는 plaza / lounge / life / shop / care / contest 중 하나.",
+  "events": [
+    {
+      "id": "lounge-contest-s1",
+      "ko": "주간 라운지 꾸미기 콘테스트",
+      "en": "Weekly lounge decorating contest",
+      "descKo": "매주 내 라운지를 출품하고 마음에 드는 라운지에 하트를 보내요. 1위는 3000 코인과 50 젬! 첫 시즌 참여 선물도 드려요.",
+      "descEn": "Enter your lounge every week and send hearts to your favorites. 1st place wins 3000 coins and 50 gems! First-season join gift included.",
+      "start": "2026-11-22T00:00:00+09:00",
+      "end": "2027-02-28T23:59:59+09:00",
+      "color": "#d9a441",
+      "reward": {
+        "coins": 300,
+        "stars": 3
+      },
+      "cta": "contest"
+    },
+    {
+      "id": "open-lounge-2026",
+      "ko": "오픈 라운지 그랜드 오픈",
+      "en": "Open Lounge grand opening",
+      "descKo": "이제 다른 플레이어가 내 라운지에 실시간으로 놀러 올 수 있어요. 라운지를 열고 첫 손님을 맞이해 보세요. 기간 중 한 번 참여 선물을 드려요.",
+      "descEn": "Other players can now drop by your lounge live. Open your lounge and welcome your first guest. Join once during the event for a gift.",
+      "start": "2026-11-21T00:00:00+09:00",
+      "end": "2026-12-31T23:59:59+09:00",
+      "color": "#e2718d",
+      "reward": {
+        "coins": 500,
+        "gems": 5
+      },
+      "cta": "lounge"
+    },
+    {
+      "id": "winter-glow-week",
+      "ko": "윈터 글로우 위크",
+      "en": "Winter Glow Week",
+      "descKo": "겨울철 보습 케어 주간! 뷰티 케어를 하고 광장에서 친구들과 함께해요. 참여 선물로 소셜 스타를 드려요.",
+      "descEn": "Winter hydration care week! Do a beauty care and hang out with friends in the plaza. Join for a Social Star gift.",
+      "start": "2026-12-01T00:00:00+09:00",
+      "end": "2026-12-14T23:59:59+09:00",
+      "color": "#7fa8d8",
+      "reward": {
+        "coins": 300,
+        "stars": 5
+      },
+      "cta": "care"
+    },
+    {
+      "id": "plaza-weekend",
+      "ko": "광장 주말 모임",
+      "en": "Plaza weekend meetup",
+      "descKo": "주말마다 월드 광장에서 꽃잎 잡기와 반짝이 모으기를 함께해요.",
+      "descEn": "Every weekend, catch petals and collect sparkles together in the World Plaza.",
+      "start": "2026-11-21T00:00:00+09:00",
+      "end": "2027-01-31T23:59:59+09:00",
+      "color": "#c9a66b",
+      "cta": "plaza"
+    }
+  ]
+}

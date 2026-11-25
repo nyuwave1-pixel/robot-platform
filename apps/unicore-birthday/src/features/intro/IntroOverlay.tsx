@@ -1,29 +1,34 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { videos } from "@/data/videos";
-import { copy } from "@/data/copy";
+import { sourcesFor, videos } from "@/data/videos";
 import { product } from "@/data/product";
-import { audio } from "@/features/audio/audio";
+import { audio, type SoundState } from "@/features/audio/audio";
 import { useIsMobile, useReducedMotion } from "@/lib/env";
 import styles from "./intro.module.css";
+import { useDict, fmt } from "@/i18n/context";
 
-type Phase = "film1" | "gate" | "film2" | "done";
+type Phase = "wait" | "entry" | "film" | "done";
 
 /**
- * 시네마틱 인트로: 필름 자동재생(muted) → gateAt 에서 정지하고 사운드 선택 → 이어서 재생 → 로고 컷 → 메인.
- * 항상 스킵 가능. 영상 실패 시 포스터+카피 폴백.
+ * 시네마틱 인트로
+ * - BGM 자동재생이 허용되면 바로 필름 재생(사운드 ON), 차단되면 ENTER 화면에서 한 번의 탭으로 사운드+필름 시작.
+ * - 필름은 항상 음소거(사이트 사운드는 BGM 하나). 언제든 SKIP 가능. 영상 실패 시 포스터+카피 폴백.
  */
 export default function IntroOverlay({ onDone }: { onDone: () => void }) {
+  const t = useDict();
   const mobile = useIsMobile();
   const reduced = useReducedMotion();
   const asset = mobile ? videos.filmPortrait : videos.film;
+  // 뷰포트 판별(useIsMobile)은 첫 렌더 뒤에 확정되므로, 확정 전에는 <source> 를 붙이지 않는다
+  // (첫 렌더에 데스크톱 1080p 소스가 붙어 모바일에서 5MB 를 받기 시작하던 문제 방지)
+  const [vpReady, setVpReady] = useState(false);
+  useEffect(() => { setVpReady(true); }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [phase, setPhase] = useState<Phase>("film1");
+  const [phase, setPhase] = useState<Phase>("wait");
   const [progress, setProgress] = useState(0);
   const [failed, setFailed] = useState(false);
   const [remember, setRemember] = useState(false);
   const [visible, setVisible] = useState(true);
-  const gateAt = asset.gateAt ?? 12;
   const skipTo = asset.skipTo ?? asset.durationSec;
 
   const finish = useCallback(() => {
@@ -33,54 +38,55 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
     window.setTimeout(onDone, 900);
   }, [onDone, remember]);
 
+  // 오디오 상태에 따라 입장 방식 결정: on/off → 바로 필름, blocked → ENTER 화면
+  useEffect(() => {
+    return audio.subscribe((s: SoundState) => {
+      setPhase((p) => {
+        if (p === "film" || p === "done") return p;
+        if (s === "on" || s === "off") return "film";
+        if (s === "blocked") return "entry";
+        return p;
+      });
+    });
+  }, []);
+
   // 재생 제어
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || failed) return;
-    if (reduced) return; // 감소 모션: 자동재생 안 함
-    if (phase === "film1" || phase === "film2") {
-      v.play().catch(() => {/* 자동재생 거부 → 탭하여 재생 */});
-    } else if (phase === "gate") {
-      v.pause();
-    }
+    if (!v || failed || reduced) return;
+    v.muted = true;
+    if (phase === "film") v.play().catch(() => {/* 자동재생 거부 → 탭하여 재생 */});
   }, [phase, failed, reduced]);
-
-  // 오버레이가 닫힐 때 영상의 소리 출력권 반환
-  useEffect(() => () => { const v = videoRef.current; if (v) audio.releaseVideo(v); }, []);
 
   const onTime = () => {
     const v = videoRef.current; if (!v) return;
     setProgress(v.duration ? v.currentTime / v.duration : 0);
-    if (phase === "film1" && v.currentTime >= gateAt) setPhase("gate");
-    if (phase === "film2" && v.currentTime >= asset.durationSec - 0.15) finish();
+    if (phase === "film" && v.currentTime >= asset.durationSec - 0.15) finish();
   };
 
-  // 사운드 게이트: ON → BGM(+보이스) 시작, 필름은 음소거 유지(BGM이 사이트 사운드트랙). OFF → BGM 끔
-  const choose = (sound: boolean) => {
-    const v = videoRef.current;
+  const enter = (sound: boolean) => {
     if (sound) void audio.enable(); else audio.disable();
-    if (v) audio.claimVideo(v, false);
-    setPhase("film2");
+    setPhase("film");
   };
 
   const skip = () => {
     const v = videoRef.current;
-    if (v && !failed && !reduced && v.readyState >= 2 && v.currentTime < skipTo) {
+    if (v && !failed && !reduced && phase === "film" && v.readyState >= 2 && v.currentTime < skipTo) {
       // 로고 컷만 짧게 보여주고 종료
       v.currentTime = skipTo;
-      v.muted = true;
       v.play().catch(() => {});
-      setPhase("film2");
       window.setTimeout(finish, 1100);
     } else {
       finish();
     }
   };
 
+  const showFallback = failed || reduced;
+
   return (
-    <div className={`${styles.overlay} ${visible ? "" : styles.hidden}`} role="dialog" aria-label="인트로 영상">
+    <div className={`${styles.overlay} ${visible ? "" : styles.hidden}`} role="dialog" aria-label={t.ui.introAria}>
       <div className={styles.stage}>
-        {!failed && !reduced ? (
+        {!showFallback ? (
           <video
             ref={videoRef}
             className={styles.video}
@@ -92,44 +98,54 @@ export default function IntroOverlay({ onDone }: { onDone: () => void }) {
             onError={() => setFailed(true)}
             onEnded={finish}
           >
-            {asset.sources.map((s) => <source key={s.src} src={s.src} type={s.type} />)}
+            {vpReady && sourcesFor(asset, mobile).map((s) => <source key={s.src} src={s.src} type={s.type} />)}
           </video>
         ) : (
           <div className={styles.fallback} style={{ backgroundImage: `url(${asset.poster})` }}>
             <div className={styles.fallbackCopy}>
-              <p className="headline-ko">{copy.intro.q1.text}</p>
-              <p className={styles.fallbackSub}>{copy.intro.q2.text}</p>
+              <p className="headline-ko">{t.copy.intro.q1}</p>
+              <p className={styles.fallbackSub}>{t.copy.intro.q2}</p>
             </div>
           </div>
         )}
         <div className={styles.veil} />
 
-        {phase === "gate" && (
+        {/* 자동재생이 차단된 경우: 한 번의 탭으로 사운드 + 필름 시작 */}
+        {(phase === "entry" || (showFallback && phase !== "done" && phase !== "film")) && (
           <div className={styles.gate} data-sound-gate="">
-            <p className={styles.gateHint}>{copy.intro.soundHint.text}</p>
+            <span className={styles.entryBrand}>{product.brand}</span>
+            <p className={styles.entryTitle}>{t.copy.intro.q1}</p>
+            <p className={styles.gateHint}>{t.copy.intro.soundHint}</p>
             <div className={styles.gateBtns}>
-              <button className="btn btn-primary" onClick={() => choose(true)}>{copy.intro.soundOn.text}</button>
-              <button className="btn btn-ghost" onClick={() => choose(false)}>{copy.intro.soundOff.text}</button>
-              <button className="btn btn-ghost" onClick={skip}>{copy.intro.skip.text}</button>
+              <button className="btn btn-primary" onClick={() => enter(true)}>{t.copy.intro.enterSound}</button>
+              <button className="btn btn-ghost" onClick={() => enter(false)}>{t.copy.intro.enterMute}</button>
             </div>
             <label className={styles.remember}>
-              <input type="checkbox" id="intro-remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {copy.intro.rememberSkip.text}
+              <input type="checkbox" id="intro-remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {t.copy.intro.rememberSkip}
             </label>
           </div>
         )}
 
-        {(failed || reduced) && phase !== "done" && (
+        {showFallback && phase === "film" && (
           <div className={styles.gate}>
             <div className={styles.gateBtns}>
-              <button className="btn btn-primary" onClick={finish}>{product.brand} 시작하기</button>
+              <button className="btn btn-primary" onClick={finish}>{fmt(t.ui.introStart, { brand: product.brand })}</button>
             </div>
           </div>
         )}
 
         <div className={styles.ui}>
           <span className={styles.brand}>{product.brand}</span>
-          <button className={styles.skip} onClick={skip}>{copy.intro.skip.text}</button>
+          <button className={styles.skip} onClick={skip}>{t.copy.intro.skip}</button>
         </div>
+
+        {/* 영상 스킵 버튼 (하단 우측, 재생 중 항상 노출) */}
+        {phase === "film" && !showFallback && (
+          <button type="button" className={styles.skipBig} onClick={skip} aria-label={t.ui.introSkipAria}>
+            <span>{t.copy.intro.skipVideo}</span>
+            <i aria-hidden="true" />
+          </button>
+        )}
         <div className={styles.progress} style={{ transform: `scaleX(${progress})` }} />
       </div>
     </div>

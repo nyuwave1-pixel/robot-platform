@@ -1,0 +1,12 @@
+node_modules
+dist
+*.tsbuildinfo
+
+# 무료 에셋 원본 (tools/assets/fetch_free_assets.py 로 다시 받는다)
+tools/assets/incoming/
+
+# Blender(bpy) 파이썬 가상환경 — scripts/setup.* 가 만든다
+.bl/
+# 로컬 환경 변수
+.env.local
+__pycache__/
