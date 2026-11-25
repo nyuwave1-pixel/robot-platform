@@ -3,6 +3,7 @@
 // Recorded samples (public/audio/, built by tools/assets/build_audio.py, licences in docs/ASSET_LICENSES.md) load in the
 // background; until they arrive — or when they cannot (single-file build on file://) — every sound stays procedural.
 import { G } from './ctx.js';
+import { tr } from '../ui/i18n.js';
 import { clamp } from './util.js';
 
 const STEP_SET = { concrete: 'step_concrete', metal: 'step_concrete', wood: 'step_concrete', sand: 'step_gravel', grass: 'step_gravel' };
@@ -131,7 +132,7 @@ export class AudioSys {
   /** Radio line: squelch + browser speech synthesis (placeholder for recorded VO). */
   say(text) {
     this.play('radio'); if (!G.settings.voice || !window.speechSynthesis || G.test) return;
-    try { const u = new SpeechSynthesisUtterance(text.replace(/^[A-Z0-9 ]+:\s*/, '')); u.rate = 1.08; u.pitch = 0.7; u.volume = G.settings.volume * 0.9; u.lang = 'en-US'; speechSynthesis.speak(u); } catch (e) { /* no TTS available */ }
+    try { const ko = G.settings.lang === 'ko', said = ko ? tr(text) : text; const u = new SpeechSynthesisUtterance(said.replace(/^[A-Z0-9 \-]+:\s*/, '')); u.rate = ko ? 1.15 : 1.08; u.pitch = 0.7; u.volume = G.settings.volume * 0.9; u.lang = ko ? 'ko-KR' : 'en-US'; speechSynthesis.speak(u); } catch (e) { /* no TTS available */ }
   }
   hush() { if (window.speechSynthesis) speechSynthesis.cancel(); }
 }

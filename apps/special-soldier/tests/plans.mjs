@@ -353,3 +353,22 @@ export async function gunner({ page, sim, shot }) {
   for (let i = 0; i < 30 && (await page.evaluate(() => SS.state)) !== 'result'; i++) { await page.evaluate(() => { if (SS.state === 'cinematic') { QA.key('Enter'); } }); await sim(1); }
   console.log('end:', await page.evaluate(() => JSON.stringify({ state: SS.state, result: SS.lastResult && { grade: SS.lastResult.grade, kills: SS.lastResult.kills } })));
 }
+
+// v0.23: Korean interface — switch in SETTINGS, every menu screen + mission HUD, count text left in English
+export async function korean({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.click('nav [data-a="settings"]'); await page.waitForTimeout(300); await page.selectOption('[data-set="lang"]', 'ko'); await page.waitForTimeout(400);
+  const left = () => page.evaluate(() => { const out = []; const w = document.createTreeWalker(document.getElementById('menu'), NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) { const t = n.nodeValue.trim(); if (/[a-z]{3,}/.test(t) && !/[가-힣]/.test(t)) out.push(t.slice(0, 60)); } return out; });
+  console.log('settings saved:', await page.evaluate(() => SS.settings.lang), '| title:', await page.textContent('#menu h2'));
+  await shot('K0-settings');
+  for (const [a, v] of [['main'], ['campaign'], ['operations'], ['weapons'], ['operator'], ['edition']]) {
+    await page.evaluate(([a, v]) => SS.menu.act(a, v), [a, v]); await page.waitForTimeout(250);
+    const l = await left(); console.log(`${a}: ${l.length} English lines left`, l.slice(0, 4).join(' | '));
+    if (a === 'main' || a === 'campaign') await shot('K-' + a);
+  }
+  await page.evaluate(() => { SS.save.progress = 5; SS.menu.briefing(1); }); await page.waitForTimeout(400); console.log('briefing M02 left:', (await left()).length); await shot('K-brief2');
+  await page.evaluate(() => { SS.menu.hide(); SS.startMission(1, true); SS.noTarget = true; QA.tp(-108, 186); }); await sim(1.5); await page.waitForTimeout(600);
+  console.log('HUD objective:', await page.textContent('#objText'), '| radio:', (await page.textContent('#radio')).slice(0, 60)); await shot('K-hud');
+  await page.evaluate(() => { SS.settings.lang = 'en'; SS.applyLanguage(); }); await page.waitForTimeout(300);
+  console.log('back to English:', await page.textContent('#objText'));
+}

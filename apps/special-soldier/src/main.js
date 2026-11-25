@@ -23,6 +23,7 @@ import { loadAssets, ASSETS } from './game/assets.js';
 import { TunePanel } from './ui/tune.js';
 import { makeSoldier, makeAPC, makeHeli, poseSoldier, PALETTE, HOT } from './game/models.js';
 import { MP } from './net/mp.js';
+import { initLanguage, applyLanguage } from './ui/i18n.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
 const step = (pct, text) => new Promise((r) => { $('loadBar').style.width = pct + '%'; $('loadText').textContent = text; setTimeout(r, 30); });
@@ -51,7 +52,7 @@ async function boot() {
   await step(55, 'ZONES 01–05 — STRUCTURES & VEGETATION'); buildIsland();
   await step(75, 'OPERATORS · WEAPONS · AI'); G.player = new Player(); G.weapons = new Weapons(); G.enemies = new Enemies(); G.squad = new Squad(); G.gear = new Gear(); G.mission = new MissionSys(); G.cine = new Cine();
   await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.mp = new MP(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
-  G.tune = new TunePanel();
+  G.tune = new TunePanel(); initLanguage(); G.applyLanguage = applyLanguage;
   G.applySettings(); addEventListener('resize', G.applySettings);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && G.state === 'playing' && !G.test) G.pause(); }); // hidden tab: pause instead of running a huge catch-up frame
   // shader warm-up: put one of every late-spawned material in view so first use never hitches mid-combat

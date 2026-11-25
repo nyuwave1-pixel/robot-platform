@@ -12,6 +12,7 @@ import { INTEL, intelTotal } from '../config/intel.js';
 import { UNITY_EDITION, unityEditionUrl } from '../config/editions.js';
 import { hudSettingsHtml, bindHudSettings } from './hudprefs.js';
 import { drawOpMap, objectiveLabels } from './opmap.js';
+import { LANGS, applyLanguage } from './i18n.js';
 
 const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
@@ -117,7 +118,7 @@ export class Menu {
   settings(back = 'main') {
     const s = G.settings, sl = (k, min, max, step, fmt) => `<input type="range" data-set="${k}" min="${min}" max="${max}" step="${step}" value="${s[k]}"><b id="sv_${k}">${fmt(s[k])}</b>`;
     this.settingsBack = back;
-    this.open(this.frame('SETTINGS', `<div class="set"><h3>GRAPHICS</h3>
+    this.open(this.frame('SETTINGS', `<div class="set"><h3>LANGUAGE</h3><label>Language / 언어</label><select data-set="lang">${LANGS.map(([k, n]) => `<option value="${k}" ${s.lang === k ? 'selected' : ''}>${n}</option>`).join('')}</select><b></b><h3>GRAPHICS</h3>
       <label>Quality preset</label><select data-set="quality">${['low', 'medium', 'high', 'ultra'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select><b></b>
       <label>Resolution scale</label>${sl('scale', 0.5, 1.5, 0.05, (v) => `${(v * 100).toFixed(0)}% → ${Math.round(innerWidth * G.pixelRatio())}×${Math.round(innerHeight * G.pixelRatio())}`)}
       <label>Field of view</label>${sl('fov', 60, 100, 1, (v) => v + '°')}
@@ -131,7 +132,7 @@ export class Menu {
       <h3>KEY BINDINGS</h3><div class="keys">${KEYS.map(([k, d]) => `<div><kbd>${k}</kbd>${d}</div>`).join('')}</div><p class="note"><button data-a="attrib" data-v="${back}">THIRD-PARTY CREDITS</button></p>`, back));
   }
   setting(k, v, el) {
-    const s = G.settings; s[k] = k === 'fpsCap' ? +v : v; storeSave(G.save); G.applySettings();
+    const s = G.settings; s[k] = k === 'fpsCap' ? +v : v; storeSave(G.save); G.applySettings(); if (k === 'lang') { applyLanguage(); return this.settings(this.settingsBack || 'main'); }
     const out = document.getElementById('sv_' + k); if (out) out.textContent = k === 'scale' ? `${(v * 100).toFixed(0)}% → ${Math.round(innerWidth * G.pixelRatio())}×${Math.round(innerHeight * G.pixelRatio())}` : k === 'fov' ? v + '°' : k === 'sens' ? v.toFixed(2) : (v * 100).toFixed(0) + '%';
   }
   intelArchive() {
