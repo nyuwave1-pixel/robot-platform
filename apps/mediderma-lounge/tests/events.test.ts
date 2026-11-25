@@ -154,3 +154,18 @@ describe("라운지 방명록", async () => {
     expect(cleanNote(null)).toBeNull();
   });
 });
+
+describe("단체 사진", async () => {
+  const { activeGroup, startGroupPhoto, useRoom, GROUP_COUNTDOWN } = await import("../src/net/room");
+  it("실시간 방에 들어가 있지 않으면 시작하지 않는다", () => {
+    expect(startGroupPhoto()).toBe("offline");
+    expect(useRoom.getState().group).toBeNull();
+  });
+  it("촬영 시각이 지나고 잠시 뒤에는 진행 중이 아니다", () => {
+    const now = Date.now();
+    useRoom.setState({ group: { at: now + GROUP_COUNTDOWN, by: "A", n: 2 } });
+    expect(activeGroup(now)?.n).toBe(2);
+    expect(activeGroup(now + GROUP_COUNTDOWN + 3000)).toBeNull();
+    useRoom.setState({ group: null });
+  });
+});

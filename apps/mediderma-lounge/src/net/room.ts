@@ -46,8 +46,10 @@ interface RoomState {
   lobbyStatus: "off" | "connecting" | "online" | "offline";
   /** 방 배정을 다시 계산하라는 신호 (코드 방문이 실패했을 때 내 라운지로 돌아가기) */
   nonce: number;
+  /** 단체 사진: at 시각에 모두 함께 촬영 (by: 시작한 사람, n: 시작할 때 방 인원) */
+  group: { at: number; by: string; n: number } | null;
 }
-export const useRoom = create<RoomState>(() => ({ status: "off", role: null, code: null, ids: [], host: null, notice: null, lobby: [], lobbyStatus: "off", nonce: 0 }));
+export const useRoom = create<RoomState>(() => ({ status: "off", role: null, code: null, ids: [], host: null, notice: null, lobby: [], lobbyStatus: "off", nonce: 0, group: null }));
 
 const num = (v: unknown, lo: number, hi: number, d = 0) => (typeof v === "number" && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
 const CODE = /^[A-Z0-9]{6}$/;
@@ -167,6 +169,14 @@ export function joinRoom(code: string, role: "host" | "guest") {
     useRoom.setState({ notice: { id, at: Date.now(), name: r.name } });
     notify?.("notice", r.name, String(id));
   });
+  // 단체 사진: 방에 있는 사람이 보낸 것만, 이미 진행 중이면 무시
+  ch.on("broadcast", { event: "group" }, ({ payload }) => {
+    const r = guests.get(String(payload?.id));
+    const now = Date.now();
+    const at = num(payload?.at, now, now + GROUP_COUNTDOWN + 2000, now + GROUP_COUNTDOWN);
+    if (!r || activeGroup(now)) return;
+    useRoom.setState({ group: { at, by: r.name, n: guests.size + 1 } });
+  });
   ch.on("broadcast", { event: "visit" }, ({ payload }) => {
     if (role !== "host") return;
     const lp = useGame.getState().plazaHosted();
@@ -216,10 +226,33 @@ export function leaveRoom() {
   const ch = room, wasHost = useRoom.getState().role === "host";
   room = null;
   guests.clear();
-  useRoom.setState({ status: "off", role: null, code: null, ids: [], host: null, notice: null });
+  useRoom.setState({ status: "off", role: null, code: null, ids: [], host: null, notice: null, group: null });
   try { if (ch) void ch.unsubscribe(); } catch { /* 이미 끊김 */ }
   if (wasHost) watchLobby(false, true);
 }
+
+// ───────────── 단체 사진 ─────────────
+/** 버튼을 누른 뒤 모두가 함께 찍히기까지 (ms) */
+export const GROUP_COUNTDOWN = 3500;
+/** 진행 중인 단체 사진 (찍은 뒤 잠깐은 결과 화면 유지) */
+export function activeGroup(now = Date.now()) {
+  const g = useRoom.getState().group;
+  return g && now < g.at + 2500 ? g : null;
+}
+/** 지금 방에 함께 있는 사람들과 단체 사진을 시작한다 (나 말고 한 명 이상 있어야 한다) */
+export function startGroupPhoto(): "ok" | "alone" | "busy" | "offline" {
+  const st = useRoom.getState();
+  if (!room || st.status !== "online") return "offline";
+  if (!guests.size) return "alone";
+  if (activeGroup()) return "busy";
+  const at = Date.now() + GROUP_COUNTDOWN;
+  void room.send({ type: "broadcast", event: "group", payload: { id: myId, at } });
+  useRoom.setState({ group: { at, by: cleanName(useGame.getState().name), n: guests.size + 1 } });
+  return "ok";
+}
+export function endGroupPhoto() { useRoom.setState({ group: null }); }
+/** 카메라용: 지금 방에 보이는 사람들의 위치 */
+export function groupPositions() { return [...guests.values()].map((g) => ({ x: g.rx, z: g.rz, name: g.name })); }
 
 // ───────────── 로비: 열린 라운지 목록 ─────────────
 let hostInLobby = false;
