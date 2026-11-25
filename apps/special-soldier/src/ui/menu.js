@@ -9,8 +9,9 @@ import { GEAR } from '../game/gear.js';
 import { ENEMY_TYPES } from '../game/enemies.js';
 import { CREDITS } from '../config/credits.js';
 import { INTEL, intelTotal } from '../config/intel.js';
+import { UNITY_EDITION, unityEditionUrl } from '../config/editions.js';
 
-const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
+const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
 export const TIPS = ['A sentry who survives five seconds after spotting you calls a reaction force. Silence him first.',
   'Crouch [CTRL] to steady your aim; go prone [Z] behind low cover.',
@@ -37,7 +38,8 @@ export class Menu {
   frame(title, body, back = 'main') { return `<div class="panel"><header><h2>${title}</h2><button data-a="${back}">◂ BACK</button></header><div class="body">${body}</div></div>`; }
   act(a, v) {
     switch (a) {
-      case 'main': return this.main(); case 'campaign': return this.campaign(); case 'operations': return this.operations(); case 'weapons': return this.weapons(); case 'operator': return this.operator(); case 'settings': return this.settings(v || 'main'); case 'attrib': return this.attributions(v || 'main'); case 'multiplayer': return this.multiplayer(); case 'exit': return this.exit(); case 'pauseBack': return this.pause();
+      case 'main': return this.main(); case 'campaign': return this.campaign(); case 'operations': return this.operations(); case 'weapons': return this.weapons(); case 'operator': return this.operator(); case 'settings': return this.settings(v || 'main'); case 'attrib': return this.attributions(v || 'main'); case 'multiplayer': return this.multiplayer(); case 'edition': return this.edition();
+      case 'playUnity': return this.playUnity(); case 'exit': return this.exit(); case 'pauseBack': return this.pause();
       case 'brief': return this.briefing(+v); case 'deploy': if (+v === 0 && !G.save.training && !G.save.skipTraining && !G.test) return this.firstRun(); return G.startMission(+v);
       case 'training': return G.startMission('training');
       case 'intel': return this.intelArchive();
@@ -134,6 +136,25 @@ export class Menu {
     this.open(this.frame('MULTIPLAYER — PLANNED EXPANSION', `<p class="lead"><b>Not playable in this build.</b> The campaign is single-player. This screen documents what the code base is prepared for; nothing here is a working online mode.</p>
       <table class="tbl"><tr><th>MODE</th><th>STATUS</th><th>NOTES</th></tr><tr><td>5 v 5 Tactical</td><td>Design only</td><td>Round-based, no respawn, plant / defuse on the base map</td></tr><tr><td>10 v 10 Team Deathmatch</td><td>Design only</td><td>Airfield & port</td></tr><tr><td>Co-op Infiltration (4 players)</td><td>Design only</td><td>Campaign missions with squad slots replaced by players</td></tr><tr><td>Survival</td><td>Design only</td><td>Reuses the wave spawner from Missions 04 / 05</td></tr><tr><td>Ranking · matchmaking · customisation</td><td>Not started</td><td>Requires backend services</td></tr></table>
       <h3>WHAT ALREADY SUPPORTS IT</h3><ul class="plain"><li>Damage, ballistics and AI run in systems separate from input and rendering — they can move to an authoritative server unchanged.</li><li>Every shot is a simulated projectile with an owner id, so server-side hit validation and lag-compensated rewind have a single entry point (<code>FX.fire</code>).</li><li>Weapon balance is pure data (<code>config/weapons.js</code>) shared by client and tests.</li></ul><p class="note">See docs/TECHNICAL.md §8 and docs/UE5_ARCHITECTURE.md for the network design (server authority, lag compensation, anti-cheat).</p>`));
+  }
+  /** One game, two editions: the player picks how to play. CLASSIC is this game; UNITY opens the Unity WebGL build with
+   *  the current difficulty and a link back (config/editions.js). */
+  edition() {
+    const d = DIFFICULTY[G.settings.difficulty].label;
+    this.open(this.frame('PLAY MODE — CHOOSE YOUR EDITION', `<p class="lead">SPECIAL SOLDIER comes in two editions built from the same rules. Pick the one you want to play; your difficulty (<b>${d}</b>) carries over.</p>
+      <div class="missions editions"><div class="mcard cur"><em>CLASSIC</em><b>Operation: Island Invasion</b><small>Three.js · runs here, no extra download</small>
+        <ul class="plain"><li>Full campaign — 5 missions, boot camp</li><li>Armory, gear, drone, night vision, intel files</li><li>Squad, vehicles, cinematics</li></ul>
+        <button class="primary" data-a="campaign">▶ PLAY CLASSIC</button></div>
+      <div class="mcard"><em>UNITY EDITION</em><b>Island Slice</b><small>Unity 6 · WebGL · ${UNITY_EDITION.download} · opens in this tab</small>
+        <ul class="plain">${UNITY_EDITION.features.map((f) => `<li>${f}</li>`).join('')}</ul>
+        <button class="primary" data-a="playUnity">▶ PLAY UNITY EDITION</button></div></div>
+      <p class="note">The Unity edition has a <b>CLASSIC EDITION</b> button in its pause menu (Esc) that brings you back here. Progress in each edition is saved separately.</p>`));
+  }
+  playUnity() {
+    const url = unityEditionUrl(G.settings.difficulty);
+    G.audio.stopLoops();
+    if (/Electron/i.test(navigator.userAgent) || location.protocol === 'file:') { window.open(url, '_blank'); return this.edition(); }   // desktop build: open in the browser
+    location.assign(url);
   }
   exit() { this.open(`<div class="panel small"><h2>EXIT GAME</h2><p>Progress is saved automatically.</p><div class="actions"><button class="primary" data-a="exitYes">EXIT</button><button data-a="main">CANCEL</button></div></div>`); }
   pause() { const m = G.mission; this.open(`<div class="panel small"><h2>PAUSED</h2><p>${m.def.code} — ${m.def.name}<br><small>${m.objText()}</small></p><div class="col"><button class="primary" data-a="resume">RESUME</button><button data-a="restart">RESTART FROM CHECKPOINT</button><button data-a="restartMission">RESTART MISSION</button><button data-a="settings" data-v="pauseBack">SETTINGS</button><button data-a="quit">ABORT TO MAIN MENU</button></div></div>`, 'dim'); }

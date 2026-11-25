@@ -93,6 +93,7 @@ namespace SpecialSoldier.EditorTools
             var crate = Mat("Crate", new Color(0.42f, 0.33f, 0.2f), 0.8f);
             // the web game's island (shared formula, Core.IslandTerrain) as a Unity Terrain; the slice stands on its base flat
             var island = BuildIsland(level);
+            if (island) BuildVegetation(level);
             if (!island)
             {
                 var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);   // fallback: the old flat ground
@@ -281,7 +282,7 @@ namespace SpecialSoldier.EditorTools
 
         const string TerrainDir = "Assets/Imported/Terrain";
 
-        /// <summary>Unity Terrain of the web game's 1.2 km island (Core.IslandTerrain, parity-tested against terrain.js): 513² heights,
+        /// <summary>Unity Terrain of the web game's 1.2 km island (Core.IslandTerrain, parity-tested against terrain.js, mapped with ToWorld): 513² heights,
         /// four splat layers from the web game's CC0 photo textures (copied from apps/special-soldier/src/assets/tex at build time,
         /// one tile = 2.5 m like the web shader), plus a sea plane. Positioned so island (0, 16, −95) is world (0, 0, 0).</summary>
         static Terrain BuildIsland(GameObject level)
@@ -314,7 +315,8 @@ namespace SpecialSoldier.EditorTools
             var h = IslandTerrain.HeightGrid(res, out float min, out float max);
             float range = Mathf.Max(1f, max - min);
             var norm = new float[res, res];
-            for (int r = 0; r < res; r++) for (int c = 0; c < res; c++) norm[r, c] = (h[r, c] - min) / range;
+            // Unity rows run toward +z = island −z (IslandTerrain.ToWorld flips z), so read the island rows backwards
+            for (int r = 0; r < res; r++) for (int c = 0; c < res; c++) norm[r, c] = (h[res - 1 - r, c] - min) / range;
 
             string dataPath = SettingsDir + "/IslandTerrain.asset";
             AssetDatabase.DeleteAsset(dataPath);
@@ -328,7 +330,7 @@ namespace SpecialSoldier.EditorTools
             for (int r = 0; r < ares; r++)
                 for (int c = 0; c < ares; c++)
                 {
-                    double x = -IslandTerrain.Size / 2 + (c + 0.5) * IslandTerrain.Size / ares, z = -IslandTerrain.Size / 2 + (r + 0.5) * IslandTerrain.Size / ares;
+                    double x = -IslandTerrain.Size / 2 + (c + 0.5) * IslandTerrain.Size / ares, z = IslandTerrain.Size / 2 - (r + 0.5) * IslandTerrain.Size / ares;   // flipped z
                     var w = IslandTerrain.Splat(x, z);
                     alpha[r, c, 0] = (float)w.sand; alpha[r, c, 1] = (float)w.grass; alpha[r, c, 2] = (float)w.rock; alpha[r, c, 3] = (float)w.concrete;
                 }
@@ -337,7 +339,9 @@ namespace SpecialSoldier.EditorTools
 
             var go = Terrain.CreateTerrainGameObject(data);
             go.name = "Island"; go.transform.SetParent(level.transform);
-            go.transform.position = new Vector3((float)(-IslandTerrain.Size / 2 - IslandTerrain.SliceIslandX), (float)(min - IslandTerrain.SliceIslandY), (float)(-IslandTerrain.Size / 2 - IslandTerrain.SliceIslandZ));
+            // terrain corner = world position of island (−600, min, +600) (its +z row 0 after the flip)
+            var corner = IslandTerrain.ToWorld(-IslandTerrain.Size / 2, min, IslandTerrain.Size / 2);
+            go.transform.position = new Vector3((float)corner.x, (float)corner.y, (float)corner.z);
             go.isStatic = true;
             var terrain = go.GetComponent<Terrain>();
             var tmat = new Material(Shader.Find("Universal Render Pipeline/Terrain/Lit"));
@@ -347,13 +351,72 @@ namespace SpecialSoldier.EditorTools
             // sea at island height 0 (world −16)
             var sea = GameObject.CreatePrimitive(PrimitiveType.Plane); Object.DestroyImmediate(sea.GetComponent<Collider>());
             sea.name = "Sea"; sea.transform.SetParent(level.transform);
-            sea.transform.position = new Vector3(0f, (float)-IslandTerrain.SliceIslandY, 0f); sea.transform.localScale = new Vector3(400f, 1f, 400f);
+            sea.transform.position = new Vector3(0f, (float)IslandTerrain.ToWorld(0, 0, 0).y, 0f); sea.transform.localScale = new Vector3(400f, 1f, 400f);
             sea.GetComponent<Renderer>().sharedMaterial = Mat("Sea", new Color(0.1f, 0.27f, 0.33f), 0.08f);
 
             AssetDatabase.SaveAssets();
             float atOrigin = terrain.SampleHeight(Vector3.zero) + go.transform.position.y;
             Debug.Log($"[Slice] island terrain {res}² heights ({min:0.0}..{max:0.0} m), {ares}² splat, ground at slice origin y = {atOrigin:0.00} (expect 0)");
             return terrain;
+        }
+
+        const string VegDir = "Assets/Imported/Vegetation";
+
+        /// <summary>The web island's trees, palms and rocks (Core.IslandVegetation = vegetation.js, same seed → same places) using the
+        /// Blender Tree / Palm / Rock models from the shared GLB. Merged into one mesh per 160 m cell and material, like the web
+        /// game's per-cell instancing, so WebGL draws a few dozen meshes instead of ~2,000 objects. No colliders: they all stand
+        /// outside the arena walls. Ferns are left out for now.</summary>
+        static void BuildVegetation(GameObject level)
+        {
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            if (!glb) { Debug.LogWarning("[Slice] vegetation skipped: GLB not imported (run StudioBootstrap.ImportAndBuild first)"); return; }
+            var layout = IslandVegetation.Build();
+            AssetDatabase.DeleteAsset(VegDir); Directory.CreateDirectory(VegDir);
+            var root = new GameObject("Vegetation"); root.transform.SetParent(level.transform); root.isStatic = true;
+            int meshes = 0;
+            meshes += Plant(root, glb, "Tree", layout.Trunks);
+            meshes += Plant(root, glb, "Palm", layout.Palms);
+            meshes += Plant(root, glb, "Rock", layout.Rocks);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[Slice] vegetation: {layout.Trunks.Count} trees, {layout.Palms.Count} palms, {layout.Rocks.Count} rocks → {meshes} merged meshes");
+        }
+
+        static int Plant(GameObject root, GameObject glb, string node, System.Collections.Generic.List<IslandVegetation.Item> items)
+        {
+            var src = glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == node);
+            if (!src) { Debug.LogWarning($"[Slice] vegetation: GLB has no '{node}' node"); return 0; }
+            // every mesh under the model, with its transform relative to the model's root (the GLB lays models out in a row)
+            var parts = src.GetComponentsInChildren<MeshFilter>(true).Where(f => f.sharedMesh)
+                .Select(f => (mesh: f.sharedMesh, mats: f.GetComponent<MeshRenderer>().sharedMaterials, rel: src.worldToLocalMatrix * f.transform.localToWorldMatrix)).ToList();
+            var groups = new System.Collections.Generic.Dictionary<(int cx, int cz, Material m), System.Collections.Generic.List<CombineInstance>>();
+            foreach (var it in items)
+            {
+                var w = IslandTerrain.ToWorld(it.X, it.Y, it.Z);
+                // web: rotation (tx, r, tz) radians, uniform scale s; yaw sign flips with the z mirror
+                var trs = Matrix4x4.TRS(new Vector3((float)w.x, (float)w.y, (float)w.z),
+                    Quaternion.Euler((float)(-it.Tx * Mathf.Rad2Deg), (float)(-it.R * Mathf.Rad2Deg), (float)(it.Tz * Mathf.Rad2Deg)), Vector3.one * (float)it.S);
+                int cx = Mathf.FloorToInt((float)w.x / 160f), cz = Mathf.FloorToInt((float)w.z / 160f);
+                foreach (var (mesh, mats, rel) in parts)
+                    for (int sub = 0; sub < mesh.subMeshCount && sub < mats.Length; sub++)
+                    {
+                        var key = (cx, cz, mats[sub]);
+                        if (!groups.TryGetValue(key, out var list)) groups[key] = list = new System.Collections.Generic.List<CombineInstance>();
+                        list.Add(new CombineInstance { mesh = mesh, subMeshIndex = sub, transform = trs * rel });
+                    }
+            }
+            int n = 0;
+            foreach (var g in groups)
+            {
+                var combined = new Mesh { name = $"{node}_{g.Key.cx}_{g.Key.cz}_{n}", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+                combined.CombineMeshes(g.Value.ToArray(), true, true);
+                combined.RecalculateBounds();
+                AssetDatabase.CreateAsset(combined, $"{VegDir}/{combined.name}.asset");
+                var go = new GameObject(combined.name); go.transform.SetParent(root.transform, false); go.isStatic = true;
+                go.AddComponent<MeshFilter>().sharedMesh = combined;
+                var mr = go.AddComponent<MeshRenderer>(); mr.sharedMaterial = g.Key.m; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+                n++;
+            }
+            return n;
         }
 
         /// <summary>PanelSettings for the HUD: default runtime theme (Assets/UI/SliceTheme.tss), scale with screen size from 1920×1080.</summary>

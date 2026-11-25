@@ -45,6 +45,16 @@ namespace SpecialSoldier.Core.Tests
         }
 
         [Test]
+        public void WorldMappingFlipsZAndPutsTheBaseAtTheOrigin()
+        {
+            var w = IslandTerrain.ToWorld(0, 16, -95);
+            Assert.That(new[] { w.x, w.y, w.z }, Is.EqualTo(new[] { 0.0, 0.0, 0.0 }));
+            var comms = IslandTerrain.Get("comms"); var c = IslandTerrain.ToWorld(comms.CenterX, 0, comms.CenterZ);
+            Assert.That(c.x, Is.LessThan(0)); Assert.That(c.z, Is.LessThan(0), "web +z (south on screen) becomes Unity −z: no mirror image");
+            var back = IslandTerrain.ToIsland(c.x, c.y, c.z); Assert.That(back.z, Is.EqualTo(comms.CenterZ).Within(1e-9));
+        }
+
+        [Test]
         public void HeightGridCoversTheIsland()
         {
             var g = IslandTerrain.HeightGrid(129, out float min, out float max);

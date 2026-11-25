@@ -25,7 +25,7 @@ await ev(HELPERS); await ev(() => { localStorage.clear(); });
 const gl = await ev(() => { const g = SS.renderer.getContext(), d = g.getExtension('WEBGL_debug_renderer_info'); return d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'unknown'; });
 if (!process.env.CAMPAIGN_ONLY) {
 // ---------- menus: every main-menu button opens a working screen ----------
-for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['operations', 'OPERATIONS'], ['weapons', 'ARMORY'], ['operator', 'OPERATOR'], ['settings', 'SETTINGS'], ['exit', 'EXIT GAME']]) {
+for (const [a, expect] of [['campaign', 'CAMPAIGN'], ['operations', 'OPERATIONS'], ['weapons', 'ARMORY'], ['operator', 'OPERATOR'], ['edition', 'PLAY MODE'], ['settings', 'SETTINGS'], ['exit', 'EXIT GAME']]) {
   await page.click(`nav [data-a="${a}"]`); const h = await page.textContent('#menu h2'); check(`menu: ${a}`, h.includes(expect), h); if (a === 'weapons') await shot('menu-weapons'); if (a === 'settings') await shot('menu-settings');
   await page.click(a === 'exit' ? '[data-a="main"]' : '.panel header [data-a="main"]');
 }

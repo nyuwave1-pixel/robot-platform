@@ -24,7 +24,8 @@ namespace SpecialSoldier
         public static bool AssumeCursorCaptured;
         public static bool CursorCaptured => AssumeCursorCaptured || Cursor.lockState == CursorLockMode.Locked;
         /// <summary>Campaign difficulty for this run (RECRUIT / REGULAR / VETERAN): a value set by code (tests), else
-        /// <c>-difficulty recruit|regular|veteran</c> on the command line, else the saved setting (pause menu). Read lazily, so
+        /// <c>-difficulty recruit|regular|veteran</c> on the command line, else <c>?difficulty=</c> in the WebGL page URL (sent by
+        /// the classic edition's PLAY MODE screen), else the saved setting (pause menu). Read lazily, so
         /// enemies get the right value whatever order their Awake runs in.</summary>
         public static SpecialSoldier.Core.Difficulty CurrentDifficulty
         {
@@ -36,7 +37,9 @@ namespace SpecialSoldier
         {
             var args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-difficulty") return SpecialSoldier.Core.Difficulty.FromId(args[i + 1]);
-            return null;
+            // WebGL: the classic edition's PLAY MODE screen opens this build with ?difficulty= (Core/EditionLinks)
+            string id = SpecialSoldier.Core.EditionLinks.DifficultyId(Application.absoluteURL);
+            return id != null ? SpecialSoldier.Core.Difficulty.FromId(id) : null;
         }
         public PlayerMotor player;
         public readonly List<EnemyAgent> enemies = new List<EnemyAgent>();

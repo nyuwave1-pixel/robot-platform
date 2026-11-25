@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:00:50.827Z",
+  "generatedAt": "2026-11-25T08:14:07.210Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "cbc74bc"
+    "commit": "fb27f35"
   },
   "section": {
     "id": "game-dev-lab",
@@ -384,6 +384,18 @@
   },
   "devlog": [
     {
+      "hash": "fb27f35",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): hub claims the shared island vegetation work (web + Unity)"
+    },
+    {
+      "hash": "eb0335f",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "feat: one island for both SPECIAL SOLDIER versions — shared terrain formula, Unity Terrain of the web island"
+    },
+    {
       "hash": "cbc74bc",
       "date": "2026-11-25",
       "area": "game-dev",
@@ -610,18 +622,6 @@
       "date": "2026-11-22",
       "area": "special-soldier",
       "subject": "wip(special-soldier): intel collectibles and archive (not yet verified in game)"
-    },
-    {
-      "hash": "766b7b8",
-      "date": "2026-11-22",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): grenade danger indicator (v0.18)"
-    },
-    {
-      "hash": "8d6b244",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record v0.17 full e2e (65/65)"
     }
   ]
 }

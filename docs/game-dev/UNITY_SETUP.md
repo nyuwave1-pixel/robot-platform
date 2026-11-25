@@ -286,3 +286,14 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 지도: `docs/game-dev/screenshots/island-terrain-shared.png`.
 - 함께 고친 것: 내 하늘 커밋이 Unity 전용 HDRI 행을 웹 대장에 넣어 웹 크레딧 테스트가 실패하던 문제 → Unity 전용 대장 `apps/unity-studio/ASSET_LICENSES.md` 로 이동.
 - 검증: dotnet `CoreTests~` **258/258**. **Unity 지형 화면은 아직 확인 전.**
+
+## 2026-11-25 (9) — 공용 섬 식생 + 좌표 거울상 수정 (허브 세션, 클라우드)
+
+- **웹**: 나무·야자수·바위·고사리 배치를 `src/world/vegetation.js` 로 분리하고 **자체 시드(VEG_SEED)** 로 바꿈. 전에는 기지 건설 전체가 쓰는 난수를
+  이어 써서 앞에 소품 하나만 추가해도 섬의 모든 나무가 뒤섞였고 브라우저 밖에서 재현할 수 없었음. 규칙·밀도는 그대로(나무 1,565·야자수 221·바위 176·고사리 3,992),
+  **웹의 나무 위치는 이번에 한 번 바뀜**. `World` 의 높이 격자·보간도 `terrain.js`(gridHeights·heightAtGrid)로 옮겨 공유. 웹 `npm test` 26/26.
+- **Unity**: `Core/IslandVegetation.cs`(mulberry32 비트 단위, Float32 격자 보간, 배치 규칙) — 웹 모듈에서 만든 픽스처와 개수·합계·샘플 전부 일치.
+  `SliceBuilder.BuildVegetation`: GLB의 Blender Tree·Palm·Rock 모델을 160 m 칸·재질별로 합친 메시(WebGL 그리기 호출 절약, 생성 파일은 `Assets/Imported/Vegetation`, 커밋 안 함). 고사리는 아직 제외.
+- **좌표 거울상 수정**: 지형 커밋에서 섬 좌표를 Unity에 그대로 옮겨 Unity 섬이 웹 섬의 거울상이 될 뻔했음(three.js 오른손 좌표 ↔ Unity 왼손 좌표).
+  `IslandTerrain.ToWorld/ToIsland` 로 z 반전(하늘의 해 방향과 같은 규칙), 지형 높이·재질·식생 모두 이 변환을 사용. 테스트 추가.
+- 지도 갱신: `docs/game-dev/screenshots/island-terrain-shared.png`. dotnet `CoreTests~` **266/266**. **Unity 화면 확인 전.**

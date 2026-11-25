@@ -7,5 +7,10 @@ mergeInto(LibraryManager.library, {
       window.parent.postMessage({ type: 'game_result', game: UTF8ToString(gamePtr), engine: 'unity', score: score, rp: rp,
         mission: UTF8ToString(missionPtr), grade: UTF8ToString(gradePtr) }, '*');
     } catch (e) { /* not embedded or blocked: ignore */ }
+  },
+  // CLASSIC EDITION button: leave the Unity edition for the Three.js campaign in the same tab (the URL was checked
+  // against trusted hosts in Core/EditionLinks before it gets here).
+  SS_Navigate: function (urlPtr) {
+    try { window.location.assign(UTF8ToString(urlPtr)); } catch (e) { /* blocked: ignore */ }
   }
 });

@@ -9,5 +9,6 @@ export const CREDITS = [
     '"Footsteps on concrete" by florianreichelt', '"Footsteps Dirt Gravel" by PotatokingXII'] },
   { group: 'Music — Freesound, CC0 1.0', items: [
     '"Action music loop with dark ambient drones" by burning-mir', '"Loop. An intense cinematic track…" by Lumamorph', '"Suspense Music Loop" by Ncone'] },
+  { group: 'Unity edition skies — Poly Haven HDRIs (polyhaven.com), CC0 1.0', items: ['kloofendal_48d_partly_cloudy_puresky (day)', 'kloppenheim_06_puresky (dawn)', 'overcast_soil_puresky (storm)', 'belfast_sunset_puresky (dusk)', 'qwantani_night_puresky (night)'] },
   { group: 'Code', items: ['three.js — MIT License', 'Vite, vite-plugin-singlefile, Electron — MIT License'] },
 ];

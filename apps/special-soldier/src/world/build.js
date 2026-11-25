@@ -6,9 +6,10 @@ import { G } from '../core/ctx.js';
 import { mulberry, fbm, TAU } from '../core/util.js';
 import { MAT, FAC_Y, FAC_H, FLATS } from './world.js';
 import { geometry as assetGeo } from '../game/assets.js';
+import { vegetationLayout, inFlat, WATERFALL } from './vegetation.js';
 
 export const POI = {
-  landing: { x: 0, z: 329 }, trailhead: { x: 0, z: 236 }, comms: { x: -140, z: 150 }, waterfall: { x: 190, z: 150 },
+  landing: { x: 0, z: 329 }, trailhead: { x: 0, z: 236 }, comms: { x: -140, z: 150 }, waterfall: { ...WATERFALL },
   gate: { x: 0, z: 0 }, hq: { x: 0, z: -130 }, intel: { x: 6, z: -134 }, bunker: { x: 90, z: -150 }, motor: { x: -55, z: -100 },
   fac: { x: 90, z: -150 }, hangar: { x: 40, z: -262 }, runway: { x: 110, z: -295 }, helipad: { x: 205, z: -300 }, port: { x: 60, z: -385 },
 };
@@ -16,7 +17,6 @@ export const ZONES = [
   { name: 'ZONE 01 · BEACH', x: 0, z: 320, r: 95 }, { name: 'ZONE 02 · JUNGLE', x: 0, z: 150, r: 150 },
   { name: 'ZONE 03 · BLACK COBRA BASE', x: 0, z: -95, r: 135 }, { name: 'ZONE 05 · AIRFIELD & PORT', x: 100, z: -310, r: 170 },
 ];
-const inFlat = (x, z, pad = 8) => FLATS.some((f) => x > f.x0 - pad && x < f.x1 + pad && z > f.z0 - pad && z < f.z1 + pad);
 
 export function buildIsland() {
   const W = G.world, H = (x, z) => W.heightAt(x, z), rnd = mulberry(1337);
@@ -166,7 +166,7 @@ export function buildIsland() {
     W.box(55, 1.6, -432, 60, 0.6, 22, MAT.concrete, W.addStatic('Pier', 55, 1.6, -432, 1, 1, 1, 0, null, true) ? { hidden: true } : {}); // pier (Blender deck, piles, bollards)
   }
   buildFacility();
-  buildVegetation(rnd);
+  buildVegetation();
   W.finalize();
 }
 
@@ -224,7 +224,7 @@ function swayMaterial(mat, amp) {
       #endif`); };
   return mat;
 }
-function buildVegetation(rnd) {
+function buildVegetation() {
   const W = G.world, dummy = new THREE.Object3D();
   const CELL = 160, cells = (list) => { const m = new Map(); for (const p of list) { const k = Math.floor(p.x / CELL) + ',' + Math.floor(p.z / CELL); if (!m.has(k)) m.set(k, []); m.get(k).push(p); } return [...m.values()]; };
   /** One InstancedMesh per 160 m cell (frustum-culled; `near` > 0 also hides cells farther than that from the camera). */
@@ -232,19 +232,8 @@ function buildVegetation(rnd) {
     list.forEach((p, i) => { dummy.position.set(p.x, p.y, p.z); dummy.rotation.set(p.tx || 0, p.r, p.tz || 0); dummy.scale.setScalar(p.s); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }); mesh.instanceMatrix.needsUpdate = true; mesh.castShadow = proto.castShadow !== false; mesh.receiveShadow = true; mesh.computeBoundingSphere(); mesh.frustumCulled = true; W.group.add(mesh); out.push(mesh); }
     if (near) W.animated.push(() => { const c = G.camera.position; for (const m of out) { const b = m.boundingSphere; m.visible = Math.hypot(b.center.x - c.x, b.center.z - c.z) < near + b.radius; } });
     W.vegCells = (W.vegCells || 0) + out.length; return out; };
-  // jungle trees
-  const trunks = [], palms = [], rocks = [], ferns = [];
-  for (let i = 0; i < 5200; i++) {
-    const x = (rnd() - 0.5) * 860, z = (rnd() - 0.5) * 860, h = W.heightAt(x, z);
-    if (h < 2.8 || inFlat(x, z, 6)) continue;
-    const dens = fbm(x * 0.012 + 3, z * 0.012, 2); if (dens < 0.36) continue;
-    if (Math.abs(x) < 5 + fbm(z * 0.05, 1, 2) * 4 && z > 0 && z < 300) continue; // trail from the beach to the base gate
-    if (Math.hypot(x - POI.waterfall.x, z - POI.waterfall.z) < 16) continue;
-    trunks.push({ x, y: h - 0.3, z, r: rnd() * 6, s: 0.8 + rnd() * 0.9, tx: (rnd() - 0.5) * 0.12, tz: (rnd() - 0.5) * 0.12 });
-  }
-  for (let i = 0; i < 900; i++) { const a = rnd() * TAU, r = 300 + rnd() * 110, x = Math.cos(a) * r, z = Math.sin(a) * r, h = W.heightAt(x, z); if (h < 1.1 || h > 5 || inFlat(x, z, 4)) continue; if (Math.abs(x) < 7 && z > 300) continue; palms.push({ x, y: h - 0.3, z, r: rnd() * 6, s: 0.8 + rnd() * 0.6, tx: (rnd() - 0.5) * 0.3, tz: (rnd() - 0.5) * 0.3 }); }
-  for (let i = 0; i < 420; i++) { const x = (rnd() - 0.5) * 900, z = (rnd() - 0.5) * 900, h = W.heightAt(x, z); if (h < -1.5 || inFlat(x, z, 3)) continue; rocks.push({ x, y: h - 0.3, z, r: rnd() * 6, s: 0.5 + rnd() * rnd() * 3.2, tx: rnd(), tz: rnd() }); }
-  for (let i = 0; i < 9000; i++) { const x = (rnd() - 0.5) * 820, z = (rnd() - 0.5) * 820, h = W.heightAt(x, z); if (h < 2.6 || inFlat(x, z, 1)) continue; ferns.push({ x, y: h - 0.05, z, r: rnd() * 6, s: 0.6 + rnd() * 1.1 }); }
+  // trees, palms, rocks, ferns: layout shared with the Unity slice (vegetation.js, own random stream)
+  const { trunks, palms, rocks, ferns } = vegetationLayout((x, z) => W.heightAt(x, z));
   const bark = new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 1 }), leaf = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x1f5a22, roughness: 0.9, side: THREE.DoubleSide }), 0.012), palmLeaf = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x3c7a2c, roughness: 0.85, side: THREE.DoubleSide }), 0.018), fernMat = swayMaterial(new THREE.MeshStandardMaterial({ color: 0x2c6a26, roughness: 0.9, side: THREE.DoubleSide }), 0.12);
   if (assetGeo('Tree', 'trunk')) { for (const m of [bark, leaf, palmLeaf]) { m.vertexColors = true; m.color.set(0xffffff); } photoDetail(bark, 'bark', 0.7, 0.9); leaf.color.setRGB(0.75, 0.95, 0.75); palmLeaf.color.setRGB(0.9, 1, 0.85); } // colour + baked AO come from the Blender mesh
   const tg = assetGeo('Tree', 'trunk') || (() => { const g = new THREE.CylinderGeometry(0.22, 0.42, 9, 6); g.translate(0, 4.5, 0); return g; })();
