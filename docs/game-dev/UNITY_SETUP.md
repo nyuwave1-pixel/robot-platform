@@ -324,3 +324,52 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 테스트: dotnet `CoreTests~` **281/281**(포즈·걸음 웹 대조, 클립 선택, 필요한 클립 9개가 FBX 안에 있는지). PlayMode `SoldierAnimTests` 2개 추가(PC). **Unity 컴파일·화면 확인 전** —
   뼈 방향 가정(마네킹·병사 모두 +z를 봄, glTFast x축 반전)이 틀리면 `pitchSign`·`rigYaw` 로 조정.
 
+## 2026-11-25 (12) — WebGL 크기: 식생을 GPU 인스턴싱으로 (허브 세션, 클라우드)
+
+- PC 측정(88ad854 빌드 리포트): WebGL 33.6 MB, 비압축 사용자 에셋 73.3 MB 중 **메시 55.7 MB(76%)** — 거의 다 식생 칸별로 합친 메시(칸 하나 1~3 MB).
+  나무마다 정점을 복사해 합쳤기 때문. 지형 텍스처는 작음. Unity 로고 스플래시 2.7 MB.
+- 수정: `Runtime/InstancedVegetation` 이 모델 메시는 한 번만(GLB 그대로), 나무마다 변환 행렬 하나(64바이트, 전체 약 125 KB)로 `Graphics.RenderMeshInstanced` 로 그림.
+  160 m 칸, 카메라 시야 밖·420 m 밖(안개 끝 240 m) 칸은 건너뜀, 그림자는 화면 밖 40 m 까지. 기울기·크기·위치는 웹 배치 그대로. 재질은 인스턴싱을 켠 복사본(`Assets/Imported/Vegetation`, 커밋 안 함).
+- `BuildWebGL`: `PlayerSettings.SplashScreen.show = false`(Unity 6 Personal 허용).
+- 예상: 식생 메시 55.7 MB → 1 MB 미만. **PC 측정 전.** PlayMode `VegetationTests` 추가.
+
+## 2026-11-25 (13) — 미션 01 해변 구조물 (허브 세션, 클라우드, U4)
+
+- `Core/IslandProps.cs`: 웹 `src/world/build.js` 의 소품 함수(sandbags·crate·barrel·ammoBox·lamp·tower·radar·building)와 `world.js` walls 를 옮김.
+  해변 구역: 모래주머니 6, 나무 오두막(문은 바다 쪽), 감시탑 2(저격수 탑 10, 284), 해안 레이더, 상자 3·드럼통 2·탄약 상자, 불 켜진 가로등 2, 대전차 장애물 9(mulberry(1337) 순서까지 같음).
+- 대조: `Tools~/gen-props-fixture.mjs` 가 **웹 build.js 해변 부분 원문을 그대로 실행**해(가짜 world 에 호출 기록) 50개 호출을 픽스처로 씀 → C# 이 같은 순서·같은 값(1e-9)으로 만드는지 테스트.
+  웹 `top(x, z)`(world.groundAt) 도 옮겨서 저격수가 서는 탑 갑판 높이 10.913 m 일치.
+- Unity: `BuildCampaignScene` 이 GLB의 Blender 모델(Watchtower·Radar·LampPost·Hedgehog·P_sandbags·P_crate·P_barrel·P_ammo·P_wall_wood·P_roof)을 웹 위치·크기로 놓고,
+  웹과 같은 상자 충돌체(이름으로 탄착음 재질 구분), 가로등 점광원, 레이더 접시 회전(`Runtime/Spinner`). 미션 씬 NavMesh 는 충돌체 기준으로 구워 탑 갑판도 걸을 수 있는 면 → 저격수가 탑 위에서 지킴.
+- dotnet `CoreTests~` **284/284**. **Unity 화면 확인 전**(다음 묶음).
+
+## 2026-11-25 (14) — 미션 02 DEEP JUNGLE 이식 (허브 세션, 클라우드, U4)
+
+- **미션 진행기 확장(`Core/Mission.cs`)**: 목표마다 무전(radio), 시작 훅(OnStart), 완료 훅(OnDone), 사용자 조건(Custom, 예: 폭발 지점에서 30 m 벗어나기),
+  미션 플래그, 증원 요청(WaveRequested), 스크립트 이벤트(EventRaised "detonate"). 웹 advance() 순서 그대로(이전 목표 done → 다음 목표 start → radio).
+- **미션 02 데이터(`Core/Campaign.cs` M02)**: 순찰 A·B, 통신소 수비대(탑 위 저격수 포함), 발전기 초소, 목표 5개(침투 → [통신소 소탕 / 발전기 차단] 순서 자유 → C4 설치 → 30 m 이탈·폭파 → 역습 격퇴).
+  발전기를 통신소보다 먼저 끊으면 역습이 3명, 아니면 5명(웹 powerCut). 경보 시 순찰조가 플레이어 위치로 수색.
+- **웹 대조 강화**: `Tools~/gen-campaign-fixture.mjs` 가 **missions.js 미션 객체를 그대로 실행**해 setup() 배치, 목표, 상호작용 지점, 경보·시작·완료 훅의 무전·증원·플래그를 모든 경우로 기록 →
+  `CampaignParityTests` 가 M01·M02 대조(이 과정에서 M01 의 빠진 무전 "COMMAND: Beach is secure…" 를 찾아 고침).
+- **정글 구조물(`Core/IslandProps` Jungle·GenOutpost)**: 통신소 건물·콘솔·중계 철탑(Blender CommsTower, 30 m 충돌체는 설 수 없음)·발전기·모래주머니·탑·가로등, 발전기 초소 — 웹 원문 실행 결과와 39개 호출 일치.
+- **Unity**: 이름 붙은 증원(꺼진 채로 씬에 배치, `GameDirector.SendWave`), 폭파 시 폭발 3번 + 철탑 넘어짐(웹 컷신 대신), 경보 수색. `Mission02.unity` 는 `Campaign.All` 로 자동 생성, `?mission=m02`.
+- dotnet `CoreTests~` **294/294**. PlayMode `Mission02Tests` 2개 추가. **Unity 확인 전**(그다음 묶음).
+
+
+## 2026-11-25 (7) — 하늘 재보정·일시정지 메뉴·섬 지형/식생·두 에디션 연결 (PC Unity 세션)
+
+- **하늘 재보정(fd35aa7)**: WebGL storm 화면에서 회색 구름이 보이고 땅 밝기와 맞음(전에는 검은 돔). 
+- **일시정지 메뉴(dd25198)** 첫 컴파일: `PauseMenuTests` 의 `KeyControl` using 누락(CS0246) 수정, 마스터 볼륨이 첫 소리 전엔 적용 안 되던 문제
+  (`SliceFx` 가 첫 소리 때 생성) → `SettingsStore.Edit` 에서 `AudioListener.volume` 설정. PlayMode 14/14.
+- **run-batch.ps1**: `Start-Process -Wait` 가 Unity가 남기는 VBCSCompiler 서버까지 기다려 init 후 ~10분 멈춤 → Unity 프로세스만 `WaitForExit`.
+- **섬 지형(eb0335f)·식생(88ad854)**: `[Slice] island terrain 513² heights (-7.0..31.8 m) … ground at slice origin y = 0.00`,
+  `vegetation: 1565 trees, 221 palms, 176 rocks → 123 merged meshes`. EditMode 269/269, PlayMode 14/14. WebGL 벽 너머 나무·모래 텍스처 확인.
+  **WebGL 18.7 → 33.6 MB**: Build Report 비압축 Meshes 55.7 MB(76 %, 식생 합친 메시 칸당 1–3 MB), Textures 12.9 MB(스플래시 로고 2.7 MB 포함)
+  → 허브가 GPU 인스턴싱·스플래시 끄기로 수정(e3c2443): `vegetation … → instanced: 3 models (6 mesh parts, 6 instancing materials), 65 cells`.
+- **두 에디션 연결**(docs/game-dev/EDITIONS_ROADMAP.md): 클래식 PLAY MODE → 유니티판(?difficulty=&return=) → 일시정지 CLASSIC EDITION → 클래식, 브라우저 왕복 확인.
+  WebGL에서 찾은 문제 2개 수정(e509344): ① 주소 난이도가 매번 설정을 덮어써 일시정지 메뉴가 REGULAR로 보이고 못 바꿈 → 저장 설정에 1회 반영,
+  ② 포인터 잠금 거부 promise 가 Unity 오류 alert 를 띄움(게임은 계속 진행) → index.html 에서 그 rejection 만 삼킴.
+  주의: 캔버스를 CSS로 늘리면 UI Toolkit 클릭 좌표가 어긋남(검증용 늘림에서만 발생, 실제 페이지 아님).
+- 일시 오류: Windows 빌드 단계에서 `[CoreBusinessMetrics] … SQLite "disk I/O error"`(디스크 670 GB 여유) — 다른 프로젝트 Unity가 같은 캐시를 쓰던 때, 재실행으로 해결.
+- **미션 01(4027b57)·병사 애니메이션(5997b22)**: `MISSION 01 SILENT LANDING: scene saved … 9 enemies + 3 QRF, sky night`,
+  `soldier animation: controller ok Assets/Animation/Soldier.controller (9 UAL clips)`, `animation: Quaternius UAL rig`, Humanoid 아바타 경고 없음.

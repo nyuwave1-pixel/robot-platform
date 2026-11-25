@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace SpecialSoldier.Core
 {
@@ -23,7 +24,13 @@ namespace SpecialSoldier.Core
         public double SpawnX, SpawnZ, SpawnYaw;    // web player spawn (yaw: camera, 0 = looking toward −z)
         public string[] Brief;
         public SpawnDef[] Spawns, AlarmWave;
+        /// <summary>Named reinforcement waves the objective hooks send in (MissionRunner.WaveRequested): built switched off in the scene.</summary>
+        public Dictionary<string, SpawnDef[]> Waves = new Dictionary<string, SpawnDef[]>();
+        /// <summary>On the first alarm, enemies whose group starts with this go searching for the player (M02 web alarm()), or null.</summary>
+        public string AlarmSearchPrefix;
         public Func<MissionRunner> NewRunner;      // objectives in Unity world coordinates
+        /// <summary>The man-made props of the mission's zone (web build.js), or null.</summary>
+        public Func<PropSet> Props;
         /// <summary>Island-space bounds of everything the mission uses (NavMesh bake volume): minX, minZ, maxX, maxZ.</summary>
         public (double minX, double minZ, double maxX, double maxZ) Area;
     }
@@ -70,11 +77,72 @@ namespace SpecialSoldier.Core
             AlarmWave = new[] { new SpawnDef("assault", -6, 236, "qrf"), new SpawnDef("assault", 5, 232, "qrf"), new SpawnDef("guard", 0, 228, "qrf") },
             NewRunner = () => new MissionRunner("MISSION 01", "SILENT LANDING",
                 Objective.Kill("beach", "Eliminate the beach sentries"),
-                Objective.Reach(W(0, 240), 10, "Move to the jungle trail head")),
+                Objective.Reach(W(0, 240), 10, "Move to the jungle trail head").With(radio: "COMMAND: Beach is secure. Push inland to the trail head.")),
             Area = (-90, 215, 100, 345),
+            Props = () => IslandProps.Beach(),
         };
 
-        public static readonly CampaignMission[] All = { M01 };
+        /// <summary>MISSION 02 — DEEP JUNGLE (web missions.js MISSIONS[1]): patrols on the trails, the comms relay, an optional
+        /// backup generator (cut it first and only half the counter-attack comes), C4 on the mast, get clear, hold.</summary>
+        public static readonly CampaignMission M02 = MakeM02();
+
+        static CampaignMission MakeM02()
+        {
+            var c = IslandProps.Comms; var g = IslandProps.Gen;
+            var spawns = new List<SpawnDef>();
+            foreach (var (k, x, z) in new[] { ("guard", -28.0, 204.0), ("assault", -32.0, 200.0), ("guard", -24.0, 198.0) })
+                spawns.Add(new SpawnDef(k, x, z, "patrolA", patrol: R(x, z, x - 44, z - 16, x - 20, z + 22)));
+            foreach (var (k, x, z) in new[] { ("guard", 62.0, 192.0), ("guard", 66.0, 188.0), ("assault", 58.0, 186.0) })
+                spawns.Add(new SpawnDef(k, x, z, "patrolB", patrol: R(x, z, x + 60, z - 24, x + 20, z - 50)));
+            spawns.Add(new SpawnDef("sniper", -86, 214, "patrolA", yaw: 1.6));
+            spawns.Add(new SpawnDef("guard", c.x + 18, c.z + 20, "comms", yaw: 0.6)); spawns.Add(new SpawnDef("guard", c.x - 4, c.z + 24, "comms", yaw: 0.2));
+            spawns.Add(new SpawnDef("guard", c.x + 22, c.z + 4, "comms", yaw: 1.5));
+            spawns.Add(new SpawnDef("assault", c.x + 6, c.z + 12, "comms", patrol: R(c.x + 6, c.z + 12, c.x + 20, c.z - 8, c.x - 10, c.z - 12, c.x - 18, c.z + 16)));
+            spawns.Add(new SpawnDef("assault", c.x - 10, c.z - 6, "comms")); spawns.Add(new SpawnDef("sniper", c.x + 26, c.z + 26, "comms", yaw: 0.8, onStructure: true));
+            spawns.Add(new SpawnDef("heavy", c.x + 4, c.z + 2, "comms", yaw: 0.5)); spawns.Add(new SpawnDef("guard", c.x - 12, c.z + 8, "comms"));
+            spawns.Add(new SpawnDef("guard", g.x + 6, g.z + 5, "gen", yaw: 2.4));
+            spawns.Add(new SpawnDef("assault", g.x - 5, g.z + 6, "gen", patrol: R(g.x - 5, g.z + 6, g.x - 14, g.z - 10, g.x + 8, g.z - 8)));
+            var reinf = new[] { new SpawnDef("assault", c.x + 30, c.z - 60, "reinf"), new SpawnDef("assault", c.x + 20, c.z - 66, "reinf"), new SpawnDef("elite", c.x + 40, c.z - 62, "reinf"),
+                new SpawnDef("guard", c.x - 10, c.z - 64, "reinf"), new SpawnDef("assault", c.x + 60, c.z - 40, "reinf") };
+            return new CampaignMission
+            {
+                Id = "m02", Code = "MISSION 02", Name = "DEEP JUNGLE", Zone = "ZONE 02 · JUNGLE", SkyId = "dawn",
+                SpawnX = 0, SpawnZ = 236, SpawnYaw = 0.5,
+                Brief = new[]
+                {
+                    "05:40 — First light. Fog and rain are covering your approach.",
+                    "A relay station in the western jungle links the island to BLACK COBRA command. Patrols sweep the trails between you and it.",
+                    "Launch the recon drone [B] to tag hostiles before you commit.",
+                    "Clear the station, plant C4 on the mast, get clear and hold against the counter-attack.",
+                },
+                Spawns = spawns.ToArray(),
+                AlarmRadio = "REAPER: Patrols are converging on us!", AlarmSearchPrefix = "patrol",
+                Waves = new Dictionary<string, SpawnDef[]> { ["reinf"] = reinf },
+                NewRunner = () => new MissionRunner("MISSION 02", "DEEP JUNGLE",
+                    Objective.Reach(W(-108, 186), 24, "Infiltrate through the jungle to the comms relay"),
+                    Objective.Any("Two tasks — any order",
+                        Objective.Kill("comms", "Clear the comms relay"),
+                        Objective.Interact(W(g.x + 1.8, g.z - 1.4), "CUT BACKUP POWER", 3, "Cut the backup generator").With(onDone: m =>
+                        {
+                            bool cut = m.World != null && m.World.Alive("comms") > 0;   // web: powerCut = enemies.count('comms') > 0
+                            if (cut) m.Flags.Add("powerCut"); else m.Flags.Remove("powerCut");
+                            m.Say(cut ? "ATLAS: Backup power is down. When the relay goes, they will only get half a call out."
+                                      : "ATLAS: Power is down — but the station already sent its distress call. Expect company.");
+                        }))
+                        .With(radio: "NOMAD: The relay runs off a backup generator up on the north-west ridge. Cut it first and they cannot call in a full counter-attack — or hit the station now. Your call."),
+                    Objective.Interact(W(c.x + 2, c.z + 1.5), "PLANT C4 CHARGE", 3, "Plant C4 on the relay mast"),
+                    Objective.Leave(W(c.x, c.z), 30, "Get clear of the blast (30 m)").With(onDone: m => m.Raise("detonate")),
+                    Objective.Kill("reinf", "Repel the counter-attack").With(onStart: m =>
+                    {
+                        if (m.Flags.Contains("powerCut")) { m.Say("ATLAS: Only one squad heard the call — they are coming for the relay!"); m.SendWave("reinf", 3); }
+                        else { m.Say("ATLAS: Movement north! They are coming for the relay!"); m.SendWave("reinf", 5); }
+                    })),
+                Area = (-195, 75, 135, 250),
+                Props = () => IslandProps.Merge(IslandProps.Jungle(), IslandProps.GenOutpost()),
+            };
+        }
+
+        public static readonly CampaignMission[] All = { M01, M02 };
 
         public static CampaignMission Get(string id)
         {

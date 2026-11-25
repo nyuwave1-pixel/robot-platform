@@ -36,7 +36,7 @@ namespace SpecialSoldier.Core
         public void AddKill(int typeScore, bool headshot) { Kills++; if (headshot) Headshots++; Score += typeScore * (headshot ? 1.5f : 1f); }
     }
 
-    public enum ObjectiveKind { Kill, Reach, Interact, Defend, Any }
+    public enum ObjectiveKind { Kill, Reach, Interact, Defend, Any, Custom }
 
     /// <summary>One mission objective (web: MISSIONS[i].objectives[k]). For Any, every part must be done, in any order.</summary>
     public sealed class Objective
@@ -47,12 +47,26 @@ namespace SpecialSoldier.Core
         public float Radius = 2.6f, Hold, Time;
         public List<Objective> Parts;
         public bool Done { get; internal set; }
+        /// <summary>Radio line said when this objective becomes current (web: o.radio).</summary>
+        public string Radio;
+        /// <summary>Runs when this objective becomes current (web: o.start(M)) — e.g. send a counter-attack.</summary>
+        public Action<MissionRunner> OnStart;
+        /// <summary>Runs when this objective or part is completed (web: o.done(M)) — e.g. set a flag, say something.</summary>
+        public Action<MissionRunner> OnDone;
+        /// <summary>Custom objectives: complete when this returns true (web: type 'custom', check(M)).</summary>
+        public Func<MissionRunner, IMissionWorld, bool> Check;
 
         public static Objective Kill(string group, string text) => new Objective { Kind = ObjectiveKind.Kill, Group = group, Text = text };
         public static Objective Reach(Vec2 at, float radius, string text) => new Objective { Kind = ObjectiveKind.Reach, At = at, Radius = radius, Text = text };
         public static Objective Interact(Vec2 at, string label, float hold, string text, float radius = 2.6f) => new Objective { Kind = ObjectiveKind.Interact, At = at, Label = label, Hold = hold, Radius = radius, Text = text };
         public static Objective Defend(float seconds, string text) => new Objective { Kind = ObjectiveKind.Defend, Time = seconds, Text = text };
         public static Objective Any(string text, params Objective[] parts) => new Objective { Kind = ObjectiveKind.Any, Text = text, Parts = parts.ToList() };
+        public static Objective Custom(string text, Func<MissionRunner, IMissionWorld, bool> check) => new Objective { Kind = ObjectiveKind.Custom, Text = text, Check = check };
+        /// <summary>Get farther than <paramref name="radius"/> from a point (web: 'Get clear of the blast (30 m)').</summary>
+        public static Objective Leave(Vec2 from, float radius, string text) =>
+            new Objective { Kind = ObjectiveKind.Custom, Text = text, At = from, Radius = radius, Check = (m, w) => Vec2.Distance(w.PlayerPosition, from) > radius };
+        public Objective With(string radio = null, Action<MissionRunner> onStart = null, Action<MissionRunner> onDone = null)
+        { if (radio != null) Radio = radio; if (onStart != null) OnStart = onStart; if (onDone != null) OnDone = onDone; return this; }
     }
 
     /// <summary>What the engine tells the mission each frame.</summary>
@@ -91,17 +105,49 @@ namespace SpecialSoldier.Core
             return true;
         }
         public event Action MissionCompleted;
+        /// <summary>A radio line to show (objective radio, hooks).</summary>
+        public event Action<string> RadioSaid;
+        /// <summary>A hook asks the engine to send in the first <c>count</c> soldiers of a named wave (web: wave(list, group)).</summary>
+        public event Action<string, int> WaveRequested;
+        /// <summary>A scripted event for the engine (e.g. "detonate" — the relay mast blows).</summary>
+        public event Action<string> EventRaised;
+        /// <summary>Mission flags hooks set (web: M.flags), e.g. "powerCut".</summary>
+        public readonly HashSet<string> Flags = new HashSet<string>();
+        /// <summary>The world as of the last Tick (hooks read it, like the web hooks read G).</summary>
+        public IMissionWorld World { get; private set; }
+
+        public void Say(string line) { if (!string.IsNullOrEmpty(line)) RadioSaid?.Invoke(line); }
+        public void SendWave(string wave, int count) => WaveRequested?.Invoke(wave, count);
+        public void Raise(string evt) => EventRaised?.Invoke(evt);
 
         public MissionRunner(string code, string name, params Objective[] objectives)
         {
             Code = code; Name = name; Objectives = objectives;
+            if (Current?.Kind == ObjectiveKind.Defend) DefendLeft = Current.Time;   // the timer reads right before the first tick
+        }
+
+        bool _begun;
+        /// <summary>Starts the first objective (its start hook and radio). Called by the first Tick; call it earlier once the
+        /// engine has subscribed to the events if the first objective sends something.</summary>
+        public void Begin(IMissionWorld w = null)
+        {
+            if (_begun) return;
+            _begun = true; if (w != null) World = w;
             Start();
         }
 
-        void Start() { if (Current?.Kind == ObjectiveKind.Defend) DefendLeft = Current.Time; }
+        void Start()
+        {
+            var o = Current; if (o == null) return;
+            if (o.Kind == ObjectiveKind.Defend) DefendLeft = o.Time;
+            o.OnStart?.Invoke(this);
+            Say(o.Radio);
+        }
 
         public void Tick(float dt, IMissionWorld w)
         {
+            World = w;
+            if (!_begun) Begin(w);
             if (Complete) return;
             Stats.Time += dt;
             var o = Current;
@@ -109,7 +155,7 @@ namespace SpecialSoldier.Core
             switch (o.Kind)
             {
                 case ObjectiveKind.Any:
-                    foreach (var p in o.Parts) if (!p.Done && Check(p, dt, w)) { p.Done = true; HoldProgress = 0; PartCompleted?.Invoke(p); }
+                    foreach (var p in o.Parts) if (!p.Done && Check(p, dt, w)) { p.Done = true; HoldProgress = 0; p.OnDone?.Invoke(this); PartCompleted?.Invoke(p); }
                     if (o.Parts.All(p => p.Done)) Advance();
                     break;
                 case ObjectiveKind.Defend:
@@ -129,6 +175,7 @@ namespace SpecialSoldier.Core
             {
                 case ObjectiveKind.Kill: return w.Alive(o.Group) == 0;
                 case ObjectiveKind.Reach: return Vec2.Distance(w.PlayerPosition, o.At) < o.Radius;
+                case ObjectiveKind.Custom: return o.Check != null && o.Check(this, w);
                 case ObjectiveKind.Interact:
                     if (Vec2.Distance(w.PlayerPosition, o.At) > o.Radius) return false;
                     HoldTarget = o;
@@ -142,6 +189,7 @@ namespace SpecialSoldier.Core
         void Advance()
         {
             var done = Current; done.Done = true; HoldProgress = 0;
+            done.OnDone?.Invoke(this);   // web advance(): prev.done(this) first
             Index++;
             ObjectiveCompleted?.Invoke(done);
             if (Complete) MissionCompleted?.Invoke(); else Start();

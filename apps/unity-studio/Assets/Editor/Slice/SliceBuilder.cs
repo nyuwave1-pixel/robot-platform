@@ -43,6 +43,8 @@ namespace SpecialSoldier.EditorTools
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.dataCaching = true;
+            // Unity 6 lets Personal licences turn the splash off; the logo was 2.7 MB of the WebGL download (PC build report)
+            PlayerSettings.SplashScreen.show = false;
             PlayerSettings.productName = "SPECIAL SOLDIER - Island Slice";
             var opts = new BuildPlayerOptions { scenes = BuildScenes(), locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
             var report = BuildPipeline.BuildPlayer(opts);
@@ -203,10 +205,12 @@ namespace SpecialSoldier.EditorTools
             return director;
         }
 
-        static void BakeNavMesh(GameObject level, Vector3 center, Vector3 size, string navPath)
+        static void BakeNavMesh(GameObject level, Vector3 center, Vector3 size, string navPath, bool colliders = false)
         {
             var surface = level.AddComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Volume; surface.center = center; surface.size = size;
+            // campaign scenes: walk on what blocks (terrain + prop colliders); the web props' visuals have no colliders of their own
+            if (colliders) surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             surface.BuildNavMesh();
             // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
             // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
@@ -266,12 +270,14 @@ namespace SpecialSoldier.EditorTools
             var island = BuildIsland(level);
             if (!island) { Debug.LogError($"[Slice] {m.Code}: needs the island terrain (web textures missing)"); return false; }
             BuildVegetation(level);
+            var props = m.Props?.Invoke();
+            var named = props != null ? BuildProps(level, props) : new System.Collections.Generic.Dictionary<string, Transform>();
 
             // bake only the mission area (island coords → world; z flips, so take min/max of both corners)
             Vector3 a = IslandPoint(m.Area.minX, m.Area.minZ), b = IslandPoint(m.Area.maxX, m.Area.maxZ);
             var min = Vector3.Min(a, b); var max = Vector3.Max(a, b);
             float yMid = 0f; foreach (var sp in m.Spawns) yMid += IslandPoint(sp.X, sp.Z).y; yMid /= Mathf.Max(1, m.Spawns.Length);
-            BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset");
+            BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset", true);
 
             var spawn = IslandPoint(m.SpawnX, m.SpawnZ);
             var player = BuildPlayer(spawn + Vector3.up * 0.1f);
@@ -279,26 +285,139 @@ namespace SpecialSoldier.EditorTools
             var visual = LoadSoldierVisual();
 
             var parent = new GameObject("Enemies");
-            for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn);
+            for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn, props);
             var waveParent = new GameObject("AlarmWave");
             var wave = new System.Collections.Generic.List<GameObject>();
-            for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn));
+            for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn, props));
             foreach (var go in wave) go.SetActive(false);   // switched on by the mission's first alarm (GameDirector.OnAlarm)
+            var hookWaves = new System.Collections.Generic.List<GameDirector.WaveGroup>();
+            foreach (var kv in m.Waves)
+            {
+                var wp = new GameObject("Wave_" + kv.Key);
+                var members = new System.Collections.Generic.List<GameObject>();
+                for (int i = 0; i < kv.Value.Length; i++) members.Add(PlaceEnemy(wp, i, kv.Value[i], visual, spawn, props));
+                foreach (var go in members) go.SetActive(false);   // sent in by objective hooks (GameDirector.SendWave)
+                hookWaves.Add(new GameDirector.WaveGroup { name = kv.Key, members = members.ToArray() });
+            }
 
             var director = BuildDirectorRig(player);
             director.missionMode = GameDirector.MissionMode.Campaign;
             director.campaignId = m.Id;
             director.alarmWave = wave.ToArray();
+            director.waves = hookWaves.ToArray();
+            if (named.TryGetValue("CommsTower", out var relay)) director.relayMast = relay;
 
             string path = CampaignScenePath(m);
             bool saved = SaveAndList(scene, path, 1 + System.Array.IndexOf(Campaign.All, m));
-            Debug.Log($"[Slice] {m.Code} {m.Name}: scene {(saved ? "saved" : "NOT saved")}: {path}, {m.Spawns.Length} enemies + {wave.Count} QRF, sky {m.SkyId}, spawn {spawn}");
+            Debug.Log($"[Slice] {m.Code} {m.Name}: scene {(saved ? "saved" : "NOT saved")}: {path}, {m.Spawns.Length} enemies + {wave.Count} QRF + {hookWaves.Sum(w => w.members.Length)} in waves, sky {m.SkyId}, spawn {spawn}");
             return saved;
         }
 
-        static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player)
+        /// <summary>The zone's props (Core.IslandProps = web build.js): Blender models from the shared GLB at the web game's
+        /// positions and sizes, box colliders where the web game has them (named so SliceFx picks the impact surface), lamps
+        /// with point lights, the radar dish turning.</summary>
+        static System.Collections.Generic.Dictionary<string, Transform> BuildProps(GameObject level, PropSet set)
+        {
+            var named = new System.Collections.Generic.Dictionary<string, Transform>();
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var root = new GameObject("Props"); root.transform.SetParent(level.transform);
+            var cols = new GameObject("PropColliders"); cols.transform.SetParent(root.transform);
+            Transform Node(string n) => glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == n) : null;
+            int drawn = 0, colliders = 0, missing = 0;
+            foreach (var pm in set.Models)
+            {
+                var w = IslandTerrain.ToWorld(pm.X, pm.Y, pm.Z);
+                var node = Node(pm.Geo);
+                GameObject go;
+                if (node) { go = Object.Instantiate(node.gameObject, root.transform); foreach (var cc in go.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(cc); }
+                else { missing++; go = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(go.GetComponent<Collider>()); go.transform.SetParent(root.transform); go.transform.localScale = new Vector3(2.6f, 30f, 2.6f); }
+                go.name = pm.Geo == "CommsTower" ? "RelayMast" : pm.Geo;
+                go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z) + (node ? Vector3.zero : Vector3.up * 15f);
+                go.transform.rotation = Quaternion.identity;
+                named[pm.Geo] = go.transform; drawn++;
+            }
+            foreach (var c in set.Calls)
+            {
+                var bottom = IslandTerrain.ToWorld(c.X, c.Y, c.Z);
+                Vector3 b = new Vector3((float)bottom.x, (float)bottom.y, (float)bottom.z);
+                if (c.HasCollider)
+                {
+                    string surf = c.Surface == "sand" ? "Ground_sandbag" : c.Surface == "wood" ? "Cover_wood" : c.Surface == "metal" ? "Metal_prop" : "Prop_concrete";
+                    var col = new GameObject($"{surf}_{colliders}"); col.transform.SetParent(cols.transform); col.isStatic = true;
+                    col.transform.position = b + Vector3.up * (float)(c.Sy / 2);
+                    col.AddComponent<BoxCollider>().size = new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
+                    // the relay mast's core falls with the mast (Mission 02 detonation); nobody stands on it (web noStand)
+                    if (c.NoStand && named.TryGetValue("CommsTower", out var mast)) { col.transform.SetParent(mast, true); col.name = "Metal_mast"; col.isStatic = false; }
+                    colliders++;
+                }
+                if (!c.Drawn) continue;
+                Vector3 pos = c.Origin ? b : b + Vector3.up * (float)(c.Sy / 2);
+                bool turn = c.Rot90 || System.Math.Abs(c.RotY) > 1e-9;
+                float yaw = c.Rot90 ? -90f : (float)(-c.RotY * Mathf.Rad2Deg);   // the island's z is mirrored: yaw changes sign
+                Vector3 scale = c.Rot90 ? new Vector3((float)c.Sz, (float)c.Sy, (float)c.Sx) : new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
+                GameObject go;
+                var node = c.Geo.Length > 0 ? Node(c.Geo) : null;
+                if (node)
+                {
+                    go = Object.Instantiate(node.gameObject, root.transform); go.name = c.Geo;
+                    foreach (var cc in go.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(cc);
+                }
+                else
+                {
+                    if (c.Geo.Length > 0) missing++;
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(go.GetComponent<Collider>());
+                    go.name = "Box_" + c.Mat; go.transform.SetParent(root.transform);
+                    go.GetComponent<Renderer>().sharedMaterial = Mat("Prop_" + c.Mat, c.Mat == "wood" ? new Color(0.45f, 0.33f, 0.2f) : c.Mat == "sand" ? new Color(0.66f, 0.6f, 0.45f) : new Color(0.5f, 0.5f, 0.48f), 0.85f);
+                }
+                go.transform.position = pos; go.transform.rotation = turn ? Quaternion.Euler(0f, yaw, 0f) : Quaternion.identity; go.transform.localScale = scale;
+                go.isStatic = true;
+                if (c.Tint != null)
+                {
+                    var mpb = new MaterialPropertyBlock();
+                    var tint = new Color((float)c.Tint[0], (float)c.Tint[1], (float)c.Tint[2], 1f);
+                    foreach (var r in go.GetComponentsInChildren<Renderer>())
+                    {
+                        r.GetPropertyBlock(mpb);
+                        var src = r.sharedMaterial;
+                        if (src && src.HasProperty("baseColorFactor")) mpb.SetColor("baseColorFactor", src.GetColor("baseColorFactor") * tint);
+                        if (src && src.HasProperty("_BaseColor")) mpb.SetColor("_BaseColor", src.GetColor("_BaseColor") * tint);
+                        r.SetPropertyBlock(mpb);
+                    }
+                }
+                drawn++;
+            }
+            foreach (var r in set.Radars)
+            {
+                var w = IslandTerrain.ToWorld(r.X, r.Y, r.Z);
+                var node = Node("Radar"); if (!node) { missing++; continue; }
+                var go = Object.Instantiate(node.gameObject, root.transform); go.name = "Radar";
+                go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); go.transform.rotation = Quaternion.identity;
+                go.transform.localScale = new Vector3(1f, (float)(r.Height / 7.0), 1f);
+                var dish = go.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "dish");
+                if (dish) dish.gameObject.AddComponent<Spinner>();
+                drawn++;
+            }
+            foreach (var l in set.Lights)
+            {
+                var w = IslandTerrain.ToWorld(l.X, l.Y, l.Z);
+                var light = new GameObject("LampLight").AddComponent<Light>(); light.transform.SetParent(root.transform);
+                light.type = LightType.Point; light.range = (float)l.Range; light.intensity = 2.5f; light.color = new Color(1f, 0.886f, 0.627f);   // web 0xffe2a0
+                light.shadows = LightShadows.None; light.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+            }
+            Physics.SyncTransforms();
+            Debug.Log($"[Slice] props: {drawn} drawn, {colliders} colliders, {set.Lights.Count} lamp lights, {set.Radars.Count} radar{(missing > 0 ? $", {missing} GLB models MISSING (boxes instead)" : "")}");
+            return named;
+        }
+
+        static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player, PropSet props)
         {
             var pos = IslandPoint(sp.X, sp.Z);
+            if (sp.OnStructure && props != null)
+            {
+                // web y: top(x, z) — the deck of the watch tower (the NavMesh is baked on colliders, so the deck is walkable)
+                var w = IslandTerrain.ToWorld(sp.X, IslandProps.Top(props, sp.X, sp.Z), sp.Z);
+                pos = new Vector3((float)w.x, (float)w.y, (float)w.z);
+            }
             Vector3[] route = sp.Patrol?.Select(p => IslandPoint(p.x, p.z)).ToArray();
             Vector3 face = player;
             if (sp.Yaw.HasValue)
@@ -488,60 +607,83 @@ namespace SpecialSoldier.EditorTools
         const string VegDir = "Assets/Imported/Vegetation";
 
         /// <summary>The web island's trees, palms and rocks (Core.IslandVegetation = vegetation.js, same seed → same places) using the
-        /// Blender Tree / Palm / Rock models from the shared GLB. Merged into one mesh per 160 m cell and material, like the web
-        /// game's per-cell instancing, so WebGL draws a few dozen meshes instead of ~2,000 objects. No colliders: they all stand
-        /// outside the arena walls. Ferns are left out for now.</summary>
+        /// Blender Tree / Palm / Rock models from the shared GLB, drawn with GPU instancing (Runtime/InstancedVegetation): each model's
+        /// meshes once, one transform per plant, 160 m cells like the web game. Merging every plant into per-cell meshes made the
+        /// vegetation 55.7 MB of a 73 MB WebGL build (PC build report, 2026-11-25). No colliders: they all stand outside the arena
+        /// walls. Ferns are left out for now.</summary>
         static void BuildVegetation(GameObject level)
         {
             var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
             if (!glb) { Debug.LogWarning("[Slice] vegetation skipped: GLB not imported (run StudioBootstrap.ImportAndBuild first)"); return; }
             var layout = IslandVegetation.Build();
             AssetDatabase.DeleteAsset(VegDir); Directory.CreateDirectory(VegDir);
-            var root = new GameObject("Vegetation"); root.transform.SetParent(level.transform); root.isStatic = true;
-            int meshes = 0;
-            meshes += Plant(root, glb, "Tree", layout.Trunks);
-            meshes += Plant(root, glb, "Palm", layout.Palms);
-            meshes += Plant(root, glb, "Rock", layout.Rocks);
+            var root = new GameObject("Vegetation"); root.transform.SetParent(level.transform);
+            var veg = root.AddComponent<InstancedVegetation>();
+            var models = new System.Collections.Generic.List<InstancedVegetation.Model>();
+            var cells = new System.Collections.Generic.List<InstancedVegetation.Cell>();
+            var mats = new System.Collections.Generic.Dictionary<Material, Material>();
+            Plant(glb, "Tree", layout.Trunks, models, cells, mats);
+            Plant(glb, "Palm", layout.Palms, models, cells, mats);
+            Plant(glb, "Rock", layout.Rocks, models, cells, mats);
+            veg.models = models.ToArray(); veg.cells = cells.ToArray();
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Slice] vegetation: {layout.Trunks.Count} trees, {layout.Palms.Count} palms, {layout.Rocks.Count} rocks → {meshes} merged meshes");
+            int parts = models.Sum(m => m.parts.Length);
+            Debug.Log($"[Slice] vegetation: {layout.Trunks.Count} trees, {layout.Palms.Count} palms, {layout.Rocks.Count} rocks → instanced: {models.Count} models ({parts} mesh parts, {mats.Count} instancing materials), {cells.Count} cells");
         }
 
-        static int Plant(GameObject root, GameObject glb, string node, System.Collections.Generic.List<IslandVegetation.Item> items)
+        static void Plant(GameObject glb, string node, System.Collections.Generic.List<IslandVegetation.Item> items,
+            System.Collections.Generic.List<InstancedVegetation.Model> models, System.Collections.Generic.List<InstancedVegetation.Cell> cells,
+            System.Collections.Generic.Dictionary<Material, Material> mats)
         {
             var src = glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == node);
-            if (!src) { Debug.LogWarning($"[Slice] vegetation: GLB has no '{node}' node"); return 0; }
-            // every mesh under the model, with its transform relative to the model's root (the GLB lays models out in a row)
-            var parts = src.GetComponentsInChildren<MeshFilter>(true).Where(f => f.sharedMesh)
-                .Select(f => (mesh: f.sharedMesh, mats: f.GetComponent<MeshRenderer>().sharedMaterials, rel: src.worldToLocalMatrix * f.transform.localToWorldMatrix)).ToList();
-            var groups = new System.Collections.Generic.Dictionary<(int cx, int cz, Material m), System.Collections.Generic.List<CombineInstance>>();
+            if (!src) { Debug.LogWarning($"[Slice] vegetation: GLB has no '{node}' node"); return; }
+            // every mesh (and sub-mesh) under the model, with its transform relative to the model's root (the GLB lays models out in a row)
+            var parts = new System.Collections.Generic.List<InstancedVegetation.Part>();
+            foreach (var f in src.GetComponentsInChildren<MeshFilter>(true).Where(f => f.sharedMesh))
+            {
+                var srcMats = f.GetComponent<MeshRenderer>().sharedMaterials;
+                for (int sub = 0; sub < f.sharedMesh.subMeshCount && sub < srcMats.Length; sub++)
+                    parts.Add(new InstancedVegetation.Part { mesh = f.sharedMesh, subMesh = sub, material = Instancing(srcMats[sub], mats), rel = src.worldToLocalMatrix * f.transform.localToWorldMatrix });
+            }
+            int model = models.Count;
+            models.Add(new InstancedVegetation.Model { name = node, parts = parts.ToArray() });
+
+            var byCell = new System.Collections.Generic.Dictionary<(int, int), System.Collections.Generic.List<Matrix4x4>>();
+            var bounds = new System.Collections.Generic.Dictionary<(int, int), Bounds>();
+            var local = new Bounds(); bool first = true;   // the model's own bounds, to size each cell's bounds
+            foreach (var p in parts) { var b = TransformBounds(p.rel, p.mesh.bounds); if (first) { local = b; first = false; } else local.Encapsulate(b); }
             foreach (var it in items)
             {
                 var w = IslandTerrain.ToWorld(it.X, it.Y, it.Z);
                 // web: rotation (tx, r, tz) radians, uniform scale s; yaw sign flips with the z mirror
                 var trs = Matrix4x4.TRS(new Vector3((float)w.x, (float)w.y, (float)w.z),
                     Quaternion.Euler((float)(-it.Tx * Mathf.Rad2Deg), (float)(-it.R * Mathf.Rad2Deg), (float)(it.Tz * Mathf.Rad2Deg)), Vector3.one * (float)it.S);
-                int cx = Mathf.FloorToInt((float)w.x / 160f), cz = Mathf.FloorToInt((float)w.z / 160f);
-                foreach (var (mesh, mats, rel) in parts)
-                    for (int sub = 0; sub < mesh.subMeshCount && sub < mats.Length; sub++)
-                    {
-                        var key = (cx, cz, mats[sub]);
-                        if (!groups.TryGetValue(key, out var list)) groups[key] = list = new System.Collections.Generic.List<CombineInstance>();
-                        list.Add(new CombineInstance { mesh = mesh, subMeshIndex = sub, transform = trs * rel });
-                    }
+                var key = (Mathf.FloorToInt((float)w.x / 160f), Mathf.FloorToInt((float)w.z / 160f));
+                if (!byCell.TryGetValue(key, out var list)) byCell[key] = list = new System.Collections.Generic.List<Matrix4x4>();
+                list.Add(trs);
+                var b = TransformBounds(trs, local);
+                if (bounds.TryGetValue(key, out var cb)) { cb.Encapsulate(b); bounds[key] = cb; } else bounds[key] = b;
             }
-            int n = 0;
-            foreach (var g in groups)
-            {
-                var combined = new Mesh { name = $"{node}_{g.Key.cx}_{g.Key.cz}_{n}", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
-                combined.CombineMeshes(g.Value.ToArray(), true, true);
-                combined.RecalculateBounds();
-                AssetDatabase.CreateAsset(combined, $"{VegDir}/{combined.name}.asset");
-                var go = new GameObject(combined.name); go.transform.SetParent(root.transform, false); go.isStatic = true;
-                go.AddComponent<MeshFilter>().sharedMesh = combined;
-                var mr = go.AddComponent<MeshRenderer>(); mr.sharedMaterial = g.Key.m; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-                n++;
-            }
-            return n;
+            foreach (var kv in byCell) cells.Add(new InstancedVegetation.Cell { model = model, bounds = bounds[kv.Key], items = kv.Value.ToArray() });
+        }
+
+        /// <summary>The GLB's materials are read-only import sub-assets: an instancing-enabled copy of each is saved next to the data.</summary>
+        static Material Instancing(Material src, System.Collections.Generic.Dictionary<Material, Material> mats)
+        {
+            if (!src) return null;
+            if (mats.TryGetValue(src, out var m)) return m;
+            m = new Material(src) { name = src.name + "_Instanced", enableInstancing = true };
+            AssetDatabase.CreateAsset(m, $"{VegDir}/{m.name}_{mats.Count}.mat");
+            mats[src] = m;
+            return m;
+        }
+
+        static Bounds TransformBounds(Matrix4x4 m, Bounds b)
+        {
+            var r = new Bounds(m.MultiplyPoint3x4(b.center), Vector3.zero);
+            for (int i = 0; i < 8; i++)
+                r.Encapsulate(m.MultiplyPoint3x4(b.center + Vector3.Scale(b.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1))));
+            return r;
         }
 
         /// <summary>PanelSettings for the HUD: default runtime theme (Assets/UI/SliceTheme.tss), scale with screen size from 1920×1080.</summary>

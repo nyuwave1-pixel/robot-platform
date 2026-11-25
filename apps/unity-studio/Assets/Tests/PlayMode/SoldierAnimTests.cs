@@ -68,7 +68,14 @@ namespace SpecialSoldier.PlayModeTests
             Assert.That(Mathf.Abs(Mathf.DeltaAngle(root.eulerAngles.x, 0f)), Is.LessThan(1f), "the old tip-over is not used");
             Assert.That(root.eulerAngles.y, Is.EqualTo(yawBefore).Within(1f));
             float down = walker.UsesRig ? hipBefore - body.position.y : 0f;
-            if (walker.UsesRig) Assert.That(down, Is.GreaterThan(0.4f), "Death01 brings the hips down");
+            if (walker.UsesRig)
+            {
+                // say what the rig is doing if this fails: is the Dead state playing, and where are the mannequin's hips?
+                var st = walker.rig.GetCurrentAnimatorStateInfo(0); var hips = walker.rig.GetBoneTransform(HumanBodyBones.Hips);
+                string why = $"Death01 brings the hips down (state Dead={st.IsName("Dead")} t={st.normalizedTime:F2}, param Dead={walker.rig.GetBool("Dead")}, " +
+                    $"rig hips local y={walker.transform.InverseTransformPoint(hips.position).y:F2}, body y {hipBefore:F2} -> {body.position.y:F2})";
+                Assert.That(down, Is.GreaterThan(0.4f), why);
+            }
             else Assert.That(Mathf.Abs(Mathf.DeltaAngle(walker.visual.localEulerAngles.x, 0f)), Is.GreaterThan(60f), "web pose: the model falls");
         }
     }
