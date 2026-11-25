@@ -148,7 +148,8 @@ namespace SpecialSoldier
                 ElapsedTime += Time.deltaTime;
                 Mission.Tick(Time.deltaTime, this);
                 // alarm: an enemy that survives 5 s in combat calls for reinforcements — counted once per mission (web: flags.alarm)
-                foreach (var e in enemies)
+                // (a copy: the alarm's reinforcements join `enemies` while this loop runs)
+                foreach (var e in enemies.ToArray())
                     if (e && e.Alive && !e.AlarmRaised && e.Brain != null && e.Brain.State == AlertState.Combat && e.Brain.StateTime > AlarmDelay)
                     {
                         e.AlarmRaised = true;

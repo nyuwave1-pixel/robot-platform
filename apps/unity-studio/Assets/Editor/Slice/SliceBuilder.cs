@@ -251,6 +251,40 @@ namespace SpecialSoldier.EditorTools
             return ok;
         }
 
+        /// <summary>Mission 01's assault boat "MAKO" with SQUAD 07 aboard (web cinematics.js: Blender Boat, SEATS_NEW, seated pose).
+        /// It starts beached at (3.2, 331.5) with the driver and one operator; IntroDirector sails it in for the intro.</summary>
+        static void BuildIntroBoat(IntroDirector intro, GameObject soldier)
+        {
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var node = glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Boat") : null;
+            if (!node) { Debug.LogWarning("[Slice] intro boat: GLB has no 'Boat' — Mission 01 starts without its intro"); return; }
+            var boat = Object.Instantiate(node.gameObject); boat.name = "IntroBoat";
+            foreach (var c in boat.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
+            var w = IslandTerrain.ToWorld(3.2, 0, 331.5);
+            boat.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); boat.transform.rotation = Quaternion.Euler(2f, 187f, 1.7f);
+            double[][] seats = { new[] { 1.02, 2.5 }, new[] { -1.02, 2.5 }, new[] { 1.02, 1.1 }, new[] { -1.02, 1.1 }, new[] { 1.02, -0.3 }, new[] { 0.0, -1.75 } };   // web SEATS_NEW
+            var crew = new System.Collections.Generic.List<GameObject>();
+            var sit = SoldierPose.Pose(sit: true);
+            for (int i = 0; i < seats.Length && soldier; i++)
+            {
+                var c = Object.Instantiate(soldier, boat.transform); c.name = $"Crew{i}";
+                foreach (var col in c.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(col);
+                double x = seats[i][0], z = seats[i][1], r = i == 5 ? 0 : x > 0 ? -1.25 : 1.25;   // web: the driver stands, the rest face inboard
+                c.transform.localPosition = new Vector3((float)x, i == 5 ? 0.6f : 0.7f, (float)-z);   // boat-local z mirrored with the island
+                c.transform.localRotation = Quaternion.Euler(0f, (float)(180 - r * Mathf.Rad2Deg), 0f);
+                if (i != 5)
+                {
+                    void Pitch(string n, double rad) { var t = c.GetComponentsInChildren<Transform>(true).FirstOrDefault(x2 => x2.name == n); if (t) t.localRotation *= Quaternion.Euler((float)(rad * Mathf.Rad2Deg), 0f, 0f); }
+                    Pitch("legL", sit.LegL); Pitch("legR", sit.LegR); Pitch("shinL", sit.ShinL); Pitch("shinR", sit.ShinR); Pitch("upper", sit.Upper); Pitch("arms", sit.Arms);
+                    var body = c.GetComponentsInChildren<Transform>(true).FirstOrDefault(x2 => x2.name == "body"); if (body) body.localPosition += Vector3.up * (float)sit.BodyY;
+                }
+                c.SetActive(i == 4 || i == 5);   // beached: driver + one operator (web placeBoat)
+                crew.Add(c);
+            }
+            intro.boat = boat.transform; intro.crew = crew.ToArray();
+            Debug.Log($"[Slice] intro boat: Blender Boat + {crew.Count} crew");
+        }
+
         /// <summary>Island point at a fixed height (underground: FAC_Y) or, when null, on the terrain.</summary>
         static Vector3 SpawnPoint(double ix, double iz, double? iy)
         {
@@ -288,7 +322,7 @@ namespace SpecialSoldier.EditorTools
             named.TryGetValue("P_door", out var door);
             if (door) door.gameObject.SetActive(false);
             BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset", true);
-            if (door) { door.gameObject.SetActive(true); var ob = door.gameObject.AddComponent<NavMeshObstacle>(); ob.carving = true; ob.shape = NavMeshObstacleShape.Box; ob.size = new Vector3(5f, 4.2f, 0.4f); ob.center = Vector3.zero; }
+            if (door) { door.gameObject.SetActive(true); var ob = door.gameObject.AddComponent<NavMeshObstacle>(); ob.carving = true; ob.shape = NavMeshObstacleShape.Box; ob.size = Vector3.one; ob.center = Vector3.zero; }   // local units: the door's transform is already scaled to 5 × 4.2 × 0.4
 
             var spawn = SpawnPoint(m.SpawnX, m.SpawnZ, m.SpawnY);
             var player = BuildPlayer(spawn + Vector3.up * 0.1f);
@@ -323,7 +357,8 @@ namespace SpecialSoldier.EditorTools
             var briefGo = new GameObject("Briefing");
             var briefDoc = briefGo.AddComponent<UnityEngine.UIElements.UIDocument>(); briefDoc.panelSettings = director.GetComponent<UnityEngine.UIElements.UIDocument>().panelSettings; briefDoc.sortingOrder = 20;
             briefGo.AddComponent<BriefingScreen>().style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
-            briefGo.AddComponent<IntroDirector>();   // the mission intro camera after the briefing
+            var intro = briefGo.AddComponent<IntroDirector>();   // the mission intro camera after the briefing
+            if (m.IntroKind == "boat") BuildIntroBoat(intro, visual);   // Mission 01: the assault boat ride (web playBoatIntro)
             if (m.Id == "m05")
             {
                 // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve

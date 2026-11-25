@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T13:24:05.318Z",
+  "generatedAt": "2026-11-25T13:40:18.345Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "1702aa6"
+    "commit": "bdc1ceb"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "bdc1ceb",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Core: Mission 01 boat intro (web playBoatIntro) as boat-relative shots"
+    },
+    {
+      "hash": "f5a26cc",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: Mission 05 door-gunner set piece (catch up with web v0.23)"
+    },
+    {
       "hash": "1702aa6",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "QA: v0.21 campaign regression 17/17; refresh BIT PARK feed"
-    },
-    {
-      "hash": "5997b22",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: soldier animation with Quaternius UAL (CC0) + web procedural pose (U3)"
-    },
-    {
-      "hash": "f52919d",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim U3 soldier animation (Quaternius UAL CC0)"
     }
   ]
 }

@@ -447,3 +447,16 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **Unity(`Runtime/DoorGunner`)**: 남은 적 정리, 플레이어를 헬기 문에 태우고 Core 경로로 비행, 마우스 조준·사격(히트스캔, 부위·거리 피해, 명중·사살·점수 집계), 과열 무전, HUD 줄.
 - dotnet `CoreTests~` **336/336**(경고 없음). **Unity 확인 전**.
 
+## 2026-11-25 (22) — 컴파일 검토 + 미션 01 보트 인트로 (허브 세션, 클라우드)
+
+- **Unity 없이 코드 검토**(PC Unity 세션이 보관돼 컴파일을 못 하는 동안): M02 이후 Runtime·Editor·PlayMode 30여 파일을 Unity 6.6 API 기준으로 따로 검토 →
+  ① `Mission03Tests` 에 `using SpecialSoldier.Core` 빠짐(PlayMode 테스트 어셈블리 전체 컴파일 실패였을 것) — 고침
+  ② `GameDirector` 경보 루프가 도는 중에 증원이 `enemies` 에 추가됨(InvalidOperationException) — 복사본으로 순회
+  ③ 보안문 `NavMeshObstacle` 크기를 이미 스케일된 문에 또 곱함(약 25 m 폭으로 막힘) — `Vector3.one`
+  ④ 런타임 카메라의 URP 데이터는 `GetUniversalAdditionalCameraData()`(중복 추가 방지).
+  나머지 Unity 6 API(RenderMeshInstanced, Volume, NavMeshSurface, 애니메이터 편집 API, UI Toolkit 스타일 등)는 이상 없음으로 판단 — **실제 컴파일은 여전히 PC 필요**.
+- **미션 01 보트 인트로**: 웹 playBoatIntro 그대로 — 보트가 35초 동안 z 760 에서 해변(3.2, 331.5)까지 들어오고, 여섯 샷이 보트를 따라 움직임(선형, 카메라 0.9 m 이상),
+  자막·무전("Bravo Team, this is Command…"). Blender `Boat` + 분대원 6명(웹 좌석, 앉은 자세 — 운전수는 서 있음). 끝나면 보트는 해변에 정박, 운전수와 한 명만 남음.
+  보트·대원의 앞 방향(z 반전 + glTF x 반전)은 **화면 확인 필요**.
+- dotnet `CoreTests~` **337/337**.
+

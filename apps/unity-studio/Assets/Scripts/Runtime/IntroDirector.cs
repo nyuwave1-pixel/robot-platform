@@ -16,6 +16,10 @@ namespace SpecialSoldier
     {
         public static IntroDirector Instance { get; private set; }
         public bool Playing { get; private set; }
+        /// <summary>Mission 01: the assault boat and its six operators (web cinematics.js boat + crew), placed by SliceBuilder.</summary>
+        public Transform boat;
+        public GameObject[] crew = new GameObject[0];
+        int _shown = -1;
         Cinematic _cine; Camera _cam, _view; VisualElement _top, _bottom, _fade; Label _caption;
         readonly List<Behaviour> _paused = new List<Behaviour>();
         float _fadeA;
@@ -28,12 +32,15 @@ namespace SpecialSoldier
         {
             var d = GameDirector.Instance;
             var m = d && d.missionMode == GameDirector.MissionMode.Campaign ? Campaign.Get(d.campaignId) : null;
-            if (m?.Intro == null || m.Intro.Length == 0 || SettingsStore.Volatile || Playing) return;
-            _cine = new Cinematic(m.Intro); Playing = true; d.Cinematic = true;
+            bool boatRide = m != null && m.IntroKind == "boat" && boat;
+            if (m == null || (!boatRide && (m.Intro == null || m.Intro.Length == 0)) || SettingsStore.Volatile || Playing) return;
+            var shots = boatRide ? BoatIntro.Shots() : m.Intro;
+            _cine = new Cinematic(shots); if (boatRide) { _cine.Anchor = BoatIntro.BoatAt; foreach (var c in crew) if (c) c.SetActive(true); }
+            Playing = true; d.Cinematic = true;
             var player = d.player;
             _view = player ? player.GetComponentInChildren<Camera>() : null;
-            _cam = new GameObject("IntroCam").AddComponent<Camera>(); _cam.nearClipPlane = 0.1f; _cam.fieldOfView = (float)m.Intro[0].Fov;
-            if (GraphicsSettings.defaultRenderPipeline) _cam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
+            _cam = new GameObject("IntroCam").AddComponent<Camera>(); _cam.nearClipPlane = 0.1f; _cam.fieldOfView = (float)shots[0].Fov;
+            if (GraphicsSettings.defaultRenderPipeline) _cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;   // adds the component only if missing
             if (_view) _view.enabled = false;
             // freeze everything that acts: the player's controls and every enemy
             _paused.Clear();
@@ -57,7 +64,9 @@ namespace SpecialSoldier
             var shot = _cine.Current;
             if (shot == null) { End(); return; }
             _caption.text = shot.Text;
+            if (_cine.Index != _shown) { _shown = _cine.Index; if (!string.IsNullOrEmpty(shot.Radio) && GameDirector.Instance) GameDirector.Instance.Radio(shot.Radio); }
             var (pos, look, fade) = _cine.Step(Time.deltaTime);
+            if (boat && _cine.Anchor != null) PlaceBoat(BoatIntro.BoatAt(_cine.Time), Mathf.Sin(Time.time * 1.7f) * 0.12f);
             if (pos != null)
             {
                 var p = IslandTerrain.ToWorld(pos[0], pos[1], pos[2]); var l = IslandTerrain.ToWorld(look[0], look[1], look[2]);
@@ -69,9 +78,23 @@ namespace SpecialSoldier
             _fade.style.opacity = _fadeA;
         }
 
+        /// <summary>The boat on the sea (island y 0 = world −16), bow toward the island (web rotation.y = π).</summary>
+        void PlaceBoat(double[] at, float bob)
+        {
+            var w = IslandTerrain.ToWorld(at[0], at[1], at[2]);
+            boat.position = new Vector3((float)w.x, (float)w.y + bob, (float)w.z);
+            boat.rotation = Quaternion.Euler(Mathf.Sin(Time.time * 1.3f) * 1.2f, 180f, Mathf.Sin(Time.time * 0.9f) * 1.5f);
+        }
+
         void End()
         {
             Playing = false;
+            if (boat && _cine?.Anchor != null)
+            {
+                // web placeBoat(true): beached at (3.2, 331.5); only the driver and one operator stay aboard
+                PlaceBoat(new[] { 3.2, 0.0, 331.5 }, 0f); boat.rotation = Quaternion.Euler(2f, 180f + 7f, 1.7f);
+                for (int i = 0; i < crew.Length; i++) if (crew[i]) crew[i].SetActive(i == 4 || i == 5);
+            }
             if (_cam) Destroy(_cam.gameObject);
             if (_view) _view.enabled = true;
             foreach (var b in _paused) if (b) b.enabled = true;
