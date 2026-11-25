@@ -33,7 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
-| 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Core/AwarenessBrain.cs`, `Runtime/EnemyAgent.cs`(Perceive 부분만), `Tests/EditMode/HealthAndAwarenessTests.cs`·새 `AwarenessParityTests.cs` — 적 인지 웹 일치(감쇠 0.18/s, 밤·웅크림·비·경계 시야). **PC 세션의 4묶음 푸시 뒤에 병합** | 2026-11-25 |
+| 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Core/AwarenessBrain.cs`, `Runtime/EnemyAgent.cs`(Perceive 부분만), `Tests/EditMode/HealthAndAwarenessTests.cs`·새 `AwarenessParityTests.cs` — 적 인지 웹 일치(감쇠 0.18/s, 밤·웅크림·비·경계 시야). **PC 세션의 4묶음 푸시 뒤에 병합** | 2026-11-25 (병합·푸시 완료) |
 | 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Runtime/{SliceFx,WeaponController,EnemyAgent,Grenade,PlayerMotor}.cs`, `Core/SfxSynth.cs` — 효과음 2차 | 2026-11-25 (이 커밋에서 완료) |
 | 클라우드 (Special Soldier) | `apps/special-soldier/{SETUP.md,scripts/,package.json}`, `.devcontainer/` — macOS/Linux/Codespaces 세팅, `npm run assets` | 2026-11-21 (이 커밋에서 완료) |
 
@@ -56,4 +56,5 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 허브 → BIT PARK 포털 | Unity WebGL이 끝나면 `game_result`(`game: special-soldier-unity`, `engine: unity`, score·rp·mission·grade)를 보냄 → 웹 게임과 같은 방식으로 받아 RP 반영 | 요청함 2026-11-25 |
 | 허브 → PC Blender (Unity) | **하늘·조명 첫 확인**: 컴파일(Runtime asmdef에 URP 참조 추가됨)·EditMode(230 예상)·PlayMode → 슬라이스 재생성 → [K]로 5개 날씨 스크린샷(`docs/game-dev/screenshots/unity-sky-*.png`) → 너무 밝거나 어두우면 `SkyDirector.sunScale`·`basePostExposure` 만 조정. SSAO가 추가됐는지 로그 `[Slice] SSAO`. WebGL `?sky=storm` 확인 | **완료** 2026-11-25 — 컴파일 0 오류, EditMode 242/242·PlayMode 12/12, 5종 WebGL 화면 `screenshots/unity-sky-*.jpg`. storm·dusk·night 하늘 돔이 땅보다 너무 어두움 → 허브 조정 요청. 번개 화면 미확인 |
 | 허브 → PC Blender (Unity) | **UI Toolkit HUD 첫 확인**: 컴파일·EditMode(242 예상)·PlayMode(새 `HudTests` 2개) → 슬라이스 재생성(로그 `[Slice] HUD: UI Toolkit (panel ok, style ok, theme ok)`) → 1920×1080 스크린샷(`docs/game-dev/screenshots/unity-hud.png`) → 글자 겹침·크기 문제는 `Assets/UI/SliceHud.uss` 만 조정. WebGL에서도 표시 확인 | **완료** 2026-11-25 — `[Slice] HUD: UI Toolkit (panel ok, style ok, theme ok)`, HudTests 2개 통과. WebGL 수정 2건: 글리프 ASCII 치환, HiDPI 이중 확대 → devicePixelRatio 1 고정. 화면 `screenshots/unity-hud.jpg` |
+| 허브 → PC Blender (Unity) | **하늘 재보정·적 인지 확인**: run-batch(EditMode 249 예상) → WebGL에서 [K]로 storm·dusk·night 다시 캡처(하늘에 회색 구름·노을·별이 보이고 땅이 지나치게 밝지 않은지) → 밤·웅크림으로 적에게 더 가까이 갈 수 있는지 플레이 확인 | 요청함 2026-11-25 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |

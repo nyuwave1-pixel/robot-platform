@@ -26,10 +26,17 @@ namespace SpecialSoldier.Core
         public float FogDensity, SunIntensity, Hemi, Rain, Wind, Storm, Stars, Night, Exposure;
         /// <summary>Median sky luminance of the HDRI file (measured with Tools~/hdri-preview.py --stats).</summary>
         public float HdriMedian = 1f;
-        /// <summary>Skybox exposure that makes the photo sky as bright as the web game's gradient dome for this preset:
-        /// mean linear luminance of the top/bottom colours ÷ the HDRI's median. Each Poly Haven HDRI is captured at a
-        /// different absolute brightness (the night file's median is 0.48), so one fixed exposure washes storm/dusk/night out.</summary>
-        public float HdriExposure => (Top.Luminance + Bottom.Luminance) / 2f / Math.Max(1e-4f, HdriMedian);
+        /// <summary>How bright this sky is relative to the clear day (1 = day). Sky, sun and ambient all follow it, so the ground is
+        /// never brightly lit under a black sky. Calibrated 2026-11-25 against the first Unity WebGL screenshots: matching the web
+        /// gradient dome directly (storm 0.05, night 0.023) rendered the storm and night skies nearly black.</summary>
+        public float Mood = 1f;
+        /// <summary>Median displayed sky luminance of the clear day (web day gradient: mean of the top/bottom colours' luminance).</summary>
+        public static float DaySkyLuminance => (SkyPresets.Day.Top.Luminance + SkyPresets.Day.Bottom.Luminance) / 2f;
+        /// <summary>Skybox exposure: normalise the HDRI to the day sky's brightness, then scale by Mood. Each Poly Haven HDRI is
+        /// captured at a different absolute brightness (medians 0.35–1.49), so one fixed exposure cannot work.</summary>
+        public float HdriExposure => DaySkyLuminance * Mood / Math.Max(1e-4f, HdriMedian);
+        /// <summary>Multiplier for the sun / moon light so it agrees with the sky: 0.4 + 0.6 × Mood (day 1, storm 0.67, night 0.47).</summary>
+        public float LightScale => 0.4f + 0.6f * Mood;
         public Vec3 SunDir;          // towards the sun, three.js axes (x right, y up, z towards the viewer)
 
         /// <summary>The same direction in Unity's left-handed axes (z forward): flip z.</summary>
@@ -49,7 +56,7 @@ namespace SpecialSoldier.Core
             var d = new Vec3(L(a.SunDir.X, b.SunDir.X), L(a.SunDir.Y, b.SunDir.Y), L(a.SunDir.Z, b.SunDir.Z));
             return new SkyPreset
             {
-                Id = t < 1 ? a.Id : b.Id, Label = t < 0.5f ? a.Label : b.Label, Hdri = t < 0.5f ? a.Hdri : b.Hdri, HdriMedian = t < 0.5f ? a.HdriMedian : b.HdriMedian,
+                Id = t < 1 ? a.Id : b.Id, Label = t < 0.5f ? a.Label : b.Label, Hdri = t < 0.5f ? a.Hdri : b.Hdri, HdriMedian = t < 0.5f ? a.HdriMedian : b.HdriMedian, Mood = L(a.Mood, b.Mood),
                 Top = Rgb.Lerp(a.Top, b.Top, t), Bottom = Rgb.Lerp(a.Bottom, b.Bottom, t), Fog = Rgb.Lerp(a.Fog, b.Fog, t), Sun = Rgb.Lerp(a.Sun, b.Sun, t),
                 FogDensity = L(a.FogDensity, b.FogDensity), SunIntensity = L(a.SunIntensity, b.SunIntensity), Hemi = L(a.Hemi, b.Hemi),
                 Rain = L(a.Rain, b.Rain), Wind = L(a.Wind, b.Wind), Storm = L(a.Storm, b.Storm), Stars = L(a.Stars, b.Stars),
@@ -70,20 +77,20 @@ namespace SpecialSoldier.Core
     public static class SkyPresets
     {
         static SkyPreset P(string id, int top, int bot, int fog, float dens, int sun, float sunI, float hemi, float dx, float dy, float dz,
-            float rain, float wind, float storm, float stars, float night, float exp, string label, string hdri, float hdriMedian = 1f) =>
+            float rain, float wind, float storm, float stars, float night, float exp, string label, string hdri, float hdriMedian = 1f, float mood = 1f) =>
             new SkyPreset
             {
                 Id = id, Top = Rgb.Hex(top), Bottom = Rgb.Hex(bot), Fog = Rgb.Hex(fog), FogDensity = dens, Sun = Rgb.Hex(sun), SunIntensity = sunI, Hemi = hemi,
-                SunDir = new Vec3(dx, dy, dz), Rain = rain, Wind = wind, Storm = storm, Stars = stars, Night = night, Exposure = exp, Label = label, Hdri = hdri, HdriMedian = hdriMedian,
+                SunDir = new Vec3(dx, dy, dz), Rain = rain, Wind = wind, Storm = storm, Stars = stars, Night = night, Exposure = exp, Label = label, Hdri = hdri, HdriMedian = hdriMedian, Mood = mood,
             };
 
-        public static readonly SkyPreset Night = P("night", 0x050a18, 0x16263c, 0x0d1826, 0.0036f, 0x9fbcff, 1.7f, 1.15f, -0.3f, 0.36f, -0.88f, 0, 0.6f, 0, 1, 1, 1.5f, "04:30 · NIGHT · CLEAR", "sky_night", 0.477f);
-        public static readonly SkyPreset Dawn = P("dawn", 0x24364e, 0xc98a5a, 0x7d8a90, 0.0085f, 0xffc890, 1.6f, 0.8f, 0.8f, 0.22f, 0.4f, 0.35f, 0.9f, 0, 0.15f, 0.45f, 1.0f, "05:40 · DAWN · FOG / LIGHT RAIN", "sky_dawn", 0.568f);
-        public static readonly SkyPreset Storm = P("storm", 0x2a3138, 0x59646a, 0x566067, 0.006f, 0xcfd8e0, 1.5f, 1.0f, 0.3f, 0.8f, 0.3f, 1, 1.8f, 1, 0, 0.15f, 0.95f, "09:10 · DAY · THUNDERSTORM", "sky_storm", 1.488f);
+        public static readonly SkyPreset Night = P("night", 0x050a18, 0x16263c, 0x0d1826, 0.0036f, 0x9fbcff, 1.7f, 1.15f, -0.3f, 0.36f, -0.88f, 0, 0.6f, 0, 1, 1, 1.5f, "04:30 · NIGHT · CLEAR", "sky_night", 0.477f, 0.12f);
+        public static readonly SkyPreset Dawn = P("dawn", 0x24364e, 0xc98a5a, 0x7d8a90, 0.0085f, 0xffc890, 1.6f, 0.8f, 0.8f, 0.22f, 0.4f, 0.35f, 0.9f, 0, 0.15f, 0.45f, 1.0f, "05:40 · DAWN · FOG / LIGHT RAIN", "sky_dawn", 0.568f, 0.75f);
+        public static readonly SkyPreset Storm = P("storm", 0x2a3138, 0x59646a, 0x566067, 0.006f, 0xcfd8e0, 1.5f, 1.0f, 0.3f, 0.8f, 0.3f, 1, 1.8f, 1, 0, 0.15f, 0.95f, "09:10 · DAY · THUNDERSTORM", "sky_storm", 1.488f, 0.45f);
         public static readonly SkyPreset Facility = P("facility", 0x1c2228, 0x000000, 0x0a0c0e, 0.009f, 0x000000, 0, 1.0f, 0, 1, 0, 0, 0, 0, 0, 0.8f, 1.1f, "SUBLEVEL 3 · EMERGENCY POWER", null);
-        public static readonly SkyPreset Dusk = P("dusk", 0x1a1c34, 0xd0603a, 0x5a4a50, 0.0048f, 0xff9a60, 1.8f, 0.75f, -0.85f, 0.2f, -0.3f, 0.5f, 1.5f, 1, 0.25f, 0.4f, 1.0f, "18:50 · DUSK · STORM FRONT", "sky_dusk", 0.93f);
+        public static readonly SkyPreset Dusk = P("dusk", 0x1a1c34, 0xd0603a, 0x5a4a50, 0.0048f, 0xff9a60, 1.8f, 0.75f, -0.85f, 0.2f, -0.3f, 0.5f, 1.5f, 1, 0.25f, 0.4f, 1.0f, "18:50 · DUSK · STORM FRONT", "sky_dusk", 0.93f, 0.55f);
         /// <summary>Slice-only clear midday (not in the web game): high sun, light haze, no rain. Matches the 'day' HDRI.</summary>
-        public static readonly SkyPreset Day = P("day", 0x5f8fc8, 0xc8d6e0, 0xb4c3cf, 0.0028f, 0xfff1dc, 2.2f, 1.0f, 0.45f, 0.75f, 0.45f, 0, 0.7f, 0, 0, 0, 1.0f, "12:00 · DAY · CLEAR", "sky_day", 0.345f);
+        public static readonly SkyPreset Day = P("day", 0x5f8fc8, 0xc8d6e0, 0xb4c3cf, 0.0028f, 0xfff1dc, 2.2f, 1.0f, 0.45f, 0.75f, 0.45f, 0, 0.7f, 0, 0, 0, 1.0f, "12:00 · DAY · CLEAR", "sky_day", 0.345f, 1.0f);
 
         /// <summary>Presets the web game defines (parity-tested) plus the slice's day.</summary>
         public static readonly IReadOnlyList<SkyPreset> All = new[] { Day, Dawn, Storm, Dusk, Night, Facility };

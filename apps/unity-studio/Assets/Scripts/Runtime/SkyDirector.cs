@@ -84,7 +84,7 @@ namespace SpecialSoldier
             {
                 sun.enabled = p.SunIntensity > 0.01f;
                 sun.color = Color.Lerp(C(p.Sun), new Color(0.8f, 0.86f, 1f), flash);
-                sun.intensity = p.SunIntensity * sunScale + flash * 2.5f;
+                sun.intensity = p.SunIntensity * sunScale * p.LightScale + flash * 2.5f;   // dimmer under storm clouds and at night
                 var d = p.SunDirUnity;
                 sun.transform.rotation = Quaternion.LookRotation(-new Vector3(d.X, d.Y, d.Z));
             }
@@ -102,7 +102,7 @@ namespace SpecialSoldier
             if (hdri)
             {
                 RenderSettings.skybox = skyMaterial;
-                skyMaterial.SetFloat("_Exposure", p.HdriExposure * (1f + flash * 3f));   // matched to the web dome brightness (SkyPresets.HdriExposure)
+                skyMaterial.SetFloat("_Exposure", p.HdriExposure * (1f + flash * 3f));   // day-normalised × Mood (SkyPresets.HdriExposure)
                 RenderSettings.ambientMode = AmbientMode.Skybox;
                 RenderSettings.ambientIntensity = p.Hemi;
                 // re-bake skybox ambient after an HDRI swap and a few times a second while the weather fades

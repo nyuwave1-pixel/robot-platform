@@ -73,11 +73,20 @@ namespace SpecialSoldier.Core.Tests
             Assert.That(SkyPresets.Get("nonsense").Id, Is.EqualTo("day"));
         }
 
-        [TestCase("day", 1.33f)] [TestCase("dawn", 0.307f)] [TestCase("storm", 0.051f)] [TestCase("dusk", 0.126f)] [TestCase("night", 0.023f)]
-        public void HdriExposureMatchesTheWebDomeBrightness(string id, float expected)
+        [TestCase("day", 1.333f)] [TestCase("dawn", 0.607f)] [TestCase("storm", 0.139f)] [TestCase("dusk", 0.272f)] [TestCase("night", 0.116f)]
+        public void HdriExposureIsDayNormalisedTimesMood(string id, float expected)
         {
-            // values checked by eye on a tonemapped contact sheet (Tools~/hdri-preview.py) on 2026-11-25
+            // checked by eye on Tools~/hdri-preview.py sheets (2026-11-25, recalibrated after the WebGL screenshots)
             Assert.That(SkyPresets.Get(id).HdriExposure, Is.EqualTo(expected).Within(expected * 0.02f));
+        }
+
+        [Test]
+        public void SunFollowsTheSkyBrightness()
+        {
+            Assert.That(SkyPresets.Day.LightScale, Is.EqualTo(1f).Within(1e-5));
+            Assert.That(SkyPresets.Storm.LightScale, Is.EqualTo(0.67f).Within(1e-4));
+            Assert.That(SkyPresets.Night.LightScale, Is.LessThan(SkyPresets.Dusk.LightScale));
+            Assert.That(SkyPreset.Lerp(SkyPresets.Day, SkyPresets.Night, 0.5f).Mood, Is.EqualTo(0.56f).Within(1e-4), "fades with the weather");
         }
 
         [Test]

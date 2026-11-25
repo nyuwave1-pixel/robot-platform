@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T06:38:24.736Z",
+  "generatedAt": "2026-11-25T06:40:39.452Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "946e40c"
+    "commit": "792c149"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
+        "webgl": null
       },
       "screenshots": [
         "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
@@ -378,10 +378,40 @@
   },
   "devlog": [
     {
-      "hash": "946e40c",
+      "hash": "792c149",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'hub/awareness-parity' into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "3fa624c",
+      "date": "2026-11-25",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed after the Unity sky/HUD/mission compile"
+    },
+    {
+      "hash": "9df7fc6",
       "date": "2026-11-25",
       "area": "unity-studio",
       "subject": "fix(unity-studio): first Unity compile of sound fx 2, missions, HDRI sky and UI Toolkit HUD; WebGL HUD fixes"
+    },
+    {
+      "hash": "a40b835",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "style(unity-studio): keep the EnemyAgent field comments on their own fields"
+    },
+    {
+      "hash": "ca9798b",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): enemy perception matches the web game — meter drains while unseen, night/rain/stance vision"
+    },
+    {
+      "hash": "cd6a236",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): hub claims enemy-awareness parity work (merged after the PC batch push)"
     },
     {
       "hash": "8ab6049",
@@ -586,36 +616,6 @@
       "date": "2026-11-21",
       "area": "special-soldier",
       "subject": "feat(special-soldier): Higgsfield-designed squad operator (image-to-3D), rigged to game pivots"
-    },
-    {
-      "hash": "ce6be06",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record campaign regression and live deployment check"
-    },
-    {
-      "hash": "dd45024",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): live play URL and redeploy notes"
-    },
-    {
-      "hash": "fe9c267",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "chore(special-soldier): Vercel config for the game folder (output dist, not the root .next)"
-    },
-    {
-      "hash": "9a384c1",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "chore(special-soldier): cross-platform dev setup — setup scripts, npm run assets, Codespaces, line endings"
-    },
-    {
-      "hash": "f7ac070",
-      "date": "2026-11-21",
-      "area": "dev-env",
-      "subject": "chore(dev-env): reproducible Windows setup for game work on any PC"
     }
   ]
 }
