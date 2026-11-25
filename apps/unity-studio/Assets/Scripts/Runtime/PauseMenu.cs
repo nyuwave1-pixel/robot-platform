@@ -74,6 +74,8 @@ namespace SpecialSoldier
             var actions = new VisualElement(); actions.AddToClassList("pause-actions"); card.Add(actions);
             var resume = new Button(() => Close()) { text = "RESUME  [Esc]" }; resume.AddToClassList("pause-primary"); actions.Add(resume);
             var restart = new Button(Restart) { text = "RESTART MISSION" }; restart.AddToClassList("pause-secondary"); actions.Add(restart);
+            // one game, two editions: back to the Three.js campaign (docs/game-dev/EDITIONS_ROADMAP.md)
+            var classic = new Button(PortalBridge.GoToClassicEdition) { text = "CLASSIC EDITION  (full campaign)" }; classic.AddToClassList("pause-secondary"); actions.Add(classic);
             Text(card, "WASD move · Shift sprint · C crouch · Space jump · LMB fire · RMB aim · R reload · V mode · 1–3 weapon · G grenade · E interact · K weather", "pause-keys");
         }
 

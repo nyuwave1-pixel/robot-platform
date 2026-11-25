@@ -13,7 +13,23 @@ namespace SpecialSoldier
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")] static extern void SS_PostGameResult(string game, string mission, string grade, int score, int rp);
+        [DllImport("__Internal")] static extern void SS_Navigate(string url);
 #endif
+
+        /// <summary>The classic (Three.js) edition to return to: the page's <c>?return=</c> if trusted, else the default site.</summary>
+        public static string ClassicEditionUrl => SpecialSoldier.Core.EditionLinks.ClassicUrl(Application.absoluteURL);
+
+        /// <summary>Opens the classic edition: same tab in the browser build, the default browser elsewhere.</summary>
+        public static void GoToClassicEdition()
+        {
+            string url = ClassicEditionUrl;
+            Debug.Log("[Portal] classic edition -> " + url);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SS_Navigate(url);
+#else
+            Application.OpenURL(url);
+#endif
+        }
 
         public static void ReportResult(string mission, string grade, int score, int rp)
         {
