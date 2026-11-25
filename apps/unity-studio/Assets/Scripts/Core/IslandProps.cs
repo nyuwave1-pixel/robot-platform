@@ -12,11 +12,14 @@ namespace SpecialSoldier.Core
         public readonly string Op, Geo, Mat, Kind, Surface;
         public readonly double X, Y, Z, Sx, Sy, Sz, RotY;
         public readonly bool Hidden, NoCol, Rot90, Origin;
+        /// <summary>Not a surface to stand on (web noStand: the relay mast's collider core).</summary>
+        public readonly bool NoStand;
         public readonly double[] Tint;
 
         public PropCall(string op, string geo, string mat, double x, double y, double z, double sx, double sy, double sz, double rotY,
-            bool hidden, bool noCol, bool rot90, bool origin, string kind, string surface, double[] tint)
+            bool hidden, bool noCol, bool rot90, bool origin, string kind, string surface, double[] tint, bool noStand = false)
         {
+            NoStand = noStand;
             Op = op; Geo = geo ?? ""; Mat = mat ?? ""; X = x; Y = y; Z = z; Sx = sx; Sy = sy; Sz = sz; RotY = rotY;
             Hidden = hidden; NoCol = noCol; Rot90 = rot90; Origin = origin; Kind = kind ?? ""; Surface = surface ?? ""; Tint = tint;
         }
@@ -41,8 +44,16 @@ namespace SpecialSoldier.Core
         public PropRadar(double x, double y, double z, double h) { X = x; Y = y; Z = z; Height = h; }
     }
 
+    /// <summary>A whole Blender model placed at its origin (web: new THREE.Mesh(assetGeo(name)) — e.g. the jungle relay mast).</summary>
+    public readonly struct PropModel
+    {
+        public readonly string Geo; public readonly double X, Y, Z;
+        public PropModel(string geo, double x, double y, double z) { Geo = geo; X = x; Y = y; Z = z; }
+    }
+
     public sealed class PropSet
     {
+        public readonly List<PropModel> Models = new List<PropModel>();
         public readonly List<PropCall> Calls = new List<PropCall>();
         public readonly List<PropLight> Lights = new List<PropLight>();
         public readonly List<PropRadar> Radars = new List<PropRadar>();
@@ -66,8 +77,8 @@ namespace SpecialSoldier.Core
             public double H(double x, double z) => IslandVegetation.HeightAt(_h, x, z);
 
             public void Box(double x, double y, double z, double sx, double sy, double sz, string mat, string geo = "", bool hidden = false, bool noCol = false,
-                bool rot90 = false, string kind = "", string surf = "", double[] tint = null) =>
-                S.Calls.Add(new PropCall("box", geo, mat, x, y, z, sx, sy, sz, 0, hidden, noCol, rot90, false, kind, surf, tint));
+                bool rot90 = false, string kind = "", string surf = "", double[] tint = null, bool noStand = false) =>
+                S.Calls.Add(new PropCall("box", geo, mat, x, y, z, sx, sy, sz, 0, hidden, noCol, rot90, false, kind, surf, tint, noStand));
 
             public void Static(string geo, double x, double y, double z, double sx = 1, double sy = 1, double sz = 1, double rotY = 0, double[] tint = null, bool origin = false) =>
                 S.Calls.Add(new PropCall("static", geo, "", x, y, z, sx, sy, sz, rotY, false, false, false, origin, "", "", tint));
@@ -161,7 +172,7 @@ namespace SpecialSoldier.Core
             double g = ground;
             foreach (var c in set.Calls)
             {
-                if (!c.HasCollider) continue;
+                if (!c.HasCollider || c.NoStand) continue;
                 double top = c.Y + c.Sy;
                 if (x > c.X - c.Sx / 2 - 0.2 && x < c.X + c.Sx / 2 + 0.2 && z > c.Z - c.Sz / 2 - 0.2 && z < c.Z + c.Sz / 2 + 0.2 && top <= y + 0.6 && top > g) g = top;
             }
@@ -169,6 +180,58 @@ namespace SpecialSoldier.Core
         }
 
         public static double Top(PropSet set, double x, double z) => GroundAt(set, x, z, 999, IslandVegetation.HeightAt(IslandVegetation.GridHeights(), x, z));
+
+        /// <summary>The jungle comms relay (web POI.comms) — the Mission 02 target.</summary>
+        public static readonly (double x, double z) Comms = (-140, 150);
+        /// <summary>Mission 02's backup-power outpost on the north-west ridge (web missions.js GEN).</summary>
+        public static readonly (double x, double z) Gen = (-170, 220);
+
+        /// <summary>ZONE 02 — JUNGLE comms station (build.js): concrete hut with a console, the lattice relay mast (Blender
+        /// 'CommsTower', 30 m collider core you cannot stand on), generator, sandbags, crates, barrel, ammo, a sniper tower and a lamp.
+        /// The waterfall and cave further north are not ported yet.</summary>
+        public static PropSet Jungle(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            var c = Comms; double y = b.H(c.x, c.z);
+            b.Building(c.x - 14, c.z + 8, 10, 8, 3.2, "concrete", new Dictionary<char, double[][]> { ['e'] = new[] { new[] { c.z + 6.8, c.z + 9.2 } } });
+            b.Box(c.x - 16, y, c.z + 6, 1, 1.4, 3, "metal", "P_console", rot90: true, surf: "metal");
+            b.S.Models.Add(new PropModel("CommsTower", c.x, y, c.z));
+            b.Box(c.x, y, c.z, 2.6, 30, 2.6, "", hidden: true, surf: "metal", noStand: true);   // web: POI.commsTower.col
+            b.S.Points["commsMast"] = (c.x, y, c.z);
+            b.Box(c.x + 8, y, c.z - 6, 3, 2.2, 2, "olive", "P_generator", kind: "cover", surf: "metal");
+            b.Sandbags(c.x + 18, c.z + 22, 7); b.Sandbags(c.x - 4, c.z + 26, 6); b.Sandbags(c.x + 24, c.z + 4, 6, false); b.Sandbags(c.x + 6, c.z + 14, 4);
+            b.Crate(c.x + 6, c.z + 5); b.Crate(c.x + 7.3, c.z + 5.2); b.Barrel(c.x + 10, c.z - 3); b.AmmoBox(c.x - 8, c.z + 3);
+            b.S.Points["commsTower"] = b.Tower(c.x + 26, c.z + 26);
+            b.Lamp(c.x + 4, c.z + 10, 6, true);
+            return b.S;
+        }
+
+        /// <summary>Mission 02 backup-power outpost (web missions.js buildGenOutpost): generator, two sandbag walls, two barrels.</summary>
+        public static PropSet GenOutpost(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            var g = Gen;
+            b.Box(g.x, b.H(g.x, g.z) - 0.05, g.z, 3, 2.2, 2, "olive", "P_generator", kind: "cover", surf: "metal");
+            foreach (var (dx, dz, len, ax) in new[] { (0.0, 3.4, 4.2, true), (-3.6, 0.0, 3.2, false) })
+            {
+                double x = g.x + dx, z = g.z + dz;
+                b.Box(x, b.H(x, z) - 0.15, z, ax ? len : 0.8, 1.15, ax ? 0.8 : len, "sand", "P_sandbags", rot90: !ax, kind: "cover", surf: "sand");
+            }
+            foreach (var (dx, dz) in new[] { (3.4, -1.2), (3.4, 0.2) }) { double x = g.x + dx, z = g.z + dz; b.Barrel(x, z); }
+            return b.S;
+        }
+
+        /// <summary>Several prop sets as one (a mission that spans zones).</summary>
+        public static PropSet Merge(params PropSet[] sets)
+        {
+            var m = new PropSet();
+            foreach (var s in sets)
+            {
+                m.Calls.AddRange(s.Calls); m.Lights.AddRange(s.Lights); m.Radars.AddRange(s.Radars); m.Models.AddRange(s.Models);
+                foreach (var kv in s.Points) m.Points[kv.Key] = kv.Value;
+            }
+            return m;
+        }
 
         /// <summary>ZONE 01 — BEACH (build.js): sandbag posts, the guard hut, two watch towers, the coastal radar, crates, barrels,
         /// ammo box, lamps and the anti-landing hedgehogs at the waterline.</summary>

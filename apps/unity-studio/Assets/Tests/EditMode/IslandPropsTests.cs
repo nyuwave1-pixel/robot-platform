@@ -8,17 +8,32 @@ namespace SpecialSoldier.Core.Tests
     {
         static readonly PropSet Beach = IslandProps.Beach();
 
+        [Test] public void BeachCallsMatchTheWebGame() => Same(PropsFixture.Beach, Beach);
+        [Test] public void JungleStationCallsMatchTheWebGame() => Same(PropsFixture.Jungle, IslandProps.Jungle());
+        [Test] public void GenOutpostCallsMatchTheWebGame() => Same(PropsFixture.GenOutpost, IslandProps.GenOutpost());
+
         [Test]
-        public void BeachCallsMatchTheWebGame()
+        public void JunglePointsMatchTheWebGame()
         {
-            Assert.AreEqual(PropsFixture.Beach.Length, Beach.Calls.Count, "call count");
-            for (int i = 0; i < Beach.Calls.Count; i++)
+            Assert.That(IslandProps.Comms, Is.EqualTo(PropsFixture.Comms)); Assert.That(IslandProps.Gen, Is.EqualTo(PropsFixture.Gen));
+            var j = IslandProps.Jungle();
+            Assert.AreEqual(1, j.Models.Count(m => m.Geo == "CommsTower"), "relay mast");
+            var t = j.Points["commsTower"];
+            Assert.That(IslandProps.Top(j, t.x, t.z), Is.EqualTo(t.y).Within(1e-9), "M02's comms sniper stands on this deck (web top)");
+            var mast = j.Points["commsMast"];
+            Assert.That(IslandProps.Top(j, mast.x, mast.z), Is.LessThan(mast.y + 1), "nobody stands on the 30 m mast collider (noStand)");
+        }
+
+        static void Same(PropCall[] expected, PropSet set)
+        {
+            Assert.AreEqual(expected.Length, set.Calls.Count, "call count");
+            for (int i = 0; i < set.Calls.Count; i++)
             {
-                PropCall a = Beach.Calls[i], e = PropsFixture.Beach[i];
+                PropCall a = set.Calls[i], e = expected[i];
                 string at = $"#{i} {e}";
                 Assert.AreEqual(e.Op, a.Op, at); Assert.AreEqual(e.Geo, a.Geo, at); Assert.AreEqual(e.Mat, a.Mat, at);
                 Assert.AreEqual(e.Hidden, a.Hidden, at); Assert.AreEqual(e.NoCol, a.NoCol, at); Assert.AreEqual(e.Rot90, a.Rot90, at); Assert.AreEqual(e.Origin, a.Origin, at);
-                Assert.AreEqual(e.Kind, a.Kind, at); Assert.AreEqual(e.Surface, a.Surface, at);
+                Assert.AreEqual(e.Kind, a.Kind, at); Assert.AreEqual(e.Surface, a.Surface, at); Assert.AreEqual(e.NoStand, a.NoStand, at);
                 double[] ev = { e.X, e.Y, e.Z, e.Sx, e.Sy, e.Sz, e.RotY }, av = { a.X, a.Y, a.Z, a.Sx, a.Sy, a.Sz, a.RotY };
                 for (int k = 0; k < ev.Length; k++) Assert.That(av[k], Is.EqualTo(ev[k]).Within(1e-9), $"{at} value {k}");
                 Assert.AreEqual(e.Tint == null, a.Tint == null, at + " tint");

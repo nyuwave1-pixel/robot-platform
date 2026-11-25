@@ -271,7 +271,7 @@ namespace SpecialSoldier.EditorTools
             if (!island) { Debug.LogError($"[Slice] {m.Code}: needs the island terrain (web textures missing)"); return false; }
             BuildVegetation(level);
             var props = m.Props?.Invoke();
-            if (props != null) BuildProps(level, props);
+            var named = props != null ? BuildProps(level, props) : new System.Collections.Generic.Dictionary<string, Transform>();
 
             // bake only the mission area (island coords → world; z flips, so take min/max of both corners)
             Vector3 a = IslandPoint(m.Area.minX, m.Area.minZ), b = IslandPoint(m.Area.maxX, m.Area.maxZ);
@@ -290,28 +290,52 @@ namespace SpecialSoldier.EditorTools
             var wave = new System.Collections.Generic.List<GameObject>();
             for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn, props));
             foreach (var go in wave) go.SetActive(false);   // switched on by the mission's first alarm (GameDirector.OnAlarm)
+            var hookWaves = new System.Collections.Generic.List<GameDirector.WaveGroup>();
+            foreach (var kv in m.Waves)
+            {
+                var wp = new GameObject("Wave_" + kv.Key);
+                var members = new System.Collections.Generic.List<GameObject>();
+                for (int i = 0; i < kv.Value.Length; i++) members.Add(PlaceEnemy(wp, i, kv.Value[i], visual, spawn, props));
+                foreach (var go in members) go.SetActive(false);   // sent in by objective hooks (GameDirector.SendWave)
+                hookWaves.Add(new GameDirector.WaveGroup { name = kv.Key, members = members.ToArray() });
+            }
 
             var director = BuildDirectorRig(player);
             director.missionMode = GameDirector.MissionMode.Campaign;
             director.campaignId = m.Id;
             director.alarmWave = wave.ToArray();
+            director.waves = hookWaves.ToArray();
+            if (named.TryGetValue("CommsTower", out var relay)) director.relayMast = relay;
 
             string path = CampaignScenePath(m);
             bool saved = SaveAndList(scene, path, 1 + System.Array.IndexOf(Campaign.All, m));
-            Debug.Log($"[Slice] {m.Code} {m.Name}: scene {(saved ? "saved" : "NOT saved")}: {path}, {m.Spawns.Length} enemies + {wave.Count} QRF, sky {m.SkyId}, spawn {spawn}");
+            Debug.Log($"[Slice] {m.Code} {m.Name}: scene {(saved ? "saved" : "NOT saved")}: {path}, {m.Spawns.Length} enemies + {wave.Count} QRF + {hookWaves.Sum(w => w.members.Length)} in waves, sky {m.SkyId}, spawn {spawn}");
             return saved;
         }
 
         /// <summary>The zone's props (Core.IslandProps = web build.js): Blender models from the shared GLB at the web game's
         /// positions and sizes, box colliders where the web game has them (named so SliceFx picks the impact surface), lamps
         /// with point lights, the radar dish turning.</summary>
-        static void BuildProps(GameObject level, PropSet set)
+        static System.Collections.Generic.Dictionary<string, Transform> BuildProps(GameObject level, PropSet set)
         {
+            var named = new System.Collections.Generic.Dictionary<string, Transform>();
             var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
             var root = new GameObject("Props"); root.transform.SetParent(level.transform);
             var cols = new GameObject("PropColliders"); cols.transform.SetParent(root.transform);
             Transform Node(string n) => glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == n) : null;
             int drawn = 0, colliders = 0, missing = 0;
+            foreach (var pm in set.Models)
+            {
+                var w = IslandTerrain.ToWorld(pm.X, pm.Y, pm.Z);
+                var node = Node(pm.Geo);
+                GameObject go;
+                if (node) { go = Object.Instantiate(node.gameObject, root.transform); foreach (var cc in go.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(cc); }
+                else { missing++; go = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(go.GetComponent<Collider>()); go.transform.SetParent(root.transform); go.transform.localScale = new Vector3(2.6f, 30f, 2.6f); }
+                go.name = pm.Geo == "CommsTower" ? "RelayMast" : pm.Geo;
+                go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z) + (node ? Vector3.zero : Vector3.up * 15f);
+                go.transform.rotation = Quaternion.identity;
+                named[pm.Geo] = go.transform; drawn++;
+            }
             foreach (var c in set.Calls)
             {
                 var bottom = IslandTerrain.ToWorld(c.X, c.Y, c.Z);
@@ -322,6 +346,8 @@ namespace SpecialSoldier.EditorTools
                     var col = new GameObject($"{surf}_{colliders}"); col.transform.SetParent(cols.transform); col.isStatic = true;
                     col.transform.position = b + Vector3.up * (float)(c.Sy / 2);
                     col.AddComponent<BoxCollider>().size = new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
+                    // the relay mast's core falls with the mast (Mission 02 detonation); nobody stands on it (web noStand)
+                    if (c.NoStand && named.TryGetValue("CommsTower", out var mast)) { col.transform.SetParent(mast, true); col.name = "Metal_mast"; col.isStatic = false; }
                     colliders++;
                 }
                 if (!c.Drawn) continue;
@@ -380,6 +406,7 @@ namespace SpecialSoldier.EditorTools
             }
             Physics.SyncTransforms();
             Debug.Log($"[Slice] props: {drawn} drawn, {colliders} colliders, {set.Lights.Count} lamp lights, {set.Radars.Count} radar{(missing > 0 ? $", {missing} GLB models MISSING (boxes instead)" : "")}");
+            return named;
         }
 
         static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player, PropSet props)

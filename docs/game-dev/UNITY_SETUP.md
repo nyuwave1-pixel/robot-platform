@@ -343,3 +343,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   웹과 같은 상자 충돌체(이름으로 탄착음 재질 구분), 가로등 점광원, 레이더 접시 회전(`Runtime/Spinner`). 미션 씬 NavMesh 는 충돌체 기준으로 구워 탑 갑판도 걸을 수 있는 면 → 저격수가 탑 위에서 지킴.
 - dotnet `CoreTests~` **284/284**. **Unity 화면 확인 전**(다음 묶음).
 
+## 2026-11-25 (14) — 미션 02 DEEP JUNGLE 이식 (허브 세션, 클라우드, U4)
+
+- **미션 진행기 확장(`Core/Mission.cs`)**: 목표마다 무전(radio), 시작 훅(OnStart), 완료 훅(OnDone), 사용자 조건(Custom, 예: 폭발 지점에서 30 m 벗어나기),
+  미션 플래그, 증원 요청(WaveRequested), 스크립트 이벤트(EventRaised "detonate"). 웹 advance() 순서 그대로(이전 목표 done → 다음 목표 start → radio).
+- **미션 02 데이터(`Core/Campaign.cs` M02)**: 순찰 A·B, 통신소 수비대(탑 위 저격수 포함), 발전기 초소, 목표 5개(침투 → [통신소 소탕 / 발전기 차단] 순서 자유 → C4 설치 → 30 m 이탈·폭파 → 역습 격퇴).
+  발전기를 통신소보다 먼저 끊으면 역습이 3명, 아니면 5명(웹 powerCut). 경보 시 순찰조가 플레이어 위치로 수색.
+- **웹 대조 강화**: `Tools~/gen-campaign-fixture.mjs` 가 **missions.js 미션 객체를 그대로 실행**해 setup() 배치, 목표, 상호작용 지점, 경보·시작·완료 훅의 무전·증원·플래그를 모든 경우로 기록 →
+  `CampaignParityTests` 가 M01·M02 대조(이 과정에서 M01 의 빠진 무전 "COMMAND: Beach is secure…" 를 찾아 고침).
+- **정글 구조물(`Core/IslandProps` Jungle·GenOutpost)**: 통신소 건물·콘솔·중계 철탑(Blender CommsTower, 30 m 충돌체는 설 수 없음)·발전기·모래주머니·탑·가로등, 발전기 초소 — 웹 원문 실행 결과와 39개 호출 일치.
+- **Unity**: 이름 붙은 증원(꺼진 채로 씬에 배치, `GameDirector.SendWave`), 폭파 시 폭발 3번 + 철탑 넘어짐(웹 컷신 대신), 경보 수색. `Mission02.unity` 는 `Campaign.All` 로 자동 생성, `?mission=m02`.
+- dotnet `CoreTests~` **294/294**. PlayMode `Mission02Tests` 2개 추가. **Unity 확인 전**(그다음 묶음).
+

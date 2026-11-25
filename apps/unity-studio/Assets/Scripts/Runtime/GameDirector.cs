@@ -16,6 +16,12 @@ namespace SpecialSoldier
         public string campaignId;
         /// <summary>Reinforcements placed inactive in the scene; switched on by the mission's first alarm (web: alarm() → wave()).</summary>
         public GameObject[] alarmWave;
+        /// <summary>A named wave the mission's objective hooks send in (Core MissionRunner.WaveRequested, web wave(list, group)).</summary>
+        [System.Serializable] public sealed class WaveGroup { public string name; public GameObject[] members; }
+        public WaveGroup[] waves = new WaveGroup[0];
+        /// <summary>Mission 02: the relay mast that falls when the C4 goes off (event "detonate").</summary>
+        public Transform relayMast;
+        public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
         public float RadioTime { get; private set; } = -99f;
@@ -77,6 +83,10 @@ namespace SpecialSoldier
             Mission = BuildMission();
             Mission.MissionCompleted += () => End(Outcome.Won);
             Mission.AlarmRaised += OnAlarm;
+            Mission.RadioSaid += Radio;
+            Mission.WaveRequested += SendWave;
+            Mission.EventRaised += OnMissionEvent;
+            Mission.Begin(this);   // first objective's radio / start hook, now that everything listens
             Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
         }
 
@@ -134,16 +144,61 @@ namespace SpecialSoldier
         {
             var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
             Radio(campaign?.AlarmRadio ?? "ENEMY CALLED FOR REINFORCEMENTS");
-            if (alarmWave == null) return;
-            foreach (var go in alarmWave)
+            if (campaign?.AlarmSearchPrefix != null && player)
+                // web M02 alarm(): patrols not yet searching head for where you are
+                foreach (var e in enemies)
+                    if (e && e.Alive && e.group.StartsWith(campaign.AlarmSearchPrefix) && e.Brain != null && e.Brain.State < AlertState.Search)
+                        e.Hear(player.transform.position, 9999f);
+            Activate(alarmWave, int.MaxValue);
+        }
+
+        void SendWave(string name, int count)
+        {
+            foreach (var w in waves) if (w != null && w.name == name) { Activate(w.members, count); return; }
+            Debug.LogWarning($"[Mission] wave '{name}' is not in this scene");
+        }
+
+        /// <summary>Switches on the first <paramref name="count"/> soldiers of a wave; they know where you are (web: wave(..., alert: true)).</summary>
+        void Activate(GameObject[] members, int count)
+        {
+            if (members == null) return;
+            for (int i = 0; i < members.Length && i < count; i++)
             {
-                if (!go) continue;
+                var go = members[i];
+                if (!go || go.activeSelf) continue;
                 go.SetActive(true);
                 var e = go.GetComponent<EnemyAgent>(); if (!e) continue;
                 enemies.Add(e);
                 var d = e.GetComponent<Damageable>(); if (d) d.Died += OnEnemyDied;
-                if (player) e.Hear(player.transform.position, 9999f);   // they know where you are (web: wave(..., alert: true))
+                if (player) e.Hear(player.transform.position, 9999f);
             }
+        }
+
+        void OnMissionEvent(string evt)
+        {
+            if (evt == "detonate") StartCoroutine(Detonate());
+        }
+
+        /// <summary>The C4 on the relay mast goes off (web detonateTower: three blasts, the mast topples). Stand-in for the web cinematic.</summary>
+        System.Collections.IEnumerator Detonate()
+        {
+            Detonated = true;
+            if (!relayMast) yield break;
+            Vector3 b = relayMast.position;
+            foreach (var (off, delay) in new[] { (Vector3.up, 0f), (new Vector3(1f, 9f, 0f), 0.35f), (new Vector3(-8f, 1f, -2f), 0.35f) })
+            {
+                if (delay > 0f) yield return new WaitForSeconds(delay);
+                Grenade.Flash(b + off); SliceFx.I.Explosion(b + off);
+            }
+            ReportNoise(b, 200f);
+            foreach (var c in relayMast.GetComponentsInChildren<Collider>()) c.enabled = false;
+            var from = relayMast.rotation; var to = Quaternion.AngleAxis(82f, Vector3.forward) * from;
+            for (float t = 0f; t < 2.6f; t += Time.deltaTime)
+            {
+                float k = t / 2.6f; relayMast.rotation = Quaternion.Slerp(from, to, k * k);   // slow start, then it crashes down
+                yield return null;
+            }
+            relayMast.rotation = to;
         }
 
         void OnEnemyDied()

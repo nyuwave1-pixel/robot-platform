@@ -66,7 +66,8 @@ namespace SpecialSoldier
             Destroy(gameObject);
         }
 
-        static void Flash(Vector3 c)
+        /// <summary>Fireball + light (also used by scripted blasts, e.g. the Mission 02 relay mast).</summary>
+        public static void Flash(Vector3 c)
         {
             // stand-in VFX until a VFX Graph explosion exists: an orange light + a fading fireball sphere
             var fx = new GameObject("Explosion");

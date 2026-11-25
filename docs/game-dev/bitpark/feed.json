@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T09:16:08.106Z",
+  "generatedAt": "2026-11-25T09:27:04.010Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "f536185"
+    "commit": "4921722"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "4921722",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Mission 02 port"
+    },
+    {
+      "hash": "a5de84f",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: Mission 01 beach structures from the web build.js (U4)"
+    },
+    {
       "hash": "f536185",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "unity-studio",
       "subject": "feat(unity-studio): sound + muzzle flash/impact FX; first Unity compile of cover AI and grenades; WebGL build verified"
-    },
-    {
-      "hash": "e609bb1",
-      "date": "2026-11-24",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): save the baked navmesh as an asset so builds made in a fresh process (WebGL) keep it"
-    },
-    {
-      "hash": "a8d46b3",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): frag grenades for the player (G) and COBRA ELITE, with the web game's blast rules"
     }
   ]
 }
