@@ -17,6 +17,7 @@ import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
 import { reportPlay } from "../platform";
+import { claimGifts, GIFT_COINS, loadInbox, sendGift, useGifts } from "../net/gifts";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
 const LOOK_SLOTS = ["outfit", "hair", "makeup", "shadow", "lip", "base", "shoes", "accessory", "earring", "necklace", "bag", "nail"] as const;
@@ -120,6 +121,7 @@ function BragCard({ b }: { b: Brag }) {
   const me = useGame((s) => s.friendCode);
   const toast = useUI((s) => s.toast);
   const msg = BRAG_MESSAGES.find((m) => m.id === b.msg)!;
+  const [gift, setGift] = useState(false);
   const like = async () => {
     if (b.liked || b.writer === me) return;
     const r = await likeBrag(b.id);
@@ -145,8 +147,12 @@ function BragCard({ b }: { b: Brag }) {
         <button className={b.liked ? "text-pink-deep" : "text-ink/45"} disabled={b.writer === me} onClick={like} data-testid="brag-like">{b.liked ? "♥" : "♡"} {b.likes}</button>
         {b.writer === me
           ? <button className="ml-auto text-ink/35" onClick={() => void deleteBrag(b.id)}>{t("brag.delete")}</button>
-          : <button className="ml-auto text-pink-deep" onClick={visit}><Icon n="lounge" /> {t("brag.visit")}</button>}
+          : <>
+              <button className="ml-auto text-ink/55" onClick={() => setGift(!gift)} data-testid="gift-open"><Icon n="gift" /> {t("gift.btn")}</button>
+              <button className="text-pink-deep" onClick={visit}><Icon n="lounge" /> {t("brag.visit")}</button>
+            </>}
       </footer>
+      {gift && b.writer !== me && <GiftPicker to={b.writer} name={b.name} onDone={() => setGift(false)} />}
     </article>
   );
 }
@@ -245,13 +251,68 @@ export function BragWatcher() {
   const screen = useUI((s) => s.screen);
   useEffect(() => {
     if (screen !== "game") return;
+    let seenGifts = -1;
     const check = async () => {
       const n = await checkBragLikes();
       if (n > 0) useUI.getState().toast(t("brag.newLikes", { n }), "reward");
+      const g = await loadInbox();
+      if (g > 0 && g !== seenGifts) useUI.getState().toast(t("gift.arrived", { n: g }), "reward");
+      seenGifts = g;
     };
     const first = setTimeout(check, 4000);
     const id = setInterval(check, 5 * 60_000);
     return () => { clearTimeout(first); clearInterval(id); };
   }, [screen]);
   return null;
+}
+
+/** 선물 고르기: 하트(무료) · 코인 100 · 500 */
+export function GiftPicker({ to, name, onDone }: { to: string; name: string; onDone: () => void }) {
+  const t = useT();
+  const [busy, setBusy] = useState(false);
+  const send = async (kind: "heart" | "coins", amount: number) => {
+    setBusy(true);
+    const r = await sendGift(to, kind, amount);
+    setBusy(false);
+    useUI.getState().toast(r === "ok" ? t("gift.sent", { name }) : t(`gift.fail.${r}`), r === "ok" ? "reward" : "error");
+    if (r === "ok") onDone();
+  };
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-xl bg-pink-soft/40 p-2" data-testid="gift-picker">
+      <span className="text-[12px] font-bold text-ink/60">{t("gift.to", { name })}</span>
+      <button disabled={busy} className="chip disabled:opacity-40" onClick={() => send("heart", 1)} data-testid="gift-heart">♥ {t("gift.heart")}</button>
+      {GIFT_COINS.map((n) => <button key={n} disabled={busy} className="chip disabled:opacity-40" onClick={() => send("coins", n)} data-testid={`gift-coins-${n}`}>{n} COIN</button>)}
+    </div>
+  );
+}
+
+/** 소셜 패널 '선물함' */
+export function GiftInbox() {
+  const t = useT();
+  const { list, status } = useGifts();
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { void loadInbox(); }, []);
+  const claim = async () => {
+    setBusy(true);
+    const r = await claimGifts();
+    setBusy(false);
+    if (r && r.count) useUI.getState().toast(t("gift.claimed", { s: r.hearts, c: r.coins }), "reward");
+  };
+  return (
+    <div data-testid="gift-inbox">
+      <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/60">{t("gift.desc")}</p>
+      {status === "loading" && <p className="py-6 text-center text-xs text-ink/45">{t("brag.loading")}</p>}
+      {status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("gift.none")}</p>}
+      {list.length > 0 && <button disabled={busy} className="btn-primary mb-2 w-full disabled:opacity-40" onClick={claim} data-testid="gift-claim">{t("gift.claimAll", { n: list.length })}</button>}
+      <div className="space-y-1.5">
+        {list.map((g) => (
+          <div key={g.id} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-sm">
+            <span className="text-lg">{g.kind === "heart" ? "♥" : "🪙"}</span>
+            <p className="min-w-0 flex-1 truncate text-xs font-bold text-ink">{g.name} <span className="font-semibold text-ink/50">· {g.kind === "heart" ? t("gift.heartItem") : `${g.amount} COIN`}</span></p>
+            <span className="text-[12px] text-ink/40">{ago(g.at, t)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -99,3 +99,14 @@ describe("자랑 반응 알림", () => {
     expect(newLikes(500, 0)).toBe(BRAG_FOLLOW_CAP);
   });
 });
+
+describe("플레이어 선물", async () => {
+  const { cleanGift } = await import("../src/net/gifts");
+  it("선물함 항목은 아는 종류 · 금액만", () => {
+    const at = "2026-11-25T10:00:00Z";
+    expect(cleanGift({ id: 1, from: "ABC123", name: "미나<b>", kind: "coins", amount: 500, at })).toMatchObject({ kind: "coins", amount: 500, name: "미나b" });
+    expect(cleanGift({ id: 1, from: "ABC123", name: "x", kind: "coins", amount: 9999, at })).toBeNull();
+    expect(cleanGift({ id: 1, from: "ABC123", name: "x", kind: "heart", amount: 2, at })).toBeNull();
+    expect(cleanGift({ id: 1, from: "bad", name: "x", kind: "heart", amount: 1, at })).toBeNull();
+  });
+});
