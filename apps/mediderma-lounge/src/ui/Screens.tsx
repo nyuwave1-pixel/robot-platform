@@ -30,8 +30,8 @@ export function Splash() {
         <Preview look={useGame.getState().look} growth={started ? useGame.getState().stage : 1} rank={started && !useGame.getState().look.hideRank ? useGame.getState().rank : 0} auto />
       </div>
       <p className="relative mt-2 text-[13px] font-semibold tracking-[0.35em] text-gold">UNI&CORE × DERMA HOME</p>
-      <h1 className="relative mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">MEDIDERMA <span className="text-pink-deep">LOUNGE</span></h1>
-      <p className="relative mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">BEAUTY LIFE. BEAUTY GROWTH. BEAUTY SOCIAL.</p>
+      <h1 className="relative mt-2 text-4xl font-black tracking-tight text-ink sm:text-6xl">BEAUTY <span className="text-pink-deep">LIFE</span></h1>
+      <p className="relative mt-3 text-xs font-semibold tracking-[0.2em] text-ink/60 sm:text-sm">뷰티 라이프 · BEAUTY GROWTH. BEAUTY SOCIAL.</p>
       <div className="relative mt-8 flex w-full max-w-xs flex-col gap-3">
         {started && (
           <button className="btn-primary" onClick={() => set({ screen: "game" })}>{t("splash.continue", { name })}</button>
@@ -139,14 +139,14 @@ export function Preview({ look, growth, auto, rank, anim }: { look: Look; growth
 }
 
 /** 캐릭터 스타일(실사/귀여운 — 기기 설정) · 체형(여/남 — 룩) 선택 */
-export function StyleChips({ body, onBody }: { body?: "female" | "male" | "signature"; onBody: (b: "female" | "male" | "signature") => void }) {
+export function StyleChips({ body, onBody }: { body?: Look["body"]; onBody: (b: "female" | "male" | "signature") => void }) {
   const t = useT();
   const style = useGame((s) => s.settings.charStyle ?? "real");
   return (
     <>
       <Chips label={t("look.style")} values={["real", "chibi"] as ("real" | "chibi")[]} value={style} onPick={(v) => useGame.getState().setSettings({ charStyle: v })} render={(v) => t(`look.style.${v}`)} />
       {style === "real" && body === "signature" && <p className="mt-1 text-[12px] text-ink/50">{t("look.body.sigNote")}</p>}
-      {style === "real" && <Chips label={t("look.body")} values={["female", "male", "signature"] as ("female" | "male" | "signature")[]} value={body ?? "female"} onPick={onBody} render={(v) => t(`look.body.${v}`)} />}
+      {style === "real" && <Chips label={t("look.body")} values={["female", "male", "signature"] as ("female" | "male" | "signature")[]} value={body === "male" || body === "signature" ? body : "female"} onPick={onBody} render={(v) => t(`look.body.${v}`)} />}
     </>
   );
 }

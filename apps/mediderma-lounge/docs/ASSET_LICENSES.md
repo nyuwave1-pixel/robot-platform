@@ -22,6 +22,13 @@
 | `public/models/real_male.glb` | 〃 Superhero_Male_FullBody + Hairstyles(SimpleParted·Buzzed·Long·Beard) | Quaternius | CC0 1.0 | 〃 | 실사형 캐릭터(남성) | 〃 |
 | `public/models/real_anims.glb` | Universal Animation Library [Standard] — Idle·Walk·Jog·Sitting_Idle·Idle_Talking·Interact·Dance·Walk_Formal | Quaternius | CC0 1.0 | [itch.io](https://quaternius.itch.io/universal-animation-library) | 실사형 캐릭터 동작 (두 체형 공용 65개 뼈대) | 43개 중 8개 클립만, 뼈대만 내보냄 |
 | `public/models/signature.glb` | 시그니처 캐릭터 — 2026-11-20 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 5종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 체형 '시그니처' | `tools/blender/build_signature.py`: 동작 GLB 5개를 한 뼈대로 합침 · 텍스처 2048 JPEG → 1024 WebP · meshopt 압축 (4.7MB → 0.8MB) |
+| `public/models/guest_mint.glb` | 손님 캐릭터(곱슬머리·민트 블라우스) — 2026-11-21 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 4종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 손님·광장 안내 NPC | `tools/blender/build_signature.py guest_mint` · 텍스처 1024 WebP · meshopt 압축 |
+| `public/models/guest_lavender.glb` | 손님 캐릭터(단발·라벤더 셔츠 원피스) — 2026-11-21 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 4종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 손님·광장 안내 NPC | `tools/blender/build_signature.py guest_lavender` · 텍스처 1024 WebP · meshopt 압축 |
+| `public/models/guest_coral.glb` | 손님 캐릭터(금발 포니테일·코랄 스커트) — 2026-11-21 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 4종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 손님·광장 안내 NPC | `tools/blender/build_signature.py guest_coral` · 텍스처 1024 WebP · meshopt 압축 |
+| `public/models/guest_gentle.glb` | 손님 캐릭터(남성 손님·그레이 폴로) — 2026-11-21 Higgsfield 에서 직접 디자인(GPT Image 2.6 콘셉트 → Meshy 7 이미지-3D·자동 리깅·동작 4종) | 이 프로젝트 | 자체 생성 (Higgsfield) | 프로젝트 계정의 Higgsfield 생성물 (유료 플랜 · 상업 사용 가능, 서비스 약관 따름) | 실사형 손님·광장 안내 NPC | `tools/blender/build_signature.py guest_gentle` · 텍스처 1024 WebP · meshopt 압축 |
+| `public/models/pet_shiba.glb` | Ultimate Animated Animals — ShibaInu (glTF, 동작 Idle·Walk·Eating·Idle_2_HeadLow·Jump_ToIdle) | Quaternius | CC0 1.0 | [quaternius.com](https://quaternius.com/packs/ultimateanimatedanimals.html) (같은 팩이 Unity Asset Store 에도 무료 공개) | 라운지 펫 "시바견" | `tools/assets/build_pets.mjs`: 동작 5종만 남김, 키 0.42m, 색 15% 밝게, meshopt 압축 (2026-11-24 받음) |
+| `public/models/pet_husky.glb` | 〃 Husky | Quaternius | CC0 1.0 | 〃 | 라운지 펫 "허스키" | 〃 (키 0.46m) |
+| `public/models/pet_fox.glb` | 〃 Fox | Quaternius | CC0 1.0 | 〃 | 라운지 펫 "아기 여우" | 〃 (키 0.40m) |
 | `public/tex/sky_plaza.hdr` | Kloofendal 43d Clear (Pure Sky), 1k | Greg Zaal | CC0 | [polyhaven.com](https://polyhaven.com/a/kloofendal_43d_clear_puresky) | 광장 하늘 배경·반사광 | 원본 그대로 |
 | `public/tex/grass_c.jpg` | Grass004 Color | ambientCG (Lennart Demes) | CC0 | [ambientcg.com](https://ambientcg.com/view?id=Grass004) | 광장 잔디·언덕 | 512px, 파스텔 보정 |
 | `public/tex/grass_n.jpg` | Grass004 NormalGL | ambientCG | CC0 | 〃 | 광장 잔디 | 512px |
@@ -48,4 +55,6 @@
 | Quaternius 바위(Rock_1~5) | 짙은 회녹색 텍스처라 파스텔 광장과 어울리지 않음 |
 | Poly Haven `kloofendal_48d_partly_cloudy_puresky` | 흐린 하늘이 회색으로 보여 맑은 하늘(43d clear)로 교체 |
 | OpenGameArt "Cozy Endless Game Background" | 음악이 아니라 배경 그림 팩이었음 |
+| Unity Asset Store 무료 에셋 직접 사용 | 받으려면 Unity 계정 로그인과 Unity 에디터가 필요하고 클라우드에서 받을 수 없음. 같은 제작자가 자기 사이트에 CC0 로 올린 원본(Quaternius 등)을 대신 받음 |
+| Quaternius Ultimate Animated Animals 의 나머지 동물(말·소·사슴 등) | 라운지 펫으로 어울리지 않음. 고양이·토끼는 팩에 없어 기존 코드 모델 유지 |
 | Kenney 원본 사이트·Freesound·Sonniss·Sketchfab·Mixamo | 클라우드에서 403 또는 로그인 필요 — Kenney 사운드는 같은 제작자가 OpenGameArt 에 올린 원본으로 받음 |

@@ -30,7 +30,7 @@ export const STAGES: Stage[] = [
   { n: 2, name: "LOVELY GIRL", ko: "표정이 풍부해진 러블리 걸", need: 120, rewardGems: 5, body: { head: 0.35, torso: 0.38, leg: 0.38, arm: 0.32, shoulder: 0.18, eye: 0.92, limb: 0.065, neck: 0.03 } },
   { n: 3, name: "BEAUTY LADY", ko: "세련된 비율의 뷰티 레이디", need: 420, rewardGems: 10, body: { head: 0.27, torso: 0.48, leg: 0.68, arm: 0.52, shoulder: 0.2, eye: 0.74, limb: 0.058, neck: 0.07 } },
   { n: 4, name: "PREMIUM BEAUTY", ko: "럭셔리 무드의 프리미엄 뷰티", need: 950, rewardGems: 20, body: { head: 0.245, torso: 0.5, leg: 0.78, arm: 0.57, shoulder: 0.205, eye: 0.68, limb: 0.055, neck: 0.085 } },
-  { n: 5, name: "MEDIDERMA ICON", ko: "시그니처 메디더마 아이콘", need: 1800, rewardGems: 50, body: { head: 0.235, torso: 0.52, leg: 0.84, arm: 0.6, shoulder: 0.21, eye: 0.64, limb: 0.053, neck: 0.095 } },
+  { n: 5, name: "BEAUTY LIFE ICON", ko: "시그니처 뷰티 라이프 아이콘", need: 1800, rewardGems: 50, body: { head: 0.235, torso: 0.52, leg: 0.84, arm: 0.6, shoulder: 0.21, eye: 0.64, limb: 0.053, neck: 0.095 } },
 ];
 export const stageFor = (total: number) => {
   let s = 1;
@@ -44,7 +44,7 @@ export const LOUNGE_LEVELS: LoungeLevel[] = [
   { n: 1, name: "MY MINI LOUNGE", w: 13, d: 11, customers: 1, cost: 0, lp: 0, unlocks: "리셉션 · 스킨케어 진열대 · DERMA HOME 존" },
   { n: 2, name: "SWEET BEAUTY LOUNGE", w: 16, d: 13, customers: 2, cost: 600, lp: 40, unlocks: "포토존 · 헤드 스파 존 · 두피 루틴" },
   { n: 3, name: "PREMIUM DERMA LOUNGE", w: 19, d: 15, customers: 3, cost: 1800, lp: 140, unlocks: "바디 케어 존 · 바디 루틴 · 브랜드 아이템 진열" },
-  { n: 4, name: "LUXURY MEDIDERMA LOUNGE", w: 22, d: 17, customers: 4, cost: 4200, lp: 320, unlocks: "VIP 뷰티 룸 · 블랙&골드 인테리어" },
+  { n: 4, name: "LUXURY BEAUTY LIFE LOUNGE", w: 22, d: 17, customers: 4, cost: 4200, lp: 320, unlocks: "VIP 뷰티 룸 · 블랙&골드 인테리어" },
   { n: 5, name: "GLOBAL BEAUTY FLAGSHIP", w: 25, d: 19, customers: 5, cost: 9000, lp: 700, unlocks: "소셜 라운지 · 플래그십 파사드" },
 ];
 
@@ -248,7 +248,7 @@ export const LOOK_PRESETS: { id: string; ko: string; en: string; look: Record<st
 ];
 
 // ───────────── 라운지 펫 ─────────────
-export interface PetType { id: string; kind: "cat" | "dog" | "rabbit"; ko: string; en: string; color: string; accent: string; price: number }
+export interface PetType { id: string; kind: "cat" | "dog" | "rabbit"; ko: string; en: string; color: string; accent: string; price: number; /** 애니메이션 모델 (public/models/<model>.glb, Quaternius CC0). 불러오는 동안은 코드 모델 */ model?: string }
 export const PET_TYPES: PetType[] = [
   { id: "cat-cream", kind: "cat", ko: "크림 고양이", en: "Cream Cat", color: "#fff3e2", accent: "#f2c9a0", price: 300 },
   { id: "cat-gray", kind: "cat", ko: "회색 고양이", en: "Gray Cat", color: "#9aa0a8", accent: "#e9ecef", price: 300 },
@@ -258,6 +258,9 @@ export const PET_TYPES: PetType[] = [
   { id: "rabbit-white", kind: "rabbit", ko: "솜사탕 토끼", en: "Cotton Bunny", color: "#fffaf6", accent: "#f6c9d4", price: 350 },
   { id: "rabbit-lop", kind: "rabbit", ko: "롭이어 토끼", en: "Lop Bunny", color: "#d8b493", accent: "#fff1e2", price: 500 },
   { id: "dog-brown", kind: "dog", ko: "초코 강아지", en: "Choco Puppy", color: "#7a5236", accent: "#d9b48a", price: 450 },
+  { id: "dog-shiba", kind: "dog", ko: "시바견", en: "Shiba Inu", color: "#c98a4b", accent: "#fff3e2", price: 650, model: "pet_shiba" },
+  { id: "dog-husky", kind: "dog", ko: "허스키", en: "Husky", color: "#6f7378", accent: "#ffffff", price: 750, model: "pet_husky" },
+  { id: "fox-red", kind: "dog", ko: "아기 여우", en: "Baby Fox", color: "#d9733f", accent: "#fff3e2", price: 850, model: "pet_fox" },
 ];
 export const PET_MAP: Record<string, PetType> = Object.fromEntries(PET_TYPES.map((p) => [p.id, p]));
 export const MAX_PETS = 4;

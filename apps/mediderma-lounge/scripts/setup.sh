@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MEDIDERMA LOUNGE 개발 환경 한 번에 준비 (macOS · Linux · WSL)
+# BEAUTY LIFE(뷰티 라이프) 개발 환경 한 번에 준비 (macOS · Linux · WSL)
 #   bash scripts/setup.sh            # 게임 개발만 (Node 의존성)
 #   bash scripts/setup.sh --blender  # + Blender 파이프라인 (Python 3.13 가상환경 .bl)
 #   bash scripts/setup.sh --assets   # + 무료 에셋 원본 내려받기 (수백 MB, Blender 로 다시 만들 때만 필요)

@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { tune } from "../data/config";
 import { DEMO_FRIENDS } from "../data/game";
 import { joinPlaza, leavePlaza, postScore, remotes, sparkleSpots, usePlaza, SLOT_MS, type Remote } from "../net/plaza";
-import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
+import { GUEST_BODIES, DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { input, useUI } from "../store/ui";
 import { useT } from "../i18n";
 import { play, setWater } from "../audio/sound";
@@ -232,7 +232,7 @@ function PetalGame() {
 }
 
 // ───────────── 다른 플레이어 ─────────────
-function NameTag({ name, rank, y, say, sayAt }: { name: string; rank: number; y: number; say: number; sayAt: number }) {
+export function NameTag({ name, rank, y, say, sayAt }: { name: string; rank: number; y: number; say: number; sayAt: number }) {
   const t = useT();
   const [, tick] = useState(0);
   const talking = say >= 0 && Date.now() - sayAt < 4000;
@@ -279,7 +279,7 @@ function Remotes() {
 function Guides() {
   const list = useMemo(() => DEMO_FRIENDS.slice(0, 3).map((f, i) => ({
     name: `NPC ${f.name}`, stage: f.stage,
-    look: { ...DEFAULT_LOOK, hair: f.hair, hairColor: f.hairColor, outfit: f.outfit, skin: f.skin } as Look,
+    look: { ...DEFAULT_LOOK, hair: f.hair, hairColor: f.hairColor, outfit: f.outfit, skin: f.skin, body: GUEST_BODIES[i % GUEST_BODIES.length] } as Look,
     r: 6.6 + i * 2.2, speed: (i % 2 ? -1 : 1) * (0.09 + i * 0.02), phase: i * 2.1,
   })), []);
   return <>{list.map((n, i) => <Guide key={i} n={n} />)}</>;

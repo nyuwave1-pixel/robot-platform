@@ -11,7 +11,7 @@
 | 1 | MY MINI LOUNGE | 13 × 11 | 1 | — | 입구, 리셉션, 상담 소파, DERMA HOME 존, 제품 진열, 화장대 |
 | 2 | SWEET BEAUTY LOUNGE | 16 × 13 | 2 | 600🪙 + 40🏛️ | 포토존, 헤드 스파, 두피 루틴 |
 | 3 | PREMIUM DERMA LOUNGE | 19 × 15 | 3 | 1,800🪙 + 140🏛️ | 바디 케어, 두 번째 소파, 브랜드 아이템 진열 |
-| 4 | LUXURY MEDIDERMA LOUNGE | 22 × 17 | 4 | 4,200🪙 + 320🏛️ | VIP 뷰티 룸(글래스 파티션), 블랙&골드 테마 |
+| 4 | LUXURY BEAUTY LIFE | 22 × 17 | 4 | 4,200🪙 + 320🏛️ | VIP 뷰티 룸(글래스 파티션), 블랙&골드 테마 |
 | 5 | GLOBAL BEAUTY FLAGSHIP | 25 × 19 | 5 | 9,000🪙 + 700🏛️ | 소셜 라운지 |
 
 ## 요청서 11개 공간 매핑

@@ -298,7 +298,7 @@ function FurnitureFallback({ type, accent = "#f9d5dc" }: { type: string; accent?
     case "logo":
       return (<group>
         <mesh position={[0, 0.85, 0]} castShadow><boxGeometry args={[1.5, 1.7, 0.08]} /><meshStandardMaterial color="#1b1719" roughness={0.5} /></mesh>
-        <Label text="MEDIDERMA" sub="LOUNGE" width={1.3} position={[0, 0.95, 0.045]} />
+        <Label text="BEAUTY" sub="LIFE" width={1.3} position={[0, 0.95, 0.045]} />
       </group>);
     case "arch":
       return <FlowerArch />;
@@ -421,7 +421,7 @@ export function FlowerArch() {
   return (
     <group>
       <Model url="./models/furn_arch.glb" fallback={<FlowerArchFallback />} />
-      <Label text="MEDIDERMA" width={1.3} position={[0, 1.55, -0.48]} color="#c9a66b" />
+      <Label text="BEAUTY LIFE" width={1.3} position={[0, 1.55, -0.48]} color="#c9a66b" />
     </group>
   );
 }

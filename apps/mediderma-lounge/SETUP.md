@@ -51,7 +51,7 @@ npm run optimize:models   # public/models/*.glb meshopt 압축 (새 모델을 �
 ```bash
 bash scripts/setup.sh --blender --assets     # Windows: scripts\setup.ps1 -Blender -Assets
 .bl/bin/python tools/blender/build_real_character.py   # 실사 캐릭터 (여성·남성·동작)
-.bl/bin/python tools/blender/build_signature.py        # 시그니처 캐릭터 (Higgsfield 원본은 저장소에 포함)
+.bl/bin/python tools/blender/build_signature.py        # 시그니처 + 손님 4명 (Higgsfield 원본은 저장소에 포함, 이름을 주면 하나만)
 .bl/bin/python tools/blender/import_quaternius.py      # 광장 자연 소품
 npm run optimize:models
 ```
@@ -59,12 +59,12 @@ Windows 에서는 `.bl/bin/python` 대신 `.\.bl\Scripts\python.exe` 를 씁니�
 
 - `--assets` 는 CC0 무료 에셋 원본(약 500MB)을 공식 출처에서 받아 SHA-256 을 확인합니다. itch.io 팩은 Playwright 로 받으므로 `--smoke` 도 함께 쓰세요.
 - 원본은 `tools/assets/incoming/` 에 저장되고 저장소에는 올라가지 않습니다 (언제든 다시 받을 수 있음). 출처·라이선스: `docs/ASSET_LICENSES.md`.
-- Higgsfield 로 만든 시그니처 캐릭터 원본은 다시 받을 수 없어 `tools/assets/source/higgsfield_signature/` 에 저장소째 넣어 두었습니다.
+- Higgsfield 로 만든 시그니처 캐릭터 원본은 다시 받을 수 없어 `tools/assets/source/higgsfield_*/` 에 저장소째 (동작 클립은 텍스처를 뺀 것) 넣어 두었습니다.
 
 ## 5. 배포
 
 Vercel 프로젝트 `mediderma-lounge` (Root Directory = `apps/mediderma-lounge`) 로 배포합니다.
-공개 주소: https://mediderma-lounge-parkjong-s-projects.vercel.app
+공개 주소: https://beautylife-game.vercel.app (예전 주소 https://mediderma-lounge-parkjong-s-projects.vercel.app 도 같은 게임)
 Vercel 무료 플랜은 하루 배포 100회 제한이 있습니다 (같은 저장소에 연결된 다른 프로젝트들의 빌드도 함께 셉니다).
 
 ## 6. 작업 흐름 팁

@@ -52,6 +52,7 @@ export function PetsBody() {
             <span className="flex items-center gap-2">
               <span className="h-7 w-7 shrink-0 rounded-full border border-white shadow" style={{ background: `linear-gradient(135deg, ${ty.color}, ${ty.accent})` }} />
               <span className="min-w-0 truncate text-xs font-bold text-ink">{L(ty)}</span>
+              {ty.model && <span className="ml-auto shrink-0 rounded-full bg-pink-deep px-1.5 py-0.5 text-[10px] font-black text-white">NEW</span>}
             </span>
             <span className="mt-1 block text-[12px] font-semibold text-ink/50"><Price c="coin" n={ty.price} /></span>
           </button>
@@ -139,7 +140,7 @@ export function InviteBody() {
     const url = inviteLink();
     const text = t("invite.shareText", { name: g.name });
     try {
-      if (navigator.share) { await navigator.share({ title: "MEDIDERMA LOUNGE", text, url }); return; }
+      if (navigator.share) { await navigator.share({ title: "BEAUTY LIFE", text, url }); return; }
       await navigator.clipboard.writeText(`${text} ${url}`);
       toast(t("invite.copied"));
     } catch { /* 공유를 취소했거나 클립보드 권한이 없음 */ toast(url); }

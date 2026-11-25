@@ -1,5 +1,5 @@
 /**
- * 메디더마 라운지 공간 (v2 인테리어).
+ * 뷰티 라이프 라운지 공간 (v2 인테리어).
  * 반사 대리석 바닥, 패널 몰딩 벽과 코브 조명, 천장·샹들리에, 아치 창과 빛줄기,
  * 아치 진열 알코브, 케어 스테이지, 곡선 리셉션. 등급에 따라 크기와 존이 확장된다.
  * 모든 형상·텍스처는 코드로 만든다.
@@ -127,7 +127,7 @@ export function Lounge({ level, floor, wall, light, stations = 0, furniture, sel
           <planeGeometry args={[Math.min(7.4, L.w * 0.5), 1.5]} />
           <meshBasicMaterial map={glow(dark ? "#c9a66b" : "#ffd9a8")} transparent opacity={dark ? 0.55 : 0.75} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
         </mesh>
-        <Label text="MEDIDERMA LOUNGE" sub={L.level.name} width={Math.min(6, L.w * 0.4)} position={[0, 0, 0.012]} color={dark ? "#f2d59a" : "#b98a4a"} />
+        <Label text="BEAUTY LIFE" sub={L.level.name} width={Math.min(6, L.w * 0.4)} position={[0, 0, 0.012]} color={dark ? "#f2d59a" : "#b98a4a"} />
       </group>
 
       <DisplayAlcoves L={L} dark={dark} accent={accent} />

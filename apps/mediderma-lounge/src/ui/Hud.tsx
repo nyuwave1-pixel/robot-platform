@@ -9,6 +9,10 @@ import { useL, useT } from "../i18n";
 import { Icon, type IconName } from "./Icon";
 import { petFx } from "../three/Pet";
 import { tune } from "../data/config";
+import { LiveBar, LiveLoungeSync, useEventBadge } from "./Events";
+import { useRoom } from "../net/room";
+import { useContest } from "../net/contest";
+import { castVote } from "./Contest";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -57,6 +61,7 @@ export function Hud() {
   const pct = next ? Math.min(100, ((total - stage.need) / (next.need - stage.need)) * 100) : 100;
   const claimable = claimableCount(g);
   const daily = QUESTS.find((q) => q.daily && !questClaimed(g, q));
+  const evBadge = useEventBadge();
 
   // 등급이 오르면 한 번 알린다
   useEffect(() => {
@@ -91,7 +96,7 @@ export function Hud() {
               <span className="min-w-0 text-left">
                 <span className="block truncate text-xs font-black text-ink">{g.name} <span className="font-semibold text-pink-deep">Lv.{levelOf(total)}</span></span>
                 <span className="mt-0.5 flex items-center gap-1.5">
-                  <span className="text-[12px] font-bold tracking-wider text-gold">STAGE {g.stage}</span>
+                  <span className="whitespace-nowrap text-[12px] font-bold tracking-wider text-gold">STAGE {g.stage}</span>
                   <span className="block h-1.5 w-16 overflow-hidden rounded-full bg-pink-soft sm:w-24"><span className="block h-full rounded-full bg-gradient-to-r from-pink-deep to-gold transition-all" style={{ width: `${pct}%` }} /></span>
                 </span>
               </span>
@@ -105,6 +110,9 @@ export function Hud() {
               <button onClick={() => open("quests")} className="relative rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="quests">
                 <Icon n="quest" />{claimable > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-deep text-[12px] font-bold text-white">{claimable}</span>}
               </button>
+              <button onClick={() => open("events")} className="relative rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-ink shadow-sm backdrop-blur" aria-label="events" data-testid="events-btn">
+                <Icon n="party" /> <span className="hidden sm:inline">EVENT</span>{evBadge > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-deep text-[12px] font-bold text-white">{evBadge}</span>}
+              </button>
               <button onClick={() => open("life")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs font-black text-ink shadow-sm backdrop-blur" aria-label="life" data-testid="life-btn"><Icon n="flower" /> <span className="hidden sm:inline">LIFE</span></button>
               <button onClick={() => open("profile")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="profile"><Icon n="profile" /></button>
               <button onClick={() => open("settings")} className="rounded-full bg-white/85 px-2.5 py-1 text-xs shadow-sm backdrop-blur" aria-label="settings"><Icon n="settings" /></button>
@@ -117,6 +125,9 @@ export function Hud() {
           )}
         </div>
       )}
+
+      <LiveLoungeSync />
+      {explore && !panel && world !== "plaza" && <LiveBar />}
 
       {/* 친구 라운지 방문 중 */}
       {visitingFriend && explore && <VisitBanner />}
@@ -187,21 +198,22 @@ function PlazaBar() {
   const label = pz.near === "fountain" ? (daily.wish ? null : t("plaza.wish")) : pz.near === "stage" ? t("plaza.petalStart") : pz.near === "stall" ? t("plaza.promoList") : null;
   return (
     <>
-      <div className="absolute left-1/2 top-[64px] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-4 pr-1.5 text-cream shadow-lg backdrop-blur">
-        <span className={`h-2 w-2 rounded-full ${pz.status === "online" ? "bg-emerald-400" : pz.status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
-        <p className="whitespace-nowrap text-xs font-bold">WORLD PLAZA · {pz.status === "online" ? t("plaza.online", { n: pz.ids.length + 1 }) : pz.status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
-        <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
+      {/* 휴대폰에서는 상단 바가 두 줄이 되므로 그 아래에 둔다. 좁아도 버튼 글자가 세로로 쪼개지지 않게 한 줄 고정 */}
+      <div className="absolute left-1/2 top-[108px] z-20 flex max-w-[calc(100%-16px)] -translate-x-1/2 items-center gap-2 rounded-full bg-ink/80 py-1.5 pl-3 pr-1.5 text-cream shadow-lg backdrop-blur sm:top-[64px] sm:pl-4">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${pz.status === "online" ? "bg-emerald-400" : pz.status === "connecting" ? "bg-amber-300" : "bg-white/40"}`} />
+        <p className="min-w-0 truncate whitespace-nowrap text-xs font-bold"><span className="hidden sm:inline">WORLD PLAZA · </span>{pz.status === "online" ? t("plaza.online", { n: pz.ids.length + 1 }) : pz.status === "connecting" ? t("plaza.connecting") : t("plaza.offline")}</p>
+        <button className="btn-primary shrink-0 whitespace-nowrap !px-4 !py-2 text-xs" onClick={() => useUI.setState({ world: null })}>{t("plaza.back")}</button>
       </div>
 
       {/* 꽃잎 잡기 순위표 */}
       {pz.board.length > 0 && !pz.game && (
-        <div className="absolute right-2 top-[112px] z-10 w-40 rounded-2xl bg-white/85 p-2 shadow backdrop-blur">
+        <div className="absolute right-2 top-[156px] z-10 w-40 sm:top-[112px] rounded-2xl bg-white/85 p-2 shadow backdrop-blur">
           <p className="text-[12px] font-black tracking-wider text-pink-deep">PETAL CATCH TOP</p>
           {pz.board.map((b, i) => <p key={b.name} className="flex justify-between text-[12px] font-bold text-ink/70"><span className="truncate">{i + 1}. {b.name}</span><span>{b.s}</span></p>)}
         </div>
       )}
       {pz.game && (
-        <div className="absolute left-1/2 top-[112px] z-20 -translate-x-1/2 rounded-2xl bg-pink-deep px-5 py-2 text-center text-white shadow-lg">
+        <div className="absolute left-1/2 top-[156px] z-20 sm:top-[112px] -translate-x-1/2 rounded-2xl bg-pink-deep px-5 py-2 text-center text-white shadow-lg">
           <p className="text-[12px] font-bold tracking-wider">PETAL CATCH · {Math.max(0, Math.ceil((pz.game.end - Date.now()) / 1000))}s</p>
           <p className="text-2xl font-black leading-tight">{pz.game.score}</p>
         </div>
@@ -271,6 +283,11 @@ function VisitBanner() {
   const t = useT();
   const visiting = useUI((s) => s.visiting);
   const shop = useUI((s) => s.shop);
+  const liveHost = useRoom((s) => !!s.host && s.code === shop?.code);
+  const g = useGame();
+  // 이번 주 콘테스트 출품작이면 여기서 바로 투표
+  const entry = useContest((s) => s.board.find((e) => e.code === shop?.code));
+  const voted = useContest((s) => !!shop && !!s.me?.votedFor.includes(shop.code));
   const f = DEMO_FRIENDS.find((x) => x.id === visiting);
   const [liked, setLiked] = useState(false);
   if (shop)
@@ -278,8 +295,10 @@ function VisitBanner() {
       <div className="absolute bottom-6 left-1/2 z-30 flex w-[92%] max-w-md -translate-x-1/2 items-center gap-2 rounded-3xl bg-white/90 p-3 shadow-xl backdrop-blur">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-ink">{t("visit.title", { name: shop.name })}</p>
-          <p className="text-[12px] text-ink/50">{t("plaza.shopNote")}</p>
+          <p className="text-[12px] text-ink/50">{liveHost ? t("live.shopLive") : t("plaza.shopNote")}</p>
         </div>
+        {entry && entry.code !== g.friendCode && <button disabled={voted} className="btn-ghost !px-3 !py-2 text-xs disabled:opacity-50" onClick={() => void castVote(entry.code, t)} data-testid="banner-vote">{voted ? "♥" : `♥ ${t("contest.voteBtn")}`}</button>}
+        {shop.code !== g.friendCode && <button className="btn-ghost !px-3 !py-2 text-xs" onClick={() => useUI.setState({ panel: "guestbook" })} data-testid="banner-guestbook">{t("gb.btn")}</button>}
         <button className="btn-primary !px-4 !py-2 text-xs" onClick={() => useUI.setState({ shop: null, visiting: null, world: "plaza" })}>{t("plaza.toPlaza")}</button>
       </div>
     );
