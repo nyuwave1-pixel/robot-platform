@@ -55,6 +55,12 @@ const CLIP: Record<Anim, string> = {
 /** 피부 텍스처 평균색(선형). 이 값으로 나눠 룩의 피부색이 그대로 나오게 한다 */
 const SKIN_AVG = new THREE.Color(0.398, 0.195, 0.1);
 /** 성장 단계에 따른 키 배율 (1단계 1.53m → 5단계 1.78m) */
+/**
+ * 침대에 누운 실사 캐릭터의 머리·목 뼈 월드 위치 (케어 시술 부위를 실제 얼굴에 맞추는 데 쓴다).
+ * 모델마다 키·머리 위치가 달라 공식(bodyDims)으로는 어긋나므로, 누워 있는 동안 매 프레임 기록한다.
+ */
+export const lieRig = { head: new THREE.Vector3(), neck: new THREE.Vector3(), scale: 1, at: 0 };
+
 export const realScale = (growth: number) => 0.86 + 0.035 * (THREE.MathUtils.clamp(growth, 1, 5) - 1);
 
 function crown(rank: number) {
@@ -162,6 +168,20 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
     return out;
   }, [mixer, src]);
   const cur = useRef<THREE.AnimationAction | null>(null);
+  const bones = useMemo(() => {
+    if (!obj) return null;
+    let head: THREE.Object3D | null = null, neck: THREE.Object3D | null = null;
+    obj.traverse((o) => {
+      if (!head && /^head$/i.test(o.name)) head = o;
+      if (!neck && /^neck(_01)?$/i.test(o.name)) neck = o;
+    });
+    if (!head || !neck) return null;
+    const h = head as THREE.Object3D, n = neck as THREE.Object3D;
+    // 몸통(골반~머리) 뼈의 기본(바인드) 자세: 누워 있을 때 대기 동작이 몸·고개를 비틀지 않게 되돌린다
+    const trunk: [THREE.Object3D, THREE.Quaternion][] = [];
+    obj.traverse((o) => { if (/^(hips|pelvis|spine|neck|head)/i.test(o.name) && !/end$/i.test(o.name)) trunk.push([o, o.quaternion.clone()]); });
+    return { head: h, neck: n, trunk };
+  }, [obj]);
   useFrame((_, dt) => {
     if (!mixer) return;
     const moving = !!movingRef?.current && anim !== "lie" && anim !== "sit";
@@ -172,6 +192,15 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       cur.current = want;
     }
     mixer.update(Math.min(dt, 0.1));
+    if (anim === "lie" && bones) {
+      // 누운 자세에서는 고개를 정면(천장)으로: 대기 동작의 머리·목 회전을 기본 자세로
+      for (const [b, q] of bones.trunk) b.quaternion.copy(q);
+      obj?.updateMatrixWorld(true);
+      bones.head.getWorldPosition(lieRig.head);
+      bones.neck.getWorldPosition(lieRig.neck);
+      lieRig.scale = realScale(growth) * (look.height ?? 1);
+      lieRig.at = performance.now();
+    }
     // 동작 클립의 주먹 쥔 손가락을 풀어 부드러운 손으로 (손가락 뼈를 휴지 자세로 되돌림)
     if (!sig) for (const [b, q] of fingers) b.quaternion.slerp(q, 0.85);
   });

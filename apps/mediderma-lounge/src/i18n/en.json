@@ -531,5 +531,10 @@
   "nav.lounge.short": "LOUNGE",
   "nav.care.short": "CARE",
   "nav.shop.short": "SHOP",
-  "nav.social.short": "SOCIAL"
+  "nav.social.short": "SOCIAL",
+  "care.contactOn": "Touching skin",
+  "care.contactOff": "Place the head on the skin",
+  "care.tech.rf": "RF: keep the head flat and move slowly in small circles (don't stay in one spot)",
+  "care.tech.us": "Ultrasonic: short upward strokes along the grain (micro-vibration)",
+  "care.tech.ionto": "Ionto: glide slowly over the area where the ampoule was applied"
 }

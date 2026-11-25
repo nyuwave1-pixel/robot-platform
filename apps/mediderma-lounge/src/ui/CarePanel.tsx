@@ -191,6 +191,13 @@ export function CarePanel() {
                   </div>
                   <p className="mt-1.5 text-[13px] font-semibold text-ink/65"><Icon n="hand" /> {t("care.stroke", { zone: L(ZONES[care.zone]) })}</p>
                   <p className="text-[12px] text-ink/45">➜ {t("care.direction")}: {L(ZONES[care.zone].dir)}</p>
+                  {/* 모드별 손놀림 · 피부 접촉 상태 */}
+                  <div className="mt-1.5 flex items-center gap-2 rounded-xl bg-ink/5 px-2.5 py-1.5">
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${stroking ? "animate-pulse" : ""}`} style={{ background: stroking ? mode.color : "#cbbfc4" }} />
+                    <p className="min-w-0 flex-1 text-[12px] leading-snug text-ink/65">
+                      <b className="text-ink/80">{stroking ? t("care.contactOn") : t("care.contactOff")}</b> · {t(`care.tech.${step.mode}`)}
+                    </p>
+                  </div>
                 </>
               )}
             </div>

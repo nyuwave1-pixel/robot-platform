@@ -531,5 +531,10 @@
   "nav.lounge.short": "LOUNGE",
   "nav.care.short": "CARE",
   "nav.shop.short": "SHOP",
-  "nav.social.short": "SOCIAL"
+  "nav.social.short": "SOCIAL",
+  "care.contactOn": "피부에 닿는 중",
+  "care.contactOff": "헤드를 피부에 대 주세요",
+  "care.tech.rf": "RF: 헤드를 밀착한 채 작은 원을 그리며 천천히 이동 (한 곳에 오래 머물지 않기)",
+  "care.tech.us": "울트라소닉: 결을 따라 아래에서 위로 짧게 쓸어 올리기 (미세 진동)",
+  "care.tech.ionto": "이온: 앰플을 바른 부위를 따라 천천히 미끄러지듯 이동"
 }
