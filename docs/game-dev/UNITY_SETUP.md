@@ -386,3 +386,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 구조물은 정적이지만 **static batching 에서 제외**(메시 복사로 WebGL 이 커지는 것 방지).
 - dotnet `CoreTests~` **302/302**. PlayMode `Mission03Tests` 2개. **Unity 확인 전**(그다음 묶음).
 
+## 2026-11-25 (16) — 미션 04 UNDERGROUND ZERO + 보안 카메라 (허브 세션, 클라우드, U4)
+
+- **지하 시설(`Core/IslandProps.Facility`)**: 벙커 아래 60 m(FAC_Y −60). 엘리베이터 홀 → 카메라 복도·보안문 → 유리 칸막이 연구실 → 생물 금고 → 복도 → 서버실·업링크 콘솔·북쪽 엘리베이터.
+  웹 `buildFacility()` 원문 실행 결과와 **173개 호출 + 지점 5개 + 카메라 2대 일치**. 웹은 바닥을 FAC_Y 평면으로 처리 → Unity 는 방마다 바닥·천장 판(충돌체).
+  비상등은 붉은 점광원 깜박임(`Runtime/LightPulse`).
+- **보안 카메라(`Core/SecurityCam` + `Runtime/SecurityCamera`)**: ±0.7 rad 회전, 15 m·시야각(cos > 0.55)·시선 확인, 감지 게이지 0.9/s(웅크리면 0.5/s), 0.4/s 감소, 1.2 에서
+  시설 봉쇄 → 사이렌, 무전, 경보 1회, 모두 수색. 10 hp 라 한 번 맞히면 꺼짐. 웹 규칙 문자열 대조 테스트.
+- **미션 04(`Core/Campaign.M04`)**: 보안문 해제 2.5초(문이 4 m 올라감, 닫힌 동안 NavMesh 를 막음) → 연구실 소탕 → 샘플 확보 → 업링크 시작 → 45초 방어(2초 뒤부터 11초마다 2명, 살아 있는 증원 5명 미만일 때) → 북쪽 엘리베이터.
+  진행기에 목표별 매 프레임 훅(`OnTick`) 추가. 같은 증원 묶음을 여러 번 부를 수 있게 `GameDirector.Activate` 가 "다음 N명" 을 켬.
+- 미션 배치에 높이(`SpawnDef.Y`, `SpawnY`) 추가 — 지하 배치와 M03 건물 안(y 16) 병사. 웹 미션 객체 실행 결과와 높이까지 대조.
+- dotnet `CoreTests~` **310/310**. PlayMode `Mission04Tests` 2개. **Unity 확인 전**.
+

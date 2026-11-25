@@ -11,10 +11,12 @@ namespace SpecialSoldier.Core
         public double X, Z;
         public double? Yaw;                        // web enemy yaw (radians, 0 = +z)
         public (double x, double z)[] Patrol;      // web patrol route
-        public bool OnStructure;                   // web y: top(x, z) — on a tower/roof the Unity island does not have yet
+        public bool OnStructure;                   // web y: top(x, z) — on a tower / roof (IslandProps.Top)
+        /// <summary>web y: a fixed height (island metres), e.g. FAC_Y −60 in the underground facility; null = on the ground.</summary>
+        public double? Y;
 
-        public SpawnDef(string kind, double x, double z, string group, double? yaw = null, (double, double)[] patrol = null, bool onStructure = false)
-        { Kind = kind; X = x; Z = z; Group = group; Yaw = yaw; Patrol = patrol; OnStructure = onStructure; }
+        public SpawnDef(string kind, double x, double z, string group, double? yaw = null, (double, double)[] patrol = null, bool onStructure = false, double? y = null)
+        { Kind = kind; X = x; Z = z; Group = group; Yaw = yaw; Patrol = patrol; OnStructure = onStructure; Y = y; }
     }
 
     /// <summary>A campaign mission ported from apps/special-soldier/src/game/missions.js (checked by CampaignTests).</summary>
@@ -22,12 +24,16 @@ namespace SpecialSoldier.Core
     {
         public string Id, Code, Name, Zone, SkyId, AlarmRadio;
         public double SpawnX, SpawnZ, SpawnYaw;    // web player spawn (yaw: camera, 0 = looking toward −z)
+        /// <summary>web spawn y when the mission does not start on the island surface (M04: FAC_Y).</summary>
+        public double? SpawnY;
         public string[] Brief;
         public SpawnDef[] Spawns, AlarmWave;
         /// <summary>Named reinforcement waves the objective hooks send in (MissionRunner.WaveRequested): built switched off in the scene.</summary>
         public Dictionary<string, SpawnDef[]> Waves = new Dictionary<string, SpawnDef[]>();
         /// <summary>On the first alarm, enemies whose group starts with this go searching for the player (M02 web alarm()), or null.</summary>
         public string AlarmSearchPrefix;
+        /// <summary>Mission 04: what command says when a security camera locks the facility down (web tick → camAlarm).</summary>
+        public string CameraAlarmRadio;
         public Func<MissionRunner> NewRunner;      // objectives in Unity world coordinates
         /// <summary>The man-made props of the mission's zone (web build.js), or null.</summary>
         public Func<PropSet> Props;
@@ -158,11 +164,11 @@ namespace SpecialSoldier.Core
                 new SpawnDef("guard", -8, -8, b, yaw: 3.1), new SpawnDef("guard", 10, -10, b, yaw: 3.1),
                 new SpawnDef("sniper", -112, -8, b, yaw: 2.4, onStructure: true), new SpawnDef("sniper", 112, -8, b, yaw: -2.4, onStructure: true),
                 new SpawnDef("guard", -20, -42, b, patrol: R(-20, -42, 22, -44, 22, -84, -20, -80)), new SpawnDef("assault", 44, -46, b, yaw: -1.6),
-                new SpawnDef("assault", 46, -62, b, patrol: R(46, -62, 46, -92, 80, -92)), new SpawnDef("assault", 60, -40, b, yaw: -1.5),
-                new SpawnDef("guard", -50, -48, b, yaw: 1.6), new SpawnDef("heavy", -64, -46, b, yaw: 1.6), new SpawnDef("guard", -50, -96, b, yaw: 0.5), new SpawnDef("guard", -74, -150, b, yaw: 1.5),
+                new SpawnDef("assault", 46, -62, b, patrol: R(46, -62, 46, -92, 80, -92)), new SpawnDef("assault", 60, -40, b, yaw: -1.5, y: 16),
+                new SpawnDef("guard", -50, -48, b, yaw: 1.6), new SpawnDef("heavy", -64, -46, b, yaw: 1.6, y: 16), new SpawnDef("guard", -50, -96, b, yaw: 0.5), new SpawnDef("guard", -74, -150, b, yaw: 1.5, y: 16),
                 new SpawnDef("apc", -14, -96, "armor", yaw: 0.3),
-                new SpawnDef("heavy", 0, -116, h, yaw: 3.1), new SpawnDef("elite", -7, -128, h, yaw: 3), new SpawnDef("elite", 9, -129, h, yaw: 3.2),
-                new SpawnDef("guard", -9, -137, h), new SpawnDef("guard", 18, -118, h, yaw: 2.6),
+                new SpawnDef("heavy", 0, -116, h, yaw: 3.1), new SpawnDef("elite", -7, -128, h, yaw: 3, y: 16), new SpawnDef("elite", 9, -129, h, yaw: 3.2, y: 16),
+                new SpawnDef("guard", -9, -137, h, y: 16), new SpawnDef("guard", 18, -118, h, yaw: 2.6),
             };
             return new CampaignMission
             {
@@ -207,7 +213,68 @@ namespace SpecialSoldier.Core
             };
         }
 
-        public static readonly CampaignMission[] All = { M01, M02, M03 };
+        /// <summary>MISSION 04 — UNDERGROUND ZERO (web missions.js MISSIONS[3]): sublevel 3 on emergency power. Security cameras
+        /// (shoot them or stay out of their cone), the security door override, clear the lab, secure the bio-sample, start the
+        /// uplink and hold the server room for 45 s, then the north lift.</summary>
+        public static readonly CampaignMission M04 = MakeM04();
+
+        static CampaignMission MakeM04()
+        {
+            var fac = IslandProps.Facility(); var P = fac.Points;
+            double y = IslandProps.FacY, ox = IslandProps.Fac.x, oz = IslandProps.Fac.z;
+            SpawnDef S(string k, double x, double z, string g, double yaw, (double, double)[] patrol = null) => new SpawnDef(k, ox + x, oz + z, g, yaw: yaw, patrol: patrol, y: y);
+            (double, double) L(double x, double z) => (ox + x, oz + z);
+            Vec2 At(string point) => W(P[point].x, P[point].z);
+            // uplink defence pool: two soldiers per wave (web: assault + elite-or-assault at the server room door), never more than 5 alive
+            var a = L(0, -74); var e = L(1.2, -71);
+            var uplink = new List<SpawnDef>();
+            foreach (var second in new[] { "elite", "assault", "elite", "assault" })
+            { uplink.Add(new SpawnDef("assault", a.Item1, a.Item2, "wave", y: y)); uplink.Add(new SpawnDef(second, e.Item1, e.Item2, "wave", y: y)); }
+            return new CampaignMission
+            {
+                Id = "m04", Code = "MISSION 04", Name = "UNDERGROUND ZERO", Zone = "ZONE 04 · UNDERGROUND FACILITY", SkyId = "facility",
+                SpawnX = P["facSpawn"].x, SpawnZ = P["facSpawn"].z, SpawnY = y, SpawnYaw = 0,
+                Brief = new[]
+                {
+                    "Sublevel 3 — the bio-research facility runs on emergency power.",
+                    "Security cameras cover the access corridor. Shoot them out (the suppressed P9 will not be heard) or the whole level is alerted.",
+                    "Override the security door, clear the laboratory, secure the bio-sample from the vault and start a data uplink in the server room.",
+                    "The uplink takes 45 seconds. Hold the room, then take the north lift.",
+                },
+                Spawns = new[]
+                {
+                    S("guard", 0, -30, "corr", 0, R(ox, oz - 22, ox, oz - 42)),
+                    S("elite", -8, -56, "lab", 0), S("elite", 8, -66, "lab", 0), S("assault", -10, -70, "lab", 0), S("assault", 9, -50, "lab", 0),
+                    S("guard", 0, -72, "lab", 0, R(ox, oz - 72, ox - 10, oz - 64, ox + 10, oz - 64)),
+                    S("heavy", 24, -61, "vault", -1.57), S("guard", 30, -56, "vault", -1.57),
+                    S("elite", -6.8, -100, "srv", 0), S("elite", 6.8, -108, "srv", 0), S("heavy", 0, -112, "srv", 0),
+                },
+                AlarmSearchPrefix = "",   // camera lockdown: everyone not yet searching comes for you
+                CameraAlarmRadio = "COMMAND: You have been made. Expect resistance.",
+                Waves = new Dictionary<string, SpawnDef[]> { ["uplink"] = uplink.ToArray() },
+                NewRunner = () =>
+                {
+                    float waveT = 2f;
+                    return new MissionRunner("MISSION 04", "UNDERGROUND ZERO",
+                        Objective.Interact(At("secDoorPos"), "OVERRIDE SECURITY DOOR", 2.5f, "Override the security door (avoid or destroy the cameras)").With(onDone: m => m.Raise("openDoor")),
+                        Objective.Kill("lab", "Clear the laboratory"),
+                        Objective.Interact(At("sample"), "SECURE BIO-SAMPLE", 2, "Secure the bio-sample in the vault").With(onDone: m =>
+                        { m.Raise("sample"); m.Say("ATLAS: Sample is secure. That stuff should never leave this island."); }),
+                        Objective.Interact(At("server"), "START DATA UPLINK", 1.5f, "Start the data uplink in the server room"),
+                        Objective.Defend(45, "Defend the uplink").With(
+                            onStart: m => { waveT = 2f; m.Raise("sirenServer"); m.Say("COMMAND: Uplink started. Forty-five seconds — hold that room!"); },
+                            onTick: (m, dt) =>
+                            {
+                                if ((waveT -= dt) <= 0 && (m.World == null || m.World.Alive("wave") < 5)) { waveT = 11f; m.SendWave("uplink", 2); }
+                            }),
+                        Objective.Reach(At("exitLift"), 2.6f, "Take the north lift to the surface").With(radio: "COMMAND: We have it all. Extraction is at the airfield — move!"));
+                },
+                Area = (70, -275, 130, -135),
+                Props = () => IslandProps.Facility(),
+            };
+        }
+
+        public static readonly CampaignMission[] All = { M01, M02, M03, M04 };
 
         public static CampaignMission Get(string id)
         {

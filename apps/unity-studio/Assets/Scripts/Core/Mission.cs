@@ -53,6 +53,8 @@ namespace SpecialSoldier.Core
         public Action<MissionRunner> OnStart;
         /// <summary>Runs when this objective or part is completed (web: o.done(M)) — e.g. set a flag, say something.</summary>
         public Action<MissionRunner> OnDone;
+        /// <summary>Runs every frame while this objective is current (web: o.tick(M, dt)) — e.g. uplink defence waves.</summary>
+        public Action<MissionRunner, float> OnTick;
         /// <summary>Custom objectives: complete when this returns true (web: type 'custom', check(M)).</summary>
         public Func<MissionRunner, IMissionWorld, bool> Check;
 
@@ -65,8 +67,8 @@ namespace SpecialSoldier.Core
         /// <summary>Get farther than <paramref name="radius"/> from a point (web: 'Get clear of the blast (30 m)').</summary>
         public static Objective Leave(Vec2 from, float radius, string text) =>
             new Objective { Kind = ObjectiveKind.Custom, Text = text, At = from, Radius = radius, Check = (m, w) => Vec2.Distance(w.PlayerPosition, from) > radius };
-        public Objective With(string radio = null, Action<MissionRunner> onStart = null, Action<MissionRunner> onDone = null)
-        { if (radio != null) Radio = radio; if (onStart != null) OnStart = onStart; if (onDone != null) OnDone = onDone; return this; }
+        public Objective With(string radio = null, Action<MissionRunner> onStart = null, Action<MissionRunner> onDone = null, Action<MissionRunner, float> onTick = null)
+        { if (radio != null) Radio = radio; if (onStart != null) OnStart = onStart; if (onDone != null) OnDone = onDone; if (onTick != null) OnTick = onTick; return this; }
     }
 
     /// <summary>What the engine tells the mission each frame.</summary>
@@ -152,6 +154,7 @@ namespace SpecialSoldier.Core
             Stats.Time += dt;
             var o = Current;
             HoldTarget = null;
+            o.OnTick?.Invoke(this, dt);
             switch (o.Kind)
             {
                 case ObjectiveKind.Any:

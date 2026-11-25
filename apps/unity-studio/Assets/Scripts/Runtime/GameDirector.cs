@@ -21,6 +21,11 @@ namespace SpecialSoldier
         public WaveGroup[] waves = new WaveGroup[0];
         /// <summary>Mission 02: the relay mast that falls when the C4 goes off (event "detonate").</summary>
         public Transform relayMast;
+        /// <summary>Mission 04: the security door (slides up when overridden) and the glowing bio-sample (taken from the vault).</summary>
+        public Transform securityDoor;
+        public GameObject bioSample;
+        /// <summary>Mission 04: a security camera saw you (once; also counts as the mission's alarm).</summary>
+        public bool CameraAlarmed { get; private set; }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -143,7 +148,8 @@ namespace SpecialSoldier
         void OnAlarm()
         {
             var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
-            Radio(campaign?.AlarmRadio ?? "ENEMY CALLED FOR REINFORCEMENTS");
+            if (campaign == null) Radio("ENEMY CALLED FOR REINFORCEMENTS");
+            else if (campaign.AlarmRadio != null) Radio(campaign.AlarmRadio);   // M04: the web alarm() says nothing (the cameras speak)
             if (campaign?.AlarmSearchPrefix != null && player)
                 // web M02 alarm(): patrols not yet searching head for where you are
                 foreach (var e in enemies)
@@ -162,10 +168,12 @@ namespace SpecialSoldier
         void Activate(GameObject[] members, int count)
         {
             if (members == null) return;
-            for (int i = 0; i < members.Length && i < count; i++)
+            int sent = 0;   // the next `count` soldiers still waiting (a pool can be called several times: M04 uplink waves)
+            for (int i = 0; i < members.Length && sent < count; i++)
             {
                 var go = members[i];
                 if (!go || go.activeSelf) continue;
+                sent++;
                 go.SetActive(true);
                 var e = go.GetComponent<EnemyAgent>(); if (!e) continue;
                 enemies.Add(e);
@@ -179,6 +187,30 @@ namespace SpecialSoldier
             if (evt == "detonate") StartCoroutine(Detonate());
             else if (evt == "sabotage") StartCoroutine(Sabotage());
             else if (evt == "siren") SliceFx.I.Alarm(IslandGround(Campaign.Hq.x, Campaign.Hq.z));
+            else if (evt == "openDoor") StartCoroutine(OpenDoor());
+            else if (evt == "sample" && bioSample) bioSample.SetActive(false);
+            else if (evt == "sirenServer") SliceFx.I.Alarm(player ? player.transform.position : Vector3.zero);
+        }
+
+        /// <summary>web: door.position.y = FAC_Y + 2.1 + min(4, t × 2.5) — it slides 4 m up into the ceiling in 1.6 s.</summary>
+        System.Collections.IEnumerator OpenDoor()
+        {
+            if (!securityDoor) yield break;
+            SliceFx.I.HitConfirm(false);   // stand-in for the web 'beep' (700 Hz)
+            Vector3 from = securityDoor.position;
+            for (float t = 0f; t < 1.6f; t += Time.deltaTime) { securityDoor.position = from + Vector3.up * Mathf.Min(4f, t * 2.5f); yield return null; }
+            securityDoor.position = from + Vector3.up * 4f;
+        }
+
+        /// <summary>A Mission 04 camera locked the facility down (web: camAlarm — siren, radio, alarm stat, everyone searches).</summary>
+        public void CameraAlarm(Vector3 at)
+        {
+            if (CameraAlarmed || State != Outcome.Playing) return;
+            CameraAlarmed = true;
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            SliceFx.I.Alarm(at);
+            Radio("CAMERA ALERT — FACILITY ON LOCKDOWN   " + (campaign?.CameraAlarmRadio ?? ""));
+            Mission?.RaiseAlarm();   // counts the alarm and sends everyone not yet searching after you (OnAlarm)
         }
 
         /// <summary>A point on the island (web coordinates) at ground height in this scene.</summary>
