@@ -6,6 +6,7 @@ import { clamp, fmtTime } from '../core/util.js';
 import { SIZE, N, FLATS } from '../world/world.js';
 import { ZONES, POI } from '../world/build.js';
 import { ST } from '../game/enemies.js';
+import { applyHudPrefs } from './hudprefs.js';
 
 const $ = (id) => document.getElementById(id), _v = new THREE.Vector3();
 export class Hud {
@@ -64,6 +65,7 @@ export class Hud {
   hitMarker(head, kill) { const h = $('hitm'); h.className = (head ? 'head ' : '') + (kill ? 'kill ' : '') + 'on'; this.hitT = 0.22; }
   killFeed(name, head) { const f = $('feed'), d = document.createElement('div'); d.innerHTML = `<b>${G.save.callsign}</b> ${head ? '◎ HEADSHOT' : '▸'} <span>${name}</span>`; f.appendChild(d); while (f.children.length > 5) f.firstChild.remove(); setTimeout(() => d.remove(), 4500); }
   update(dt) {
+    applyHudPrefs();
     const P = G.player, wp = G.weapons, s = wp.slot, cam = G.camera, w = innerWidth, h = innerHeight;
     // fps
     this.fpsN++; this.fpsT += dt; this.frameMax = Math.max(this.frameMax, dt); if (this.fpsT >= 0.5) { this.fps = this.fpsN / this.fpsT; $('fps').textContent = G.settings.showFps ? `${this.fps.toFixed(0)} FPS · ${(this.frameMax * 1000).toFixed(0)} ms max · ${G.stats ? G.stats.calls : 0} draws · ${G.stats ? (G.stats.tris / 1000).toFixed(0) : 0}k tris` : ''; this.fpsN = 0; this.fpsT = 0; this.frameMax = 0; }

@@ -10,6 +10,7 @@ import { ENEMY_TYPES } from '../game/enemies.js';
 import { CREDITS } from '../config/credits.js';
 import { INTEL, intelTotal } from '../config/intel.js';
 import { UNITY_EDITION, unityEditionUrl } from '../config/editions.js';
+import { hudSettingsHtml, bindHudSettings } from './hudprefs.js';
 
 const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
@@ -31,6 +32,7 @@ export class Menu {
     this.el = document.getElementById('menu'); this.screen = null; this.sel = 'm4';
     this.el.addEventListener('click', (e) => { const t = e.target.closest('[data-a]'); if (!t || t.classList.contains('locked')) return; G.audio.init(); G.audio.play('ui:ok'); this.act(t.dataset.a, t.dataset.v); });
     this.el.addEventListener('mouseover', (e) => { const t = e.target.closest('[data-a]'); if (t && t !== this.hov) { this.hov = t; G.audio.play('ui:hover'); } });
+    bindHudSettings(this.el);
     this.el.addEventListener('input', (e) => { const t = e.target; if (t.dataset.set) this.setting(t.dataset.set, t.type === 'checkbox' ? t.checked : t.type === 'range' ? +t.value : t.value, t); if (t.dataset.cs !== undefined) { G.save.callsign = t.value.toUpperCase().slice(0, 14) || 'GHOST 0-7'; storeSave(G.save); } });
   }
   open(html, cls = '') { this.el.className = 'on ' + cls; this.el.innerHTML = html; }
@@ -120,6 +122,7 @@ export class Menu {
       <label>Ambient occlusion (GTAO · High/Ultra)</label><input type="checkbox" data-set="ssao" ${s.ssao ? 'checked' : ''}><b>experimental</b>
       <label>Frame limit</label><select data-set="fpsCap">${[[0, 'Unlimited (v-sync)'], [30, '30'], [60, '60'], [120, '120']].map(([v, t]) => `<option value="${v}" ${+s.fpsCap === v ? 'selected' : ''}>${t}</option>`).join('')}</select><b></b>
       <label>Show performance counter</label><input type="checkbox" data-set="showFps" ${s.showFps ? 'checked' : ''}><b></b>
+      ${hudSettingsHtml()}
       <h3>CONTROLS</h3><label>Mouse sensitivity</label>${sl('sens', 0.2, 3, 0.05, (v) => v.toFixed(2))}<label>Invert Y</label><input type="checkbox" data-set="invertY" ${s.invertY ? 'checked' : ''}><b></b>
       <h3>AUDIO</h3><label>Master volume</label>${sl('volume', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Music volume</label>${sl('music', 0, 1, 0.05, (v) => (v * 100).toFixed(0) + '%')}<label>Radio voice (speech synthesis)</label><input type="checkbox" data-set="voice" ${s.voice ? 'checked' : ''}><b></b></div>
       <h3>KEY BINDINGS</h3><div class="keys">${KEYS.map(([k, d]) => `<div><kbd>${k}</kbd>${d}</div>`).join('')}</div><p class="note"><button data-a="attrib" data-v="${back}">THIRD-PARTY CREDITS</button></p>`, back));

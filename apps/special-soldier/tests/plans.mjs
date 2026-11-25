@@ -305,3 +305,20 @@ export async function mplobby({ page, sim, shot }) {
   console.log('room:', await page.evaluate(() => JSON.stringify({ room: SS.mp.room, mode: SS.mp.roster.mode, players: SS.mp.roster.players.length, host: SS.mp.isHost() })));
   await page.evaluate(() => SS.mp.leave(true));
 }
+
+// v0.22: HUD visibility settings — presets from the SETTINGS screen, contextual elements appear when they matter
+export async function hudprefs({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  const vis = () => page.evaluate(() => Object.fromEntries(['mini', 'objPanel', 'ammo', 'vitals', 'cross', 'aware', 'squad'].map((id) => [id, !document.getElementById(id).classList.contains('hudOff')])));
+  await page.click('nav [data-a="settings"]'); await page.waitForTimeout(400);
+  console.log('menu has HUD block:', await page.evaluate(() => !!document.querySelector('[data-hudpreset]') && document.querySelectorAll('[data-hud]').length));
+  await page.selectOption('[data-hudpreset]', 'hardcore'); await page.waitForTimeout(200);
+  console.log('saved preset:', await page.evaluate(() => JSON.stringify(SS.settings.hud)));
+  await page.evaluate(() => { SS.startMission(0, true); SS.noTarget = true; }); await sim(8); await page.waitForTimeout(500);
+  console.log('hardcore after 8 s:', JSON.stringify(await vis())); await shot('H1-hardcore');
+  await page.evaluate(() => { SS.settings.hud = { minimap: 'always', objective: 'context', ammo: 'context', vitals: 'context', crosshair: 'always', hitmarkers: 'always', stealth: 'context', squad: 'hidden' }; });
+  await sim(8); console.log('minimal idle:', JSON.stringify(await vis()));
+  await page.evaluate(() => { SS.input.btn[0] = true; for (let i = 0; i < 6; i++) SS.tick(1 / 30); SS.input.btn[0] = false; SS.player.lastHurt = SS.time; SS.player.health = 70; }); await sim(0.2);
+  console.log('minimal after firing + hurt:', JSON.stringify(await vis())); await page.waitForTimeout(500); await shot('H2-minimal-firing');
+  await page.evaluate(() => { SS.settings.hud = undefined; }); await sim(0.2); console.log('standard:', JSON.stringify(await vis()));
+}
