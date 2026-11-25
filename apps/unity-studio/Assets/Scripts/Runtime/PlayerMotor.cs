@@ -18,6 +18,7 @@ namespace SpecialSoldier
 
         CharacterController _cc;
         Damageable _health;
+        WeaponController _weapon;
         float _vy, _recoilDebt, _stepT;
 
         void Awake() { _cc = GetComponent<CharacterController>(); _health = GetComponent<Damageable>(); if (_health) _health.Hit += (dmg, from) => SliceFx.I.Hurt(); }
@@ -39,9 +40,14 @@ namespace SpecialSoldier
 
             if (GameDirector.CursorCaptured)
             {
+                // web look speed (0.0022 rad/px × sensitivity, slower in a zoomed sight) and invert Y from the saved settings
+                var set = SettingsStore.Current;
+                if (!_weapon) _weapon = GetComponentInChildren<WeaponController>();
+                bool aiming = _weapon && _weapon.Aiming && _weapon.Current != null;
+                lookSensitivity = set.LookDegreesPerPixel(aiming ? _weapon.Current.Stats.Zoom : 1f, aiming);
                 Vector2 look = mouse.delta.ReadValue() * lookSensitivity;
                 transform.Rotate(0f, look.x, 0f);
-                Pitch = Mathf.Clamp(Pitch - look.y, -85f, 85f);
+                Pitch = Mathf.Clamp(Pitch - look.y * (set.InvertY ? -1f : 1f), -85f, 85f);
             }
             float recover = _recoilDebt * Mathf.Min(1f, dt * 8f);
             _recoilDebt -= recover; Pitch = Mathf.Clamp(Pitch + recover, -85f, 85f);

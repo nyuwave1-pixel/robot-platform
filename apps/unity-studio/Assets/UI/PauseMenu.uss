@@ -1,0 +1,21 @@
+/* Pause / settings menu (UI Toolkit) — sits above the HUD (UIDocument sorting order 10). */
+.pause-backdrop { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(4, 8, 7, 0.72); align-items: center; justify-content: center; }
+.pause-card { width: 1000px; padding: 28px 36px; background-color: rgba(14, 22, 20, 0.94); border-width: 1px; border-color: rgba(180, 210, 190, 0.25); border-radius: 6px; }
+.pause-title { font-size: 44px; -unity-font-style: bold; color: rgb(232, 238, 230); }
+.pause-sub { font-size: 15px; color: rgba(220, 230, 222, 0.65); margin-bottom: 14px; }
+.pause-row { flex-direction: row; }
+.pause-col { flex-grow: 1; flex-basis: 0; margin-right: 24px; }
+.pause-head { font-size: 14px; -unity-font-style: bold; color: rgb(255, 210, 58); margin-top: 14px; margin-bottom: 6px; }
+.pause-line { flex-direction: row; align-items: center; margin-bottom: 6px; }
+.pause-label { width: 180px; font-size: 15px; color: rgb(232, 238, 230); }
+.pause-slider { flex-grow: 1; }
+.pause-value { width: 64px; -unity-text-align: middle-right; font-size: 15px; color: rgb(232, 238, 230); }
+.pause-toggle { margin-top: 4px; color: rgb(232, 238, 230); }
+.pause-buttons { flex-direction: row; flex-wrap: wrap; }
+.pause-choice { min-width: 96px; height: 34px; margin: 0 8px 8px 0; font-size: 14px; -unity-font-style: bold; color: rgb(232, 238, 230); background-color: rgba(40, 56, 52, 0.9); border-width: 0; }
+.pause-on { background-color: rgb(255, 210, 58); color: rgb(20, 22, 18); }
+.pause-note { font-size: 13px; color: rgba(220, 230, 222, 0.7); }
+.pause-actions { flex-direction: row; margin-top: 20px; }
+.pause-primary { height: 44px; min-width: 220px; font-size: 18px; -unity-font-style: bold; color: rgb(20, 22, 18); background-color: rgb(80, 220, 120); border-width: 0; margin-right: 12px; }
+.pause-secondary { height: 44px; min-width: 220px; font-size: 18px; -unity-font-style: bold; color: rgb(232, 238, 230); background-color: rgba(60, 76, 72, 0.95); border-width: 0; }
+.pause-keys { margin-top: 18px; font-size: 13px; color: rgba(220, 230, 222, 0.55); white-space: normal; }

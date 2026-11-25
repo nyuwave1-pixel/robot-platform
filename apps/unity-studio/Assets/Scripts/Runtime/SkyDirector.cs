@@ -45,7 +45,9 @@ namespace SpecialSoldier
             Instance = this;
             if (!skyMaterial) skyMaterial = RenderSettings.skybox;
             if (volume && volume.profile) volume.profile.TryGet(out _ca);
-            Target = SkyPresets.Get(RequestedPreset() ?? startPreset);
+            Target = SkyPresets.Get(RequestedPreset() ?? SettingsStore.Current.SkyId ?? startPreset);
+            _savedSky = SettingsStore.Current.SkyId;
+            SettingsStore.Changed += OnSettings;
             Current = Target.Clone();
             MakeRain();
             Apply(Current);
@@ -139,6 +141,10 @@ namespace SpecialSoldier
             _rain.Play();
         }
 
-        void OnDestroy() { if (Instance == this) Instance = null; }
+        string _savedSky;
+        /// <summary>React only when the saved weather itself changes (the menu), so a volume change doesn't undo a [K] cycle.</summary>
+        void OnSettings(GameSettings s) { if (s.SkyId != _savedSky) { _savedSky = s.SkyId; Set(s.SkyId); } }
+
+        void OnDestroy() { SettingsStore.Changed -= OnSettings; if (Instance == this) Instance = null; }
     }
 }

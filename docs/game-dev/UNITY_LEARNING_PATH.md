@@ -68,6 +68,7 @@ node "apps/unity-studio/Tools~/gen-core-data.mjs"
 | 6 | 병사 애니메이션 | Humanoid 리그, Animator, 리타깃 | Quaternius UAL / Rokoko 무료 모션 |
 | 7 | 적 엄폐·측면 우회 — **Core 완료(2026-11-24)**: `Core/TacticsPlanner.cs` + 테스트 10개, `EnemyAgent` 연결(Unity 컴파일·플레이 확인 전) | NavMesh 쿼리, 엄폐 점수, 숨기·고개 내밀기 | 웹 게임 `enemies.js findCover/plan` 이식 |
 | 7b | 수류탄 — **Core 완료(2026-11-25)**: `Core/Explosives.cs`, `Runtime/Grenade.cs`·`GrenadeThrower.cs` (Unity 확인 전) | Rigidbody·PhysicsMaterial, OverlapSphere, Linecast | 웹 `fx.js` 이식 |
+| 8a | 설정·일시정지 메뉴 — **2026-11-25 클라우드 완료(Unity 확인 전)**: `Core/GameSettings.cs`, `Runtime/PauseMenu.cs` | UI Toolkit 컨트롤(Slider·Toggle·Button), PlayerPrefs, Time.timeScale | 웹 `save.js`·`menu.js` |
 | 8 | PlayMode 테스트 | 씬을 띄워 플레이어 이동·사격 자동 검증 | Unity Test Framework |
 | 9 | Claude Code 에디터 실시간 제어 | Unity CLI `unity command eval` | `UNITY_CLAUDE_INTEGRATION.md` |
 

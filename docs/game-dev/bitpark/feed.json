@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T06:40:39.452Z",
+  "generatedAt": "2026-11-25T07:19:42.539Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "792c149"
+    "commit": "f26f93a"
   },
   "section": {
     "id": "game-dev-lab",
@@ -365,6 +365,11 @@
         "resource": "웹 fx.js 이식"
       },
       {
+        "task": "설정·일시정지 메뉴 — 2026-11-25 클라우드 완료(Unity 확인 전): Core/GameSettings.cs, Runtime/PauseMenu.cs",
+        "feature": "UI Toolkit 컨트롤(Slider·Toggle·Button), PlayerPrefs, Time.timeScale",
+        "resource": "웹 save.js·menu.js"
+      },
+      {
         "task": "PlayMode 테스트",
         "feature": "씬을 띄워 플레이어 이동·사격 자동 검증",
         "resource": "Unity Test Framework"
@@ -377,6 +382,18 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "f26f93a",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): hub claims the settings / pause menu work"
+    },
+    {
+      "hash": "fd35aa7",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): recalibrate HDRI sky exposure by mood and dim the sun with the sky"
+    },
     {
       "hash": "792c149",
       "date": "2026-11-25",
@@ -604,18 +621,6 @@
       "date": "2026-11-21",
       "area": "special-soldier",
       "subject": "feat(special-soldier): Higgsfield-designed models for all six enemy types"
-    },
-    {
-      "hash": "82ec3d1",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "refactor(special-soldier): load every soldier_hf*.glb and choose the Higgsfield model per soldier kind"
-    },
-    {
-      "hash": "553c560",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): Higgsfield-designed squad operator (image-to-3D), rigged to game pivots"
     }
   ]
 }

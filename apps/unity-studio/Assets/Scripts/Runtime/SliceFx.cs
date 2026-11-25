@@ -185,8 +185,12 @@ namespace SpecialSoldier
             var d = GameDirector.Instance;
             if (d) foreach (var e in d.enemies) if (e && e.Alive && e.Brain != null && e.Brain.State == Core.AlertState.Combat) { fighting = true; break; }
             float k = Time.deltaTime / 1.5f;
-            if (_combat.clip) _combat.volume = Mathf.MoveTowards(_combat.volume, fighting ? 0.4f : 0f, k * 0.4f);
-            if (_stealth.clip) _stealth.volume = Mathf.MoveTowards(_stealth.volume, fighting ? 0f : 0.35f, k * 0.35f);
+            // music level from the settings (0.5 = the levels tuned on the PC); master volume is AudioListener.volume
+            var set = SettingsStore.Current;
+            float music = set.Music / 0.5f;
+            AudioListener.volume = set.Volume;
+            if (_combat.clip) _combat.volume = Mathf.MoveTowards(_combat.volume, fighting ? 0.4f * music : 0f, k * 0.4f);
+            if (_stealth.clip) _stealth.volume = Mathf.MoveTowards(_stealth.volume, fighting ? 0f : 0.35f * music, k * 0.35f);
             if (_combat.clip && !_combat.isPlaying) _combat.Play();
             if (_battle.clip) _battle.volume = Mathf.MoveTowards(_battle.volume, fighting ? 0.18f : 0f, k * 0.18f);   // distant firefight bed (web: loop 'battle')
         }

@@ -55,6 +55,7 @@ namespace SpecialSoldier
             }
 
             var w = Current.Stats;
+            hipFov = SettingsStore.Current.Fov;   // field of view from the pause menu (web: settings.fov, 78 by default)
             Aiming = canAct && mouse.rightButton.isPressed && !(motor && motor.IsSprinting);
             if (view) view.fieldOfView = Mathf.Lerp(view.fieldOfView, Aiming ? hipFov / w.Zoom : hipFov, Mathf.Min(1f, dt / Mathf.Max(0.05f, w.Ads)));
 

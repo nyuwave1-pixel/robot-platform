@@ -13,6 +13,8 @@ namespace SpecialSoldier.PlayModeTests
     /// <summary>The UI Toolkit HUD builds in the real slice scene and reacts to the game: objective text, compass, damage arc, kill feed.</summary>
     public sealed class HudTests
     {
+        [SetUp] public void DefaultSettings() => SettingsStore.UseDefaultsForTests();
+
         static IEnumerator LoadSlice()
         {
 #if UNITY_EDITOR

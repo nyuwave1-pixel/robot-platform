@@ -117,7 +117,7 @@ namespace SpecialSoldier
             var sky = SkyDirector.Instance;
             _flash.style.display = sky != null && sky.Flash > 0.5f ? DisplayStyle.Flex : DisplayStyle.None;
             bool playing = !_dir || _dir.State == GameDirector.Outcome.Playing;
-            _click.style.display = playing && !GameDirector.CursorCaptured ? DisplayStyle.Flex : DisplayStyle.None;
+            _click.style.display = playing && !GameDirector.CursorCaptured && !PauseMenu.IsOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
             if ((_textT -= dt) > 0f) return;
             _textT = 0.09f;   // web HUD throttles text updates the same way

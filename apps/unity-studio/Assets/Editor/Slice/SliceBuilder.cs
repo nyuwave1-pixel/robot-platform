@@ -169,6 +169,11 @@ namespace SpecialSoldier.EditorTools
             var hud = director.gameObject.AddComponent<HudToolkit>();
             hud.player = director.player; hud.weapon = player.GetComponentInChildren<WeaponController>();
             hud.style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/SliceHud.uss");
+            // pause / settings menu (Esc), drawn above the HUD on the same panel settings
+            var menuGo = new GameObject("PauseMenu");
+            var menuDoc = menuGo.AddComponent<UnityEngine.UIElements.UIDocument>(); menuDoc.panelSettings = uiDoc.panelSettings; menuDoc.sortingOrder = 10;
+            var menu = menuGo.AddComponent<PauseMenu>(); menu.style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
+            Debug.Log($"[Slice] pause menu: style {(menu.style ? "ok" : "MISSING Assets/UI/PauseMenu.uss")}");
             Debug.Log($"[Slice] HUD: UI Toolkit (panel {(uiDoc.panelSettings ? "ok" : "MISSING")}, style {(hud.style ? "ok" : "MISSING Assets/UI/SliceHud.uss")}, theme {(uiDoc.panelSettings && uiDoc.panelSettings.themeStyleSheet ? "ok" : "MISSING")})");
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));

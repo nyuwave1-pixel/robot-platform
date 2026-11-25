@@ -25,6 +25,7 @@ namespace SpecialSoldier.PlayModeTests
             _kb = InputSystem.AddDevice<Keyboard>();
             _mouse = InputSystem.AddDevice<Mouse>();
             SliceFx.Shots = SliceFx.Steps = SliceFx.Impacts = 0;
+            SettingsStore.UseDefaultsForTests();   // a player's saved options (difficulty, FOV…) must not change test results
         }
 
         public override void TearDown() { GameDirector.AssumeCursorCaptured = false; base.TearDown(); }

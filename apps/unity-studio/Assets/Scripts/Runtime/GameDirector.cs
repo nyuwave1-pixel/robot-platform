@@ -23,14 +23,20 @@ namespace SpecialSoldier
         /// <summary>Tests only: a batch-mode Editor has no window, so the cursor can never be locked there.</summary>
         public static bool AssumeCursorCaptured;
         public static bool CursorCaptured => AssumeCursorCaptured || Cursor.lockState == CursorLockMode.Locked;
-        /// <summary>Campaign difficulty for this run (RECRUIT / REGULAR / VETERAN). Set it before the scene loads;
-        /// the player build reads <c>-difficulty recruit|regular|veteran</c> from the command line.</summary>
-        public static SpecialSoldier.Core.Difficulty CurrentDifficulty = FromCommandLine();
+        /// <summary>Campaign difficulty for this run (RECRUIT / REGULAR / VETERAN): a value set by code (tests), else
+        /// <c>-difficulty recruit|regular|veteran</c> on the command line, else the saved setting (pause menu). Read lazily, so
+        /// enemies get the right value whatever order their Awake runs in.</summary>
+        public static SpecialSoldier.Core.Difficulty CurrentDifficulty
+        {
+            get => _difficultyOverride ?? FromCommandLine() ?? SettingsStore.Current.Difficulty;
+            set => _difficultyOverride = value;
+        }
+        static SpecialSoldier.Core.Difficulty _difficultyOverride;
         static SpecialSoldier.Core.Difficulty FromCommandLine()
         {
             var args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-difficulty") return SpecialSoldier.Core.Difficulty.FromId(args[i + 1]);
-            return SpecialSoldier.Core.Difficulty.Regular;
+            return null;
         }
         public PlayerMotor player;
         public readonly List<EnemyAgent> enemies = new List<EnemyAgent>();
@@ -93,9 +99,9 @@ namespace SpecialSoldier
             var kb = Keyboard.current;
             if (kb == null) return;
             if (State != Outcome.Playing && kb.rKey.wasPressedThisFrame) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            if (kb.escapeKey.wasPressedThisFrame) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
+            if (kb.escapeKey.wasPressedThisFrame && !PauseMenu.Instance) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }   // the pause menu owns Esc when present
             var mouse = Mouse.current;
-            if (State == Outcome.Playing && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
+            if (State == Outcome.Playing && !PauseMenu.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
             { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         }
 

@@ -260,3 +260,16 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   `HdriExposure` = 낮 하늘 휘도 × Mood ÷ HDRI 중앙값(day 1.33, dawn 0.61, storm 0.14, dusk 0.27, night 0.12), 해/달 세기 × `LightScale`(0.4 + 0.6 × Mood).
   새 대조 이미지 `docs/game-dev/screenshots/unity-sky-presets-hdri.jpg`. **Unity WebGL에서 다시 확인 필요.**
 - 검증: dotnet `CoreTests~` **249/249**.
+
+## 2026-11-25 (7) — 설정·일시정지 메뉴 (허브 세션, 클라우드)
+
+- `Core/GameSettings.cs`: 웹 `save.js` DEFAULT_SETTINGS·`menu.js` 슬라이더 이식 — 시야각 60–100(78), 마우스 감도 0.2–3(1, 0.05 단위), 전체 음량·음악 0–1(0.7·0.5),
+  Y 반전, 난이도, (슬라이스 추가) 날씨. 단위에 맞춰 반올림·범위 제한, 저장 JSON이 깨지거나 모르는 값이면 기본값.
+  시점 속도 = 웹 0.0022 rad/px × 감도, 조준경 줌 때 ÷ lerp(1, 배율, 0.75).
+- `Runtime/SettingsStore.cs`: PlayerPrefs(WebGL은 브라우저 저장소)에 저장, 변경 이벤트. 테스트는 `UseDefaultsForTests()` 로 저장값 영향 없음.
+- `Runtime/PauseMenu.cs` + `Assets/UI/PauseMenu.uss`: **Esc** 로 열고 닫음(게임 정지, 소리 정지). 시야각·감도·Y 반전·전체 음량·음악 슬라이더,
+  난이도(다음 재시작부터, 안내 문구), 날씨 5종(즉시), 재개·미션 재시작, 조작 키 안내. WebGL에서 브라우저가 Esc로 마우스 잠금을 풀면 자동으로 메뉴가 열림.
+- 적용: PlayerMotor(감도·Y 반전), WeaponController(시야각), SliceFx(전체 음량·음악), SkyDirector(저장된 날씨, [K] 순환은 저장 안 함),
+  GameDirector.CurrentDifficulty(코드 지정 → `-difficulty` → 저장값 순, 지연 평가).
+- 검증: dotnet `CoreTests~` **253/253**(설정 테스트 4개, 웹 기본값·슬라이더·시점 공식 대조). PlayMode `PauseMenuTests` 2개 추가, 기존 PlayMode 테스트는 기본 설정으로 고정.
+  **Unity 컴파일·화면은 아직 확인 전.**
