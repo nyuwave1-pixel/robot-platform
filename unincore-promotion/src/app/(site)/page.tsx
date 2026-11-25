@@ -6,7 +6,7 @@ import type { ProductContent } from "@/content/types";
 import { getProducts } from "@/lib/cms";
 import { pageMetadata, breadcrumbLd, productListLd } from "@/lib/seo";
 import { isPromoActive } from "@/lib/promo";
-import { publicView, toAmazonProduct } from "@/lib/visibility";
+import { publicView, toLandingAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
 import { PromoBadge } from "@/components/site/PromoBadge";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -48,9 +48,10 @@ function byKey(products: ProductContent[]) {
   return RITUAL_ORDER.map((k) => products.find((p) => p.key === k)).filter(Boolean) as (ProductContent & { key: RitualKey })[];
 }
 
+// Home product buttons use the same Meta ads Amazon Attribution links as the landing pages (request 2026-11-24).
 function BuyButton({ p, location, label, className = "btn-gold" }: { p: ProductContent; location: string; label: string; className?: string }) {
   return (
-    <AmazonButton product={toAmazonProduct(p)} location={location} className={className}>
+    <AmazonButton product={toLandingAmazonProduct(p)} location={location} className={className}>
       {label}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
         <path d="M7 17 17 7M8 7h9v9" />
@@ -408,7 +409,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <HomeStickyCTA products={products.map(toAmazonProduct)} labels={buyLabels} />
+      <HomeStickyCTA products={products.map(toLandingAmazonProduct)} labels={buyLabels} />
       <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), productListLd([...products, ...all.filter((p) => p.published && !products.some((x) => x.key === p.key))])]} />
     </>
   );
