@@ -6,7 +6,7 @@
 | | CLASSIC (클래식) | UNITY EDITION (유니티판) |
 |---|---|---|
 | 코드 | `apps/special-soldier` (Three.js) | `apps/unity-studio` (Unity 6, URP) |
-| 지금 범위 | 캠페인 5개 미션, 훈련소, 무기고, 장비, 정보 파일 | Island Slice 1개 미션(거점 장악 → 정보 다운로드 → 탈출), S/A/B/C 등급 |
+| 지금 범위 | 캠페인 5개 미션, 훈련소, 무기고, 장비, 정보 파일 | Island Slice 1개 미션(거점 장악 → 정보 다운로드 → 탈출) + 캠페인 미션 01, S/A/B/C 등급 |
 | 강점 | 내용 분량, 바로 실행(추가 다운로드 없음) | HDRI 하늘·비·번개, UI Toolkit HUD, Unity 지형 |
 | 배포 | https://special-soldier.vercel.app · 포털 메인 카드 | 포털 `play/unity-island-slice/` · 포털 실험실 카드 |
 
@@ -36,7 +36,7 @@
 | U1 | storm·dusk·night 하늘 밝기 재보정 화면 확인(fd35aa7) | 확인 중 |
 | U2 | 섬 지형(eb0335f) WebGL 확인·빌드 크기·프레임 | 확인 중 |
 | U3 | 병사 애니메이션(Quaternius UAL CC0, Humanoid 리타깃) | 할 일 |
-| U4 | 캠페인 미션 추가 이식(M02 이후, `missions.js` 정의 재사용) | 할 일 |
+| U4 | 캠페인 미션 이식(`missions.js` 정의 재사용) — **M01 SILENT LANDING 이식됨**(`Core/Campaign.cs`, `Assets/Scenes/Mission01.unity`, `?mission=m01`), PC 확인 대기. 다음: M01 구조물(감시탑·초소), M02 | 진행 중 |
 | U5 | 사람 플레이테스트: 포인터 잠금 이동·사격, 소리 균형, 감도 기본값(웹 기준 0.126°/px) | 사용자 |
 
 ### 클래식

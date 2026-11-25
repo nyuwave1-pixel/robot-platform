@@ -297,3 +297,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **좌표 거울상 수정**: 지형 커밋에서 섬 좌표를 Unity에 그대로 옮겨 Unity 섬이 웹 섬의 거울상이 될 뻔했음(three.js 오른손 좌표 ↔ Unity 왼손 좌표).
   `IslandTerrain.ToWorld/ToIsland` 로 z 반전(하늘의 해 방향과 같은 규칙), 지형 높이·재질·식생 모두 이 변환을 사용. 테스트 추가.
 - 지도 갱신: `docs/game-dev/screenshots/island-terrain-shared.png`. dotnet `CoreTests~` **266/266**. **Unity 화면 확인 전.**
+
+## 2026-11-25 (10) — 캠페인 미션 01 SILENT LANDING 이식 (허브 세션, 클라우드, U4)
+
+- **같은 미션 정의**: `Core/Campaign.cs` 에 웹 `missions.js` MISSIONS[0] 을 옮김 — 보초 9명의 위치·순찰로·방향·그룹, 플레이어 시작점(해변 0, 328.5),
+  밤 하늘, 경보 무전, 증원(QRF) 3명, 목표 2개(해변 보초 전멸 → 정글 길 입구 도달). `CampaignTests` 가 missions.js 를 직접 읽어 숫자를 대조(웹을 바꾸면 실패해 알려 줌).
+- **경보 규칙 웹과 일치**: 교전 5초를 버틴 적이 증원을 부르면 경보는 **미션당 1번만** 셈(`MissionRunner.RaiseAlarm`, 웹 `flags.alarm`). 전에는 분대마다 셈.
+  첫 경보에 무전 줄(HUD, 6초)과 꺼져 있던 증원 3명이 켜져 플레이어 위치로 옴(`GameDirector.OnAlarm`).
+- **씬 생성**: `SliceBuilder.BuildCampaignScene` → `Assets/Scenes/Mission01.unity`(공용 섬 + 식생, 미션 구역만 NavMesh, 섬 좌표 → `IslandTerrain.ToWorld`, 웹 각도 → `WebAngles`).
+  하늘·HUD·일시정지 구성은 두 씬이 같은 함수(`BuildSkyRig`, `BuildDirectorRig`)를 씀. 메뉴 `Special Soldier > Build Campaign Mission Scenes`.
+- **열기**: 플레이어 빌드는 빌드 목록의 모든 씬을 넣음(Island Slice가 첫 씬). `SceneRouter` 가 `-mission m01`(명령줄)·`?mission=m01`(WebGL 주소)로 미션 01을 엶.
+- 아직 없는 것: 감시탑·레이더·모래주머니 초소·보트(저격수는 탑 대신 땅에서 자리를 지킴), 브리핑 화면. dotnet `CoreTests~` **275/275**. **Unity 컴파일·화면 확인 전.**
+

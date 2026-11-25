@@ -27,8 +27,8 @@ namespace SpecialSoldier.EditorTools
 
         public static void BuildSliceAndPlayer()
         {
-            if (!BuildScene()) { EditorApplication.Exit(10); return; }
-            var opts = new BuildPlayerOptions { scenes = new[] { ScenePath }, locationPathName = "Builds/Slice/IslandSlice.exe", target = BuildTarget.StandaloneWindows64 };
+            if (!BuildScene() || !BuildCampaignScenes()) { EditorApplication.Exit(10); return; }
+            var opts = new BuildPlayerOptions { scenes = BuildScenes(), locationPathName = "Builds/Slice/IslandSlice.exe", target = BuildTarget.StandaloneWindows64 };
             var report = BuildPipeline.BuildPlayer(opts);
             Debug.Log($"[Slice] player build {report.summary.result}, {report.summary.totalSize / 1024} kB, errors {report.summary.totalErrors}");
             EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 11);
@@ -39,11 +39,12 @@ namespace SpecialSoldier.EditorTools
         public static void BuildWebGL()
         {
             if (!System.IO.File.Exists(ScenePath) && !BuildScene()) { EditorApplication.Exit(12); return; }
+            foreach (var m in Campaign.All) if (!File.Exists(CampaignScenePath(m)) && !BuildCampaignScene(m)) { EditorApplication.Exit(12); return; }
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.productName = "SPECIAL SOLDIER - Island Slice";
-            var opts = new BuildPlayerOptions { scenes = new[] { ScenePath }, locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
+            var opts = new BuildPlayerOptions { scenes = BuildScenes(), locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
             var report = BuildPipeline.BuildPlayer(opts);
             Debug.Log($"[Slice] webgl build {report.summary.result}, {report.summary.totalSize / 1024} kB, errors {report.summary.totalErrors} -> Builds/WebGL/index.html");
             if (report.summary.result == BuildResult.Succeeded) PinWebGLPixelRatio("Builds/WebGL/index.html");
@@ -70,22 +71,7 @@ namespace SpecialSoldier.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var rng = new System.Random(7);   // fixed seed: the same level every build
 
-            // Linear colour space + ACES tonemapping: in Gamma space URP washed the sand out to pale yellow (first PC run, 2026-11-23)
-            if (PlayerSettings.colorSpace != ColorSpace.Linear) PlayerSettings.colorSpace = ColorSpace.Linear;
-            var post = new GameObject("PostProcess").AddComponent<Volume>(); post.isGlobal = true; post.sharedProfile = PostProfile();
-
-            var sun = new GameObject("Sun").AddComponent<Light>();
-            sun.type = LightType.Directional; sun.intensity = 1.25f; sun.color = new Color(1f, 0.93f, 0.82f); sun.shadows = LightShadows.Soft;
-            sun.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.8f); RenderSettings.ambientEquatorColor = new Color(0.45f, 0.45f, 0.4f); RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
-            RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 60f; RenderSettings.fogEndDistance = 240f; RenderSettings.fogColor = new Color(0.7f, 0.75f, 0.8f);
-            // weather / time of day: CC0 HDRI skybox + web sky.js presets, applied at runtime by SkyDirector (these values are the editor preview)
-            var skyMat = SkyMaterial();
-            RenderSettings.skybox = skyMat;
-            var skyDir = new GameObject("Sky").AddComponent<SkyDirector>();
-            skyDir.sun = sun; skyDir.volume = post; skyDir.skyMaterial = skyMat; skyDir.startPreset = "day";
-            EnsureSsao();
+            BuildSkyRig("day", false);
 
             var level = new GameObject("Level");
             var sand = Mat("Sand", new Color(0.62f, 0.55f, 0.42f), 0.9f);
@@ -128,19 +114,8 @@ namespace SpecialSoldier.EditorTools
             var screen = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.DestroyImmediate(screen.GetComponent<Collider>());
             screen.name = "Screen"; screen.transform.SetParent(terminal.transform, false); screen.transform.localPosition = new Vector3(0f, 0.15f, -0.51f); screen.transform.localScale = new Vector3(0.8f, 0.5f, 1f);
             screen.GetComponent<Renderer>().sharedMaterial = Mat("TerminalScreen", new Color(0.2f, 0.9f, 0.5f), 0.1f);
-            var surface = level.AddComponent<NavMeshSurface>();
             // only the arena: the island is 1.2 km and agents never leave the walls
-            surface.collectObjects = CollectObjects.Volume; surface.center = new Vector3(0f, 0f, 0f); surface.size = new Vector3(190f, 40f, 190f);
-            surface.BuildNavMesh();
-            // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
-            // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
-            if (surface.navMeshData != null)
-            {
-                const string navPath = "Assets/Scenes/IslandSlice_NavMesh.asset";
-                AssetDatabase.DeleteAsset(navPath);
-                AssetDatabase.CreateAsset(surface.navMeshData, navPath);
-            }
-            Debug.Log($"[Slice] navmesh built: {(surface.navMeshData != null ? "ok, saved " + AssetDatabase.GetAssetPath(surface.navMeshData) : "MISSING")}");
+            BakeNavMesh(level, new Vector3(0f, 0f, 0f), new Vector3(190f, 40f, 190f), "Assets/Scenes/IslandSlice_NavMesh.asset");
 
             var player = BuildPlayer(new Vector3(0f, 0.1f, -40f));
             var visual = LoadSoldierVisual();
@@ -166,10 +141,45 @@ namespace SpecialSoldier.EditorTools
             extraction.name = "Extraction"; extraction.transform.position = new Vector3(0f, 0.02f, 62f); extraction.transform.localScale = new Vector3(16f, 0.02f, 16f);
             extraction.GetComponent<Renderer>().sharedMaterial = Mat("Extraction", new Color(0.25f, 0.8f, 0.35f), 0.6f);
 
-            var director = new GameObject("GameDirector").AddComponent<GameDirector>();
-            director.player = player.GetComponent<PlayerMotor>();
+            var director = BuildDirectorRig(player);
             director.missionMode = GameDirector.MissionMode.IslandSlice;
             director.intelTerminal = terminal.transform; director.extraction = extraction.transform;
+            // opens a campaign mission instead when asked (-mission m01 / ?mission=m01)
+            director.gameObject.AddComponent<SceneRouter>();
+
+            bool saved = SaveAndList(scene, ScenePath, 0);
+            Debug.Log($"[Slice] scene {(saved ? "saved" : "NOT saved")}: {ScenePath}, {enemies.Length} enemies, pipeline {(GraphicsSettings.defaultRenderPipeline ? GraphicsSettings.defaultRenderPipeline.name : "built-in")}");
+            return saved;
+        }
+
+        /// <summary>Post-processing, sun, ambient, fog and the HDRI sky (SkyDirector applies the web sky.js preset at runtime).</summary>
+        static SkyDirector BuildSkyRig(string preset, bool missionSky)
+        {
+            // Linear colour space + ACES tonemapping: in Gamma space URP washed the sand out to pale yellow (first PC run, 2026-11-23)
+            if (PlayerSettings.colorSpace != ColorSpace.Linear) PlayerSettings.colorSpace = ColorSpace.Linear;
+            var post = new GameObject("PostProcess").AddComponent<Volume>(); post.isGlobal = true; post.sharedProfile = PostProfile();
+
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.type = LightType.Directional; sun.intensity = 1.25f; sun.color = new Color(1f, 0.93f, 0.82f); sun.shadows = LightShadows.Soft;
+            sun.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
+            RenderSettings.ambientMode = AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.8f); RenderSettings.ambientEquatorColor = new Color(0.45f, 0.45f, 0.4f); RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
+            RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 60f; RenderSettings.fogEndDistance = 240f; RenderSettings.fogColor = new Color(0.7f, 0.75f, 0.8f);
+            // weather / time of day: CC0 HDRI skybox + web sky.js presets, applied at runtime by SkyDirector (these values are the editor preview)
+            var skyMat = SkyMaterial();
+            RenderSettings.skybox = skyMat;
+            var skyDir = new GameObject("Sky").AddComponent<SkyDirector>();
+            skyDir.sun = sun; skyDir.volume = post; skyDir.skyMaterial = skyMat; skyDir.startPreset = preset; skyDir.missionSky = missionSky;
+            EnsureSsao();
+
+            return skyDir;
+        }
+
+        /// <summary>GameDirector + UI Toolkit HUD + pause menu, the same in every scene.</summary>
+        static GameDirector BuildDirectorRig(GameObject player)
+        {
+            var director = new GameObject("GameDirector").AddComponent<GameDirector>();
+            director.player = player.GetComponent<PlayerMotor>();
             // UI Toolkit HUD (compass, minimap, waypoint, damage arcs, kill feed); the IMGUI Hud stays in the project as a fallback
             var uiDoc = director.gameObject.AddComponent<UnityEngine.UIElements.UIDocument>();
             uiDoc.panelSettings = HudPanelSettings();
@@ -183,13 +193,117 @@ namespace SpecialSoldier.EditorTools
             Debug.Log($"[Slice] pause menu: style {(menu.style ? "ok" : "MISSING Assets/UI/PauseMenu.uss")}");
             Debug.Log($"[Slice] HUD: UI Toolkit (panel {(uiDoc.panelSettings ? "ok" : "MISSING")}, style {(hud.style ? "ok" : "MISSING Assets/UI/SliceHud.uss")}, theme {(uiDoc.panelSettings && uiDoc.panelSettings.themeStyleSheet ? "ok" : "MISSING")})");
 
-            Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
-            bool saved = EditorSceneManager.SaveScene(scene, ScenePath);
-            var list = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
-            list.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
+            return director;
+        }
+
+        static void BakeNavMesh(GameObject level, Vector3 center, Vector3 size, string navPath)
+        {
+            var surface = level.AddComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.Volume; surface.center = center; surface.size = size;
+            surface.BuildNavMesh();
+            // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
+            // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
+            if (surface.navMeshData != null)
+            {
+                AssetDatabase.DeleteAsset(navPath);
+                AssetDatabase.CreateAsset(surface.navMeshData, navPath);
+            }
+            Debug.Log($"[Slice] navmesh built: {(surface.navMeshData != null ? "ok, saved " + AssetDatabase.GetAssetPath(surface.navMeshData) : "MISSING")}");
+        }
+
+        /// <summary>Saves the scene and puts it in the build list at <paramref name="index"/> (the Island Slice is always first:
+        /// it is the scene a player build opens, and its SceneRouter jumps to a mission when asked).</summary>
+        static bool SaveAndList(UnityEngine.SceneManagement.Scene scene, string path, int index)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            bool saved = EditorSceneManager.SaveScene(scene, path);
+            var list = EditorBuildSettings.scenes.Where(x => x.path != path).ToList();
+            list.Insert(Mathf.Min(index, list.Count), new EditorBuildSettingsScene(path, true));
             EditorBuildSettings.scenes = list.ToArray();
-            Debug.Log($"[Slice] scene {(saved ? "saved" : "NOT saved")}: {ScenePath}, {enemies.Length} enemies, pipeline {(GraphicsSettings.defaultRenderPipeline ? GraphicsSettings.defaultRenderPipeline.name : "built-in")}");
             return saved;
+        }
+
+        /// <summary>Every enabled scene in the build list, the Island Slice first.</summary>
+        static string[] BuildScenes() => EditorBuildSettings.scenes.Where(x => x.enabled && File.Exists(x.path)).Select(x => x.path).ToArray();
+
+        // ---------------- campaign missions (Core.Campaign, ported from the web missions.js) ----------------
+
+        public static string CampaignScenePath(CampaignMission m) => $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}.unity";
+
+        [MenuItem("Special Soldier/Build Campaign Mission Scenes")]
+        public static void BuildCampaignScenesMenu() => BuildCampaignScenes();
+
+        public static bool BuildCampaignScenes()
+        {
+            bool ok = true;
+            foreach (var m in Campaign.All) ok &= BuildCampaignScene(m);
+            return ok;
+        }
+
+        static Vector3 IslandPoint(double ix, double iz)
+        {
+            var w = IslandTerrain.ToWorld(ix, IslandTerrain.Height(ix, iz), iz);
+            return new Vector3((float)w.x, (float)w.y, (float)w.z);
+        }
+
+        /// <summary>One web campaign mission on the shared island: same spawn points, patrols, groups, alarm wave and sky.
+        /// Structures the Unity island does not have yet (M01's watch tower) are left out; enemies on them stand on the ground.</summary>
+        public static bool BuildCampaignScene(CampaignMission m)
+        {
+            EnsureUrp();
+            if (PlayerSettings.colorSpace != ColorSpace.Linear) PlayerSettings.colorSpace = ColorSpace.Linear;
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            BuildSkyRig(m.SkyId, true);
+
+            var level = new GameObject("Level");
+            var island = BuildIsland(level);
+            if (!island) { Debug.LogError($"[Slice] {m.Code}: needs the island terrain (web textures missing)"); return false; }
+            BuildVegetation(level);
+
+            // bake only the mission area (island coords → world; z flips, so take min/max of both corners)
+            Vector3 a = IslandPoint(m.Area.minX, m.Area.minZ), b = IslandPoint(m.Area.maxX, m.Area.maxZ);
+            var min = Vector3.Min(a, b); var max = Vector3.Max(a, b);
+            float yMid = 0f; foreach (var sp in m.Spawns) yMid += IslandPoint(sp.X, sp.Z).y; yMid /= Mathf.Max(1, m.Spawns.Length);
+            BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset");
+
+            var spawn = IslandPoint(m.SpawnX, m.SpawnZ);
+            var player = BuildPlayer(spawn + Vector3.up * 0.1f);
+            player.transform.rotation = Quaternion.Euler(0f, (float)WebAngles.PlayerYawToWorldDeg(m.SpawnYaw), 0f);
+            var visual = LoadSoldierVisual();
+
+            var parent = new GameObject("Enemies");
+            for (int i = 0; i < m.Spawns.Length; i++) PlaceEnemy(parent, i, m.Spawns[i], visual, spawn);
+            var waveParent = new GameObject("AlarmWave");
+            var wave = new System.Collections.Generic.List<GameObject>();
+            for (int i = 0; i < (m.AlarmWave?.Length ?? 0); i++) wave.Add(PlaceEnemy(waveParent, i, m.AlarmWave[i], visual, spawn));
+            foreach (var go in wave) go.SetActive(false);   // switched on by the mission's first alarm (GameDirector.OnAlarm)
+
+            var director = BuildDirectorRig(player);
+            director.missionMode = GameDirector.MissionMode.Campaign;
+            director.campaignId = m.Id;
+            director.alarmWave = wave.ToArray();
+
+            string path = CampaignScenePath(m);
+            bool saved = SaveAndList(scene, path, 1 + System.Array.IndexOf(Campaign.All, m));
+            Debug.Log($"[Slice] {m.Code} {m.Name}: scene {(saved ? "saved" : "NOT saved")}: {path}, {m.Spawns.Length} enemies + {wave.Count} QRF, sky {m.SkyId}, spawn {spawn}");
+            return saved;
+        }
+
+        static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player)
+        {
+            var pos = IslandPoint(sp.X, sp.Z);
+            Vector3[] route = sp.Patrol?.Select(p => IslandPoint(p.x, p.z)).ToArray();
+            Vector3 face = player;
+            if (sp.Yaw.HasValue)
+            {
+                float deg = (float)WebAngles.EnemyYawToWorldDeg(sp.Yaw.Value);
+                face = pos + Quaternion.Euler(0f, deg, 0f) * Vector3.forward * 5f;
+            }
+            else if (route != null && route.Length > 1) face = route[1];
+            bool hold = sp.Kind == "sniper" || sp.OnStructure;
+            var go = BuildEnemy(parent, i, sp.Kind, pos, route, hold, visual, face);
+            go.GetComponent<EnemyAgent>().group = sp.Group;
+            return go;
         }
 
         static GameObject BuildPlayer(Vector3 pos)
@@ -209,7 +323,7 @@ namespace SpecialSoldier.EditorTools
             return go;
         }
 
-        static void BuildEnemy(GameObject parent, int i, string type, Vector3 pos, Vector3[] patrol, bool hold, GameObject visual, Vector3 face)
+        static GameObject BuildEnemy(GameObject parent, int i, string type, Vector3 pos, Vector3[] patrol, bool hold, GameObject visual, Vector3 face)
         {
             var go = new GameObject($"Enemy{i}_{type}");
             go.transform.SetParent(parent.transform); go.transform.position = pos;
@@ -244,6 +358,7 @@ namespace SpecialSoldier.EditorTools
                 cap.name = "Visual"; cap.transform.SetParent(go.transform, false); cap.transform.localPosition = new Vector3(0f, 0.9f, 0f); cap.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
                 cap.GetComponent<Renderer>().sharedMaterial = Mat("Enemy_" + type, type == "heavy" ? new Color(0.25f, 0.27f, 0.22f) : new Color(0.4f, 0.38f, 0.3f), 0.7f);
             }
+            return go;
         }
 
         static GameObject LoadSoldierVisual()

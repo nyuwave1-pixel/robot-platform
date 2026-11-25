@@ -20,6 +20,7 @@
 .aware-warn .aware-fill { background-color: rgb(255, 140, 40); }
 .aware-combat .aware-fill { background-color: rgb(255, 72, 56); }
 .objective { margin-top: 10px; white-space: normal; }
+.radio { margin-top: 8px; color: rgb(140, 220, 255); font-size: 14px; white-space: normal; max-width: 420px; }
 .objective-title { color: rgb(255, 210, 58); font-size: 13px; }
 
 /* top-right: weather, minimap, kill feed */

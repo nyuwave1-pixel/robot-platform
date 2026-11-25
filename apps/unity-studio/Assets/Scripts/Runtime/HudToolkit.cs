@@ -22,7 +22,9 @@ namespace SpecialSoldier
         readonly DamageIndicators _hits = new DamageIndicators();
         readonly KillFeed _feed = new KillFeed();
         VisualElement _root, _compass, _minimap, _overlay, _hitmarker, _awareFill, _awareBox, _hpFill, _arFill, _vitals, _promptFill, _prompt, _reload, _reloadFill, _waypoint, _flash, _result, _feedBox, _slots;
-        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN;
+        /// <summary>How long a radio line stays on screen.</summary>
+        public const float RadioSeconds = 6f;
+        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN, _radio;
         readonly Label[] _cardinals = new Label[8];
         readonly VisualElement[] _arms = new VisualElement[4];
         Damageable _playerHp;
@@ -70,6 +72,7 @@ namespace SpecialSoldier
             _awareBox = E(tl, null); _awareLabel = T(_awareBox, "hud-small", "HIDDEN"); var ab = E(_awareBox, "aware-bar"); _awareFill = E(ab, "aware-fill");
             T(tl, "objective-title", "OBJECTIVE"); _objective = T(tl, "objective");
             _counters = T(tl, "hud-small hud-dim");
+            _radio = T(tl, "radio");   // mission radio call-outs (web: hud.radio), shown for a few seconds
 
             var tr = E(r, "top-right");
             _weather = T(tr, "hud-small hud-dim");
@@ -198,8 +201,11 @@ namespace SpecialSoldier
 
             var m = _dir ? _dir.Mission : null;
             _objective.text = _dir ? AsciiGlyphs(_dir.ObjectiveLine) : "";
+            bool radioOn = _dir && _dir.RadioLine != null && Time.time - _dir.RadioTime < RadioSeconds;
+            _radio.text = radioOn ? AsciiGlyphs(_dir.RadioLine) : "";
+            _radio.style.display = radioOn ? DisplayStyle.Flex : DisplayStyle.None;
             _counters.text = _dir ? $"HOSTILES {alive}   KILLS {_dir.Kills}   {HudMath.Clock(_dir.ElapsedTime)}" : "";
-            _miniInfo.text = $"{HudMath.HeadingText(_heading0)} · ISLAND SLICE";
+            _miniInfo.text = $"{HudMath.HeadingText(_heading0)} · {(m != null ? m.Name : "ISLAND SLICE")}";
 
             _feedBox.Clear();
             foreach (var line in _feed.Lines) T(_feedBox, "feed-line", AsciiGlyphs(line));

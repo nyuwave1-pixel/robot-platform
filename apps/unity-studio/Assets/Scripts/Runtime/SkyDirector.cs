@@ -17,6 +17,9 @@ namespace SpecialSoldier
         public Volume volume;
         public Material skyMaterial;                 // Skybox/Panoramic asset made by SliceBuilder (keeps the shader in builds)
         public string startPreset = "day";
+        /// <summary>Campaign missions have their own time of day (M01 is a night landing): the scene's preset wins over the
+        /// saved weather choice. A <c>?sky=</c> / <c>-sky</c> request still wins, and [K] still cycles.</summary>
+        public bool missionSky;
         public float basePostExposure = 0.3f;        // the slice's tuned exposure (PC run 2026-11-23) on top of the preset's EV
         public float sunScale = 1.1f;                // web sunI → Unity lux-less intensity
 
@@ -45,7 +48,7 @@ namespace SpecialSoldier
             Instance = this;
             if (!skyMaterial) skyMaterial = RenderSettings.skybox;
             if (volume && volume.profile) volume.profile.TryGet(out _ca);
-            Target = SkyPresets.Get(RequestedPreset() ?? SettingsStore.Current.SkyId ?? startPreset);
+            Target = SkyPresets.Get(RequestedPreset() ?? (missionSky ? startPreset : null) ?? SettingsStore.Current.SkyId ?? startPreset);
             _savedSky = SettingsStore.Current.SkyId;
             SettingsStore.Changed += OnSettings;
             Current = Target.Clone();

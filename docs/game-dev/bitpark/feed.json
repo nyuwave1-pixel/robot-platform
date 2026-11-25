@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:14:07.210Z",
+  "generatedAt": "2026-11-25T08:42:33.729Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "fb27f35"
+    "commit": "1b20dde"
   },
   "section": {
     "id": "game-dev-lab",
@@ -58,6 +58,7 @@
         "webgl": null
       },
       "screenshots": [
+        "docs/game-dev/screenshots/editions-play-mode.jpg",
         "docs/game-dev/screenshots/island-terrain-shared.png",
         "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
         "docs/game-dev/screenshots/unity-hud.jpg",
@@ -384,6 +385,54 @@
   },
   "devlog": [
     {
+      "hash": "1b20dde",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "9667c4f",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): hub claims U4 — Mission 01 port to the Unity edition"
+    },
+    {
+      "hash": "7a02995",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "chore(special-soldier): ignore local e2e run logs"
+    },
+    {
+      "hash": "86862ec",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "3669c0b",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): mission 02 any-order objectives — relay or backup generator first"
+    },
+    {
+      "hash": "48ac07f",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): editions roadmap — one game, two editions, remaining work and owners"
+    },
+    {
+      "hash": "d3aa6a6",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "feat: one SPECIAL SOLDIER, two editions — PLAY MODE screen in the classic menu, CLASSIC EDITION button in Unity"
+    },
+    {
+      "hash": "88ad854",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "feat: shared island vegetation for both editions; fix the Unity island being a mirror image"
+    },
+    {
       "hash": "fb27f35",
       "date": "2026-11-25",
       "area": "game-dev",
@@ -574,54 +623,6 @@
       "date": "2026-11-23",
       "area": "unity-studio",
       "subject": "feat(unity-studio): port web difficulty table and enemy reaction delay; enemies no longer shred the player at spawn"
-    },
-    {
-      "hash": "0354b0a",
-      "date": "2026-11-23",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): PlayMode tests play the slice with simulated input; Linear colour + ACES fix washed-out lighting; detect MSIX Unity Hub"
-    },
-    {
-      "hash": "42ad299",
-      "date": "2026-11-23",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): first Unity build on the PC — licence fixed, compile error fixed, slice built, EditMode 159/159"
-    },
-    {
-      "hash": "3be53e0",
-      "date": "2026-11-23",
-      "area": "dev-env",
-      "subject": "fix(dev-env): reload PATH after installs, force winget for Unity Hub; record PC installs and Core tests 159/159"
-    },
-    {
-      "hash": "6b08950",
-      "date": "2026-11-23",
-      "area": "game-dev",
-      "subject": "docs(game-dev): Windows verification of dev-env scripts; Unity integration checklist on the PC"
-    },
-    {
-      "hash": "9bf2be9",
-      "date": "2026-11-22",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record v0.19 regression (17/17)"
-    },
-    {
-      "hash": "e22c0f7",
-      "date": "2026-11-22",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): intel collectibles verified in game (v0.19)"
-    },
-    {
-      "hash": "8c4533f",
-      "date": "2026-11-22",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): playable Island Slice pilot with engine-free Core, parity tests and learning path"
-    },
-    {
-      "hash": "b8ceb25",
-      "date": "2026-11-22",
-      "area": "special-soldier",
-      "subject": "wip(special-soldier): intel collectibles and archive (not yet verified in game)"
     }
   ]
 }

@@ -10,8 +10,16 @@ namespace SpecialSoldier
     /// Winning means finishing the mission's objectives (Core.MissionRunner); the result is graded S/A/B/C like the web game.</summary>
     public sealed class GameDirector : MonoBehaviour, IMissionWorld
     {
-        public enum MissionMode { EliminateAll, IslandSlice }
+        public enum MissionMode { EliminateAll, IslandSlice, Campaign }
         public MissionMode missionMode = MissionMode.EliminateAll;
+        /// <summary>Campaign mode: which web mission this scene plays (Core.Campaign id, e.g. "m01").</summary>
+        public string campaignId;
+        /// <summary>Reinforcements placed inactive in the scene; switched on by the mission's first alarm (web: alarm() → wave()).</summary>
+        public GameObject[] alarmWave;
+        /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
+        public string RadioLine { get; private set; }
+        public float RadioTime { get; private set; } = -99f;
+        public void Radio(string line) { RadioLine = line; RadioTime = Time.time; }
         public Transform intelTerminal, extraction;     // IslandSlice objectives (placed by SliceBuilder)
         public MissionRunner Mission { get; private set; }
         public string ObjectiveLine => Mission != null ? Mission.ObjectiveText(this) : "";
@@ -58,11 +66,14 @@ namespace SpecialSoldier
             if (player) { var d = player.GetComponent<Damageable>(); if (d) d.Died += () => { if (Mission != null) Mission.Stats.Deaths++; End(Outcome.Lost); }; }
             Mission = BuildMission();
             Mission.MissionCompleted += () => End(Outcome.Won);
+            Mission.AlarmRaised += OnAlarm;
             Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
         }
 
         MissionRunner BuildMission()
         {
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            if (campaign != null) return campaign.NewRunner();
             if (missionMode == MissionMode.IslandSlice && intelTerminal && extraction)
             {
                 var t = intelTerminal.position; var x = extraction.position;
@@ -91,12 +102,12 @@ namespace SpecialSoldier
             {
                 ElapsedTime += Time.deltaTime;
                 Mission.Tick(Time.deltaTime, this);
-                // alarms: a squad that fights you for 5 s calls it in once (web: stats.alarms)
+                // alarm: an enemy that survives 5 s in combat calls for reinforcements — counted once per mission (web: flags.alarm)
                 foreach (var e in enemies)
                     if (e && e.Alive && !e.AlarmRaised && e.Brain != null && e.Brain.State == AlertState.Combat && e.Brain.StateTime > AlarmDelay)
                     {
-                        Mission.Stats.Alarms++;
-                        foreach (var o in enemies) if (o && o.group == e.group) o.AlarmRaised = true;
+                        e.AlarmRaised = true;
+                        Mission.RaiseAlarm();
                     }
             }
             var kb = Keyboard.current;
@@ -106,6 +117,23 @@ namespace SpecialSoldier
             var mouse = Mouse.current;
             if (State == Outcome.Playing && !PauseMenu.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
             { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
+        }
+
+        /// <summary>First alarm of the mission: radio call-out and the reinforcement wave heads for you (web: def.alarm → wave).</summary>
+        void OnAlarm()
+        {
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            Radio(campaign?.AlarmRadio ?? "ENEMY CALLED FOR REINFORCEMENTS");
+            if (alarmWave == null) return;
+            foreach (var go in alarmWave)
+            {
+                if (!go) continue;
+                go.SetActive(true);
+                var e = go.GetComponent<EnemyAgent>(); if (!e) continue;
+                enemies.Add(e);
+                var d = e.GetComponent<Damageable>(); if (d) d.Died += OnEnemyDied;
+                if (player) e.Hear(player.transform.position, 9999f);   // they know where you are (web: wave(..., alert: true))
+            }
         }
 
         void OnEnemyDied()

@@ -77,6 +77,19 @@ namespace SpecialSoldier.Core
         public float DefendLeft { get; private set; }
         public Objective HoldTarget { get; private set; }
         public event Action<Objective> ObjectiveCompleted, PartCompleted;
+        public event Action AlarmRaised;
+        /// <summary>Someone called for reinforcements. Counts once per mission, like the web game (missions.js event('alarm'):
+        /// flags.alarm → stats.alarms++ only the first time).</summary>
+        public bool Alarmed { get; private set; }
+
+        /// <summary>Returns true (and counts it) only for the first alarm of the mission.</summary>
+        public bool RaiseAlarm()
+        {
+            if (Alarmed || Complete) return false;
+            Alarmed = true; Stats.Alarms++;
+            AlarmRaised?.Invoke();
+            return true;
+        }
         public event Action MissionCompleted;
 
         public MissionRunner(string code, string name, params Objective[] objectives)
