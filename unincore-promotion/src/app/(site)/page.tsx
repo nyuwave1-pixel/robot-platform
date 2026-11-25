@@ -105,6 +105,8 @@ export default async function HomePage() {
           <div className="relative z-10 order-2 lg:order-1">
             <h1>
               <span className="eyebrow block !text-champagne">UNI&amp;CORE Korean Vitamin C Skincare</span>
+              {/* Keeps the heading text readable as "…Skincare: Wake up…" for crawlers; invisible on screen. */}
+              <span className="sr-only">: </span>
               <span className="mt-6 block font-display text-[46px] leading-[0.98] sm:text-7xl lg:text-[92px]">
                 {BRAND.hero.headline[0]} <em className="vc-gold-text not-italic">{BRAND.hero.headline[1]}</em>
               </span>

@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { SITE } from "@/content/site";
 import type { ProductContent } from "@/content/types";
 import { LANDING, type LandingContent } from "@/content/landing";
+import { DEFAULT_PRODUCTS } from "@/content/products";
+
+/** Creator video files are named after the product they show (wash-2.mp4, mask-5.mp4, …). */
+function videoProductName(videoPath: string, fallback: string) {
+  const prefix = videoPath.split("/").pop()?.split("-")[0];
+  return DEFAULT_PRODUCTS.find((p) => p.key === prefix)?.name ?? fallback;
+}
 
 /** Images the product landing page actually shows: the white-background shot, the key-benefit image and the listing gallery. */
 export function landingImages(c: LandingContent): string[] {
@@ -27,7 +34,8 @@ export function landingVideoLd(c: LandingContent, productName: string) {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     name: v.caption,
-    description: `${v.caption}. A creator video about UNI&CORE ${productName}.`,
+    // Name the product the video actually shows: the ampoule page also carries wash and mask routine clips.
+    description: `${v.caption}. A creator video about UNI&CORE ${videoProductName(v.video, productName)}.`,
     thumbnailUrl: [abs(v.poster)],
     contentUrl: abs(v.video),
     uploadDate: isoDateTime("2026-11-10"),

@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/cms";
 import { SITE } from "@/content/site";
 
-export const metadata = pageMetadata({ title: "Contact | UNI&CORE USA", description: "Get in touch with UNI&CORE about our Korean skincare, Amazon or TikTok Shop orders, or partnerships.", path: "/contact", absoluteTitle: true });
+export const metadata = pageMetadata({ title: "Contact UNI&CORE USA | Korean Skincare Questions", description: "Get in touch with UNI&CORE about our Korean skincare, Amazon or TikTok Shop orders, or partnerships.", path: "/contact", absoluteTitle: true });
 
 export default async function ContactPage() {
   const { contactEmail } = await getSettings();

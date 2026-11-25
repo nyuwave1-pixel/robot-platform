@@ -1,7 +1,7 @@
 import { LegalPage } from "@/components/site/LegalPage";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata = pageMetadata({ title: "Terms of Use | UNI&CORE USA", description: "Terms that apply when you use the UNI&CORE US promotion website.", path: "/terms", absoluteTitle: true });
+export const metadata = pageMetadata({ title: "Terms of Use | UNI&CORE USA", description: "Terms of use for the UNI&CORE USA website: how product information, Amazon and TikTok Shop links, promotions and site content may be used.", path: "/terms", absoluteTitle: true });
 
 export default function TermsPage() {
   return (
