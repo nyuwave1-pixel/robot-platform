@@ -198,3 +198,13 @@ describe("플랫폼 연동 (비트파크 우선)", async () => {
     expect(bitpark.playUrl()).toBe(BITPARK_PLAY_URL);
   });
 });
+
+describe("비트파크 → 게임 상태", async () => {
+  const { cleanStatus } = await import("../src/platform/status");
+  it("아는 형식만 받고, 로그인 안 했으면 이름 · RP 를 버린다", () => {
+    expect(cleanStatus({ loggedIn: true, name: "미나<script>", rp: 1234.7, rpToday: true, rpReward: 40 })).toEqual({ known: true, loggedIn: true, name: "미나script", rp: 1234, rpToday: true, rpReward: 40 });
+    expect(cleanStatus({ loggedIn: false, name: "x", rp: 99 })).toMatchObject({ loggedIn: false, name: "", rp: null });
+    expect(cleanStatus({ name: "no flag" })).toBeNull();
+    expect(cleanStatus({ loggedIn: true, rp: -5, rpReward: "40" })).toMatchObject({ rp: 0, rpReward: 0 });
+  });
+});

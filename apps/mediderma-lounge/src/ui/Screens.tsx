@@ -9,6 +9,7 @@ import { DEFAULT_LOOK, useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useT } from "../i18n";
 import { HOME_PLATFORM, onHomePlatform } from "../platform";
+import { usePlatformStatus } from "../platform/status";
 import { bodyDims, Character, styleNow, type Anim } from "../three/Character";
 import { Icon, type IconName } from "./Icon";
 
@@ -81,7 +82,8 @@ export function Intro() {
 
 export function Create() {
   const t = useT();
-  const [name, setName] = useState("");
+  // 비트파크에 로그인해 있으면 포털 표시 이름을 처음 이름으로 (바꿀 수 있다)
+  const [name, setName] = useState(() => usePlatformStatus.getState().name);
   const [look, setLook] = useState<Look>(DEFAULT_LOOK);
   const patch = (p: Partial<Look>) => setLook((l) => ({ ...l, ...p }));
   const start = () => {

@@ -626,5 +626,9 @@
   "brag.mineNone": "You haven't posted yet.",
   "brag.newLikes": "{n} new likes on your posts! Followers +{n}",
   "platform.playOn": "Play on {name}",
-  "platform.why": "Sign in to earn RP from care, show-offs and harvests, and play with friends"
+  "platform.why": "Sign in to earn RP from care, show-offs and harvests, and play with friends",
+  "platform.rpDone": "Today's BitPark RP received",
+  "platform.rpTodo": "Do any care, show-off or harvest today for +{n} BitPark RP",
+  "platform.login": "Sign in to BitPark to earn RP while you play (+{n} a day)",
+  "platform.loginShort": "Sign in"
 }

@@ -626,5 +626,9 @@
   "brag.mineNone": "아직 올린 자랑이 없어요.",
   "brag.newLikes": "내 자랑에 좋아요 {n}개! 팔로워 +{n}",
   "platform.playOn": "{name}에서 플레이하기",
-  "platform.why": "로그인하면 케어 · 자랑 · 수확할 때 RP 가 쌓이고, 친구와 함께 즐길 수 있어요"
+  "platform.why": "로그인하면 케어 · 자랑 · 수확할 때 RP 가 쌓이고, 친구와 함께 즐길 수 있어요",
+  "platform.rpDone": "오늘 비트파크 RP 를 받았어요",
+  "platform.rpTodo": "오늘 케어 · 자랑 · 수확 중 하나만 해도 비트파크 +{n} RP",
+  "platform.login": "비트파크에 로그인하면 플레이할 때 RP 가 쌓여요 (하루 +{n})",
+  "platform.loginShort": "로그인"
 }

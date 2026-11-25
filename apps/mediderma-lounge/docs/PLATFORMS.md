@@ -7,6 +7,7 @@
 
 ```
 src/platform/
+  status.ts   — 플랫폼이 알려 주는 플레이어 상태 (로그인 · RP)
   types.ts    — Platform 규격 (detect · playUrl · init · report), PlayEvent, LinkParams
   bitpark.ts  — 비트파크 포털 어댑터 (홈 플랫폼)
   web.ts      — 일반 웹 (게임 주소로 바로 들어온 경우, 마지막 대체)
@@ -37,6 +38,15 @@ src/platform/
 { type: "game_event",  game: "beauty-life", event: "brag", score: 1 }         // 어떤 플레이를 했는지 (포털 활동 기록용)
 { type: "game_result", game: "beauty-life", score: 3, rp: 40 }                // RP 적립 요청 (포털이 상한 · 게임당 하루 1회 확인)
 ```
+
+포털 → 게임 (게임 주소로만, 게임은 허용된 포털 창에서 온 것만 받는다):
+
+```js
+{ type: "portal_status", game: "beauty-life", loggedIn: true, name: "표시 이름", rp: 1234, rpToday: false, rpReward: 40 }
+```
+
+- `game_ready` 를 받으면, 그리고 로그인 · RP 가 바뀔 때마다 포털이 보낸다. uid · 이메일은 보내지 않는다.
+- 게임은 `src/platform/status.ts` 의 `usePlatformStatus` 에 담아 화면 안내에만 쓴다: 상단 RP 표시(`1,234 RP +40` / 오늘 받음 ✓ / 로그인 안내), 새 게임 이름 자동 입력.
 
 - 포털 게임 페이지: `https://www.airobotphysical.com/games/play/beauty-life/`
 - 포털이 게임 주소로 넘겨 주는 값: `visit`(라운지 방문 코드) · `open`(열 탭) · `invite`(초대 코드) · `from`(초대한 사람 이름)

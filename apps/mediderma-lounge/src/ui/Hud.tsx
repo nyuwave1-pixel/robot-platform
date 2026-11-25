@@ -15,6 +15,7 @@ import { useContest } from "../net/contest";
 import { castVote } from "./Contest";
 import { GroupPhotoButton, GroupPhotoOverlay, captureCanvas, useShot } from "./GroupPhoto";
 import { BragWatcher } from "./Brag";
+import { usePlatformStatus } from "../platform/status";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -104,6 +105,7 @@ export function Hud() {
               </span>
             </button>
             <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-1.5">
+              <PlatformChip />
               <button onClick={() => open("rank")} title="LOUNGE RANK" className="rounded-full px-2.5 py-1 text-[12px] font-black text-white shadow-sm" style={{ background: g.rank ? RANKS[g.rank - 1].color : "#b9a9af" }}>{g.rank ? RANKS[g.rank - 1].code : "RANK"}</button>
               <Coin n={g.coins} icon="coin" title="BEAUTY COIN" />
               <Coin n={g.gems} icon="gem" title="BEAUTY GEM" />
@@ -457,4 +459,17 @@ function Overlays() {
 /** 저장된 단계보다 달성 단계가 높으면 안내 (연출 대기) */
 export function usePendingEvolution() {
   return useGame((s) => earnedStage(s) > s.stage);
+}
+
+/** 비트파크 안에서 실행 중이면 포털 RP 상태 (로그인 안 했으면 로그인 안내) */
+function PlatformChip() {
+  const t = useT();
+  const st = usePlatformStatus();
+  if (!st.known) return null;
+  const title = st.loggedIn ? (st.rpToday ? t("platform.rpDone") : t("platform.rpTodo", { n: st.rpReward })) : t("platform.login", { n: st.rpReward });
+  return (
+    <span title={title} className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-black shadow-sm ${st.loggedIn ? "bg-ink text-gold" : "bg-white/85 text-ink/60"}`} data-testid="platform-chip">
+      {st.loggedIn ? <>{(st.rp ?? 0).toLocaleString()} RP{st.rpToday ? " ✓" : ` +${st.rpReward}`}</> : <>RP · {t("platform.loginShort")}</>}
+    </span>
+  );
 }

@@ -5,6 +5,7 @@
  *  - 메시지는 허용된 포털 주소로만 보내고, 게임 진행에는 영향을 주지 않는다
  */
 import type { LinkParams, Platform, PlayEvent } from "./types";
+import { cleanStatus, usePlatformStatus } from "./status";
 
 export const BITPARK_GAME_ID = "beauty-life";
 export const BITPARK_ORIGINS = ["https://airobotphysical.com", "https://www.airobotphysical.com", "https://airobotphysical.web.app"];
@@ -56,6 +57,14 @@ export const bitpark: Platform = {
   init() {
     const origin = bitparkOrigin();
     if (!origin) return;
+    // 포털 → 게임: 로그인 · RP 상태 (허용된 포털 창에서 온 것만)
+    window.addEventListener("message", (e) => {
+      if (e.origin !== origin || e.source !== window.parent) return;
+      const d = e.data as Record<string, unknown> | null;
+      if (!d || d.type !== "portal_status" || d.game !== BITPARK_GAME_ID) return;
+      const st = cleanStatus(d);
+      if (st) usePlatformStatus.setState(st);
+    });
     try { window.parent.postMessage({ type: "game_ready", game: BITPARK_GAME_ID }, origin); } catch { /* 부모 창이 사라짐 */ }
   },
   report(ev, score) {
