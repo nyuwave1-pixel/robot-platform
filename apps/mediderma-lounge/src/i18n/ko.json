@@ -594,5 +594,13 @@
   "brag.error": "자랑 피드를 불러오지 못했어요.",
   "brag.retry": "다시 시도",
   "brag.none": "아직 자랑이 없어요. 첫 자랑을 올려 보세요!",
-  "brag.lookHint": "오늘 룩을 다른 플레이어에게 자랑해 보세요"
+  "brag.lookHint": "오늘 룩을 다른 플레이어에게 자랑해 보세요",
+  "coord.title": "내 코디",
+  "coord.save": "지금 룩 저장",
+  "coord.pick": "저장할 칸을 고르세요",
+  "coord.saved": "코디 {n}에 저장했어요",
+  "coord.worn": "코디 {n}로 갈아입었어요",
+  "coord.same": "이미 이 코디를 입고 있어요",
+  "coord.slot": "코디 {n}",
+  "coord.empty": "비어 있음"
 }

@@ -33,3 +33,22 @@ describe("뷰티 자랑", () => {
     expect([look?.look?.outfit, look?.look?.lip, look?.stage]).toEqual(["fit-gown", "lip-red", 5]);
   });
 });
+
+describe("내 코디 저장 · 갈아입기", () => {
+  it("저장한 코디로 한 번에 갈아입고, 가지지 않은 아이템은 건너뛴다", () => {
+    const g = () => useGame.getState();
+    g().equip("lip", "lip-red"); g().equip("makeup", "mk-rose");
+    g().saveCoord(0);
+    g().equip("lip", null); g().equip("makeup", null);
+    useGame.setState({ ownedFashion: [...g().ownedFashion, "lip-red"] }); // mk-rose 는 안 가짐 (스타터가 아니면)
+    const owned = g().ownedFashion.includes("mk-rose");
+    const n = g().wearCoord(0);
+    expect(g().look.lip).toBe("lip-red");
+    expect(g().look.makeup).toBe(owned ? "mk-rose" : null);
+    expect(n).toBe(owned ? 2 : 1);
+    expect(g().wearCoord(0)).toBe(0); // 이미 입고 있음
+    expect(g().wearCoord(2)).toBe(0); // 빈 칸
+    g().saveCoord(5); // 범위 밖은 무시
+    expect(g().coords.length).toBe(3);
+  });
+});

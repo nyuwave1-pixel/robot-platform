@@ -11,6 +11,10 @@ import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
 
 /** Higgsfield 로 디자인한 완성형 캐릭터 (옷·헤어가 텍스처에 구워져 있다) */
+/** 코디 저장 칸 수와 코디에 담는 슬롯 */
+export const COORD_SLOTS = 3;
+export const COORD_KEYS: Slot[] = ["hair", "outfit", "accessory", "earring", "necklace", "bag", "shoes", "makeup", "nail", "base", "shadow", "lip"];
+export interface Coord { items: Partial<Record<Slot, string | null>>; t: number }
 export const DESIGNED_BODIES = ["signature", "guest_mint", "guest_lavender", "guest_coral", "guest_gentle"] as const;
 export type DesignedBody = (typeof DESIGNED_BODIES)[number];
 /** 손님·광장 NPC 로 쓰는 디자인 캐릭터 */
@@ -58,6 +62,8 @@ export interface GameState {
   inventory: Record<string, number>;
   codex: string[];
   ownedFashion: string[];
+  /** 저장한 코디 (의상 · 헤어 · 액세서리 · 메이크업 한 벌), 최대 COORD_SLOTS 개 */
+  coords: (Coord | null)[];
   ownedInterior: string[];
   storage: Record<string, number>; // 보관 중인 가구 수량
   lounge: { level: number; furniture: Furniture[]; floor: string; wall: string; light: string; stations: number };
@@ -94,6 +100,10 @@ export interface GameState {
   grantProduct: (id: string, n?: number) => void;
   buyFashion: (id: string) => boolean;
   equip: (slot: Slot, id: string | null) => void;
+  /** 지금 입은 룩을 i 번 코디에 저장 */
+  saveCoord: (i: number) => void;
+  /** i 번 코디로 갈아입기 (가진 아이템만, 바뀐 슬롯 수를 돌려준다) */
+  wearCoord: (i: number) => number;
   buyInterior: (id: string) => boolean;
   place: (type: string) => string | null;
   moveFurniture: (uid: string, x: number, z: number) => void;
@@ -150,6 +160,7 @@ const fresh = () => ({
   inventory: { "soothing-gel": 6, "toner-pad": 6, "deep-repair-cream": 4, "serum-mist": 4, "vitac-mask": 2, "vitac-ampoule": 2 } as Record<string, number>,
   codex: ["derma-home", "soothing-gel", "toner-pad", "deep-repair-cream", "serum-mist", "vitac-mask", "vitac-ampoule"],
   ownedFashion: [...STARTER_FASHION],
+  coords: [] as (Coord | null)[],
   ownedInterior: ["floor-cream", "wall-cream", "light-warm"],
   storage: { plant: 1, flower: 1 } as Record<string, number>,
   lounge: { level: 1, furniture: [] as Furniture[], floor: "floor-cream", wall: "wall-cream", light: "light-warm", stations: 0 },
@@ -250,6 +261,28 @@ export const useGame = create<GameState>()(
         return true;
       },
       equip: (slot, id) => set((s) => ({ look: { ...s.look, [slot]: id } })),
+      saveCoord: (i) => set((s) => {
+        if (i < 0 || i >= COORD_SLOTS) return {};
+        const coords = Array.from({ length: COORD_SLOTS }, (_, k) => (Array.isArray(s.coords) ? s.coords[k] ?? null : null));
+        coords[i] = { items: Object.fromEntries(COORD_KEYS.map((k) => [k, s.look[k] ?? null])) as Coord["items"], t: Date.now() };
+        return { coords };
+      }),
+      wearCoord: (i) => {
+        const s = get();
+        const c = Array.isArray(s.coords) ? s.coords[i] : null;
+        if (!c?.items) return 0;
+        const patch: Partial<Look> = {};
+        for (const k of COORD_KEYS) {
+          const id = c.items[k];
+          if (id === undefined) continue;
+          // 기본(필수) 슬롯은 비울 수 없고, 가진 아이템으로만 갈아입는다
+          if (id === null) { if (k !== "hair" && k !== "outfit" && (s.look[k] ?? null) !== null) patch[k] = null; continue; }
+          if (FASHION_MAP[id]?.slot === k && s.ownedFashion.includes(id) && s.look[k] !== id) patch[k] = id;
+        }
+        const n = Object.keys(patch).length;
+        if (n) set({ look: { ...s.look, ...patch } });
+        return n;
+      },
 
       buyInterior: (id) => {
         const it = INTERIOR_MAP[id]; const s = get();

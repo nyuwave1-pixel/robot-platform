@@ -7,7 +7,7 @@ import {
   LOUNGE_LEVELS, POSES, PROMOS, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
 } from "../data/game";
 import { MALL_URL, PRODUCTS, PRODUCT_MAP, RARITY_COLOR, productImage, usesOf, type Product } from "../data/products";
-import { DESIGNED_BODIES, levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
+import { COORD_SLOTS, DESIGNED_BODIES, levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
 import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
@@ -130,6 +130,7 @@ function CharacterPanel() {
       )}
       {tab === "style" && (
         <>
+          <CoordRow />
           <div className="mb-2 flex gap-1 overflow-x-auto pb-1">{SLOT_TABS.map(([s, k]) => <button key={s} onClick={() => setSlot(s)} className={`chip shrink-0 ${slot === s ? "chip-on" : ""}`}>{t(k)}</button>)}</div>
           {(slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip") && (
             <p className="mb-2 rounded-xl bg-pink-soft/60 px-3 py-2 text-[12px] leading-relaxed text-ink/65">
@@ -461,6 +462,43 @@ function SocialPanel() {
         </div>
       )}
     </Sheet>
+  );
+}
+
+/** 내 코디: 지금 룩을 저장해 두었다가 한 번에 갈아입기 (의상 · 헤어 · 액세서리 · 메이크업) */
+function CoordRow() {
+  const t = useT();
+  const coords = useGame((s) => s.coords);
+  const toast = useUI((s) => s.toast);
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="mb-3 rounded-2xl bg-cream p-2.5" data-testid="coords">
+      <div className="flex items-center justify-between">
+        <p className="text-[13px] font-black tracking-wide text-pink-deep">{t("coord.title")}</p>
+        <button className={`chip ${saving ? "chip-on" : ""}`} onClick={() => setSaving(!saving)} data-testid="coord-save-mode">{saving ? t("coord.pick") : t("coord.save")}</button>
+      </div>
+      <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+        {Array.from({ length: COORD_SLOTS }, (_, i) => {
+          const c = Array.isArray(coords) ? coords[i] : null;
+          const dots = c ? (["outfit", "hair", "makeup", "shadow", "lip", "shoes"] as const).map((k) => c.items[k]).filter((id): id is string => !!id && !!FASHION_MAP[id]) : [];
+          const click = () => {
+            const g = useGame.getState();
+            if (saving) { g.saveCoord(i); setSaving(false); toast(t("coord.saved", { n: i + 1 })); return; }
+            if (!c) { setSaving(true); return; }
+            const n = g.wearCoord(i);
+            toast(n ? t("coord.worn", { n: i + 1 }) : t("coord.same"));
+          };
+          return (
+            <button key={i} onClick={click} data-testid={`coord-${i}`} className={`rounded-xl border-2 bg-white p-1.5 text-left ${saving ? "border-pink-deep" : "border-transparent"}`}>
+              <p className="text-[12px] font-black text-ink/70">{t("coord.slot", { n: i + 1 })}</p>
+              {c ? (
+                <span className="mt-1 flex flex-wrap gap-0.5">{dots.map((id, k) => <span key={k} className="h-3 w-3 rounded-full border border-ink/10" style={{ background: FASHION_MAP[id].color ?? "#f2b8c6" }} />)}</span>
+              ) : <span className="mt-1 block text-[12px] text-ink/40">{t("coord.empty")}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

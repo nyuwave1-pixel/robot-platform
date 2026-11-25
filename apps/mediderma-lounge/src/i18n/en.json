@@ -594,5 +594,13 @@
   "brag.error": "Couldn't load the show-off feed.",
   "brag.retry": "Retry",
   "brag.none": "No posts yet. Be the first to show off!",
-  "brag.lookHint": "Show today's look to other players"
+  "brag.lookHint": "Show today's look to other players",
+  "coord.title": "My outfits",
+  "coord.save": "Save current look",
+  "coord.pick": "Pick a slot to save",
+  "coord.saved": "Saved to outfit {n}",
+  "coord.worn": "Changed into outfit {n}",
+  "coord.same": "Already wearing this outfit",
+  "coord.slot": "Outfit {n}",
+  "coord.empty": "Empty"
 }
