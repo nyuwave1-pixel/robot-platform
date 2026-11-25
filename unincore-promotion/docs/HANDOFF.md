@@ -168,6 +168,7 @@ python3 scripts/films/build_product_loops.py
 - 2026-11-16: 드라이브 4차 수정본(20261116_v4) 반영. 제품 3종 랜딩 페이지의 아마존 버튼에 제품별 Amazon Attribution 링크(`landingAmazonUrl`) 적용. 홈·가이드의 아마존 버튼은 일반 상품 링크 유지
 - 2026-11-25: 홈 화면 제품 버튼 7개(워시 3, 마스크 2, 앰플 2)와 모바일 하단 구매 바도 제품별 Amazon Attribution 링크(`landingAmazonUrl`, Meta 광고용)로 변경. 상단 "Shop on Amazon"·히어로 버튼은 브랜드 스토어 링크 유지 (드라이브 `unincore-promotion_attribution_20261125.zip`, 커밋 `bf76596`, Netlify 배포 `6b0644cc3c9e152c9f1463c3`)
 - 2026-11-25: 블랙프라이데이 20% 할인 표시 켬(앰플·마스크·워시, Amazon 딜 적용 확인 후). 제품 페이지 상단 띠·할인 상자·홈 배지가 11/30(미국 태평양 시간)까지 나오고 이후 자동으로 꺼짐. Amazon 딜이 일찍 끝나면 `products.ts`의 `bfcm()`에서 `enabled: false`로 바꾸고 재배포. ASIN 3개 직접 확인 완료(`asinVerified: true`). Netlify 배포 `6b066f0d7364b9e2d5dc091c`
+- 2026-11-25: SEO 엔진 매일 실행 활성화. GitHub 예약 실행은 기본 브랜치에서만 돌기 때문에 이전에는 한 번도 실행되지 않았음. `main`에 `.github/workflows/unincore-engine-daily.yml`을 추가해 매일 01:00(KST)에 이 브랜치를 받아 엔진을 돌리고 리포트를 이 브랜치에 커밋함(첫 실행 성공: `engine: daily report 2026-11-25`). 브랜치 이름을 바꾸면 main의 워크플로 `ENGINE_BRANCH`도 바꿔야 함
 - 가이드 10개(/guides). 상단 메뉴·푸터·제품 페이지 하단에서 연결
 - 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-16 라이브: 홈 85, 앰플 82, SEO 100
 - `unincore-engine/`: 매일 점검·키워드·홍보 이미지 렌더링·승인 요청(`python -m engine propose/approvals/approve/publish`)
