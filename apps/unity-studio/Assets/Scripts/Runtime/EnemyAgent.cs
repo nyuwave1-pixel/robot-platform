@@ -13,7 +13,8 @@ namespace SpecialSoldier
         public string typeId = "guard";
         public string group = "outer";          // mission kill objectives count enemies by group
         public bool AlarmRaised { get; set; }    // this enemy's squad already called it in (mission stats)
-        public float LastFireTime { get; private set; } = -999f;   // HUD radar shows enemies for 2.5 s after they fire
+        public float LastFireTime { get; private set; } = -999f;
+        public float VisionNow { get; private set; }   // current sight range in metres (night, rain, your stance)   // HUD radar shows enemies for 2.5 s after they fire
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)
         public float eyeHeight = 1.6f;
@@ -112,17 +113,22 @@ namespace SpecialSoldier
         void Perceive(float td)
         {
             _seesNow = false; float dist = 999f;
+            // web vision range: night and rain from the current sky, the player's stance, alerted / combat rules (Core.AwarenessBrain.VisionRange)
+            var sky = SkyDirector.Instance != null ? SkyDirector.Instance.Current : null;
+            var stance = _player && _player.IsCrouching ? Stance.Crouch : Stance.Stand;
+            float vision = Brain.VisionRange(sky != null ? sky.Night : 0f, stance, sky != null ? sky.Rain : 0f);
+            VisionNow = vision;
             if (_player && _playerHp && _playerHp.Alive)
             {
                 Vector3 eye = transform.position + Vector3.up * eyeHeight, target = _player.Eye - Vector3.up * 0.15f;
                 Vector3 to = target - eye; dist = to.magnitude;
                 float half = Type.Fov * 0.5f * Mathf.Rad2Deg;
                 bool inCone = Brain.State >= AlertState.Combat || Vector3.Angle(transform.forward, new Vector3(to.x, 0f, to.z)) < half || dist < 3.5f;
-                if (dist < Type.Vision && inCone && Physics.Raycast(eye + to.normalized * 0.4f, to, out RaycastHit hit, dist, sightMask, QueryTriggerInteraction.Ignore))
+                if (dist < vision && inCone && Physics.Raycast(eye + to.normalized * 0.4f, to, out RaycastHit hit, dist, sightMask, QueryTriggerInteraction.Ignore))
                     _seesNow = hit.collider.GetComponentInParent<PlayerMotor>() == _player;
                 if (_seesNow) _lastKnown = _player.transform.position;
             }
-            var p = new Perception { SeesTarget = _seesNow, Distance = dist, TargetSprinting = _player && _player.IsSprinting, NoiseRadius = _noise };
+            var p = new Perception { SeesTarget = _seesNow, Distance = dist, TargetSprinting = _player && _player.IsSprinting, NoiseRadius = _noise, VisionRange = vision };
             _noise = 0f;
             Brain.Tick(td, p);
             PlanCombat(td);
