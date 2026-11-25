@@ -180,6 +180,10 @@ namespace SpecialSoldier
             _miniN.style.left = R + Mathf.Sin(a) * (R - 12f); _miniN.style.top = R - Mathf.Cos(a) * (R - 12f) - 10f;
         }
 
+        /// <summary>The default runtime font has none of the web game's symbol glyphs (they render blank in the WebGL build):
+        /// show ASCII instead. Core keeps the web text so its tests stay in parity with hud.js / missions.js.</summary>
+        static string AsciiGlyphs(string s) => s.Replace("✓ ", "[x] ").Replace("○ ", "[ ] ").Replace("◎ HEADSHOT", "HEADSHOT >").Replace("▸", ">").Replace("▶ ", "> ");
+
         void Texts(SkyDirector sky, bool playing)
         {
             _heading.text = $"{HudMath.HeadingText(_heading0)} {HudMath.Cardinal(_heading0)}";
@@ -193,12 +197,12 @@ namespace SpecialSoldier
             if (aw.cls.Length > 0) _awareBox.AddToClassList("aware-" + aw.cls);
 
             var m = _dir ? _dir.Mission : null;
-            _objective.text = _dir ? _dir.ObjectiveLine : "";
+            _objective.text = _dir ? AsciiGlyphs(_dir.ObjectiveLine) : "";
             _counters.text = _dir ? $"HOSTILES {alive}   KILLS {_dir.Kills}   {HudMath.Clock(_dir.ElapsedTime)}" : "";
             _miniInfo.text = $"{HudMath.HeadingText(_heading0)} · ISLAND SLICE";
 
             _feedBox.Clear();
-            foreach (var line in _feed.Lines) T(_feedBox, "feed-line", line);
+            foreach (var line in _feed.Lines) T(_feedBox, "feed-line", AsciiGlyphs(line));
 
             if (_playerHp != null && _playerHp.Model != null)
             {

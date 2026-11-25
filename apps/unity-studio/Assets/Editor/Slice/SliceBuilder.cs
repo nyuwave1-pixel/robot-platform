@@ -46,7 +46,22 @@ namespace SpecialSoldier.EditorTools
             var opts = new BuildPlayerOptions { scenes = new[] { ScenePath }, locationPathName = "Builds/WebGL", target = BuildTarget.WebGL };
             var report = BuildPipeline.BuildPlayer(opts);
             Debug.Log($"[Slice] webgl build {report.summary.result}, {report.summary.totalSize / 1024} kB, errors {report.summary.totalErrors} -> Builds/WebGL/index.html");
+            if (report.summary.result == BuildResult.Succeeded) PinWebGLPixelRatio("Builds/WebGL/index.html");
             EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 13);
+        }
+
+        /// <summary>Renders the WebGL canvas at CSS resolution (config.devicePixelRatio = 1). On a 125 % Windows display the
+        /// UI Toolkit panel was magnified by the device pixel ratio a second time: the HUD ran 1.25x off the right and bottom
+        /// edges (minimap, vitals and weapon panel unseen; seen in the browser 2026-11-25, devicePixelRatio 1.25, canvas
+        /// 1600x950 for 1280x760 CSS). With the ratio pinned to 1 the whole HUD fits; the 3D view is a little softer on
+        /// HiDPI screens and cheaper to draw.</summary>
+        static void PinWebGLPixelRatio(string indexPath)
+        {
+            const string off = "// config.devicePixelRatio = 1;", on = "config.devicePixelRatio = 1;   // SliceBuilder: UI Toolkit HUD double-scaled on HiDPI";
+            string html = File.Exists(indexPath) ? File.ReadAllText(indexPath) : null;
+            if (html == null || !html.Contains(off)) { Debug.LogWarning("[Slice] webgl: could not pin devicePixelRatio (template changed?) in " + indexPath); return; }
+            File.WriteAllText(indexPath, html.Replace(off, on));
+            Debug.Log("[Slice] webgl: devicePixelRatio pinned to 1 (UI Toolkit HUD fits on HiDPI screens)");
         }
 
         public static bool BuildScene()

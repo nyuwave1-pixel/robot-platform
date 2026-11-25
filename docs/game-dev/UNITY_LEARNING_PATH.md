@@ -60,10 +60,10 @@ node "apps/unity-studio/Tools~/gen-core-data.mjs"
 
 | # | 과제 | 배우는 Unity 기능 | 무료 리소스 |
 |---|---|---|---|
-| 1 | HUD를 UI Toolkit으로 교체 — **2026-11-25 클라우드 완료(Unity 화면 확인 전)**: 나침반·미니맵·목표 표시·피격 방향·킬 피드 | UXML·USS, 데이터 바인딩 | Unity 기본 |
+| 1 | HUD를 UI Toolkit으로 교체 — **완료(2026-11-25, PC Unity·WebGL 화면 확인)**: 나침반·미니맵·목표 표시·피격 방향·킬 피드 | UXML·USS, 데이터 바인딩 | Unity 기본 |
 | 2 | 총소리·발소리·피격음 — **1차(PC) + 2차 합성음(2026-11-25) 완료**, Unity 재생 확인 전 | AudioSource, AudioMixer 그룹 | Freesound CC0(웹 게임 v0.14 사운드 재사용) |
 | 3 | 총구 화염·탄착 먼지 | VFX Graph 또는 Particle System | Unity 기본 |
-| 4 | 하늘·조명 — **2026-11-25 클라우드 완료(Unity 화면 확인 전)**: HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO | URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스 | Poly Haven HDRI(CC0) |
+| 4 | 하늘·조명 — **2026-11-25 PC 확인(storm·dusk·night 하늘 밝기 조정 남음)**: HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO | URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스 | Poly Haven HDRI(CC0) |
 | 5 | 지형·바닥 재질 | Terrain, PBR 머티리얼 | ambientCG / Poly Haven(CC0) |
 | 6 | 병사 애니메이션 | Humanoid 리그, Animator, 리타깃 | Quaternius UAL / Rokoko 무료 모션 |
 | 7 | 적 엄폐·측면 우회 — **Core 완료(2026-11-24)**: `Core/TacticsPlanner.cs` + 테스트 10개, `EnemyAgent` 연결(Unity 컴파일·플레이 확인 전) | NavMesh 쿼리, 엄폐 점수, 숨기·고개 내밀기 | 웹 게임 `enemies.js findCover/plan` 이식 |

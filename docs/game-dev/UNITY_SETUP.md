@@ -225,3 +225,27 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   [E] 진행 막대·수류탄 경고(11 m), 월드 목표 표시(거리, 뒤에 있으면 아래쪽), 번개 섬광, 결과 화면(등급).
 - 연결: EnemyAgent.LastFireTime, WeaponController.LastHitWasHead(명중 표시 0.22 s로 웹과 맞춤), GameDirector.EnemyKilled 이벤트. IMGUI `Hud.cs` 는 씬에서 빠지고 예비로 남음.
 - 검증: dotnet `CoreTests~` **242/242**(HUD 테스트 12개, `hud.js` 상수 대조 포함). PlayMode `HudTests.cs` 2개 추가. **Unity 화면은 아직 확인하지 않았습니다.**
+
+## 2026-11-25 (6) — PC 첫 컴파일: 효과음 2차·미션·하늘·UI Toolkit HUD (PC Unity 세션)
+
+- 허브 커밋 e0974f6(효과음 2차)·e544ebd(미션)·6b7e79c(하늘)·8ab6049(UI Toolkit HUD)를 한 번에 `run-batch.ps1 -WebGL`.
+  **컴파일 오류 0**(네 묶음 모두 수정 없이 컴파일 — `Painter2D.Arc`·`Angle.Degrees`·`RuntimePanelUtils.CameraTransformWorldToPanel`·`Rotate` 이름 그대로).
+- 결과: EditMode **242/242**, PlayMode **12/12**(입력 패키지 자체 테스트 2개 생략) — 새 `Hud_ShowsObjectiveCompassAndAmmo`·`Hud_KillFeedListsAKill`,
+  `MissionFlow_..._WinsWithGrade`(`[Portal] special-soldier-unity SLICE 01 B score 0 rp 30`), 시작 지점 6초 정지 HP 100/100.
+  슬라이스 로그 `[Slice] HUD: UI Toolkit (panel ok, style ok, theme ok)`. exe 110.6 MB, WebGL 18.7 MB.
+- 중복 작업: PC 세션도 같은 시간에 UXML 기반 UI Toolkit HUD를 만들었으나(푸시 전) 허브의 `HudToolkit` 이 기능이 더 많아 PC 쪽을 버림.
+  다음부터는 두 세션 모두 시작 전에 STUDIO_HUB "작업 중" 표에 먼저 적기로 함.
+- **WebGL에서 찾은 문제 2개와 수정**
+  1. 글리프: 기본 런타임 글꼴에 `✓ ○ ◎ ▸ ▶` 가 없어 빈칸으로 보임 → `HudToolkit.AsciiGlyphs` 가 화면에 쓸 때만 `[x] [ ] HEADSHOT > >` 로 바꿈
+     (목표 줄·킬 피드; Core 문구는 웹과 동일 유지). `° · —` 는 정상 표시 확인.
+  2. **HiDPI에서 HUD가 화면 밖으로**: Windows 125 % 배율(devicePixelRatio 1.25, 캔버스 1600×950 / CSS 1280×760)에서 UI Toolkit 패널이
+     한 번 더 1.25배 확대돼 오른쪽·아래(미니맵·체력·무기)가 잘리고 나침반이 오른쪽으로 치우침(`screenshots/unity-hud-webgl-dpr125-overflow.jpg`).
+     `config.devicePixelRatio = 1` 로 같은 빌드를 열면 전부 맞음 → `SliceBuilder.BuildWebGL` 이 빌드 뒤 `index.html` 에서 이 줄을 켜도록 함
+     (`PinWebGLPixelRatio`). HiDPI 화면에서 3D가 조금 덜 선명한 대신 그리기 부담이 줄어듦.
+- 글자 대비: 낮 HDRI 하늘이 거의 흰색이라 위쪽 글자가 잘 안 보여 `SliceHud.uss` 의 `.hud-text` 외곽선 0.6→0.85, 그림자 추가.
+- **하늘 5종 화면**(WebGL, [K] 순환, 1280×760): `screenshots/unity-sky-{day,dawn,storm,dusk,night}.jpg`, HUD 전체 `unity-hud.jpg`.
+  - day·dawn: 자연스러움(dawn 가벼운 비). 비 파티클·[K] 순환·날씨 이름 표시 정상.
+  - **storm·dusk·night: 하늘 돔이 거의 검은색인데 땅은 밝게 비춰짐**(storm 은 "09:10 DAY"). `HdriExposure`(storm 0.05, dusk 0.13, night 0.023)가
+    웹의 어두운 하늘 그라디언트에 맞춘 값이라 의도일 수 있으나, 햇빛·환경광과 균형이 안 맞아 보임 → 허브에 조정 요청(`SkyPresets`, PC는 값 미변경).
+  - 번개 섬광·천둥은 화면 캡처 간격(7 s) 안에 잡히지 않아 **미확인**. SSAO 셰이더 변형은 빌드 로그에 포함 확인.
+- 여전히 사람 확인 필요: 포인터 잠금 이동·사격, 소리 크기 균형(합성음·총성·천둥), 번개.

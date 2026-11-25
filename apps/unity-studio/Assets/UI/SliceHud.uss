@@ -1,6 +1,7 @@
 /* SPECIAL SOLDIER — Island Slice HUD (UI Toolkit). Reference resolution 1920×1080, colours follow the web HUD. */
 .hud-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: rgb(232, 238, 230); -unity-font-style: bold; font-size: 18px; }
-.hud-text { color: rgb(232, 238, 230); -unity-text-outline-width: 1px; -unity-text-outline-color: rgba(0, 0, 0, 0.6); }
+/* outline + shadow: the day HDRI sky is near-white behind the top HUD row (WebGL check 2026-11-25) */
+.hud-text { color: rgb(232, 238, 230); -unity-text-outline-width: 1px; -unity-text-outline-color: rgba(0, 0, 0, 0.85); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.75); }
 .hud-small { font-size: 15px; }
 .hud-big { font-size: 40px; }
 .hud-dim { color: rgba(220, 230, 222, 0.7); }
