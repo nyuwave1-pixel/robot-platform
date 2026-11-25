@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T12:27:41.733Z",
+  "generatedAt": "2026-11-25T12:52:18.534Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "e00c7e9"
+    "commit": "c00a7b1"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,60 @@
   },
   "devlog": [
     {
+      "hash": "c00a7b1",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity tactical gear"
+    },
+    {
+      "hash": "d3a8018",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: campaign flow — briefing, saved progress, next mission"
+    },
+    {
+      "hash": "57de40a",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity campaign flow (briefing, progress, next mission)"
+    },
+    {
+      "hash": "b80759a",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port Mission 05 LAST EXTRACTION — all five campaign missions (U4)"
+    },
+    {
+      "hash": "ca15567",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Mission 05 port"
+    },
+    {
+      "hash": "b6a40c4",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port Mission 04 UNDERGROUND ZERO with security cameras (U4)"
+    },
+    {
+      "hash": "04ba9dc",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "af39dc2",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Mission 04 port"
+    },
+    {
+      "hash": "961f53e",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "QA: briefing operation map + campaign regression 17/17"
+    },
+    {
       "hash": "e00c7e9",
       "date": "2026-11-25",
       "area": "game-dev",
@@ -569,60 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "feat: one SPECIAL SOLDIER, two editions — PLAY MODE screen in the classic menu, CLASSIC EDITION button in Unity"
-    },
-    {
-      "hash": "88ad854",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "feat: shared island vegetation for both editions; fix the Unity island being a mirror image"
-    },
-    {
-      "hash": "fb27f35",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims the shared island vegetation work (web + Unity)"
-    },
-    {
-      "hash": "eb0335f",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "feat: one island for both SPECIAL SOLDIER versions — shared terrain formula, Unity Terrain of the web island"
-    },
-    {
-      "hash": "cbc74bc",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims the shared island terrain work (web + Unity)"
-    },
-    {
-      "hash": "d859148",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): pause-menu volume applies before the first sound; PauseMenuTests compile; run-batch waits for Unity only"
-    },
-    {
-      "hash": "dd25198",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "feat(unity-studio): settings and pause menu (Esc) with the web game's options, saved between sessions"
-    },
-    {
-      "hash": "f26f93a",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims the settings / pause menu work"
-    },
-    {
-      "hash": "fd35aa7",
-      "date": "2026-11-25",
-      "area": "unity-studio",
-      "subject": "fix(unity-studio): recalibrate HDRI sky exposure by mood and dim the sun with the sky"
-    },
-    {
-      "hash": "792c149",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'hub/awareness-parity' into claude/relaxed-ramanujan-83okpi"
     }
   ]
 }

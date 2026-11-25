@@ -40,6 +40,6 @@ namespace SpecialSoldier
         /// <summary>Tests: start from the defaults and never write PlayerPrefs, so a player's saved options can't change test
         /// results and tests can't overwrite them.</summary>
         public static bool Volatile { get; private set; }
-        public static void UseDefaultsForTests() { Volatile = true; _current = new GameSettings(); }
+        public static void UseDefaultsForTests() { Volatile = true; _current = new GameSettings(); ProgressStore.ResetForTests(); }
     }
 }

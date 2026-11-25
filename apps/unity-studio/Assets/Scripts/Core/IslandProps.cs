@@ -34,7 +34,9 @@ namespace SpecialSoldier.Core
     public readonly struct PropLight
     {
         public readonly double X, Y, Z, Range;
-        public PropLight(double x, double y, double z, double range) { X = x; Y = y; Z = z; Range = range; }
+        /// <summary>Facility emergency light (web 0xff3020, pulsing 60 ± 40) instead of a warm lamp.</summary>
+        public readonly bool Red;
+        public PropLight(double x, double y, double z, double range, bool red = false) { X = x; Y = y; Z = z; Range = range; Red = red; }
     }
 
     /// <summary>A rotating radar (web: radar() — Blender 'Radar' base scaled to the mast height, dish spinning 0.7 rad/s).</summary>
@@ -51,9 +53,21 @@ namespace SpecialSoldier.Core
         public PropModel(string geo, double x, double y, double z, double rotY = 0) { Geo = geo; X = x; Y = y; Z = z; RotY = rotY; }
     }
 
+    /// <summary>A flat painted surface on the ground (web: runway, stripes, helipad — meshes without colliders).</summary>
+    public readonly struct PropFlat
+    {
+        public readonly double X, Y, Z, Sx, Sz; public readonly uint Color; public readonly bool Disc;
+        public PropFlat(double x, double y, double z, double sx, double sz, uint color, bool disc = false) { X = x; Y = y; Z = z; Sx = sx; Sz = sz; Color = color; Disc = disc; }
+    }
+
     public sealed class PropSet
     {
+        public readonly List<PropFlat> Flats = new List<PropFlat>();
         public readonly List<PropModel> Models = new List<PropModel>();
+        /// <summary>Floor and ceiling slabs of indoor levels (web: meshes, the facility's floor is the FAC_Y plane) — boxes with colliders.</summary>
+        public readonly List<PropCall> Slabs = new List<PropCall>();
+        /// <summary>Security cameras (Mission 04): island position of the camera head and its sweep phase.</summary>
+        public readonly List<SecurityCam> Cameras = new List<SecurityCam>();
         public readonly List<PropCall> Calls = new List<PropCall>();
         public readonly List<PropLight> Lights = new List<PropLight>();
         public readonly List<PropRadar> Radars = new List<PropRadar>();
@@ -289,6 +303,118 @@ namespace SpecialSoldier.Core
             return b.S;
         }
 
+        /// <summary>web POI: helipad (Mission 05 landing zone) and runway centre.</summary>
+        public static readonly (double x, double z) Helipad = (205, -300), Runway = (110, -295);
+
+        /// <summary>ZONE 05 — AIRFIELD &amp; PORT (build.js): runway, hangar (the facility lift comes up inside), control tower,
+        /// helipad with its sandbag ring, runway cover and parked vehicles, the fuel tank, lamps; the port quay with containers,
+        /// a crane, the cargo ship and the pier.</summary>
+        public static PropSet Airfield(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            const double y = 7;
+            b.S.Flats.Add(new PropFlat(105, y + 0.04, -296, 300, 26, 0x1b1c1e));
+            for (int i = 0; i < 14; i++) b.S.Flats.Add(new PropFlat(-30 + i * 21, y + 0.06, -296, 9, 0.6, 0xcfcfc0));
+            // hangar (facility exit elevator inside) — open to the north (runway side)
+            b.Building(40, -262, 40, 24, 9, "metal", new Dictionary<char, double[][]> { ['n'] = new[] { new[] { 26.0, 54.0 } } }, "metal", "rust");
+            b.Crate(28, -256, 1.4, y); b.Crate(29.6, -256, 1.4, y); b.Container(52, -254, "olive", true, y); b.AmmoBox(34, -253, y);
+            b.Building(120, -262, 16, 12, 9, "concrete", new Dictionary<char, double[][]> { ['n'] = new[] { new[] { 118.0, 122.0 } } });
+            b.Static("TowerCab", 120, y + 9.2, -262, 1, 1, 1, 0, null, true);
+            // helipad
+            var hp = Helipad;
+            b.S.Flats.Add(new PropFlat(hp.x, y + 0.06, hp.z, 22, 22, 0x2a2c2e, true));
+            b.S.Flats.Add(new PropFlat(hp.x, y + 0.13, hp.z, 18.4, 18.4, 0xe8e060, true)); b.S.Flats.Add(new PropFlat(hp.x, y + 0.14, hp.z, 17.2, 17.2, 0x2a2c2e, true));   // yellow ring 8.6–9.2
+            foreach (var (ax, az, sx, sz) in new[] { (-2.4, 0.0, 0.9, 7.0), (2.4, 0.0, 0.9, 7.0), (0.0, 0.0, 4.2, 0.9) }) b.S.Flats.Add(new PropFlat(hp.x + ax, y + 0.15, hp.z + az, sx, sz, 0xf0f0e8));
+            b.Sandbags(190, -286, 7); b.Sandbags(220, -288, 7); b.Sandbags(188, -314, 6); b.Sandbags(222, -312, 6); b.Sandbags(205, -282, 5); b.Sandbags(186, -300, 5, false);
+            b.Container(232, -300, "blue", false, y); b.Container(176, -318, "rust", true, y);
+            b.AmmoBox(205, -310, y); b.Barrel(170, -284, y);
+            // runway cover + parked vehicles + fuel
+            b.Truck(80, -280); b.Truck(150, -312, false); b.Container(100, -280, "rust", true, y); b.Container(60, -312, "blue", true, y); b.Container(130, -280, "olive", true, y);
+            b.Sandbags(110, -305, 8); b.Sandbags(85, -300, 6, false); b.Sandbags(140, -296, 6, false);
+            b.Box(0, y, -300, 6, 3.4, 6, "white", "P_tank", kind: "tank", surf: "metal"); b.Barrel(6, -296, y); b.Barrel(7, -297.4, y);
+            for (int i = 0; i < 8; i++) b.Lamp(-40 + i * 40, -278, 5, i == 2 || i == 6);
+            // port: quay, cranes, cargo ship
+            const double py = 2.2;
+            string[] paints = { "rust", "blue", "olive" };
+            for (int i = 0; i < 5; i++) b.Container(10 + i * 9, -368 - (i % 2) * 4, paints[i % 3], i % 2 == 0, py);
+            b.Container(19, -368, "blue", true, py + 2.6);
+            b.Static("Crane", 100, py, -372, 1, 1, 1, 0, null, true); b.Box(100, py, -372, 1.4, 18, 1.4, "rust", hidden: true, surf: "metal");
+            b.Lamp(40, -356, 7, true); b.Lamp(100, -356, 7);
+            b.Static("CargoShip", 55, -1.5, -452, 1, 1, 1, -Math.PI / 2, null, true);   // Blender freighter: bow towards −x, house aft at x = 88
+            b.Box(55, -1.5, -452, 96, 9, 20, "dark", hidden: true, surf: "metal"); b.Box(88, 7.5, -452, 16, 10, 16, "white", hidden: true, surf: "metal");
+            string[] shipPaints = { "rust", "blue", "olive", "red" };
+            double[][] shipTints = { new[] { 1.35, 0.62, 0.4 }, new[] { 0.5, 0.8, 1.3 }, new[] { 0.78, 0.86, 0.56 }, new[] { 1.5, 0.35, 0.3 } };
+            for (int i = 0; i < 9; i++) b.Box(18 + i * 6.6, 8.7, -452 + ((i % 3) - 1) * 4.2, 6.1, 2.6 * (1 + (i % 2)), 2.5, shipPaints[i % 4], "P_container", surf: "metal", tint: shipTints[i % 4]);
+            b.Static("Pier", 55, 1.6, -432, 1, 1, 1, 0, null, true); b.Box(55, 1.6, -432, 60, 0.6, 22, "concrete", hidden: true);   // pier (Blender deck, piles, bollards)
+            return b.S;
+        }
+
+        /// <summary>The underground bio-research facility under the bunker (web POI.fac, world.js FAC_Y / FAC_H).</summary>
+        public static readonly (double x, double z) Fac = (90, -150);
+        public const double FacY = -60, FacH = 4.2;
+
+        /// <summary>ZONE 04 — UNDERGROUND FACILITY (build.js buildFacility): elevator hall, camera corridor with the security door,
+        /// laboratory with glass partitions, bio vault, second corridor, server room with the uplink console and the exit lift.
+        /// Points: facSpawn, secDoor (the door's own centre), secDoorPos (where you override it), sample, sampleMesh, server, exitLift.</summary>
+        public static PropSet Facility(float[] heights = null)
+        {
+            var b = new Builder(heights ?? IslandVegetation.GridHeights());
+            double ox = Fac.x, oz = Fac.z, y = FacY, h = FacH;
+            (double x, double z) L(double x, double z) => (ox + x, oz + z);
+            void Room(double x0, double z0, double x1, double z1, Dictionary<char, double[][]> gaps, string mat = "white")
+            {
+                var g = new Dictionary<char, double[][]>();
+                foreach (var kv in gaps) g[kv.Key] = Array.ConvertAll(kv.Value, ab => kv.Key == 'n' || kv.Key == 's' ? new[] { ox + ab[0], ox + ab[1] } : new[] { oz + ab[0], oz + ab[1] });
+                b.Walls(ox + x0, oz + z0, ox + x1, oz + z1, y, h, mat, g, 0.5, "metal");
+                double cx = ox + (x0 + x1) / 2, cz = oz + (z0 + z1) / 2, w = x1 - x0 + 1, d = z1 - z0 + 1;
+                b.S.Slabs.Add(new PropCall("box", "", "dark", cx, y - 0.3, cz, w, 0.3, d, 0, false, false, false, false, "floor", "metal", null));
+                b.S.Slabs.Add(new PropCall("box", "", "concrete", cx, y + h, cz, w, 0.3, d, 0, false, false, false, false, "ceiling", "concrete", null));
+            }
+            void Light(double x, double z, bool red, bool on) { var p = L(x, z); if (on) b.S.Lights.Add(new PropLight(p.x, y + h - 0.5, p.z, 30, red)); }
+            Dictionary<char, double[][]> G(params (char k, double a, double c)[] gs) { var r = new Dictionary<char, double[][]>(); foreach (var (k, a, c) in gs) r[k] = new[] { new[] { a, c } }; return r; }
+
+            // A: elevator hall
+            Room(-8, -16, 8, 8, G(('n', -2.5, 2.5))); Light(0, -4, false, true); Light(-5, 4, true, false);
+            { var p = L(-5, -10); b.Box(p.x, y, p.z, 2.4, 1.1, 1.2, "dark", "P_ammo", kind: "cover", surf: "metal"); }
+            { var p = L(5, -12); b.Box(p.x, y, p.z, 1.2, 1.1, 2.4, "dark", "P_ammo", rot90: true, kind: "cover", surf: "metal"); }
+            // B: corridor with cameras
+            Room(-2.5, -46, 2.5, -16, G(('n', -2.5, 2.5), ('s', -2.5, 2.5))); Light(0, -24, true, true); Light(0, -38, true, false);
+            foreach (var (cx, cz) in new[] { (2.0, -25.0), (-2.0, -41.0) })
+            {
+                var p = L(cx, cz);
+                b.Box(p.x, y + h - 0.8, p.z, 0.6, 0.6, 0.7, "", hidden: true, kind: "camera", surf: "metal");   // web: addCollider hp 10, pass
+                b.S.Cameras.Add(new SecurityCam(p.x, p.z, cx));
+            }
+            { var p = L(0, -46); b.Box(p.x, y, p.z, 5, h, 0.4, "rust", "P_door", surf: "metal"); b.S.Points["secDoor"] = (p.x, y, p.z); b.S.Points["secDoorPos"] = (p.x, y + 1.3, p.z + 1.6); }
+            // C: laboratory with glass partitions
+            Room(-14, -76, 14, -46, new Dictionary<char, double[][]> { ['s'] = new[] { new[] { -2.5, 2.5 } }, ['n'] = new[] { new[] { -2.5, 2.5 } }, ['e'] = new[] { new[] { -63.0, -59.0 } } });
+            Light(-7, -55, false, true); Light(7, -68, false, true); Light(0, -61, true, false);
+            foreach (var gx in new[] { -9.0, -5.0, 5.0, 9.0 })
+            {
+                var p = L(gx, -61);
+                b.Static("P_window", p.x, y, p.z, 3.9, h - 0.4, 0.3); b.Box(p.x, y, p.z, 3.9, h - 0.4, 0.2, "glass", kind: "glass", surf: "glass");
+            }
+            foreach (var (tx, tz, sx, sz) in new[] { (-8.0, -53.0, 5.0, 1.4), (8.0, -53.0, 5.0, 1.4), (-8.0, -69.0, 5.0, 1.4), (6.0, -70.0, 1.4, 5.0), (0.0, -56.0, 1.4, 3.0) })
+            { var p = L(tx, tz); b.Box(p.x, y, p.z, sx, 1.05, sz, "white", "P_desk", rot90: sz > sx, kind: "cover", surf: "metal"); }
+            foreach (var (tx, tz) in new[] { (-12.0, -72.0), (12.0, -49.0) }) { var p = L(tx, tz); b.Box(p.x, y, p.z, 1.4, 2.6, 1.4, "blue", "P_cabinet", kind: "cover", surf: "metal"); }
+            // F: bio vault (east of the lab)
+            Room(14, -70, 34, -52, G(('w', -63, -59)), "dark"); Light(24, -61, true, true);
+            {
+                var v = L(29, -61); b.Box(v.x, y, v.z, 1.6, 1.0, 1.6, "metal", "P_pedestal", surf: "metal");
+                b.S.Points["sampleMesh"] = (v.x, y + 1.5, v.z); b.S.Points["sample"] = (v.x - 1.4, y + 1.2, v.z);
+            }
+            foreach (var (tx, tz) in new[] { (19.0, -56.0), (19.0, -66.0), (26.0, -55.0) }) { var p = L(tx, tz); b.Box(p.x, y, p.z, 1.5, 1.3, 1.5, "olive", "P_ammo", kind: "cover", surf: "metal"); }
+            // D: corridor, E: server room
+            Room(-2.5, -90, 2.5, -76, G(('n', -2.5, 2.5), ('s', -2.5, 2.5))); Light(0, -83, true, true);
+            Room(-13, -118, 13, -90, G(('s', -2.5, 2.5)), "dark"); Light(-6, -98, false, true); Light(6, -110, true, true);
+            foreach (var rx in new[] { -9.0, -4.5, 4.5, 9.0 }) foreach (var rz in new[] { -97.0, -105.0 })
+                { var p = L(rx, rz); b.Box(p.x, y, p.z, 1.1, 2.7, 4.6, "dark", "P_rack", rot90: true, kind: "cover", surf: "metal"); }
+            { var t = L(4, -116); b.Box(t.x, y, t.z, 3, 1.1, 1, "metal", "P_console", surf: "metal"); b.S.Points["server"] = (t.x, y + 1.3, t.z + 1.3); }
+            { var e = L(-9, -114); b.S.Points["exitLift"] = (e.x, y + 1, e.z); }
+            b.S.Points["facSpawn"] = (ox, y, oz + 4);
+            return b.S;
+        }
+
         /// <summary>Several prop sets as one (a mission that spans zones).</summary>
         public static PropSet Merge(params PropSet[] sets)
         {
@@ -296,6 +422,7 @@ namespace SpecialSoldier.Core
             foreach (var s in sets)
             {
                 m.Calls.AddRange(s.Calls); m.Lights.AddRange(s.Lights); m.Radars.AddRange(s.Radars); m.Models.AddRange(s.Models);
+                m.Slabs.AddRange(s.Slabs); m.Cameras.AddRange(s.Cameras); m.Flats.AddRange(s.Flats);
                 foreach (var kv in s.Points) m.Points[kv.Key] = kv.Value;
             }
             return m;

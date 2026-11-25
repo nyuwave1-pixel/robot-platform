@@ -13,6 +13,8 @@ namespace SpecialSoldier.Core.Tests
             yield return new TestCaseData(Campaign.M01, CampaignFixture.MISSION01).SetName("MISSION 01");
             yield return new TestCaseData(Campaign.M02, CampaignFixture.MISSION02).SetName("MISSION 02");
             yield return new TestCaseData(Campaign.M03, CampaignFixture.MISSION03).SetName("MISSION 03");
+            yield return new TestCaseData(Campaign.M04, CampaignFixture.MISSION04).SetName("MISSION 04");
+            yield return new TestCaseData(Campaign.M05, CampaignFixture.MISSION05).SetName("MISSION 05");
         }
 
         sealed class FakeWorld : IMissionWorld
@@ -28,6 +30,7 @@ namespace SpecialSoldier.Core.Tests
         {
             Assert.AreEqual(f.Code, m.Code); Assert.AreEqual(f.Name, m.Name); Assert.AreEqual(f.Zone, m.Zone); Assert.AreEqual(f.Sky, m.SkyId);
             Assert.That((m.SpawnX, m.SpawnZ, m.SpawnYaw), Is.EqualTo((f.SpawnX, f.SpawnZ, f.SpawnYaw)));
+            Assert.AreEqual(f.SpawnY, m.SpawnY, "spawn height");
             Assert.AreEqual(f.Spawns.Length, m.Spawns.Length, "spawn count");
             for (int i = 0; i < f.Spawns.Length; i++)
             {
@@ -36,6 +39,7 @@ namespace SpecialSoldier.Core.Tests
                 Assert.That(a.X, Is.EqualTo(e.x).Within(1e-9), at); Assert.That(a.Z, Is.EqualTo(e.z).Within(1e-9), at);
                 Assert.AreEqual(e.yaw.HasValue, a.Yaw.HasValue, at + " yaw"); if (e.yaw.HasValue) Assert.That(a.Yaw.Value, Is.EqualTo(e.yaw.Value).Within(1e-12), at);
                 Assert.AreEqual(e.onStructure, a.OnStructure, at + " on structure");
+                Assert.AreEqual(e.y, a.Y, at + " height");
                 Assert.AreEqual(e.patrol == null, a.Patrol == null, at + " patrol");
                 if (e.patrol != null) Assert.That(a.Patrol.SelectMany(p => new[] { p.x, p.z }).ToArray(), Is.EqualTo(e.patrol).Within(1e-9), at + " patrol");
             }
@@ -74,21 +78,27 @@ namespace SpecialSoldier.Core.Tests
             foreach (var h in f.Hooks)
             {
                 var radio = new List<string>(); var waves = new List<string>();
-                if (h.name == "alarm")
+                if (h.name == "bossPhase2")
                 {
-                    radio.Add(m.AlarmRadio);
+                    radio.Add(m.BossPhase2Radio); waves.Add(Wave(m.Waves["phase2"]));
+                }
+                else if (h.name == "alarm")
+                {
+                    if (m.AlarmRadio != null) radio.Add(m.AlarmRadio);
                     if (m.AlarmWave != null) waves.Add(Wave(m.AlarmWave));
-                    if (h.waves.Length == 0) Assert.IsNotNull(m.AlarmSearchPrefix, "an alarm without a wave sends the patrols searching");
+                    if (h.waves.Length == 0 && h.radio.Length > 0) Assert.IsNotNull(m.AlarmSearchPrefix, "an alarm without a wave sends the patrols searching");
                 }
                 else
                 {
                     var r = m.NewRunner(); var w = new FakeWorld { AliveCount = h.alive };
                     r.Begin(w);
+                    r.EventRaised += e => { if (h.radio.Contains("@" + e)) radio.Add("@" + e); };   // web mission-object calls (heliArrive, ending)
                     r.RadioSaid += radio.Add; r.WaveRequested += (name, n) => waves.Add(Wave(m.Waves[name].Take(n)));
                     foreach (System.Text.RegularExpressions.Match fm in System.Text.RegularExpressions.Regex.Matches(h.flags, "\"(\\w+)\":true")) r.Flags.Add(fm.Groups[1].Value);
                     var idx = h.name.Split(' ')[1].Split('.').Select(int.Parse).ToArray();
                     var o = r.Objectives[idx[0]];
-                    if (h.name.StartsWith("start")) o.OnStart(r); else if (idx.Length == 1) o.OnDone(r); else o.Parts[idx[1]].OnDone(r);
+                    if (h.name.StartsWith("tick")) { o.OnStart?.Invoke(r); radio.Clear(); waves.Clear(); o.OnTick(r, 2.1f); }   // the first wave after the 2 s lead-in
+                    else if (h.name.StartsWith("start")) o.OnStart(r); else if (idx.Length == 1) o.OnDone(r); else o.Parts[idx[1]].OnDone(r);
                     var expect = System.Text.RegularExpressions.Regex.Matches(h.flagsAfter, "\"(\\w+)\":true").Cast<System.Text.RegularExpressions.Match>().Select(x => x.Groups[1].Value).OrderBy(x => x);
                     Assert.That(r.Flags.OrderBy(x => x), Is.EqualTo(expect), h.name + " flags");
                 }

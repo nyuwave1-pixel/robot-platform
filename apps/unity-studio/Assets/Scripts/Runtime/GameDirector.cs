@@ -21,6 +21,29 @@ namespace SpecialSoldier
         public WaveGroup[] waves = new WaveGroup[0];
         /// <summary>Mission 02: the relay mast that falls when the C4 goes off (event "detonate").</summary>
         public Transform relayMast;
+        /// <summary>Mission 04: the security door (slides up when overridden) and the glowing bio-sample (taken from the vault).</summary>
+        public Transform securityDoor;
+        public GameObject bioSample;
+        /// <summary>Mission 04: a security camera saw you (once; also counts as the mission's alarm).</summary>
+        public bool CameraAlarmed { get; private set; }
+        /// <summary>Mission 05: the extraction helicopter (flies in when the LZ is held) and where the smoke goes.</summary>
+        public Transform heli;
+        public bool HeliLanded => Mission != null && Mission.Flags.Contains("heliLanded");
+        /// <summary>Campaign: this mission's place in Core.Campaign.All (−1 outside the campaign).</summary>
+        public int CampaignIndex => missionMode == MissionMode.Campaign ? System.Array.IndexOf(Campaign.All, Campaign.Get(campaignId)) : -1;
+        /// <summary>The following campaign mission's scene, when it is in this build (N on the result screen).</summary>
+        public string NextScene
+        {
+            get
+            {
+                int i = CampaignIndex; if (i < 0 || i + 1 >= Campaign.All.Length) return null;
+                string s = SceneRouter.SceneFor(Campaign.All[i + 1].Id);
+                return Application.CanStreamedLevelBeLoaded(s) ? s : null;
+            }
+        }
+        public bool LastMission => CampaignIndex == Campaign.All.Length - 1;
+        /// <summary>The win was this mission's first clear (web: unlocks are announced).</summary>
+        public bool FirstClear { get; private set; }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -87,7 +110,7 @@ namespace SpecialSoldier
             Mission.WaveRequested += SendWave;
             Mission.EventRaised += OnMissionEvent;
             Mission.Begin(this);   // first objective's radio / start hook, now that everything listens
-            Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
+            if (!BriefingScreen.IsOpen) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         }
 
         MissionRunner BuildMission()
@@ -133,9 +156,10 @@ namespace SpecialSoldier
             var kb = Keyboard.current;
             if (kb == null) return;
             if (State != Outcome.Playing && kb.rKey.wasPressedThisFrame) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (State == Outcome.Won && kb.nKey.wasPressedThisFrame && NextScene != null) SceneManager.LoadScene(NextScene);   // campaign: on to the next mission
             if (kb.escapeKey.wasPressedThisFrame && !PauseMenu.Instance) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }   // the pause menu owns Esc when present
             var mouse = Mouse.current;
-            if (State == Outcome.Playing && !PauseMenu.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
+            if (State == Outcome.Playing && !PauseMenu.IsOpen && !BriefingScreen.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
             { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         }
 
@@ -143,7 +167,8 @@ namespace SpecialSoldier
         void OnAlarm()
         {
             var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
-            Radio(campaign?.AlarmRadio ?? "ENEMY CALLED FOR REINFORCEMENTS");
+            if (campaign == null) Radio("ENEMY CALLED FOR REINFORCEMENTS");
+            else if (campaign.AlarmRadio != null) Radio(campaign.AlarmRadio);   // M04: the web alarm() says nothing (the cameras speak)
             if (campaign?.AlarmSearchPrefix != null && player)
                 // web M02 alarm(): patrols not yet searching head for where you are
                 foreach (var e in enemies)
@@ -162,10 +187,12 @@ namespace SpecialSoldier
         void Activate(GameObject[] members, int count)
         {
             if (members == null) return;
-            for (int i = 0; i < members.Length && i < count; i++)
+            int sent = 0;   // the next `count` soldiers still waiting (a pool can be called several times: M04 uplink waves)
+            for (int i = 0; i < members.Length && sent < count; i++)
             {
                 var go = members[i];
                 if (!go || go.activeSelf) continue;
+                sent++;
                 go.SetActive(true);
                 var e = go.GetComponent<EnemyAgent>(); if (!e) continue;
                 enemies.Add(e);
@@ -179,6 +206,69 @@ namespace SpecialSoldier
             if (evt == "detonate") StartCoroutine(Detonate());
             else if (evt == "sabotage") StartCoroutine(Sabotage());
             else if (evt == "siren") SliceFx.I.Alarm(IslandGround(Campaign.Hq.x, Campaign.Hq.z));
+            else if (evt == "openDoor") StartCoroutine(OpenDoor());
+            else if (evt == "sample" && bioSample) bioSample.SetActive(false);
+            else if (evt == "sirenServer") SliceFx.I.Alarm(player ? player.transform.position : Vector3.zero);
+            else if (evt == "smoke") SmokeColumn.Spawn(IslandGround(IslandProps.Helipad.x + 6, IslandProps.Helipad.z + 5), new Color(0.25f, 0.82f, 0.38f), 160f);   // web 0x40d060
+            else if (evt == "heliArrive") StartCoroutine(HeliArrive());
+        }
+
+        /// <summary>VIPER at half health (web Missions.event bossPhase2): his shout, the siren, and four more onto the runway.</summary>
+        public void OnBossPhase2(EnemyAgent boss)
+        {
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            if (campaign?.BossPhase2Radio != null) Radio(campaign.BossPhase2Radio);
+            SliceFx.I.Alarm(boss.transform.position);
+            SendWave("phase2", 4);
+        }
+
+        /// <summary>web heliArrive / updateHeli 'in': over 8.5 s the helicopter eases in from 240 m east, 70 m up and 120 m south
+        /// (cubic ease-out) onto the pad, then you can board. Island coordinates, mapped to Unity with the z mirror.</summary>
+        System.Collections.IEnumerator HeliArrive()
+        {
+            Radio("ANGEL 1-2: On final. Get your people ready!");
+            if (!heli) { Mission?.Flags.Add("heliLanded"); yield break; }
+            heli.gameObject.SetActive(true);
+            var p = IslandProps.Helipad; var rotor = FindChild(heli, "rotor"); var tail = FindChild(heli, "tail");
+            for (float t = 0f; ; t += Time.deltaTime)
+            {
+                float k = Mathf.Clamp01(t / 8.5f), e = 1f - Mathf.Pow(1f - k, 3f);
+                var w = IslandTerrain.ToWorld(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Mathf.Sin(Time.time * 2f) * 0.3f : 0f), p.z - (1 - e) * 120);
+                heli.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                heli.rotation = Quaternion.Euler(-(1 - k) * 0.25f * Mathf.Rad2Deg, -(-1.9f + e * 0.35f) * Mathf.Rad2Deg, 0f);   // island yaw → Unity (mirrored)
+                if (rotor) rotor.Rotate(0f, 26f * Mathf.Rad2Deg * Time.deltaTime, 0f, Space.Self);
+                if (tail) tail.Rotate(40f * Mathf.Rad2Deg * Time.deltaTime, 0f, 0f, Space.Self);
+                if (k >= 1f && !HeliLanded) { Mission?.Flags.Add("heliLanded"); Radio("HELICOPTER LANDED — BOARD NOW"); }
+                if (State != Outcome.Playing) yield break;
+                yield return null;
+            }
+        }
+
+        static Transform FindChild(Transform root, string name)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) return t;
+            return null;
+        }
+
+        /// <summary>web: door.position.y = FAC_Y + 2.1 + min(4, t × 2.5) — it slides 4 m up into the ceiling in 1.6 s.</summary>
+        System.Collections.IEnumerator OpenDoor()
+        {
+            if (!securityDoor) yield break;
+            SliceFx.I.HitConfirm(false);   // stand-in for the web 'beep' (700 Hz)
+            Vector3 from = securityDoor.position;
+            for (float t = 0f; t < 1.6f; t += Time.deltaTime) { securityDoor.position = from + Vector3.up * Mathf.Min(4f, t * 2.5f); yield return null; }
+            securityDoor.position = from + Vector3.up * 4f;
+        }
+
+        /// <summary>A Mission 04 camera locked the facility down (web: camAlarm — siren, radio, alarm stat, everyone searches).</summary>
+        public void CameraAlarm(Vector3 at)
+        {
+            if (CameraAlarmed || State != Outcome.Playing) return;
+            CameraAlarmed = true;
+            var campaign = missionMode == MissionMode.Campaign ? Campaign.Get(campaignId) : null;
+            SliceFx.I.Alarm(at);
+            Radio("CAMERA ALERT — FACILITY ON LOCKDOWN   " + (campaign?.CameraAlarmRadio ?? ""));
+            Mission?.RaiseAlarm();   // counts the alarm and sends everyone not yet searching after you (OnAlarm)
         }
 
         /// <summary>A point on the island (web coordinates) at ground height in this scene.</summary>
@@ -245,6 +335,7 @@ namespace SpecialSoldier
         {
             if (State != Outcome.Playing) return;
             State = o; Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+            if (o == Outcome.Won && Mission != null && CampaignIndex >= 0) FirstClear = ProgressStore.Complete(CampaignIndex, Mission.Stats);   // web: save.progress / best
             if (o == Outcome.Won && Mission != null)
                 PortalBridge.ReportResult(Mission.Code, Mission.Stats.Grade.ToString(), Mathf.RoundToInt(Mission.Stats.Score), Mission.Stats.PortalRp);
         }

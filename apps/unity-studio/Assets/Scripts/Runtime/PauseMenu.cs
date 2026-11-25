@@ -76,7 +76,18 @@ namespace SpecialSoldier
             var restart = new Button(Restart) { text = "RESTART MISSION" }; restart.AddToClassList("pause-secondary"); actions.Add(restart);
             // one game, two editions: back to the Three.js campaign (docs/game-dev/EDITIONS_ROADMAP.md)
             var classic = new Button(PortalBridge.GoToClassicEdition) { text = "CLASSIC EDITION  (full campaign)" }; classic.AddToClassList("pause-secondary"); actions.Add(classic);
-            Text(card, "WASD move · Shift sprint · C crouch · Space jump · LMB fire · RMB aim · R reload · V mode · 1–3 weapon · G grenade · E interact · K weather", "pause-keys");
+            // campaign: every mission of this edition, locked until the one before it is cleared (web campaign screen)
+            Text(card, "CAMPAIGN", "pause-head");
+            var missions = new VisualElement(); missions.AddToClassList("pause-buttons"); card.Add(missions);
+            for (int i = 0; i < Campaign.All.Length; i++)
+            {
+                var m = Campaign.All[i]; string scene = SceneRouter.SceneFor(m.Id); var best = ProgressStore.Current.Best(i);
+                bool open = ProgressStore.Current.Unlocked(i) && Application.CanStreamedLevelBeLoaded(scene);
+                var b = new Button(() => { Time.timeScale = 1f; UnityEngine.SceneManagement.SceneManager.LoadScene(scene); })
+                    { text = $"{m.Code.Replace("MISSION ", "M")} {m.Name}" + (best != null ? $"  [{best.Grade}]" : open ? "" : "  — LOCKED") };
+                b.AddToClassList("pause-choice"); b.SetEnabled(open); missions.Add(b);
+            }
+            Text(card, "WASD move · Shift sprint · C crouch · Space jump · LMB fire · RMB aim · R reload · V mode · 1–3 weapon · G grenade · E interact · K weather · N night vision · T thermal · L light · H med kit · B drone · X/F select/use", "pause-keys");
         }
 
         static Label Text(VisualElement parent, string text, string cls) { var l = new Label(text); l.AddToClassList(cls); parent.Add(l); return l; }
@@ -104,7 +115,7 @@ namespace SpecialSoldier
             _wasCaptured = captured;
 
             var kb = Keyboard.current;
-            if (kb == null || !kb.escapeKey.wasPressedThisFrame) return;
+            if (kb == null || !kb.escapeKey.wasPressedThisFrame || BriefingScreen.IsOpen) return;
             if (_open) Close();
             else if (playing) Open();
             _wasCaptured = GameDirector.CursorCaptured;

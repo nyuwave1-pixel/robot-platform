@@ -14,7 +14,15 @@ const POI = {}; for (const m of build.matchAll(/(\w+): \{ x: (-?[\d.]+), z: (-?[
 const GEN = obj(missions.match(/export const GEN = (\{[^}]+\})/)[1]);
 { // buildIsland() moves the intel point onto the HQ desk at run time: POI.intel = { x: 8, y: y + 1.2, z: -137 } with the base at y = 16
   const m = build.match(/POI\.intel = \{ x: (-?[\d.]+), y: y \+ ([\d.]+), z: (-?[\d.]+) \}/); POI.intel = { x: +m[1], y: 16 + +m[2], z: +m[3] }; }
-const CODES = ['MISSION 01', 'MISSION 02', 'MISSION 03'];
+const FAC_Y = +src('world', 'world.js').match(/FAC_Y = (-?[\d.]+)/)[1];
+{ // buildFacility() sets the facility points (secDoorPos, sample, server, exitLift, facSpawn, facL) the Mission 04 objectives use
+  const fs = build.indexOf('function buildFacility()'); let fd = 0, fe = build.indexOf('{', fs);
+  for (let i = fe; i < build.length; i++) { if (build[i] === '{') fd++; else if (build[i] === '}' && --fd === 0) { fe = i + 1; break; } }
+  const W = { box: () => ({ mesh: { position: {} } }), addStatic: () => true, addCollider: () => ({}), walls() {}, group: { add() {} }, statics: { push() {} }, animated: { push() {} } };
+  const anyP = () => new Proxy(function () {}, { get: (t, k) => (k === Symbol.toPrimitive ? () => 0 : anyP()), apply: () => anyP(), construct: () => anyP() });
+  new Function('G', 'THREE', 'MAT', 'POI', 'FAC_Y', 'FAC_H', `${build.match(/const ins = [^\n]+/)[0]}\n${build.slice(fs, fe)}\nbuildFacility();`)({ world: W, fx: anyP() }, new Proxy({}, { get: () => anyP() }), new Proxy({}, { get: () => ({}) }), POI, FAC_Y, 4.2);
+}
+const CODES = ['MISSION 01', 'MISSION 02', 'MISSION 03', 'MISSION 04', 'MISSION 05'];
 
 function block(code) {
   const a = missions.indexOf(`{ code: '${code}'`); if (a < 0) throw new Error(code + ' not found');
@@ -25,10 +33,11 @@ const any = () => new Proxy(function () {}, { get: (t, k) => (k === Symbol.toPri
 
 function run(code) {
   const rec = { spawns: [], radio: [], waves: [] }; let alive = 1;
-  const sp = (kind, x, z, o = {}) => { rec.spawns.push({ kind, x, z, group: o.group || '', yaw: o.yaw ?? null, patrol: o.patrol || null, top: o.y === 'TOP' }); return { lk: { set() {} }, pos: { y: 0 } }; };
+  const sp = (kind, x, z, o = {}) => { rec.spawns.push({ kind, x, z, group: o.group || '', yaw: o.yaw ?? null, patrol: o.patrol || null, top: o.y === 'TOP', y: typeof o.y === 'number' && !Number.isNaN(o.y) ? o.y : null }); return { lk: { set() {} }, pos: { y: 0 } }; };
   const wave = (list, group) => rec.waves.push({ group, list: list.map(([k, x, z]) => ({ kind: k, x, z })) });
-  const G = { hud: { radio: (t) => rec.radio.push(t), toast() {}, banner() {}, objective() {} }, enemies: { count: () => alive }, world: { heightAt: () => 0, groundAt: () => 0, interactables: [] }, player: { pos: { x: 0, z: 0 } }, cine: any(), fx: any(), audio: any(), squad: any(), weapons: any(), gear: any() };
-  const scope = new Proxy({ G, POI, GEN, sp, wave, top: () => 'TOP', E: () => ({ list: [] }), ST: { SEARCH: 2, COMBAT: 3 }, buildGenOutpost() {}, Math, console }, { has: (t, k) => k !== 'def', get: (t, k) => (k === Symbol.unscopables ? undefined : k in t ? t[k] : any()) });
+  const G = { hud: { radio: (t) => rec.radio.push(t), toast() {}, banner() {}, objective() {} }, enemies: { count: () => alive }, world: { heightAt: () => NaN, groundAt: () => NaN, interactables: [], animated: [], los: () => true }, player: { pos: { x: 0, z: 0 } }, cine: any(), fx: any(), audio: any(), squad: any(), weapons: any(), gear: any() };
+  const MathR = Object.assign(Object.create(Math), { random: () => 0.3 });   // deterministic hooks (Mission 04 uplink: 0.3 < 0.5 → elite)
+  const scope = new Proxy({ G, POI, GEN, FAC_Y, sp, wave, top: () => 'TOP', E: () => ({ list: [], count: () => 0 }), ST: { SEARCH: 2, COMBAT: 3 }, buildGenOutpost() {}, Math: MathR, console }, { has: (t, k) => !['def', 'name', 'e'].includes(k), get: (t, k) => (k === Symbol.unscopables ? undefined : k in t ? t[k] : any()) });
   const def = new Function('scope', `with (scope) { return (${block(code)}); }`)(scope);
   const M = { flags: {} };
   def.setup(M);
@@ -37,13 +46,22 @@ function run(code) {
   const one = (o, parent) => { const at = o.at ? o.at() : o; objectives.push({ parent, type: o.type, text: o.text, group: o.group || '', x: at.x ?? null, z: at.z ?? null, r: o.r ?? null, label: o.label || '', hold: o.hold ?? null, radio: o.radio || '' }); };
   def.objectives.forEach((o, i) => { one(o, -1); (o.parts || []).forEach((p) => one(p, i)); });
   const hooks = [];
-  const hook = (name, fn, flags, aliveNow) => { const r0 = rec.radio.length, w0 = rec.waves.length; const m = { flags: { ...flags } }; alive = aliveNow; fn(m); hooks.push({ name, flags: JSON.stringify(flags), alive: aliveNow, radio: rec.radio.slice(r0), waves: rec.waves.slice(w0), setFlags: JSON.stringify(m.flags) }); };
+  // mission-object methods the hooks call (helicopter, ending): recorded as '@name' in the radio list
+  const hook = (name, fn, flags, aliveNow) => { const r0 = rec.radio.length, w0 = rec.waves.length; const m = { flags: { ...flags }, heliArrive: () => rec.radio.push('@heliArrive'), ending: () => rec.radio.push('@ending') }; alive = aliveNow; fn(m); hooks.push({ name, flags: JSON.stringify(flags), alive: aliveNow, radio: rec.radio.slice(r0), waves: rec.waves.slice(w0), setFlags: JSON.stringify(m.flags) }); };
   if (def.alarm) hook('alarm', (m) => def.alarm(m), {}, 1);
   def.objectives.forEach((o, i) => {
     if (o.start) for (const f of [{}, { powerCut: true }]) hook(`start ${i}`, (m) => o.start(m), f, 1);
     (o.parts || []).forEach((p, k) => { if (p.done) for (const a of [1, 0]) hook(`done ${i}.${k}`, (m) => p.done(m), {}, a); });
     if (o.done && o.type !== 'custom') hook(`done ${i}`, (m) => o.done(m), {}, 1);
+    if (o.done && o.type === 'defend') { /* already recorded above */ }
+    if (o.tick) hook(`tick ${i}`, (m) => { m.waveT = 0; o.tick(m, 0.1); }, {}, 0);   // the first wave of a timed defence
   });
+  if (code === 'MISSION 05') { // Missions.event('bossPhase2', e): the web mission manager's own branch, run on VIPER at his spawn
+    const ev = missions.slice(missions.indexOf("if (name === 'bossPhase2')")); let bd = 0, be = ev.indexOf('{');
+    for (let i = be; i < ev.length; i++) { if (ev[i] === '{') bd++; else if (ev[i] === '}' && --bd === 0) { be = i + 1; break; } }
+    const e = { pos: { x: 120, z: -296 }, type: {} };
+    hook('bossPhase2', () => new Function('scope', 'name', 'e', `with (scope) { ${ev.slice(0, be)} }`)(scope, 'bossPhase2', e), {}, 1);
+  }
   return { code, name: def.name, zone: def.zone, sky: def.sky, spawn: s, spawns: rec.spawns, objectives, hooks };
 }
 
@@ -51,10 +69,10 @@ const d = (v) => (v === null || v === undefined ? 'null' : Number(v).toPrecision
 const str = (t) => JSON.stringify(t ?? '');
 const out = CODES.map(run).map((m) => `        public static readonly MissionFixture ${m.code.replace(' ', '')} = new MissionFixture
         {
-            Code = ${str(m.code)}, Name = ${str(m.name)}, Zone = ${str(m.zone)}, Sky = ${str(m.sky)}, SpawnX = ${d(m.spawn.x)}, SpawnZ = ${d(m.spawn.z)}, SpawnYaw = ${d(m.spawn.yaw)},
-            Spawns = new (string, double, double, string, double?, double[], bool)[]
+            Code = ${str(m.code)}, Name = ${str(m.name)}, Zone = ${str(m.zone)}, Sky = ${str(m.sky)}, SpawnX = ${d(m.spawn.x)}, SpawnZ = ${d(m.spawn.z)}, SpawnYaw = ${d(m.spawn.yaw)}, SpawnY = ${m.spawn.y === undefined ? 'null' : d(m.spawn.y)},
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
             {
-${m.spawns.map((s) => `                (${str(s.kind)}, ${d(s.x)}, ${d(s.z)}, ${str(s.group)}, ${s.yaw === null ? '(double?)null' : d(s.yaw)}, ${s.patrol ? `new double[] { ${s.patrol.flat().map(d).join(', ')} }` : 'null'}, ${s.top}),`).join('\n')}
+${m.spawns.map((s) => `                (${str(s.kind)}, ${d(s.x)}, ${d(s.z)}, ${str(s.group)}, ${s.yaw === null ? '(double?)null' : d(s.yaw)}, ${s.patrol ? `new double[] { ${s.patrol.flat().map(d).join(', ')} }` : 'null'}, ${s.top}, ${s.y === null ? '(double?)null' : d(s.y)}),`).join('\n')}
             },
             Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
             {
@@ -70,8 +88,8 @@ namespace SpecialSoldier.Core.Tests
 {
     public sealed class MissionFixture
     {
-        public string Code, Name, Zone, Sky; public double SpawnX, SpawnZ, SpawnYaw;
-        public (string kind, double x, double z, string group, double? yaw, double[] patrol, bool onStructure)[] Spawns;
+        public string Code, Name, Zone, Sky; public double SpawnX, SpawnZ, SpawnYaw; public double? SpawnY;
+        public (string kind, double x, double z, string group, double? yaw, double[] patrol, bool onStructure, double? y)[] Spawns;
         /// <summary>parent = −1 for a top-level objective, else the index of its 'any' objective. x/z = target or interact point.</summary>
         public (int parent, string type, string text, string group, double? x, double? z, double? r, string label, double? hold, string radio)[] Objectives;
         /// <summary>A hook run with the given flags (JSON) and living-enemy count: radio lines, waves "group:kind@x,z;…", flags after.</summary>

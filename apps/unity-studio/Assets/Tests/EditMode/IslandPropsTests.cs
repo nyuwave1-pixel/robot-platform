@@ -12,6 +12,27 @@ namespace SpecialSoldier.Core.Tests
         [Test] public void JungleStationCallsMatchTheWebGame() => Same(PropsFixture.Jungle, IslandProps.Jungle());
         [Test] public void GenOutpostCallsMatchTheWebGame() => Same(PropsFixture.GenOutpost, IslandProps.GenOutpost());
         [Test] public void BaseCallsMatchTheWebGame() => Same(PropsFixture.Base, IslandProps.Base());
+        [Test] public void FacilityCallsMatchTheWebGame() => Same(PropsFixture.Facility, IslandProps.Facility());
+        [Test] public void AirfieldCallsMatchTheWebGame() => Same(PropsFixture.Airfield, IslandProps.Airfield());
+
+        [Test]
+        public void AirfieldSniperStandsOnTheContainer()
+        {
+            var a = IslandProps.Airfield();
+            Assert.That(IslandProps.Top(a, 232, -300), Is.EqualTo(7 + 2.6).Within(1e-9), "M05 sniper: web top(232, -300) = the blue container's roof");
+        }
+
+        [Test]
+        public void FacilityPointsAndCamerasMatchTheWebGame()
+        {
+            var f = IslandProps.Facility();
+            foreach (var (name, x, y, z) in PropsFixture.FacilityPoints)
+                Assert.That(f.Points[name], Is.EqualTo((x, y, z)).Using<(double, double, double)>((a, b) => System.Math.Abs(a.Item1 - b.Item1) < 1e-9 && System.Math.Abs(a.Item2 - b.Item2) < 1e-9 && System.Math.Abs(a.Item3 - b.Item3) < 1e-9), name);
+            Assert.AreEqual(PropsFixture.Cameras.Length, f.Cameras.Count);
+            for (int i = 0; i < f.Cameras.Count; i++) { Assert.That(f.Cameras[i].X, Is.EqualTo(PropsFixture.Cameras[i].x).Within(1e-9)); Assert.That(f.Cameras[i].Z, Is.EqualTo(PropsFixture.Cameras[i].z).Within(1e-9)); }
+            Assert.That(f.Slabs.Count, Is.EqualTo(12), "floor + ceiling for each of the 6 rooms");
+            Assert.IsTrue(f.Slabs.Where(sl => sl.Kind == "floor").All(sl => System.Math.Abs(sl.Y + sl.Sy - IslandProps.FacY) < 1e-9), "floors top out at FAC_Y");
+        }
 
         [Test]
         public void BaseIntelTerminalAndSniperTowersMatchTheWebGame()

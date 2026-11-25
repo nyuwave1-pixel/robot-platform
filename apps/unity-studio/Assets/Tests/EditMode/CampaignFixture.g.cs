@@ -3,8 +3,8 @@ namespace SpecialSoldier.Core.Tests
 {
     public sealed class MissionFixture
     {
-        public string Code, Name, Zone, Sky; public double SpawnX, SpawnZ, SpawnYaw;
-        public (string kind, double x, double z, string group, double? yaw, double[] patrol, bool onStructure)[] Spawns;
+        public string Code, Name, Zone, Sky; public double SpawnX, SpawnZ, SpawnYaw; public double? SpawnY;
+        public (string kind, double x, double z, string group, double? yaw, double[] patrol, bool onStructure, double? y)[] Spawns;
         /// <summary>parent = −1 for a top-level objective, else the index of its 'any' objective. x/z = target or interact point.</summary>
         public (int parent, string type, string text, string group, double? x, double? z, double? r, string label, double? hold, string radio)[] Objectives;
         /// <summary>A hook run with the given flags (JSON) and living-enemy count: radio lines, waves "group:kind@x,z;…", flags after.</summary>
@@ -15,18 +15,18 @@ namespace SpecialSoldier.Core.Tests
     {
         public static readonly MissionFixture MISSION01 = new MissionFixture
         {
-            Code = "MISSION 01", Name = "SILENT LANDING", Zone = "ZONE 01 · BEACH", Sky = "night", SpawnX = 0.0000000000000000, SpawnZ = 328.50000000000000, SpawnYaw = 0.0000000000000000,
-            Spawns = new (string, double, double, string, double?, double[], bool)[]
+            Code = "MISSION 01", Name = "SILENT LANDING", Zone = "ZONE 01 · BEACH", Sky = "night", SpawnX = 0.0000000000000000, SpawnZ = 328.50000000000000, SpawnYaw = 0.0000000000000000, SpawnY = null,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
             {
-                ("guard", -40.000000000000000, 304.00000000000000, "beach", (double?)null, new double[] { -40.000000000000000, 304.00000000000000, -12.000000000000000, 309.00000000000000, -40.000000000000000, 304.00000000000000, -58.000000000000000, 300.00000000000000 }, false),
-                ("guard", -44.000000000000000, 297.50000000000000, "beach", 0.40000000000000002, null, false),
-                ("guard", 46.000000000000000, 298.00000000000000, "beach", -0.29999999999999999, null, false),
-                ("guard", 50.000000000000000, 289.00000000000000, "beach", (double?)null, new double[] { 50.000000000000000, 289.00000000000000, 22.000000000000000, 302.00000000000000, 50.000000000000000, 289.00000000000000, 66.000000000000000, 286.00000000000000 }, false),
-                ("guard", 14.000000000000000, 311.00000000000000, "beach", (double?)null, new double[] { 14.000000000000000, 311.00000000000000, -18.000000000000000, 310.00000000000000, 14.000000000000000, 311.00000000000000, 30.000000000000000, 308.00000000000000 }, false),
-                ("sniper", 10.000000000000000, 284.00000000000000, "beach", 0.0000000000000000, null, true),
-                ("guard", 68.000000000000000, 288.00000000000000, "beach", 0.20000000000000001, null, false),
-                ("assault", -6.0000000000000000, 272.00000000000000, "beach", 0.0000000000000000, null, false),
-                ("assault", 7.0000000000000000, 268.00000000000000, "beach", (double?)null, new double[] { 7.0000000000000000, 268.00000000000000, -20.000000000000000, 276.00000000000000, 7.0000000000000000, 268.00000000000000, 26.000000000000000, 272.00000000000000 }, false),
+                ("guard", -40.000000000000000, 304.00000000000000, "beach", (double?)null, new double[] { -40.000000000000000, 304.00000000000000, -12.000000000000000, 309.00000000000000, -40.000000000000000, 304.00000000000000, -58.000000000000000, 300.00000000000000 }, false, (double?)null),
+                ("guard", -44.000000000000000, 297.50000000000000, "beach", 0.40000000000000002, null, false, (double?)null),
+                ("guard", 46.000000000000000, 298.00000000000000, "beach", -0.29999999999999999, null, false, (double?)null),
+                ("guard", 50.000000000000000, 289.00000000000000, "beach", (double?)null, new double[] { 50.000000000000000, 289.00000000000000, 22.000000000000000, 302.00000000000000, 50.000000000000000, 289.00000000000000, 66.000000000000000, 286.00000000000000 }, false, (double?)null),
+                ("guard", 14.000000000000000, 311.00000000000000, "beach", (double?)null, new double[] { 14.000000000000000, 311.00000000000000, -18.000000000000000, 310.00000000000000, 14.000000000000000, 311.00000000000000, 30.000000000000000, 308.00000000000000 }, false, (double?)null),
+                ("sniper", 10.000000000000000, 284.00000000000000, "beach", 0.0000000000000000, null, true, (double?)null),
+                ("guard", 68.000000000000000, 288.00000000000000, "beach", 0.20000000000000001, null, false, (double?)null),
+                ("assault", -6.0000000000000000, 272.00000000000000, "beach", 0.0000000000000000, null, false, (double?)null),
+                ("assault", 7.0000000000000000, 268.00000000000000, "beach", (double?)null, new double[] { 7.0000000000000000, 268.00000000000000, -20.000000000000000, 276.00000000000000, 7.0000000000000000, 268.00000000000000, 26.000000000000000, 272.00000000000000 }, false, (double?)null),
             },
             Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
             {
@@ -40,26 +40,26 @@ namespace SpecialSoldier.Core.Tests
         };
         public static readonly MissionFixture MISSION02 = new MissionFixture
         {
-            Code = "MISSION 02", Name = "DEEP JUNGLE", Zone = "ZONE 02 · JUNGLE", Sky = "dawn", SpawnX = 0.0000000000000000, SpawnZ = 236.00000000000000, SpawnYaw = 0.50000000000000000,
-            Spawns = new (string, double, double, string, double?, double[], bool)[]
+            Code = "MISSION 02", Name = "DEEP JUNGLE", Zone = "ZONE 02 · JUNGLE", Sky = "dawn", SpawnX = 0.0000000000000000, SpawnZ = 236.00000000000000, SpawnYaw = 0.50000000000000000, SpawnY = null,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
             {
-                ("guard", -28.000000000000000, 204.00000000000000, "patrolA", (double?)null, new double[] { -28.000000000000000, 204.00000000000000, -72.000000000000000, 188.00000000000000, -48.000000000000000, 226.00000000000000 }, false),
-                ("assault", -32.000000000000000, 200.00000000000000, "patrolA", (double?)null, new double[] { -32.000000000000000, 200.00000000000000, -76.000000000000000, 184.00000000000000, -52.000000000000000, 222.00000000000000 }, false),
-                ("guard", -24.000000000000000, 198.00000000000000, "patrolA", (double?)null, new double[] { -24.000000000000000, 198.00000000000000, -68.000000000000000, 182.00000000000000, -44.000000000000000, 220.00000000000000 }, false),
-                ("guard", 62.000000000000000, 192.00000000000000, "patrolB", (double?)null, new double[] { 62.000000000000000, 192.00000000000000, 122.00000000000000, 168.00000000000000, 82.000000000000000, 142.00000000000000 }, false),
-                ("guard", 66.000000000000000, 188.00000000000000, "patrolB", (double?)null, new double[] { 66.000000000000000, 188.00000000000000, 126.00000000000000, 164.00000000000000, 86.000000000000000, 138.00000000000000 }, false),
-                ("assault", 58.000000000000000, 186.00000000000000, "patrolB", (double?)null, new double[] { 58.000000000000000, 186.00000000000000, 118.00000000000000, 162.00000000000000, 78.000000000000000, 136.00000000000000 }, false),
-                ("sniper", -86.000000000000000, 214.00000000000000, "patrolA", 1.6000000000000001, null, false),
-                ("guard", -122.00000000000000, 170.00000000000000, "comms", 0.59999999999999998, null, false),
-                ("guard", -144.00000000000000, 174.00000000000000, "comms", 0.20000000000000001, null, false),
-                ("guard", -118.00000000000000, 154.00000000000000, "comms", 1.5000000000000000, null, false),
-                ("assault", -134.00000000000000, 162.00000000000000, "comms", (double?)null, new double[] { -134.00000000000000, 162.00000000000000, -120.00000000000000, 142.00000000000000, -150.00000000000000, 138.00000000000000, -158.00000000000000, 166.00000000000000 }, false),
-                ("assault", -150.00000000000000, 144.00000000000000, "comms", (double?)null, null, false),
-                ("sniper", -114.00000000000000, 176.00000000000000, "comms", 0.80000000000000004, null, true),
-                ("heavy", -136.00000000000000, 152.00000000000000, "comms", 0.50000000000000000, null, false),
-                ("guard", -152.00000000000000, 158.00000000000000, "comms", (double?)null, null, false),
-                ("guard", -164.00000000000000, 225.00000000000000, "gen", 2.3999999999999999, null, false),
-                ("assault", -175.00000000000000, 226.00000000000000, "gen", (double?)null, new double[] { -175.00000000000000, 226.00000000000000, -184.00000000000000, 210.00000000000000, -162.00000000000000, 212.00000000000000 }, false),
+                ("guard", -28.000000000000000, 204.00000000000000, "patrolA", (double?)null, new double[] { -28.000000000000000, 204.00000000000000, -72.000000000000000, 188.00000000000000, -48.000000000000000, 226.00000000000000 }, false, (double?)null),
+                ("assault", -32.000000000000000, 200.00000000000000, "patrolA", (double?)null, new double[] { -32.000000000000000, 200.00000000000000, -76.000000000000000, 184.00000000000000, -52.000000000000000, 222.00000000000000 }, false, (double?)null),
+                ("guard", -24.000000000000000, 198.00000000000000, "patrolA", (double?)null, new double[] { -24.000000000000000, 198.00000000000000, -68.000000000000000, 182.00000000000000, -44.000000000000000, 220.00000000000000 }, false, (double?)null),
+                ("guard", 62.000000000000000, 192.00000000000000, "patrolB", (double?)null, new double[] { 62.000000000000000, 192.00000000000000, 122.00000000000000, 168.00000000000000, 82.000000000000000, 142.00000000000000 }, false, (double?)null),
+                ("guard", 66.000000000000000, 188.00000000000000, "patrolB", (double?)null, new double[] { 66.000000000000000, 188.00000000000000, 126.00000000000000, 164.00000000000000, 86.000000000000000, 138.00000000000000 }, false, (double?)null),
+                ("assault", 58.000000000000000, 186.00000000000000, "patrolB", (double?)null, new double[] { 58.000000000000000, 186.00000000000000, 118.00000000000000, 162.00000000000000, 78.000000000000000, 136.00000000000000 }, false, (double?)null),
+                ("sniper", -86.000000000000000, 214.00000000000000, "patrolA", 1.6000000000000001, null, false, (double?)null),
+                ("guard", -122.00000000000000, 170.00000000000000, "comms", 0.59999999999999998, null, false, (double?)null),
+                ("guard", -144.00000000000000, 174.00000000000000, "comms", 0.20000000000000001, null, false, (double?)null),
+                ("guard", -118.00000000000000, 154.00000000000000, "comms", 1.5000000000000000, null, false, (double?)null),
+                ("assault", -134.00000000000000, 162.00000000000000, "comms", (double?)null, new double[] { -134.00000000000000, 162.00000000000000, -120.00000000000000, 142.00000000000000, -150.00000000000000, 138.00000000000000, -158.00000000000000, 166.00000000000000 }, false, (double?)null),
+                ("assault", -150.00000000000000, 144.00000000000000, "comms", (double?)null, null, false, (double?)null),
+                ("sniper", -114.00000000000000, 176.00000000000000, "comms", 0.80000000000000004, null, true, (double?)null),
+                ("heavy", -136.00000000000000, 152.00000000000000, "comms", 0.50000000000000000, null, false, (double?)null),
+                ("guard", -152.00000000000000, 158.00000000000000, "comms", (double?)null, null, false, (double?)null),
+                ("guard", -164.00000000000000, 225.00000000000000, "gen", 2.3999999999999999, null, false, (double?)null),
+                ("assault", -175.00000000000000, 226.00000000000000, "gen", (double?)null, new double[] { -175.00000000000000, 226.00000000000000, -184.00000000000000, 210.00000000000000, -162.00000000000000, 212.00000000000000 }, false, (double?)null),
             },
             Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
             {
@@ -82,27 +82,27 @@ namespace SpecialSoldier.Core.Tests
         };
         public static readonly MissionFixture MISSION03 = new MissionFixture
         {
-            Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", Sky = "storm", SpawnX = 0.0000000000000000, SpawnZ = 46.000000000000000, SpawnYaw = 0.0000000000000000,
-            Spawns = new (string, double, double, string, double?, double[], bool)[]
+            Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", Sky = "storm", SpawnX = 0.0000000000000000, SpawnZ = 46.000000000000000, SpawnYaw = 0.0000000000000000, SpawnY = null,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
             {
-                ("guard", -8.0000000000000000, -8.0000000000000000, "base", 3.1000000000000001, null, false),
-                ("guard", 10.000000000000000, -10.000000000000000, "base", 3.1000000000000001, null, false),
-                ("sniper", -112.00000000000000, -8.0000000000000000, "base", 2.3999999999999999, null, true),
-                ("sniper", 112.00000000000000, -8.0000000000000000, "base", -2.3999999999999999, null, true),
-                ("guard", -20.000000000000000, -42.000000000000000, "base", (double?)null, new double[] { -20.000000000000000, -42.000000000000000, 22.000000000000000, -44.000000000000000, 22.000000000000000, -84.000000000000000, -20.000000000000000, -80.000000000000000 }, false),
-                ("assault", 44.000000000000000, -46.000000000000000, "base", -1.6000000000000001, null, false),
-                ("assault", 46.000000000000000, -62.000000000000000, "base", (double?)null, new double[] { 46.000000000000000, -62.000000000000000, 46.000000000000000, -92.000000000000000, 80.000000000000000, -92.000000000000000 }, false),
-                ("assault", 60.000000000000000, -40.000000000000000, "base", -1.5000000000000000, null, false),
-                ("guard", -50.000000000000000, -48.000000000000000, "base", 1.6000000000000001, null, false),
-                ("heavy", -64.000000000000000, -46.000000000000000, "base", 1.6000000000000001, null, false),
-                ("guard", -50.000000000000000, -96.000000000000000, "base", 0.50000000000000000, null, false),
-                ("guard", -74.000000000000000, -150.00000000000000, "base", 1.5000000000000000, null, false),
-                ("apc", -14.000000000000000, -96.000000000000000, "armor", 0.29999999999999999, null, false),
-                ("heavy", 0.0000000000000000, -116.00000000000000, "hq", 3.1000000000000001, null, false),
-                ("elite", -7.0000000000000000, -128.00000000000000, "hq", 3.0000000000000000, null, false),
-                ("elite", 9.0000000000000000, -129.00000000000000, "hq", 3.2000000000000002, null, false),
-                ("guard", -9.0000000000000000, -137.00000000000000, "hq", (double?)null, null, false),
-                ("guard", 18.000000000000000, -118.00000000000000, "hq", 2.6000000000000001, null, false),
+                ("guard", -8.0000000000000000, -8.0000000000000000, "base", 3.1000000000000001, null, false, (double?)null),
+                ("guard", 10.000000000000000, -10.000000000000000, "base", 3.1000000000000001, null, false, (double?)null),
+                ("sniper", -112.00000000000000, -8.0000000000000000, "base", 2.3999999999999999, null, true, (double?)null),
+                ("sniper", 112.00000000000000, -8.0000000000000000, "base", -2.3999999999999999, null, true, (double?)null),
+                ("guard", -20.000000000000000, -42.000000000000000, "base", (double?)null, new double[] { -20.000000000000000, -42.000000000000000, 22.000000000000000, -44.000000000000000, 22.000000000000000, -84.000000000000000, -20.000000000000000, -80.000000000000000 }, false, (double?)null),
+                ("assault", 44.000000000000000, -46.000000000000000, "base", -1.6000000000000001, null, false, (double?)null),
+                ("assault", 46.000000000000000, -62.000000000000000, "base", (double?)null, new double[] { 46.000000000000000, -62.000000000000000, 46.000000000000000, -92.000000000000000, 80.000000000000000, -92.000000000000000 }, false, (double?)null),
+                ("assault", 60.000000000000000, -40.000000000000000, "base", -1.5000000000000000, null, false, 16.000000000000000),
+                ("guard", -50.000000000000000, -48.000000000000000, "base", 1.6000000000000001, null, false, (double?)null),
+                ("heavy", -64.000000000000000, -46.000000000000000, "base", 1.6000000000000001, null, false, 16.000000000000000),
+                ("guard", -50.000000000000000, -96.000000000000000, "base", 0.50000000000000000, null, false, (double?)null),
+                ("guard", -74.000000000000000, -150.00000000000000, "base", 1.5000000000000000, null, false, 16.000000000000000),
+                ("apc", -14.000000000000000, -96.000000000000000, "armor", 0.29999999999999999, null, false, (double?)null),
+                ("heavy", 0.0000000000000000, -116.00000000000000, "hq", 3.1000000000000001, null, false, (double?)null),
+                ("elite", -7.0000000000000000, -128.00000000000000, "hq", 3.0000000000000000, null, false, 16.000000000000000),
+                ("elite", 9.0000000000000000, -129.00000000000000, "hq", 3.2000000000000002, null, false, 16.000000000000000),
+                ("guard", -9.0000000000000000, -137.00000000000000, "hq", (double?)null, null, false, 16.000000000000000),
+                ("guard", 18.000000000000000, -118.00000000000000, "hq", 2.6000000000000001, null, false, (double?)null),
             },
             Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
             {
@@ -119,6 +119,80 @@ namespace SpecialSoldier.Core.Tests
                 ("done 1.1", "{}", 1, new string[] { "NOMAD: Fuel went up — that APC is scrap. Nice." }, new string[] {  }, "{\"sabotage\":true}"),
                 ("done 1.1", "{}", 0, new string[] { "NOMAD: Fuel went up — that APC is scrap. Nice." }, new string[] {  }, "{\"sabotage\":true}"),
                 ("done 2", "{}", 1, new string[] { "COMMAND: Data received. The whole base just lit up — get to the bunker!" }, new string[] { "qrf:assault@-4,-178;assault@4,-180;elite@0,-176;assault@-30,-170;heavy@30,-172" }, "{\"alarmed\":true}"),
+            },
+        };
+        public static readonly MissionFixture MISSION04 = new MissionFixture
+        {
+            Code = "MISSION 04", Name = "UNDERGROUND ZERO", Zone = "ZONE 04 · UNDERGROUND FACILITY", Sky = "facility", SpawnX = 90.000000000000000, SpawnZ = -146.00000000000000, SpawnYaw = 0.0000000000000000, SpawnY = -60.000000000000000,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
+            {
+                ("guard", 90.000000000000000, -180.00000000000000, "corr", 0.0000000000000000, new double[] { 90.000000000000000, -172.00000000000000, 90.000000000000000, -192.00000000000000 }, false, -60.000000000000000),
+                ("elite", 82.000000000000000, -206.00000000000000, "lab", 0.0000000000000000, null, false, -60.000000000000000),
+                ("elite", 98.000000000000000, -216.00000000000000, "lab", 0.0000000000000000, null, false, -60.000000000000000),
+                ("assault", 80.000000000000000, -220.00000000000000, "lab", 0.0000000000000000, null, false, -60.000000000000000),
+                ("assault", 99.000000000000000, -200.00000000000000, "lab", 0.0000000000000000, null, false, -60.000000000000000),
+                ("guard", 90.000000000000000, -222.00000000000000, "lab", 0.0000000000000000, new double[] { 90.000000000000000, -222.00000000000000, 80.000000000000000, -214.00000000000000, 100.00000000000000, -214.00000000000000 }, false, -60.000000000000000),
+                ("heavy", 114.00000000000000, -211.00000000000000, "vault", -1.5700000000000001, null, false, -60.000000000000000),
+                ("guard", 120.00000000000000, -206.00000000000000, "vault", -1.5700000000000001, null, false, -60.000000000000000),
+                ("elite", 83.200000000000003, -250.00000000000000, "srv", 0.0000000000000000, null, false, -60.000000000000000),
+                ("elite", 96.799999999999997, -258.00000000000000, "srv", 0.0000000000000000, null, false, -60.000000000000000),
+                ("heavy", 90.000000000000000, -262.00000000000000, "srv", 0.0000000000000000, null, false, -60.000000000000000),
+            },
+            Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
+            {
+                (-1, "interact", "Override the security door (avoid or destroy the cameras)", "", 90.000000000000000, -194.40000000000001, null, "OVERRIDE SECURITY DOOR", 2.5000000000000000, ""),
+                (-1, "kill", "Clear the laboratory", "lab", null, null, null, "", null, ""),
+                (-1, "interact", "Secure the bio-sample in the vault", "", 117.59999999999999, -211.00000000000000, null, "SECURE BIO-SAMPLE", 2.0000000000000000, ""),
+                (-1, "interact", "Start the data uplink in the server room", "", 94.000000000000000, -264.69999999999999, null, "START DATA UPLINK", 1.5000000000000000, ""),
+                (-1, "defend", "Defend the uplink", "", null, null, null, "", null, ""),
+                (-1, "reach", "Take the north lift to the surface", "", 81.000000000000000, -264.00000000000000, 2.6000000000000001, "", null, "COMMAND: We have it all. Extraction is at the airfield — move!"),
+            },
+            Hooks = new (string, string, int, string[], string[], string)[]
+            {
+                ("alarm", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("done 0", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("done 2", "{}", 1, new string[] { "ATLAS: Sample is secure. That stuff should never leave this island." }, new string[] {  }, "{}"),
+                ("start 4", "{}", 1, new string[] { "COMMAND: Uplink started. Forty-five seconds — hold that room!" }, new string[] {  }, "{}"),
+                ("start 4", "{\"powerCut\":true}", 1, new string[] { "COMMAND: Uplink started. Forty-five seconds — hold that room!" }, new string[] {  }, "{\"powerCut\":true}"),
+                ("tick 4", "{}", 0, new string[] {  }, new string[] { "wave:assault@90,-224;elite@91.2,-221" }, "{}"),
+            },
+        };
+        public static readonly MissionFixture MISSION05 = new MissionFixture
+        {
+            Code = "MISSION 05", Name = "LAST EXTRACTION", Zone = "ZONE 05 · AIRFIELD & PORT", Sky = "dusk", SpawnX = 40.000000000000000, SpawnZ = -257.00000000000000, SpawnYaw = -1.2000000000000000, SpawnY = 7.0000000000000000,
+            Spawns = new (string, double, double, string, double?, double[], bool, double?)[]
+            {
+                ("boss", 120.00000000000000, -296.00000000000000, "boss", -1.5700000000000001, null, false, (double?)null),
+                ("elite", 106.00000000000000, -301.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("elite", 134.00000000000000, -292.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("elite", 118.00000000000000, -308.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("assault", 97.000000000000000, -284.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+                ("assault", 64.000000000000000, -306.00000000000000, "air", -1.2000000000000000, null, false, (double?)null),
+                ("guard", 144.00000000000000, -300.00000000000000, "air", (double?)null, null, false, (double?)null),
+                ("guard", 150.00000000000000, -284.00000000000000, "air", (double?)null, null, false, (double?)null),
+                ("sniper", 232.00000000000000, -300.00000000000000, "air", -1.5700000000000001, null, true, (double?)null),
+                ("apc", 166.00000000000000, -297.00000000000000, "air", -1.5700000000000001, null, false, (double?)null),
+                ("heavy", 126.00000000000000, -284.00000000000000, "air", -1.5000000000000000, null, false, (double?)null),
+            },
+            Objectives = new (int, string, string, string, double?, double?, double?, string, double?, string)[]
+            {
+                (-1, "kill", "Eliminate COMMANDER VIPER", "boss", null, null, null, "", null, ""),
+                (-1, "reach", "Get to the helipad", "", 205.00000000000000, -300.00000000000000, 9.0000000000000000, "", null, "COMMAND: Angel One-Two is inbound. Mark the LZ."),
+                (-1, "interact", "Signal the helicopter with smoke", "", 205.00000000000000, -300.00000000000000, 4.0000000000000000, "POP SMOKE — SIGNAL EXTRACTION", null, ""),
+                (-1, "defend", "Hold the landing zone", "", null, null, null, "", null, ""),
+                (-1, "interact", "Board the helicopter", "", 202.50000000000000, -300.00000000000000, 5.0000000000000000, "BOARD HELICOPTER", null, ""),
+            },
+            Hooks = new (string, string, int, string[], string[], string)[]
+            {
+                ("alarm", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("done 0", "{}", 1, new string[] { "REAPER: VIPER is down! I say again, VIPER is down!" }, new string[] {  }, "{}"),
+                ("done 2", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("start 3", "{}", 1, new string[] { "ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!" }, new string[] {  }, "{}"),
+                ("start 3", "{\"powerCut\":true}", 1, new string[] { "ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!" }, new string[] {  }, "{\"powerCut\":true}"),
+                ("done 3", "{}", 1, new string[] { "@heliArrive" }, new string[] {  }, "{}"),
+                ("tick 3", "{}", 0, new string[] {  }, new string[] { "lz:assault@150,-338;assault@153,-336;elite@147,-335" }, "{}"),
+                ("done 4", "{}", 1, new string[] { "@ending" }, new string[] {  }, "{}"),
+                ("bossPhase2", "{}", 1, new string[] { "VIPER: All units — converge on the runway! Kill them all!" }, new string[] { "air:elite@60,-336;elite@66,-340;assault@54,-334;assault@200,-270" }, "{}"),
             },
         };
     }

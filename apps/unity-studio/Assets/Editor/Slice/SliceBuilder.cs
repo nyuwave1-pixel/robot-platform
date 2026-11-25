@@ -251,6 +251,13 @@ namespace SpecialSoldier.EditorTools
             return ok;
         }
 
+        /// <summary>Island point at a fixed height (underground: FAC_Y) or, when null, on the terrain.</summary>
+        static Vector3 SpawnPoint(double ix, double iz, double? iy)
+        {
+            if (!iy.HasValue) return IslandPoint(ix, iz);
+            var w = IslandTerrain.ToWorld(ix, iy.Value, iz); return new Vector3((float)w.x, (float)w.y, (float)w.z);
+        }
+
         static Vector3 IslandPoint(double ix, double iz)
         {
             var w = IslandTerrain.ToWorld(ix, IslandTerrain.Height(ix, iz), iz);
@@ -276,10 +283,14 @@ namespace SpecialSoldier.EditorTools
             // bake only the mission area (island coords → world; z flips, so take min/max of both corners)
             Vector3 a = IslandPoint(m.Area.minX, m.Area.minZ), b = IslandPoint(m.Area.maxX, m.Area.maxZ);
             var min = Vector3.Min(a, b); var max = Vector3.Max(a, b);
-            float yMid = 0f; foreach (var sp in m.Spawns) yMid += IslandPoint(sp.X, sp.Z).y; yMid /= Mathf.Max(1, m.Spawns.Length);
+            float yMid = 0f; foreach (var sp in m.Spawns) yMid += SpawnPoint(sp.X, sp.Z, sp.Y).y; yMid /= Mathf.Max(1, m.Spawns.Length);
+            // the security door is open for the bake (agents path through once it slides up) and carves the NavMesh while shut
+            named.TryGetValue("P_door", out var door);
+            if (door) door.gameObject.SetActive(false);
             BakeNavMesh(level, new Vector3((min.x + max.x) / 2f, yMid, (min.z + max.z) / 2f), new Vector3(max.x - min.x, 80f, max.z - min.z), $"Assets/Scenes/{SceneRouter.SceneFor(m.Id)}_NavMesh.asset", true);
+            if (door) { door.gameObject.SetActive(true); var ob = door.gameObject.AddComponent<NavMeshObstacle>(); ob.carving = true; ob.shape = NavMeshObstacleShape.Box; ob.size = new Vector3(5f, 4.2f, 0.4f); ob.center = Vector3.zero; }
 
-            var spawn = IslandPoint(m.SpawnX, m.SpawnZ);
+            var spawn = SpawnPoint(m.SpawnX, m.SpawnZ, m.SpawnY);
             var player = BuildPlayer(spawn + Vector3.up * 0.1f);
             player.transform.rotation = Quaternion.Euler(0f, (float)WebAngles.PlayerYawToWorldDeg(m.SpawnYaw), 0f);
             var visual = LoadSoldierVisual();
@@ -306,6 +317,24 @@ namespace SpecialSoldier.EditorTools
             director.alarmWave = wave.ToArray();
             director.waves = hookWaves.ToArray();
             if (named.TryGetValue("CommsTower", out var relay)) director.relayMast = relay;
+            if (door) director.securityDoor = door;
+            if (named.TryGetValue("BioSample", out var sample)) director.bioSample = sample.gameObject;
+            // mission briefing before the mission starts (paused until START), drawn above the HUD and pause menu
+            var briefGo = new GameObject("Briefing");
+            var briefDoc = briefGo.AddComponent<UnityEngine.UIElements.UIDocument>(); briefDoc.panelSettings = director.GetComponent<UnityEngine.UIElements.UIDocument>().panelSettings; briefDoc.sortingOrder = 20;
+            briefGo.AddComponent<BriefingScreen>().style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
+            if (m.Id == "m05")
+            {
+                // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve
+                var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+                var node = glb ? glb.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Heli") : null;
+                GameObject h;
+                if (node) { h = Object.Instantiate(node.gameObject); foreach (var c in h.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c); }
+                else { h = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(h.GetComponent<Collider>()); h.transform.localScale = new Vector3(2.4f, 2.2f, 6.5f); }
+                h.name = "Heli"; h.transform.position = SpawnPoint(IslandProps.Helipad.x + 240, IslandProps.Helipad.z - 120, 77.2); h.SetActive(false);
+                director.heli = h.transform;
+                Debug.Log($"[Slice] {m.Code}: extraction helicopter {(node ? "Blender Heli" : "box stand-in")}");
+            }
 
             string path = CampaignScenePath(m);
             bool saved = SaveAndList(scene, path, 1 + System.Array.IndexOf(Campaign.All, m));
@@ -342,10 +371,11 @@ namespace SpecialSoldier.EditorTools
             {
                 var bottom = IslandTerrain.ToWorld(c.X, c.Y, c.Z);
                 Vector3 b = new Vector3((float)bottom.x, (float)bottom.y, (float)bottom.z);
-                if (c.HasCollider)
+                GameObject col = null;
+                if (c.HasCollider && c.Kind != "camera")   // cameras get their own collider + health (SecurityCamera)
                 {
                     string surf = c.Surface == "sand" ? "Ground_sandbag" : c.Surface == "wood" ? "Cover_wood" : c.Surface == "metal" ? "Metal_prop" : "Prop_concrete";
-                    var col = new GameObject($"{surf}_{colliders}"); col.transform.SetParent(cols.transform); col.isStatic = true;
+                    col = new GameObject($"{surf}_{colliders}"); col.transform.SetParent(cols.transform); col.isStatic = true;
                     col.transform.position = b + Vector3.up * (float)(c.Sy / 2);
                     col.AddComponent<BoxCollider>().size = new Vector3((float)c.Sx, (float)c.Sy, (float)c.Sz);
                     // the relay mast's core falls with the mast (Mission 02 detonation); nobody stands on it (web noStand)
@@ -372,6 +402,13 @@ namespace SpecialSoldier.EditorTools
                     go.GetComponent<Renderer>().sharedMaterial = Mat("Prop_" + c.Mat, c.Mat == "wood" ? new Color(0.45f, 0.33f, 0.2f) : c.Mat == "sand" ? new Color(0.66f, 0.6f, 0.45f) : new Color(0.5f, 0.5f, 0.48f), 0.85f);
                 }
                 go.transform.position = pos; go.transform.rotation = turn ? Quaternion.Euler(0f, yaw, 0f) : Quaternion.identity; go.transform.localScale = scale;
+                if (c.Geo == "P_door")
+                {
+                    // Mission 04 security door: its collider rides with it when it slides open
+                    go.name = "SecurityDoor"; named["P_door"] = go.transform;
+                    if (col) { col.transform.SetParent(go.transform, true); col.name = "Metal_door"; col.isStatic = false; }
+                    drawn++; continue;
+                }
                 // static for lighting / occlusion, but not batching: static batching copies every mesh into the build (the
                 // vegetation lesson — merged copies were 76 % of the WebGL download); the GLB meshes are shared as they are
                 foreach (var t in go.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(t.gameObject, (StaticEditorFlags)~0 & ~StaticEditorFlags.BatchingStatic);
@@ -404,9 +441,60 @@ namespace SpecialSoldier.EditorTools
             foreach (var l in set.Lights)
             {
                 var w = IslandTerrain.ToWorld(l.X, l.Y, l.Z);
-                var light = new GameObject("LampLight").AddComponent<Light>(); light.transform.SetParent(root.transform);
-                light.type = LightType.Point; light.range = (float)l.Range; light.intensity = 2.5f; light.color = new Color(1f, 0.886f, 0.627f);   // web 0xffe2a0
+                var light = new GameObject(l.Red ? "EmergencyLight" : "LampLight").AddComponent<Light>(); light.transform.SetParent(root.transform);
+                light.type = LightType.Point; light.range = (float)l.Range; light.intensity = 2.5f;
+                light.color = l.Red ? new Color(1f, 0.19f, 0.125f) : new Color(1f, 0.886f, 0.627f);   // web 0xff3020 / 0xffe2a0
                 light.shadows = LightShadows.None; light.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                if (l.Red) { var pulse = light.gameObject.AddComponent<LightPulse>(); pulse.baseIntensity = 1.5f; pulse.swing = 1f; pulse.phase = (float)l.X; }
+            }
+            // painted ground (web runway, stripes, helipad): thin boxes / discs without colliders
+            foreach (var f in set.Flats)
+            {
+                var w = IslandTerrain.ToWorld(f.X, f.Y, f.Z);
+                var g = GameObject.CreatePrimitive(f.Disc ? PrimitiveType.Cylinder : PrimitiveType.Cube); Object.DestroyImmediate(g.GetComponent<Collider>());
+                g.name = f.Disc ? "Pad" : "Paint"; g.transform.SetParent(root.transform); g.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                g.transform.localScale = new Vector3((float)f.Sx, f.Disc ? 0.01f : 0.02f, (float)f.Sz);
+                var col = new Color(((f.Color >> 16) & 255) / 255f, ((f.Color >> 8) & 255) / 255f, (f.Color & 255) / 255f);
+                g.GetComponent<Renderer>().sharedMaterial = Mat("Paint_" + f.Color.ToString("x6"), col, 0.85f);
+                g.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; g.isStatic = true;
+            }
+            // indoor floors and ceilings (web: the facility floor is the FAC_Y plane; here they are solid slabs)
+            foreach (var sl in set.Slabs)
+            {
+                var w = IslandTerrain.ToWorld(sl.X, sl.Y, sl.Z);
+                var slab = GameObject.CreatePrimitive(PrimitiveType.Cube); slab.name = (sl.Kind == "floor" ? "Metal_floor" : "Prop_ceiling") + "_slab";
+                slab.transform.SetParent(root.transform); slab.transform.position = new Vector3((float)w.x, (float)(w.y + sl.Sy / 2), (float)w.z);
+                slab.transform.localScale = new Vector3((float)sl.Sx, (float)sl.Sy, (float)sl.Sz);
+                slab.GetComponent<Renderer>().sharedMaterial = Mat("Slab_" + sl.Mat, sl.Mat == "dark" ? new Color(0.16f, 0.17f, 0.18f) : new Color(0.5f, 0.5f, 0.48f), 0.8f);
+                slab.isStatic = true;
+            }
+            // Mission 04 security cameras: a dark box with a red lens under the ceiling, 10 hp
+            int cam = 0;
+            foreach (var sc in set.Cameras)
+            {
+                var call = set.Calls.First(c => c.Kind == "camera" && System.Math.Abs(c.X - sc.X) < 1e-6 && System.Math.Abs(c.Z - sc.Z) < 1e-6);
+                var w = IslandTerrain.ToWorld(sc.X, call.Y + call.Sy / 2, sc.Z);   // web: head at y + h − 0.5, the collider's centre
+                var go = new GameObject($"SecurityCamera{cam++}"); go.transform.SetParent(root.transform); go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
+                var box = go.AddComponent<BoxCollider>(); box.size = new Vector3(0.6f, 0.6f, 0.7f); box.center = Vector3.zero;
+                go.AddComponent<HitZone>().part = BodyPart.Torso;
+                var head = new GameObject("Head").transform; head.SetParent(go.transform, false);
+                var body = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.DestroyImmediate(body.GetComponent<Collider>()); body.transform.SetParent(head, false); body.transform.localScale = new Vector3(0.3f, 0.25f, 0.55f);
+                body.GetComponent<Renderer>().sharedMaterial = Mat("Camera", new Color(0.12f, 0.13f, 0.14f), 0.5f);
+                var lens = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(lens.GetComponent<Collider>()); lens.transform.SetParent(head, false); lens.transform.localPosition = new Vector3(0f, 0f, 0.3f); lens.transform.localScale = Vector3.one * 0.16f;
+                lens.GetComponent<Renderer>().sharedMaterial = Mat("CameraLens", new Color(1f, 0.1f, 0.05f), 0.2f);
+                go.AddComponent<Damageable>();
+                var scam = go.AddComponent<SecurityCamera>(); scam.islandX = sc.X; scam.islandZ = sc.Z; scam.phase = sc.Phase; scam.head = head; scam.lens = lens.GetComponent<Renderer>();
+            }
+            // Mission 04 bio-sample: the glowing canister on the vault pedestal (web 0x60ff90, emissive)
+            if (set.Points.TryGetValue("sampleMesh", out var sm))
+            {
+                var w = IslandTerrain.ToWorld(sm.x, sm.y, sm.z);
+                var s = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.DestroyImmediate(s.GetComponent<Collider>());
+                s.name = "BioSample"; s.transform.SetParent(root.transform); s.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); s.transform.localScale = new Vector3(0.7f, 0.45f, 0.7f);
+                var mat = Mat("BioSample", new Color(0.38f, 1f, 0.56f), 0.1f); mat.EnableKeyword("_EMISSION"); if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", new Color(0.19f, 1f, 0.38f) * 2.5f); EditorUtility.SetDirty(mat);
+                s.GetComponent<Renderer>().sharedMaterial = mat;
+                var glow = s.AddComponent<Light>(); glow.type = LightType.Point; glow.range = 4f; glow.intensity = 1f; glow.color = new Color(0.38f, 1f, 0.56f);
+                named["BioSample"] = s.transform;
             }
             Physics.SyncTransforms();
             Debug.Log($"[Slice] props: {drawn} drawn, {colliders} colliders, {set.Lights.Count} lamp lights, {set.Radars.Count} radar{(missing > 0 ? $", {missing} GLB models MISSING (boxes instead)" : "")}");
@@ -415,7 +503,7 @@ namespace SpecialSoldier.EditorTools
 
         static GameObject PlaceEnemy(GameObject parent, int i, SpawnDef sp, GameObject visual, Vector3 player, PropSet props)
         {
-            var pos = IslandPoint(sp.X, sp.Z);
+            var pos = SpawnPoint(sp.X, sp.Z, sp.Y);
             if (sp.OnStructure && props != null)
             {
                 // web y: top(x, z) — the deck of the watch tower (the NavMesh is baked on colliders, so the deck is walkable)
@@ -450,6 +538,7 @@ namespace SpecialSoldier.EditorTools
             if (GraphicsSettings.defaultRenderPipeline) cam.gameObject.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
             var weapon = pivot.gameObject.AddComponent<WeaponController>(); weapon.motor = motor; weapon.view = cam;
             pivot.gameObject.AddComponent<GrenadeThrower>().motor = motor;
+            var gear = go.AddComponent<GearController>(); gear.motor = motor; gear.view = cam;   // N/T/L/H/B equipment
             return go;
         }
 
@@ -465,6 +554,8 @@ namespace SpecialSoldier.EditorTools
             head.AddComponent<SphereCollider>().radius = 0.14f; head.AddComponent<HitZone>().part = BodyPart.Head;
             // the capsule covers the head too: shrink it so head shots reach the sphere first
             body.height = 1.5f; body.center = new Vector3(0f, 0.75f, 0f);
+            float sc = EnemyType.All.FirstOrDefault(t => t.Id == type)?.Scale ?? 1f;   // web type.scale (VIPER 1.2, heavy 1.14)
+            if (sc != 1f) { body.height *= sc; body.center *= sc; body.radius *= sc; head.transform.localPosition *= sc; head.GetComponent<SphereCollider>().radius *= sc; }
             go.AddComponent<Damageable>();
             var agent = go.AddComponent<NavMeshAgent>(); agent.radius = 0.35f; agent.height = 1.8f; agent.angularSpeed = 360f; agent.acceleration = 12f;
             agent.enabled = false;   // EnemyAgent.Start enables it once the NavMeshSurface has loaded its data (WebGL ran agents first)
@@ -480,7 +571,7 @@ namespace SpecialSoldier.EditorTools
             if (visual)
             {
                 var v = Object.Instantiate(visual, go.transform); v.name = "Visual";
-                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity;
+                v.transform.localPosition = Vector3.zero; v.transform.localRotation = Quaternion.identity; v.transform.localScale = Vector3.one * sc;
                 foreach (var c in v.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
                 // U3: Quaternius UAL clips on an invisible Humanoid rig drive the soldier's pivots (web procedural pose without it)
                 var anim = go.AddComponent<SoldierAnimator>(); anim.visual = v.transform;

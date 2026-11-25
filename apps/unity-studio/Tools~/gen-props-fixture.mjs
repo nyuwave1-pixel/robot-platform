@@ -14,9 +14,11 @@ const web = (f) => readFileSync(join(here, '..', '..', 'special-soldier', 'src',
 const build = web('build.js'), world = web('world.js');
 const z2 = build.indexOf('  // ================= ZONE 02'), z2end = build.indexOf('  { const p = POI.waterfall');
 const z3 = build.indexOf('  // ================= ZONE 03'), z3end = build.indexOf('  // fence line between base north gate');
+const z5 = build.indexOf('  // ================= ZONE 05'), z5end = build.indexOf('  buildFacility();');
 // beach | jungle comms station | (waterfall + cave: run for the shared random sequence, not recorded) | military base
 const body = build.slice(build.indexOf('  const W = G.world'), z2) + '  __mark("beach");\n' + build.slice(z2, z2end) + '  __mark("jungle");\n'
-  + build.slice(z2end, z3) + '  __mark("waterfall");\n' + build.slice(z3, z3end) + '  __mark("base");\n';
+  + build.slice(z2end, z3) + '  __mark("waterfall");\n' + build.slice(z3, z3end) + '  __mark("base");\n'
+  + build.slice(z3end, z5) + '  __mark("fence");\n' + build.slice(z5, z5end) + '  __mark("airfield");\n';   // (fence: not ported yet)
 if (!body.includes('ZONE 01 — BEACH') || !body.includes('POI.commsTower') || !body.includes('POI.intel')) throw new Error('build.js beach / jungle / base section not found');
 const missions = readFileSync(join(here, '..', '..', 'special-soldier', 'src', 'game', 'missions.js'), 'utf8');
 const gs = missions.indexOf('function buildGenOutpost()');
@@ -51,7 +53,15 @@ const document = { createElement: () => ({}) };
 new Function('G', 'THREE', 'MAT', 'assetGeo', 'mulberry', 'fbm', 'TAU', 'POI', 'photoDetail', 'FAC_Y', 'FAC_H', 'FLATS', 'document', '__mark', body)(
   G, THREE, MAT, () => any(), mulberry, fbm, TAU, POI, any(), -40, 6, [], document, (name) => { cut[name] = calls.slice(from); from = calls.length; });
 new Function('G', 'MAT', 'GEN', `let genBuilt = false; ${missions.slice(gs, ge)}; buildGenOutpost();`)(G, MAT, GEN);
-cut.gen = calls.slice(from);
+cut.gen = calls.slice(from); from = calls.length;
+// ZONE 04 underground facility: build.js buildFacility() + its ins() helper
+{
+  const fs = build.indexOf('function buildFacility()'); let fd = 0, fe = build.indexOf('{', fs);
+  for (let i = fe; i < build.length; i++) { if (build[i] === '{') fd++; else if (build[i] === '}' && --fd === 0) { fe = i + 1; break; } }
+  const insLine = build.match(/const ins = [^\n]+/)[0];
+  new Function('G', 'THREE', 'MAT', 'POI', 'FAC_Y', 'FAC_H', `${insLine}\n${build.slice(fs, fe)}\nbuildFacility();`)(G, THREE, MAT, POI, -60, 4.2);
+  cut.facility = calls.slice(from);
+}
 
 const d = (x) => (x ?? 0).toPrecision(17);
 const tint = (t) => (t ? `new double[] { ${t.map(d).join(', ')} }` : 'null');
@@ -83,7 +93,23 @@ ${rows('gen')}
         {
 ${rows('base')}
         };
+        public static readonly PropCall[] Airfield =
+        {
+${rows('airfield')}
+        };
+        public static readonly PropCall[] Facility =
+        {
+${rows('facility')}
+        };
+        public static readonly (string name, double x, double y, double z)[] FacilityPoints =
+        {
+${['secDoorPos', 'sample', 'server', 'exitLift', 'facSpawn'].map((k) => `            ("${k}", ${d(POI[k].x)}, ${d(POI[k].y)}, ${d(POI[k].z)}),`).join('\n')}
+        };
+        public static readonly (double x, double y, double z)[] Cameras =
+        {
+${POI.cameras.map((c) => `            (${d(c.x)}, ${d(c.y)}, ${d(c.z)}),`).join('\n')}
+        };
     }
 }
 `);
-console.log(`[props] beach ${cut.beach.length}, jungle ${cut.jungle.length}, base ${cut.base.length}, gen outpost ${cut.gen.length} — total ${calls.length} calls (${calls.filter((c) => c.op === 'box').length} box, ${calls.filter((c) => c.op === 'static').length} static), tower top ${POI.beachTower.y.toFixed(3)}`);
+console.log(`[props] beach ${cut.beach.length}, jungle ${cut.jungle.length}, base ${cut.base.length}, airfield ${cut.airfield.length}, gen outpost ${cut.gen.length}, facility ${cut.facility.length} — total ${calls.length} calls (${calls.filter((c) => c.op === 'box').length} box, ${calls.filter((c) => c.op === 'static').length} static), tower top ${POI.beachTower.y.toFixed(3)}`);

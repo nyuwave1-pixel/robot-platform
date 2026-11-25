@@ -386,3 +386,45 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 구조물은 정적이지만 **static batching 에서 제외**(메시 복사로 WebGL 이 커지는 것 방지).
 - dotnet `CoreTests~` **302/302**. PlayMode `Mission03Tests` 2개. **Unity 확인 전**(그다음 묶음).
 
+## 2026-11-25 (16) — 미션 04 UNDERGROUND ZERO + 보안 카메라 (허브 세션, 클라우드, U4)
+
+- **지하 시설(`Core/IslandProps.Facility`)**: 벙커 아래 60 m(FAC_Y −60). 엘리베이터 홀 → 카메라 복도·보안문 → 유리 칸막이 연구실 → 생물 금고 → 복도 → 서버실·업링크 콘솔·북쪽 엘리베이터.
+  웹 `buildFacility()` 원문 실행 결과와 **173개 호출 + 지점 5개 + 카메라 2대 일치**. 웹은 바닥을 FAC_Y 평면으로 처리 → Unity 는 방마다 바닥·천장 판(충돌체).
+  비상등은 붉은 점광원 깜박임(`Runtime/LightPulse`).
+- **보안 카메라(`Core/SecurityCam` + `Runtime/SecurityCamera`)**: ±0.7 rad 회전, 15 m·시야각(cos > 0.55)·시선 확인, 감지 게이지 0.9/s(웅크리면 0.5/s), 0.4/s 감소, 1.2 에서
+  시설 봉쇄 → 사이렌, 무전, 경보 1회, 모두 수색. 10 hp 라 한 번 맞히면 꺼짐. 웹 규칙 문자열 대조 테스트.
+- **미션 04(`Core/Campaign.M04`)**: 보안문 해제 2.5초(문이 4 m 올라감, 닫힌 동안 NavMesh 를 막음) → 연구실 소탕 → 샘플 확보 → 업링크 시작 → 45초 방어(2초 뒤부터 11초마다 2명, 살아 있는 증원 5명 미만일 때) → 북쪽 엘리베이터.
+  진행기에 목표별 매 프레임 훅(`OnTick`) 추가. 같은 증원 묶음을 여러 번 부를 수 있게 `GameDirector.Activate` 가 "다음 N명" 을 켬.
+- 미션 배치에 높이(`SpawnDef.Y`, `SpawnY`) 추가 — 지하 배치와 M03 건물 안(y 16) 병사. 웹 미션 객체 실행 결과와 높이까지 대조.
+- dotnet `CoreTests~` **310/310**. PlayMode `Mission04Tests` 2개. **Unity 확인 전**.
+
+## 2026-11-25 (17) — 미션 05 LAST EXTRACTION: 캠페인 5개 모두 이식 (허브 세션, 클라우드, U4)
+
+- **비행장·항구(`Core/IslandProps.Airfield`)**: 활주로·띠 표시, 격납고(지하 엘리베이터 출구), 관제탑, 헬리패드(원판·노란 고리·H 표시)와 모래주머니, 활주로 엄폐물·트럭·연료탱크·가로등,
+  항구 컨테이너·크레인·화물선·부두. 웹 build.js 원문 실행 결과와 **110개 호출 일치**. 평면 표시는 충돌체 없는 얇은 판.
+- **보스 COMMANDER VIPER(`EnemyType.Viper`)**: 웹 표 숫자(950 hp·320 armor·1.2배 크기·수류탄). 체력 절반 미만에서 2단계(웹 bossPhase2):
+  고함 무전·사이렌·증원 4명, 속도 5.2·탄 퍼짐 2.1(`ViperEnraged`). 대조 테스트에 크기(scale)를 추가하다 **중보병 1.14배** 가 빠진 것을 찾아 고침.
+- **미션 05(`Core/Campaign.M05`)**: 황혼, VIPER 제거 → 헬리패드 → 녹색 연막(`Runtime/SmokeColumn`) → 착륙지 60초 방어(9초마다 3명, 살아 있는 7명 미만일 때, 네 방향 순환)
+  → 헬기가 웹 곡선(8.5초, 동쪽 240 m·위 70 m·남쪽 120 m 에서 감속 진입)으로 착륙 → 착륙 후에만 탑승 가능(`Objective.Enabled`) → 임무 완료.
+- 웹 대조: 미션 객체 실행에 보스 2단계 이벤트(웹 Missions.event 원문)와 헬기·종료 호출까지 기록 → `CampaignParityTests` 가 M01–M05 전부 대조.
+- dotnet `CoreTests~` **316/316**. PlayMode `Mission05Tests` 2개. **Unity 확인 전**.
+- 캠페인 현황: Unity 판에서 **MISSION 01–05 전부 플레이 가능한 씬**(`Mission01–05.unity`, `?mission=m01…m05`). 아직: 미션 선택·브리핑 화면, 인트로 컷신, 분대원(아군 AI), 드론·열상·야간투시 장비.
+
+## 2026-11-25 (18) — Unity 캠페인 흐름: 브리핑·진행 저장·다음 미션 (허브 세션, 클라우드)
+
+- **진행(`Core/CampaignProgress`)**: 웹 규칙 그대로 — 미션 i 는 i ≤ progress 일 때 열림, 클리어하면 progress = max(progress, i + 1), 최고 기록은 등급이 같거나 좋으면 교체('CBAS').
+  웹 main.js·menu.js 원문 대조 테스트. 저장은 `Runtime/ProgressStore`(PlayerPrefs `special-soldier.campaign`, WebGL 은 브라우저 저장소).
+- **브리핑(`Runtime/BriefingScreen`)**: 캠페인 씬을 열면 미션 코드·이름·구역·브리핑 문장·최고 기록·난이도를 보여 주고 START(Enter/Space/버튼)까지 게임 멈춤. 테스트(설정 Volatile)와 `-nobrief` 에서는 생략.
+- **다음 미션**: 이기면 기록 저장, 결과 화면 `N — NEXT MISSION (이름)`, 마지막 미션은 `CAMPAIGN COMPLETE`. 첫 클리어 표시.
+- **일시정지 메뉴**: CAMPAIGN 줄 — M01–M05 버튼(잠김 / 최고 등급), 누르면 그 미션 씬으로.
+- dotnet `CoreTests~` **320/320**. PlayMode `CampaignFlowTests`(M01 승리 → 진행 1, M02 열림, 다음 씬 Mission02). **Unity 확인 전**.
+
+## 2026-11-25 (19) — 전술 장비: 야간투시·열상·전술등·구급상자·정찰 드론 (허브 세션, 클라우드)
+
+- **규칙(`Core/Gear`)**: 웹 gear.js·player.js 그대로 — 해금(야간투시·전술등·구급상자 처음부터, 드론은 미션 01, 열상은 미션 02 클리어 후; 캠페인 밖에서는 전부),
+  같은 시야 모드를 다시 누르면 꺼짐, 구급상자 미션당 2개·+65·가득 차면 못 씀, 드론 배터리 45초 비행·60초 충전·15 % 이상에서 출발·지하(y < −30) 신호 없음,
+  드론은 땅 위 2–72 m·나에게서 230 m 안, 0.3초마다 150 m·시야 cos > 0.82·시선이 닿는 적을 표시(레이더 30초). 웹 원문 문자열 대조 테스트.
+- **Unity(`Runtime/GearController`, 플레이어에 붙음)**: N/T 는 URP 후처리 볼륨(야간투시: 밝기↑·녹색·노이즈·비네트, 열상: 흑백·대비↑ + 살아 있는 적 흰색으로 빛남),
+  L 은 카메라에 달린 스포트라이트(55 m), H 구급상자, B 드론(플레이어 조작을 멈추고 별도 카메라로 WASD·Space·Ctrl 비행), X/F 선택·사용. HUD 왼쪽 위에 장비 줄(켜진 것 `>`, 드론 배터리, 구급상자 수).
+- dotnet `CoreTests~` **326/326**. PlayMode `GearPlayTests`. **Unity 확인 전**.
+

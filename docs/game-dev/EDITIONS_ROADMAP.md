@@ -36,7 +36,7 @@
 | U1 | storm·dusk·night 하늘 밝기 재보정 화면 확인(fd35aa7) | 확인 중 |
 | U2 | 섬 지형(eb0335f) WebGL 확인·빌드 크기·프레임 | 확인 중 |
 | U3 | 병사 애니메이션(Quaternius UAL CC0, Humanoid 리타깃) — **코드·에셋 푸시됨**: 보이지 않는 UAL 마네킹이 동작을 재생하고 병사 관절이 따라 움직임, UAL 없으면 웹과 같은 절차 포즈. PC 화면 확인 대기. 다음: 소총 동작(UAL Standard엔 없음 — Pro/다른 CC0 원천 검토) | 진행 중 |
-| U4 | 캠페인 미션 이식(`missions.js` 정의 재사용) — **M01 SILENT LANDING 이식됨**(`Core/Campaign.cs`, `Assets/Scenes/Mission01.unity`, `?mission=m01`), PC 확인 대기. M01 해변 구조물(`Core/IslandProps.cs`, 웹 build.js 대조) 추가. **M02 DEEP JUNGLE·M03 BLACK COBRA BASE 이식됨**(`?mission=m02`·`m03`, 장갑차 포함). 다음: M04 지하 시설 | 진행 중 |
+| U4 | 캠페인 미션 이식(`missions.js` 정의 재사용) — **M01 SILENT LANDING 이식됨**(`Core/Campaign.cs`, `Assets/Scenes/Mission01.unity`, `?mission=m01`), PC 확인 대기. M01 해변 구조물(`Core/IslandProps.cs`, 웹 build.js 대조) 추가. **캠페인 5개 미션 전부 이식됨**(`?mission=m01`…`m05`, 장갑차·보안 카메라·보스 VIPER·헬기 탈출 포함, 웹 미션 객체·구조물과 자동 대조). PC 화면 확인 대기. 다음: 미션 선택 메뉴·브리핑 화면, 컷신 | 진행 중 |
 | U5 | 사람 플레이테스트: 포인터 잠금 이동·사격, 소리 균형, 감도 기본값(웹 기준 0.126°/px) | 사용자 |
 
 ### 클래식
