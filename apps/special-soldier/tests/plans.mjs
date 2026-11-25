@@ -332,3 +332,24 @@ export async function opmap({ page, sim, shot }) {
     console.log(`M0${i + 1}:`, JSON.stringify(info)); await shot(`B${i + 1}-brief`);
   }
 }
+
+// v0.23: helicopter door-gunner set piece (MISSION 05 after boarding)
+export async function gunner({ page, sim, shot }) {
+  await page.evaluate(HELPERS);
+  await page.evaluate(() => { SS.startMission(4, true); SS.godMode = true; SS.mission.heliArrive(); }); await sim(10);
+  await page.evaluate(() => { if (SS.state === 'cinematic') { QA.key('Enter'); QA.run(0.2); } const M = SS.mission; M.oi = M.objs.findIndex((o) => o.type === 'gunner') - 1; M.advance(); }); await sim(1);
+  console.log('start:', await page.evaluate(() => JSON.stringify({ state: SS.state, obj: SS.mission.objText(), active: SS.gunner.active, heli: SS.mission.heli.position.toArray().map(Math.round) })));
+  await sim(8); await page.waitForTimeout(400); await shot('G1-lift');
+  // aim at the nearest port enemy and hold the trigger
+  const fire = async (sec) => { for (let i = 0; i < sec * 10; i++) await page.evaluate(() => { const g = SS.gunner, P = SS.player, e = SS.enemies.list.filter((x) => x.alive).sort((a, b) => a.pos.distanceTo(P.eye) - b.pos.distanceTo(P.eye))[0];
+    if (e) { const dx = e.pos.x - P.eye.x, dz = e.pos.z - P.eye.z, dy = e.pos.y + 1.1 - P.eye.y, want = Math.atan2(-dx, -dz), base = P.yaw - g.rel; let d = want - base; d = Math.atan2(Math.sin(d), Math.cos(d)); g.rel = Math.max(-1.25, Math.min(1.25, d)); g.pitch = Math.max(-1.15, Math.atan2(dy, Math.hypot(dx, dz))); }
+    SS.input.btn[0] = true; SS.skipRender = true; for (let k = 0; k < 3; k++) SS.tick(1 / 30); SS.skipRender = false; }); };
+  await fire(6); await page.waitForTimeout(300); await shot('G2-firing');
+  console.log('firing:', await page.evaluate(() => JSON.stringify({ heat: +SS.gunner.heat.toFixed(2), over: SS.gunner.over, kills: SS.mission.stats.kills, shots: SS.mission.stats.shots, hits: SS.mission.stats.hits, enemies: SS.enemies.count() })));
+  await fire(10); await page.evaluate(() => { SS.input.btn[0] = false; });
+  console.log('mid:', await page.evaluate(() => JSON.stringify({ t: +SS.gunner.t.toFixed(1), kills: SS.mission.stats.kills, over: SS.gunner.over })));
+  for (let i = 0; i < 40 && (await page.evaluate(() => SS.state)) === 'playing'; i++) await sim(1);
+  console.log('after orbit:', await page.evaluate(() => JSON.stringify({ state: SS.state, active: SS.gunner.active })));
+  for (let i = 0; i < 30 && (await page.evaluate(() => SS.state)) !== 'result'; i++) { await page.evaluate(() => { if (SS.state === 'cinematic') { QA.key('Enter'); } }); await sim(1); }
+  console.log('end:', await page.evaluate(() => JSON.stringify({ state: SS.state, result: SS.lastResult && { grade: SS.lastResult.grade, kills: SS.lastResult.kills } })));
+}
