@@ -657,5 +657,15 @@
   "cloud.claim.expired": "The transfer code expired. Make a new one on your old device",
   "cloud.claim.bad": "Check the code format",
   "cloud.claim.nosave": "No backup to transfer",
-  "cloud.claim.error": "Connection is unstable. Try again soon"
+  "cloud.claim.error": "Connection is unstable. Try again soon",
+  "acct.linked": "Linked to your BitPark account — continue on any device via BitPark",
+  "acct.found": "Progress saved to your BitPark account",
+  "acct.load": "Load this progress",
+  "acct.useThis": "Link this device's progress instead",
+  "acct.relinked": "Linked this device's progress to your BitPark account",
+  "acct.warn": "Loading replaces progress on this device.",
+  "acct.fresh": "Continue your BitPark account's progress.",
+  "acct.fail.auth": "Couldn't verify (the progress may have moved to another device)",
+  "acct.fail.nosave": "No backup to load",
+  "acct.fail.error": "Connection is unstable. Try again soon"
 }

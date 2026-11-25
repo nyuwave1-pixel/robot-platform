@@ -8,6 +8,8 @@
 import { create } from "zustand";
 import { useGame } from "../store/game";
 import { newSecret, rpc, secret, setSecret } from "./contest";
+import { sendAccountLink } from "../platform/bitpark";
+import { useAccountLink, usePlatformStatus } from "../platform/status";
 
 /** 백업하는 세이브 (zustand persist 이름) */
 export const SAVE_KEYS = ["mediderma-lounge-save-v1", "mediderma-lounge-life-v1", "mediderma-lounge-events-v1"] as const;
@@ -60,7 +62,11 @@ export async function backupNow(): Promise<BackupResult> {
   useCloud.setState({ status: "saving" });
   try {
     const r = await rpc<{ ok: boolean; error?: string; at?: string }>("mdl_save_put", { p_code: g.friendCode, p_secret: secret(), p_data: b.data, p_meta: b.meta });
-    if (r.ok) { useCloud.setState({ status: "ok", lastAt: r.at ?? new Date().toISOString() }); return "ok"; }
+    if (r.ok) {
+      useCloud.setState({ status: "ok", lastAt: r.at ?? new Date().toISOString() });
+      linkToPlatform();
+      return "ok";
+    }
     useCloud.setState((s) => ({ status: r.error === "wait" ? s.status === "saving" ? "ok" : s.status : "error" }));
     return (["wait", "auth", "size"] as const).find((e) => e === r.error) ?? "error";
   } catch { useCloud.setState({ status: "error" }); return "error"; }
@@ -105,6 +111,48 @@ export function initCloudBackup() {
     void backupNow();
   };
   setInterval(tick, BACKUP_EVERY_MS);
+  // 포털이 계정 연결 정보를 알려 주면 (아직 연결이 없을 때) 이 게임 계정을 연결
+  useAccountLink.subscribe(() => linkToPlatform());
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") tick(); });
   setTimeout(tick, 15_000);
+}
+
+/** 비트파크에 로그인해 있으면 이 게임 계정을 비트파크 계정에 연결 (계정이 바뀌었을 때만 다시 보낸다) */
+let linkedSent = "";
+export function linkToPlatform(force = false) {
+  const g = useGame.getState();
+  if (!g.started || !usePlatformStatus.getState().loggedIn) return;
+  const { known, link: cur } = useAccountLink.getState();
+  // 자동 연결은 비트파크 계정에 아직 연결된 게임이 없을 때만 (다른 진행이 연결돼 있으면 플레이어가 고른다)
+  if (!known) return;
+  if (cur && cur.code === g.friendCode && cur.secret === secret()) return; // 이미 연결돼 있다
+  if (cur && cur.code !== g.friendCode && !force) return; // 다른 진행이 연결돼 있으면 플레이어가 고른다
+  // (같은 계정인데 비밀값이 다르면 — 기기 이전 뒤 — 새 값으로 갱신)
+  const key = `${g.friendCode}:${secret()}${force ? ":f" : ""}`;
+  if (linkedSent === key) return;
+  // 포털이 저장에 성공하면 portal_link 로 다시 알려 준다 → 그때 '연결됨' 표시
+  if (sendAccountLink(g.friendCode, secret(), g.name)) linkedSent = key;
+}
+
+/** 비트파크 계정에 연결된 진행의 요약 (불러오기 전에 보여 준다) */
+export async function accountMeta(link: { code: string; secret: string }): Promise<CloudMeta & { at: string } | null> {
+  try {
+    const r = await rpc<{ ok: boolean; exists?: boolean; meta?: Partial<CloudMeta>; at?: string }>("mdl_save_meta", { p_code: link.code, p_secret: link.secret });
+    if (!r.ok || !r.exists) return null;
+    const m = r.meta ?? {};
+    const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : 0);
+    return { name: typeof m.name === "string" ? m.name.slice(0, 12) : "", stage: num(m.stage), level: num(m.level), coins: num(m.coins), at: r.at ?? "" };
+  } catch { return null; }
+}
+
+/** 비트파크 계정의 진행을 이 기기로 불러온다 (이 기기의 진행은 바뀐다) */
+export async function loadFromAccount(link: { code: string; secret: string }, reload = () => location.reload()): Promise<"ok" | "auth" | "nosave" | "error"> {
+  try {
+    const r = await rpc<{ ok: boolean; error?: string; data?: unknown }>("mdl_save_get", { p_code: link.code, p_secret: link.secret });
+    if (!r.ok) return r.error === "auth" ? "auth" : r.error === "nosave" ? "nosave" : "error";
+    if (!applyBundle(r.data)) return "nosave";
+    setSecret(link.secret);
+    reload();
+    return "ok";
+  } catch { return "error"; }
 }

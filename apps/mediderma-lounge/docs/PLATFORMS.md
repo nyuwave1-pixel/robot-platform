@@ -48,6 +48,18 @@ src/platform/
 - `game_ready` 를 받으면, 그리고 로그인 · RP 가 바뀔 때마다 포털이 보낸다. uid · 이메일은 보내지 않는다.
 - 게임은 `src/platform/status.ts` 의 `usePlatformStatus` 에 담아 화면 안내에만 쓴다: 상단 RP 표시(`1,234 RP +40` / 오늘 받음 ✓ / 로그인 안내), 새 게임 이름 자동 입력.
 
+### 계정 연결 (다른 기기에서 이어하기)
+
+```js
+// 게임 → 포털: 첫 백업 뒤, 비트파크 계정에 연결된 게임이 아직 없을 때 (또는 플레이어가 '이 기기 진행을 계정에 연결'을 누를 때)
+{ type: "game_link",   game: "beauty-life", code: "ABC123", secret: "<32자 16진수>", name: "표시 이름" }
+// 포털 → 게임: game_ready 때, 그리고 저장 직후 (연결이 없으면 code · secret 없이)
+{ type: "portal_link", game: "beauty-life", code: "ABC123", secret: "<32자 16진수>" }
+```
+
+- 포털은 로그인한 본인 문서 `users/{uid}/gameLinks/{gameId}` 에만 저장 · 읽기 (firestore.rules — **Firebase 에 규칙 배포가 필요**, 배포 전에는 조용히 꺼져 있음).
+- 게임은 계정에 다른 진행이 연결돼 있으면 첫 화면 · 설정에서 '이 진행 불러오기 / 이 기기 진행을 계정에 연결' 을 고르게 한다. 진행 데이터 자체는 게임 서버(클라우드 백업)에 있다.
+
 - 포털 게임 페이지: `https://www.airobotphysical.com/games/play/beauty-life/`
 - 포털이 게임 주소로 넘겨 주는 값: `visit`(라운지 방문 코드) · `open`(열 탭) · `invite`(초대 코드) · `from`(초대한 사람 이름)
 - 포털 쪽 코드: `airobotverse-` 저장소 `src/components/GamePlayClient.tsx`, 게임 목록 `src/lib/games-config.ts`

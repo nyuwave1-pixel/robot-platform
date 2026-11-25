@@ -7,6 +7,15 @@ import { create } from "zustand";
 export interface PlatformStatus { known: boolean; loggedIn: boolean; name: string; rp: number | null; rpToday: boolean; rpReward: number }
 export const usePlatformStatus = create<PlatformStatus>(() => ({ known: false, loggedIn: false, name: "", rp: null, rpToday: false, rpReward: 0 }));
 
+/** 플랫폼 계정에 연결된 게임 계정 (친구 코드 + 비밀값) — 다른 기기에서 같은 진행을 불러올 때 */
+export interface AccountLink { code: string; secret: string }
+/** known: 포털이 계정을 확인해 알려 줬는지 (연결이 없으면 link 는 null) */
+export const useAccountLink = create<{ known: boolean; link: AccountLink | null }>(() => ({ known: false, link: null }));
+export function cleanLink(v: unknown): AccountLink | null {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  return typeof o.code === "string" && /^[A-Z0-9]{6}$/.test(o.code) && typeof o.secret === "string" && /^[0-9a-f]{32}$/.test(o.secret) ? { code: o.code, secret: o.secret } : null;
+}
+
 /** 플랫폼이 보낸 값은 아는 형식만 받는다 */
 export function cleanStatus(v: unknown): PlatformStatus | null {
   const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;

@@ -26,3 +26,13 @@ describe("클라우드 백업 · 기기 이전", () => {
     expect(normPin("ab-cd 23 45x")).toBe("ABCD2345");
   });
 });
+
+describe("비트파크 계정 연결", async () => {
+  const { cleanLink } = await import("../src/platform/status");
+  it("포털이 준 연결은 형식이 맞을 때만", () => {
+    expect(cleanLink({ code: "ABC123", secret: "a".repeat(32) })).toEqual({ code: "ABC123", secret: "a".repeat(32) });
+    expect(cleanLink({ code: "abc123", secret: "a".repeat(32) })).toBeNull();
+    expect(cleanLink({ code: "ABC123", secret: "zz" })).toBeNull();
+    expect(cleanLink({})).toBeNull();
+  });
+});

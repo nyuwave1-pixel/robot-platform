@@ -657,5 +657,15 @@
   "cloud.claim.expired": "이전 코드가 만료됐어요. 예전 기기에서 새로 만들어 주세요",
   "cloud.claim.bad": "코드 형식을 확인해 주세요",
   "cloud.claim.nosave": "넘겨받을 백업이 없어요",
-  "cloud.claim.error": "연결이 불안정해요. 잠시 후 다시 해 주세요"
+  "cloud.claim.error": "연결이 불안정해요. 잠시 후 다시 해 주세요",
+  "acct.linked": "비트파크 계정에 연결됨 — 다른 기기에서 비트파크로 들어와도 이어서 플레이",
+  "acct.found": "비트파크 계정에 저장된 진행이 있어요",
+  "acct.load": "이 진행 불러오기",
+  "acct.useThis": "이 기기 진행을 계정에 연결",
+  "acct.relinked": "이 기기 진행을 비트파크 계정에 연결했어요",
+  "acct.warn": "불러오면 이 기기의 지금 진행은 바뀌어요.",
+  "acct.fresh": "로그인한 비트파크 계정의 진행을 이어서 플레이해요.",
+  "acct.fail.auth": "계정 확인에 실패했어요 (다른 기기로 이전된 진행일 수 있어요)",
+  "acct.fail.nosave": "불러올 백업이 없어요",
+  "acct.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요"
 }

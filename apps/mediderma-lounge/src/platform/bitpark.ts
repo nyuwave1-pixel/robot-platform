@@ -5,7 +5,7 @@
  *  - 메시지는 허용된 포털 주소로만 보내고, 게임 진행에는 영향을 주지 않는다
  */
 import type { LinkParams, Platform, PlayEvent } from "./types";
-import { cleanStatus, usePlatformStatus } from "./status";
+import { cleanLink, cleanStatus, useAccountLink, usePlatformStatus } from "./status";
 
 export const BITPARK_GAME_ID = "beauty-life";
 export const BITPARK_ORIGINS = ["https://airobotphysical.com", "https://www.airobotphysical.com", "https://airobotphysical.web.app"];
@@ -61,9 +61,10 @@ export const bitpark: Platform = {
     window.addEventListener("message", (e) => {
       if (e.origin !== origin || e.source !== window.parent) return;
       const d = e.data as Record<string, unknown> | null;
-      if (!d || d.type !== "portal_status" || d.game !== BITPARK_GAME_ID) return;
-      const st = cleanStatus(d);
-      if (st) usePlatformStatus.setState(st);
+      if (!d || d.game !== BITPARK_GAME_ID) return;
+      if (d.type === "portal_status") { const st = cleanStatus(d); if (st) usePlatformStatus.setState(st); }
+      // 비트파크 계정에 연결해 둔 게임 계정 (본인만 읽을 수 있는 곳에서 포털이 꺼내 준다)
+      if (d.type === "portal_link") useAccountLink.setState({ known: true, link: cleanLink(d) });
     });
     try { window.parent.postMessage({ type: "game_ready", game: BITPARK_GAME_ID }, origin); } catch { /* 부모 창이 사라짐 */ }
   },
@@ -76,3 +77,10 @@ export const bitpark: Platform = {
     } catch { /* 부모 창이 사라짐 */ }
   },
 };
+
+/** 게임 계정을 비트파크 계정에 연결해 달라고 포털에 보낸다 (포털이 로그인한 본인 문서에만 저장) */
+export function sendAccountLink(code: string, secret: string, name: string) {
+  const origin = bitparkOrigin();
+  if (!origin || !/^[A-Z0-9]{6}$/.test(code) || !/^[0-9a-f]{32}$/.test(secret)) return false;
+  try { window.parent.postMessage({ type: "game_link", game: BITPARK_GAME_ID, code, secret, name: name.slice(0, 12) }, origin); return true; } catch { return false; }
+}

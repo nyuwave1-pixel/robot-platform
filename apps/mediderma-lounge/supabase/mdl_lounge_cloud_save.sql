@@ -87,3 +87,16 @@ grant execute on function public.mdl_save_put(text, text, jsonb, jsonb) to anon,
 grant execute on function public.mdl_save_meta(text, text) to anon, authenticated;
 grant execute on function public.mdl_transfer_create(text, text) to anon, authenticated;
 grant execute on function public.mdl_transfer_claim(text, text, text) to anon, authenticated;
+
+-- 2026-11-25 추가 (마이그레이션 "mdl_lounge_save_get"): 비트파크 계정에 연결된 진행 불러오기
+create or replace function public.mdl_save_get(p_code text, p_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare r record;
+begin
+  if not mdl_contest.auth(p_code, p_secret) then return jsonb_build_object('ok', false, 'error', 'auth'); end if;
+  select data, meta, updated_at into r from mdl_contest.saves where code = p_code;
+  if not found then return jsonb_build_object('ok', false, 'error', 'nosave'); end if;
+  return jsonb_build_object('ok', true, 'data', r.data, 'meta', r.meta, 'at', r.updated_at);
+end $$;
+revoke all on function public.mdl_save_get(text, text) from public;
+grant execute on function public.mdl_save_get(text, text) to anon, authenticated;

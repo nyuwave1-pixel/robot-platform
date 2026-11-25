@@ -10,7 +10,7 @@ import { useUI } from "../store/ui";
 import { useT } from "../i18n";
 import { HOME_PLATFORM, onHomePlatform } from "../platform";
 import { usePlatformStatus } from "../platform/status";
-import { TransferClaim } from "./Cloud";
+import { AccountLinkBox, TransferClaim } from "./Cloud";
 import { bodyDims, Character, styleNow, type Anim } from "../three/Character";
 import { Icon, type IconName } from "./Icon";
 
@@ -47,6 +47,8 @@ export function Splash() {
         )}
         <button className={started ? "btn-ghost" : "btn-primary"} onClick={() => set({ screen: "intro" })}>{t("splash.new")}</button>
       </div>
+      {/* 비트파크 계정에 저장된 진행이 있으면 바로 불러오기 */}
+      <AccountLinkBox compact />
       {/* 다른 기기에서 이어하기 (기기 이전 코드) */}
       {claim ? <TransferClaim onClose={() => setClaim(false)} /> : (
         <button className="relative mt-3 text-[12px] font-bold text-pink-deep underline underline-offset-2" onClick={() => setClaim(true)} data-testid="transfer-open">{t("cloud.claimTitle")}</button>
