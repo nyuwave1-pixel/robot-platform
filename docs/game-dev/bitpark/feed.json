@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T05:48:23.517Z",
+  "generatedAt": "2026-11-25T06:38:24.736Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "6b7e79c"
+    "commit": "946e40c"
   },
   "section": {
     "id": "game-dev-lab",
@@ -45,22 +45,29 @@
       "status": "pilot",
       "tests": {
         "editMode": {
-          "passed": 180,
-          "total": 180
+          "passed": 242,
+          "total": 242
         },
         "playMode": {
-          "passed": 10,
-          "total": 10
+          "passed": 12,
+          "total": 12
         }
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": null
+        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
       },
       "screenshots": [
+        "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
+        "docs/game-dev/screenshots/unity-hud.jpg",
         "docs/game-dev/screenshots/unity-island-slice-first-run.png",
         "docs/game-dev/screenshots/unity-island-slice-lighting.png",
-        "docs/game-dev/screenshots/unity-sky-presets-hdri.jpg"
+        "docs/game-dev/screenshots/unity-sky-dawn.jpg",
+        "docs/game-dev/screenshots/unity-sky-day.jpg",
+        "docs/game-dev/screenshots/unity-sky-dusk.jpg",
+        "docs/game-dev/screenshots/unity-sky-night.jpg",
+        "docs/game-dev/screenshots/unity-sky-presets-hdri.jpg",
+        "docs/game-dev/screenshots/unity-sky-storm.jpg"
       ],
       "docs": [
         "apps/unity-studio/README.md",
@@ -318,7 +325,7 @@
     ],
     "next": [
       {
-        "task": "HUD를 UI Toolkit으로 교체 — 2026-11-25 클라우드 완료(Unity 화면 확인 전): 나침반·미니맵·목표 표시·피격 방향·킬 피드",
+        "task": "HUD를 UI Toolkit으로 교체 — 완료(2026-11-25, PC Unity·WebGL 화면 확인): 나침반·미니맵·목표 표시·피격 방향·킬 피드",
         "feature": "UXML·USS, 데이터 바인딩",
         "resource": "Unity 기본"
       },
@@ -333,7 +340,7 @@
         "resource": "Unity 기본"
       },
       {
-        "task": "하늘·조명 — 2026-11-25 클라우드 완료(Unity 화면 확인 전): HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO",
+        "task": "하늘·조명 — 2026-11-25 PC 확인(storm·dusk·night 하늘 밝기 조정 남음): HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO",
         "feature": "URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스",
         "resource": "Poly Haven HDRI(CC0)"
       },
@@ -370,6 +377,18 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "946e40c",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): first Unity compile of sound fx 2, missions, HDRI sky and UI Toolkit HUD; WebGL HUD fixes"
+    },
+    {
+      "hash": "8ab6049",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): UI Toolkit HUD with compass, rotating minimap, waypoint, damage arcs and kill feed"
+    },
     {
       "hash": "6b7e79c",
       "date": "2026-11-25",
@@ -597,18 +616,6 @@
       "date": "2026-11-21",
       "area": "dev-env",
       "subject": "chore(dev-env): reproducible Windows setup for game work on any PC"
-    },
-    {
-      "hash": "7d160f8",
-      "date": "2026-11-20",
-      "area": "game-dev",
-      "subject": "docs(game-dev): Claude Code x Unity integration plan (Unity CLI first, MCP for Unity as fallback)"
-    },
-    {
-      "hash": "94651e4",
-      "date": "2026-11-20",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): game design document summarising v0.1–v0.16"
     }
   ]
 }
