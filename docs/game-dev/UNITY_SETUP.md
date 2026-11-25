@@ -410,3 +410,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - dotnet `CoreTests~` **316/316**. PlayMode `Mission05Tests` 2개. **Unity 확인 전**.
 - 캠페인 현황: Unity 판에서 **MISSION 01–05 전부 플레이 가능한 씬**(`Mission01–05.unity`, `?mission=m01…m05`). 아직: 미션 선택·브리핑 화면, 인트로 컷신, 분대원(아군 AI), 드론·열상·야간투시 장비.
 
+## 2026-11-25 (18) — Unity 캠페인 흐름: 브리핑·진행 저장·다음 미션 (허브 세션, 클라우드)
+
+- **진행(`Core/CampaignProgress`)**: 웹 규칙 그대로 — 미션 i 는 i ≤ progress 일 때 열림, 클리어하면 progress = max(progress, i + 1), 최고 기록은 등급이 같거나 좋으면 교체('CBAS').
+  웹 main.js·menu.js 원문 대조 테스트. 저장은 `Runtime/ProgressStore`(PlayerPrefs `special-soldier.campaign`, WebGL 은 브라우저 저장소).
+- **브리핑(`Runtime/BriefingScreen`)**: 캠페인 씬을 열면 미션 코드·이름·구역·브리핑 문장·최고 기록·난이도를 보여 주고 START(Enter/Space/버튼)까지 게임 멈춤. 테스트(설정 Volatile)와 `-nobrief` 에서는 생략.
+- **다음 미션**: 이기면 기록 저장, 결과 화면 `N — NEXT MISSION (이름)`, 마지막 미션은 `CAMPAIGN COMPLETE`. 첫 클리어 표시.
+- **일시정지 메뉴**: CAMPAIGN 줄 — M01–M05 버튼(잠김 / 최고 등급), 누르면 그 미션 씬으로.
+- dotnet `CoreTests~` **320/320**. PlayMode `CampaignFlowTests`(M01 승리 → 진행 1, M02 열림, 다음 씬 Mission02). **Unity 확인 전**.
+

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T12:39:30.649Z",
+  "generatedAt": "2026-11-25T12:48:11.563Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "ca15567"
+    "commit": "57de40a"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,6 +385,18 @@
   },
   "devlog": [
     {
+      "hash": "57de40a",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity campaign flow (briefing, progress, next mission)"
+    },
+    {
+      "hash": "b80759a",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: port Mission 05 LAST EXTRACTION — all five campaign missions (U4)"
+    },
+    {
       "hash": "ca15567",
       "date": "2026-11-25",
       "area": "general",
@@ -611,18 +623,6 @@
       "date": "2026-11-25",
       "area": "game-dev",
       "subject": "docs(game-dev): hub claims the shared island vegetation work (web + Unity)"
-    },
-    {
-      "hash": "eb0335f",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "feat: one island for both SPECIAL SOLDIER versions — shared terrain formula, Unity Terrain of the web island"
-    },
-    {
-      "hash": "cbc74bc",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): hub claims the shared island terrain work (web + Unity)"
     }
   ]
 }

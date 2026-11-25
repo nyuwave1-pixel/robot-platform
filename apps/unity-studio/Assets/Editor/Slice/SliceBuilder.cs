@@ -319,6 +319,10 @@ namespace SpecialSoldier.EditorTools
             if (named.TryGetValue("CommsTower", out var relay)) director.relayMast = relay;
             if (door) director.securityDoor = door;
             if (named.TryGetValue("BioSample", out var sample)) director.bioSample = sample.gameObject;
+            // mission briefing before the mission starts (paused until START), drawn above the HUD and pause menu
+            var briefGo = new GameObject("Briefing");
+            var briefDoc = briefGo.AddComponent<UnityEngine.UIElements.UIDocument>(); briefDoc.panelSettings = director.GetComponent<UnityEngine.UIElements.UIDocument>().panelSettings; briefDoc.sortingOrder = 20;
+            briefGo.AddComponent<BriefingScreen>().style = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.StyleSheet>("Assets/UI/PauseMenu.uss");
             if (m.Id == "m05")
             {
                 // the extraction helicopter waits out of sight; GameDirector.HeliArrive flies it in on the web curve

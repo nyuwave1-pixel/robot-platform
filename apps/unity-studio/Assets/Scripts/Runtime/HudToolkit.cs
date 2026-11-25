@@ -24,7 +24,7 @@ namespace SpecialSoldier
         VisualElement _root, _compass, _minimap, _overlay, _hitmarker, _awareFill, _awareBox, _hpFill, _arFill, _vitals, _promptFill, _prompt, _reload, _reloadFill, _waypoint, _flash, _result, _feedBox, _slots;
         /// <summary>How long a radio line stays on screen.</summary>
         public const float RadioSeconds = 6f;
-        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN, _radio;
+        Label _heading, _awareLabel, _objective, _counters, _weather, _miniInfo, _hp, _ar, _mag, _reserve, _wname, _wmode, _nades, _promptText, _nade, _wpDist, _click, _resTitle, _resGrade, _resLine1, _resLine2, _miniN, _radio, _resHint;
         readonly Label[] _cardinals = new Label[8];
         readonly VisualElement[] _arms = new VisualElement[4];
         Damageable _playerHp;
@@ -98,7 +98,7 @@ namespace SpecialSoldier
             _flash = E(r, "flash");
             _click = T(r, "click", "CLICK TO PLAY");
             _result = E(r, "result");
-            _resTitle = T(_result, "result-title"); _resGrade = T(_result, "result-grade"); _resLine1 = T(_result, null); _resLine2 = T(_result, null); T(_result, "hud-small hud-dim", "press R to restart");
+            _resTitle = T(_result, "result-title"); _resGrade = T(_result, "result-grade"); _resLine1 = T(_result, null); _resLine2 = T(_result, null); _resHint = T(_result, "hud-small hud-dim", "press R to restart");
         }
 
         void Update()
@@ -245,7 +245,10 @@ namespace SpecialSoldier
                     var st = m.Stats;
                     _resGrade.text = st.Grade.ToString();
                     _resLine1.text = $"TIME {HudMath.Clock(st.Time)}   KILLS {st.Kills} ({st.Headshots} HS)   ACCURACY {st.AccuracyPercent}%   ALARMS {st.Alarms}";
-                    _resLine2.text = $"SCORE {st.Score:0}   PORTAL +{st.PortalRp} RP";
+                    _resLine2.text = $"SCORE {st.Score:0}   PORTAL +{st.PortalRp} RP" + (won && _dir.FirstClear ? "   FIRST CLEAR" : "");
+                    string next = won ? _dir.NextScene : null;
+                    _resHint.text = next != null ? $"N — NEXT MISSION ({Campaign.All[_dir.CampaignIndex + 1].Name})   ·   R — replay"
+                        : won && _dir.LastMission ? "CAMPAIGN COMPLETE — OPERATION ISLAND INVASION   ·   R — replay" : "press R to restart";
                 }
                 else { _resGrade.text = ""; _resLine1.text = $"{_dir.Kills} kills in {HudMath.Clock(_dir.ElapsedTime)}"; _resLine2.text = ""; }
             }

@@ -29,6 +29,21 @@ namespace SpecialSoldier
         /// <summary>Mission 05: the extraction helicopter (flies in when the LZ is held) and where the smoke goes.</summary>
         public Transform heli;
         public bool HeliLanded => Mission != null && Mission.Flags.Contains("heliLanded");
+        /// <summary>Campaign: this mission's place in Core.Campaign.All (−1 outside the campaign).</summary>
+        public int CampaignIndex => missionMode == MissionMode.Campaign ? System.Array.IndexOf(Campaign.All, Campaign.Get(campaignId)) : -1;
+        /// <summary>The following campaign mission's scene, when it is in this build (N on the result screen).</summary>
+        public string NextScene
+        {
+            get
+            {
+                int i = CampaignIndex; if (i < 0 || i + 1 >= Campaign.All.Length) return null;
+                string s = SceneRouter.SceneFor(Campaign.All[i + 1].Id);
+                return Application.CanStreamedLevelBeLoaded(s) ? s : null;
+            }
+        }
+        public bool LastMission => CampaignIndex == Campaign.All.Length - 1;
+        /// <summary>The win was this mission's first clear (web: unlocks are announced).</summary>
+        public bool FirstClear { get; private set; }
         public bool Detonated { get; private set; }
         /// <summary>Latest radio line for the HUD and when it was said (Time.time).</summary>
         public string RadioLine { get; private set; }
@@ -95,7 +110,7 @@ namespace SpecialSoldier
             Mission.WaveRequested += SendWave;
             Mission.EventRaised += OnMissionEvent;
             Mission.Begin(this);   // first objective's radio / start hook, now that everything listens
-            Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
+            if (!BriefingScreen.IsOpen) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         }
 
         MissionRunner BuildMission()
@@ -141,9 +156,10 @@ namespace SpecialSoldier
             var kb = Keyboard.current;
             if (kb == null) return;
             if (State != Outcome.Playing && kb.rKey.wasPressedThisFrame) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (State == Outcome.Won && kb.nKey.wasPressedThisFrame && NextScene != null) SceneManager.LoadScene(NextScene);   // campaign: on to the next mission
             if (kb.escapeKey.wasPressedThisFrame && !PauseMenu.Instance) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }   // the pause menu owns Esc when present
             var mouse = Mouse.current;
-            if (State == Outcome.Playing && !PauseMenu.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
+            if (State == Outcome.Playing && !PauseMenu.IsOpen && !BriefingScreen.IsOpen && mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
             { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         }
 
@@ -319,6 +335,7 @@ namespace SpecialSoldier
         {
             if (State != Outcome.Playing) return;
             State = o; Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+            if (o == Outcome.Won && Mission != null && CampaignIndex >= 0) FirstClear = ProgressStore.Complete(CampaignIndex, Mission.Stats);   // web: save.progress / best
             if (o == Outcome.Won && Mission != null)
                 PortalBridge.ReportResult(Mission.Code, Mission.Stats.Grade.ToString(), Mathf.RoundToInt(Mission.Stats.Score), Mission.Stats.PortalRp);
         }
