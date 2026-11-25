@@ -1,5 +1,5 @@
 /** 메뉴 패널: 캐릭터 · 라운지 · 상점/도감 · 소셜 · 퀘스트 · 프로필 · 성장 · 고객 · 설정 · 상담 */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { MODES, ROUTINES } from "../data/devices";
 import {
@@ -7,7 +7,7 @@ import {
   LOUNGE_LEVELS, POSES, PROMOS, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
 } from "../data/game";
 import { MALL_URL, PRODUCTS, PRODUCT_MAP, RARITY_COLOR, productImage, usesOf, type Product } from "../data/products";
-import { levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
+import { DESIGNED_BODIES, levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
 import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
@@ -65,13 +65,17 @@ export function PanelHost() {
 }
 
 // ───────────── MY BEAUTY CHARACTER ─────────────
-const SLOT_TABS: [Slot, string][] = [["outfit", "look.outfit"], ["accessory", "look.accessory"], ["earring", "look.earring"], ["necklace", "look.necklace"], ["bag", "look.bag"], ["shoes", "look.shoes"], ["makeup", "look.makeup"], ["nail", "look.nail"]];
+const SLOT_TABS: [Slot, string][] = [["outfit", "look.outfit"], ["accessory", "look.accessory"], ["earring", "look.earring"], ["necklace", "look.necklace"], ["bag", "look.bag"], ["shoes", "look.shoes"], ["base", "look.base"], ["makeup", "look.makeup"], ["shadow", "look.shadow"], ["lip", "look.lip"], ["nail", "look.nail"]];
 function CharacterPanel() {
   const t = useT();
   const L = useL();
   const g = useGame();
   const [tab, setTab] = useState<"face" | "hair" | "style" | "pose">("face");
   const [slot, setSlot] = useState<Slot>("outfit");
+  // 얼굴 탭 · 메이크업 슬롯에서는 카메라가 얼굴을 확대한다
+  const face = tab === "face" || (tab === "style" && (slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip"));
+  useEffect(() => { useUI.setState({ faceCam: face }); }, [face]);
+  useEffect(() => () => useUI.setState({ faceCam: false }), []);
   const look = g.look;
   const wear = (s: Slot) => FASHION.filter((f) => f.slot === s);
   const Item = ({ id, s }: { id: string; s: Slot }) => {
@@ -126,6 +130,11 @@ function CharacterPanel() {
       {tab === "style" && (
         <>
           <div className="mb-2 flex gap-1 overflow-x-auto pb-1">{SLOT_TABS.map(([s, k]) => <button key={s} onClick={() => setSlot(s)} className={`chip shrink-0 ${slot === s ? "chip-on" : ""}`}>{t(k)}</button>)}</div>
+          {(slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip") && (
+            <p className="mb-2 rounded-xl bg-pink-soft/60 px-3 py-2 text-[12px] leading-relaxed text-ink/65">
+              {(DESIGNED_BODIES as readonly string[]).includes(look.body ?? "") ? t("makeup.noteDesigned") : t(`makeup.note.${slot}`)}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-2">{wear(slot).map((f) => <Item key={f.id} id={f.id} s={slot} />)}</div>
         </>
       )}

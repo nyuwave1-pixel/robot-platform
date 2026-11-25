@@ -27,6 +27,8 @@ export interface Look {
   /** 실사 스타일의 체형 (기본: 여성) */
   body?: "female" | "male" | DesignedBody;
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
+  /** 베이스 메이크업(기초 화장) · 아이섀도 · 립 (없으면 맨 피부 · 섀도 없음 · 기본 입술색) */
+  base?: string | null; shadow?: string | null; lip?: string | null;
 }
 export const DEFAULT_LOOK: Look = {
   skin: "#ffe4d2", hairColor: "#6b4630", eyeColor: "#4a3326", lipColor: "#e98c9a",

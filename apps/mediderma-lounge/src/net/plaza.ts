@@ -66,6 +66,7 @@ export function cleanLook(v: unknown): Look {
     body: o.body === "male" ? "male" : (DESIGNED_BODIES as readonly unknown[]).includes(o.body) ? (o.body as DesignedBody) : "female",
     accessory: item(o.accessory, null), earring: item(o.earring, null), necklace: item(o.necklace, null), bag: item(o.bag, null),
     shoes: item(o.shoes, null), makeup: item(o.makeup, null), nail: item(o.nail, null),
+    base: item(o.base, null), shadow: item(o.shadow, null), lip: item(o.lip, null),
   };
 }
 export interface LoungeSnap { level: number; floor: string; wall: string; light: string; furniture: Furniture[] }

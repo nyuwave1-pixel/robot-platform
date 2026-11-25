@@ -63,6 +63,8 @@ interface UIState {
   cine: { from: number; to: number } | null;
   growthView: number | null; // 연출 중 표시 성장값
   flash: number;
+  /** 캐릭터 화면에서 얼굴을 확대해 보여 줄지 (얼굴 · 메이크업 탭) */
+  faceCam: boolean;
   stroking: boolean;
   skipCine: boolean;
   set: (p: Partial<UIState>) => void;
@@ -93,6 +95,7 @@ export const useUI = create<UIState>((set, get) => ({
   cine: null,
   growthView: null,
   flash: 0,
+  faceCam: false,
   stroking: false,
   skipCine: false,
   set: (p) => set(p),

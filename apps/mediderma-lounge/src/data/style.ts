@@ -34,9 +34,13 @@ export const ITEM_STYLE: Record<string, V> = {
   "shoe-pink": [5, 1, 0, 0, 0], "shoe-white": [1, 0, 5, 0, 2], "shoe-gold": [0, 3, 0, 5, 2],
   "mk-natural": [1, 1, 5, 0, 1], "mk-peach": [4, 1, 3, 0, 0], "mk-rose": [0, 2, 0, 5, 2],
   "nail-pink": [4, 1, 1, 1, 0], "nail-gold": [0, 2, 0, 5, 2],
+  "mk-coral": [3, 1, 3, 1, 1], "mk-lavender": [4, 2, 0, 2, 1],
+  "base-skin": [1, 0, 5, 0, 1], "base-glow": [3, 2, 4, 2, 0], "base-matte": [0, 3, 1, 2, 4], "base-toneup": [4, 1, 3, 0, 1], "base-satin": [1, 4, 2, 3, 2],
+  "sh-brown": [1, 1, 4, 0, 3], "sh-pink": [5, 1, 1, 1, 0], "sh-peach": [4, 1, 3, 1, 0], "sh-gold": [0, 4, 0, 5, 1], "sh-smoky": [0, 1, 0, 4, 5],
+  "lip-mlbb": [1, 2, 4, 0, 3], "lip-coral": [4, 1, 3, 1, 0], "lip-pink": [5, 1, 2, 0, 0], "lip-red": [0, 4, 0, 5, 3], "lip-berry": [0, 3, 0, 4, 4],
 };
 /** 슬롯 가중치: 옷·헤어가 룩의 인상을 가장 크게 좌우한다 */
-export const SLOT_WEIGHT: Record<Slot, number> = { outfit: 3, hair: 2, makeup: 1.5, shoes: 1.2, accessory: 1, bag: 1, necklace: 0.8, earring: 0.7, nail: 0.6 };
+export const SLOT_WEIGHT: Record<Slot, number> = { outfit: 3, hair: 2, makeup: 1.5, lip: 1.2, base: 1, shadow: 1, shoes: 1.2, accessory: 1, bag: 1, necklace: 0.8, earring: 0.7, nail: 0.6 };
 export const SLOTS = Object.keys(SLOT_WEIGHT) as Slot[];
 
 export interface Theme { id: string; ko: string; en: string; descKo: string; descEn: string; w: V; hue?: string }

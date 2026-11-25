@@ -8,6 +8,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { makeGLTFLoader } from "./gltf";
+import { BASE_FX, FACE_PATCH } from "../data/makeup";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { FASHION_MAP } from "../data/game";
 import { DESIGNED_BODIES, type Look } from "../store/game";
@@ -121,7 +122,16 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
     const skin = new THREE.Color(look.skin);
     const tint = new THREE.Color(skin.r / SKIN_AVG.r, skin.g / SKIN_AVG.g, skin.b / SKIN_AVG.b);
     // 입술: 피부색 위에 룩의 립 컬러를 60% 섞는다 (밝기는 텍스처가 맡도록 가장 밝은 채널을 1로 맞춘다)
-    const lip = new THREE.Color(look.lipColor ?? "#e98c9a");
+    // 립 아이템을 바르면 그 색, 아니면 캐릭터 기본 입술색
+    const lip = new THREE.Color((look.lip && FASHION_MAP[look.lip]?.color) || look.lipColor || "#e98c9a");
+    // 베이스 메이크업: 톤을 고르게(붉은기·노란기를 평균 쪽으로) + 밝기
+    // (베이스를 안 바르면 피부는 그대로)
+    const fx = look.base ? BASE_FX[look.base] ?? null : null;
+    if (fx) {
+      // 붉은기·칙칙함을 줄이고 따뜻한 쪽으로 고르게 (회색으로 바래지 않게 원래 색의 밝기·온도는 유지)
+      const lum = tint.r * 0.3 + tint.g * 0.59 + tint.b * 0.11;
+      tint.lerp(new THREE.Color(lum * 1.06, lum * 0.99, lum * 0.92), fx.even * 0.18).multiplyScalar(fx.bright);
+    }
     const lm = Math.max(lip.r, lip.g, lip.b, 0.001);
     const lipTint = tint.clone().multiply(new THREE.Color(1, 1, 1).lerp(new THREE.Color(lip.r / lm, lip.g / lm, lip.b / lm), 0.6));
     obj.traverse((c) => {
@@ -132,7 +142,12 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       else if (name in wear) m.visible = wear[name];
       const mt = m.material as THREE.MeshStandardMaterial;
       const mn = mt.name;
-      if (mn === "skin") mt.color.copy(tint);
+      if (mn === "skin") {
+        mt.color.copy(tint);
+        if (mt.userData.rough0 === undefined) mt.userData.rough0 = mt.roughness;
+        mt.roughness = fx ? fx.rough : mt.userData.rough0;
+        mt.emissive.copy(tint).multiplyScalar(fx ? fx.glow : 0);
+      }
       else if (mn === "lips") mt.color.copy(lipTint);
       else if (mn.startsWith("hair")) mt.color.set(look.hairColor).multiplyScalar(1.15);
       else if (mn === "shoe") mt.color.set(shoe);
@@ -143,7 +158,34 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
         mt.metalness = cut === "gown" ? 0.15 : 0;
       }
     });
-  }, [obj, look.hair, look.hairColor, look.skin, look.lipColor, look.outfit, look.shoes, male, cut, col, acc, shoe, outfit.id]);
+  }, [obj, look.hair, look.hairColor, look.skin, look.lipColor, look.lip, look.base, look.outfit, look.shoes, male, cut, col, acc, shoe, outfit.id]);
+
+  // 색조 메이크업: 블러셔 · 아이섀도를 머리 뼈에 붙인 부드러운 색 패치로 (실사 기본 모델만)
+  const blush = look.makeup ? FASHION_MAP[look.makeup]?.color ?? null : null;
+  const shadow = look.shadow ? FASHION_MAP[look.shadow]?.color ?? null : null;
+  useEffect(() => {
+    if (!obj || sig || (!blush && !shadow)) return;
+    const head = obj.getObjectByName("Head");
+    if (!head) return;
+    const g = new THREE.Group();
+    g.name = "makeup";
+    const add = (p: typeof FACE_PATCH.blush, color: string) => {
+      for (const side of [-1, 1]) {
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshBasicMaterial({ map: softDot(), color, transparent: true, opacity: p.opacity, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, toneMapped: false }));
+        m.position.set(side * p.x, p.y, p.z);
+        m.rotation.y = side * p.turn;
+        m.renderOrder = 2;
+        g.add(m);
+      }
+    };
+    if (blush) add(FACE_PATCH.blush, blush);
+    if (shadow) add(FACE_PATCH.shadow, shadow);
+    head.add(g);
+    return () => {
+      head.remove(g);
+      g.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.geometry.dispose(); (m.material as THREE.Material).dispose(); } });
+    };
+  }, [obj, sig, blush, shadow]);
 
   // 등급 7 이상: 머리 뼈에 티아라/왕관
   useEffect(() => {
@@ -211,4 +253,21 @@ export function RealCharacter({ look, growth, anim = "idle", movingRef, rank = 0
       <primitive object={obj} />
     </group>
   );
+}
+
+/** 가운데가 진하고 가장자리로 갈수록 사라지는 원 (블러셔·섀도 패치용, 한 번 만들어 공유) */
+let dot: THREE.Texture | null = null;
+function softDot() {
+  if (dot) return dot;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const x = c.getContext("2d")!;
+  const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, "rgba(255,255,255,1)");
+  gr.addColorStop(0.45, "rgba(255,255,255,0.6)");
+  gr.addColorStop(1, "rgba(255,255,255,0)");
+  x.fillStyle = gr;
+  x.fillRect(0, 0, 64, 64);
+  dot = new THREE.CanvasTexture(c);
+  return dot;
 }

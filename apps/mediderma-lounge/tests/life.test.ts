@@ -130,7 +130,7 @@ describe("스타일 챌린지", () => {
     const cute = scoreFit({ outfit: "fit-pastel", hair: "hair-twin", shoes: "shoe-pink" }, red, "glam").total;
     const glam = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold" }, red, "glam").total;
     expect(glam).toBeGreaterThan(cute + 20);
-    const full = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold", accessory: "acc-tiara", earring: "ear-gold", necklace: "neck-gold", bag: "bag-black", makeup: "mk-rose", nail: "nail-gold" }, red, "glam");
+    const full = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold", accessory: "acc-tiara", earring: "ear-gold", necklace: "neck-gold", bag: "bag-black", makeup: "mk-rose", nail: "nail-gold", base: "base-satin", shadow: "sh-gold", lip: "lip-red" }, red, "glam");
     expect(full.total).toBeGreaterThanOrEqual(90);
     expect(full.grade).toBe("S");
   });

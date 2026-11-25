@@ -426,6 +426,13 @@ function CameraRig({ L }: { L: Layout }) {
         wantT.set(cx, d.height * 0.6, cz);
         want.set(cx + Math.sin(c.yaw) * Math.cos(gp) * gd, wantT.y + Math.sin(gp) * gd, cz + Math.cos(c.yaw) * Math.cos(gp) * gd);
       }
+      // 얼굴 · 메이크업 탭: 얼굴을 가까이 (휴대폰은 아래 패널에 가리지 않게 얼굴이 화면 위쪽에 오도록)
+      if (dress && ui.faceCam) {
+        const fd = (narrow ? 1.15 : 0.85) * (d.height / 1.5);
+        wantT.set(p.x, d.height * 0.9 - (narrow ? d.height * 0.13 : 0), p.z);
+        want.set(p.x + Math.sin(c.yaw) * fd, wantT.y + 0.06, p.z + Math.cos(c.yaw) * fd);
+        if (!narrow) { const ox = Math.cos(c.yaw) * fd * 0.2, oz = -Math.sin(c.yaw) * fd * 0.2; wantT.x += ox; wantT.z += oz; want.x += ox; want.z += oz; }
+      }
       // 카메라가 벽 밖으로 나가지 않게 (벽·입구 프레임에 가리지 않도록)
       want.x = THREE.MathUtils.clamp(want.x, -L.w / 2 + 0.35, L.w / 2 - 0.35);
       want.z = THREE.MathUtils.clamp(want.z, -L.d / 2 + 0.35, L.d / 2 - 0.35);

@@ -39,7 +39,7 @@
   "look.necklace": "Necklace",
   "look.bag": "Bag",
   "look.shoes": "Shoes",
-  "look.makeup": "Makeup",
+  "look.makeup": "Blush",
   "look.nail": "Nails",
   "look.equipped": "Equipped",
   "look.owned": "Owned",
@@ -536,5 +536,12 @@
   "care.contactOff": "Place the head on the skin",
   "care.tech.rf": "RF: keep the head flat and move slowly in small circles (don't stay in one spot)",
   "care.tech.us": "Ultrasonic: short upward strokes along the grain (micro-vibration)",
-  "care.tech.ionto": "Ionto: glide slowly over the area where the ampoule was applied"
+  "care.tech.ionto": "Ionto: glide slowly over the area where the ampoule was applied",
+  "look.base": "Base",
+  "look.shadow": "Eyeshadow",
+  "makeup.note.base": "Base makeup changes skin texture and tone: Dewy Cushion for glow, Matte Foundation for an even velvet finish, Tone-up Cream for one shade brighter.",
+  "makeup.note.makeup": "Blush adds a soft flush to both cheeks.",
+  "makeup.note.shadow": "Eyeshadow adds color to the lids for defined eyes.",
+  "makeup.note.lip": "Lip color changes your lips; take it off to return to your default lip color.",
+  "makeup.noteDesigned": "Designed characters have makeup baked into their texture, so makeup won't show. Try it on a standard character."
 }
