@@ -53,6 +53,9 @@ namespace SpecialSoldier.Core
         public bool TargetSprinting;
         public float NoiseRadius;        // radius of the loudest noise the target made this tick (0 = silent)
         public float VisionRange;        // metres this enemy can see right now (AwarenessBrain.VisionRange); 0 = the type's base vision
+        /// <summary>The player is not seen but a squad mate is (web: alerted or squad weapons free, mate within min(vision × 1.2, 70) m
+        /// with line of sight): it counts as a sighting and the meter rises 1.2/s.</summary>
+        public bool SeesSquad;
     }
 
     public enum Stance { Stand = 0, Crouch = 1, Prone = 2 }
@@ -84,6 +87,9 @@ namespace SpecialSoldier.Core
             return vr;
         }
 
+        /// <summary>web: how far an enemy spots a squad mate — min(vision × 1.2, 70) m.</summary>
+        public static float SquadSpotRange(float vision) => Math.Min(vision * 1.2f, 70f);
+
         public static float StanceFactor(Stance s) => s == Stance.Prone ? 0.5f : s == Stance.Crouch ? 0.72f : 1f;
 
         /// <summary>Advances the brain by <paramref name="dt"/> seconds (the web game thinks every 0.13–0.45 s).
@@ -101,6 +107,7 @@ namespace SpecialSoldier.Core
             {
                 SinceSeen += dt;
                 Detect = Math.Max(0, Detect - dt * 0.18f);   // web: forgets a glimpse; also drains during COMBAT so SEARCH starts near 0
+                if (p.SeesSquad) { SinceSeen = 0; if (State < AlertState.Combat) Detect += dt * 1.2f; }   // web: squad mates are valid targets too
             }
 
             if (p.NoiseRadius > 0 && p.Distance < p.NoiseRadius * DifficultyDetect && State < AlertState.Combat)

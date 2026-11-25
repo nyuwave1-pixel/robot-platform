@@ -57,6 +57,7 @@ namespace SpecialSoldier
         float _think, _noise, _burstGap, _shotT, _reactT;
         int _burstLeft, _patrolIndex;
         bool _seesNow;
+        SquadMate _mateTarget;   // web e.tgt = a squad mate (when the player is out of sight)
 
         void Awake()
         {
@@ -148,7 +149,22 @@ namespace SpecialSoldier
                     _seesNow = hit.collider.GetComponentInParent<PlayerMotor>() == _player;
                 if (_seesNow) _lastKnown = _player.transform.position;
             }
-            var p = new Perception { SeesTarget = _seesNow, Distance = dist, TargetSprinting = _player && _player.IsSprinting, NoiseRadius = _noise, VisionRange = vision };
+            // web: squad mates are valid targets too — alerted (or the squad is shooting), mate within min(vision × 1.2, 70) m in sight
+            _mateTarget = null;
+            var dir = GameDirector.Instance;
+            if (!_seesNow && (Brain.Alerted || (dir && dir.SquadWeaponsFree)))
+            {
+                Vector3 eye = transform.position + Vector3.up * eyeHeight; float spot = AwarenessBrain.SquadSpotRange(vision);
+                foreach (var m in SquadMate.Active)
+                {
+                    if (!m || m.Down) continue;
+                    Vector3 at = m.transform.position + Vector3.up * 1.4f;
+                    if ((at - eye).magnitude >= spot) continue;
+                    if (Physics.Linecast(eye, at, out RaycastHit mh, sightMask, QueryTriggerInteraction.Ignore) && mh.collider.GetComponentInParent<SquadMate>() != m) continue;
+                    _mateTarget = m; _lastKnown = m.transform.position; break;
+                }
+            }
+            var p = new Perception { SeesTarget = _seesNow, SeesSquad = _mateTarget != null, Distance = dist, TargetSprinting = _player && _player.IsSprinting, NoiseRadius = _noise, VisionRange = vision };
             _noise = 0f;
             Brain.Tick(td, p);
             PlanCombat(td);
@@ -270,13 +286,15 @@ namespace SpecialSoldier
 
         void Shoot(float dt)
         {
-            if (!_seesNow || !_playerHp || !_playerHp.Alive || Hidden) { _burstLeft = 0; return; }
+            bool atMate = !_seesNow && _mateTarget && !_mateTarget.Down;
+            if ((!_seesNow && !atMate) || !_playerHp || (!atMate && !_playerHp.Alive) || Hidden) { _burstLeft = 0; return; }
+            Vector3 targetPos = atMate ? _mateTarget.transform.position : _player.transform.position;
             Vector3 gunFwd = Vector3.forward;
             if (Type.Vehicle && turret)
             {
                 // the turret must be on target before it fires (web: fireLogic(..., |angle| small))
                 gunFwd = turret.forward; gunFwd.y = 0f; gunFwd.Normalize();
-                Vector3 toP = _player.transform.position - transform.position; toP.y = 0f;
+                Vector3 toP = targetPos - transform.position; toP.y = 0f;
                 if (Vector3.Angle(gunFwd, toP) > 12f) return;
             }
             if (_reactT > 0f) { _reactT -= dt; return; }
@@ -292,8 +310,8 @@ namespace SpecialSoldier
 
             Vector3 eye = transform.position + Vector3.up * (Type.Vehicle ? Type.MuzzleHeight : eyeHeight);
             if (Type.Vehicle) eye += gunFwd * 3.2f;   // web: muzzle 3.2 m out along the turret
-            Vector3 dir = (_player.Eye - Vector3.up * 0.35f - eye).normalized;
-            float spread = diff.ShotSpread(Type, _agent.velocity.sqrMagnitude > 0.25f, Brain.StateTime);
+            Vector3 dir = ((atMate ? targetPos + Vector3.up * 1.1f : _player.Eye - Vector3.up * 0.35f) - eye).normalized;   // web: mates are aimed at 1.1 m
+            float spread = diff.ShotSpread(Type, _agent.velocity.sqrMagnitude > 0.25f, Brain.StateTime) * (atMate ? 1.2f : 1f);   // web: × 1.2 at a mate
             Vector2 r = Random.insideUnitCircle * Mathf.Tan(spread * Mathf.Deg2Rad);
             dir = (dir + transform.right * r.x + Vector3.up * r.y).normalized;
             if (Physics.Raycast(eye + dir * 0.4f, dir, out RaycastHit hit, Type.Vision * 1.5f, sightMask, QueryTriggerInteraction.Ignore))

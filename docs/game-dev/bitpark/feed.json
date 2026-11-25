@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T13:48:00.574Z",
+  "generatedAt": "2026-11-25T13:52:16.475Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "d69469b"
+    "commit": "94e3baf"
   },
   "section": {
     "id": "game-dev-lab",
@@ -385,10 +385,58 @@
   },
   "devlog": [
     {
+      "hash": "94e3baf",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim enemies targeting the squad"
+    },
+    {
+      "hash": "328af50",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
       "hash": "d69469b",
       "date": "2026-11-25",
       "area": "general",
       "subject": "Korean interface: edition screen, tips, HUD labels, objective markers; QA v0.23 (door gunner, Korean)"
+    },
+    {
+      "hash": "39de82b",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: SQUAD 07 team-mates (REAPER, NOMAD, ATLAS)"
+    },
+    {
+      "hash": "86717f5",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity squad teammates"
+    },
+    {
+      "hash": "26a08f2",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: fix four issues from a compile review; Mission 01 boat intro"
+    },
+    {
+      "hash": "bdc1ceb",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Core: Mission 01 boat intro (web playBoatIntro) as boat-relative shots"
+    },
+    {
+      "hash": "f5a26cc",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: Mission 05 door-gunner set piece (catch up with web v0.23)"
+    },
+    {
+      "hash": "1702aa6",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity Mission 05 door gunner"
     },
     {
       "hash": "9d1294a",
@@ -575,54 +623,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Unity: Mission 01 beach structures from the web build.js (U4)"
-    },
-    {
-      "hash": "f536185",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "370ce15",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Mission 01 beach structures"
-    },
-    {
-      "hash": "39e8a18",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): PC Unity releases the classic menu.js claim (PLAY MODE done) for the multiplayer session"
-    },
-    {
-      "hash": "e3c2443",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: instance the island vegetation instead of merging meshes (WebGL size)"
-    },
-    {
-      "hash": "85d4c73",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim vegetation instancing (WebGL size)"
-    },
-    {
-      "hash": "ddb8e4f",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "QA: v0.21 campaign regression 17/17; refresh BIT PARK feed"
-    },
-    {
-      "hash": "5997b22",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: soldier animation with Quaternius UAL (CC0) + web procedural pose (U3)"
-    },
-    {
-      "hash": "f52919d",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim U3 soldier animation (Quaternius UAL CC0)"
     }
   ]
 }

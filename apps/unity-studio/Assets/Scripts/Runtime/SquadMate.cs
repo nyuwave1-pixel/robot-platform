@@ -20,6 +20,10 @@ namespace SpecialSoldier
         NavMeshAgent _agent; Damageable _hp; PlayerMotor _player; EnemyAgent _tgt;
         float _think, _shotT, _pauseT = 1f, _downT, _speed; int _burst;
         static float _lastBark = -99f;
+        /// <summary>Team-mates in the scene (enemies look for them when they cannot see you).</summary>
+        public static readonly System.Collections.Generic.List<SquadMate> Active = new System.Collections.Generic.List<SquadMate>();
+        void OnEnable() => Active.Add(this);
+        void OnDisable() => Active.Remove(this);
 
         void Awake()
         {

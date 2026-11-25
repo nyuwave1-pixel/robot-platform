@@ -57,6 +57,17 @@ namespace SpecialSoldier.Core.Tests
         }
 
         [Test]
+        public void SquadMatesAreTargetsToo()
+        {
+            var b = new AwarenessBrain(EnemyType.Sentry);
+            b.Tick(0.45f, new Perception { SeesSquad = true });   // one think: +1.2/s, after the 0.18/s drain
+            Assert.That(b.Detect, Is.EqualTo(0.45f * 1.2f).Within(1e-5), "from 0 the drain clamps first, then +1.2/s (web order)"); Assert.AreEqual(0f, b.SinceSeen);
+            for (int i = 0; i < 20 && b.State != AlertState.Combat; i++) b.Tick(0.45f, new Perception { SeesSquad = true });
+            Assert.AreEqual(AlertState.Combat, b.State, "spotting the squad starts the fight");
+            Assert.AreEqual(70f, AwarenessBrain.SquadSpotRange(190f)); Assert.AreEqual(50f * 1.2f, AwarenessBrain.SquadSpotRange(50f), 1e-4, "under the cap: vision × 1.2");
+        }
+
+        [Test]
         public void FormulaMatchesTheWebSource()
         {
             string js = null;
@@ -68,6 +79,7 @@ namespace SpecialSoldier.Core.Tests
             StringAssert.Contains("let vr = t.vision * (1 - G.sky.night * 0.5) * [1, 0.72, 0.5][P.stance] * D.detect * (e.alerted ? 1.25 : 1) * (G.gear.light ? 1.5 : 1) * (1 - Math.min(0.3, G.sky.rainAmt * 0.2));", js);
             StringAssert.Contains("if (e.state === ST.COMBAT) vr = Math.max(vr, t.vision * 0.9);", js);
             StringAssert.Contains("e.detect = Math.max(0, e.detect - tdt * 0.18)", js);
+            StringAssert.Contains("if (e.alerted || G.squad.free) for (const m of G.squad.list) { if (m.down) continue; const md = m.pos.distanceTo(e.pos); if (md < Math.min(vr * 1.2, 70) && W.los(_a, _b.copy(m.pos).setY(m.pos.y + 1.4))) { e.tgt = m; e.seeAny = true; e.lk.copy(m.pos); e.lastSeen = G.time; if (e.state < ST.COMBAT) e.detect += tdt * 1.2;", js);
             StringAssert.Contains("e.detect += tdt * (1.35 - dist / vr) * 0.95 * D.detect / t.react * (e.alerted ? 1.8 : 1) * (P.sprinting ? 1.5 : 1)", js);
         }
     }
