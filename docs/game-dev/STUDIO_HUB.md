@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 허브(클라우드) | **Unity 미션 05 헬기 문사수(웹 v0.23 따라잡기)**: 새 `apps/unity-studio/Assets/Scripts/Core/DoorGun.cs`·테스트, `Core/Campaign.cs`(M05 목표·포트 증원·구역), 테스트(문사수 공백 테스트 제거), 새 `Runtime/DoorGunner.cs`, 수정 `Runtime/{GameDirector,HudToolkit}.cs`. 웹 `gunner.js`·`missions.js` 는 읽기만 | 2026-11-25 |
 | 허브(클라우드) | **Unity 미션 인트로 컷신(M02–M05)**: 새 `apps/unity-studio/Assets/Scripts/Core/Cinematic.cs`·테스트, `Core/Campaign.cs`(Intro 데이터), `Tools~/gen-campaign-fixture.mjs`, 새 `Runtime/IntroDirector.cs`, 수정 `Runtime/{GameDirector,BriefingScreen}.cs`, `Editor/Slice/SliceBuilder.cs`. 웹 `cinematics.js`·`missions.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **Unity 전술 장비(야간투시·열상·전술등·구급상자·정찰 드론)**: 새 `apps/unity-studio/Assets/Scripts/Core/Gear.cs`·테스트, 새 `Runtime/GearController.cs`, 수정 `Runtime/{EnemyAgent(MarkedTime),HudToolkit(장비 줄·드론 표시),GameDirector(구급상자 수)}.cs`, `Editor/Slice/SliceBuilder.cs`(BuildPlayer 에 장비), `Runtime/PauseMenu.cs`(키 안내 한 줄). 웹 `src/game/gear.js`·`player.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **Unity 캠페인 흐름(브리핑·진행·다음 미션)**: 새 `apps/unity-studio/Assets/Scripts/Core/CampaignProgress.cs`·테스트, 새 `Runtime/{ProgressStore,BriefingScreen}.cs`·`Assets/UI/Briefing.uss`, 수정 `Runtime/{GameDirector,PauseMenu,HudToolkit}.cs`·`Assets/UI/PauseMenu.uss`, `Editor/Slice/SliceBuilder.cs`(캠페인 씬에 브리핑), `docs/game-dev/HANDOFF.md`(Unity 행), `Runtime/SettingsStore.cs`(테스트 초기화 한 줄) — `Briefing.uss` 는 만들지 않고 PauseMenu.uss 재사용 | 2026-11-25 (푸시 완료) |
