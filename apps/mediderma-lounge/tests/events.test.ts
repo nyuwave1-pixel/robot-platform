@@ -169,3 +169,17 @@ describe("단체 사진", async () => {
     useRoom.setState({ group: null });
   });
 });
+
+describe("포털 연동", async () => {
+  const { PORTAL_GAME_ID, PORTAL_ORIGINS, portalMessage, portalOrigin } = await import("../src/net/portal");
+  it("포털이 받는 결과 형식 (game_result · 게임 id · 포털 상한 안의 RP)", () => {
+    const m = portalMessage(3.7);
+    expect(m).toEqual({ type: "game_result", game: PORTAL_GAME_ID, score: 3, rp: m.rp });
+    expect(m.rp).toBeGreaterThan(0);
+    expect(m.rp).toBeLessThanOrEqual(65);
+  });
+  it("허용된 포털 주소만 쓰고, iframe 밖에서는 보내지 않는다", () => {
+    expect(PORTAL_ORIGINS.every((o) => o.startsWith("https://") && o.includes("airobotphysical"))).toBe(true);
+    expect(portalOrigin()).toBeNull();
+  });
+});
