@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 허브(클라우드) | **Unity 적이 분대원도 노림(웹 규칙)**: `apps/unity-studio/Assets/Scripts/Core/AwarenessBrain.cs`(Perception.SeesSquad)·테스트, `Runtime/{EnemyAgent,SquadMate}.cs`. 웹 `enemies.js` 는 읽기만 | 2026-11-25 |
 | 허브(클라우드) | **Unity 분대원 SQUAD 07(REAPER·NOMAD·ATLAS)**: 새 `apps/unity-studio/Assets/Scripts/Core/Squad.cs`·테스트, 새 `Runtime/SquadMate.cs`, 수정 `Runtime/{GameDirector(무기 자유·분대 목록),SoldierAnimator(분대 웅크림·조준),EnemyAgent(빗나간 탄 35 %),IntroDirector,DoorGunner}.cs`, `Editor/Slice/SliceBuilder.cs`(캠페인 씬에 분대). 웹 `squad.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **Unity 미션 05 헬기 문사수(웹 v0.23 따라잡기)**: 새 `apps/unity-studio/Assets/Scripts/Core/DoorGun.cs`·테스트, `Core/Campaign.cs`(M05 목표·포트 증원·구역), 테스트(문사수 공백 테스트 제거), 새 `Runtime/DoorGunner.cs`, 수정 `Runtime/{GameDirector,HudToolkit}.cs`, `Core/Mission.cs`(WebType 태그). 웹 `gunner.js`·`missions.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **Unity 미션 인트로 컷신(M02–M05)**: 새 `apps/unity-studio/Assets/Scripts/Core/Cinematic.cs`·테스트, `Core/Campaign.cs`(Intro 데이터), `Tools~/gen-campaign-fixture.mjs`, 새 `Runtime/IntroDirector.cs`, 수정 `Runtime/{GameDirector,BriefingScreen}.cs`, `Editor/Slice/SliceBuilder.cs`. 웹 `cinematics.js`·`missions.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
