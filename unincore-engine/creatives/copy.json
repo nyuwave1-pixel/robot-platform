@@ -1,0 +1,136 @@
+{
+  "_comment": "Promo copy for the template renderer. Every line must already be stated on the promotion site (src/content/products.ts). No prices, discounts, ratings, reviews or clinical figures here. A product may list \"variants\": extra versions with their own photo and copy (same rules); files are named <slug>-<variant id>-<format>.png.",
+  "site": "promotion.unincore.com",
+  "cta": "Shop on Amazon",
+  "products": {
+    "UC-US-449": {
+      "slug": "vitamin-c-13-5-ampoule",
+      "image": "landing/amz/ampoule-product.webp",
+      "headline": "13.5% Pure Vitamin C Ampoule",
+      "sub": "Korean vitamin C serum with glutathione",
+      "points": [
+        "13.5% pure vitamin C (ascorbic acid)",
+        "Dual-layer formula",
+        "2 pumps after cleansing"
+      ],
+      "tags": [
+        "vitamin c serum",
+        "ampoule",
+        "glutathione"
+      ],
+      "variants": [
+        {
+          "id": "silky",
+          "image": "landing/amz/ampoule-inuse.webp",
+          "headline": "A Silky Vitamin C Ampoule",
+          "sub": "Lightweight, fast-absorbing, non-sticky finish",
+          "points": [
+            "2 pumps after cleansing",
+            "Dual-layer stabilized formula",
+            "Glutathione + camu camu"
+          ]
+        }
+      ]
+    },
+    "UC-US-445": {
+      "slug": "vita-c-brightening-mask",
+      "image": "landing/amz/mask-product.webp",
+      "headline": "Vitamin C Sheet Mask",
+      "sub": "2% pure vitamin C and glutathione",
+      "points": [
+        "100% TENCEL™ sheet",
+        "10–20 minutes",
+        "5 individually packed masks"
+      ],
+      "tags": [
+        "sheet mask",
+        "vitamin c mask",
+        "glutathione"
+      ],
+      "variants": [
+        {
+          "id": "sheet",
+          "image": "landing/amz/mask-inuse.webp",
+          "headline": "A 10–20 Minute Vitamin C Mask",
+          "sub": "High-adherence 100% TENCEL™ sheet",
+          "points": [
+            "Hugs every contour, no slipping",
+            "Light, watery essence",
+            "A great base before a night out"
+          ]
+        }
+      ]
+    },
+    "UC-US-441": {
+      "slug": "vita-c-enzyme-powder-wash",
+      "image": "landing/amz/wash-product.webp",
+      "headline": "Vitamin C Enzyme Powder Wash",
+      "sub": "Korean enzyme powder cleanser",
+      "points": [
+        "Papain and bromelain enzymes",
+        "Mildly acidic pH 5–5.5",
+        "30 single-use 1 g pouches"
+      ],
+      "tags": [
+        "enzyme cleanser",
+        "powder wash",
+        "low ph cleanser"
+      ],
+      "variants": [
+        {
+          "id": "powder",
+          "image": "landing/amz/wash-powder.webp",
+          "headline": "Fresh Powder, Every Wash",
+          "sub": "Papain + bromelain + lipase enzymes",
+          "points": [
+            "Turns into a rich, creamy foam with water",
+            "No tightness after washing",
+            "Built for travel: no liquids, no spills"
+          ]
+        }
+      ]
+    },
+    "UC-US-446": {
+      "slug": "hydrating-skin-barrier-serum-mist",
+      "image": "landing/mist/product.webp",
+      "headline": "Hydrating Skin Barrier Serum Mist",
+      "sub": "Copper tripeptide-1 and CICA in an ultra-fine mist",
+      "points": [
+        "Serum-level hydration in a fine spray",
+        "Use anytime, even over makeup",
+        "1.76 fl oz (50 ml)"
+      ],
+      "tags": [
+        "face mist",
+        "serum mist",
+        "hydrating mist"
+      ],
+      "cta": "Shop on TikTok Shop",
+      "store": "tiktok",
+      "variants": [
+        {
+          "id": "spray",
+          "image": "landing/mist/feature-texture.webp",
+          "headline": "Ultra-Fine Serum Mist",
+          "sub": "Serum-level hydration in a lightweight mist",
+          "points": [
+            "Spreads evenly without disturbing makeup",
+            "After cleansing, before skincare",
+            "Midday hydration reset"
+          ]
+        },
+        {
+          "id": "barrier",
+          "image": "landing/mist/feature-barrier.webp",
+          "headline": "Copper Tripeptide-1 + CICA",
+          "sub": "Nano liposomes in an O/W/O multi emulsion",
+          "points": [
+            "Copper tripeptide-1 for skin vitality",
+            "Supports skin barrier comfort",
+            "Leaves skin soft, smooth and naturally radiant"
+          ]
+        }
+      ]
+    }
+  }
+}
