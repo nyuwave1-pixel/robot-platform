@@ -177,3 +177,14 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 진짜 원인: WebGL 플레이어에서는 적의 `NavMeshAgent.OnEnable` 이 `NavMeshSurface.OnEnable`(구운 데이터 등록)보다 먼저 실행돼 에이전트가 영구히 내비메시 밖에 남음.
 - 수정: SliceBuilder가 씬의 `NavMeshAgent` 를 **꺼진 상태로 저장**, `EnemyAgent.Start`(모든 OnEnable 이후)에서 켜고, 그래도 밖이면 `SamplePosition`→`Warp`, 실패 시 `[Enemy] ... still no NavMesh` 경고.
 - 확인: 새 빌드(15.3 MB)를 캐시 우회로 열어 콘솔 전체(필터 없이) 확인 → 내비메시 경고 0건. 4초 간격 화면에서 적 위치 변화 확인. EditMode 180/180, PlayMode 10/10.
+
+## 2026-11-25 (2) — 효과음 2차 (허브 세션, 클라우드)
+
+- `Core/SfxSynth.cs`: 웹 `audio.js` 의 합성기(`nz`·`osc`, 선형 어택 + 0.0008까지 지수 감쇠, RBJ 바이쿼드 필터)를 오프라인 PCM으로 이식.
+  레시피: reload(무기 재장전 시간 × 0.55에 두 번째 클릭), click, hit, kill, hurt, whiz, ui, impact(concrete·metal·wood·sand·flesh), explosion-body,
+  무기 종류별 총성 몸통(ASSAULT RIFLE·SMG·SHOTGUN·LMG·SNIPER RIFLE·SIDEARM·SPECIAL·ENEMY — 녹음 층의 재생 속도·음량 포함).
+- `Runtime/SliceFx.cs`(PC 세션 1차 위에 확장): 시작 시 합성음을 `AudioClip.Create` 로 한 번 생성. 무기별 총성(소음 권총은 녹음 없이 작게),
+  수류탄 폭발 = CC0 녹음 + 합성 저음, 재장전·빈 탄창 딸깍·명중/사살 확인음·피격음, 머리 1.6 m 안을 스친 적 탄 'whiz', 표면별 탄착음
+  (Ground=모래, Cover=나무 상자, 벽=콘크리트), 교전 중 원거리 전투 배경(`battle.mp3`, 0.18).
+- CC0 `explosion.mp3`·`battle.mp3` 를 `Assets/Resources/Audio/` 에 추가(대장: `apps/special-soldier/docs/ASSET_LICENSES.md`).
+- 검증: dotnet `CoreTests~` **199/199**(새 SfxSynth 테스트 19개 — 웹 `audio.js` 의 총성 표와 수치 대조 포함). **Unity 재생은 아직 확인하지 않았습니다.**

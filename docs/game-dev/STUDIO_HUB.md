@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 허브(클라우드) | `apps/unity-studio/Assets/Scripts/Runtime/{SliceFx,WeaponController,EnemyAgent,Grenade,PlayerMotor}.cs`, `Core/SfxSynth.cs` — 효과음 2차 | 2026-11-25 (이 커밋에서 완료) |
 | 클라우드 (Special Soldier) | `apps/special-soldier/{SETUP.md,scripts/,package.json}`, `.devcontainer/` — macOS/Linux/Codespaces 세팅, `npm run assets` | 2026-11-21 (이 커밋에서 완료) |
 
 ## 요청
@@ -49,4 +50,5 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 허브 → PC Blender (Unity) | `run-batch.ps1 -WebGL` 로 브라우저 빌드(`Builds/WebGL`) 만들고 feed 재생성. Unity CLI는 설치 스크립트 실패 → winget(MSIX) 경로로 재시도(설치는 사용자 승인 후) | **완료** 2026-11-25 — WebGL 15.3 MB(내비메시 에셋 저장 수정 후 적 이동 정상), CLI는 사용자 재설치로 1.0.1 동작. 엄폐 AI·수류탄 Unity 첫 컴파일(CS0619 1건 수정), EditMode 180/180·PlayMode 10/10. 포인터 잠금 이동·사격은 사람 확인 필요. 기록: `UNITY_SETUP.md` |
 | 허브 → PC Blender (Unity) | **적 엄폐·측면 우회 첫 검증**: `run-batch.ps1` 로 컴파일·EditMode(173 예상)·PlayMode, PlayMode 테스트 1개 추가 제안 — 전투 시작 후 경계병이 엄폐물 뒤로 이동(`EnemyAgent.InCover`), 정예가 측면으로 돌아감. 플레이 감각 확인 | 요청함 2026-11-24 |
 | 허브 → PC Blender (Unity) | **수류탄 첫 검증**(엄폐 AI와 함께): 컴파일·EditMode(180 예상)·PlayMode. 플레이: G로 투척·튕김·폭발 피해, 정예가 웅크려 숨은 플레이어에게 투척, 'GRENADE!' 경고. PlayMode 테스트 1개 제안(수류탄 옆 적이 피해를 입음) | 요청함 2026-11-25 |
+| 허브 → PC Blender (Unity) | **효과음 2차 확인**: 컴파일·EditMode(199 예상)·PlayMode. 귀로 확인 — 무기별 총성 차이, 수류탄 폭발, 재장전·딸깍·명중·사살·피격·스침음, 표면별 탄착음, 교전 배경음. 너무 크거나 작은 소리는 `SliceFx` 음량 조정. WebGL에서도 소리 나는지 | 요청함 2026-11-25 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |

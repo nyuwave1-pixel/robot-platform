@@ -62,6 +62,7 @@ namespace SpecialSoldier
             }
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(c, Explosives.HearingRadius);
             Flash(c);
+            SliceFx.I.Explosion(c);
             Destroy(gameObject);
         }
 

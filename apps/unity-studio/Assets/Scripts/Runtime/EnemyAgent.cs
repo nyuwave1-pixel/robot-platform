@@ -255,8 +255,14 @@ namespace SpecialSoldier
             if (Physics.Raycast(eye + dir * 0.4f, dir, out RaycastHit hit, Type.Vision * 1.5f, sightMask, QueryTriggerInteraction.Ignore))
             {
                 var target = hit.collider.GetComponentInParent<Damageable>();
-                if (target != _playerHp) SliceFx.I.Impact(hit.point, hit.normal, false);   // misses kick up dust near you
+                if (target != _playerHp) SliceFx.I.Impact(hit.point, hit.normal, false, SliceFx.SurfaceOf(hit.collider));   // misses kick up dust near you
                 if (target == _playerHp) target.ApplyDamage(Type.GunDamage * diff.Dmg, eye);
+                else
+                {
+                    // near miss: the round passed within 1.6 m of your head before it hit something (web: fx bullets → 'whiz')
+                    Vector3 toEye = _player.Eye - eye; float along = Vector3.Dot(toEye, dir);
+                    if (along > 0f && along < hit.distance && (toEye - dir * along).magnitude < 1.6f) SliceFx.I.Whiz();
+                }
             }
             SliceFx.I.Shot(eye, false); SliceFx.I.MuzzleFlash(eye + dir * 0.6f);
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(eye, 110f);

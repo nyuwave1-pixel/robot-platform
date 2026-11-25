@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T02:07:09.534Z",
+  "generatedAt": "2026-11-25T04:35:04.433Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "c34b123"
+    "commit": "ae6cda6"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
+        "webgl": null
       },
       "screenshots": [
         "docs/game-dev/screenshots/unity-island-slice-first-run.png",
@@ -322,7 +322,7 @@
         "resource": "Unity 기본"
       },
       {
-        "task": "총소리·발소리·피격음",
+        "task": "총소리·발소리·피격음 — 1차(PC) + 2차 합성음(2026-11-25) 완료, Unity 재생 확인 전",
         "feature": "AudioSource, AudioMixer 그룹",
         "resource": "Freesound CC0(웹 게임 v0.14 사운드 재사용)"
       },
@@ -369,6 +369,12 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "ae6cda6",
+      "date": "2026-11-25",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed from c34b123 (navmesh-fixed WebGL build)"
+    },
     {
       "hash": "c34b123",
       "date": "2026-11-25",
@@ -602,12 +608,6 @@
       "date": "2026-11-20",
       "area": "special-soldier",
       "subject": "feat(special-soldier): v0.15 grid A* pathfinding for stuck enemies and squad"
-    },
-    {
-      "hash": "0b49a4c",
-      "date": "2026-11-19",
-      "area": "unity-studio",
-      "subject": "chore(unity-studio): record installed Unity 6000.6.9f1, licence blocker, batch scripts"
     }
   ]
 }

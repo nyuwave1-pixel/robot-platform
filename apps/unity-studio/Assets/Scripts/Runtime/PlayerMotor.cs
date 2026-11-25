@@ -20,7 +20,7 @@ namespace SpecialSoldier
         Damageable _health;
         float _vy, _recoilDebt, _stepT;
 
-        void Awake() { _cc = GetComponent<CharacterController>(); _health = GetComponent<Damageable>(); }
+        void Awake() { _cc = GetComponent<CharacterController>(); _health = GetComponent<Damageable>(); if (_health) _health.Hit += (dmg, from) => SliceFx.I.Hurt(); }
 
         /// <summary>Weapon recoil: kicks the view up at once; 70% of the climb eases back down over the next frames.</summary>
         public void AddRecoil(float upDegrees, float sideDegrees)

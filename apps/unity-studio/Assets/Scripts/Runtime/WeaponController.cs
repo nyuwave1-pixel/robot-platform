@@ -49,7 +49,7 @@ namespace SpecialSoldier
             {
                 for (int i = 0; i < _slots.Length && i < 9; i++)
                     if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame && i != _slot) { _slot = i; Current = _slots[i]; Bloom = 0; }
-                if (kb.rKey.wasPressedThisFrame) Current.StartReload();
+                if (kb.rKey.wasPressedThisFrame && Current.StartReload()) SliceFx.I.Reload(Current.Stats.Reload);
                 if (kb.vKey.wasPressedThisFrame) Current.CycleMode();
             }
 
@@ -58,7 +58,10 @@ namespace SpecialSoldier
             if (view) view.fieldOfView = Mathf.Lerp(view.fieldOfView, Aiming ? hipFov / w.Zoom : hipFov, Mathf.Min(1f, dt / Mathf.Max(0.05f, w.Ads)));
 
             bool trigger = canAct && mouse.leftButton.isPressed && !(motor && motor.IsSprinting);
+            bool wasReloading = Current.Reloading;
+            if (trigger && mouse.leftButton.wasPressedThisFrame && Current.Mag == 0) SliceFx.I.Click();   // dry fire (web: 'click')
             int shots = Current.Tick(dt, trigger);
+            if (!wasReloading && Current.Reloading) SliceFx.I.Reload(Current.Stats.Reload);                // auto-reload after the last round
             for (int s = 0; s < shots; s++) Fire(w);
 
             // bloom decays at (3 + 2b) deg/s, the same rule the web game's hitChance model assumes
@@ -80,12 +83,13 @@ namespace SpecialSoldier
                     end = hit.point;
                     var zone = hit.collider.GetComponent<HitZone>();
                     var target = zone ? zone.Owner : hit.collider.GetComponentInParent<Damageable>();
-                    SliceFx.I.Impact(hit.point, hit.normal, target);
+                    SliceFx.I.Impact(hit.point, hit.normal, target, SliceFx.SurfaceOf(hit.collider));
                     if (target && target.Alive && (!motor || target.gameObject != motor.gameObject))
                     {
                         float dmg = (float)Ballistics.DamageAt(w, hit.distance) * Ballistics.BodyMultiplier(zone ? zone.part : BodyPart.Torso);
                         target.ApplyDamage(dmg, eye.position);
                         HitMarkerTime = 0.18f; LastHitWasKill = !target.Alive;
+                        SliceFx.I.HitConfirm(LastHitWasKill);
                     }
                 }
             }
@@ -93,7 +97,7 @@ namespace SpecialSoldier
             if (motor) motor.AddRecoil(w.RecoilV * (Aiming ? 0.55f : 1f), Random.Range(-w.RecoilH, w.RecoilH) * 0.5f);
             _tracer.SetPosition(0, eye.position + eye.forward * 0.6f - eye.up * 0.12f + eye.right * 0.12f);
             _tracer.SetPosition(1, end); _tracer.enabled = true; _tracerT = 0.04f;
-            SliceFx.I.Shot(eye.position, true); SliceFx.I.MuzzleFlash(eye.position + eye.forward * 0.7f - eye.up * 0.1f);
+            SliceFx.I.Shot(eye.position, true, 1f, w.Class); SliceFx.I.MuzzleFlash(eye.position + eye.forward * 0.7f - eye.up * 0.1f);
             if (GameDirector.Instance) GameDirector.Instance.ReportNoise(eye.position, w.Loud);
         }
     }
