@@ -33,6 +33,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
+| 허브(클라우드) | **미션 03 BLACK COBRA BASE 이식(U4)**: `apps/unity-studio/Assets/Scripts/Core/{AwarenessBrain(EnemyType APC),HealthModel,Campaign,IslandProps}.cs`, `Tools~/gen-{props,campaign}-fixture.mjs`, 테스트, `Runtime/{EnemyAgent,Damageable,Grenade,GameDirector}.cs`(장갑차: 포탑·소화기 피해 10%·폭발), 새 `Runtime/ApcTurret.cs`, `Editor/Slice/SliceBuilder.cs`. 웹 `missions.js`·`build.js`·`enemies.js` 는 읽기만 | 2026-11-25 |
 | 허브(클라우드) | **미션 02 DEEP JUNGLE 이식(U4)**: `apps/unity-studio/Assets/Scripts/Core/{Mission,Campaign,IslandProps}.cs`(목표 시작/완료 훅·무전·사용자 조건·플래그·증원 요청, M02 데이터, 정글 통신소·발전기 초소), `Tools~/gen-props-fixture.mjs`, 테스트, `Runtime/GameDirector.cs`(이름 붙은 증원·폭파 이벤트), `Editor/Slice/SliceBuilder.cs`(캠페인 씬 일반화), `Runtime/Grenade.cs`(Flash 공개만). 웹 `missions.js`·`build.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **미션 01 해변 구조물(U4)**: 새 `apps/unity-studio/Assets/Scripts/Core/IslandProps.cs`·`Tools~/gen-props-fixture.mjs`·테스트, 새 `Runtime/Spinner.cs`, `Editor/Slice/SliceBuilder.cs`(BuildCampaignScene 에 구조물·저격수 탑 위 배치), `Core/Campaign.cs`(Props 연결), `Tests/PlayMode/Mission01Tests.cs`. 웹 `src/world/build.js`·`world.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **WebGL 크기 줄이기(식생 인스턴싱)**: `apps/unity-studio/Assets/Editor/Slice/SliceBuilder.cs` 의 `BuildVegetation`·`Plant`(합친 메시 → GPU 인스턴싱 데이터)와 `BuildWebGL`(스플래시 끄기 한 줄), 새 `Runtime/InstancedVegetation.cs`. PC 측정: 식생 메시가 비압축 55.7 MB(76%) | 2026-11-25 (푸시 완료) |
