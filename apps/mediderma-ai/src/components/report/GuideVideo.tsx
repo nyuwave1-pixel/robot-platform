@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { GUIDE_VIDEO, type VideoChapter } from "@/lib/care/knowledge";
@@ -35,7 +36,7 @@ const GuideVideo = forwardRef<GuideVideoHandle>(function GuideVideo(_, ref) {
             <button onClick={() => play("faceIonto")} data-testid="video-play" className="group absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[radial-gradient(60%_60%_at_50%_50%,rgba(79,182,255,0.18),transparent)]">
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-xl text-black shadow-glow transition group-hover:scale-110">▶</span>
               <span className="text-sm font-medium">{t.care.video.play}</span>
-              <span className="px-6 text-center text-[11px] text-silver/80">{t.care.video.consent}</span>
+              <span className="px-6 text-center text-xs text-silver">{t.care.video.consent}</span>
             </button>
           ) : (
             <iframe
@@ -61,8 +62,8 @@ const GuideVideo = forwardRef<GuideVideoHandle>(function GuideVideo(_, ref) {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11px] text-silver/60">{t.care.video.approx} {t.care.video.consent}</p>
-          <a href={GUIDE_VIDEO.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-[11px] text-scan2 underline underline-offset-4">YouTube ↗</a>
+          <p className="mt-2 text-xs text-silver-soft">{t.care.video.approx} {t.care.video.consent}</p>
+          <a href={GUIDE_VIDEO.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-scan2 underline underline-offset-4">YouTube <Icon name="external" size={13} className="ml-0.5" /></a>
         </div>
       </div>
     </div>

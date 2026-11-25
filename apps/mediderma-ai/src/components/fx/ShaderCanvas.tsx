@@ -5,7 +5,7 @@
  *  rf         — 고주파: 중심에서 퍼지는 따뜻한 열 파동
  *  ultrasonic — 초음파: 두 진원의 간섭 파형
  *  ionto      — 이온토포레시스: 표면으로 흘러드는 입자 흐름
- *  aurora     — 배경용 유동 그라디언트
+ *  aurora     — 배경용 유동 그라디언트 (밝은 테마: 클리니컬 화이트 + 아이스 블루)
  */
 import { useEffect, useRef } from "react";
 
@@ -40,8 +40,8 @@ const BODY: Record<ShaderKind, string> = {
     gl_FragColor=vec4(col,1.);}`,
   aurora: `void main(){vec2 u=gl_FragCoord.xy/r;vec2 p=u*vec2(2.2,1.3)+vec2(t*.03,0.);
     float f=fbm(p+fbm(p*1.7+t*.05)*1.4);float band=smoothstep(.25,.8,f)*smoothstep(1.,.2,u.y+f*.3);
-    vec3 col=mix(vec3(.02,.03,.05),vec3(.1,.42,.9),band*.85)+vec3(.5,.85,1.)*pow(band,5.)*.5;
-    col*=.55+.45*smoothstep(1.3,.2,length(u-vec2(.5+m.x*.1,.45)));gl_FragColor=vec4(col,1.);}`,
+    vec3 base=vec3(.965,.968,.972);vec3 col=mix(base,vec3(.6,.79,.88),band*.75)+vec3(.2)*pow(band,5.);
+    col=mix(base,col,.55+.45*smoothstep(1.3,.2,length(u-vec2(.5+m.x*.1,.45))));gl_FragColor=vec4(col,1.);}`,
 };
 
 export default function ShaderCanvas({ kind, className = "" }: { kind: ShaderKind; className?: string }) {

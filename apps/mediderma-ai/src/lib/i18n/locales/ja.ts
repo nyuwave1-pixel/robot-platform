@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const ja: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "あなたの肌を分析し、自分に合ったDERMA HOMEケアを見つける。",
     start: "肌分析をはじめる",
@@ -22,15 +22,20 @@ const ja: Dict = {
     learnMore: "詳しく見る",
     notAvailable: "測定不可",
     footerDisclaimer:
-      "MEDIDERMA AIは、写真に写る肌表面の特徴を観察し、お手入れに関する情報を提供するサービスであり、医療機器や医療的な診断ではありません。肌の疾患が疑われる場合は、専門医にご相談ください。",
+      "MEDIDERMA SKIN IQは、写真に写る肌表面の特徴を観察し、お手入れに関する情報を提供するサービスであり、医療機器や医療的な診断ではありません。肌の疾患が疑われる場合は、専門医にご相談ください。",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCKモード — 実際のAI分析結果ではありません。",
   },
-  nav: { analyze: "肌分析", compare: "ビフォーアフター比較", history: "変化の記録", privacy: "個人情報について", dermahome: "DERMA HOME", trial: "無料体験を予約" },
+  nav: { analyze: "肌分析", compare: "ビフォーアフター比較", history: "変化の記録", privacy: "個人情報について", dermahome: "DERMA HOME", trial: "無料体験を予約", menu: "メニュー" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
+    tagline: "あなたの肌を理解する、新しい方法。",
+    exploreTech: "DERMA HOMEの技術を見る",
+    oneDevice: "1台に、3つの技術",
+    officialImage: "公式製品画像",
+    techVisualNote: "背景のグラフィックは技術を説明するための演出であり、実際の機器の動作ではありません。",
     desc: "会員登録なし、顔写真1枚で。顔の13エリアの肌表面の特徴を観察し、DERMA HOMEのRF高周波・ウルトラソニック・イオントフォレシスによるパーソナルケアをご案内します。",
     onDeviceBadge: "写真はお使いの端末内でのみ処理されます",
     uploadTitle: "写真をアップロードして、すぐにスタート",
@@ -329,7 +334,7 @@ const ja: Dict = {
   },
   compareGlance: {
     title: "ひと目でわかる変化",
-    headlineImproved: "{n}か所が良くなりました 👏",
+    headlineImproved: "{n}か所が良くなりました",
     headlineSame: "まだ大きな変化はありません。続けてケアしましょう。",
     headlineCondition: "2枚の撮影条件が違うため、正確な比較が難しいです。",
     conditionWarn: "同じ場所・同じ明かり・正面で撮り直すとより正確です。",
@@ -345,7 +350,7 @@ const ja: Dict = {
     scan: {"title": "AIが肌を精密分析しています", "steps": ["顔の478ポイントを認識", "13の肌エリアに分割", "キメ・シワを測定", "毛穴・シミを測定", "肌トーンの均一さを分析", "ケアをマッチング"], "privacy": "写真はこの端末内だけで分析されます"},
     hero: {"scoreLabel": "肌コンディション", "sentence": "写真から見た肌コンディションは100点中{n}点です。", "skinType": "肌タイプ", "age": "年代", "makeupWarn": "メイクをしたまま撮影したため、結果の精度が下がることがあります。", "types": {"dry": "乾燥肌", "normal": "普通肌", "oily": "脂性肌", "combination": "混合肌"}, "note": "AIが写真から観察した参考指数で、医学的診断ではありません。"},
     cards: {"title": "肌の詳細", "tapHint": "カードをタップすると詳しい説明が出ます。", "badges": ["ケアが必要", "やや気になる", "良好", "とても良い"], "whereLabel": "最も目立つ場所", "close": "閉じる"},
-    share: {"button": "結果をシェア", "copied": "コピーしました。メッセンジャーに貼り付けてください。", "text": "[MEDIDERMA AI 肌分析]\n肌コンディション {score}点\n先にケアする場所: {weak}\nおすすめ: {products}\nあなたも分析 👉 {url}"},
+    share: {"button": "結果をシェア", "copied": "コピーしました。メッセンジャーに貼り付けてください。", "text": "[MEDIDERMA SKIN IQ]\n肌コンディション {score}点\n先にケアする場所: {weak}\nおすすめ: {products}\nあなたも分析 👉 {url}"},
   },
   care: {
     title: "DERMA HOME パーソナルケア",
@@ -615,6 +620,7 @@ const ja: Dict = {
     disabled: "記録の保存に同意していません。",
     enable: "記録の保存に同意する",
   },
+  iq: {"slow": "いつもより時間がかかっています。もう少し待つか、もう一度お試しください。", "decoding": "肌データを解析中", "complete": "分析完了", "skip": "タップして結果へ", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析の内訳", "sub": "この結果をつくった実際の測定値です。写真はこの端末の中だけで処理されました。", "landmarks": "顔のランドマーク", "zonesAnalyzed": "分析したエリア", "metricsComputed": "算出した指標", "duration": "分析時間", "sec": "秒", "capture": "撮影条件", "pose": "顔の角度", "yaw": "左右の向き", "pitch": "上下の傾き", "roll": "左右の傾き", "faceSize": "顔の幅", "imageSize": "元の解像度", "zoneConf": "エリア別の信頼度", "excluded": "除外したエリア", "none": "なし", "ideal": "正面 = 0°"},
   privacy: {
     title: "個人情報の取り扱いについて",
     updated: "施行日：2026-11-13",
@@ -623,7 +629,7 @@ const ja: Dict = {
       { h: "2. 写真はどこで処理されますか", p: "顔認識と肌観察の計算は、すべて利用者のブラウザ内で実行されます。写真と顔のランドマークは、当社のサーバーや外部のAIサービスに送信されません。今後、サーバーや外部AIによる分析機能が追加される場合は、送信前に別途、明示的な同意をいただきます。" },
       { h: "3. 保存期間と自動削除", p: "通常（非会員）のご利用では、写真と結果はブラウザのメモリ上にのみ存在し、ウィンドウを閉じる、再読み込みする、または60分間操作がない場合に削除されます。「記録の保存」に同意した場合、分析結果と縮小した顔写真が利用者の端末のブラウザストレージ（IndexedDB）に保存期間中保存され、期間が過ぎると自動的に削除されます。" },
       { h: "4. 削除方法", p: "レポート画面の「写真・結果を今すぐ削除」、変化の記録画面の「すべての記録を削除」または「保存の同意を撤回」で、すぐに削除できます。ブラウザのサイトデータを削除することでも消去されます。" },
-      { h: "5. 匿名の利用統計", p: "サービス改善のため、分析の開始・成功・失敗、品質不足の理由、上位の肌悩み項目、選択したケア、製品・体験リンクのクリック、レポートの保存回数、アクセス国（国単位）と言語を匿名で集計します。写真、顔のランドマーク、個別のスコア、IPアドレスは保存しません。" },
+      { h: "5. 匿名の利用統計", p: "サービス改善のため、分析の開始・成功・失敗、品質不足の理由、上位の肌悩み項目、選択したケア、製品・体験リンクのクリック、レポートの保存回数、アクセス国（国単位）と言語を匿名で集計します。写真、顔のランドマーク、個別のスコア、IPアドレスは保存しません。 利用の流れを改善するため、端末の種類（モバイル・PC）、流入元（参照サイトのドメインのみ）、撮影前に選んだ年代・肌タイプ、写真の入力方法（撮影・選択）、閲覧した技術紹介も匿名のカテゴリとしてのみ集計します。" },
       { h: "6. AIの学習", p: "利用者の写真をAIの学習に使用しません。" },
       { h: "7. ご利用対象", p: "14歳未満の方はご利用いただけません。DERMA HOME機器は、未成年者が操作しないようご案内しています。" },
       { h: "8. お問い合わせ", p: "株式会社ユニアンドコア · 個人情報保護責任者 · unincore@unincore.com" },

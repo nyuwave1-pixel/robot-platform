@@ -10,6 +10,9 @@ import { useEffect, useRef, useState } from "react";
 const HOLD_BEFORE = 2200;
 const HOLD_AFTER = 3000;
 
+/** 갤러리 카드 폭: 모바일 68vw · 태블릿 42vw · PC 3열 */
+const SIZES = "(min-width: 768px) 360px, (min-width: 640px) 42vw, 68vw";
+
 export default function BeforeAfter({
   before,
   after,
@@ -77,10 +80,12 @@ export default function BeforeAfter({
       data-state={showAfter ? "after" : "before"}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={before} alt={`${alt} — ${beforeLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
+      <img src={before} srcSet={`${before.replace(".webp", "-480.webp")} 480w, ${before} 800w`} sizes={SIZES} alt={`${alt} — ${beforeLabel}`} loading="lazy" decoding="async" draggable={false} className="absolute inset-0 h-full w-full object-cover object-top" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={after}
+        srcSet={`${after.replace(".webp", "-480.webp")} 480w, ${after} 800w`}
+        sizes={SIZES}
         alt={`${alt} — ${afterLabel}`}
         loading="lazy"
         decoding="async"
@@ -88,9 +93,9 @@ export default function BeforeAfter({
         className={`absolute inset-0 h-full w-full object-cover object-top transition-[opacity,transform] duration-700 ease-out ${showAfter ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"}`}
       />
       {/* 전/후 표시: 현재 보이는 쪽이 강조된다 */}
-      <div className="pointer-events-none absolute left-3 top-3 flex overflow-hidden rounded-full border border-white/20 bg-ink/60 text-[10px] tracking-wide backdrop-blur">
-        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "text-white/50" : "bg-white/90 text-ink"}`}>{beforeLabel}</span>
-        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "bg-scan text-ink" : "text-white/50"}`}>{afterLabel}</span>
+      <div className="theme-dark pointer-events-none absolute left-3 top-3 flex overflow-hidden rounded-full border border-white/20 bg-ink/60 text-[11px] tracking-wide backdrop-blur">
+        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "text-white/70" : "bg-white/90 text-ink"}`}>{beforeLabel}</span>
+        <span className={`px-2.5 py-1 transition-colors duration-500 ${showAfter ? "bg-scan text-ink" : "text-white/70"}`}>{afterLabel}</span>
       </div>
     </div>
   );

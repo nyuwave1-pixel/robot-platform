@@ -39,7 +39,7 @@ export default function HistoryPage() {
   const df = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
   return (
     <div className="mx-auto max-w-3xl px-4 py-10" data-testid="history">
-      <h1 className="font-display text-3xl font-light">{t.history.title}</h1>
+      <h1 className="font-display text-3xl font-normal">{t.history.title}</h1>
       <p className="mt-2 text-sm text-silver">{t.history.desc}</p>
       {!consent ? (
         <div className="mt-6 rounded-xl border border-line bg-panel p-5">

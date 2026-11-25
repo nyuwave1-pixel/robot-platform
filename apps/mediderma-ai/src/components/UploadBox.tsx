@@ -1,6 +1,8 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { track } from "@/lib/client/telemetry";
 
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BYTES = 25 * 1024 * 1024;
@@ -24,7 +26,7 @@ export default function UploadBox({ onFile, compact = false, large = false, test
   const [facing, setFacing] = useState<"user" | "environment">("user");
 
   const accept = useCallback(
-    (f: File | undefined | null) => {
+    (f: File | undefined | null, source: "camera" | "upload" = "upload") => {
       if (!f) return;
       const err = validateImageFile(f);
       if (err) {
@@ -32,9 +34,10 @@ export default function UploadBox({ onFile, compact = false, large = false, test
         return;
       }
       setError(null);
+      track("photo_selected", { source, place: testId });
       onFile(f);
     },
-    [onFile, t],
+    [onFile, t, testId],
   );
 
   const stopCam = useCallback(() => {
@@ -79,7 +82,7 @@ export default function UploadBox({ onFile, compact = false, large = false, test
     c.getContext("2d")!.drawImage(v, 0, 0);
     c.toBlob(
       (b) => {
-        if (b) accept(new File([b], `capture-${Date.now()}.jpg`, { type: "image/jpeg" }));
+        if (b) accept(new File([b], `capture-${Date.now()}.jpg`, { type: "image/jpeg" }), "camera");
         stopCam();
       },
       "image/jpeg",
@@ -121,17 +124,17 @@ export default function UploadBox({ onFile, compact = false, large = false, test
           {large ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <button onClick={() => startCam("user")} data-testid={`${testId}-camera`} className="flex items-center justify-center gap-3 rounded-2xl bg-white px-5 py-5 text-lg font-bold text-black transition hover:bg-scan2">
-                <span className="text-3xl">📷</span>{t.landing.useCamera}
+                <Icon name="camera" size={28} strokeWidth={1.4} />{t.landing.useCamera}
               </button>
               <button onClick={() => inputRef.current?.click()} data-testid={`${testId}-pick`} className="flex items-center justify-center gap-3 rounded-2xl border-2 border-silver/40 px-5 py-5 text-lg font-bold text-white transition hover:border-scan hover:text-scan2">
-                <span className="text-3xl">🖼️</span>{t.landing.pickFile}
+                <Icon name="image" size={28} strokeWidth={1.4} />{t.landing.pickFile}
               </button>
-              <p className="text-sm text-silver/70 sm:col-span-2">{t.landing.uploadFormats}</p>
+              <p className="text-sm text-silver-soft sm:col-span-2">{t.landing.uploadFormats}</p>
             </div>
           ) : (
             <>
               <p className="text-sm text-silver">{t.landing.uploadHint}</p>
-              <p className="mt-1 text-[11px] text-silver/60">{t.landing.uploadFormats}</p>
+              <p className="mt-1 text-xs text-silver-soft">{t.landing.uploadFormats}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 <button onClick={() => inputRef.current?.click()} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-scan2">{t.landing.pickFile}</button>
                 <button onClick={() => startCam("user")} className="rounded-full border border-silver/40 px-5 py-2.5 text-sm text-white transition hover:border-scan hover:text-scan2">{t.landing.useCamera}</button>
@@ -141,7 +144,7 @@ export default function UploadBox({ onFile, compact = false, large = false, test
         </div>
       )}
       <input ref={inputRef} data-testid={`${testId}-input`} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { accept(e.target.files?.[0]); e.target.value = ""; }} />
-      <input ref={nativeCamRef} type="file" accept="image/*" capture="user" className="hidden" onChange={(e) => { accept(e.target.files?.[0]); e.target.value = ""; }} />
+      <input ref={nativeCamRef} type="file" accept="image/*" capture="user" className="hidden" onChange={(e) => { accept(e.target.files?.[0], "camera"); e.target.value = ""; }} />
       {error && <p role="alert" className="mt-2 text-center text-sm text-rose-300">{error}</p>}
     </div>
   );

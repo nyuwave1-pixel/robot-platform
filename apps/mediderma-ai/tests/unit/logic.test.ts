@@ -6,6 +6,8 @@ import zh from "../../src/lib/i18n/locales/zh";
 import es from "../../src/lib/i18n/locales/es";
 import vi from "../../src/lib/i18n/locales/vi";
 import ru from "../../src/lib/i18n/locales/ru";
+import th from "../../src/lib/i18n/locales/th";
+import mn from "../../src/lib/i18n/locales/mn";
 import { sanitizeEvent } from "../../src/lib/events";
 import { DEFAULT_CONFIG, mergeConfig } from "../../src/lib/appConfig";
 import { DEFAULT_CALIBRATION, toIndex } from "../../src/lib/analysis/calibration";
@@ -27,7 +29,7 @@ const placeholders = (v: unknown, path = ""): string[] =>
   typeof v === "string" ? [`${path}:${(v.match(/\{\w+\}/g) ?? []).sort().join("")}`] : v && typeof v === "object" ? Object.entries(v).flatMap(([k, x]) => placeholders(x, `${path}.${k}`)) : [];
 
 describe("i18n resources", () => {
-  const locales = { en, ja, zh, es, vi, ru };
+  const locales = { en, ja, zh, es, vi, ru, th, mn };
   for (const [name, dict] of Object.entries(locales)) {
     it(`${name}: same keys and array lengths as ko`, () => expect(shape(dict)).toEqual(shape(ko)));
     it(`${name}: same placeholders as ko`, () => expect(placeholders(dict)).toEqual(placeholders(ko)));
@@ -66,7 +68,7 @@ describe("telemetry sanitizer", () => {
 describe("config merge", () => {
   it("falls back to defaults on garbage and rejects non-official URLs", () => {
     expect(mergeConfig("x")).toEqual(DEFAULT_CONFIG);
-    const c = mergeConfig({ products: { cream: { enabled: false, url: "https://evil.example.com/x" } }, links: { freeTrial: "javascript:alert(1)" }, retention: { sessionMinutes: 99999 }, locales: ["en"] });
+    const c = mergeConfig({ products: { cream: { enabled: false, url: "https://evil.example.com/x" } }, links: { freeTrial: "javascript:alert(1)" }, retention: { sessionMinutes: 99999 }, locales: ["en"], localesKnown: [...DEFAULT_CONFIG.locales] });
     expect(c.products.cream).toEqual({ enabled: false, url: DEFAULT_CONFIG.products.cream.url });
     expect(c.links.freeTrial).toBe(DEFAULT_CONFIG.links.freeTrial);
     expect(c.retention.sessionMinutes).toBe(240);
@@ -244,7 +246,8 @@ function syntheticFace(mod?: (x: number, y: number, rgb: [number, number, number
   }
   return { raster: { width: w, height: h, data }, landmarks: lm, sourceScale: 1, pose: { yaw: 0, pitch: 0, roll: 0 } };
 }
-describe("analysis engine (synthetic face)", () => {
+// 합성 얼굴로 전체 엔진을 돌리는 무거운 테스트 — 다른 작업과 동시에 돌 때도 기본 5초 제한에 걸리지 않게
+describe("analysis engine (synthetic face)", { timeout: 30_000 }, () => {
   const base = analyzeNormalized(syntheticFace());
   it("is deterministic", () => {
     const again = analyzeNormalized(syntheticFace());
@@ -301,3 +304,15 @@ describe("analysis engine (synthetic face)", () => {
     expect(sim.length).toBe(o.rgba.length);
   });
 });
+
+describe("config locales", () => {
+  it("turns on languages added after the config was saved, keeps explicit choices", async () => {
+    const { mergeConfig } = await import("../../src/lib/appConfig");
+    const legacy = mergeConfig({ locales: ["ko", "en", "ja", "zh", "es", "vi", "ru"] });
+    expect(legacy.locales).toContain("th");
+    expect(legacy.locales).toContain("mn");
+    const off = mergeConfig({ locales: ["ko", "en"], localesKnown: legacy.localesKnown });
+    expect(off.locales).toEqual(["ko", "en"]);
+  });
+});
+

@@ -59,7 +59,7 @@ export default function Survey({ onSubmit, onSkip }: { onSubmit: (s: SurveyAnswe
         <fieldset className="rounded-xl border border-amber-400/40 bg-amber-400/5 p-4">
           <legend className="px-1 text-sm font-semibold text-amber-100">{t.survey.contraTitle}</legend>
           <p className="text-xs leading-relaxed text-silver">{t.survey.contraDesc}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-silver">
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-silver">
             {CONTRAINDICATIONS.map((c) => (
               <li key={c}>{t.kb.contra[c]}</li>
             ))}
@@ -74,8 +74,8 @@ export default function Survey({ onSubmit, onSkip }: { onSubmit: (s: SurveyAnswe
       <div className="sticky bottom-0 -mx-4 mt-8 border-t border-line bg-ink/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0">
         <p className="mb-2 text-sm text-silver" data-testid="survey-progress">{fmt(t.survey.answered, { n: QUESTIONS.filter((q) => s[q] !== null).length, total: QUESTIONS.length })}</p>
         <div className="flex gap-3">
-          <button onClick={() => onSubmit(s)} data-testid="survey-submit" className="flex-1 rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2 sm:flex-none">{t.survey.submit} →</button>
-          <button onClick={onSkip} data-testid="survey-skip" className="rounded-full border-2 border-silver/40 px-6 py-4 text-base text-silver">{t.common.skip}</button>
+          <button onClick={() => onSubmit(s)} data-testid="survey-submit" className="min-w-0 flex-1 whitespace-nowrap rounded-full bg-white px-4 py-4 text-[15px] font-bold text-black hover:bg-scan2 min-[400px]:text-lg sm:flex-none sm:px-8">{t.survey.submit} →</button>
+          <button onClick={onSkip} data-testid="survey-skip" className="shrink-0 whitespace-nowrap rounded-full border-2 border-silver/40 px-4 py-4 text-sm text-silver min-[400px]:px-6 min-[400px]:text-base">{t.common.skip}</button>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 /** 촬영 전 간단 정보: 한 화면에 질문 하나, 위쪽 진행 막대, 큰 선택 카드. 언제든 건너뛸 수 있다. */
+import Icon, { type IconName } from "@/components/ui/Icon";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import type { ScanProfile } from "@/lib/client/store";
@@ -15,16 +16,16 @@ export default function ProfileSteps({ initial, onDone }: { initial: ScanProfile
   const q = ORDER[i];
   const other = p.forWhom === "other";
 
-  const options: { key: string; label: string; icon?: string; on: boolean; pick: () => void }[] =
+  const options: { key: string; label: string; icon?: IconName; on: boolean; pick: () => void }[] =
     q === "forWhom"
       ? [
-          { key: "self", label: f.forWhom.self, icon: "🙋", on: p.forWhom === "self", pick: () => setP({ ...p, forWhom: "self" }) },
-          { key: "other", label: f.forWhom.other, icon: "👥", on: p.forWhom === "other", pick: () => setP({ ...p, forWhom: "other" }) },
+          { key: "self", label: f.forWhom.self, icon: "user", on: p.forWhom === "self", pick: () => setP({ ...p, forWhom: "self" }) },
+          { key: "other", label: f.forWhom.other, icon: "users", on: p.forWhom === "other", pick: () => setP({ ...p, forWhom: "other" }) },
         ]
       : q === "makeup"
         ? [
-            { key: "yes", label: f.makeup.yes, icon: "💄", on: p.makeup === true, pick: () => setP({ ...p, makeup: true }) },
-            { key: "no", label: f.makeup.no, icon: "✨", on: p.makeup === false, pick: () => setP({ ...p, makeup: false }) },
+            { key: "yes", label: f.makeup.yes, icon: "makeup", on: p.makeup === true, pick: () => setP({ ...p, makeup: true }) },
+            { key: "no", label: f.makeup.no, icon: "sparkle", on: p.makeup === false, pick: () => setP({ ...p, makeup: false }) },
           ]
         : q === "age"
           ? f.age.bands.map((b, k) => ({ key: String(k), label: b, on: p.age === k, pick: () => setP({ ...p, age: k }) }))
@@ -61,16 +62,16 @@ export default function ProfileSteps({ initial, onDone }: { initial: ScanProfile
             onClick={o.pick}
             className={`flex w-full items-center gap-4 rounded-2xl border-2 px-5 py-4 text-left text-lg transition ${o.on ? "border-scan bg-scan/10 font-semibold" : "border-line bg-panel hover:border-silver/50"}`}
           >
-            {o.icon && <span className="text-2xl">{o.icon}</span>}
+            {o.icon && <Icon name={o.icon} size={28} strokeWidth={1.4} className={o.on ? "text-brand" : "text-silver"} />}
             <span className="flex-1">{o.label}</span>
             <span className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${o.on ? "border-scan2" : "border-silver/50"}`}>{o.on && <span className="h-3 w-3 rounded-full bg-scan2" />}</span>
           </button>
         ))}
       </div>
-      {q === "makeup" && p.makeup === true && <p className="mt-4 rounded-2xl bg-amber-300/10 p-4 text-base text-amber-100">💡 {f.makeup.note}</p>}
+      {q === "makeup" && p.makeup === true && <p className="mt-4 rounded-2xl bg-amber-300/10 p-4 text-base text-amber-100"><Icon name="bulb" size={18} className="mr-1.5" />{f.makeup.note}</p>}
 
       <div className="mt-auto pt-8">
-        <button onClick={next} disabled={!answered} data-testid="profile-next" className="w-full rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-scan2 disabled:bg-white/25 disabled:text-black/50">
+        <button onClick={next} disabled={!answered} data-testid="profile-next" className="w-full rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-scan2 disabled:bg-line disabled:text-silver">
           {f.next} →
         </button>
       </div>

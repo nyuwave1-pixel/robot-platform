@@ -29,7 +29,7 @@ export default function ScanHud({ labels, animate = true, marks = MARKS }: { lab
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full overflow-visible">
         {marks.map((m, i) => (
           <g key={i}>
-            <line x1={m.x} y1={m.y} x2={m.lx} y2={m.ly} stroke="rgba(125,211,252,0.55)" strokeWidth="0.25" strokeDasharray="1 1" style={animate ? { animation: "dash 2.4s linear infinite" } : undefined} />
+            <line x1={m.x} y1={m.y} x2={m.lx} y2={m.ly} stroke="rgba(125,211,252,0.55)" strokeWidth="0.25" strokeDasharray="1 1" style={animate ? { animation: "pulse-zone 2.4s ease-in-out infinite" } : undefined} />
             <circle cx={m.x} cy={m.y} r="1.1" fill="rgba(125,211,252,0.95)" />
             <circle cx={m.x} cy={m.y} r="2.6" fill="none" stroke="rgba(125,211,252,0.6)" strokeWidth="0.3" style={animate ? { animation: `pulse-zone 2.6s ease-in-out ${i * 0.5}s infinite` } : undefined} />
           </g>
@@ -40,7 +40,7 @@ export default function ScanHud({ labels, animate = true, marks = MARKS }: { lab
           <span
             key={i}
             // 좁은 화면에서는 라벨이 틀 밖으로 잘리지 않도록 가장자리 안쪽에 붙이고, sm 이상에서만 지정 좌표에 둔다.
-            className={`absolute top-[var(--ly)] -translate-y-1/2 whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[10px] tracking-wide text-scan2 backdrop-blur ${
+            className={`absolute top-[var(--ly)] -translate-y-1/2 whitespace-nowrap rounded-full border border-scan2/40 bg-ink/70 px-2 py-0.5 text-[11px] tracking-wide text-scan2 backdrop-blur ${
               m.align === "end" ? "left-1 sm:left-[var(--lx)] sm:-translate-x-full" : "right-1 sm:right-auto sm:left-[var(--lx)]"
             }`}
             style={{ "--lx": `${m.lx}%`, "--ly": `${m.ly}%` } as React.CSSProperties}

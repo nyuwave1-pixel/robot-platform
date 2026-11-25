@@ -21,8 +21,8 @@ function Thumb({ canvas, active, onClick, title, sub, virtual }: { canvas: HTMLC
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={url} alt={sub} className="block aspect-[4/5] w-full object-cover" />
       <span className="block px-2 py-1.5">
-        <span className="block font-display text-[11px] tracking-[0.15em]">{title}</span>
-        <span className={`block text-[10px] ${virtual ? "text-scan2" : "text-silver"}`}>{sub}</span>
+        <span className="block font-display text-xs tracking-[0.15em]">{title}</span>
+        <span className={`block text-[11px] ${virtual ? "text-scan2" : "text-silver"}`}>{sub}</span>
       </span>
     </button>
   );
@@ -52,7 +52,7 @@ export default function Simulation({ visual }: { visual: VisualData }) {
   return (
     <section className="space-y-4" data-testid="simulation">
       <div>
-        <h2 className="font-display text-2xl font-light">{t.sim.title}</h2>
+        <h2 className="font-display text-2xl font-normal">{t.sim.title}</h2>
         <p className="mt-1 text-sm text-silver">{t.sim.desc}</p>
       </div>
       <div role="note" className="rounded-xl border border-amber-400/50 bg-amber-400/10 p-3 text-xs leading-relaxed text-amber-100" data-testid="sim-disclaimer">

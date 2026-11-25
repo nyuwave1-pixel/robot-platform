@@ -3,15 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC", "Malgun Gothic", sans-serif;
-  --font-display: "Helvetica Neue", "Inter", "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-display: "Helvetica Neue", Inter, "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --font-brand: "Arial Black", "Helvetica Neue", Inter, "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme: light;
+  /* FUTURE SKIN LAB — Pure White / Clinical White / Platinum / Titanium / Deep Graphite / AI Blue */
+  --c-bg: 246 247 248;      /* Clinical White #F6F7F8 */
+  --c-panel: 255 255 255;   /* Pure White */
+  --c-line: 220 225 229;    /* Platinum Silver #DCE1E5 */
+  --c-silver: 68 77 87;     /* 보조 글자 (흰 바탕 대비 8.6:1) */
+  --c-silver-soft: 84 94 105; /* 옅은 보조 글자 (흰·클리니컬 화이트 바탕 대비 6.5:1) */
+  --c-fg: 32 37 43;         /* Deep Graphite #20252B */
+  --c-on: 255 255 255;
+  --c-scan: 108 174 208;    /* AI Blue #6CAED0 */
+  --c-scan2: 31 108 178;    /* 강조 글자 — 브랜드 블루 계열 (흰 바탕 대비 5.3:1) */
+  --c-brand: 31 116 190;    /* MEDIDERMA SKIN IQ 브랜드 블루 #1F74BE */
+  --amber-100: 120 53 15; --amber-200: 146 64 14; --amber-300: 180 83 9;
+  --rose-100: 136 19 55; --rose-200: 159 18 57; --rose-300: 190 18 60;
+  --emerald-100: 6 78 59; --emerald-200: 6 95 70; --emerald-300: 4 120 87;
+  --violet-200: 91 33 182; --violet-300: 109 40 217;
+  --sky-100: 12 74 110; --sky-200: 7 89 133;
+}
+/* 시네마틱 장면(기술 쇼케이스·스캔)은 Midnight Black 으로 유지 */
+.theme-dark {
   color-scheme: dark;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  --c-bg: 16 19 24;         /* Midnight Black #101318 */
+  --c-panel: 24 28 34;
+  --c-line: 44 51 60;
+  --c-silver: 210 217 223;
+  --c-silver-soft: 178 187 196;
+  --c-fg: 255 255 255;
+  --c-on: 16 19 24;
+  --c-scan: 108 174 208;
+  --c-scan2: 199 232 242;   /* Ice Blue #C7E8F2 */
+  --c-brand: 120 182 236;
+  --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77;
+  --rose-100: 255 228 230; --rose-200: 254 205 211; --rose-300: 253 164 175;
+  --emerald-100: 209 250 229; --emerald-200: 167 243 208; --emerald-300: 110 231 183;
+  --violet-200: 221 214 254; --violet-300: 196 181 253;
+  --sky-100: 224 242 254; --sky-200: 186 230 253;
+  color: rgb(var(--c-fg));
 }
 html { scroll-behavior: smooth; }
 /* 큰 글씨 모드 (헤더의 '가+' 버튼) */
 html.big-text { font-size: 118%; }
-body { font-family: var(--font-sans); background: #05070a; }
-::selection { background: rgba(79, 182, 255, 0.35); }
+body { font-family: var(--font-sans); background: rgb(var(--c-bg)); color: rgb(var(--c-fg)); }
+::selection { background: rgb(var(--c-scan) / 0.35); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
@@ -24,22 +62,60 @@ body { font-family: var(--font-sans); background: #05070a; }
 .depth-xl { font-size: clamp(2.3rem, 6.4vw, 4.6rem); --depth: 7; }
 /* 글자 본체 = 압출(깊이) 레이어, ::after = 앞면(그라디언트) 레이어 */
 .depth-ch { position: relative; display: inline-block; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform, opacity;
-  color: #1b2733;
-  text-shadow: 0 1px 0 #2a3947, 0 2px 0 #223040, 0 3px 0 #1a2631, 0 calc(var(--depth) * 1px) 0 #121b24, 0 calc(var(--depth) * 1px + 6px) 14px rgba(0,0,0,0.7); }
+  color: var(--d-body); text-shadow: var(--d-stack); }
 .depth-ch::after { content: attr(data-ch); position: absolute; left: 0; top: 0; text-shadow: none; color: transparent;
-  background: linear-gradient(180deg, #ffffff 0%, #e3e9f0 48%, #93a1b0 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.depth-acc { color: #0b4f9c;
-  text-shadow: 0 1px 0 #0d5db6, 0 2px 0 #0b4f9c, 0 3px 0 #093f7d, 0 calc(var(--depth) * 1px) 0 #062a54, 0 calc(var(--depth) * 1px + 8px) 24px rgba(47,155,255,0.55), 0 0 26px rgba(79,182,255,0.35); }
-.depth-acc::after { background: linear-gradient(180deg, #ffffff 0%, #a9e3ff 42%, #3aa2ff 100%); -webkit-background-clip: text; background-clip: text; }
+  background: var(--d-face); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.depth-acc { color: var(--a-body); text-shadow: var(--a-stack); }
+.depth-acc::after { background: var(--a-face); -webkit-background-clip: text; background-clip: text; }
+/* 입체 글자 색 — 밝은 테마: 티타늄 압출 + 그래파이트 앞면 */
+:root {
+  /* 밝은 테마: 얇고 또렷한 입체 (글자 가장자리가 번져 보이지 않게) */
+  --d-body: #c9d0d6;
+  --d-stack: 0 1px 0 #d3d9de, 0 2px 0 #c3cbd2, 0 4px 10px rgba(32,37,43,0.14);
+  --d-face: linear-gradient(180deg, #2b323b 0%, #20252b 55%, #101318 100%);
+  --a-body: #8dbbe6;
+  --a-stack: 0 1px 0 #a9cdef, 0 2px 0 #8dbbe6, 0 4px 12px rgba(31,116,190,0.22);
+  --a-face: linear-gradient(180deg, #2f86d0 0%, #1f74be 55%, #155a99 100%);
+}
+.theme-dark {
+  --d-body: #1b2733;
+  --d-stack: 0 1px 0 #2a3947, 0 2px 0 #223040, 0 3px 0 #1a2631, 0 6px 0 #121b24, 0 10px 14px rgba(0,0,0,0.7);
+  --d-face: linear-gradient(180deg, #ffffff 0%, #e3e9f0 48%, #93a1b0 100%);
+  --a-body: #0b4f9c;
+  --a-stack: 0 1px 0 #0d5db6, 0 2px 0 #0b4f9c, 0 3px 0 #093f7d, 0 6px 0 #062a54, 0 12px 24px rgba(47,155,255,0.55), 0 0 26px rgba(79,182,255,0.35);
+  --a-face: linear-gradient(180deg, #ffffff 0%, #c7e8f2 42%, #6caed0 100%);
+}
 
 /* ── 모션 그래픽 보조 ───────────────────────────────────── */
 @keyframes marquee { to { transform: translateX(-50%); } }
 .marquee-track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
 @keyframes sheen { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(320%) skewX(-18deg); } }
 .sheen { position: relative; overflow: hidden; }
-.sheen::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent); animation: sheen 3.6s ease-in-out infinite; mix-blend-mode: overlay; pointer-events: none; }
+.sheen::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); animation: sheen 3.6s ease-in-out infinite; mix-blend-mode: overlay; pointer-events: none; }
 @keyframes dash { to { stroke-dashoffset: -40; } }
 @keyframes pulse-zone { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
 @keyframes orbit { to { transform: rotate(360deg); } }
-.grid-floor { background-image: linear-gradient(rgba(79,182,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(79,182,255,0.14) 1px, transparent 1px);
+.grid-floor { background-image: linear-gradient(rgb(var(--c-scan) / 0.22) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--c-scan) / 0.22) 1px, transparent 1px);
   background-size: 44px 44px; transform: perspective(700px) rotateX(62deg); transform-origin: 50% 0; mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 75%); }
+
+/* 모바일 메뉴 항목 등장 */
+@keyframes menu-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* 기기 하단 안전 영역(홈 바) 만큼 띄우기 */
+.pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+
+/* 번역 적용 전: 본문만 잠시 숨긴다(자리는 유지 · 헤더는 그대로) */
+html.i18n-pending main, html.i18n-pending footer { visibility: hidden; }
+
+/* 첫 화면 인물 사진의 느린 부유 (transform 만 써서 메인 스레드를 쓰지 않는다) */
+@keyframes hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@media (hover: hover) and (pointer: fine) { .hero-float { animation: hero-float 7s ease-in-out infinite; } }
+
+/* DepthText 글자별 등장 — CSS transition 으로 (JS 애니메이션 없이) */
+.depth-text .depth-ch { opacity: 0; transform: translateY(0.55em) translateZ(-60px) rotateX(-85deg);
+  transition: opacity 0.75s cubic-bezier(0.2, 0.75, 0.2, 1), transform 0.75s cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition-delay: calc(min(var(--i, 0), 32) * 28ms); }
+.depth-text.is-in .depth-ch { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .depth-text .depth-ch { opacity: 1; transform: none; transition: none; } }
+
+/* 화면 밖 푸터는 보일 때까지 배치 계산을 건너뛴다 */
+footer.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 320px; }

@@ -23,10 +23,10 @@ function Lines({ line1, line2, onReady }: { line1: string; line2: string; onRead
   const t0 = useRef<number | null>(null);
 
   const mats = useMemo(() => {
-    const face = new THREE.MeshStandardMaterial({ color: "#f4f7fa", metalness: 0.92, roughness: 0.2, envMapIntensity: 1.35 });
-    const side = new THREE.MeshStandardMaterial({ color: "#3a4a5c", metalness: 1, roughness: 0.32, envMapIntensity: 1.1 });
-    const accentFace = new THREE.MeshStandardMaterial({ color: "#e9f5ff", metalness: 0.92, roughness: 0.16, envMapIntensity: 1.5 });
-    const accentSide = new THREE.MeshStandardMaterial({ color: "#0d6fd6", metalness: 0.6, roughness: 0.3, emissive: "#1b8cff", emissiveIntensity: 1.25 });
+    const face = new THREE.MeshStandardMaterial({ color: "#2b323b", metalness: 0.55, roughness: 0.26, envMapIntensity: 0.9 });
+    const side = new THREE.MeshStandardMaterial({ color: "#c9d1d8", metalness: 0.9, roughness: 0.3, envMapIntensity: 1.1 });
+    const accentFace = new THREE.MeshStandardMaterial({ color: "#1f74be", metalness: 0.5, roughness: 0.2, envMapIntensity: 1 });
+    const accentSide = new THREE.MeshStandardMaterial({ color: "#a9cdef", metalness: 0.7, roughness: 0.3, emissive: "#1f74be", emissiveIntensity: 0.2 });
     return { plain: [face, side], accent: [accentFace, accentSide] };
   }, []);
   useEffect(() => () => [...mats.plain, ...mats.accent].forEach((m) => m.dispose()), [mats]);
@@ -76,7 +76,7 @@ function Lines({ line1, line2, onReady }: { line1: string; line2: string; onRead
   const common = { curveSegments: 10, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.022, bevelSegments: 5 } as const;
   return (
     <group ref={root}>
-      <pointLight ref={sweep} position={[0, 0.6, 2.2]} intensity={14} color="#7fd2ff" distance={9} />
+      <pointLight ref={sweep} position={[0, 0.6, 2.2]} intensity={6} color="#c7e8f2" distance={9} />
       <group ref={inner} visible={!!box}>
         <group ref={l1} position={[0, 0.62, 0]}>
           <Text3D font={REGULAR} size={1} height={0.16} letterSpacing={0.03} material={mats.plain} {...common}>
@@ -101,15 +101,15 @@ export default function Title3D({ line1, line2, onReady }: { line1: string; line
       <Lines line1={line1} line2={line2} onReady={onReady} />
       {/* 절차적 스튜디오 환경광: 외부 HDR 다운로드 없이 금속 반사를 만든다 */}
       <Environment resolution={256}>
-        <color attach="background" args={["#05070a"]} />
+        <color attach="background" args={["#8e99a4"]} />
         {/* 정면 대형 소프트박스: 글자 앞면이 반사할 밝은 면 */}
         <Lightformer form="rect" intensity={1.25} position={[0, 0.5, 9]} scale={[26, 9, 1]} color="#cfd8e2" />
         <Lightformer form="rect" intensity={4} position={[0, 3.2, 8]} scale={[18, 1.6, 1]} color="#ffffff" />
         <Lightformer form="rect" intensity={5} position={[0, 4, 3]} scale={[10, 2.4, 1]} color="#ffffff" />
         <Lightformer form="rect" intensity={3.2} position={[-6, 0.5, 2]} rotation={[0, Math.PI / 2.4, 0]} scale={[6, 1.2, 1]} color="#8fd0ff" />
         <Lightformer form="rect" intensity={2.6} position={[6, -1, 2]} rotation={[0, -Math.PI / 2.4, 0]} scale={[6, 1, 1]} color="#dfe7ee" />
-        <Lightformer form="ring" intensity={2.5} position={[0, -3.5, 4]} scale={3} color="#4fb6ff" />
-        <Lightformer form="rect" intensity={1.4} position={[0, 0, -6]} scale={[14, 5, 1]} color="#22303f" />
+        <Lightformer form="ring" intensity={2.5} position={[0, -3.5, 4]} scale={3} color="#6caed0" />
+        <Lightformer form="rect" intensity={1.4} position={[0, 0, -6]} scale={[14, 5, 1]} color="#dce1e5" />
       </Environment>
     </Canvas>
   );

@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import { useRef, useState } from "react";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
@@ -24,14 +25,14 @@ function RoutineCard({ id, focus, onWatch }: { id: RoutineId; focus: CarePlan["f
       <ol className="mt-3 space-y-3">
         {r.steps.map((s, i) => (
           <li key={i} className="flex gap-3">
-            <span className={`mt-0.5 h-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${TECH_COLOR[s.technology]}`}>{fmt(t.care.step, { n: i + 1 })}</span>
+            <span className={`mt-0.5 h-fit shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${TECH_COLOR[s.technology]}`}>{fmt(t.care.step, { n: i + 1 })}</span>
             <div className="min-w-0 text-sm">
               <p className="font-medium">
                 {t.care.tech[s.technology].name} · {fmt(t.care.minutes, { n: s.minutes })}
               </p>
               <p className="text-xs text-silver">{t.care.productLabel}: {t.kb.products[s.product].name}</p>
-              <p className="mt-1 text-xs leading-relaxed text-silver/90">{kb.steps[i]}</p>
-              <button onClick={() => onWatch(TECH_CHAPTER[s.technology])} data-no-export className="mt-1 text-[11px] text-scan2 underline underline-offset-4">▶ {t.care.video.watch}</button>
+              <p className="mt-1 text-xs leading-relaxed text-silver">{kb.steps[i]}</p>
+              <button onClick={() => onWatch(TECH_CHAPTER[s.technology])} data-no-export className="mt-1 text-xs text-scan2 underline underline-offset-4">▶ {t.care.video.watch}</button>
             </div>
           </li>
         ))}
@@ -44,14 +45,14 @@ function RoutineCard({ id, focus, onWatch }: { id: RoutineId; focus: CarePlan["f
             const hot = focus.includes(r.directionAreas[i]);
             return (
               <li key={i} className={hot ? "text-white" : ""}>
-                {hot && <span className="mr-1.5 rounded bg-scan/20 px-1.5 py-0.5 text-[10px] text-scan2">{t.care.focus}</span>}
+                {hot && <span className="mr-1.5 rounded bg-scan/20 px-1.5 py-0.5 text-[11px] text-scan2">{t.care.focus}</span>}
                 {d}
               </li>
             );
           })}
         </ul>
       </div>
-      <p className="mt-3 text-[10px] text-silver/50">{r.source}</p>
+      <p className="mt-3 text-[11px] text-silver-soft">{r.source}</p>
     </div>
   );
 }
@@ -62,7 +63,7 @@ function Reasons({ rec }: { rec: CareRecommendation }) {
     <ul className="mt-2 space-y-1 text-xs text-silver">
       {rec.reasons.map((r, i) => (
         <li key={i} className="flex gap-1.5">
-          <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] ${r.type === "observation" ? "bg-scan/15 text-scan2" : "bg-white/10 text-silver"}`}>
+          <span className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] ${r.type === "observation" ? "bg-scan/15 text-scan2" : "bg-white/10 text-silver"}`}>
             {r.type === "observation" ? t.report.photoBased : t.report.surveyBased}
           </span>
           <span>
@@ -106,7 +107,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
   return (
     <section className="space-y-6" data-testid="care-view">
       <div>
-        <h2 className="font-display text-2xl font-light">{t.care.title}</h2>
+        <h2 className="font-display text-2xl font-normal">{t.care.title}</h2>
         <p className="mt-1 text-xs text-silver">{t.care.functionVsFit}</p>
       </div>
 
@@ -121,7 +122,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
       {!plan.deviceBlocked && (
         <div className="rounded-2xl border border-line bg-ink/60 p-5" data-testid="device-how">
           <h3 className="text-sm font-semibold tracking-wide text-silver">{t.care.deviceHowTitle}</h3>
-          <p className="mt-1 text-xs text-silver/70">{t.care.deviceHowDesc}</p>
+          <p className="mt-1 text-xs text-silver-soft">{t.care.deviceHowDesc}</p>
           <ol className="mt-3 grid gap-2 sm:grid-cols-5">
             {t.care.deviceSteps.map((d, i) => (
               <li key={i} className="rounded-xl border border-line p-3 text-xs leading-relaxed text-silver">
@@ -134,7 +135,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
             <p className="mt-3 text-xs text-silver">
               {t.care.myFunctions}:{" "}
               {techs.map((tech) => (
-                <span key={tech} className={`ml-1 inline-block rounded-full border px-2 py-0.5 text-[10px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</span>
+                <span key={tech} className={`ml-1 inline-block rounded-full border px-2 py-0.5 text-[11px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</span>
               ))}
             </p>
           )}
@@ -147,18 +148,18 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           {plan.recommendations.map((rec) => (
             <div key={rec.id} className="rounded-2xl border border-line bg-panel p-4" data-testid={`rec-${rec.id}`}>
-              <p className={`inline-block rounded-full border px-2 py-0.5 text-[10px] tracking-widest ${TECH_COLOR[rec.technology]}`}>{t.care.tech[rec.technology].en}</p>
+              <p className={`inline-block rounded-full border px-2 py-0.5 text-[11px] tracking-widest ${TECH_COLOR[rec.technology]}`}>{t.care.tech[rec.technology].en}</p>
               <h4 className="mt-2 font-semibold">{t.care.recTitles[rec.id as keyof typeof t.care.recTitles] ?? rec.id}</h4>
               <p className="mt-1 text-xs text-silver">{t.care.tech[rec.technology].desc}</p>
-              <p className="mt-3 text-[11px] font-semibold text-silver">{t.care.whyTitle}</p>
+              <p className="mt-3 text-xs font-semibold text-silver">{t.care.whyTitle}</p>
               <Reasons rec={rec} />
-              {rec.zones.length > 0 && <p className="mt-2 text-[11px] text-silver/70">{rec.zones.map((z) => t.zones[z]).join(" · ")}</p>}
+              {rec.zones.length > 0 && <p className="mt-2 text-xs text-silver-soft">{rec.zones.map((z) => t.zones[z]).join(" · ")}</p>}
               {rec.technology !== "general" && (
-                <button onClick={() => watch(TECH_CHAPTER[rec.technology as Technology])} data-testid={`watch-${rec.id}`} data-no-export className="mt-2 rounded-full border border-scan/40 px-3 py-1 text-[11px] text-scan2 hover:bg-scan/10">▶ {t.care.video.watch}</button>
+                <button onClick={() => watch(TECH_CHAPTER[rec.technology as Technology])} data-testid={`watch-${rec.id}`} data-no-export className="mt-2 rounded-full border border-scan/40 px-3 py-1 text-xs text-scan2 hover:bg-scan/10">▶ {t.care.video.watch}</button>
               )}
-              <ul className="mt-2 space-y-1 border-t border-line pt-2 text-[11px] leading-relaxed text-amber-100/80">
+              <ul className="mt-2 space-y-1 border-t border-line pt-2 text-xs leading-relaxed text-amber-100/80">
                 {rec.cautions.map((c) => (
-                  <li key={c}>⚠ {t.kb.cautions[c as keyof typeof t.kb.cautions] ?? c}</li>
+                  <li key={c} className="flex gap-1.5"><Icon name="alert" size={15} className="mt-0.5 shrink-0" />{t.kb.cautions[c as keyof typeof t.kb.cautions] ?? c}</li>
                 ))}
               </ul>
             </div>
@@ -171,7 +172,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
         <div>
           <h3 className="font-display text-lg tracking-[0.15em]">{t.care.planTitle}</h3>
           <p className="mt-1 text-xs text-silver">{t.care.planDesc}</p>
-          <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-silver">
+          <div className="mt-2 flex flex-wrap gap-2 text-xs text-silver">
             <span>{t.care.driversTitle}:</span>
             {(Object.keys(plan.drivers) as (keyof CarePlan["drivers"])[]).map((k) => (
               <span key={k} className="rounded-full bg-white/5 px-2 py-0.5">{t.care.drivers[k]} {plan.drivers[k]}</span>
@@ -223,14 +224,14 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {techs.map((tech) => (
               <div key={tech} className="rounded-xl border border-line bg-ink/60 p-3">
-                <p className={`inline-block rounded-full border px-2 py-0.5 text-[10px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</p>
-                <p className="mt-2 text-[11px] font-semibold text-silver">{t.care.track.points}</p>
+                <p className={`inline-block rounded-full border px-2 py-0.5 text-[11px] tracking-widest ${TECH_COLOR[tech]}`}>{t.care.tech[tech].en}</p>
+                <p className="mt-2 text-xs font-semibold text-silver">{t.care.track.points}</p>
                 <ul className="mt-1 flex flex-wrap gap-1">
                   {t.care.tech[tech].tags.map((tag) => (
-                    <li key={tag} className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-silver">{tag}</li>
+                    <li key={tag} className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-silver">{tag}</li>
                   ))}
                 </ul>
-                <p className="mt-3 text-[11px] font-semibold text-silver">{t.care.track.metrics}</p>
+                <p className="mt-3 text-xs font-semibold text-silver">{t.care.track.metrics}</p>
                 <ul className="mt-1 space-y-1 text-xs">
                   {TECH_TRACK[tech].map((k) => (
                     <li key={k} className="flex items-baseline justify-between gap-2">
@@ -272,7 +273,7 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
               <li key={c}>{t.kb.contra[c]}</li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-silver/60">
+          <p className="mt-3 text-xs text-silver-soft">
             {t.care.sourceNote} ·{" "}
             <a href={LINKS.guide} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{t.care.guideLink}</a> ·{" "}
             <a href={LINKS.guidebookPdf} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{t.care.guidebookLink}</a>
@@ -283,13 +284,13 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
       {/* 추천 제품 — 공식 스킨케어 가이드 순서 */}
       <div data-testid="products">
         <h3 className="text-sm font-semibold tracking-wide text-silver">{t.care.productsTitle}</h3>
-        <p className="mt-1 text-xs text-silver/70">{t.care.productsDesc}</p>
+        <p className="mt-1 text-xs text-silver-soft">{t.care.productsDesc}</p>
         <div className="mt-3 rounded-xl border border-line bg-ink/60 p-3" data-testid="guide-order">
-          <p className="text-[11px] font-semibold tracking-wide text-silver">{t.care.guideOrderTitle}</p>
-          <ol className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-silver">
+          <p className="text-xs font-semibold tracking-wide text-silver">{t.care.guideOrderTitle}</p>
+          <ol className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-silver">
             {products.map((p, i) => (
               <li key={p} className="flex items-center gap-1.5">
-                {i > 0 && <span aria-hidden className="text-silver/40">→</span>}
+                {i > 0 && <span aria-hidden className="text-silver-soft">→</span>}
                 <span className="rounded-full border border-line px-2 py-0.5">
                   <span className="text-scan2">{t.care.guideSteps[PRODUCTS[p].step]}</span> · {t.kb.products[p].name}
                 </span>
@@ -303,16 +304,16 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
             const reasons = plan.productReasons[p] ?? [];
             return (
               <article key={p} data-testid={`product-card-${p}`} className="flex flex-col rounded-2xl border border-line bg-gradient-to-b from-white/[0.05] to-transparent p-4">
-                <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                   <span className="rounded-full border border-scan2/40 px-2 py-0.5 tracking-wide text-scan2">{t.care.guideSteps[PRODUCTS[p].step]}</span>
                   <span className="rounded-full border border-line px-2 py-0.5 text-silver">{t.care.when[PRODUCTS[p].when]}</span>
                   {kb.fn && <span className="rounded-full border border-line px-2 py-0.5 text-silver">{kb.fn}</span>}
                 </div>
                 <p className="mt-2 text-sm font-semibold">{kb.name}</p>
-                <p className="mt-0.5 text-xs italic text-silver/80">“{kb.tagline}”</p>
+                <p className="mt-0.5 text-xs italic text-silver">“{kb.tagline}”</p>
                 {reasons.length > 0 && (
                   <div className="mt-3" data-testid={`product-why-${p}`}>
-                    <p className="text-[11px] font-semibold text-silver">{t.care.productWhy}</p>
+                    <p className="text-xs font-semibold text-silver">{t.care.productWhy}</p>
                     <ul className="mt-1 space-y-1 text-xs text-silver">
                       {reasons.map((r, i) => (
                         <li key={i} className="flex gap-1.5">
@@ -324,16 +325,16 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
                   </div>
                 )}
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-silver">{t.care.productPoints}</p>
-                  <ul className="mt-1 space-y-0.5 text-xs leading-relaxed text-silver/90">
+                  <p className="text-xs font-semibold text-silver">{t.care.productPoints}</p>
+                  <ul className="mt-1 space-y-0.5 text-xs leading-relaxed text-silver">
                     {kb.points.map((pt, i) => <li key={i}>– {pt}</li>)}
                   </ul>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-silver">{t.care.productHow}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-silver/90">{kb.how}</p>
+                  <p className="text-xs font-semibold text-silver">{t.care.productHow}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-silver">{kb.how}</p>
                 </div>
-                {PRODUCTS[p].hasHumanTest && <p className="mt-3 text-[11px] leading-relaxed text-silver/60">{t.care.humanTest}</p>}
+                {PRODUCTS[p].hasHumanTest && <p className="mt-3 text-xs leading-relaxed text-silver-soft">{t.care.humanTest}</p>}
                 <a
                   href={config.products[p].url}
                   target="_blank"
@@ -342,13 +343,13 @@ export default function CareView({ plan, categories }: { plan: CarePlan; categor
                   data-testid={`product-${p}`}
                   className="mt-auto pt-3 text-xs text-scan2 hover:underline"
                 >
-                  {t.care.viewProduct} ↗
+                  {t.care.viewProduct} <Icon name="external" size={13} className="ml-0.5" />
                 </a>
               </article>
             );
           })}
         </div>
-        <p className="mt-3 text-[11px] leading-relaxed text-silver/60">{t.care.productSource}</p>
+        <p className="mt-3 text-xs leading-relaxed text-silver-soft">{t.care.productSource}</p>
       </div>
 
       {/* 체험 CTA */}

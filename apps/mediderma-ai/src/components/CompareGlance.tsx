@@ -6,6 +6,7 @@
  *  - 항목별 큰 표시
  * 판정은 compareResults() 의 결과(촬영 조건 차이·잡음 범위 반영)를 그대로 쓴다. 숫자 차이만으로 '좋아짐'을 만들지 않는다.
  */
+import Icon, { type IconName } from "@/components/ui/Icon";
 import { fmt, useI18n } from "@/lib/i18n";
 import type { ChangeVerdict, CompareResult } from "@/lib/analysis/compare";
 import type { AnalysisResult, MetricKey, ZoneId } from "@/lib/analysis/types";
@@ -23,11 +24,11 @@ const AXIS_METRIC: Partial<Record<AxisId, MetricKey>> = {
 };
 const JAW_ZONES: ZoneId[] = ["left_jawline", "right_jawline"];
 
-const STYLE: Record<ChangeVerdict, { icon: string; cls: string }> = {
-  improved: { icon: "👍", cls: "border-emerald-400/50 bg-emerald-400/10 text-emerald-200" },
-  no_change: { icon: "➖", cls: "border-line bg-white/5 text-silver" },
-  worsened: { icon: "👎", cls: "border-rose-400/50 bg-rose-400/10 text-rose-200" },
-  not_comparable: { icon: "⚠️", cls: "border-amber-400/50 bg-amber-400/10 text-amber-200" },
+const STYLE: Record<ChangeVerdict, { icon: IconName; cls: string }> = {
+  improved: { icon: "trendUp", cls: "border-emerald-400/50 bg-emerald-400/10 text-emerald-200" },
+  no_change: { icon: "minus", cls: "border-line bg-white/5 text-silver" },
+  worsened: { icon: "trendDown", cls: "border-rose-400/50 bg-rose-400/10 text-rose-200" },
+  not_comparable: { icon: "alert", cls: "border-amber-400/50 bg-amber-400/10 text-amber-200" },
 };
 
 function axisVerdict(cmp: CompareResult, id: AxisId): ChangeVerdict {
@@ -56,7 +57,7 @@ export default function CompareGlance({ cmp, before, after }: { cmp: CompareResu
     <section className="rounded-3xl border border-scan/30 bg-gradient-to-b from-scan/[0.07] to-panel p-5 sm:p-7" data-testid="compare-glance">
       <h2 className="text-2xl font-bold sm:text-3xl">{g.title}</h2>
       <p className="mt-3 text-xl font-semibold leading-snug sm:text-2xl" data-testid="compare-headline">{headline}</p>
-      {cmp.conditionIssues.length > 0 && <p className="mt-2 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-base text-amber-100">⚠️ {g.conditionWarn}</p>}
+      {cmp.conditionIssues.length > 0 && <p className="mt-2 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-base text-amber-100"><Icon name="alert" size={18} className="mr-1.5" />{g.conditionWarn}</p>}
 
       <div className="mt-5 grid items-center gap-6 lg:grid-cols-[1fr_1.1fr]">
         <div>
@@ -70,7 +71,7 @@ export default function CompareGlance({ cmp, before, after }: { cmp: CompareResu
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {(["improved", "no_change", "worsened", "not_comparable"] as const).map((v) => (
               <div key={v} className={`rounded-2xl border px-3 py-3 text-center ${STYLE[v].cls}`} data-testid={`cg-count-${v}`}>
-                <p className="text-2xl">{STYLE[v].icon}</p>
+                <Icon name={STYLE[v].icon} size={26} strokeWidth={1.6} className="mx-auto block" />
                 <p className="mt-1 text-3xl font-bold tabular-nums">{count(v)}</p>
                 <p className="text-sm">{g.verdict[v]}</p>
               </div>
@@ -80,7 +81,7 @@ export default function CompareGlance({ cmp, before, after }: { cmp: CompareResu
             {AXES.map((a, i) => (
               <li key={a.id} className={`flex items-center justify-between gap-2 rounded-2xl border px-4 py-2.5 ${STYLE[verdicts[i]].cls}`}>
                 <span className="text-lg font-semibold">
-                  {STYLE[verdicts[i]].icon} {labels[i]}
+                  <Icon name={STYLE[verdicts[i]].icon} size={14} strokeWidth={1.8} className="mr-0.5" /> {labels[i]}
                 </span>
                 <span className="text-base tabular-nums">
                   {bv[i] ?? "—"} → <b>{av[i] ?? "—"}</b>
@@ -90,7 +91,7 @@ export default function CompareGlance({ cmp, before, after }: { cmp: CompareResu
           </ul>
         </div>
       </div>
-      <p className="mt-4 text-sm text-silver/70">{g.note}</p>
+      <p className="mt-4 text-sm text-silver-soft">{g.note}</p>
     </section>
   );
 }

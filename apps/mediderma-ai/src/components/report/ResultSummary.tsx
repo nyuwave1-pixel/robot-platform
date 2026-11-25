@@ -6,16 +6,18 @@
  *  - ShareButton: 휴대폰 공유창(카카오톡 등) → 안 되면 복사
  * 점수는 모두 사진 관찰 지수이며, '추정 나이'처럼 검증되지 않은 값은 만들지 않는다.
  */
+import Icon, { type IconName } from "@/components/ui/Icon";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
+import { track } from "@/lib/client/telemetry";
 import type { ScanProfile } from "@/lib/client/store";
 import type { CategoryScores, MetricKey, ZoneResult } from "@/lib/analysis/types";
 import { HIGHER_IS_BETTER } from "@/lib/analysis/types";
 import type { CarePlan } from "@/lib/care/recommend";
 import { AXES, type AxisId } from "./CareAtAGlance";
 
-const ICON: Record<AxisId, string> = { texture: "✨", wrinkle: "〰️", pore: "🔍", tone: "🌗", pigment: "🟤", redness: "🔴", eye: "👁️", jaw: "🙂" };
+const ICON: Record<AxisId, IconName> = { texture: "sparkle", wrinkle: "wave", pore: "search", tone: "contrast", pigment: "spot", redness: "drop", eye: "eye", jaw: "jaw" };
 /** 축 → 설명·부위 찾기에 쓸 지표 */
 const AXIS_METRIC: Record<AxisId, MetricKey | null> = {
   texture: "texture",
@@ -45,6 +47,7 @@ export function weakestAxes(c: CategoryScores, n = 2): AxisId[] {
 
 export function SummaryHero({ score, profile }: { score: number | null; profile?: ScanProfile | null }) {
   const { t } = useI18n();
+  useEffect(() => track("report_viewed"), []);
   const h = t.fit.hero;
   const [shown, setShown] = useState(0);
   useEffect(() => {
@@ -74,11 +77,11 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
               <stop offset="1" stopColor="#34d399" />
             </linearGradient>
           </defs>
-          <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#1c232d" strokeWidth="14" strokeLinecap="round" />
+          <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#dce1e5" strokeWidth="14" strokeLinecap="round" />
           {score !== null && <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#hg)" strokeWidth="14" strokeLinecap="round" strokeDasharray={len} strokeDashoffset={len * (1 - frac)} />}
         </svg>
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-          <p className="font-display text-5xl font-light tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
+          <p className="font-display text-5xl font-normal tabular-nums text-white" data-testid="hero-score" data-value={score ?? ""}>
             {score === null ? "—" : shown}
             <span className="ml-1 text-lg text-silver">/100</span>
           </p>
@@ -100,8 +103,8 @@ export function SummaryHero({ score, profile }: { score: number | null; profile?
           )}
         </div>
       )}
-      {profile?.makeup && <p className="mx-auto mt-3 max-w-md rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100">💡 {h.makeupWarn}</p>}
-      <p className="mt-3 text-xs text-silver/70">{h.note}</p>
+      {profile?.makeup && <p className="mx-auto mt-3 max-w-md rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100"><Icon name="bulb" size={18} className="mr-1.5" />{h.makeupWarn}</p>}
+      <p className="mt-3 text-xs text-silver-soft">{h.note}</p>
     </section>
   );
 }
@@ -155,7 +158,7 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
               data-testid={`skin-card-${a.id}`}
             >
               <div className="flex items-center justify-between gap-1">
-                <span className="text-2xl" aria-hidden>{ICON[a.id]}</span>
+                <Icon name={ICON[a.id]} size={26} strokeWidth={1.4} className="text-brand" />
                 <span className="font-display text-2xl tabular-nums">{v ?? "—"}</span>
               </div>
               <p className="mt-1 text-lg font-semibold">{t.glance.axes[a.id]}</p>
@@ -170,8 +173,8 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
 
       <AnimatePresence>
         {open && item && (
-          <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
-            <motion.div
+          <m.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
+            <m.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="sheet-title"
@@ -185,7 +188,7 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
             >
               <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line sm:hidden" />
               <div className="flex items-center gap-3">
-                <span className="text-3xl" aria-hidden>{ICON[open]}</span>
+                <Icon name={ICON[open]} size={32} strokeWidth={1.4} className="text-brand" />
                 <h3 id="sheet-title" className="text-2xl font-bold">{t.glance.axes[open]}</h3>
                 <span className="ml-auto font-display text-3xl tabular-nums">{itemV ?? "—"}</span>
               </div>
@@ -193,15 +196,15 @@ export function SkinCards({ categories, zones }: { categories: CategoryScores; z
               {itemMetric && <p className="mt-4 text-lg leading-relaxed">{t.metrics[itemMetric].desc}</p>}
               {worstZone(open) && (
                 <p className="mt-3 rounded-2xl bg-white/5 p-3 text-base">
-                  📍 {c.whereLabel}: <b>{worstZone(open)}</b>
+                  <Icon name="pin" size={16} className="mr-1" />{c.whereLabel}: <b>{worstZone(open)}</b>
                 </p>
               )}
-              <p className="mt-3 text-sm text-silver/70">{t.glance.scaleNote}</p>
+              <p className="mt-3 text-sm text-silver-soft">{t.glance.scaleNote}</p>
               <button onClick={() => setOpen(null)} className="mt-5 w-full rounded-full bg-white py-3.5 text-lg font-bold text-black" data-testid="skin-sheet-close">
                 {c.close}
               </button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>
@@ -213,6 +216,7 @@ export function ShareButton({ score, categories, plan }: { score: number | null;
   const s = t.fit.share;
   const [toast, setToast] = useState(false);
   const share = async () => {
+    track("share_click");
     const url = typeof window !== "undefined" ? window.location.origin : "";
     const weak = weakestAxes(categories).map((id) => t.glance.axes[id]).join(", ") || "—";
     const products = (plan?.products ?? []).filter((p) => p !== "device").slice(0, 2).map((p) => t.kb.products[p].name).join(", ") || "—";
@@ -235,8 +239,8 @@ export function ShareButton({ score, categories, plan }: { score: number | null;
   };
   return (
     <div className="relative">
-      <button onClick={share} className="w-full rounded-full bg-[#FEE500] px-6 py-4 text-lg font-bold text-black hover:brightness-95" data-testid="share-result">
-        💬 {s.button}
+      <button onClick={share} className="w-full rounded-full bg-[#FEE500] px-6 py-4 text-lg font-bold text-[#191600] hover:brightness-95" data-testid="share-result">
+        <Icon name="chat" size={20} className="mr-1.5" />{s.button}
       </button>
       {toast && (
         <p role="status" className="mt-2 rounded-2xl bg-white/10 p-3 text-center text-base" data-testid="share-toast">

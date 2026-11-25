@@ -51,7 +51,7 @@ function Mesh({ visual, heatmap, selected, showZones }: { visual: VisualData; he
         <meshBasicMaterial map={texture} side={THREE.DoubleSide} toneMapped={false} />
       </mesh>
       <mesh geometry={geometry}>
-        <meshBasicMaterial color="#7fe0ff" wireframe transparent opacity={0.08} />
+        <meshBasicMaterial color="#3b8fb8" wireframe transparent opacity={0.08} />
       </mesh>
     </group>
   );

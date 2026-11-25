@@ -25,6 +25,8 @@ export interface CurrentAnalysis {
   survey: SurveyAnswers | null;
   plan: CarePlan | null;
   neck: ZoneResult | null;
+  /** 사진 분석에 걸린 시간(ms, 이 기기에서 측정) */
+  durationMs?: number | null;
 }
 
 interface AppState {
@@ -76,7 +78,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTelemetryContext(sessionId, locale);
     if (!visited.current) {
       visited.current = true;
-      track("visit");
+      track("visit", { source: trafficSource() });
     }
   }, [sessionId, locale]);
 
@@ -128,4 +130,17 @@ export function useApp(): AppState {
   const v = useContext(Ctx);
   if (!v) throw new Error("AppProvider missing");
   return v;
+}
+
+/** 유입 경로: utm_source 가 있으면 그 값, 아니면 참조 사이트의 도메인만(경로·검색어는 버린다) */
+function trafficSource(): string {
+  try {
+    const utm = new URLSearchParams(location.search).get("utm_source");
+    if (utm) return utm.toLowerCase().slice(0, 40);
+    if (!document.referrer) return "direct";
+    const host = new URL(document.referrer).hostname.replace(/^www\./, "");
+    return host === location.hostname ? "internal" : host.slice(0, 60);
+  } catch {
+    return "direct";
+  }
 }

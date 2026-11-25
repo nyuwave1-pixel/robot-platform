@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const vi: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Phân tích làn da của bạn và khám phá liệu trình DERMA HOME phù hợp với chính mình.",
     start: "Bắt đầu phân tích da",
@@ -22,15 +22,20 @@ const vi: Dict = {
     learnMore: "Xem chi tiết",
     notAvailable: "Không đo được",
     footerDisclaimer:
-      "MEDIDERMA AI là dịch vụ quan sát các đặc điểm bề mặt da nhìn thấy trong ảnh để cung cấp thông tin chăm sóc; đây không phải thiết bị y tế và không phải chẩn đoán y khoa. Nếu nghi ngờ có bệnh lý về da, hãy tham khảo ý kiến bác sĩ chuyên khoa.",
+      "MEDIDERMA SKIN IQ là dịch vụ quan sát các đặc điểm bề mặt da nhìn thấy trong ảnh để cung cấp thông tin chăm sóc; đây không phải thiết bị y tế và không phải chẩn đoán y khoa. Nếu nghi ngờ có bệnh lý về da, hãy tham khảo ý kiến bác sĩ chuyên khoa.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "Chế độ MOCK — đây không phải kết quả phân tích AI thực tế.",
   },
-  nav: { analyze: "Phân tích da", compare: "So sánh trước–sau", history: "Nhật ký thay đổi", privacy: "Quyền riêng tư", dermahome: "DERMA HOME", trial: "Đặt lịch trải nghiệm miễn phí" },
+  nav: { analyze: "Phân tích da", compare: "So sánh trước–sau", history: "Nhật ký thay đổi", privacy: "Quyền riêng tư", dermahome: "DERMA HOME", trial: "Đặt lịch trải nghiệm miễn phí", menu: "Menu" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
+    tagline: "Một cách mới để thấu hiểu làn da của bạn.",
+    exploreTech: "Khám phá công nghệ DERMA HOME",
+    oneDevice: "Một thiết bị, ba công nghệ",
+    officialImage: "Hình ảnh sản phẩm chính thức",
+    techVisualNote: "Đồ họa nền chỉ mang tính minh họa, không phải hình ảnh hoạt động thực tế của thiết bị.",
     desc: "Chỉ cần một bức ảnh khuôn mặt, không cần đăng ký. Quan sát đặc điểm bề mặt da trên 13 vùng mặt và gợi ý chăm sóc phù hợp với DERMA HOME: RF · Siêu âm (Ultrasonic) · Điện di ion (Iontophoresis).",
     onDeviceBadge: "Ảnh chỉ được xử lý ngay trên thiết bị của bạn",
     uploadTitle: "Tải ảnh lên để bắt đầu ngay",
@@ -329,7 +334,7 @@ const vi: Dict = {
   },
   compareGlance: {
     title: "Thay đổi trong nháy mắt",
-    headlineImproved: "{n} vùng đã tốt hơn 👏",
+    headlineImproved: "{n} vùng đã tốt hơn",
     headlineSame: "Chưa có thay đổi lớn. Hãy tiếp tục chăm sóc.",
     headlineCondition: "Hai ảnh chụp trong điều kiện khác nhau nên khó so sánh chính xác.",
     conditionWarn: "Chụp lại ở cùng nơi, cùng ánh sáng, nhìn thẳng để chính xác hơn.",
@@ -345,7 +350,7 @@ const vi: Dict = {
     scan: {"title": "AI đang phân tích chi tiết làn da của bạn", "steps": ["Nhận diện 478 điểm trên mặt", "Chia 13 vùng da", "Đo kết cấu và nếp nhăn", "Đo lỗ chân lông và đốm", "Phân tích độ đều màu", "Ghép chăm sóc phù hợp"], "privacy": "Ảnh chỉ được phân tích trên thiết bị này"},
     hero: {"scoreLabel": "Tình trạng da", "sentence": "Tình trạng da qua ảnh đạt {n}/100 điểm.", "skinType": "Loại da", "age": "Độ tuổi", "makeupWarn": "Ảnh chụp khi trang điểm nên kết quả có thể kém chính xác.", "types": {"dry": "Da khô", "normal": "Da thường", "oily": "Da dầu", "combination": "Da hỗn hợp"}, "note": "Chỉ số tham khảo do AI quan sát từ ảnh, không phải chẩn đoán y khoa."},
     cards: {"title": "Chi tiết làn da", "tapHint": "Chạm vào thẻ để xem chi tiết.", "badges": ["Cần chăm sóc", "Hơi kém", "Tốt", "Rất tốt"], "whereLabel": "Rõ nhất ở", "close": "Đóng"},
-    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA AI Phân tích da]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
+    share: {"button": "Chia sẻ kết quả", "copied": "Đã sao chép. Hãy dán vào ứng dụng nhắn tin.", "text": "[MEDIDERMA SKIN IQ]\nTình trạng da {score}/100\nChăm sóc trước: {weak}\nGợi ý: {products}\nThử ngay 👉 {url}"},
   },
   care: {
     title: "Chăm sóc phù hợp cùng DERMA HOME",
@@ -615,6 +620,7 @@ const vi: Dict = {
     disabled: "Bạn chưa đồng ý lưu nhật ký.",
     enable: "Đồng ý lưu nhật ký",
   },
+  iq: {"slow": "Đang mất nhiều thời gian hơn bình thường. Hãy chờ thêm hoặc thử lại.", "decoding": "Đang giải mã dữ liệu da", "complete": "Phân tích hoàn tất", "skip": "Chạm để xem kết quả", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "Chi tiết phân tích", "sub": "Các số đo thực tế tạo nên kết quả này. Ảnh chỉ được xử lý trên thiết bị này.", "landmarks": "Điểm mốc khuôn mặt", "zonesAnalyzed": "Vùng đã phân tích", "metricsComputed": "Chỉ số đã tính", "duration": "Thời gian phân tích", "sec": "giây", "capture": "Điều kiện chụp", "pose": "Góc khuôn mặt", "yaw": "Xoay trái/phải", "pitch": "Ngẩng/cúi", "roll": "Nghiêng", "faceSize": "Chiều rộng khuôn mặt", "imageSize": "Độ phân giải gốc", "zoneConf": "Độ tin cậy theo vùng", "excluded": "Vùng bị loại", "none": "Không có", "ideal": "0° = nhìn thẳng"},
   privacy: {
     title: "Thông báo xử lý dữ liệu cá nhân",
     updated: "Ngày hiệu lực: 2026-11-13",
@@ -623,7 +629,7 @@ const vi: Dict = {
       { h: "2. Ảnh được xử lý ở đâu", p: "Việc nhận diện khuôn mặt và tính toán quan sát da đều chạy trong trình duyệt của người dùng. Ảnh và điểm mốc khuôn mặt không được gửi đến máy chủ của chúng tôi hay dịch vụ AI bên ngoài. Nếu sau này bổ sung tính năng phân tích bằng máy chủ hoặc AI bên ngoài, chúng tôi sẽ xin sự đồng ý rõ ràng riêng trước khi gửi." },
       { h: "3. Thời gian lưu và tự động xóa", p: "Khi sử dụng mặc định (không đăng ký), ảnh và kết quả chỉ nằm trong bộ nhớ của trình duyệt và sẽ bị xóa khi bạn đóng cửa sổ, tải lại trang hoặc không sử dụng trong 60 phút. Nếu bạn đồng ý 'lưu nhật ký', kết quả phân tích và ảnh khuôn mặt đã thu nhỏ sẽ được lưu trong bộ nhớ trình duyệt (IndexedDB) trên thiết bị của bạn trong thời gian lưu trữ và tự động bị xóa khi hết thời hạn." },
       { h: "4. Cách xóa", p: "Bạn có thể xóa ngay bằng 'Xóa ảnh · kết quả ngay' trên màn hình báo cáo, hoặc 'Xóa toàn bộ bản ghi' hay 'Rút lại đồng ý lưu trữ' trên màn hình nhật ký thay đổi. Dữ liệu cũng bị xóa khi bạn xóa dữ liệu trang web trong trình duyệt." },
-      { h: "5. Thống kê sử dụng ẩn danh", p: "Để cải thiện dịch vụ, chúng tôi tổng hợp ẩn danh: việc bắt đầu · thành công · thất bại của phân tích, lý do ảnh không đạt chất lượng, các mối quan tâm về da hàng đầu, liệu trình đã chọn, lượt nhấp vào liên kết sản phẩm · trải nghiệm, số lần lưu báo cáo, quốc gia truy cập (ở cấp quốc gia) và ngôn ngữ. Ảnh, điểm mốc khuôn mặt, điểm số cá nhân và địa chỉ IP không được lưu." },
+      { h: "5. Thống kê sử dụng ẩn danh", p: "Để cải thiện dịch vụ, chúng tôi tổng hợp ẩn danh: việc bắt đầu · thành công · thất bại của phân tích, lý do ảnh không đạt chất lượng, các mối quan tâm về da hàng đầu, liệu trình đã chọn, lượt nhấp vào liên kết sản phẩm · trải nghiệm, số lần lưu báo cáo, quốc gia truy cập (ở cấp quốc gia) và ngôn ngữ. Ảnh, điểm mốc khuôn mặt, điểm số cá nhân và địa chỉ IP không được lưu. Để cải thiện trải nghiệm, chúng tôi cũng thống kê ẩn danh theo nhóm: loại thiết bị (di động/PC), trang giới thiệu (chỉ tên miền), nhóm tuổi và loại da bạn chọn trước khi chụp, cách cung cấp ảnh (chụp/chọn) và phần giới thiệu công nghệ đã xem." },
       { h: "6. Huấn luyện AI", p: "Ảnh của người dùng không được dùng để huấn luyện AI." },
       { h: "7. Đối tượng sử dụng", p: "Người dưới 14 tuổi không được sử dụng dịch vụ. Chúng tôi hướng dẫn rằng trẻ vị thành niên không được vận hành thiết bị DERMA HOME." },
       { h: "8. Liên hệ", p: "UNI&CORE Co., Ltd. · Người phụ trách bảo vệ dữ liệu cá nhân · unincore@unincore.com" },

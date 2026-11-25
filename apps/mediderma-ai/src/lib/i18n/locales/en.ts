@@ -2,8 +2,8 @@ import type { Dict } from "./ko";
 
 const en: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "Scan your skin and discover the DERMA HOME care that fits you.",
     start: "Start skin analysis",
@@ -22,15 +22,20 @@ const en: Dict = {
     learnMore: "Learn more",
     notAvailable: "Not measurable",
     footerDisclaimer:
-      "MEDIDERMA AI is a service that observes skin surface features visible in a photo and provides care information. It is not a medical device and does not provide a medical diagnosis. If you suspect a skin condition, please consult a specialist.",
+      "MEDIDERMA SKIN IQ is a service that observes skin surface features visible in a photo and provides care information. It is not a medical device and does not provide a medical diagnosis. If you suspect a skin condition, please consult a specialist.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK mode — these are not real AI analysis results.",
   },
-  nav: { analyze: "Skin Analysis", compare: "Before & After", history: "Skin Log", privacy: "Privacy", dermahome: "DERMA HOME", trial: "Book a Free Trial" },
+  nav: { analyze: "Skin Analysis", compare: "Before & After", history: "Skin Log", privacy: "Privacy", dermahome: "DERMA HOME", trial: "Book a Free Trial", menu: "Menu" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
+    tagline: "A new way to understand your skin.",
+    exploreTech: "Explore DERMA HOME technology",
+    oneDevice: "One device, three technologies",
+    officialImage: "Official product image",
+    techVisualNote: "Background graphics are illustrative and do not show the actual device in operation.",
     desc: "One face photo, no sign-up. We observe skin surface features across 13 facial zones and guide you to personalized DERMA HOME care with RF (Radio Frequency), Ultrasonic and Iontophoresis.",
     onDeviceBadge: "Your photo is processed only on your device",
     uploadTitle: "Upload a photo to get started",
@@ -250,7 +255,7 @@ const en: Dict = {
   },
   report: {
     analysisInfo: "Analysis details",
-    title: "AI Skin Analysis Report",
+    title: "Skin IQ Report",
     overall: "AI Overall Skin Condition",
     overallDesc: "A weighted average of the observation indices across 13 zones. The higher the value, the more even the skin surface appears in the photo.",
     indexNote: "Photo-based observation index · Not yet clinically validated",
@@ -329,7 +334,7 @@ const en: Dict = {
   },
   compareGlance: {
     title: "Your change at a glance",
-    headlineImproved: "{n} areas look better 👏",
+    headlineImproved: "{n} areas look better",
     headlineSame: "No big change yet. Keep up your care.",
     headlineCondition: "The two photos were taken in different conditions, so it is hard to compare accurately.",
     conditionWarn: "Retake in the same place and light, facing the camera, for a more accurate result.",
@@ -345,7 +350,7 @@ const en: Dict = {
     scan: {"title": "AI is analyzing your skin in detail", "steps": ["Detecting 478 face points", "Dividing 13 skin zones", "Measuring texture and wrinkles", "Measuring pores and spots", "Analyzing tone evenness", "Matching your care"], "privacy": "Your photo is analyzed only on this device"},
     hero: {"scoreLabel": "Skin condition", "sentence": "Your skin condition from the photo scores {n} out of 100.", "skinType": "Skin type", "age": "Age range", "makeupWarn": "The photo was taken with makeup, so results may be less accurate.", "types": {"dry": "Dry", "normal": "Normal", "oily": "Oily", "combination": "Combination"}, "note": "A photo-based reference index from AI, not a medical diagnosis."},
     cards: {"title": "Skin details", "tapHint": "Tap a card for details.", "badges": ["Needs care", "Could be better", "Good", "Excellent"], "whereLabel": "Most visible in", "close": "Close"},
-    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA AI Skin Analysis]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
+    share: {"button": "Share result", "copied": "Copied. Paste it into your messenger.", "text": "[MEDIDERMA SKIN IQ]\nSkin condition {score}/100\nCare first: {weak}\nRecommended: {products}\nTry it 👉 {url}"},
   },
   care: {
     title: "Personalized DERMA HOME Care",
@@ -615,6 +620,7 @@ const en: Dict = {
     disabled: "You have not consented to keeping a history.",
     enable: "Consent to keeping a history",
   },
+  iq: {"slow": "This is taking longer than usual. Wait a little longer or try again.", "decoding": "Decoding your skin data", "complete": "Analysis complete", "skip": "Tap to see your results", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "Analysis details", "sub": "The real measurements behind this result. Your photo was processed only on this device.", "landmarks": "Face landmarks", "zonesAnalyzed": "Zones analyzed", "metricsComputed": "Metrics computed", "duration": "Analysis time", "sec": "s", "capture": "Capture conditions", "pose": "Face angle", "yaw": "Turn", "pitch": "Tilt up/down", "roll": "Tilt sideways", "faceSize": "Face width", "imageSize": "Original resolution", "zoneConf": "Confidence by zone", "excluded": "Excluded zones", "none": "None", "ideal": "0° = facing forward"},
   privacy: {
     title: "Privacy Notice",
     updated: "Effective date: 2026-11-13",
@@ -623,7 +629,7 @@ const en: Dict = {
       { h: "2. Where your photo is processed", p: "Face detection and skin observation calculations all run inside your browser. Your photo and facial landmarks are not sent to our servers or to external AI services. If server-based or external AI analysis features are added in the future, we will obtain separate, explicit consent before anything is sent." },
       { h: "3. Retention period and automatic deletion", p: "With default (non-member) use, your photo and results exist only in browser memory and are deleted when you close or refresh the window, or after 60 minutes of inactivity. If you consent to “keeping a history”, your analysis results and a downsized face photo are stored in your device's browser storage (IndexedDB) for the retention period and deleted automatically once it has passed." },
       { h: "4. How to delete", p: "You can delete your data immediately with “Delete photo & results now” on the report screen, or “Delete all records” or “Withdraw consent” on the Skin Log screen. Clearing site data in your browser also removes it." },
-      { h: "5. Anonymous usage statistics", p: "To improve the service, we anonymously aggregate whether analyses were started, succeeded or failed, reasons for insufficient quality, top skin concern items, care selected, clicks on product and trial links, the number of report saves, and the country (country level only) and language of access. We do not store photos, facial landmarks, individual scores or IP addresses." },
+      { h: "5. Anonymous usage statistics", p: "To improve the service, we anonymously aggregate whether analyses were started, succeeded or failed, reasons for insufficient quality, top skin concern items, care selected, clicks on product and trial links, the number of report saves, and the country (country level only) and language of access. We do not store photos, facial landmarks, individual scores or IP addresses. To improve the flow, we also count, anonymously and only as categories, the device type (mobile/PC), the referring site (domain only), the age band and skin type you pick before the photo, how the photo was provided (camera/upload) and which technology scenes were viewed." },
       { h: "6. AI training", p: "We do not use your photos to train AI." },
       { h: "7. Who can use the service", p: "This service is not available to children under 14. We advise that the DERMA HOME device must not be operated by minors." },
       { h: "8. Contact", p: "UNI&CORE Co., Ltd. · Privacy Officer · unincore@unincore.com" },

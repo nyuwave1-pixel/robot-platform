@@ -5,8 +5,8 @@
  */
 const ko = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "당신의 피부를 분석하고, 나에게 맞는 더마홈 케어를 발견하다.",
     start: "피부 분석 시작",
@@ -25,15 +25,20 @@ const ko = {
     learnMore: "자세히 보기",
     notAvailable: "측정 불가",
     footerDisclaimer:
-      "MEDIDERMA AI는 사진에 보이는 피부 표면 특징을 관찰해 관리 정보를 제공하는 서비스이며, 의료기기나 의료적 진단이 아닙니다. 피부 질환이 의심되면 전문의와 상담하세요.",
+      "MEDIDERMA SKIN IQ는 사진에 보이는 피부 표면 특징을 관찰해 관리 정보를 제공하는 서비스이며, 의료기기나 의료적 진단이 아닙니다. 피부 질환이 의심되면 전문의와 상담하세요.",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK 모드 — 실제 AI 분석 결과가 아닙니다.",
   },
-  nav: { analyze: "피부 분석", compare: "전후 비교", history: "변화 기록", privacy: "개인정보 안내", dermahome: "더마홈", trial: "무료 체험 예약" },
+  nav: { analyze: "피부 분석", compare: "전후 비교", history: "변화 기록", privacy: "개인정보 안내", dermahome: "더마홈", trial: "무료 체험 예약", menu: "메뉴" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
+    tagline: "당신의 피부를 이해하는 새로운 방식.",
+    exploreTech: "더마홈 기술 보기",
+    oneDevice: "하나의 기기, 세 가지 기술",
+    officialImage: "공식 제품 이미지",
+    techVisualNote: "배경 그래픽은 기술을 설명하기 위한 연출이며, 실제 기기의 작동 모습이 아닙니다.",
     desc: "회원가입 없이 얼굴 사진 한 장으로. 13개 얼굴 영역의 피부 표면 특징을 관찰하고, 더마홈 RF · 울트라소닉 · 이온토포레시스 맞춤 케어를 안내합니다.",
     onDeviceBadge: "사진은 내 기기 안에서만 처리됩니다",
     uploadTitle: "사진을 올려 바로 시작하세요",
@@ -253,7 +258,7 @@ const ko = {
   },
   report: {
     analysisInfo: "분석 정보",
-    title: "AI 피부 분석 리포트",
+    title: "SKIN IQ 피부 리포트",
     overall: "AI 피부 종합 컨디션",
     overallDesc: "13개 영역의 관찰 지수를 가중 평균한 값입니다. 높을수록 사진상 피부 표면이 고르게 보입니다.",
     indexNote: "사진 기반 관찰 지수 · 임상 검증 전",
@@ -332,7 +337,7 @@ const ko = {
   },
   compareGlance: {
     title: "한눈에 보는 변화",
-    headlineImproved: "{n}곳이 좋아졌어요 👏",
+    headlineImproved: "{n}곳이 좋아졌어요",
     headlineSame: "아직 큰 변화는 없어요. 꾸준히 관리해 보세요.",
     headlineCondition: "두 사진의 찍은 조건이 달라서 정확히 비교하기 어려워요.",
     conditionWarn: "같은 장소, 같은 불빛, 정면 얼굴로 다시 찍으면 더 정확해요.",
@@ -348,7 +353,7 @@ const ko = {
     scan: {"title": "AI가 피부를 정밀 분석하고 있어요", "steps": ["얼굴 478개 포인트 인식", "13개 피부 영역 나누기", "피부결·주름 측정", "모공·잡티 측정", "피부 톤 균일감 분석", "맞춤 케어 매칭"], "privacy": "사진은 이 기기 안에서만 분석됩니다"},
     hero: {"scoreLabel": "피부 컨디션", "sentence": "사진으로 본 피부 컨디션은 100점 기준 {n}점이에요.", "skinType": "피부 타입", "age": "연령대", "makeupWarn": "화장을 한 상태로 찍어 결과가 덜 정확할 수 있어요.", "types": {"dry": "건성", "normal": "중성", "oily": "지성", "combination": "복합성"}, "note": "AI가 사진에서 관찰한 참고 지수이며, 의학적 진단이 아닙니다."},
     cards: {"title": "피부 세부 정보", "tapHint": "카드를 누르면 자세한 설명이 나와요.", "badges": ["관리 필요", "조금 아쉬움", "좋음", "훌륭함"], "whereLabel": "가장 눈에 띈 곳", "close": "닫기"},
-    share: {"button": "결과 공유하기", "copied": "공유할 내용을 복사했어요. 카카오톡 등에 붙여넣기 하세요.", "text": "[MEDIDERMA AI 피부 분석]\n피부 컨디션 {score}점\n먼저 관리할 곳: {weak}\n추천 제품: {products}\n나도 분석해 보기 👉 {url}"},
+    share: {"button": "결과 공유하기", "copied": "공유할 내용을 복사했어요. 카카오톡 등에 붙여넣기 하세요.", "text": "[MEDIDERMA SKIN IQ]\n피부 컨디션 {score}점\n먼저 관리할 곳: {weak}\n추천 제품: {products}\n나도 분석해 보기 👉 {url}"},
   },
   care: {
     title: "더마홈 맞춤 케어",
@@ -618,6 +623,7 @@ const ko = {
     disabled: "기록 보관에 동의하지 않았습니다.",
     enable: "기록 보관 동의",
   },
+  iq: {"slow": "평소보다 오래 걸리고 있어요. 잠시 더 기다리거나 다시 시도해 주세요.", "decoding": "피부 데이터 해독 중", "complete": "분석 완료", "skip": "탭하면 결과로 넘어갑니다", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "분석 내역", "sub": "이 결과를 만든 실제 측정값입니다. 사진은 내 기기 안에서만 처리됐습니다.", "landmarks": "얼굴 랜드마크", "zonesAnalyzed": "분석된 영역", "metricsComputed": "계산된 지표", "duration": "분석 시간", "sec": "초", "capture": "촬영 조건", "pose": "얼굴 각도", "yaw": "좌우 회전", "pitch": "상하 기울기", "roll": "좌우 기울기", "faceSize": "얼굴 폭", "imageSize": "원본 해상도", "zoneConf": "영역별 신뢰도", "excluded": "제외된 영역", "none": "없음", "ideal": "정면 기준 0°"},
   privacy: {
     title: "개인정보 처리 안내",
     updated: "시행일: 2026-11-13",
@@ -626,7 +632,7 @@ const ko = {
       { h: "2. 사진은 어디에서 처리되나요", p: "얼굴 인식과 피부 관찰 계산은 모두 이용자의 브라우저 안에서 실행됩니다. 사진과 얼굴 랜드마크는 당사 서버나 외부 AI 서비스로 전송되지 않습니다. 향후 서버·외부 AI 분석 기능이 추가될 경우, 전송 전에 별도의 명시적 동의를 받습니다." },
       { h: "3. 보관 기간과 자동 삭제", p: "기본(비회원) 이용 시 사진과 결과는 브라우저 메모리에만 있으며, 창을 닫거나 새로 고치거나 60분 동안 사용하지 않으면 삭제됩니다. '기록 보관'에 동의하면 분석 결과와 축소된 얼굴 사진이 이용자 기기의 브라우저 저장소(IndexedDB)에 보관 기간 동안 저장되고, 기간이 지나면 자동 삭제됩니다." },
       { h: "4. 삭제 방법", p: "리포트 화면의 '사진·결과 지금 삭제', 변화 기록 화면의 '모든 기록 삭제' 또는 '보관 동의 철회'로 즉시 삭제할 수 있습니다. 브라우저의 사이트 데이터 삭제로도 지워집니다." },
-      { h: "5. 익명 이용 통계", p: "서비스 개선을 위해 분석 시작·성공·실패 여부, 품질 미달 사유, 상위 피부 고민 항목, 선택한 케어, 제품·체험 링크 클릭, 리포트 저장 횟수, 접속 국가(국가 단위)와 언어를 익명으로 집계합니다. 사진, 얼굴 랜드마크, 개별 점수, IP 주소는 저장하지 않습니다." },
+      { h: "5. 익명 이용 통계", p: "서비스 개선을 위해 분석 시작·성공·실패 여부, 품질 미달 사유, 상위 피부 고민 항목, 선택한 케어, 제품·체험 링크 클릭, 리포트 저장 횟수, 접속 국가(국가 단위)와 언어를 익명으로 집계합니다. 사진, 얼굴 랜드마크, 개별 점수, IP 주소는 저장하지 않습니다. 이용 흐름을 개선하기 위해 기기 종류(모바일·PC), 유입 경로(참조 사이트의 도메인만), 촬영 전에 고른 연령대·피부 타입, 사진 입력 방식(촬영·선택), 살펴본 기술 소개도 익명 범주로만 집계합니다." },
       { h: "6. AI 학습", p: "이용자의 사진을 AI 학습에 사용하지 않습니다." },
       { h: "7. 이용 대상", p: "만 14세 미만은 이용할 수 없습니다. 더마홈 기기는 미성년자가 작동하지 않도록 안내하고 있습니다." },
       { h: "8. 문의", p: "주식회사 유니앤코어 · 개인정보보호책임자 · unincore@unincore.com" },

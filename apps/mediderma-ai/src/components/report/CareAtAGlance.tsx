@@ -8,8 +8,9 @@
  *  ④ 결과 확인: 4주 뒤 같은 조건으로 다시 찍어 전후 비교
  * 관리 방법은 모두 공식 CARE GUIDE 루틴(knowledge.ts ROUTINES)의 실제 단계에서 가져온다.
  */
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { ROUTINES, PRODUCTS, type ProductId, type RoutineId, type Technology } from "@/lib/care/knowledge";
 import type { CarePlan } from "@/lib/care/recommend";
@@ -65,36 +66,48 @@ export function Radar({ values, weak, labels, before, testId = "glance-radar" }:
   return (
     <svg viewBox="0 0 320 320" className="mx-auto w-full max-w-[380px]" role="img" aria-label={labels.join(", ")} data-testid={testId}>
       {[25, 50, 75, 100].map((r) => (
-        <polygon key={r} points={values.map((_, i) => pt(i, r).join(",")).join(" ")} fill="none" stroke="#1f2a36" strokeWidth={r === 100 ? 1.4 : 1} />
+        <polygon key={r} points={values.map((_, i) => pt(i, r).join(",")).join(" ")} fill="none" stroke="#c9d1d8" strokeWidth={r === 100 ? 1.4 : 1} />
       ))}
       {values.map((_, i) => {
         const [x, y] = pt(i, 100);
-        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#1f2a36" />;
+        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="#dce1e5" />;
       })}
       {before && <polygon points={before.map((v, i) => pt(i, v ?? 0).join(",")).join(" ")} fill="rgba(148,163,184,0.10)" stroke="#94a3b8" strokeWidth={1.8} strokeDasharray="5 4" />}
-      <motion.polygon
+      <m.polygon
         points={poly}
-        fill="rgba(79,182,255,0.22)"
-        stroke="#7dd3fc"
+        fill="rgba(108,174,208,0.28)"
+        stroke="#3b8fb8"
         strokeWidth={2.2}
         initial={{ scale: 0.2, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1, ease: [0.2, 0.75, 0.2, 1] }}
-        style={{ transformOrigin: `${C}px ${C}px`, filter: "drop-shadow(0 0 8px rgba(79,182,255,0.5))" }}
+        style={{ transformOrigin: `${C}px ${C}px`, filter: "drop-shadow(0 0 8px rgba(108,174,208,0.45))" }}
       />
       {values.map((v, i) => {
         if (v === null) return null;
         const [x, y] = pt(i, v);
-        return <circle key={i} cx={x} cy={y} r={weak.has(i) ? 6 : 3.5} fill={weak.has(i) ? "#fcd34d" : "#e0f2fe"} stroke={weak.has(i) ? "#05070a" : "none"} strokeWidth={1.5} />;
+        return <circle key={i} cx={x} cy={y} r={weak.has(i) ? 6 : 3.5} fill={weak.has(i) ? "#f59e0b" : "#ffffff"} stroke={weak.has(i) ? "#20252b" : "#3b8fb8"} strokeWidth={1.5} />;
       })}
       {labels.map((l, i) => {
         const [x, y] = pt(i, 128);
         const v = values[i];
         const b = before?.[i];
+        // 정확히 좌우에 놓이는 이름은 길면 그래프 밖으로 잘린다(베트남어·러시아어 등) → 가운데에 가까운 빈칸에서 두 줄로 나눈다
+        const side = Math.abs(Math.cos(-Math.PI / 2 + (i * 2 * Math.PI) / N)) > 0.9;
+        let lines = [l];
+        if (side && l.length > 7 && l.includes(" ")) {
+          const cuts = [...l].map((ch, k) => (ch === " " ? k : -1)).filter((k) => k > 0);
+          const cut = cuts.reduce((best, k) => (Math.abs(k - l.length / 2) < Math.abs(best - l.length / 2) ? k : best), cuts[0]);
+          lines = [l.slice(0, cut), l.slice(cut + 1)];
+        }
         return (
-          <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#fde68a" : "#f1f5f9"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
-            {l}
-            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#fde68a" : "#7dd3fc"}>
+          <text key={i} x={x} y={y - (lines.length - 1) * 8} textAnchor="middle" dominantBaseline="middle" fill={weak.has(i) ? "#b45309" : "#20252b"} style={{ fontSize: 15, fontWeight: weak.has(i) ? 800 : 600 }}>
+            {lines.map((line, k) => (
+              <tspan key={k} x={x} dy={k === 0 ? 0 : 16}>
+                {line}
+              </tspan>
+            ))}
+            <tspan x={x} dy={17} style={{ fontSize: 14, fontWeight: 500 }} fill={weak.has(i) ? "#b45309" : "#246f96"}>
               {before ? `${b ?? "—"}→${v ?? "—"}` : (v ?? "—")}
             </tspan>
           </text>
@@ -146,12 +159,12 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                     <span className="block text-xl font-bold">{g.axes[AXES[i].id]}</span>
                     <span className="block text-base text-amber-100/90">{g.levels[level(v)]}</span>
                   </span>
-                  <span className="text-3xl font-light tabular-nums">{v}</span>
+                  <span className="text-3xl font-normal tabular-nums">{v}</span>
                 </li>
               ))}
             </ol>
           )}
-          <p className="mt-3 text-sm text-silver/70">{g.scaleNote}</p>
+          <p className="mt-3 text-sm text-silver-soft">{g.scaleNote}</p>
         </div>
       </div>
 
@@ -170,7 +183,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                 <article key={c.key} className="flex flex-col rounded-3xl border border-line bg-ink/60 p-5" data-testid="glance-card">
                   <p className="text-lg font-bold text-amber-200">{c.axes.map((a) => g.axes[a]).join(" · ")}</p>
                   <p className="mt-1 text-lg">
-                    <span className="mr-1">{r.time === "night" ? "🌙" : "☀️"}</span>
+                    <Icon name={r.time === "night" ? "moon" : "sun"} size={16} className="mr-1" />
                     <b>{g.when[r.time]}</b> · {freq}
                   </p>
 
@@ -199,7 +212,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
                     {!blocked && (
                       <div className="rounded-2xl bg-white/5 p-3">
                         <p className="text-sm text-silver">{g.step3}</p>
-                        <p className="mt-0.5 text-lg leading-snug">👉 {kb.directions[dirIdx]}</p>
+                        <p className="mt-0.5 text-lg leading-snug"><Icon name="arrowRight" size={18} className="mr-1 text-brand" />{kb.directions[dirIdx]}</p>
                       </div>
                     )}
                   </div>
@@ -208,7 +221,7 @@ export default function CareAtAGlance({ categories, plan }: { categories: Catego
               );
             })}
           </div>
-          <p className="mt-3 text-base text-scan2">✓ {g.finish}</p>
+          <p className="mt-3 text-base text-scan2"><Icon name="checkCircle" size={18} className="mr-1" />{g.finish}</p>
         </div>
       )}
 

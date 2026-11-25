@@ -12,13 +12,20 @@ export const LANDMARK_MODEL = "mediapipe-face-landmarker-float16-v1";
 const MAX_SIDE = 2048;
 
 let landmarkerPromise: Promise<FaceLandmarker> | null = null;
+/** 모델(약 13MB) 다운로드 + 초기화 제한 시간 */
+const LOAD_TIMEOUT_MS = 45_000;
+
+/** 시간 초과 등으로 멈춘 초기화를 버리고 다음 시도 때 새로 만든다 */
+export function resetLandmarker(): void {
+  landmarkerPromise = null;
+}
 
 export function getLandmarker(): Promise<FaceLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = (async () => {
       const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
       const fileset = await FilesetResolver.forVisionTasks("/mediapipe");
-      return FaceLandmarker.createFromOptions(fileset, {
+      const create = FaceLandmarker.createFromOptions(fileset, {
         // CPU 델리게이트: 기기·GPU 에 따른 결과 편차를 없애 동일 이미지 → 동일 결과를 보장
         baseOptions: { modelAssetPath: "/models/face_landmarker.task", delegate: "CPU" },
         runningMode: "IMAGE",
@@ -26,6 +33,11 @@ export function getLandmarker(): Promise<FaceLandmarker> {
         outputFaceBlendshapes: true,
         outputFacialTransformationMatrixes: true,
       });
+      // 일부 기기에서 모델 초기화가 끝나지 않고 멈추는 경우가 있어 시간 제한을 둔다 (실패하면 다음 시도 때 새로 만든다)
+      return await Promise.race([
+        create,
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("model load timeout")), LOAD_TIMEOUT_MS)),
+      ]);
     })();
     landmarkerPromise.catch(() => {
       landmarkerPromise = null;

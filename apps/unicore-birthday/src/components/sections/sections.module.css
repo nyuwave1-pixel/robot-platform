@@ -421,3 +421,19 @@ html[lang="en"] .pepBig { font-size: clamp(36px, 5.6vw, 92px); }
   .chap, .hotspot b, .heroFrameCap, .nobelEyebrow, .nobelBadge, .heroGrid .heroEyebrow, .finalEyebrow, .sciFig figcaption,
   .ingIdx, .layer b, .conceptTag, .surveyTag, .step b, .lineupItem i, .routine, .bar span, .footPanel summary { font-size: 12px; }
 }
+
+/* 피부장벽 — 레시틴 2.5% (2026-11-23) */
+.barrier { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 20%, #3a2619 0%, #1a130e 55%, #0d0a08 100%); }
+.barrierBig { margin: 0; font-size: clamp(56px, 8vw, 112px); line-height: 1; letter-spacing: -0.02em; }
+.barrierBig b { color: var(--gold-metal); font-weight: 600; }
+.barrierPair { margin: -4px 0 0; color: var(--muted, #b9b0a4); }
+.barrierList { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.barrierList li { padding-left: 14px; border-left: 1px solid var(--line); color: var(--ivory); line-height: 1.55; }
+.barrierList li.barrierKey { border-left: 2px solid var(--gold-metal); color: var(--gold-metal); font-weight: 600; }
+.barrierCica { margin: 6px 0 0; font-size: 13px; line-height: 1.6; color: var(--muted, #b9b0a4); }
+.barrierCica b { color: var(--ivory); font-weight: 500; }
+.lecFig { margin: 0; width: min(100%, 460px); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); }
+.lecFig img { width: 100%; height: auto; display: block; }
+@media (max-width: 767px) {
+  .barrierCica { font-size: 12px; }
+}

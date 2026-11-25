@@ -1,7 +1,8 @@
 "use client";
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { fmt, useI18n } from "@/lib/i18n";
 import { useApp } from "@/lib/client/store";
 import { track } from "@/lib/client/telemetry";
@@ -9,7 +10,7 @@ import { hasHistoryConsent, setHistoryConsent } from "@/lib/client/session";
 import { AnalysisError, runFaceAnalysis, runNeckAnalysis } from "@/lib/client/runAnalysis";
 import { buildCarePlan } from "@/lib/care/recommend";
 import type { ProgressStage, ProviderOutput } from "@/lib/analysis/provider";
-import type { ImageQuality, SurveyAnswers, ZoneResult } from "@/lib/analysis/types";
+import type { AnalysisResult, ImageQuality, SurveyAnswers, VisualData, ZoneResult } from "@/lib/analysis/types";
 import UploadBox from "./UploadBox";
 import Survey from "./Survey";
 import Report from "./report/Report";
@@ -33,7 +34,7 @@ function ReportProblem({ context }: { context: string }) {
       <button onClick={() => setOpen((v) => !v)} className="text-xs text-silver underline underline-offset-4" data-testid="report-problem">{t.errors.reportTitle}</button>
       {open && (
         <div className="mt-2 rounded-xl border border-line bg-panel p-3">
-          <p className="text-[11px] text-silver">{t.errors.reportDesc}</p>
+          <p className="text-xs text-silver">{t.errors.reportDesc}</p>
           <textarea value={msg} onChange={(e) => setMsg(e.target.value.slice(0, 1000))} placeholder={t.errors.reportPlaceholder} rows={3} className="mt-2 w-full rounded-lg border border-line bg-black p-2 text-sm focus:outline-none focus:ring-1 focus:ring-scan" />
           <button
             disabled={msg.trim().length < 3}
@@ -58,6 +59,8 @@ export default function AnalyzeFlow() {
   const [stage, setStage] = useState<ProgressStage>("loading_model");
   const [quality, setQuality] = useState<ImageQuality | null>(null);
   const [errorCode, setErrorCode] = useState<AnalysisError["code"] | null>(null);
+  /** 오류 화면에 보여 줄 진단 코드 (예: timeout:detecting) */
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [neckFile, setNeckFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const pending = useRef<{ out: ProviderOutput; neck: ZoneResult | null } | null>(null);
@@ -65,6 +68,11 @@ export default function AnalyzeFlow() {
   const [chosen, setChosen] = useState<File | null>(null);
   const visualDone = useRef<(() => void) | null>(null);
   const visualFinished = useRef(false);
+  const [reveal, setReveal] = useState<{ visual: VisualData; result: AnalysisResult } | null>(null);
+  const startedAt = useRef(0);
+  /** 사용자가 기다리다 취소하면 늦게 끝난 분석 결과는 버린다 */
+  const cancelled = useRef(false);
+  const durationMs = useRef<number | null>(null);
   // 단계가 바뀌면 화면 맨 위(단계 표시·제목)부터 보이게
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -87,6 +95,8 @@ export default function AnalyzeFlow() {
     async (file: File) => {
       visualFinished.current = false;
       visualDone.current = null;
+      setReveal(null);
+      cancelled.current = false;
       setStep("running");
       setStage("loading_model");
       setErrorCode(null);
@@ -96,7 +106,10 @@ export default function AnalyzeFlow() {
       });
       track("analysis_started");
       try {
+        startedAt.current = performance.now();
         const out = await runFaceAnalysis(file, sessionId, config, setStage);
+        durationMs.current = performance.now() - startedAt.current;
+        if (cancelled.current) return;
         setQuality(out.result.imageQuality);
         if (!out.result.imageQuality.passed || !out.visual) {
           const first = out.result.imageQuality.issues.find((i) => i.severity === "blocker");
@@ -107,6 +120,8 @@ export default function AnalyzeFlow() {
         const neck = neckFile ? await runNeckAnalysis(neckFile, config) : null;
         track("analysis_succeeded", { concerns: out.result.analysis.topConcerns.map((c) => c.metric), needsRetake: out.result.analysis.needsRetake });
         pending.current = { out, neck };
+        // 스캔 연출이 끝나면 실제 결과로 '분석 완료 연출'을 보여 준다
+        setReveal({ visual: out.visual, result: out.result });
         // 스캔 연출이 100% 를 채운 뒤 넘어간다
         await new Promise<void>((resolve) => {
           if (visualFinished.current) return resolve();
@@ -115,9 +130,11 @@ export default function AnalyzeFlow() {
         });
         setStep("survey");
       } catch (e) {
+        if (cancelled.current) return;
         const code = e instanceof AnalysisError ? e.code : "analysisFailed";
-        track("analysis_failed", { reason: code });
+        track("analysis_failed", { reason: e instanceof AnalysisError && e.detail ? `${code}:${e.detail}` : code });
         setErrorCode(code);
+        setErrorDetail(e instanceof AnalysisError ? (e.detail ?? null) : String((e as Error)?.message ?? e).slice(0, 60));
         setStep("error");
       }
     },
@@ -131,7 +148,7 @@ export default function AnalyzeFlow() {
     const result = { ...p.out.result, survey: survey ? { ...survey, deviceContraindication: false } : null, careRecommendations: plan.recommendations };
     if (survey) track("survey_submitted");
     track("care_selected", { routine: plan.night ?? "none", tech: plan.recommendations.map((r) => r.technology) });
-    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile });
+    setAnalysis({ result, visual: p.out.visual, survey, plan, neck: p.neck, profile, durationMs: durationMs.current });
     pending.current = null;
     setStep("report");
     window.scrollTo({ top: 0 });
@@ -144,6 +161,7 @@ export default function AnalyzeFlow() {
     }
     consented.current = true;
     setHistoryConsent(keep);
+    track("consent_given", { history: keep });
     setStep("profile");
   };
   const choose = (f: File) => {
@@ -156,6 +174,12 @@ export default function AnalyzeFlow() {
   };
   const afterProfile = (p: ScanProfile) => {
     setProfile(p);
+    track("profile_done", {
+      ...(p.forWhom ? { who: p.forWhom } : {}),
+      ...(p.makeup !== null ? { makeup: p.makeup } : {}),
+      ...(p.age !== null ? { age: String(p.age) } : {}),
+      ...(p.skinType ? { skin: p.skinType } : {}),
+    });
     if (pendingFile) {
       const f = pendingFile;
       setPendingFile(null);
@@ -191,32 +215,33 @@ export default function AnalyzeFlow() {
     <>
     <StepBar current={step === "consent" ? 0 : step === "profile" ? 1 : 2} />
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <AnimatePresence mode="wait">
-        <motion.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+      {/* 이전 화면의 퇴장 애니메이션을 기다리지 않는다 — 기기가 바쁠 때(분석 중 취소 등) 새 화면이 반투명하게 걸려 버튼이 안 눌리는 문제 방지 */}
+      <AnimatePresence initial={false}>
+        <m.div key={step} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
           {step === "consent" && (
             <div data-testid="consent">
               <h1 className="text-2xl font-bold sm:text-3xl">{t.consent.title}</h1>
               <label
                 className={`mt-5 flex cursor-pointer gap-4 rounded-2xl border-2 p-5 transition ${agree ? "border-scan bg-scan/10" : consentError ? "border-rose-400/70 bg-rose-400/5" : "border-line bg-panel hover:border-silver/50"}`}
               >
-                <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#4fb6ff]" />
+                <input type="checkbox" data-testid="consent-required" checked={agree} onChange={(e) => { setAgree(e.target.checked); setConsentError(false); }} className="mt-1 h-7 w-7 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">
                   {t.consent.processing}
-                  {!agree && <span className="mt-2 block text-sm font-semibold text-scan2">👆 {t.consent.tapHint}</span>}
+                  {!agree && <span className="mt-2 block text-sm font-semibold text-scan2"><Icon name="tap" size={18} className="mr-1" />{t.consent.tapHint}</span>}
                   {config.aiInsight.available && <span className="mt-1 block text-sm text-silver">{t.ai.exception}</span>}
                 </span>
               </label>
               <label className="mt-3 flex cursor-pointer gap-4 rounded-2xl border border-line bg-panel p-5 text-silver">
-                <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#4fb6ff]" />
+                <input type="checkbox" data-testid="consent-history" checked={keep} onChange={(e) => setKeep(e.target.checked)} className="mt-1 h-6 w-6 shrink-0 accent-[#3b8fb8]" />
                 <span className="text-base leading-relaxed">{fmt(t.consent.history, { days: config.retention.historyDays })}</span>
               </label>
-              <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver/80">
+              <div className="mt-3 space-y-1 px-1 text-sm leading-relaxed text-silver">
                 <p>{t.consent.stats}</p>
                 <p>{t.consent.age}</p>
                 <Link href="/privacy" className="inline-block text-scan2 underline underline-offset-4">{t.consent.details}</Link>
               </div>
               {consentError && <p role="alert" className="mt-3 text-base text-rose-300" data-testid="consent-error">{t.consent.required}</p>}
-              <button onClick={acceptConsent} data-testid="consent-agree" className={`mt-5 w-full rounded-full px-8 py-4 text-lg font-bold transition sm:w-auto ${agree ? "bg-white text-black hover:bg-scan2" : "bg-white/30 text-black/70"}`}>{t.consent.agree} →</button>
+              <button onClick={acceptConsent} data-testid="consent-agree" className={`mt-5 w-full rounded-full px-8 py-4 text-lg font-bold transition sm:w-auto ${agree ? "bg-white text-black hover:bg-scan2" : "bg-line text-silver"}`}>{t.consent.agree} →</button>
             </div>
           )}
 
@@ -230,10 +255,10 @@ export default function AnalyzeFlow() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {preview && <img src={preview} alt="" className="h-full w-full object-cover" />}
               </div>
-              {profile.makeup && <p className="mx-auto mt-3 max-w-sm rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100">💡 {t.fit.pf.makeup.note}</p>}
+              {profile.makeup && <p className="mx-auto mt-3 max-w-sm rounded-2xl bg-amber-300/10 p-3 text-base text-amber-100"><Icon name="bulb" size={18} className="mr-1.5" />{t.fit.pf.makeup.note}</p>}
               <div className="mx-auto mt-5 grid max-w-sm gap-3">
-                <button onClick={() => run(chosen)} data-testid="photo-confirm" className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2">✓ {t.fit.confirm.ok}</button>
-                <button onClick={() => { setChosen(null); setStep("capture"); }} data-testid="photo-again" className="rounded-full border-2 border-silver/40 px-8 py-4 text-lg text-white">↺ {t.fit.confirm.again}</button>
+                <button onClick={() => run(chosen)} data-testid="photo-confirm" className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black hover:bg-scan2"><Icon name="check" size={20} strokeWidth={2} className="mr-1.5" />{t.fit.confirm.ok}</button>
+                <button onClick={() => { setChosen(null); setStep("capture"); }} data-testid="photo-again" className="rounded-full border-2 border-silver/40 px-8 py-4 text-lg text-white"><Icon name="refresh" size={20} className="mr-1.5" />{t.fit.confirm.again}</button>
               </div>
             </div>
           )}
@@ -243,9 +268,9 @@ export default function AnalyzeFlow() {
               <h1 className="text-2xl font-bold sm:text-3xl">{t.capture.easyTitle}</h1>
               <p className="mt-2 text-base text-silver">{t.capture.easyDesc}</p>
               <ul className="mt-4 grid grid-cols-3 gap-2" data-testid="capture-tips">
-                {t.capture.tips.map(([icon, label]) => (
+                {t.capture.tips.map(([, label], ti) => (
                   <li key={label} className="rounded-2xl border border-line bg-panel px-2 py-3 text-center">
-                    <span className="block text-3xl">{icon}</span>
+                    <Icon name={(["sun", "face", "glasses"] as const)[ti] ?? "sparkle"} size={30} strokeWidth={1.3} className="mx-auto block text-brand" />
                     <span className="mt-1 block text-sm font-semibold leading-tight">{label}</span>
                   </li>
                 ))}
@@ -257,7 +282,7 @@ export default function AnalyzeFlow() {
                 <summary className="cursor-pointer text-base font-semibold">{t.capture.moreTips}</summary>
                 <ul className="mt-2 space-y-1.5 text-sm text-silver">
                   {t.capture.guide.map((g, i) => (
-                    <li key={i} className="flex gap-2"><span className="text-scan2">✓</span>{g}</li>
+                    <li key={i} className="flex gap-2"><Icon name="check" size={18} strokeWidth={2} className="mt-0.5 text-scan2" />{g}</li>
                   ))}
                 </ul>
               </details>
@@ -266,7 +291,7 @@ export default function AnalyzeFlow() {
                 <p className="mt-2 text-sm leading-relaxed text-silver">{t.capture.neckDesc}</p>
                 {neckFile ? (
                   <p className="mt-2 text-sm text-scan2">
-                    ✓ {t.capture.neckAdded}{" "}
+                    <Icon name="checkCircle" size={18} className="mr-1 text-scan2" />{t.capture.neckAdded}{" "}
                     <button onClick={() => setNeckFile(null)} className="ml-2 text-silver underline">{t.capture.neckRemove}</button>
                   </p>
                 ) : (
@@ -279,7 +304,7 @@ export default function AnalyzeFlow() {
             </div>
           )}
 
-          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} />}
+          {step === "running" && <ScanStage preview={preview} stage={stage} minMs={reduceMotion ? 1500 : 6500} onVisualDone={onVisualDone} reveal={reveal} onCancel={() => { cancelled.current = true; setStep("capture"); }} />}
 
           {step === "failed" && quality && (
             <div data-testid="quality-failed">
@@ -296,7 +321,7 @@ export default function AnalyzeFlow() {
                 <p className="text-sm font-semibold">{t.capture.guideTitle}</p>
                 <ul className="mt-2 grid gap-1 text-xs text-silver sm:grid-cols-2">
                   {t.capture.guide.map((g, i) => (
-                    <li key={i}>✓ {g}</li>
+                    <li key={i} className="flex gap-2"><Icon name="check" size={16} strokeWidth={2} className="mt-0.5 shrink-0" />{g}</li>
                   ))}
                 </ul>
               </div>
@@ -308,11 +333,12 @@ export default function AnalyzeFlow() {
           {step === "error" && (
             <div className="text-center" data-testid="analysis-error">
               <p role="alert" className="rounded-xl border border-rose-400/50 bg-rose-400/10 p-4 text-sm text-rose-100">{t.errors[errorCode ?? "analysisFailed"]}</p>
+              {errorDetail && <p className="mt-2 font-mono text-[11px] text-silver-soft" data-testid="error-diag">CODE {errorDetail.toUpperCase()}</p>}
               <button onClick={() => setStep("capture")} className="mt-5 rounded-full bg-white px-8 py-3 text-sm font-semibold text-black">{t.common.retake}</button>
-              <ReportProblem context={`error:${errorCode}`} />
+              <ReportProblem context={`error:${errorCode}${errorDetail ? `:${errorDetail}` : ""}`} />
             </div>
           )}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
     </>

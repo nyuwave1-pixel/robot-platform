@@ -1,5 +1,5 @@
 "use client";
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { m, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import type { ReactNode } from "react";
 
 /** 포인터를 따라 기울어지는 3D 카드 + 포인터 위치 조명 */
@@ -11,7 +11,7 @@ export function Tilt({ children, className = "", max = 9 }: { children: ReactNod
   const my = useMotionValue(50);
   const glow = useMotionTemplate`radial-gradient(420px circle at ${mx}% ${my}%, rgba(127,224,255,0.16), transparent 60%)`;
   return (
-    <motion.div
+    <m.div
       className={`relative [transform-style:preserve-3d] ${className}`}
       style={{ rotateX: rx, rotateY: ry, transformPerspective: 900 }}
       onPointerMove={(e) => {
@@ -30,8 +30,8 @@ export function Tilt({ children, className = "", max = 9 }: { children: ReactNod
       }}
     >
       {children}
-      <motion.div aria-hidden className="pointer-events-none absolute inset-0 rounded-[inherit]" style={{ background: glow }} />
-    </motion.div>
+      <m.div aria-hidden className="pointer-events-none absolute inset-0 rounded-[inherit]" style={{ background: glow }} />
+    </m.div>
   );
 }
 
@@ -41,7 +41,7 @@ export function Magnetic({ children, strength = 0.3 }: { children: ReactNode; st
   const x = useSpring(0, { stiffness: 220, damping: 14 });
   const y = useSpring(0, { stiffness: 220, damping: 14 });
   return (
-    <motion.span
+    <m.span
       className="inline-block"
       style={{ x, y }}
       onPointerMove={(e) => {
@@ -56,6 +56,6 @@ export function Magnetic({ children, strength = 0.3 }: { children: ReactNode; st
       }}
     >
       {children}
-    </motion.span>
+    </m.span>
   );
 }

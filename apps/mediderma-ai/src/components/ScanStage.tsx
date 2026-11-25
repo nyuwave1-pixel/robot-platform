@@ -6,10 +6,28 @@
  *  - 아래: 0→100% 진행 막대와 단계별 체크(478 포인트 인식 → … → 맞춤 케어 매칭)
  * 진행률은 실제 분석 단계(stage)와 최소 연출 시간(minMs)을 함께 따른다. 실제 결과보다 앞서 '완료'를 표시하지 않는다.
  */
+import Icon from "@/components/ui/Icon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import facedata from "@/lib/analysis/facedata.json";
 import { useI18n } from "@/lib/i18n";
 import type { ProgressStage } from "@/lib/analysis/provider";
+import type { AnalysisResult, VisualData } from "@/lib/analysis/types";
+import AnalysisReveal from "./fx/AnalysisReveal";
+import { Component, type ReactNode } from "react";
+
+/** 완료 연출에서 오류가 나도 결과로 넘어가게 하는 안전장치 */
+class RevealBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 const STAGE_FLOOR: Record<ProgressStage, number> = { loading_model: 0.08, detecting: 0.25, quality: 0.4, analyzing: 0.6, done: 1 };
 
@@ -44,7 +62,8 @@ function useMeshPath() {
   }, []);
 }
 
-export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void }) {
+/** reveal: 실제 분석이 끝나면 넘겨받는 결과 — 스캔 연출 뒤 '분석 완료 연출'(AnalysisReveal)을 보여 준다 */
+export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone, reveal = null, onCancel }: { preview: string | null; stage: ProgressStage; minMs?: number; onVisualDone?: () => void; reveal?: { visual: VisualData; result: AnalysisResult } | null; onCancel?: () => void }) {
   const { t } = useI18n();
   const s = t.fit.scan;
   const { d, pts } = useMeshPath();
@@ -65,24 +84,45 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
 
   // 진행률: 시간 진행(최대 92%)과 실제 단계 하한 중 큰 값. 완료는 실제 분석이 끝나고 최소 시간이 지난 뒤에만.
   const timeP = Math.min(0.92, now / minMs);
-  const done = stage === "done" && now >= minMs;
+  // 최소 연출 시간은 화면 애니메이션(rAF)과 별개의 타이머로 잰다 — 창이 가려지거나 백그라운드여서
+  // rAF 가 멈춰도, 분석이 끝났다면 92% 에 머무르지 않고 넘어가게
+  const [minPassed, setMinPassed] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setMinPassed(true), minMs);
+    return () => clearTimeout(id);
+  }, [minMs]);
+  const done = stage === "done" && (minPassed || now >= minMs);
   const progress = done ? 1 : Math.max(timeP, Math.min(STAGE_FLOOR[stage], 0.92));
   const pct = Math.round(progress * 100);
   const stepCount = s.steps.length;
   const activeStep = Math.min(stepCount - 1, Math.floor(progress * stepCount));
 
   useEffect(() => {
-    if (done && !finished.current) {
+    // 결과 연출이 있으면 그 연출이 끝날 때 넘어간다
+    if (done && !finished.current && !reveal) {
       finished.current = true;
       onVisualDone?.();
     }
-  }, [done, onVisualDone]);
+  }, [done, onVisualDone, reveal]);
+  const showReveal = done && !!reveal;
+  // 완료 연출이 어떤 이유로 8초 안에 끝나지 않으면 결과로 넘어간다
+  useEffect(() => {
+    if (!showReveal) return;
+    const id = setTimeout(() => revealDone(), 8000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showReveal]);
+  const revealDone = () => {
+    if (finished.current) return;
+    finished.current = true;
+    onVisualDone?.();
+  };
 
   const meshReveal = Math.min(1, now / 2200);
   const scanY = 50 + 46 * Math.sin(now / 520);
 
   return (
-    <div className="relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running">
+    <div className="theme-dark relative -mx-4 overflow-hidden rounded-none bg-ink sm:mx-0 sm:rounded-3xl" data-testid="running" data-stage={stage}>
       {/* 배경: 홀로그램 스캔 루프 영상 */}
       {videoOk ? (
         <video className="absolute inset-0 h-full w-full object-cover opacity-55" src="/scan/scan-bg.mp4" autoPlay muted loop playsInline onError={() => setVideoOk(false)} aria-hidden />
@@ -92,8 +132,8 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
       <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/30 via-ink/20 to-ink/90" />
 
       <div className="relative px-5 pb-6 pt-6 text-center">
-        <p className="font-display text-[11px] tracking-[0.35em] text-scan2">AI DEEP SKIN SCAN</p>
-        <h1 className="mt-2 text-[22px] font-bold [word-break:keep-all] sm:text-2xl">{s.title}</h1>
+        <p className="font-display text-xs tracking-[0.35em] text-scan2">AI DEEP SKIN SCAN</p>
+        <h1 className="mt-2 text-[22px] font-bold [word-break:keep-all] sm:text-2xl">{showReveal ? t.iq.complete : s.title}</h1>
 
         <div className="relative mx-auto mt-6 aspect-[4/5] w-full max-w-[300px]">
           {/* HUD 링 */}
@@ -128,18 +168,23 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
               <span key={c} aria-hidden className={`absolute h-6 w-6 border-scan2 ${c}`} />
             ))}
             {/* 실시간 판독 수치(연출) */}
-            <div aria-hidden className="absolute left-3 top-10 space-y-0.5 text-left font-mono text-[9px] leading-tight text-scan2/90">
+            <div aria-hidden className="absolute left-3 top-10 space-y-0.5 text-left font-mono text-[11px] leading-tight text-scan2/90">
               <p>PTS {Math.min(478, Math.floor(progress * 600))}/478</p>
               <p>ZONE {Math.min(13, Math.floor(progress * 16))}/13</p>
               <p>RGB Δ {(0.12 + 0.05 * Math.sin(now / 300)).toFixed(3)}</p>
             </div>
+            {showReveal && reveal && (
+              <RevealBoundary onError={revealDone}>
+                <AnalysisReveal visual={reveal.visual} result={reveal.result} onDone={revealDone} />
+              </RevealBoundary>
+            )}
           </div>
         </div>
 
         {/* 진행률 */}
         <div className="mx-auto mt-6 max-w-sm">
           <div className="flex items-baseline justify-between text-base">
-            <span className="font-semibold text-white">{s.steps[activeStep]}…</span>
+            <span className="font-semibold text-white">{showReveal ? t.iq.decoding : `${s.steps[activeStep]}…`}</span>
             <span className="font-display text-2xl tabular-nums text-scan2" data-testid="scan-pct">{pct}%</span>
           </div>
           <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/10">
@@ -147,13 +192,22 @@ export default function ScanStage({ preview, stage, minMs = 6000, onVisualDone }
           </div>
           <ol className="mx-auto mt-4 grid max-w-[16rem] grid-cols-1 gap-y-1.5 text-left text-sm sm:max-w-none sm:grid-cols-2 sm:gap-x-3">
             {s.steps.map((label, i) => (
-              <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver/40"}`}>
-                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? "✓" : ""}</span>
+              <li key={label} className={`flex items-center gap-2 ${i < activeStep ? "text-silver" : i === activeStep ? "text-white" : "text-silver-soft"}`}>
+                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] ${i < activeStep ? "bg-scan2 text-ink" : i === activeStep ? "animate-pulse border border-white" : "border border-line"}`}>{i < activeStep ? <Icon name="check" size={11} strokeWidth={2.6} /> : ""}</span>
                 {label}
               </li>
             ))}
           </ol>
-          <p className="mt-4 text-xs text-silver/70">🔒 {s.privacy}</p>
+          {/* 20초가 지나도 끝나지 않으면: 상황 안내 + 다시 시도 (60초가 지나면 자동으로 오류 화면으로 넘어간다) */}
+          {!done && now > 20000 && (
+            <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100" role="status" data-testid="scan-slow">
+              <p>{t.iq.slow}</p>
+              {/* 진단 코드: 이 화면을 캡처해 주면 어느 단계에서 멈췄는지 알 수 있다 */}
+              <p className="mt-1 font-mono text-[11px] opacity-80" data-testid="scan-diag">CODE {stage.toUpperCase()} · {Math.floor(now / 1000)}s · {typeof navigator !== "undefined" ? (navigator.hardwareConcurrency ?? "?") : "?"}C</p>
+              {onCancel && <button onClick={onCancel} className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">{t.common.retake}</button>}
+            </div>
+          )}
+          <p className="mt-4 text-xs text-silver-soft"><Icon name="lock" size={14} className="mr-1" />{s.privacy}</p>
         </div>
       </div>
     </div>

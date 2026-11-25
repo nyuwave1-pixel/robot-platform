@@ -3,8 +3,8 @@ import type { Dict } from "./ko";
 /** 简体中文资源。键结构与 ko.ts 完全一致；{name} 形式的占位符保持不变。 */
 const zh: Dict = {
   common: {
-    brand: "MEDIDERMA AI",
-    product: "AI SKIN ANALYSIS",
+    brand: "MEDIDERMA SKIN IQ",
+    product: "SKIN IQ",
     slogan: "SCAN YOUR SKIN. DISCOVER YOUR CARE.",
     sloganLocal: "扫描你的肌肤，发现适合你的 DERMA HOME 护理。",
     start: "开始肌肤分析",
@@ -23,15 +23,20 @@ const zh: Dict = {
     learnMore: "了解更多",
     notAvailable: "无法测量",
     footerDisclaimer:
-      "MEDIDERMA AI 通过观察照片中可见的皮肤表面特征来提供护理信息，不是医疗器械，也不构成医学诊断。如怀疑有皮肤疾病，请咨询专科医生。",
+      "MEDIDERMA SKIN IQ 通过观察照片中可见的皮肤表面特征来提供护理信息，不是医疗器械，也不构成医学诊断。如怀疑有皮肤疾病，请咨询专科医生。",
     footerCompany: "UNI&CORE · MEDIDERMA",
     mockBanner: "MOCK 模式 — 并非真实的 AI 分析结果。",
   },
-  nav: { analyze: "肌肤分析", compare: "前后对比", history: "变化记录", privacy: "隐私说明", dermahome: "DERMA HOME", trial: "预约免费体验" },
+  nav: { analyze: "肌肤分析", compare: "前后对比", history: "变化记录", privacy: "隐私说明", dermahome: "DERMA HOME", trial: "预约免费体验", menu: "菜单" },
   landing: {
     eyebrow: "MEDICAL BEAUTY TECH · AI SKIN INTELLIGENCE",
-    title1: "AI SKIN",
-    title2: "ANALYSIS",
+    title1: "MEDIDERMA",
+    title2: "SKIN IQ",
+    tagline: "读懂你肌肤的全新方式。",
+    exploreTech: "了解 DERMA HOME 技术",
+    oneDevice: "一台设备，三种技术",
+    officialImage: "官方产品图",
+    techVisualNote: "背景图形仅为技术示意，并非设备实际工作画面。",
     desc: "无需注册，只要一张面部照片。观察 13 个面部区域的皮肤表面特征，并为你匹配 DERMA HOME RF 射频 · 超声波 · 离子导入护理方案。",
     onDeviceBadge: "照片仅在你的设备内处理",
     uploadTitle: "上传照片，立即开始",
@@ -330,7 +335,7 @@ const zh: Dict = {
   },
   compareGlance: {
     title: "一眼看懂变化",
-    headlineImproved: "{n}处变好了 👏",
+    headlineImproved: "{n}处变好了",
     headlineSame: "还没有明显变化，请继续坚持护理。",
     headlineCondition: "两张照片的拍摄条件不同，难以准确比较。",
     conditionWarn: "在同一地点、同样光线下正面重新拍摄会更准确。",
@@ -346,7 +351,7 @@ const zh: Dict = {
     scan: {"title": "AI 正在精密分析您的皮肤", "steps": ["识别面部478个点", "划分13个皮肤区域", "测量肤质与皱纹", "测量毛孔与斑点", "分析肤色均匀度", "匹配护理方案"], "privacy": "照片只在本设备内分析"},
     hero: {"scoreLabel": "皮肤状态", "sentence": "照片显示的皮肤状态为 {n} 分（满分100）。", "skinType": "肤质", "age": "年龄段", "makeupWarn": "照片带妆拍摄，结果可能不够准确。", "types": {"dry": "干性", "normal": "中性", "oily": "油性", "combination": "混合性"}, "note": "这是 AI 基于照片的参考指数，并非医学诊断。"},
     cards: {"title": "皮肤详情", "tapHint": "点击卡片查看详细说明。", "badges": ["需要护理", "有点不足", "良好", "很好"], "whereLabel": "最明显的位置", "close": "关闭"},
-    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA AI 皮肤分析]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
+    share: {"button": "分享结果", "copied": "已复制，请粘贴到聊天软件中。", "text": "[MEDIDERMA SKIN IQ]\n皮肤状态 {score} 分\n优先护理: {weak}\n推荐产品: {products}\n来试试 👉 {url}"},
   },
   care: {
     title: "DERMA HOME 定制护理",
@@ -616,6 +621,7 @@ const zh: Dict = {
     disabled: "你尚未同意保存记录。",
     enable: "同意保存记录",
   },
+  iq: {"slow": "比平时耗时更长。请稍候或重新尝试。", "decoding": "正在解读皮肤数据", "complete": "分析完成", "skip": "点击查看结果", "points": "POINTS", "zones": "ZONES", "metrics": "METRICS", "scoreLabel": "SKIN IQ", "title": "分析明细", "sub": "生成此结果的实际测量值。照片仅在本设备中处理。", "landmarks": "面部特征点", "zonesAnalyzed": "已分析区域", "metricsComputed": "已计算指标", "duration": "分析用时", "sec": "秒", "capture": "拍摄条件", "pose": "面部角度", "yaw": "左右转动", "pitch": "上下倾斜", "roll": "左右倾斜", "faceSize": "脸部宽度", "imageSize": "原始分辨率", "zoneConf": "各区域可信度", "excluded": "排除的区域", "none": "无", "ideal": "正面 = 0°"},
   privacy: {
     title: "个人信息处理说明",
     updated: "生效日期：2026-11-13",
@@ -624,7 +630,7 @@ const zh: Dict = {
       { h: "2. 照片在哪里处理", p: "面部识别和皮肤观察计算全部在用户的浏览器内运行。照片和面部关键点不会传输到本公司服务器或外部 AI 服务。今后如新增服务器或外部 AI 分析功能，将在传输前另行征得明确同意。" },
       { h: "3. 保存期限与自动删除", p: "默认（非会员）使用时，照片和结果仅存在于浏览器内存中，关闭窗口、刷新页面或 60 分钟未使用即被删除。如同意“保存记录”，分析结果和缩小后的面部照片将在保存期限内存储于用户设备的浏览器存储（IndexedDB）中，到期后自动删除。" },
       { h: "4. 删除方法", p: "可通过报告页面的“立即删除照片和结果”，或变化记录页面的“删除所有记录”“撤回保存同意”立即删除。清除浏览器的网站数据也可删除。" },
-      { h: "5. 匿名使用统计", p: "为改进服务，我们会匿名汇总分析的开始、成功与失败情况，质量不达标的原因，主要肌肤困扰项目，所选护理，产品与体验链接的点击，报告保存次数，以及访问国家（国家级别）和语言。我们不保存照片、面部关键点、个人分数或 IP 地址。" },
+      { h: "5. 匿名使用统计", p: "为改进服务，我们会匿名汇总分析的开始、成功与失败情况，质量不达标的原因，主要肌肤困扰项目，所选护理，产品与体验链接的点击，报告保存次数，以及访问国家（国家级别）和语言。我们不保存照片、面部关键点、个人分数或 IP 地址。 为改进使用流程，我们还以匿名类别的形式汇总设备类型（手机/电脑）、来源网站（仅域名）、拍照前选择的年龄段和肤质、照片提供方式（拍摄/选择）以及浏览过的技术介绍。" },
       { h: "6. AI 训练", p: "我们不会将用户的照片用于 AI 训练。" },
       { h: "7. 使用对象", p: "未满 14 周岁者不可使用。我们提示未成年人不得操作 DERMA HOME 仪器。" },
       { h: "8. 联系方式", p: "UNI&CORE Co., Ltd. · 个人信息保护负责人 · unincore@unincore.com" },
