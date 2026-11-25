@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T12:52:18.534Z",
+  "generatedAt": "2026-11-25T13:17:45.343Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "c00a7b1"
+    "commit": "de42eed"
   },
   "section": {
     "id": "game-dev-lab",
@@ -17,7 +17,7 @@
       "slug": "special-soldier",
       "name": "SPECIAL SOLDIER",
       "engine": "Three.js (web)",
-      "version": "0.22",
+      "version": "0.23",
       "tests": {
         "e2e": {
           "passed": 66,
@@ -385,6 +385,36 @@
   },
   "devlog": [
     {
+      "hash": "de42eed",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "d292c29",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "hub: claim Unity mission intro cutscenes"
+    },
+    {
+      "hash": "a1ca3be",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "444ec04",
+      "date": "2026-11-25",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): helicopter door-gunner set piece in MISSION 05 (v0.23)"
+    },
+    {
+      "hash": "0b78eda",
+      "date": "2026-11-25",
+      "area": "general",
+      "subject": "Unity: tactical gear — night vision, thermal, tac light, med kits, recon drone"
+    },
+    {
       "hash": "c00a7b1",
       "date": "2026-11-25",
       "area": "general",
@@ -593,36 +623,6 @@
       "date": "2026-11-25",
       "area": "game-dev",
       "subject": "docs(game-dev): hub claims U4 — Mission 01 port to the Unity edition"
-    },
-    {
-      "hash": "7a02995",
-      "date": "2026-11-25",
-      "area": "special-soldier",
-      "subject": "chore(special-soldier): ignore local e2e run logs"
-    },
-    {
-      "hash": "86862ec",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "3669c0b",
-      "date": "2026-11-25",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): mission 02 any-order objectives — relay or backup generator first"
-    },
-    {
-      "hash": "48ac07f",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): editions roadmap — one game, two editions, remaining work and owners"
-    },
-    {
-      "hash": "d3aa6a6",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "feat: one SPECIAL SOLDIER, two editions — PLAY MODE screen in the classic menu, CLASSIC EDITION button in Unity"
     }
   ]
 }

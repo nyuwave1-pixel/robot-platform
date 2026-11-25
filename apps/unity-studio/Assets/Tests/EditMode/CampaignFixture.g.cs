@@ -9,6 +9,9 @@ namespace SpecialSoldier.Core.Tests
         public (int parent, string type, string text, string group, double? x, double? z, double? r, string label, double? hold, string radio)[] Objectives;
         /// <summary>A hook run with the given flags (JSON) and living-enemy count: radio lines, waves "group:kind@x,z;…", flags after.</summary>
         public (string name, string flags, int alive, string[] radio, string[] waves, string flagsAfter)[] Hooks;
+        /// <summary>The intro: "boat" (Mission 01's boat ride), "shots" (camera moves below) or "".</summary>
+        public string IntroKind;
+        public (double[] from, double[] to, double[] look, double dur, string text, double fov)[] Intro;
     }
 
     public static class CampaignFixture
@@ -32,6 +35,11 @@ namespace SpecialSoldier.Core.Tests
             {
                 (-1, "kill", "Eliminate the beach sentries", "beach", null, null, null, "", null, ""),
                 (-1, "reach", "Move to the jungle trail head", "", 0.0000000000000000, 240.00000000000000, 10.000000000000000, "", null, "COMMAND: Beach is secure. Push inland to the trail head."),
+            },
+            IntroKind = "boat",
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+
             },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
@@ -70,6 +78,12 @@ namespace SpecialSoldier.Core.Tests
                 (-1, "interact", "Plant C4 on the relay mast", "", -138.00000000000000, 151.50000000000000, null, "PLANT C4 CHARGE", 3.0000000000000000, ""),
                 (-1, "custom", "Get clear of the blast (30 m)", "", null, null, null, "", null, ""),
                 (-1, "kill", "Repel the counter-attack", "reinf", null, null, null, "", null, ""),
+            },
+            IntroKind = "shots",
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+                (new double[] { -60.000000000000000, 62.000000000000000, 250.00000000000000 }, new double[] { -110.00000000000000, 44.000000000000000, 200.00000000000000 }, new double[] { -140.00000000000000, 22.000000000000000, 150.00000000000000 }, 6.0000000000000000, "ZONE 02 — JUNGLE · 05:40", 50.000000000000000),
+                (new double[] { -118.00000000000000, 21.000000000000000, 176.00000000000000 }, new double[] { -128.00000000000000, 30.000000000000000, 168.00000000000000 }, new double[] { -140.00000000000000, 36.000000000000000, 150.00000000000000 }, 5.0000000000000000, "OBJECTIVE: BLACK COBRA COMMS RELAY", 50.000000000000000),
             },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
@@ -113,6 +127,12 @@ namespace SpecialSoldier.Core.Tests
                 (-1, "interact", "Download the intel from the HQ terminal", "", 8.0000000000000000, -137.00000000000000, null, "DOWNLOAD FACILITY ACCESS DATA", 4.0000000000000000, ""),
                 (-1, "reach", "Reach the bunker elevator", "", 91.000000000000000, -150.00000000000000, 3.2000000000000002, "", null, ""),
             },
+            IntroKind = "shots",
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+                (new double[] { -30.000000000000000, 60.000000000000000, 90.000000000000000 }, new double[] { 30.000000000000000, 48.000000000000000, 50.000000000000000 }, new double[] { 0.0000000000000000, 18.000000000000000, -80.000000000000000 }, 6.0000000000000000, "ZONE 03 — BLACK COBRA BASE · 09:10", 50.000000000000000),
+                (new double[] { 40.000000000000000, 24.000000000000000, -100.00000000000000 }, new double[] { 20.000000000000000, 22.000000000000000, -112.00000000000000 }, new double[] { 0.0000000000000000, 18.000000000000000, -130.00000000000000 }, 5.0000000000000000, "OBJECTIVE: HQ INTEL TERMINAL", 50.000000000000000),
+            },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
                 ("alarm", "{}", 1, new string[] { "NOMAD: Base alarm! Armour is waking up!" }, new string[] { "qrf:assault@70,-70;assault@76,-74" }, "{}"),
@@ -146,6 +166,11 @@ namespace SpecialSoldier.Core.Tests
                 (-1, "interact", "Start the data uplink in the server room", "", 94.000000000000000, -264.69999999999999, null, "START DATA UPLINK", 1.5000000000000000, ""),
                 (-1, "defend", "Defend the uplink", "", null, null, null, "", null, ""),
                 (-1, "reach", "Take the north lift to the surface", "", 81.000000000000000, -264.00000000000000, 2.6000000000000001, "", null, "COMMAND: We have it all. Extraction is at the airfield — move!"),
+            },
+            IntroKind = "shots",
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+                (new double[] { 90.000000000000000, -57.399999999999999, -152.00000000000000 }, new double[] { 90.000000000000000, -57.799999999999997, -160.00000000000000 }, new double[] { 90.000000000000000, -58.500000000000000, -190.00000000000000 }, 5.0000000000000000, "ZONE 04 — SUBLEVEL 3 · BIO-RESEARCH", 50.000000000000000),
             },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
@@ -181,6 +206,13 @@ namespace SpecialSoldier.Core.Tests
                 (-1, "interact", "Signal the helicopter with smoke", "", 205.00000000000000, -300.00000000000000, 4.0000000000000000, "POP SMOKE — SIGNAL EXTRACTION", null, ""),
                 (-1, "defend", "Hold the landing zone", "", null, null, null, "", null, ""),
                 (-1, "interact", "Board the helicopter", "", 202.50000000000000, -300.00000000000000, 5.0000000000000000, "BOARD HELICOPTER", null, ""),
+                (-1, "gunner", "Cover the exfil — man the door gun", "", null, null, null, "", null, ""),
+            },
+            IntroKind = "shots",
+            Intro = new (double[] from, double[] to, double[] look, double dur, string text, double fov)[]
+            {
+                (new double[] { 70.000000000000000, 12.000000000000000, -278.00000000000000 }, new double[] { 96.000000000000000, 9.5000000000000000, -288.00000000000000 }, new double[] { 120.00000000000000, 8.5999999999999996, -296.00000000000000 }, 5.0000000000000000, "ZONE 05 — AIRFIELD · 18:50", 50.000000000000000),
+                (new double[] { 116.00000000000000, 8.9000000000000004, -289.00000000000000 }, new double[] { 118.50000000000000, 8.8000000000000007, -291.50000000000000 }, new double[] { 120.00000000000000, 8.9000000000000004, -296.00000000000000 }, 4.5000000000000000, "TARGET: COMMANDER VIPER — BLACK COBRA", 50.000000000000000),
             },
             Hooks = new (string, string, int, string[], string[], string)[]
             {
@@ -191,7 +223,8 @@ namespace SpecialSoldier.Core.Tests
                 ("start 3", "{\"powerCut\":true}", 1, new string[] { "ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!" }, new string[] {  }, "{\"powerCut\":true}"),
                 ("done 3", "{}", 1, new string[] { "@heliArrive" }, new string[] {  }, "{}"),
                 ("tick 3", "{}", 0, new string[] {  }, new string[] { "lz:assault@150,-338;assault@153,-336;elite@147,-335" }, "{}"),
-                ("done 4", "{}", 1, new string[] { "@ending" }, new string[] {  }, "{}"),
+                ("start 5", "{}", 1, new string[] {  }, new string[] {  }, "{}"),
+                ("start 5", "{\"powerCut\":true}", 1, new string[] {  }, new string[] {  }, "{\"powerCut\":true}"),
                 ("bossPhase2", "{}", 1, new string[] { "VIPER: All units — converge on the runway! Kill them all!" }, new string[] { "air:elite@60,-336;elite@66,-340;assault@54,-334;assault@200,-270" }, "{}"),
             },
         };

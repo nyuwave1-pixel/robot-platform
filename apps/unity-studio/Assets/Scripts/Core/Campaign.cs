@@ -36,6 +36,9 @@ namespace SpecialSoldier.Core
         public string CameraAlarmRadio;
         /// <summary>Mission 05: what VIPER shouts when he drops under half health; the wave "phase2" comes with it (web event bossPhase2).</summary>
         public string BossPhase2Radio;
+        /// <summary>The intro camera moves before the mission (web intro), or null. Mission 01's web intro is the boat ride ("boat"), not ported.</summary>
+        public CinematicShot[] Intro;
+        public string IntroKind = "";
         public Func<MissionRunner> NewRunner;      // objectives in Unity world coordinates
         /// <summary>The man-made props of the mission's zone (web build.js), or null.</summary>
         public Func<PropSet> Props;
@@ -60,7 +63,7 @@ namespace SpecialSoldier.Core
         /// <summary>MISSION 01 — SILENT LANDING (web missions.js MISSIONS[0]): night insertion on the southern beach.</summary>
         public static readonly CampaignMission M01 = new CampaignMission
         {
-            Id = "m01", Code = "MISSION 01", Name = "SILENT LANDING", Zone = "ZONE 01 · BEACH", SkyId = "night",
+            Id = "m01", Code = "MISSION 01", Name = "SILENT LANDING", Zone = "ZONE 01 · BEACH", SkyId = "night", IntroKind = "boat",
             SpawnX = 0, SpawnZ = 328.5, SpawnYaw = 0,
             Brief = new[]
             {
@@ -114,7 +117,12 @@ namespace SpecialSoldier.Core
                 new SpawnDef("guard", c.x - 10, c.z - 64, "reinf"), new SpawnDef("assault", c.x + 60, c.z - 40, "reinf") };
             return new CampaignMission
             {
-                Id = "m02", Code = "MISSION 02", Name = "DEEP JUNGLE", Zone = "ZONE 02 · JUNGLE", SkyId = "dawn",
+                Id = "m02", Code = "MISSION 02", Name = "DEEP JUNGLE", Zone = "ZONE 02 · JUNGLE", SkyId = "dawn", IntroKind = "shots",
+                Intro = new[]
+                {
+                    new CinematicShot(new double[] { -60, 62, 250 }, new double[] { -110, 44, 200 }, new double[] { -140, 22, 150 }, 6, "ZONE 02 — JUNGLE · 05:40"),
+                    new CinematicShot(new double[] { -118, 21, 176 }, new double[] { -128, 30, 168 }, new double[] { -140, 36, 150 }, 5, "OBJECTIVE: BLACK COBRA COMMS RELAY"),
+                },
                 SpawnX = 0, SpawnZ = 236, SpawnYaw = 0.5,
                 Brief = new[]
                 {
@@ -174,7 +182,12 @@ namespace SpecialSoldier.Core
             };
             return new CampaignMission
             {
-                Id = "m03", Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", SkyId = "storm",
+                Id = "m03", Code = "MISSION 03", Name = "BLACK COBRA BASE", Zone = "ZONE 03 · MILITARY BASE", SkyId = "storm", IntroKind = "shots",
+                Intro = new[]
+                {
+                    new CinematicShot(new double[] { -30, 60, 90 }, new double[] { 30, 48, 50 }, new double[] { 0, 18, -80 }, 6, "ZONE 03 — BLACK COBRA BASE · 09:10"),
+                    new CinematicShot(new double[] { 40, 24, -100 }, new double[] { 20, 22, -112 }, new double[] { 0, 18, -130 }, 5, "OBJECTIVE: HQ INTEL TERMINAL"),
+                },
                 SpawnX = 0, SpawnZ = 46, SpawnYaw = 0,
                 Brief = new[]
                 {
@@ -234,7 +247,8 @@ namespace SpecialSoldier.Core
             { uplink.Add(new SpawnDef("assault", a.Item1, a.Item2, "wave", y: y)); uplink.Add(new SpawnDef(second, e.Item1, e.Item2, "wave", y: y)); }
             return new CampaignMission
             {
-                Id = "m04", Code = "MISSION 04", Name = "UNDERGROUND ZERO", Zone = "ZONE 04 · UNDERGROUND FACILITY", SkyId = "facility",
+                Id = "m04", Code = "MISSION 04", Name = "UNDERGROUND ZERO", Zone = "ZONE 04 · UNDERGROUND FACILITY", SkyId = "facility", IntroKind = "shots",
+                Intro = new[] { new CinematicShot(new double[] { 90, -57.4, -152 }, new double[] { 90, -57.8, -160 }, new double[] { 90, -58.5, -190 }, 5, "ZONE 04 — SUBLEVEL 3 · BIO-RESEARCH") },
                 SpawnX = P["facSpawn"].x, SpawnZ = P["facSpawn"].z, SpawnY = y, SpawnYaw = 0,
                 Brief = new[]
                 {
@@ -295,7 +309,12 @@ namespace SpecialSoldier.Core
             }
             return new CampaignMission
             {
-                Id = "m05", Code = "MISSION 05", Name = "LAST EXTRACTION", Zone = "ZONE 05 · AIRFIELD & PORT", SkyId = "dusk",
+                Id = "m05", Code = "MISSION 05", Name = "LAST EXTRACTION", Zone = "ZONE 05 · AIRFIELD & PORT", SkyId = "dusk", IntroKind = "shots",
+                Intro = new[]
+                {
+                    new CinematicShot(new double[] { 70, 12, -278 }, new double[] { 96, 9.5, -288 }, new double[] { 120, 8.6, -296 }, 5, "ZONE 05 — AIRFIELD · 18:50"),
+                    new CinematicShot(new double[] { 116, 8.9, -289 }, new double[] { 118.5, 8.8, -291.5 }, new double[] { 120, 8.9, -296 }, 4.5, "TARGET: COMMANDER VIPER — BLACK COBRA"),
+                },
                 SpawnX = 40, SpawnZ = -257, SpawnY = 7, SpawnYaw = -1.2,
                 Brief = new[]
                 {

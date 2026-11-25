@@ -428,3 +428,12 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   L 은 카메라에 달린 스포트라이트(55 m), H 구급상자, B 드론(플레이어 조작을 멈추고 별도 카메라로 WASD·Space·Ctrl 비행), X/F 선택·사용. HUD 왼쪽 위에 장비 줄(켜진 것 `>`, 드론 배터리, 구급상자 수).
 - dotnet `CoreTests~` **326/326**. PlayMode `GearPlayTests`. **Unity 확인 전**.
 
+## 2026-11-25 (20) — 미션 인트로 컷신 + 웹 미션 05 문사수 변경 감지 (허브 세션, 클라우드)
+
+- **인트로(`Core/Cinematic` + `Runtime/IntroDirector`)**: 웹 cinematics.js 그대로 — 샷마다 from → to 로 smoothstep 이동, look 지점을 바라봄, FOV 50,
+  첫 0.25초·마지막 0.7초 페이드, Enter/Space 건너뛰기. 브리핑 START 뒤에 재생, 그동안 플레이어 조작·적·미션 시계 정지. 검은 위아래 띠 + 자막.
+  M02–M05 샷 데이터는 웹 미션 객체에서 뽑은 픽스처와 대조. **M01 의 보트 인트로는 아직 없음**(바로 시작).
+- **웹 변경 감지**: 웹 세션이 v0.23 에서 미션 05 끝에 **헬기 문사수(M134) 장면**을 추가 → 픽스처 생성기가 새 목표 종류 'gunner' 에서 바로 멈춰 알려 줌.
+  Unity 미션 05 는 아직 탑승에서 끝남 — `CampaignParityTests.MissionFiveDoorGunnerGap` 이 경고로 계속 보여 줌(이식하면 지우기).
+- dotnet `CoreTests~` **333 통과 + 경고 1**(문사수 미이식). **Unity 확인 전**. PC Unity 세션은 09:57 에 보관됨 → 다시 열어야 확인 가능.
+
