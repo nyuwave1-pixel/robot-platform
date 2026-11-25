@@ -337,11 +337,13 @@ namespace SpecialSoldier.Core
                 {
                     ["lz"] = lz.ToArray(),
                     ["phase2"] = new[] { new SpawnDef("elite", 60, -336, "air"), new SpawnDef("elite", 66, -340, "air"), new SpawnDef("assault", 54, -334, "air"), new SpawnDef("assault", 200, -270, "air") },
+                    // door-gunner waves around the port (web gunner.js, group 'port')
+                    ["port0"] = PortWave(0), ["port1"] = PortWave(1), ["port2"] = PortWave(2),
                 },
                 NewRunner = () =>
                 {
                     float waveT = 1f;
-                    var board = Objective.Interact(W(hp.x - 2.5, hp.z), "BOARD HELICOPTER", 0, "Board the helicopter", 5).With(onDone: m => m.Raise("ending"));
+                    var board = Objective.Interact(W(hp.x - 2.5, hp.z), "BOARD HELICOPTER", 0, "Board the helicopter", 5);
                     board.Enabled = m => m.Flags.Contains("heliLanded");   // web: enabled: () => G.mission.heliLanded
                     return new MissionRunner("MISSION 05", "LAST EXTRACTION",
                         Objective.Kill("boss", "Eliminate COMMANDER VIPER").With(onDone: m => m.Say("REAPER: VIPER is down! I say again, VIPER is down!")),
@@ -351,12 +353,16 @@ namespace SpecialSoldier.Core
                             onStart: m => { waveT = 1f; m.Say("ANGEL 1-2: Green smoke in sight. Sixty seconds out — hold on!"); },
                             onTick: (m, dt) => { if ((waveT -= dt) <= 0 && (m.World == null || m.World.Alive("lz") < 7)) { waveT = 9f; m.SendWave("lz", 3); } },
                             onDone: m => m.Raise("heliArrive")),
-                        board);
+                        board,
+                        // web v0.23: the door-gunner orbit over the port (Core.DoorGun, Runtime.DoorGunner sets "gunnerDone")
+                        Objective.Custom("Cover the exfil — man the door gun", (m, w) => m.Flags.Contains("gunnerDone")).With(onStart: m => m.Raise("gunner")).Tagged("gunner"));
                 },
-                Area = (20, -345, 245, -245),
+                Area = (20, -420, 245, -245),   // reaches the port for the door-gunner waves
                 Props = () => IslandProps.Airfield(),
             };
         }
+
+        static SpawnDef[] PortWave(int i) => Array.ConvertAll(DoorGun.Waves[i].list, w => new SpawnDef(w.kind, DoorGun.Port.x + w.dx, DoorGun.Port.z + w.dz, "port"));
 
         public static readonly CampaignMission[] All = { M01, M02, M03, M04, M05 };
 

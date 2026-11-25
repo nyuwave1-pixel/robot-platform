@@ -63,5 +63,25 @@ namespace SpecialSoldier.PlayModeTests
             for (float s = 0; s < 9f; s += Time.deltaTime) yield return null;
             Assert.IsTrue(d.HeliLanded); Assert.IsTrue(board.Enabled(d.Mission));
         }
+
+        [UnityTest]
+        public IEnumerator DoorGunner_LiftsOff_SendsPortWaves_Finishes()
+        {
+            yield return Load();
+            var d = GameDirector.Instance;
+            d.Mission.Raise("heliArrive");
+            for (float s = 0; s < 9f; s += Time.deltaTime) yield return null;
+            float padY = d.heli.position.y;
+            d.Mission.Raise("gunner");
+            Assert.NotNull(DoorGunner.Instance);
+            for (float s = 0; s < 3f; s += Time.deltaTime) yield return null;
+            Assert.That(d.heli.position.y, Is.GreaterThan(padY + 5f), "climbing out of the LZ");
+            Assert.AreEqual(4, d.enemies.Count(e => e && e.Alive && e.group == "port"), "first port wave at 2 s");
+            Assert.That(Vector3.Distance(d.player.transform.position, d.heli.position), Is.LessThan(5f), "you ride in the door");
+            DoorGunner.Instance.T = 45.95f;
+            for (int i = 0; i < 5; i++) yield return null;
+            Assert.IsTrue(d.Mission.Flags.Contains("gunnerDone"));
+            Assert.AreEqual(0, d.enemies.Count(e => e && e.group == "port"), "the port is clear");
+        }
     }
 }

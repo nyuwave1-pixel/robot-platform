@@ -179,7 +179,7 @@ namespace SpecialSoldier
             Activate(alarmWave, int.MaxValue);
         }
 
-        void SendWave(string name, int count)
+        public void SendWave(string name, int count)
         {
             foreach (var w in waves) if (w != null && w.name == name) { Activate(w.members, count); return; }
             Debug.LogWarning($"[Mission] wave '{name}' is not in this scene");
@@ -213,6 +213,7 @@ namespace SpecialSoldier
             else if (evt == "sirenServer") SliceFx.I.Alarm(player ? player.transform.position : Vector3.zero);
             else if (evt == "smoke") SmokeColumn.Spawn(IslandGround(IslandProps.Helipad.x + 6, IslandProps.Helipad.z + 5), new Color(0.25f, 0.82f, 0.38f), 160f);   // web 0x40d060
             else if (evt == "heliArrive") StartCoroutine(HeliArrive());
+            else if (evt == "gunner") DoorGunner.Begin(this);   // web v0.23: the door-gunner orbit
         }
 
         /// <summary>VIPER at half health (web Missions.event bossPhase2): his shout, the siren, and four more onto the runway.</summary>
@@ -234,6 +235,7 @@ namespace SpecialSoldier
             var p = IslandProps.Helipad; var rotor = FindChild(heli, "rotor"); var tail = FindChild(heli, "tail");
             for (float t = 0f; ; t += Time.deltaTime)
             {
+                if (DoorGunner.Instance) yield break;   // the door-gunner orbit flies it from here
                 float k = Mathf.Clamp01(t / 8.5f), e = 1f - Mathf.Pow(1f - k, 3f);
                 var w = IslandTerrain.ToWorld(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Mathf.Sin(Time.time * 2f) * 0.3f : 0f), p.z - (1 - e) * 120);
                 heli.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
