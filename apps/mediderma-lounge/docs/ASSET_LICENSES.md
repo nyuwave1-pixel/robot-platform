@@ -29,6 +29,14 @@
 | `public/models/pet_shiba.glb` | Ultimate Animated Animals — ShibaInu (glTF, 동작 Idle·Walk·Eating·Idle_2_HeadLow·Jump_ToIdle) | Quaternius | CC0 1.0 | [quaternius.com](https://quaternius.com/packs/ultimateanimatedanimals.html) (같은 팩이 Unity Asset Store 에도 무료 공개) | 라운지 펫 "시바견" | `tools/assets/build_pets.mjs`: 동작 5종만 남김, 키 0.42m, 색 15% 밝게, meshopt 압축 (2026-11-24 받음) |
 | `public/models/pet_husky.glb` | 〃 Husky | Quaternius | CC0 1.0 | 〃 | 라운지 펫 "허스키" | 〃 (키 0.46m) |
 | `public/models/pet_fox.glb` | 〃 Fox | Quaternius | CC0 1.0 | 〃 | 라운지 펫 "아기 여우" | 〃 (키 0.40m) |
+| `public/models/furn_relaxchair.glb` | Furniture Kit 1.0 — loungeChairRelax (OBJ) | Kenney | CC0 1.0 | [opengameart.org](https://opengameart.org/content/furniture-kit) (같은 팩에 Unity 패키지도 포함) | 라운지 가구 "릴랙스 라운지 체어" | `tools/blender/import_kenney_furniture.py`: 라운지 팔레트로 재질 색 변경(패브릭 핑크·나무 밝은 오크·금속 골드), 바닥 중앙 원점·높이 맞춤, meshopt 압축 (2026-11-25 받음) |
+| `public/models/furn_cornersofa.glb` | 〃 loungeSofaCorner | Kenney | CC0 1.0 | 〃 | 라운지 가구 "핑크 코너 소파" | 〃 |
+| `public/models/furn_ottoman.glb` | 〃 loungeSofaOttoman | Kenney | CC0 1.0 | 〃 | 라운지 가구 "벨벳 오토만" | 〃 |
+| `public/models/furn_squarelamp.glb` | 〃 lampSquareFloor | Kenney | CC0 1.0 | 〃 | 라운지 가구 "스퀘어 플로어 램프" | 〃 |
+| `public/models/furn_succulent.glb` | 〃 plantSmall2 | Kenney | CC0 1.0 | 〃 | 라운지 가구 "미니 다육이 화분" | 〃 |
+| `public/models/furn_radio.glb` | 〃 radio | Kenney | CC0 1.0 | 〃 | 라운지 가구 "레트로 라디오" | 〃 |
+| `public/models/furn_glasstable.glb` | 〃 tableCoffeeGlass | Kenney | CC0 1.0 | 〃 | 라운지 가구 "유리 커피 테이블" | 〃 |
+| `public/models/furn_coatrack.glb` | 〃 coatRackStanding | Kenney | CC0 1.0 | 〃 | 라운지 가구 "골드 스탠딩 행거" | 〃 |
 | `public/tex/sky_plaza.hdr` | Kloofendal 43d Clear (Pure Sky), 1k | Greg Zaal | CC0 | [polyhaven.com](https://polyhaven.com/a/kloofendal_43d_clear_puresky) | 광장 하늘 배경·반사광 | 원본 그대로 |
 | `public/tex/grass_c.jpg` | Grass004 Color | ambientCG (Lennart Demes) | CC0 | [ambientcg.com](https://ambientcg.com/view?id=Grass004) | 광장 잔디·언덕 | 512px, 파스텔 보정 |
 | `public/tex/grass_n.jpg` | Grass004 NormalGL | ambientCG | CC0 | 〃 | 광장 잔디 | 512px |
@@ -57,4 +65,6 @@
 | OpenGameArt "Cozy Endless Game Background" | 음악이 아니라 배경 그림 팩이었음 |
 | Unity Asset Store 무료 에셋 직접 사용 | 받으려면 Unity 계정 로그인과 Unity 에디터가 필요하고 클라우드에서 받을 수 없음. 같은 제작자가 자기 사이트에 CC0 로 올린 원본(Quaternius 등)을 대신 받음 |
 | Quaternius Ultimate Animated Animals 의 나머지 동물(말·소·사슴 등) | 라운지 펫으로 어울리지 않음. 고양이·토끼는 팩에 없어 기존 코드 모델 유지 |
+| Kenney Furniture Kit `bear`(곰인형) | 앞에서 보면 육각형 판처럼 보여 곰인형으로 알아보기 어려움 |
+| Quaternius Ultimate Home Interior · Ultimate Furniture | 2026-11-25 구글 드라이브 다운로드 한도 초과로 받지 못함. 같은 용도로 Kenney Furniture Kit(CC0, OpenGameArt) 사용 |
 | Kenney 원본 사이트·Freesound·Sonniss·Sketchfab·Mixamo | 클라우드에서 403 또는 로그인 필요 — Kenney 사운드는 같은 제작자가 OpenGameArt 에 올린 원본으로 받음 |
