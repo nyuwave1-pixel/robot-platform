@@ -37,6 +37,14 @@
 | `public/models/furn_radio.glb` | 〃 radio | Kenney | CC0 1.0 | 〃 | 라운지 가구 "레트로 라디오" | 〃 |
 | `public/models/furn_glasstable.glb` | 〃 tableCoffeeGlass | Kenney | CC0 1.0 | 〃 | 라운지 가구 "유리 커피 테이블" | 〃 |
 | `public/models/furn_coatrack.glb` | 〃 coatRackStanding | Kenney | CC0 1.0 | 〃 | 라운지 가구 "골드 스탠딩 행거" | 〃 |
+| `public/models/furn_cushionbench.glb` | 〃 benchCushion | Kenney | CC0 1.0 | 〃 | 라운지 가구 "쿠션 벤치" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_lowbookcase.glb` | 〃 bookcaseOpenLow | Kenney | CC0 1.0 | 〃 | 라운지 가구 "로우 오픈 책장" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_drawertable.glb` | 〃 sideTableDrawers | Kenney | CC0 1.0 | 〃 | 라운지 가구 "서랍 사이드 테이블" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_teatable.glb` | 〃 tableRound | Kenney | CC0 1.0 | 〃 | 라운지 가구 "원형 티 테이블" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_cactus.glb` | 〃 plantSmall1 | Kenney | CC0 1.0 | 〃 | 라운지 가구 "꼬마 선인장 화분" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_aloe.glb` | 〃 plantSmall3 | Kenney | CC0 1.0 | 〃 | 라운지 가구 "알로에 화분" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_pinkrug.glb` | 〃 rugRectangle | Kenney | CC0 1.0 | 〃 | 라운지 가구 "핑크 사각 러그" | 〃 (2026-11-25 2차 추가) |
+| `public/models/furn_floorcushion.glb` | 〃 pillow | Kenney | CC0 1.0 | 〃 | 라운지 가구 "바닥 쿠션" | 〃 (2026-11-25 2차 추가) |
 | `public/tex/sky_plaza.hdr` | Kloofendal 43d Clear (Pure Sky), 1k | Greg Zaal | CC0 | [polyhaven.com](https://polyhaven.com/a/kloofendal_43d_clear_puresky) | 광장 하늘 배경·반사광 | 원본 그대로 |
 | `public/tex/grass_c.jpg` | Grass004 Color | ambientCG (Lennart Demes) | CC0 | [ambientcg.com](https://ambientcg.com/view?id=Grass004) | 광장 잔디·언덕 | 512px, 파스텔 보정 |
 | `public/tex/grass_n.jpg` | Grass004 NormalGL | ambientCG | CC0 | 〃 | 광장 잔디 | 512px |

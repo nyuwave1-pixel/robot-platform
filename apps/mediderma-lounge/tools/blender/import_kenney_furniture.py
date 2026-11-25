@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "..", "assets", "incoming", "kenney_furniture", "kenney_furniturePack", "Models")
 OUT = os.path.join(HERE, "..", "..", "public", "models")
 
-# 게임 가구 id: (원본, 목표 높이 m)
+# 게임 가구 id: (원본, 목표 높이 m). 러그처럼 납작한 것은 높이 대신 음수로 배율(-0.185 = 원본 1 unit → 0.185 m)
 PICK = {
     "relaxchair": ("loungeChairRelax", 0.95),
     "cornersofa": ("loungeSofaCorner", 0.85),
@@ -22,6 +22,15 @@ PICK = {
     "radio": ("radio", 0.32),
     "glasstable": ("tableCoffeeGlass", 0.42),
     "coatrack": ("coatRackStanding", 1.75),
+    # 2차 추가 (2026-11-25)
+    "cushionbench": ("benchCushion", 0.85),
+    "lowbookcase": ("bookcaseOpenLow", 0.75),
+    "drawertable": ("sideTableDrawers", 0.7),
+    "teatable": ("tableRound", 0.68),
+    "cactus": ("plantSmall1", 0.36),
+    "aloe": ("plantSmall3", 0.38),
+    "pinkrug": ("rugRectangle", -0.14),
+    "floorcushion": ("pillow", 0.4),
 }
 # 재질 이름 → (색, 거칠기, 금속성, 발광)
 PALETTE = {
@@ -34,6 +43,8 @@ PALETTE = {
     "lamp": ("#fff3d6", 0.5, 0.0, "#ffe2a8"),
     "fur": ("#e8c7a8", 0.95, 0.0, None),
     "plant": ("#7fc28e", 0.7, 0.0, None),
+    "carpetDarker": ("#e8a3b6", 0.9, 0.0, None),
+    "_defaultMat": ("#fbf6f0", 0.6, 0.0, None),
 }
 
 
@@ -56,7 +67,7 @@ def build(gid, src, height):
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     # 바닥 중앙으로 옮기고 높이를 맞춘다 (Blender 는 Z 가 위)
     xs = [v.co.x for v in o.data.vertices]; ys = [v.co.y for v in o.data.vertices]; zs = [v.co.z for v in o.data.vertices]
-    k = height / (max(zs) - min(zs))
+    k = -height if height < 0 else height / (max(zs) - min(zs))
     for v in o.data.vertices:
         v.co.x = (v.co.x - (min(xs) + max(xs)) / 2) * k
         v.co.y = (v.co.y - (min(ys) + max(ys)) / 2) * k
@@ -82,5 +93,8 @@ def build(gid, src, height):
 
 
 if __name__ == "__main__":
+    import sys
+    only = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []  # 일부만: ... -- teatable pinkrug
     for gid, (src, h) in PICK.items():
-        build(gid, src, h)
+        if not only or gid in only:
+            build(gid, src, h)

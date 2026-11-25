@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 const root = join(__dirname, "..");
 const ledger = readFileSync(join(root, "docs/ASSET_LICENSES.md"), "utf8");
 /** Kenney Furniture Kit(CC0) 에서 만든 가구 — 나머지 furn_*.glb 는 직접 만든 모델이라 대장 대상이 아니다 */
-const KENNEY_FURN = ["relaxchair", "cornersofa", "ottoman", "squarelamp", "succulent", "radio", "glasstable", "coatrack"].map((id) => `furn_${id}.glb`);
+const KENNEY_FURN = ["relaxchair", "cornersofa", "ottoman", "squarelamp", "succulent", "radio", "glasstable", "coatrack", "cushionbench", "lowbookcase", "drawertable", "teatable", "cactus", "aloe", "pinkrug", "floorcushion"].map((id) => `furn_${id}.glb`);
 const files = [
   ...readdirSync(join(root, "public/tex")).map((f) => `public/tex/${f}`),
   ...readdirSync(join(root, "public/audio")).map((f) => `public/audio/${f}`),

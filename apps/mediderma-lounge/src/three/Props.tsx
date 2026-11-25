@@ -227,7 +227,8 @@ export function ProductBottle({ p, s = 1, ...props }: { p: Product; s?: number }
 /** Blender 로 만든 가구 (tools/blender/build_assets.py --furniture). 조명은 코드가 덧붙인다. */
 const FURN_GLB = ["plant", "flower", "mirror", "lamp", "coffeetable", "bookshelf", "cattower", "petbed", "diffuser", "goldtable", "display", "rug", "partition", "aquarium",
   // Kenney Furniture Kit (CC0)
-  "relaxchair", "cornersofa", "ottoman", "squarelamp", "succulent", "radio", "glasstable", "coatrack"];
+  "relaxchair", "cornersofa", "ottoman", "squarelamp", "succulent", "radio", "glasstable", "coatrack",
+  "cushionbench", "lowbookcase", "drawertable", "teatable", "cactus", "aloe", "pinkrug", "floorcushion"];
 export function FurnitureMesh({ type, accent = "#f9d5dc" }: { type: string; accent?: string }) {
   if (!FURN_GLB.includes(type)) return <FurnitureFallback type={type} accent={accent} />;
   return (
