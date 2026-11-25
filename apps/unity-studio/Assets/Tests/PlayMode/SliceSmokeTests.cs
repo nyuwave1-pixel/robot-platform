@@ -107,15 +107,34 @@ namespace SpecialSoldier.PlayModeTests
             Assert.Greater(SliceFx.Shots, 0, "no gunshot sound"); Assert.Greater(SliceFx.Impacts, 0, "no impact effect");
         }
 
+        static void Teleport(PlayerMotor p, Vector3 pos)
+        {
+            var cc = p.GetComponent<CharacterController>(); cc.enabled = false; p.transform.position = pos; cc.enabled = true;
+        }
+
         [UnityTest]
-        public IEnumerator KillingEveryEnemy_Wins()
+        public IEnumerator MissionFlow_ClearCompound_DownloadIntel_Extract_WinsWithGrade()
         {
             yield return LoadSlice();
-            var d = GameDirector.Instance; MakeInvulnerable(d.player);
+            var d = GameDirector.Instance; MakeInvulnerable(d.player); GameDirector.AssumeCursorCaptured = true;
+            Assert.AreEqual(GameDirector.MissionMode.IslandSlice, d.missionMode, "slice should run the compound mission");
             foreach (var e in d.enemies) e.GetComponent<Damageable>().ApplyDamage(1e6f, Vector3.zero);
             yield return null;
-            Assert.AreEqual(GameDirector.Outcome.Won, d.State);
             Assert.AreEqual(7, d.Kills);
+            Assert.AreEqual(GameDirector.Outcome.Playing, d.State, "killing everyone is not enough: intel + extraction remain");
+
+            Teleport(d.player, d.intelTerminal.position + new Vector3(0f, 0f, -1.4f));
+            Press(_kb.eKey);
+            yield return Wait(3.4f);
+            Release(_kb.eKey);
+            yield return null;
+            Assert.AreEqual(1, d.Mission.Index, "holding E for 3 s at the terminal finishes 'Take the compound'");
+
+            Teleport(d.player, d.extraction.position);
+            yield return null; yield return null;
+            Assert.AreEqual(GameDirector.Outcome.Won, d.State);
+            Assert.That("SABC".IndexOf(d.Mission.Stats.Grade) >= 0);
+            StringAssert.Contains("special-soldier-unity SLICE 01", PortalBridge.LastReport);
         }
 
         [UnityTest]

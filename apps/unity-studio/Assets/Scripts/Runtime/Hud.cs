@@ -86,12 +86,31 @@ namespace SpecialSoldier
             GUI.color = worst >= AlertState.Combat ? new Color(1f, 0.3f, 0.25f) : worst >= AlertState.Search ? new Color(1f, 0.7f, 0.2f) : new Color(0.6f, 1f, 0.6f);
             GUI.Label(new Rect(24, 44, 400, 30), worst.ToString().ToUpper(), _small);
             GUI.color = Color.white;
+            var m = dir.Mission;
+            if (m != null && dir.State == GameDirector.Outcome.Playing)
+            {
+                GUI.Label(new Rect(24, 72, W - 48, 30), "▶ " + dir.ObjectiveLine, _small);
+                if (m.HoldTarget != null)
+                {
+                    GUI.Label(new Rect(0, H / 2 + 60, W, 30), $"HOLD [E]  {m.HoldTarget.Label}", new GUIStyle(_small) { alignment = TextAnchor.MiddleCenter });
+                    Bar(W / 2 - 90, H / 2 + 92, 180, 6, m.HoldProgress, new Color(0.3f, 0.9f, 0.5f));
+                }
+            }
 
             if (dir.State != GameDirector.Outcome.Playing)
             {
                 GUI.color = new Color(0f, 0f, 0f, 0.6f); GUI.DrawTexture(new Rect(0, 0, W, H), _white); GUI.color = Color.white;
-                GUI.Label(new Rect(0, H / 2 - 60, W, 60), dir.State == GameDirector.Outcome.Won ? "AREA SECURED" : "K.I.A.", _center);
-                GUI.Label(new Rect(0, H / 2 + 10, W, 40), $"{dir.Kills} kills in {dir.ElapsedTime:0.0}s  —  press R to restart", new GUIStyle(_small) { alignment = TextAnchor.MiddleCenter });
+                bool won = dir.State == GameDirector.Outcome.Won;
+                GUI.Label(new Rect(0, H / 2 - 110, W, 60), won ? "MISSION COMPLETE" : "K.I.A.", _center);
+                var mid = new GUIStyle(_small) { alignment = TextAnchor.MiddleCenter };
+                if (won && m != null)
+                {
+                    var st = m.Stats;
+                    GUI.Label(new Rect(0, H / 2 - 50, W, 60), $"GRADE  {st.Grade}", _center);
+                    GUI.Label(new Rect(0, H / 2 + 10, W, 30), $"TIME {st.Time:0}s   KILLS {st.Kills} ({st.Headshots} HS)   ACCURACY {st.AccuracyPercent}%   ALARMS {st.Alarms}", mid);
+                    GUI.Label(new Rect(0, H / 2 + 36, W, 30), $"SCORE {st.Score:0}   PORTAL +{st.PortalRp} RP", mid);
+                }
+                GUI.Label(new Rect(0, H / 2 + 70, W, 40), $"{dir.Kills} kills in {dir.ElapsedTime:0.0}s  —  press R to restart", mid);
             }
             else if (Cursor.lockState != CursorLockMode.Locked)
                 GUI.Label(new Rect(0, H / 2 + 80, W, 40), "CLICK TO PLAY", new GUIStyle(_big) { alignment = TextAnchor.MiddleCenter });

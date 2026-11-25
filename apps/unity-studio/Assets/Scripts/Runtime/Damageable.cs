@@ -13,6 +13,8 @@ namespace SpecialSoldier
         public bool Alive => Model != null && Model.Alive;
         public event Action<float, Vector3> Hit;     // damage, source position
         public event Action Died;
+        public BodyPart LastHitPart { get; private set; } = BodyPart.Torso;
+        public bool LastHitByPlayer { get; private set; }
 
         void Awake() => Init();
 
@@ -29,6 +31,13 @@ namespace SpecialSoldier
             maxHealth = health; armor = armorValue; armorSoak = soak;
             Model = new HealthModel(maxHealth, armor, armorSoak);
             Model.Died += () => Died?.Invoke();
+        }
+
+        /// <summary>Damage that remembers who hit where (mission stats count player headshot kills).</summary>
+        public float ApplyDamage(float amount, Vector3 from, BodyPart part, bool byPlayer)
+        {
+            LastHitPart = part; LastHitByPlayer = byPlayer;
+            return ApplyDamage(amount, from);
         }
 
         public float ApplyDamage(float amount, Vector3 from)

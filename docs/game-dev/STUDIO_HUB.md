@@ -51,4 +51,6 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 허브 → PC Blender (Unity) | **적 엄폐·측면 우회 첫 검증**: `run-batch.ps1` 로 컴파일·EditMode(173 예상)·PlayMode, PlayMode 테스트 1개 추가 제안 — 전투 시작 후 경계병이 엄폐물 뒤로 이동(`EnemyAgent.InCover`), 정예가 측면으로 돌아감. 플레이 감각 확인 | 요청함 2026-11-24 |
 | 허브 → PC Blender (Unity) | **수류탄 첫 검증**(엄폐 AI와 함께): 컴파일·EditMode(180 예상)·PlayMode. 플레이: G로 투척·튕김·폭발 피해, 정예가 웅크려 숨은 플레이어에게 투척, 'GRENADE!' 경고. PlayMode 테스트 1개 제안(수류탄 옆 적이 피해를 입음) | 요청함 2026-11-25 |
 | 허브 → PC Blender (Unity) | **효과음 2차 확인**: 컴파일·EditMode(199 예상)·PlayMode. 귀로 확인 — 무기별 총성 차이, 수류탄 폭발, 재장전·딸깍·명중·사살·피격·스침음, 표면별 탄착음, 교전 배경음. 너무 크거나 작은 소리는 `SliceFx` 음량 조정. WebGL에서도 소리 나는지 | 요청함 2026-11-25 |
+| 허브 → PC Blender (Unity) | **미션·등급 첫 검증**: 컴파일·EditMode(212 예상)·PlayMode(교체된 `MissionFlow_...` 포함). 직접 플레이 — 목표 줄, [E] 다운로드, 탈출, 결과 화면 등급. WebGL 빌드에서 포털로 `game_result` 가 가는지 | 요청함 2026-11-25 |
+| 허브 → BIT PARK 포털 | Unity WebGL이 끝나면 `game_result`(`game: special-soldier-unity`, `engine: unity`, score·rp·mission·grade)를 보냄 → 웹 게임과 같은 방식으로 받아 RP 반영 | 요청함 2026-11-25 |
 | 허브 → PC Blender | Mixamo 병사 기본 동작(Idle/Walk/Run/Crouch/Reload) 다운로드 가능 여부 확인 — 현재 병사는 리깅이 없어 리타깃 설계 필요 | **조사만 완료, 다운로드 보류**(사용자 결정: 조사 보고서 먼저). Mixamo는 원본 재배포 조항 때문에 공개 저장소·단일 HTML 빌드에 비권장 → Quaternius UAL(CC0) + 강체 스키닝 방안 제안. `apps/special-soldier/docs/ASSET_RESEARCH.md` §4 |

@@ -11,6 +11,8 @@ namespace SpecialSoldier
     public sealed class EnemyAgent : MonoBehaviour
     {
         public string typeId = "guard";
+        public string group = "outer";          // mission kill objectives count enemies by group
+        public bool AlarmRaised { get; set; }    // this enemy's squad already called it in (mission stats)
         public Transform[] patrolPoints;
         public bool hold;                         // stays at its post (snipers, turrets)
         public float eyeHeight = 1.6f;

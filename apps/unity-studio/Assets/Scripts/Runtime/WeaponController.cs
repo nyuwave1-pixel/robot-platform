@@ -74,6 +74,9 @@ namespace SpecialSoldier
             float cone = (Aiming ? w.AdsSpread : w.Spread) + Bloom + (motor && motor.IsCrouching ? -0.2f : 0f);
             cone = Mathf.Max(0.01f, cone);
             Vector3 end = eye.position + eye.forward * 300f;
+            var stats = GameDirector.Instance && GameDirector.Instance.Mission != null ? GameDirector.Instance.Mission.Stats : null;
+            if (stats != null) stats.Shots++;
+            bool landed = false;
             for (int p = 0; p < w.Pellets; p++)
             {
                 Vector2 r = Random.insideUnitCircle * Mathf.Tan(cone * Mathf.Deg2Rad);
@@ -87,12 +90,14 @@ namespace SpecialSoldier
                     if (target && target.Alive && (!motor || target.gameObject != motor.gameObject))
                     {
                         float dmg = (float)Ballistics.DamageAt(w, hit.distance) * Ballistics.BodyMultiplier(zone ? zone.part : BodyPart.Torso);
-                        target.ApplyDamage(dmg, eye.position);
+                        target.ApplyDamage(dmg, eye.position, zone ? zone.part : BodyPart.Torso, true);
+                        landed = true;
                         HitMarkerTime = 0.18f; LastHitWasKill = !target.Alive;
                         SliceFx.I.HitConfirm(LastHitWasKill);
                     }
                 }
             }
+            if (landed && stats != null) stats.Hits++;
             Bloom = Mathf.Min(3.5f, Bloom + ((Aiming ? w.AdsSpread : w.Spread) * 0.3f + 0.25f) * 0.16f * 3f);
             if (motor) motor.AddRecoil(w.RecoilV * (Aiming ? 0.55f : 1f), Random.Range(-w.RecoilH, w.RecoilH) * 0.5f);
             _tracer.SetPosition(0, eye.position + eye.forward * 0.6f - eye.up * 0.12f + eye.right * 0.12f);

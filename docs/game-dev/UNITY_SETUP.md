@@ -188,3 +188,14 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   (Ground=모래, Cover=나무 상자, 벽=콘크리트), 교전 중 원거리 전투 배경(`battle.mp3`, 0.18).
 - CC0 `explosion.mp3`·`battle.mp3` 를 `Assets/Resources/Audio/` 에 추가(대장: `apps/special-soldier/docs/ASSET_LICENSES.md`).
 - 검증: dotnet `CoreTests~` **199/199**(새 SfxSynth 테스트 19개 — 웹 `audio.js` 의 총성 표와 수치 대조 포함). **Unity 재생은 아직 확인하지 않았습니다.**
+
+## 2026-11-25 (3) — 미션 목표·결과 등급·포털 보고 (허브 세션, 클라우드)
+
+- `Core/Mission.cs`: 웹 `missions.js`·`main.js` 이식. 목표 종류 Kill(그룹)·Reach·Interact(길게 누르기, 손 떼면 처음부터)·Defend(카운트다운)·Any(순서 무관, v0.20).
+  `MissionStats` 등급 = 정확도(45%↑ 2점, 25%↑ 1점) + 경보(0회 2, 1회 1) + 사망(0회 2, 1회 1) + 헤드샷 30%↑ 1 → 7 S / 5 A / 3 B / C, 포털 RP 60/45/30/15, 사살 점수(헤드샷 ×1.5).
+- 슬라이스 미션 "SLICE 01": ① 순서 무관 — 콤파운드 소탕(돌격병 2 + 중화기병, group `compound`) + 콤파운드 안 정보 단말기에서 [E] 3초 다운로드 ② 북쪽 탈출 지점(반경 8 m) 도착.
+  적을 다 쓰러뜨려도 정보·탈출 전에는 끝나지 않음. HUD 상단에 목표 줄, 단말기 근처에서 "HOLD [E]" 진행 막대, 결과 화면에 등급·시간·사살(헤드샷)·정확도·경보·점수·포털 RP.
+- 경보: 전투 상태로 5초 버틴 적의 그룹당 1회(웹 callT 근사). 통계: 사격·명중(발사당), 플레이어 헤드샷 사살.
+- WebGL에서 끝나면 `Plugins/WebGL/PortalBridge.jslib` 가 부모 페이지에 웹 게임과 같은 `game_result` 메시지를 보냄(`game: special-soldier-unity`, `engine: unity`).
+- PC 세션의 PlayMode `KillingEveryEnemy_Wins` → `MissionFlow_ClearCompound_DownloadIntel_Extract_WinsWithGrade` 로 교체(새 규칙에 맞춤).
+- 검증: dotnet `CoreTests~` **212/212**(미션 테스트 13개, 웹 `main.js` 등급 공식 문자열 대조 포함). **Unity 컴파일·PlayMode는 아직.**

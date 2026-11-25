@@ -96,6 +96,11 @@ namespace SpecialSoldier.EditorTools
                 c.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 90f, 0f);
             }
 
+            // intel terminal (mission prop) goes in before the NavMesh bake so agents walk around it
+            var terminal = Box(level, "IntelTerminal", new Vector3(0f, 0.6f, 16f), new Vector3(1.2f, 1.2f, 0.6f), Mat("Terminal", new Color(0.18f, 0.22f, 0.2f), 0.4f));
+            var screen = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.DestroyImmediate(screen.GetComponent<Collider>());
+            screen.name = "Screen"; screen.transform.SetParent(terminal.transform, false); screen.transform.localPosition = new Vector3(0f, 0.15f, -0.51f); screen.transform.localScale = new Vector3(0.8f, 0.5f, 1f);
+            screen.GetComponent<Renderer>().sharedMaterial = Mat("TerminalScreen", new Color(0.2f, 0.9f, 0.5f), 0.1f);
             var surface = level.AddComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Children;
             surface.BuildNavMesh();
@@ -124,9 +129,19 @@ namespace SpecialSoldier.EditorTools
             };
             var parent = new GameObject("Enemies");
             for (int i = 0; i < enemies.Length; i++) BuildEnemy(parent, i, enemies[i].type, enemies[i].pos, enemies[i].patrol, enemies[i].hold, visual, player.transform.position);
+            // the compound squad (two assaults + the heavy) is the "Clear the compound" objective; the rest guard the approach
+            foreach (var ea in parent.GetComponentsInChildren<EnemyAgent>(true))
+                ea.group = (ea.typeId == "assault" || ea.typeId == "heavy") ? "compound" : "outer";
+
+            // mission prop: the extraction point north of the compound (the intel terminal was placed before the NavMesh bake)
+            var extraction = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.DestroyImmediate(extraction.GetComponent<Collider>());
+            extraction.name = "Extraction"; extraction.transform.position = new Vector3(0f, 0.02f, 62f); extraction.transform.localScale = new Vector3(16f, 0.02f, 16f);
+            extraction.GetComponent<Renderer>().sharedMaterial = Mat("Extraction", new Color(0.25f, 0.8f, 0.35f), 0.6f);
 
             var director = new GameObject("GameDirector").AddComponent<GameDirector>();
             director.player = player.GetComponent<PlayerMotor>();
+            director.missionMode = GameDirector.MissionMode.IslandSlice;
+            director.intelTerminal = terminal.transform; director.extraction = extraction.transform;
             var hud = director.gameObject.AddComponent<Hud>();
             hud.player = director.player; hud.weapon = player.GetComponentInChildren<WeaponController>();
 

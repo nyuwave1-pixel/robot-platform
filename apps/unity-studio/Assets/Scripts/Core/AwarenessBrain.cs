@@ -11,6 +11,7 @@ namespace SpecialSoldier.Core
         public readonly float Hp, Armor, Speed, Spread, Rpm, GunDamage, Vision, Fov, React;
         public readonly int BurstMin, BurstMax;
         public readonly bool Grenades;            // web: grenades: true (COBRA ELITE, COMMANDER VIPER)
+        public int Score => Id switch { "guard" => 100, "assault" => 150, "sniper" => 200, "heavy" => 300, "elite" => 350, _ => 100 };   // web: type.score
 
         public EnemyType(string id, string name, float hp, float armor, float speed, float spread, int burstMin, int burstMax, float rpm,
             float gunDamage, float vision, float fov, float react, bool grenades = false)

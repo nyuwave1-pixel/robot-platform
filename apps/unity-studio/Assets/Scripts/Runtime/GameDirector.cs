@@ -1,13 +1,22 @@
 using System.Collections.Generic;
+using SpecialSoldier.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace SpecialSoldier
 {
-    /// <summary>Win / lose rules for the slice and the "noise" broadcast that lets enemies hear gunshots.</summary>
-    public sealed class GameDirector : MonoBehaviour
+    /// <summary>Win / lose rules for the slice and the "noise" broadcast that lets enemies hear gunshots.
+    /// Winning means finishing the mission's objectives (Core.MissionRunner); the result is graded S/A/B/C like the web game.</summary>
+    public sealed class GameDirector : MonoBehaviour, IMissionWorld
     {
+        public enum MissionMode { EliminateAll, IslandSlice }
+        public MissionMode missionMode = MissionMode.EliminateAll;
+        public Transform intelTerminal, extraction;     // IslandSlice objectives (placed by SliceBuilder)
+        public MissionRunner Mission { get; private set; }
+        public string ObjectiveLine => Mission != null ? Mission.ObjectiveText(this) : "";
+        /// <summary>Enemy in combat this long without dying calls it in (web: callT ≈ 5 s → mission 'alarm').</summary>
+        public const float AlarmDelay = 5f;
         public static GameDirector Instance { get; private set; }
         /// <summary>Tests only: a batch-mode Editor has no window, so the cursor can never be locked there.</summary>
         public static bool AssumeCursorCaptured;
@@ -35,13 +44,50 @@ namespace SpecialSoldier
             enemies.AddRange(FindObjectsByType<EnemyAgent>());
             if (!player) player = FindAnyObjectByType<PlayerMotor>();
             foreach (var e in enemies) { var d = e.GetComponent<Damageable>(); if (d) d.Died += OnEnemyDied; }
-            if (player) { var d = player.GetComponent<Damageable>(); if (d) d.Died += () => End(Outcome.Lost); }
+            if (player) { var d = player.GetComponent<Damageable>(); if (d) d.Died += () => { if (Mission != null) Mission.Stats.Deaths++; End(Outcome.Lost); }; }
+            Mission = BuildMission();
+            Mission.MissionCompleted += () => End(Outcome.Won);
             Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
+        }
+
+        MissionRunner BuildMission()
+        {
+            if (missionMode == MissionMode.IslandSlice && intelTerminal && extraction)
+            {
+                var t = intelTerminal.position; var x = extraction.position;
+                return new MissionRunner("SLICE 01", "ISLAND SLICE",
+                    Objective.Any("Take the compound",
+                        Objective.Kill("compound", "Clear the compound"),
+                        Objective.Interact(new Vec2(t.x, t.z), "DOWNLOAD INTEL", 3f, "Download the base intel")),
+                    Objective.Reach(new Vec2(x.x, x.z), 8f, "Get to the extraction point"));
+            }
+            return new MissionRunner("SLICE 00", "ISLAND SLICE", Objective.Kill("*", "Eliminate all hostiles"));
+        }
+
+        // ---- IMissionWorld ----
+        public Vec2 PlayerPosition => player ? new Vec2(player.transform.position.x, player.transform.position.z) : new Vec2(0, 0);
+        public bool InteractHeld => Keyboard.current != null && Keyboard.current.eKey.isPressed && CursorCaptured;
+        public int Alive(string group)
+        {
+            int n = 0;
+            foreach (var e in enemies) if (e && e.Alive && (group == "*" || e.group == group)) n++;
+            return n;
         }
 
         void Update()
         {
-            if (State == Outcome.Playing) ElapsedTime += Time.deltaTime;
+            if (State == Outcome.Playing)
+            {
+                ElapsedTime += Time.deltaTime;
+                Mission.Tick(Time.deltaTime, this);
+                // alarms: a squad that fights you for 5 s calls it in once (web: stats.alarms)
+                foreach (var e in enemies)
+                    if (e && e.Alive && !e.AlarmRaised && e.Brain != null && e.Brain.State == AlertState.Combat && e.Brain.StateTime > AlarmDelay)
+                    {
+                        Mission.Stats.Alarms++;
+                        foreach (var o in enemies) if (o && o.group == e.group) o.AlarmRaised = true;
+                    }
+            }
             var kb = Keyboard.current;
             if (kb == null) return;
             if (State != Outcome.Playing && kb.rKey.wasPressedThisFrame) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -54,13 +100,25 @@ namespace SpecialSoldier
         void OnEnemyDied()
         {
             Kills++;
-            if (enemies.TrueForAll(e => !e.Alive)) End(Outcome.Won);
+            if (Mission == null) return;
+            foreach (var e in enemies)
+            {
+                if (!e || e.Alive || _counted.Contains(e)) continue;
+                _counted.Add(e);
+                var d = e.GetComponent<Damageable>();
+                if (d && d.LastHitByPlayer) Mission.Stats.AddKill(e.Type.Score, d.LastHitPart == BodyPart.Head);
+                else Mission.Stats.Kills++;   // grenades, scripted kills: still a kill, no style bonus
+            }
+            Mission.Tick(0f, this);          // the last kill can finish the objective in the same frame
         }
+        readonly HashSet<EnemyAgent> _counted = new HashSet<EnemyAgent>();
 
         void End(Outcome o)
         {
             if (State != Outcome.Playing) return;
             State = o; Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+            if (o == Outcome.Won && Mission != null)
+                PortalBridge.ReportResult(Mission.Code, Mission.Stats.Grade.ToString(), Mathf.RoundToInt(Mission.Stats.Score), Mission.Stats.PortalRp);
         }
 
         /// <summary>Tells every enemy within <paramref name="radius"/> that something was heard at <paramref name="pos"/>.</summary>

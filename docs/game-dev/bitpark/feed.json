@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T04:35:04.433Z",
+  "generatedAt": "2026-11-25T04:44:26.963Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "ae6cda6"
+    "commit": "e0974f6"
   },
   "section": {
     "id": "game-dev-lab",
@@ -370,6 +370,12 @@
   },
   "devlog": [
     {
+      "hash": "e0974f6",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): web game's procedural sound effects in Unity, per-weapon gunshots, explosions and battle bed"
+    },
+    {
       "hash": "ae6cda6",
       "date": "2026-11-25",
       "area": "portal",
@@ -602,12 +608,6 @@
       "date": "2026-11-20",
       "area": "special-soldier",
       "subject": "feat(special-soldier): v0.16 burlap photo texture for sandbags and canvas"
-    },
-    {
-      "hash": "da5d001",
-      "date": "2026-11-20",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): v0.15 grid A* pathfinding for stuck enemies and squad"
     }
   ]
 }
