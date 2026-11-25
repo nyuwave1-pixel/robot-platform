@@ -112,8 +112,36 @@ export function bragDataOf(kind: BragKind, extra?: { petId?: string; care?: Brag
   return { curios: { owned: owned.length, total: Object.keys(CURIO_MAP).length, sets: L.setsClaimed.filter((s) => CURIO_SETS.some((x) => x.id === s)), best } };
 }
 
-interface BragState { sort: "new" | "hot"; kind: BragKind | null; status: "idle" | "loading" | "ok" | "error"; list: Brag[] }
-export const useBrag = create<BragState>(() => ({ sort: "new", kind: null, status: "idle", list: [] }));
+interface BragState {
+  sort: "new" | "hot"; kind: BragKind | null; status: "idle" | "loading" | "ok" | "error"; list: Brag[];
+  /** 내 자랑 (최근 20개) · 받은 좋아요 합계 */
+  mine: Brag[]; mineLikes: number;
+}
+export const useBrag = create<BragState>(() => ({ sort: "new", kind: null, status: "idle", list: [], mine: [], mineLikes: 0 }));
+
+/** 새로 받은 좋아요 → 팔로워 (한 번에 최대 BRAG_FOLLOW_CAP) */
+export const BRAG_FOLLOW_CAP = 50;
+export function newLikes(total: number, seen: number | undefined) {
+  if (seen === undefined) return 0; // 처음 확인할 때는 지금까지 받은 것을 기준으로 삼는다
+  return Math.max(0, Math.min(BRAG_FOLLOW_CAP, total - seen));
+}
+
+/** 내 자랑을 불러와 새로 받은 좋아요를 알려 준다 (팔로워 +) — 받은 수를 돌려준다 */
+export async function checkBragLikes(): Promise<number> {
+  const g = useGame.getState();
+  if (!/^[A-Z0-9]{6}$/.test(g.friendCode ?? "")) return 0;
+  try {
+    const raw = await rpc<unknown[]>("mdl_brag_mine", { p_code: g.friendCode });
+    const mine = (Array.isArray(raw) ? raw : []).map(cleanBrag).filter((b): b is Brag => !!b);
+    const total = mine.reduce((a, b) => a + b.likes, 0);
+    useBrag.setState({ mine, mineLikes: total });
+    const seen = useGame.getState().bragLikesSeen;
+    const n = newLikes(total, seen);
+    // 지운 자랑이 있으면 합계가 줄 수 있다 → 기준만 맞춘다
+    if (seen === undefined || total !== seen) useGame.setState((s) => ({ bragLikesSeen: total, followers: s.followers + n }));
+    return n;
+  } catch { return 0; }
+}
 
 export async function loadBrags(sort = useBrag.getState().sort, kind = useBrag.getState().kind) {
   useBrag.setState((s) => ({ sort, kind, status: s.list.length && s.sort === sort && s.kind === kind ? s.status : "loading" }));

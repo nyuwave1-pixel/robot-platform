@@ -89,3 +89,13 @@ describe("펫 키우기", () => {
     expect(cleanBragData("pet", { pet: { type: "dog-shiba", name: "콩", acc: "hack", level: 99 } })?.pet).toMatchObject({ acc: null, level: 7 });
   });
 });
+
+describe("자랑 반응 알림", () => {
+  it("처음엔 기준만 잡고, 이후 늘어난 좋아요만큼 (최대 50) 알린다", async () => {
+    const { newLikes, BRAG_FOLLOW_CAP } = await import("../src/net/brag");
+    expect(newLikes(12, undefined)).toBe(0);
+    expect(newLikes(15, 12)).toBe(3);
+    expect(newLikes(10, 12)).toBe(0); // 자랑을 지워 줄어든 경우
+    expect(newLikes(500, 0)).toBe(BRAG_FOLLOW_CAP);
+  });
+});

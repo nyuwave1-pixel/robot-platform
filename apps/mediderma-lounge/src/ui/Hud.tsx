@@ -14,6 +14,7 @@ import { useRoom } from "../net/room";
 import { useContest } from "../net/contest";
 import { castVote } from "./Contest";
 import { GroupPhotoButton, GroupPhotoOverlay, captureCanvas, useShot } from "./GroupPhoto";
+import { BragWatcher } from "./Brag";
 
 export const Coin = ({ n, icon, title }: { n: number; icon: IconName; title: string }) => (
   <span title={title} className="flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-ink shadow-sm backdrop-blur">
@@ -167,6 +168,7 @@ export function Hud() {
         </nav>
       )}
       <GroupPhotoOverlay />
+      <BragWatcher />
       <Overlays />
     </>
   );

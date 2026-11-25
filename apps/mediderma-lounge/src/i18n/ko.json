@@ -620,5 +620,9 @@
   "garden.fertDone": "영양제를 줬어요 — 더 빨리 자라요",
   "garden.fertUsed": "이미 영양제를 줬어요",
   "garden.fertOn": "영양제 ✓",
-  "garden.goldenOdds": "황금 수확 확률 {n}%"
+  "garden.goldenOdds": "황금 수확 확률 {n}%",
+  "brag.mine": "내 자랑",
+  "brag.mineDesc": "내 자랑 {n}개 · 받은 좋아요 {likes}개. 새 좋아요를 받으면 그만큼 팔로워가 늘어요.",
+  "brag.mineNone": "아직 올린 자랑이 없어요.",
+  "brag.newLikes": "내 자랑에 좋아요 {n}개! 팔로워 +{n}"
 }

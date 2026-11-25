@@ -620,5 +620,9 @@
   "garden.fertDone": "Fertilized — it'll grow faster",
   "garden.fertUsed": "Already fertilized",
   "garden.fertOn": "Fertilized ✓",
-  "garden.goldenOdds": "Golden harvest {n}%"
+  "garden.goldenOdds": "Golden harvest {n}%",
+  "brag.mine": "Mine",
+  "brag.mineDesc": "{n} posts · {likes} likes received. New likes add followers.",
+  "brag.mineNone": "You haven't posted yet.",
+  "brag.newLikes": "{n} new likes on your posts! Followers +{n}"
 }

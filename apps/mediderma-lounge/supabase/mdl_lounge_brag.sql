@@ -94,3 +94,16 @@ grant execute on function public.mdl_brag_post(text, text, text, text, int, json
 grant execute on function public.mdl_brag_list(text, text, text) to anon, authenticated;
 grant execute on function public.mdl_brag_like(text, text, bigint) to anon, authenticated;
 grant execute on function public.mdl_brag_delete(text, text, bigint) to anon, authenticated;
+
+-- 2026-11-25 추가 (마이그레이션 "mdl_lounge_brag_mine"): 내 자랑 최근 20개 — 받은 좋아요 알림용
+create or replace function public.mdl_brag_mine(p_code text)
+returns table(id bigint, writer text, name text, kind text, msg int, data jsonb, likes int, liked boolean, at timestamptz)
+language sql security definer stable set search_path = '' as $$
+  select b.id, b.writer, b.writer_name, b.kind, b.msg, b.data, b.likes, false, b.created_at
+  from mdl_contest.brags b
+  where p_code ~ '^[A-Z0-9]{6}$' and b.writer = p_code
+  order by b.created_at desc
+  limit 20
+$$;
+revoke all on function public.mdl_brag_mine(text) from public;
+grant execute on function public.mdl_brag_mine(text) to anon, authenticated;

@@ -12,7 +12,7 @@ import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
-import { BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
+import { checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
@@ -190,10 +190,11 @@ function Composer({ initial, onDone }: { initial: BragKind; onDone: () => void }
 /** 소셜 패널의 "뷰티 자랑" 탭 */
 export function BragFeed() {
   const t = useT();
-  const { sort, kind, status, list } = useBrag();
+  const { sort, kind, status, list, mine, mineLikes } = useBrag();
   const want = useUI((s) => s.bragKind);
   const [compose, setCompose] = useState<BragKind | null>(want ?? null);
-  useEffect(() => { void loadBrags(); }, []);
+  const [showMine, setShowMine] = useState(false);
+  useEffect(() => { void loadBrags(); void checkBragLikes(); }, []);
   useEffect(() => { if (want) { setCompose(want); useUI.setState({ bragKind: null }); } }, [want]);
   return (
     <>
@@ -205,13 +206,22 @@ export function BragFeed() {
       <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
         {(["new", "hot"] as const).map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
         <span className="mx-1 w-px shrink-0 bg-ink/10" />
-        <button onClick={() => void loadBrags(sort, null)} className={`chip shrink-0 ${kind === null ? "chip-on" : ""}`}>{t("brag.all")}</button>
-        {BRAG_KINDS.map((k) => <button key={k} onClick={() => void loadBrags(sort, k)} className={`chip shrink-0 ${kind === k ? "chip-on" : ""}`}>{t(`brag.kind.${k}`)}</button>)}
+        <button onClick={() => { setShowMine(false); void loadBrags(sort, null); }} className={`chip shrink-0 ${!showMine && kind === null ? "chip-on" : ""}`}>{t("brag.all")}</button>
+        {BRAG_KINDS.map((k) => <button key={k} onClick={() => { setShowMine(false); void loadBrags(sort, k); }} className={`chip shrink-0 ${!showMine && kind === k ? "chip-on" : ""}`}>{t(`brag.kind.${k}`)}</button>)}
+        <span className="mx-1 w-px shrink-0 bg-ink/10" />
+        <button onClick={() => { setShowMine(true); void checkBragLikes(); }} className={`chip shrink-0 ${showMine ? "chip-on" : ""}`} data-testid="brag-mine">{t("brag.mine")} ♥{mineLikes}</button>
       </div>
-      {status === "loading" && <p className="py-6 text-center text-xs text-ink/45">{t("brag.loading")}</p>}
-      {status === "error" && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.error")} <button className="font-bold text-pink-deep" onClick={() => void loadBrags()}>{t("brag.retry")}</button></p>}
-      {status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.none")}</p>}
-      <div className="space-y-3">{list.map((b) => <BragCard key={b.id} b={b} />)}</div>
+      {showMine && (
+        <>
+          <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/60">{t("brag.mineDesc", { n: mine.length, likes: mineLikes })}</p>
+          {mine.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.mineNone")}</p>}
+          <div className="space-y-3">{mine.map((b) => <BragCard key={b.id} b={b} />)}</div>
+        </>
+      )}
+      {!showMine && status === "loading" && <p className="py-6 text-center text-xs text-ink/45">{t("brag.loading")}</p>}
+      {!showMine && status === "error" && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.error")} <button className="font-bold text-pink-deep" onClick={() => void loadBrags()}>{t("brag.retry")}</button></p>}
+      {!showMine && status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.none")}</p>}
+      {!showMine && <div className="space-y-3">{list.map((b) => <BragCard key={b.id} b={b} />)}</div>}
     </>
   );
 }
@@ -225,4 +235,21 @@ export function BragButton({ kind, care, before, className = "" }: { kind: BragK
       <Icon n="party" /> {t("brag.btn")}
     </button>
   );
+}
+
+/** 게임 중 5분마다 내 자랑에 새 좋아요가 왔는지 확인해 알려 준다 (Hud 에 붙어 있다) */
+export function BragWatcher() {
+  const t = useT();
+  const screen = useUI((s) => s.screen);
+  useEffect(() => {
+    if (screen !== "game") return;
+    const check = async () => {
+      const n = await checkBragLikes();
+      if (n > 0) useUI.getState().toast(t("brag.newLikes", { n }), "reward");
+    };
+    const first = setTimeout(check, 4000);
+    const id = setInterval(check, 5 * 60_000);
+    return () => { clearTimeout(first); clearInterval(id); };
+  }, [screen]);
+  return null;
 }
