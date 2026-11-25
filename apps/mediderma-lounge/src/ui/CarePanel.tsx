@@ -7,6 +7,7 @@ import { useUI } from "../store/ui";
 import { applyProduct, availableProduct, beginFree, beginRoutine, closeCare, dirAccuracy, finishCare, routineUnlocked, selectZone } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
+import { BragButton } from "./Brag";
 
 export function CarePanel() {
   const t = useT();
@@ -103,7 +104,10 @@ export function CarePanel() {
             {!!r.lp && <div className="rounded-2xl bg-cream px-3 py-2"><p className="text-[12px] font-bold text-gold">LOUNGE POINT</p><p className="text-lg font-black text-ink">+<Price c="lp" n={r.lp} /></p></div>}
           </div>
           <p className="mt-3 text-center text-[12px] text-ink/45">{t("care.fantasy")}</p>
-          <button className="btn-primary mt-3 w-full" onClick={closeCare}>{t("common.ok")}</button>
+          <div className="mt-3 flex gap-2">
+            {!isCustomer && <BragButton kind="care" care={{ routine: care.routineId, acc: r.accuracy ?? null, stars: null }} before={closeCare} className="shrink-0" />}
+            <button className="btn-primary flex-1" onClick={closeCare}>{t("common.ok")}</button>
+          </div>
         </Sheet>
       </>
     );

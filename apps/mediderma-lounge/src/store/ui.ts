@@ -56,6 +56,10 @@ interface UIState {
   nearPet: string | null;
   toasts: { id: number; text: string }[];
   care: CareSession | null;
+  /** 소셜 패널을 열 때 고를 탭 · 자랑하기 바로가기(종류 · 케어 기록) */
+  socialTab: string | null;
+  bragKind: "look" | "pet" | "plant" | "care" | "collection" | null;
+  bragCare: { routine: string | null; acc: number | null; stars: number | null } | null;
   customers: Customer[];
   consult: string | null;
   selected: string | null; // 편집 중 가구 uid
@@ -90,6 +94,9 @@ export const useUI = create<UIState>((set, get) => ({
   nearPet: null,
   toasts: [],
   care: null,
+  socialTab: null,
+  bragKind: null,
+  bragCare: null,
   customers: [],
   consult: null,
   selected: null,

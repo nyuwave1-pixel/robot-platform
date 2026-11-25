@@ -10,6 +10,7 @@ import { lifeDaily, ownedCurios, useLife } from "../store/life";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
+import { BragButton } from "./Brag";
 import { BoxArt, CurioArt, PlantArt, WorkoutArt } from "./LifeArt";
 import { Preview } from "./Screens";
 import { StyleChallenge } from "./StyleChallenge";
@@ -100,7 +101,7 @@ function Garden() {
       </div>
       {Object.keys(life.harvested).length > 0 && (
         <>
-          <p className="mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("garden.book")}</p>
+          <div className="mt-4 flex items-center justify-between gap-2"><p className="text-[13px] font-black tracking-wide text-pink-deep">{t("garden.book")}</p><BragButton kind="plant" /></div>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {PLANTS.filter((p) => life.harvested[p.id]).map((p) => <span key={p.id} className="chip inline-flex items-center gap-1"><PlantArt color={p.color} stage={3} size={18} /> {p.ingredient} ×{life.harvested[p.id]}</span>)}
           </div>
@@ -237,7 +238,7 @@ function Collection() {
         </div>
         <button className="btn-primary shrink-0 !px-3 !py-2 text-xs" onClick={open} data-testid="open-box"><Price c="coin" n={BOX_COST} /></button>
       </div>
-      <p className="mt-3 text-[13px] font-black tracking-wide text-pink-deep">{t("col.album")} ({ownedCurios(life)}/{CURIOS.length})</p>
+      <div className="mt-3 flex items-center justify-between gap-2"><p className="text-[13px] font-black tracking-wide text-pink-deep">{t("col.album")} ({ownedCurios(life)}/{CURIOS.length})</p>{ownedCurios(life) > 0 && <BragButton kind="collection" />}</div>
       {CURIO_SETS.map((st) => {
         const items = CURIOS.filter((c) => c.set === st.id);
         const have = items.filter((c) => (life.curios[c.id] ?? 0) > 0).length;

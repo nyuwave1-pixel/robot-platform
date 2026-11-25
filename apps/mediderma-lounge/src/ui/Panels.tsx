@@ -16,6 +16,7 @@ import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
 import { GuestbookPanel } from "./Guestbook";
+import { BragButton, BragFeed } from "./Brag";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -136,6 +137,7 @@ function CharacterPanel() {
             </p>
           )}
           <div className="grid grid-cols-2 gap-2">{wear(slot).map((f) => <Item key={f.id} id={f.id} s={slot} />)}</div>
+          <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-pink-soft/40 px-3 py-2"><p className="text-[12px] font-semibold text-ink/60">{t("brag.lookHint")}</p><BragButton kind="look" className="shrink-0" /></div>
         </>
       )}
       {tab === "pose" && (
@@ -375,7 +377,11 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
 function SocialPanel() {
   const t = useT();
   const g = useGame();
-  const [tab, setTab] = useState<"feed" | "friends" | "invite" | "rank">("feed");
+  const [tab, setTab] = useState<"brag" | "feed" | "friends" | "invite" | "rank">(() => {
+    const want = useUI.getState().socialTab;
+    return want === "feed" || want === "friends" || want === "invite" || want === "rank" ? want : "brag";
+  });
+  useEffect(() => { useUI.setState({ socialTab: null }); }, []);
   const [text, setText] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [cm, setCm] = useState("");
@@ -385,9 +391,10 @@ function SocialPanel() {
   ].sort((a, b) => b.score - a.score), [g.followers, g.lounge.level, g.stage, g.name]);
   return (
     <Sheet title="BEAUTY SOCIAL" wide>
-      <Tabs tabs={[["feed", "BEAUTY FEED"], ["friends", t("social.friends")], ["invite", t("invite.tab")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
+      <Tabs tabs={[["brag", t("brag.tab")], ["feed", t("social.myFeed")], ["friends", t("social.friends")], ["invite", t("invite.tab")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
       {tab === "invite" && <InviteBody />}
-      <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>
+      {tab === "brag" && <BragFeed />}
+      {tab !== "brag" && <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>}
       {tab === "feed" && (
         <>
           <div className="mb-3 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">

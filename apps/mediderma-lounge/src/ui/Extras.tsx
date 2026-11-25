@@ -9,6 +9,7 @@ import { useUI } from "../store/ui";
 import { layout } from "../three/layout";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
+import { BragButton } from "./Brag";
 
 const toast = (s: string) => useUI.getState().toast(s);
 
@@ -21,7 +22,7 @@ export function PetsBody() {
   return (
     <>
       <p className="text-[13px] leading-relaxed text-ink/60">{t("pet.desc")}</p>
-      <p className="mt-3 text-[13px] font-black tracking-wide text-pink-deep">{t("pet.mine")} ({g.pets.length}/{MAX_PETS})</p>
+      <div className="mt-3 flex items-center justify-between gap-2"><p className="text-[13px] font-black tracking-wide text-pink-deep">{t("pet.mine")} ({g.pets.length}/{MAX_PETS})</p>{g.pets.length > 0 && <BragButton kind="pet" />}</div>
       <div className="mt-1.5 space-y-2">
         {g.pets.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/50">{t("pet.none")}</p>}
         {g.pets.map((p) => {
