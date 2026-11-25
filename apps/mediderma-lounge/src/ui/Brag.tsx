@@ -72,7 +72,7 @@ export function BragBody({ kind, data }: { kind: BragKind; data: BragData }) {
           <div key={p.id} className="flex flex-col items-center rounded-xl bg-white p-1.5 text-center">
             <PlantArt color={PLANT_MAP[p.id].color} stage={3} size={36} />
             <p className="mt-0.5 truncate text-[12px] font-bold text-ink/75">{L(PLANT_MAP[p.id])}</p>
-            <p className="text-[12px] font-black text-gold">×{p.n}</p>
+            <p className="text-[12px] font-black text-gold">×{p.n}{p.g ? ` · ✨${p.g}` : ""}</p>
           </div>
         ))}
       </div>

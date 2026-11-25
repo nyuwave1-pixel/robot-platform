@@ -19,13 +19,13 @@ describe("뷰티 자랑", () => {
     expect(bragDataOf("pet")).toBeNull();
     expect(bragDataOf("plant")).toBeNull();
     useLife.setState({ harvested: { mint: 3, rose: 1 } });
-    expect(bragDataOf("plant")?.plants?.[0]).toEqual({ id: "mint", n: 3 });
+    expect(bragDataOf("plant")?.plants?.[0]).toEqual({ id: "mint", n: 3, g: 0 });
     expect(bragDataOf("care", { care: { routine: "calming", acc: 88, stars: null } })?.care?.acc).toBe(88);
   });
   it("서버가 준 자랑은 아는 값만 받는다 (이상한 값 · 다른 종류 문구는 버림)", () => {
     const ok = cleanBrag({ id: 5, writer: "ABC123", name: "Mina<script>", kind: "plant", msg: 7, data: { plants: [{ id: "mint", n: 2 }, { id: "evil", n: 9 }] }, likes: 3, liked: true, at: "2026-11-25T10:00:00Z" });
     expect(ok?.name).toBe("Minascript");
-    expect(ok?.data.plants).toEqual([{ id: "mint", n: 2 }]);
+    expect(ok?.data.plants).toEqual([{ id: "mint", n: 2, g: 0 }]);
     expect(cleanBrag({ id: 5, writer: "ABC123", name: "x", kind: "plant", msg: 0, data: {}, likes: 0, at: "2026-11-25T10:00:00Z" })).toBeNull(); // 룩 문구
     expect(cleanBrag({ id: 5, writer: "bad", name: "x", kind: "look", msg: 0, data: {}, at: "2026-11-25T10:00:00Z" })).toBeNull();
     expect(cleanBragData("pet", { pet: { type: "dragon", name: "x" } })).toBeNull();

@@ -613,5 +613,12 @@
   "pet.accShop": "Pet head accessories",
   "pet.accOwned": "Owned",
   "pet.accBought": "Bought {name}! Try it on your pet",
-  "pet.accNone": "None"
+  "pet.accNone": "None",
+  "garden.golden": "Golden harvest!",
+  "garden.fert": "Fertilizer",
+  "garden.fertHint": "Grows 30% faster and raises golden harvest odds (once per pot)",
+  "garden.fertDone": "Fertilized — it'll grow faster",
+  "garden.fertUsed": "Already fertilized",
+  "garden.fertOn": "Fertilized ✓",
+  "garden.goldenOdds": "Golden harvest {n}%"
 }

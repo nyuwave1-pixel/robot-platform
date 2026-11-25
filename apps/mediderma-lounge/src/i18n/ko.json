@@ -613,5 +613,12 @@
   "pet.accShop": "펫 머리 장식",
   "pet.accOwned": "보유",
   "pet.accBought": "{name} 구매 완료! 펫에게 씌워 보세요",
-  "pet.accNone": "장식 없음"
+  "pet.accNone": "장식 없음",
+  "garden.golden": "황금 수확!",
+  "garden.fert": "영양제",
+  "garden.fertHint": "남은 성장 시간 30% 단축 · 황금 수확 확률 상승 (화분마다 한 번)",
+  "garden.fertDone": "영양제를 줬어요 — 더 빨리 자라요",
+  "garden.fertUsed": "이미 영양제를 줬어요",
+  "garden.fertOn": "영양제 ✓",
+  "garden.goldenOdds": "황금 수확 확률 {n}%"
 }

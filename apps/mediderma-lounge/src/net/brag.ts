@@ -41,7 +41,7 @@ export const BRAG_REWARD = 10;
 export interface BragData {
   look?: Look; stage?: number;
   pet?: { type: string; name: string; affection: number; level?: number; acc?: string | null };
-  plants?: { id: string; n: number }[];
+  plants?: { id: string; n: number; g?: number }[];
   care?: { routine: string | null; acc: number | null; stars: number | null };
   curios?: { owned: number; total: number; sets: string[]; best: string[] };
 }
@@ -61,8 +61,8 @@ export function cleanBragData(kind: BragKind, v: unknown): BragData | null {
   if (kind === "plant") {
     const plants = (Array.isArray(o.plants) ? o.plants : []).slice(0, 3).map((x) => {
       const q = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
-      return typeof q.id === "string" && PLANT_MAP[q.id] ? { id: q.id, n: int(q.n, 1, 9999) ?? 1 } : null;
-    }).filter((x): x is { id: string; n: number } => !!x);
+      return typeof q.id === "string" && PLANT_MAP[q.id] ? { id: q.id, n: int(q.n, 1, 9999) ?? 1, g: int(q.g, 0, 9999) ?? 0 } : null;
+    }).filter((x): x is { id: string; n: number; g: number } => !!x);
     return plants.length ? { plants } : null;
   }
   if (kind === "care") {
@@ -97,7 +97,7 @@ export function bragDataOf(kind: BragKind, extra?: { petId?: string; care?: Brag
   }
   if (kind === "plant") {
     const plants = Object.entries(useLife.getState().harvested).filter(([id, n]) => PLANT_MAP[id] && n > 0)
-      .sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id, n]) => ({ id, n }));
+      .sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id, n]) => ({ id, n, g: (useLife.getState().golden ?? {})[id] ?? 0 }));
     return plants.length ? { plants } : null;
   }
   if (kind === "care") {
