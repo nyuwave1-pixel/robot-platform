@@ -167,6 +167,7 @@ python3 scripts/films/build_product_loops.py
 - 2026-11-13: 드라이브 3차 수정본(20261113_v3) 반영. 4번째 제품 "Hydrating Skin Barrier Serum Mist" 페이지 추가(TikTok Shop 판매, 모든 구매 버튼이 TikTok Shop으로 연결, `/?product=mist` 광고 경로). 제품 3종 검색 제목·설명을 미국 검색어 기준으로 변경, 조직 구조화 데이터에 TikTok 계정·브랜드 별칭 추가
 - 2026-11-16: 드라이브 4차 수정본(20261116_v4) 반영. 제품 3종 랜딩 페이지의 아마존 버튼에 제품별 Amazon Attribution 링크(`landingAmazonUrl`) 적용. 홈·가이드의 아마존 버튼은 일반 상품 링크 유지
 - 2026-11-25: 홈 화면 제품 버튼 7개(워시 3, 마스크 2, 앰플 2)와 모바일 하단 구매 바도 제품별 Amazon Attribution 링크(`landingAmazonUrl`, Meta 광고용)로 변경. 상단 "Shop on Amazon"·히어로 버튼은 브랜드 스토어 링크 유지 (드라이브 `unincore-promotion_attribution_20261125.zip`, 커밋 `bf76596`, Netlify 배포 `6b0644cc3c9e152c9f1463c3`)
+- 2026-11-25: 블랙프라이데이 20% 할인 표시 켬(앰플·마스크·워시, Amazon 딜 적용 확인 후). 제품 페이지 상단 띠·할인 상자·홈 배지가 11/30(미국 태평양 시간)까지 나오고 이후 자동으로 꺼짐. Amazon 딜이 일찍 끝나면 `products.ts`의 `bfcm()`에서 `enabled: false`로 바꾸고 재배포. ASIN 3개 직접 확인 완료(`asinVerified: true`). Netlify 배포 `6b066f0d7364b9e2d5dc091c`
 - 가이드 10개(/guides). 상단 메뉴·푸터·제품 페이지 하단에서 연결
 - 속도: 태그(gtag/GTM/Pixel)는 첫 조작 또는 3초 뒤, 스크롤 효과(GSAP)는 첫 화면 뒤에 불러옴. Lighthouse 모바일 2026-11-16 라이브: 홈 85, 앰플 82, SEO 100
 - `unincore-engine/`: 매일 점검·키워드·홍보 이미지 렌더링·승인 요청(`python -m engine propose/approvals/approve/publish`)
@@ -175,11 +176,9 @@ python3 scripts/films/build_product_loops.py
 
 | 할 일 | 필요한 것 |
 |---|---|
-| 블랙프라이데이 배너·할인 상자 채우기 | 제품별 실제 할인율·기간 (지금은 `enabled: false`, 할인 상자는 자리 표시 문구) |
 | 한국 판매량 문구 근거 확인 | "100,000+ bottles sold in Korea", "10M+ sold in Korea" 의 근거 자료 |
 | 아마존 리뷰 인용 유지 여부 | 아마존 정책 확인 (리뷰 9건 원문 인용 중) |
 | Amazon Attribution 채널별 링크 | Meta 광고용 링크는 랜딩 페이지(2026-11-16)·홈 제품 버튼(2026-11-25)에 적용 완료. Google·이메일용 링크는 아직 없음 |
-| 아마존 링크 확인 | 3개 ASIN 페이지를 직접 열어 확인 (`asinVerified: true`로 변경) |
 | GA4 관리 화면 설정 | `docs/GA4_SETUP.md` 체크리스트 (주요 이벤트, 맞춤 측정기준, 보존 14개월) |
 | (선택) 부작용 신고 안내 | 미국용 연락 이메일 → Contact 페이지 |
 | (선택) 라벨 정확한 AI 제품 영상 | Google Flow로 생성한 MP4 |
