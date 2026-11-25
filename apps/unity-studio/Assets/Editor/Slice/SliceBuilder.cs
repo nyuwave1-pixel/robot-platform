@@ -91,9 +91,14 @@ namespace SpecialSoldier.EditorTools
             var sand = Mat("Sand", new Color(0.62f, 0.55f, 0.42f), 0.9f);
             var concrete = Mat("Concrete", new Color(0.55f, 0.55f, 0.53f), 0.85f);
             var crate = Mat("Crate", new Color(0.42f, 0.33f, 0.2f), 0.8f);
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            ground.name = "Ground"; ground.transform.SetParent(level.transform); ground.transform.localScale = new Vector3(16f, 1f, 16f);
-            ground.GetComponent<Renderer>().sharedMaterial = sand;
+            // the web game's island (shared formula, Core.IslandTerrain) as a Unity Terrain; the slice stands on its base flat
+            var island = BuildIsland(level);
+            if (!island)
+            {
+                var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);   // fallback: the old flat ground
+                ground.name = "Ground"; ground.transform.SetParent(level.transform); ground.transform.localScale = new Vector3(16f, 1f, 16f);
+                ground.GetComponent<Renderer>().sharedMaterial = sand;
+            }
 
             // perimeter walls + a compound in the middle + scattered cover
             for (int i = 0; i < 4; i++)
@@ -123,7 +128,8 @@ namespace SpecialSoldier.EditorTools
             screen.name = "Screen"; screen.transform.SetParent(terminal.transform, false); screen.transform.localPosition = new Vector3(0f, 0.15f, -0.51f); screen.transform.localScale = new Vector3(0.8f, 0.5f, 1f);
             screen.GetComponent<Renderer>().sharedMaterial = Mat("TerminalScreen", new Color(0.2f, 0.9f, 0.5f), 0.1f);
             var surface = level.AddComponent<NavMeshSurface>();
-            surface.collectObjects = CollectObjects.Children;
+            // only the arena: the island is 1.2 km and agents never leave the walls
+            surface.collectObjects = CollectObjects.Volume; surface.center = new Vector3(0f, 0f, 0f); surface.size = new Vector3(190f, 40f, 190f);
             surface.BuildNavMesh();
             // Save the baked data as an asset: an in-memory NavMeshData only survives builds made in this same Editor
             // process (the Windows build), so a later WebGL build in a fresh process had no navmesh ("no valid NavMesh").
@@ -271,6 +277,83 @@ namespace SpecialSoldier.EditorTools
             vig.intensity.Override(0.22f); vig.smoothness.Override(0.45f);
             EditorUtility.SetDirty(profile); AssetDatabase.SaveAssets();
             return profile;
+        }
+
+        const string TerrainDir = "Assets/Imported/Terrain";
+
+        /// <summary>Unity Terrain of the web game's 1.2 km island (Core.IslandTerrain, parity-tested against terrain.js): 513² heights,
+        /// four splat layers from the web game's CC0 photo textures (copied from apps/special-soldier/src/assets/tex at build time,
+        /// one tile = 2.5 m like the web shader), plus a sea plane. Positioned so island (0, 16, −95) is world (0, 0, 0).</summary>
+        static Terrain BuildIsland(GameObject level)
+        {
+            string texSrc = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "special-soldier", "src", "assets", "tex"));
+            if (!Directory.Exists(texSrc)) { Debug.LogWarning("[Slice] island skipped: web textures not found at " + texSrc); return null; }
+            Directory.CreateDirectory(TerrainDir);
+            var layers = new TerrainLayer[4];
+            string[] names = { "sand", "grass", "rock", "concrete" };
+            for (int i = 0; i < 4; i++)
+            {
+                foreach (var suffix in new[] { "_d", "_n" })
+                {
+                    string dst = $"{TerrainDir}/{names[i]}{suffix}.jpg";
+                    File.Copy(Path.Combine(texSrc, names[i] + suffix + ".jpg"), dst, true);
+                    AssetDatabase.ImportAsset(dst, ImportAssetOptions.ForceUpdate);
+                    if (suffix == "_n" && AssetImporter.GetAtPath(dst) is TextureImporter ti && ti.textureType != TextureImporterType.NormalMap)
+                    { ti.textureType = TextureImporterType.NormalMap; ti.SaveAndReimport(); }
+                }
+                string layerPath = $"{SettingsDir}/Terrain_{names[i]}.terrainlayer";
+                var layer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(layerPath);
+                if (!layer) { layer = new TerrainLayer(); AssetDatabase.CreateAsset(layer, layerPath); }
+                layer.diffuseTexture = AssetDatabase.LoadAssetAtPath<Texture2D>($"{TerrainDir}/{names[i]}_d.jpg");
+                layer.normalMapTexture = AssetDatabase.LoadAssetAtPath<Texture2D>($"{TerrainDir}/{names[i]}_n.jpg");
+                layer.tileSize = new Vector2(2.5f, 2.5f); layer.smoothness = names[i] == "concrete" ? 0.15f : 0.05f;
+                EditorUtility.SetDirty(layer); layers[i] = layer;
+            }
+
+            const int res = 513;
+            var h = IslandTerrain.HeightGrid(res, out float min, out float max);
+            float range = Mathf.Max(1f, max - min);
+            var norm = new float[res, res];
+            for (int r = 0; r < res; r++) for (int c = 0; c < res; c++) norm[r, c] = (h[r, c] - min) / range;
+
+            string dataPath = SettingsDir + "/IslandTerrain.asset";
+            AssetDatabase.DeleteAsset(dataPath);
+            var data = new TerrainData { heightmapResolution = res };
+            data.size = new Vector3(IslandTerrain.Size, range, IslandTerrain.Size);
+            data.SetHeights(0, 0, norm);
+            data.terrainLayers = layers;
+            const int ares = 512;
+            data.alphamapResolution = ares;
+            var alpha = new float[ares, ares, 4];
+            for (int r = 0; r < ares; r++)
+                for (int c = 0; c < ares; c++)
+                {
+                    double x = -IslandTerrain.Size / 2 + (c + 0.5) * IslandTerrain.Size / ares, z = -IslandTerrain.Size / 2 + (r + 0.5) * IslandTerrain.Size / ares;
+                    var w = IslandTerrain.Splat(x, z);
+                    alpha[r, c, 0] = (float)w.sand; alpha[r, c, 1] = (float)w.grass; alpha[r, c, 2] = (float)w.rock; alpha[r, c, 3] = (float)w.concrete;
+                }
+            data.SetAlphamaps(0, 0, alpha);
+            AssetDatabase.CreateAsset(data, dataPath);
+
+            var go = Terrain.CreateTerrainGameObject(data);
+            go.name = "Island"; go.transform.SetParent(level.transform);
+            go.transform.position = new Vector3((float)(-IslandTerrain.Size / 2 - IslandTerrain.SliceIslandX), (float)(min - IslandTerrain.SliceIslandY), (float)(-IslandTerrain.Size / 2 - IslandTerrain.SliceIslandZ));
+            go.isStatic = true;
+            var terrain = go.GetComponent<Terrain>();
+            var tmat = new Material(Shader.Find("Universal Render Pipeline/Terrain/Lit"));
+            AssetDatabase.CreateAsset(tmat, SettingsDir + "/IslandTerrain.mat");
+            terrain.materialTemplate = tmat; terrain.heightmapPixelError = 4f; terrain.basemapDistance = 400f;
+
+            // sea at island height 0 (world −16)
+            var sea = GameObject.CreatePrimitive(PrimitiveType.Plane); Object.DestroyImmediate(sea.GetComponent<Collider>());
+            sea.name = "Sea"; sea.transform.SetParent(level.transform);
+            sea.transform.position = new Vector3(0f, (float)-IslandTerrain.SliceIslandY, 0f); sea.transform.localScale = new Vector3(400f, 1f, 400f);
+            sea.GetComponent<Renderer>().sharedMaterial = Mat("Sea", new Color(0.1f, 0.27f, 0.33f), 0.08f);
+
+            AssetDatabase.SaveAssets();
+            float atOrigin = terrain.SampleHeight(Vector3.zero) + go.transform.position.y;
+            Debug.Log($"[Slice] island terrain {res}² heights ({min:0.0}..{max:0.0} m), {ares}² splat, ground at slice origin y = {atOrigin:0.00} (expect 0)");
+            return terrain;
         }
 
         /// <summary>PanelSettings for the HUD: default runtime theme (Assets/UI/SliceTheme.tss), scale with screen size from 1920×1080.</summary>

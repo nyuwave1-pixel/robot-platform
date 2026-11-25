@@ -273,3 +273,16 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   GameDirector.CurrentDifficulty(코드 지정 → `-difficulty` → 저장값 순, 지연 평가).
 - 검증: dotnet `CoreTests~` **253/253**(설정 테스트 4개, 웹 기본값·슬라이더·시점 공식 대조). PlayMode `PauseMenuTests` 2개 추가, 기존 PlayMode 테스트는 기본 설정으로 고정.
   **Unity 컴파일·화면은 아직 확인 전.**
+
+## 2026-11-25 (8) — 공용 섬 지형: 웹판과 Unity판이 같은 섬 (허브 세션, 클라우드)
+
+- **웹**: `src/world/world.js` 의 섬 공식(rawHeight·FLATS·SIZE)을 three.js 없는 `src/world/terrain.js` 로 옮김(+ `splatAt`). `world.js` 는 그대로 다시 내보냄 →
+  hud.js·build.js 등 기존 import 영향 없음. 이전 공식과 121×121 = 14,641점 **높이 완전 동일** 확인. 새 `tests/terrain.test.mjs`, 웹 `npm test` **22/22**.
+- **Unity**: `Core/IslandTerrain.cs` — 웹 terrain.js·util.js(hash·noise2·fbm·smooth) 줄 단위 이식. 웹 모듈에서 만든 픽스처(`Tools~/gen-terrain-fixture.mjs`)와
+  609점 높이(오차 < 1e-9 m)·153점 재질 배합·노이즈(비트 단위) 일치. `HeightGrid` 로 Unity Terrain 높이맵.
+- `SliceBuilder.BuildIsland`: 섬 전체(1.2 km) Terrain — 높이 513², 재질 배합 512²(모래·풀·바위·콘크리트, 웹 CC0 사진 텍스처를 빌드 때 복사, 타일 2.5 m),
+  바다(섬 높이 0). 슬라이스는 섬 기지 평지(16 m) 가운데 — 월드 (0,0,0) = 섬 (0, 16, −95), 벽 안은 전부 평지. NavMesh는 경기장 190 m 범위만.
+  평평한 Ground 판은 섬이 없을 때만 예비로.
+- 지도: `docs/game-dev/screenshots/island-terrain-shared.png`.
+- 함께 고친 것: 내 하늘 커밋이 Unity 전용 HDRI 행을 웹 대장에 넣어 웹 크레딧 테스트가 실패하던 문제 → Unity 전용 대장 `apps/unity-studio/ASSET_LICENSES.md` 로 이동.
+- 검증: dotnet `CoreTests~` **258/258**. **Unity 지형 화면은 아직 확인 전.**

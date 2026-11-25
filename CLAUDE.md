@@ -14,4 +14,6 @@ This repo holds several projects. Read the part that matches your task.
 - Free assets: follow the `free-asset-pipeline` skill (license gate, ledger, test in the running game).
 - Unity: `docs/game-dev/UNITY_SETUP.md`, `docs/game-dev/UNITY_CLAUDE_INTEGRATION.md`. SPECIAL SOLDIER stays on Three.js.
 - BIT PARK portal (separate repo) reads `docs/game-dev/bitpark/feed.json`; regenerate it with `node tools/portal/export-bitpark-feed.mjs` after game changes.
+- The island is shared: `apps/special-soldier/src/world/terrain.js` is the source; Unity's `Core/IslandTerrain.cs` must match it
+  (`node "apps/unity-studio/Tools~/gen-terrain-fixture.mjs"` after changing the island, then `dotnet test "apps/unity-studio/CoreTests~"`).
 - Do not commit Unity `Library/`, build output, Asset Store assets, or `__pycache__/`.

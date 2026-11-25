@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T07:19:42.539Z",
+  "generatedAt": "2026-11-25T08:00:50.827Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "f26f93a"
+    "commit": "cbc74bc"
   },
   "section": {
     "id": "game-dev-lab",
@@ -58,6 +58,7 @@
         "webgl": null
       },
       "screenshots": [
+        "docs/game-dev/screenshots/island-terrain-shared.png",
         "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
         "docs/game-dev/screenshots/unity-hud.jpg",
         "docs/game-dev/screenshots/unity-island-slice-first-run.png",
@@ -383,6 +384,24 @@
   },
   "devlog": [
     {
+      "hash": "cbc74bc",
+      "date": "2026-11-25",
+      "area": "game-dev",
+      "subject": "docs(game-dev): hub claims the shared island terrain work (web + Unity)"
+    },
+    {
+      "hash": "d859148",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): pause-menu volume applies before the first sound; PauseMenuTests compile; run-batch waits for Unity only"
+    },
+    {
+      "hash": "dd25198",
+      "date": "2026-11-25",
+      "area": "unity-studio",
+      "subject": "feat(unity-studio): settings and pause menu (Esc) with the web game's options, saved between sessions"
+    },
+    {
       "hash": "f26f93a",
       "date": "2026-11-25",
       "area": "game-dev",
@@ -603,24 +622,6 @@
       "date": "2026-11-21",
       "area": "special-soldier",
       "subject": "docs(special-soldier): record v0.17 full e2e (65/65)"
-    },
-    {
-      "hash": "7c3d611",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): genre benchmark and entry-flow overhaul — title card, BOOT CAMP, first-run prompt, tips (v0.17)"
-    },
-    {
-      "hash": "f44f7d0",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "docs(special-soldier): record regression with the Higgsfield characters"
-    },
-    {
-      "hash": "f7e5239",
-      "date": "2026-11-21",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): Higgsfield-designed models for all six enemy types"
     }
   ]
 }

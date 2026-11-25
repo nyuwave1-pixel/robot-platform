@@ -9,7 +9,7 @@
     "dev": "vite --port 5180",
     "build": "vite build",
     "preview": "vite preview --port 5181",
-    "test": "node --test tests/balance.test.mjs tests/nav.test.mjs tests/credits.test.mjs",
+    "test": "node --test tests/balance.test.mjs tests/nav.test.mjs tests/credits.test.mjs tests/terrain.test.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "test:nav": "node tests/nav-scenario.mjs",
     "desktop": "electron .",

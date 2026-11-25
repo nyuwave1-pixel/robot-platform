@@ -1,6 +1,6 @@
 // Downloads the CC0 sky HDRIs the slice uses from Poly Haven (official API), checks each file's MD5, and writes them to
 // Assets/Resources/Sky/ (loaded at runtime by SkyDirector). Re-run to restore or change resolution:  node "apps/unity-studio/Tools~/fetch-hdris.mjs" [1k|2k]
-// Licence: CC0 (https://polyhaven.com/license). Ledger: apps/special-soldier/docs/ASSET_LICENSES.md
+// Licence: CC0 (https://polyhaven.com/license). Ledger: apps/unity-studio/ASSET_LICENSES.md (Unity-only assets)
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
