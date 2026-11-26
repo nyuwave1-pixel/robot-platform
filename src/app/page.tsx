@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonical } from "@/lib/seo";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import AdSlot from "@/components/AdSlot";
@@ -17,6 +18,7 @@ interface Robot {
 }
 
 export const metadata: Metadata = {
+  ...canonical(""),
   // title은 layout의 default 사용 (중복 접미사 방지)
   description:
     "휴머노이드·산업·의료·드론 등 48종의 실제 로봇을 탐색하고 비교하는 로봇 정보 플랫폼.",

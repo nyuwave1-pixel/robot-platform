@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonical, absoluteUrl } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Star, MapPin, Calendar, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -44,6 +45,13 @@ export async function generateMetadata({
   return {
     title: `${robot.name} — ${CATEGORY_LABELS[robot.category] || robot.category} 로봇`,
     description: `${robot.name}(${robot.country}, ${robot.year}): ${robot.description}`,
+    ...canonical(`/robots/${robot.id}`),
+    openGraph: {
+      title: `${robot.name} — ${CATEGORY_LABELS[robot.category] || robot.category} 로봇`,
+      description: robot.description,
+      url: absoluteUrl(`/robots/${robot.id}`),
+      type: "article",
+    },
   };
 }
 
@@ -70,6 +78,17 @@ export default async function RobotDetailPage({
     countryOfOrigin: robot.country,
     releaseDate: String(robot.year),
     keywords: robot.technology.join(", "),
+    url: absoluteUrl(`/robots/${robot.id}`),
+  };
+  // 검색 결과에 "로봇플랫폼 > 로봇 갤러리 > 이름" 경로 표시 (Google·네이버 모두 지원)
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "로봇플랫폼", item: absoluteUrl() },
+      { "@type": "ListItem", position: 2, name: "로봇 갤러리", item: absoluteUrl("/robots") },
+      { "@type": "ListItem", position: 3, name: robot.name, item: absoluteUrl(`/robots/${robot.id}`) },
+    ],
   };
 
   return (
@@ -77,6 +96,10 @@ export default async function RobotDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-8">

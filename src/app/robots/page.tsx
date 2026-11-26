@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { canonical } from "@/lib/seo";
 import RobotsClient from "./RobotsClient";
 import robotsData from "../../../public/data/robots.json";
 
 export const metadata: Metadata = {
+  ...canonical("/robots"),
   title: "로봇 갤러리 — 48종 로봇 탐색",
   description:
     "휴머노이드·산업용·의료용·드론 등 세계 48종의 실제 로봇을 검색·카테고리·기술·신뢰도로 탐색하고 비교하세요.",

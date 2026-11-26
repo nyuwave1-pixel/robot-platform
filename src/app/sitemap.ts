@@ -4,20 +4,16 @@ import robots from "../../public/data/robots.json";
 const BASE_URL = "https://www.airobotphysical.com/robot-platform";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // noindex 페이지(로그인·예시 화면)는 넣지 않는다 — 사이트맵은 색인 요청 목록
   const staticRoutes = [
     "",
     "/robots",
     "/forum",
     "/market",
     "/leaderboard",
-    "/analytics",
     "/about",
     "/docs",
     "/pricing",
-    "/blog",
-    "/stats",
-    "/signin",
-    "/signup",
   ].map((path) => ({
     url: `${BASE_URL}${path}`,
     lastModified: new Date(),

@@ -1,0 +1,8 @@
+# BEAUTY LIFE (뷰티 라이프) — 모든 검색엔진 허용
+User-agent: *
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+Sitemap: https://beautylife-game.vercel.app/sitemap.xml
