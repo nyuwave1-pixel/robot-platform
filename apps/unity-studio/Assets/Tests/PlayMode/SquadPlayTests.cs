@@ -45,6 +45,8 @@ namespace SpecialSoldier.PlayModeTests
             Assert.That(Vector3.Distance(mates[2].transform.position, p.position), Is.LessThan(keep), $"and keeps formation behind you (fighting={mates[2].Fighting})");
 
             Assert.IsFalse(d.SquadWeaponsFree);
+            d.ReportNoise(p.position, 14f, combat: false);   // a sprinting footstep (PlayerMotor)
+            Assert.IsFalse(d.SquadWeaponsFree, "footsteps never set weapons free (it lets every enemy spot the squad from 70 m)");
             d.ReportNoise(p.position, 50f);
             Assert.IsTrue(d.SquadWeaponsFree, "the first shot: weapons free");
 

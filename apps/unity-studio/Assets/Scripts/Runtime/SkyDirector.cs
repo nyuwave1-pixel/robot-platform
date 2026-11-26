@@ -22,6 +22,8 @@ namespace SpecialSoldier
         public bool missionSky;
         public float basePostExposure = 0.3f;        // the slice's tuned exposure (PC run 2026-11-23) on top of the preset's EV
         public float sunScale = 1.1f;                // web sunI → Unity lux-less intensity
+        /// <summary>The sea plane (SliceBuilder "Sea"; found by name when empty). Its colour follows the sky like the web water.</summary>
+        public Renderer sea;
 
         public SkyPreset Target { get; private set; }
         public SkyPreset Current { get; private set; }
@@ -32,6 +34,8 @@ namespace SpecialSoldier
         ParticleSystem _rain;
         string _loadedHdri;
         float _envT;
+        MaterialPropertyBlock _seaBlock;   // made in Awake: never create Unity objects in a field initializer
+        static readonly int BaseColorId = Shader.PropertyToID("_BaseColor"), ColorId = Shader.PropertyToID("_Color"), SmoothId = Shader.PropertyToID("_Smoothness");
 
         public static string RequestedPreset()
         {
@@ -52,6 +56,8 @@ namespace SpecialSoldier
             _savedSky = SettingsStore.Current.SkyId;
             SettingsStore.Changed += OnSettings;
             Current = Target.Clone();
+            if (!sea) { var seaGo = GameObject.Find("Sea"); if (seaGo) sea = seaGo.GetComponent<Renderer>(); }
+            if (sea) _seaBlock = new MaterialPropertyBlock();
             MakeRain();
             Apply(Current);
         }
@@ -92,6 +98,21 @@ namespace SpecialSoldier
                 sun.intensity = p.SunIntensity * sunScale * p.LightScale + flash * 2.5f;   // dimmer under storm clouds and at night
                 var d = p.SunDirUnity;
                 sun.transform.rotation = Quaternion.LookRotation(-new Vector3(d.X, d.Y, d.Z));
+                // overcast: soft, faint shadows (PC 2026-11-26: M03 storm trees cast hard black shadows)
+                float overcast = Mathf.Clamp01(Mathf.Max(p.Storm, p.Rain * 0.8f));
+                if (overcast > 0.3f && sun.shadows != LightShadows.None) sun.shadows = LightShadows.Soft;
+                sun.shadowStrength = Mathf.Lerp(1f, 0.3f, overcast) * Mathf.Lerp(1f, 0.6f, p.Night);
+            }
+            // environment reflections come from the baked (day) skybox: dim them at night and under storm clouds, or the
+            // smooth sea mirrors a bright day sky (PC 2026-11-26: M01 night sea was light blue)
+            RenderSettings.reflectionIntensity = Mathf.Lerp(1f, 0.12f, p.Night) * Mathf.Lerp(1f, 0.55f, p.Storm);
+            if (sea && _seaBlock != null)
+            {
+                // web sky.js: water colour = sky bottom × 0.35 + #061a26, roughness 0.3
+                var wc = C(p.Bottom) * 0.35f + new Color(0x06 / 255f, 0x1a / 255f, 0x26 / 255f); wc.a = 1f;
+                sea.GetPropertyBlock(_seaBlock);
+                _seaBlock.SetColor(BaseColorId, wc); _seaBlock.SetColor(ColorId, wc); _seaBlock.SetFloat(SmoothId, 0.7f);
+                sea.SetPropertyBlock(_seaBlock);
             }
             RenderSettings.fog = p.FogDensity > 0f;
             RenderSettings.fogMode = FogMode.ExponentialSquared;           // same falloff as three.js FogExp2

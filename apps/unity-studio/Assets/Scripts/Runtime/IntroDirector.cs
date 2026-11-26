@@ -22,7 +22,7 @@ namespace SpecialSoldier
         int _shown = -1;
         Cinematic _cine; Camera _cam, _view; VisualElement _top, _bottom, _fade; Label _caption;
         readonly List<Behaviour> _paused = new List<Behaviour>();
-        float _fadeA;
+        float _fadeA; int _startFrame;
 
         void Awake() => Instance = this;
         void OnDestroy() { if (Instance == this) Instance = null; }
@@ -36,7 +36,7 @@ namespace SpecialSoldier
             if (m == null || (!boatRide && (m.Intro == null || m.Intro.Length == 0)) || SettingsStore.Volatile || Playing) return;
             var shots = boatRide ? BoatIntro.Shots() : m.Intro;
             _cine = new Cinematic(shots); if (boatRide) { _cine.Anchor = BoatIntro.BoatAt; foreach (var c in crew) if (c) c.SetActive(true); }
-            Playing = true; d.Cinematic = true;
+            Playing = true; d.Cinematic = true; _startFrame = Time.frameCount;   // the briefing's Enter must not also skip shot 1
             var player = d.player;
             _view = player ? player.GetComponentInChildren<Camera>() : null;
             _cam = new GameObject("IntroCam").AddComponent<Camera>(); _cam.nearClipPlane = 0.1f; _cam.fieldOfView = (float)shots[0].Fov;
@@ -61,7 +61,7 @@ namespace SpecialSoldier
         {
             if (!Playing) return;
             var kb = Keyboard.current;
-            if (kb != null && (kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)) { _cine.Skip(); }
+            if (kb != null && Time.frameCount > _startFrame && (kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)) { _cine.Skip(); }
             var shot = _cine.Current;
             if (shot == null) { End(); return; }
             _caption.text = shot.Text;

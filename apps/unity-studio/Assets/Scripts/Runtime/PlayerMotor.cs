@@ -75,7 +75,7 @@ namespace SpecialSoldier
             {
                 _stepT = IsSprinting ? 0.32f : 0.5f;
                 SliceFx.I.Step(transform.position, IsSprinting);
-                if (GameDirector.Instance) GameDirector.Instance.ReportNoise(transform.position, IsSprinting ? 14f : 6f);
+                if (GameDirector.Instance) GameDirector.Instance.ReportNoise(transform.position, IsSprinting ? 14f : 6f, combat: false);
             }
         }
     }
