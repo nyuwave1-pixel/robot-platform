@@ -27,7 +27,13 @@ namespace SpecialSoldier.Core.Tests
         {
             var f = IslandProps.Facility();
             foreach (var (name, x, y, z) in PropsFixture.FacilityPoints)
-                Assert.That(f.Points[name], Is.EqualTo((x, y, z)).Using<(double, double, double)>((a, b) => System.Math.Abs(a.Item1 - b.Item1) < 1e-9 && System.Math.Abs(a.Item2 - b.Item2) < 1e-9 && System.Math.Abs(a.Item3 - b.Item3) < 1e-9), name);
+            {
+                // per component: Unity's bundled NUnit has no Using<T>(Func<T, T, bool>) (CS0029/CS1662 in Unity, fine in dotnet)
+                var p = f.Points[name];
+                Assert.That(p.Item1, Is.EqualTo(x).Within(1e-9), name + " x");
+                Assert.That(p.Item2, Is.EqualTo(y).Within(1e-9), name + " y");
+                Assert.That(p.Item3, Is.EqualTo(z).Within(1e-9), name + " z");
+            }
             Assert.AreEqual(PropsFixture.Cameras.Length, f.Cameras.Count);
             for (int i = 0; i < f.Cameras.Count; i++) { Assert.That(f.Cameras[i].X, Is.EqualTo(PropsFixture.Cameras[i].x).Within(1e-9)); Assert.That(f.Cameras[i].Z, Is.EqualTo(PropsFixture.Cameras[i].z).Within(1e-9)); }
             Assert.That(f.Slabs.Count, Is.EqualTo(12), "floor + ceiling for each of the 6 rooms");

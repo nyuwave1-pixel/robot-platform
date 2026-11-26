@@ -14,7 +14,7 @@ namespace SpecialSoldier.Core.Tests
             foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
                 for (var dir = new DirectoryInfo(start); dir != null; dir = dir.Parent)
                     foreach (var p in new[] { Path.Combine(dir.FullName, "special-soldier", "src", "game", "enemies.js"), Path.Combine(dir.FullName, "apps", "special-soldier", "src", "game", "enemies.js") })
-                        if (File.Exists(p)) return File.ReadAllText(p);
+                        if (File.Exists(p)) return File.ReadAllText(p).Replace("\r\n", "\n");   // Windows checkouts (core.autocrlf) have CRLF; the regex reads lines by \n
             return null;
         }
         static float F(Match m, string key) { var r = Regex.Match(m.Value, key + @": (-?[\d.]+)"); Assert.IsTrue(r.Success, key); return float.Parse(r.Groups[1].Value, CultureInfo.InvariantCulture); }
