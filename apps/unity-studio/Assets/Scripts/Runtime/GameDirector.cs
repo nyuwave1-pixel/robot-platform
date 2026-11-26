@@ -352,10 +352,13 @@ namespace SpecialSoldier
                 PortalBridge.ReportResult(Mission.Code, Mission.Stats.Grade.ToString(), Mathf.RoundToInt(Mission.Stats.Score), Mission.Stats.PortalRp);
         }
 
-        /// <summary>Tells every enemy within <paramref name="radius"/> that something was heard at <paramref name="pos"/>.</summary>
-        public void ReportNoise(Vector3 pos, float radius)
+        /// <summary>Tells every enemy within <paramref name="radius"/> that something was heard at <paramref name="pos"/>.
+        /// <paramref name="combat"/>: a shot or a blast (the squad goes weapons free, web weapons.js / enemies.js). Footsteps pass
+        /// false — weapons free lets every enemy spot the squad from 70 m, so a walk must never set it (PC 2026-11-26: M01 started
+        /// in COMBAT · 9 ENGAGING after the intro).</summary>
+        public void ReportNoise(Vector3 pos, float radius, bool combat = true)
         {
-            if (!Cinematic) WeaponsFree();   // any shot or blast: the squad goes weapons free (web weapons.js / enemies.js)
+            if (combat && !Cinematic) WeaponsFree();
             foreach (var e in enemies) if (e && e.Alive) e.Hear(pos, radius);
         }
     }

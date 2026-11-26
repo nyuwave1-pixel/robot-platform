@@ -6,5 +6,26 @@
   "engine": "web (ES modules, Canvas 2D / Web Audio)",
   "created": "2026-11-26",
   "summary": "Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race.",
-  "learnedFrom": []
+  "learnedFrom": [
+    {
+      "repo": "pmndrs/racing-game",
+      "license": "MIT (assets CC0)",
+      "what": "arcade handling feel, skid/drift effects (next step)"
+    },
+    {
+      "repo": "pmndrs/cannon-es",
+      "license": "MIT",
+      "what": "RaycastVehicle — candidate for the 3D version"
+    },
+    {
+      "repo": "Mugen87/yuka",
+      "license": "MIT",
+      "what": "FollowPathBehavior for AI racing lines"
+    },
+    {
+      "repo": "supertuxkart/stk-code",
+      "license": "GPL-3.0 (study only)",
+      "what": "kart AI racing-line ideas; no code copied"
+    }
+  ]
 }

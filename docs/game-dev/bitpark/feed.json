@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T02:22:16.474Z",
+  "generatedAt": "2026-11-26T02:26:21.121Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
-    "branch": "HEAD",
-    "commit": "4088c4e"
+    "branch": "claude/relaxed-ramanujan-83okpi",
+    "commit": "bf1f6de"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
+        "webgl": null
       },
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
@@ -395,7 +395,10 @@
   "genreLab": {
     "title": "장르 게임 랩",
     "about": "오픈소스 게임을 장르별로 조사·학습하고, 생성기(tools/game-lab/new-game.mjs)로 하부 섹션을 만들어 개발합니다.",
-    "catalog": null,
+    "catalog": {
+      "path": "docs/game-dev/genres/OPEN_SOURCE_CATALOG.md",
+      "githubEntries": 86
+    },
     "subsections": [
       {
         "slug": "beat-lab",
@@ -405,7 +408,23 @@
         "engine": "web (ES modules, Canvas 2D / Web Audio)",
         "summary": "4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank.",
         "created": "2026-11-26",
-        "learnedFrom": [],
+        "learnedFrom": [
+          {
+            "repo": "ppy/osu",
+            "license": "MIT",
+            "what": "hit windows (HitWindows.cs / ManiaHitWindows.cs) and per-map audio offset — ideas re-implemented, no code copied"
+          },
+          {
+            "repo": "Tonejs/Tone.js",
+            "license": "MIT",
+            "what": "schedule notes on the AudioContext clock, not requestAnimationFrame"
+          },
+          {
+            "repo": "111116/webosu",
+            "license": "MIT",
+            "what": "browser audio/note sync reference"
+          }
+        ],
         "tests": 3,
         "path": "apps/game-lab/beat-lab",
         "screenshot": "docs/game-dev/screenshots/game-lab-beat-lab.png"
@@ -418,7 +437,28 @@
         "engine": "web (ES modules, Canvas 2D / Web Audio)",
         "summary": "Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race.",
         "created": "2026-11-26",
-        "learnedFrom": [],
+        "learnedFrom": [
+          {
+            "repo": "pmndrs/racing-game",
+            "license": "MIT (assets CC0)",
+            "what": "arcade handling feel, skid/drift effects (next step)"
+          },
+          {
+            "repo": "pmndrs/cannon-es",
+            "license": "MIT",
+            "what": "RaycastVehicle — candidate for the 3D version"
+          },
+          {
+            "repo": "Mugen87/yuka",
+            "license": "MIT",
+            "what": "FollowPathBehavior for AI racing lines"
+          },
+          {
+            "repo": "supertuxkart/stk-code",
+            "license": "GPL-3.0 (study only)",
+            "what": "kart AI racing-line ideas; no code copied"
+          }
+        ],
         "tests": 4,
         "path": "apps/game-lab/turbo-lap",
         "screenshot": "docs/game-dev/screenshots/game-lab-turbo-lap.png"
@@ -426,6 +466,18 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "bf1f6de",
+      "date": "2026-11-26",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): M01 stealth start, HUD hidden in cutscenes, night sea, overcast shadows (PC review)"
+    },
+    {
+      "hash": "6362bee",
+      "date": "2026-11-26",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (Unity edition: 5 campaign missions, EditMode 341, PlayMode 31)"
+    },
     {
       "hash": "4088c4e",
       "date": "2026-11-26",
@@ -650,18 +702,6 @@
     },
     {
       "hash": "e0d526c",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "2b4fd54",
-      "date": "2026-11-25",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): HUD visibility settings + dedicated server deploy files"
-    },
-    {
-      "hash": "5c47c33",
       "date": "2026-11-25",
       "area": "general",
       "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"

@@ -108,6 +108,10 @@ namespace SpecialSoldier
             float dt = Time.deltaTime;
             _hits.Tick(dt); _feed.Tick(dt);
             if (!_dir) _dir = GameDirector.Instance;
+            // web #hud.cin: the whole HUD fades out while a cinematic plays (the intro shows its own caption)
+            bool cine = _dir && _dir.Cinematic;
+            _root.style.opacity = cine ? 0f : 1f;
+            if (cine) return;
             var cam = Camera.main;
             var f = cam ? cam.transform.forward : player.transform.forward;
             _heading0 = HudMath.Heading(f.x, f.z);

@@ -6,5 +6,21 @@
   "engine": "web (ES modules, Canvas 2D / Web Audio)",
   "created": "2026-11-26",
   "summary": "4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank.",
-  "learnedFrom": []
+  "learnedFrom": [
+    {
+      "repo": "ppy/osu",
+      "license": "MIT",
+      "what": "hit windows (HitWindows.cs / ManiaHitWindows.cs) and per-map audio offset — ideas re-implemented, no code copied"
+    },
+    {
+      "repo": "Tonejs/Tone.js",
+      "license": "MIT",
+      "what": "schedule notes on the AudioContext clock, not requestAnimationFrame"
+    },
+    {
+      "repo": "111116/webosu",
+      "license": "MIT",
+      "what": "browser audio/note sync reference"
+    }
+  ]
 }

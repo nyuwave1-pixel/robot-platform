@@ -5,5 +5,5 @@
 
 | 게임 | 장르 | 상태 | 위치 | 한 줄 | 참고한 오픈소스 |
 |---|---|---|---|---|---|
-| BEAT LAB | rhythm | prototype | `apps/game-lab/beat-lab` | 4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank. | — |
-| TURBO LAP | racing | prototype | `apps/game-lab/turbo-lap` | Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race. | — |
+| BEAT LAB | rhythm | prototype | `apps/game-lab/beat-lab` | 4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank. | [object Object], [object Object], [object Object] |
+| TURBO LAP | racing | prototype | `apps/game-lab/turbo-lap` | Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race. | [object Object], [object Object], [object Object], [object Object] |
