@@ -89,7 +89,10 @@ for (const p of PRODUCTS) {
   const links = await page.$$eval("a[data-cta]", (as) => as.map((a) => ({ href: a.href, asin: a.dataset.asin, target: a.target, loc: a.dataset.cta })));
   const own = links.filter((l) => l.asin === p.asin);
   check(`${p.key}: hero/final/sticky CTAs present`, ["hero", "final", "sticky"].every((loc) => own.some((l) => l.loc === loc)), own.map((l) => l.loc).join(","));
-  check(`${p.key}: savings box hidden while no promotion is live`, !(await page.evaluate(() => document.body.innerText.includes("promotion details will be shown here"))) && !own.some((l) => l.loc === "offer"));
+  // A promotion (e.g. BFCM in products.ts) may be live: then its headline and the offer CTA show together. Otherwise neither shows.
+  const promo = await page.evaluate(() => ({ placeholder: document.body.innerText.includes("promotion details will be shown here"), headline: /\d+%\s*off\s*on\s*amazon/i.test(document.body.innerText) }));
+  const hasOffer = own.some((l) => l.loc === "offer");
+  check(`${p.key}: savings box only while a promotion is live`, !promo.placeholder && hasOffer === promo.headline, JSON.stringify({ ...promo, hasOffer }));
   check(`${p.key}: all own CTAs go to amazon.com/${p.asin}`, own.length > 0 && own.every((l) => l.href.includes(p.asin) && new URL(l.href).hostname.endsWith("amazon.com")));
   check(`${p.key}: CTAs open in a new tab`, own.every((l) => l.target === "_blank"));
   // Korea sales figures come from the brand's own Amazon US listing images (landing.ts). No other product may show them.
