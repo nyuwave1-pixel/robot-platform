@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T03:07:41.873Z",
+  "generatedAt": "2026-11-26T03:07:54.377Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "1b5da13"
+    "commit": "8c4d29d"
   },
   "section": {
     "id": "game-dev-lab",
@@ -68,6 +68,7 @@
         "docs/game-dev/screenshots/unity-island-slice-lighting.png",
         "docs/game-dev/screenshots/unity-mission01-boat-intro.jpg",
         "docs/game-dev/screenshots/unity-mission01-briefing.jpg",
+        "docs/game-dev/screenshots/unity-mission01-first-contact.jpg",
         "docs/game-dev/screenshots/unity-mission01-squad.jpg",
         "docs/game-dev/screenshots/unity-mission01.jpg",
         "docs/game-dev/screenshots/unity-mission03.jpg",
@@ -503,6 +504,12 @@
   },
   "devlog": [
     {
+      "hash": "8c4d29d",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab: portal-ready games — RP + BIT PARK replay proofs, rhythm levels/holds/smooth clock, racing drift/boost"
+    },
+    {
       "hash": "1b5da13",
       "date": "2026-11-26",
       "area": "general",
@@ -735,12 +742,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "QA: briefing operation map + campaign regression 17/17"
-    },
-    {
-      "hash": "e00c7e9",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): HANDOFF.md — current state of every game workstream and how to resume on another PC"
     }
   ]
 }
