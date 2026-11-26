@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T03:00:34.082Z",
+  "generatedAt": "2026-11-26T03:15:34.610Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "4922327"
+    "commit": "84c7843"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
+        "webgl": null
       },
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
@@ -405,9 +405,9 @@
         "slug": "beat-lab",
         "name": "BEAT LAB",
         "genre": "rhythm",
-        "status": "prototype",
+        "status": "playable",
         "engine": "web (ES modules, Canvas 2D / Web Audio)",
-        "summary": "4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank.",
+        "summary": "4레인 리듬 게임 — Web Audio 시계 동기화, EASY·NORMAL·HARD 판정 폭, 롱노트, 콤보·정확도·랭크, 리플레이 검증.",
         "created": "2026-11-26",
         "learnedFrom": [
           {
@@ -426,7 +426,25 @@
             "what": "browser audio/note sync reference"
           }
         ],
-        "tests": 3,
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 10,
         "path": "apps/game-lab/beat-lab",
         "screenshot": "docs/game-dev/screenshots/game-lab-beat-lab.png"
       },
@@ -434,9 +452,9 @@
         "slug": "turbo-lap",
         "name": "TURBO LAP",
         "genre": "racing",
-        "status": "prototype",
+        "status": "playable",
         "engine": "web (ES modules, Canvas 2D / Web Audio)",
-        "summary": "Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race.",
+        "summary": "탑다운 아케이드 레이싱 — 스플라인 서킷, 카트 물리, 드리프트 미니 터보, AI 3대와 3랩, 고정 스텝 리플레이 검증.",
         "created": "2026-11-26",
         "learnedFrom": [
           {
@@ -460,13 +478,55 @@
             "what": "kart AI racing-line ideas; no code copied"
           }
         ],
-        "tests": 4,
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 8,
         "path": "apps/game-lab/turbo-lap",
         "screenshot": "docs/game-dev/screenshots/game-lab-turbo-lap.png"
       }
     ]
   },
   "devlog": [
+    {
+      "hash": "84c7843",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab → portals: export to airobotphysical.com, Korean summaries, feed contract for portal fields"
+    },
+    {
+      "hash": "45cb2a0",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "8c4d29d",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab: portal-ready games — RP + BIT PARK replay proofs, rhythm levels/holds/smooth clock, racing drift/boost"
+    },
+    {
+      "hash": "d436b6f",
+      "date": "2026-11-26",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed after the M01 screen-fix verification (new screenshots)"
+    },
     {
       "hash": "4922327",
       "date": "2026-11-26",
@@ -682,30 +742,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "hub: claim Mission 05 port"
-    },
-    {
-      "hash": "b6a40c4",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: port Mission 04 UNDERGROUND ZERO with security cameras (U4)"
-    },
-    {
-      "hash": "04ba9dc",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "af39dc2",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Mission 04 port"
-    },
-    {
-      "hash": "961f53e",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "QA: briefing operation map + campaign regression 17/17"
     }
   ]
 }

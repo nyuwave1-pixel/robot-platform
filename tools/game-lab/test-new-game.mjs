@@ -16,6 +16,9 @@ try {
     const g = JSON.parse(readFileSync(join(dir, 'game.json'), 'utf8'));
     if (g.genre !== genre || g.id !== id) throw new Error('game.json not filled');
     if (readFileSync(join(dir, 'src', 'main.js'), 'utf8').includes('__NAME__')) throw new Error('placeholder left in main.js');
+    if (!existsSync(join(dir, 'src', 'portal.js'))) throw new Error('no portal bridge');
+    if (genre !== 'puzzle' && !readFileSync(join(dir, 'src', 'main.js'), 'utf8').includes(`createPortal('${id}')`)) throw new Error('main.js does not report as ' + id);
+    if (genre !== 'puzzle' && !existsSync(join(dir, 'src', 'verify.js'))) throw new Error('no replay verifier');
     const files = readdirSync(join(dir, 'tests')).filter((f) => f.endsWith('.test.mjs')).map((f) => join('tests', f));
     execFileSync('node', ['--test', ...files], { cwd: dir, stdio: 'pipe' });   // throws if any test fails
     console.log(`ok ${genre}: ${id}`);

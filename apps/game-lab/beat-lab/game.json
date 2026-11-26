@@ -2,10 +2,10 @@
   "id": "beat-lab",
   "name": "BEAT LAB",
   "genre": "rhythm",
-  "status": "prototype",
+  "status": "playable",
   "engine": "web (ES modules, Canvas 2D / Web Audio)",
   "created": "2026-11-26",
-  "summary": "4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank.",
+  "summary": "4레인 리듬 게임 — Web Audio 시계 동기화, EASY·NORMAL·HARD 판정 폭, 롱노트, 콤보·정확도·랭크, 리플레이 검증.",
   "learnedFrom": [
     {
       "repo": "ppy/osu",
@@ -22,5 +22,23 @@
       "license": "MIT",
       "what": "browser audio/note sync reference"
     }
-  ]
+  ],
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 30,
+        "A": 22,
+        "B": 15,
+        "C": 8
+      },
+      "rpReward": 30
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "verify": "src/verify.js",
+      "levels": "src/levels.js",
+      "status": "verify-ready (not registered)"
+    }
+  }
 }

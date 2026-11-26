@@ -70,7 +70,7 @@ const labGames = existsSync(labDir) ? readdirSync(labDir).filter((d) => existsSy
   const testCount = testFiles.reduce((n, f) => n + (read(`apps/game-lab/${d}/tests/${f}`).match(/^test\(/gm) || []).length, 0);
   const shot = `docs/game-dev/screenshots/game-lab-${d}.png`;
   return { slug: g.id, name: g.name, genre: g.genre, status: g.status, engine: g.engine, summary: g.summary, created: g.created, learnedFrom: g.learnedFrom || [],
-    tests: testCount, path: `apps/game-lab/${d}`, screenshot: existsSync(join(ROOT, shot)) ? shot : null };
+    portal: g.portal || null, tests: testCount, path: `apps/game-lab/${d}`, screenshot: existsSync(join(ROOT, shot)) ? shot : null };
 }).sort((a, b) => a.created.localeCompare(b.created)) : [];
 const catalog = read('docs/game-dev/genres/OPEN_SOURCE_CATALOG.md');
 const catalogEntries = (catalog.match(/^\|[^|\n]+\|\s*https:\/\/github\.com\//gm) || []).length;
