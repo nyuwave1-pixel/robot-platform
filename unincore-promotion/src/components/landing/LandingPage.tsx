@@ -6,6 +6,7 @@ import type { ProductContent } from "@/content/types";
 import { LANDING, ROUTINE, TRADEMARK, type LandingContent, type Review } from "@/content/landing";
 import type { ProductKey } from "@/content/types";
 import { GUIDES, ROUTINE_GUIDE } from "@/content/guides";
+import { DEFAULT_PRODUCTS } from "@/content/products";
 import { isPromoActive } from "@/lib/promo";
 import { toLandingAmazonProduct } from "@/lib/visibility";
 import { AmazonButton } from "@/components/site/AmazonButton";
@@ -60,7 +61,7 @@ function LightField({ src }: { src?: string }) {
 function ProductShot({ k, className = "", sizes, priority = false }: { k: ProductKey; className?: string; sizes: string; priority?: boolean }) {
   return (
     <div className={`relative overflow-hidden bg-white ${className}`}>
-      <Image src={LANDING[k].shot.src} alt="" fill priority={priority} sizes={sizes} className="object-contain" />
+      <Image src={LANDING[k].shot.src} alt={`UNI&CORE ${DEFAULT_PRODUCTS.find((p) => p.key === k)?.name ?? "product"}`} fill priority={priority} sizes={sizes} className="object-contain" />
     </div>
   );
 }
@@ -422,7 +423,7 @@ export function LandingPage({ product: p, all }: { product: ProductContent; all:
                 {c.howTo.steps.map((s, i) => (
                   <li key={s} className="paper grid grid-cols-[96px_1fr] items-center gap-4 overflow-hidden rounded-[20px] p-2.5 sm:flex sm:flex-col sm:items-stretch sm:gap-0">
                     <div className="relative aspect-square overflow-hidden rounded-[14px] sm:aspect-[4/3]">
-                      <Image src={c.stepImages[i]} alt="" fill sizes="(min-width: 640px) 180px, 96px" className="object-cover" />
+                      <Image src={c.stepImages[i]} alt={`How to use, step ${i + 1}: ${s}`} fill sizes="(min-width: 640px) 180px, 96px" className="object-cover" />
                       <span className="serif absolute left-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-[rgb(var(--acc))] text-[15px] font-semibold text-[#16150F]">{i + 1}</span>
                     </div>
                     <p className="pr-2 text-[15px] leading-snug text-body sm:px-2 sm:pb-2 sm:pt-4">{rich(s)}</p>

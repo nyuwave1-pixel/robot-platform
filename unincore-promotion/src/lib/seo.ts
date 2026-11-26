@@ -164,13 +164,16 @@ export function productLd(p: ProductContent) {
     ],
   };
   if (p.price) {
+    // The offer is where the product is actually sold: Amazon.com, or TikTok Shop for the mist.
+    const tiktok = p.shop?.kind === "tiktok";
     data.offers = {
       "@type": "Offer",
-      url: p.amazonUrl,
+      url: tiktok ? p.shop!.url : p.amazonUrl,
       price: p.price.amount,
       priceCurrency: p.price.currency,
       availability: "https://schema.org/InStock",
-      seller: { "@type": "Organization", name: "Amazon.com" },
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: tiktok ? "TikTok Shop" : "Amazon.com" },
     };
   }
   return data;

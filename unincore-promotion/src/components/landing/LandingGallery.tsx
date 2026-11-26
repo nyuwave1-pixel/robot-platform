@@ -213,17 +213,17 @@ function BeforeAfter({ item, priority = false }: { item: Extract<GalleryItem, { 
 function Thumb({ item }: { item: GalleryItem }) {
   switch (item.kind) {
     case "image":
-      return <Image src={item.src} alt="" fill sizes="110px" className="object-cover" />;
+      return <Image src={item.src} alt={`Thumbnail: ${item.alt}`} fill sizes="110px" className="object-cover" />;
     case "ingredients": {
       const first = item.items.find((x) => x.src)?.src;
-      return first ? <Image src={first} alt="" fill sizes="110px" className="object-cover" /> : <IngredientIcon icon={item.items[0]?.icon} />;
+      return first ? <Image src={first} alt={`Key ingredients: ${item.items.map((x) => x.name).join(", ")}`} fill sizes="110px" className="object-cover" /> : <IngredientIcon icon={item.items[0]?.icon} />;
     }
     case "beforeAfter":
       if (item.before && item.after)
         return (
           <span className="absolute inset-0 grid grid-cols-2 gap-px bg-white">
-            <span className="relative"><Image src={item.before} alt="" fill sizes="56px" className="object-cover" /></span>
-            <span className="relative"><Image src={item.after} alt="" fill sizes="56px" className="object-cover" /></span>
+            <span className="relative"><Image src={item.before} alt={`${item.alt}: ${item.beforeLabel}`} fill sizes="56px" className="object-cover" /></span>
+            <span className="relative"><Image src={item.after} alt={`${item.alt}: ${item.afterLabel}`} fill sizes="56px" className="object-cover" /></span>
           </span>
         );
       return (

@@ -122,7 +122,7 @@ export function TiltProduct({
     >
       <div className="absolute inset-[8%] rounded-full blur-3xl" style={{ background: glow }} aria-hidden />
       <div ref={card} className="vc-tilt-card relative aspect-[4/5] overflow-hidden rounded-[12%] shadow-[0_40px_80px_-40px_rgba(10,6,2,.7)] [transform-style:preserve-3d] will-change-transform">
-        <Image src={src} alt="" fill priority={priority} sizes={sizes} className="object-cover" draggable={false} />
+        <Image src={src} alt={`UNI&CORE ${alt}`} fill priority={priority} sizes={sizes} className="object-cover" draggable={false} />
         <div className="vc-tilt-shine pointer-events-none absolute inset-0" aria-hidden />
       </div>
       <p className="mt-4 text-center text-[10px] font-semibold uppercase tracking-[0.28em] opacity-60 transition group-focus-visible:opacity-100" aria-hidden>

@@ -63,7 +63,7 @@ export function StickyCTA({ product, promoInitial, image, title, label }: { prod
       <div className="glass-bar mx-auto flex max-w-xl items-center gap-3 rounded-[20px] p-2 pl-2.5">
         {image && (
           <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[12px] bg-[#F5F5F1]">
-            <Image src={image} alt="" fill sizes="44px" className="object-cover" />
+            <Image src={image} alt={title ?? product.name} fill sizes="44px" className="object-cover" />
           </span>
         )}
         <div className="min-w-0 flex-1">

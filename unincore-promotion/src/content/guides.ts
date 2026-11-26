@@ -76,9 +76,9 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-use-enzyme-powder-cleanser",
-    title: "How to Use an Enzyme Powder Cleanser | UNI&CORE USA",
+    title: "How to Use an Enzyme Powder Cleanser: 5 Steps | UNI&CORE",
     description:
-      "How to use a Korean enzyme powder cleanser: how much powder, how to lather, how often, and how it differs from a foam cleanser or a scrub.",
+      "How to use a Korean enzyme powder face wash: how much powder, how to whip it into foam, if it's gentle enough to use daily, and how it differs from scrubs.",
     h1: "How to Use an Enzyme Powder Cleanser",
     intro:
       "Enzyme powder washes are a Korean favorite for smooth, clear-looking skin without harsh scrubbing. Here is how to use one, step by step.",
@@ -176,9 +176,9 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "vitamin-c-sheet-mask-guide",
-    title: "How to Use a Vitamin C Sheet Mask | UNI&CORE USA",
+    title: "Vitamin C Sheet Mask: How to Use It, Step by Step | UNI&CORE",
     description:
-      "How to use a vitamin C sheet mask: when, how long, which side faces out, what to do after, and how often to mask for a brighter-looking glow.",
+      "Vitamin C sheet mask, step by step: how long to leave it on (10–20 minutes), which side faces out, what to do with leftover essence, and how often to mask.",
     h1: "How to Use a Vitamin C Sheet Mask",
     intro:
       "A sheet mask is the quickest Korean-skincare way to give skin a concentrated dose of essence. Here is how to get the most from a vitamin C mask.",
@@ -228,9 +228,16 @@ export const GUIDES: Guide[] = [
       "How to use a vitamin C serum: morning or night, where it goes in your routine, how to layer it with other products, and tips for sensitive skin.",
     h1: "How to Use Vitamin C Serum",
     intro:
-      "Vitamin C is one of the most popular skincare ingredients — and one of the most asked-about. Here is when to apply it, in what order, and how to fit it in with the rest of your routine.",
-    keywords: ["how to use vitamin C serum", "vitamin C serum morning or night", "vitamin C serum routine order", "how to layer vitamin C serum", "vitamin C serum for beginners"],
+      "Vitamin C is one of the most popular skincare ingredients — and one of the most asked-about. Here is when to apply it, in what order, how much to use, how to fit it in with the rest of your routine, and the small mistakes that keep a good serum from showing what it can do.",
+    keywords: ["how to use vitamin C serum", "vitamin C serum morning or night", "vitamin C serum routine order", "how to layer vitamin C serum", "vitamin C serum for beginners", "how much vitamin C serum to use", "vitamin C serum mistakes"],
     sections: [
+      {
+        heading: "What a vitamin C serum does in a routine",
+        paragraphs: [
+          "Vitamin C is an antioxidant, and in skincare it is used mainly to help skin look brighter, more even and more radiant. A serum is simply a light, concentrated formula that sits close to the skin, so it usually goes on early in a routine, before heavier creams.",
+          "\"Pure\" vitamin C on a label usually means ascorbic acid, the form most studied in skincare. Other forms, called derivatives, are often gentler but behave differently. Whatever the form, a serum works best as a steady daily habit rather than a once-in-a-while treat, and it works alongside sunscreen, not instead of it.",
+        ],
+      },
       {
         heading: "Morning or night?",
         paragraphs: [
@@ -245,9 +252,48 @@ export const GUIDES: Guide[] = [
         ],
       },
       {
+        heading: "A morning routine with vitamin C, step by step",
+        paragraphs: [
+          "1. Cleanse with a gentle cleanser and pat skin dry. 2. Apply toner or essence if you use one. 3. Apply your vitamin C serum to the whole face and neck, avoiding the eyes. 4. Wait about a minute, until it no longer feels wet. 5. Apply moisturizer. 6. Finish with a broad-spectrum sunscreen, every morning, including cloudy days.",
+          "If your routine is short, the minimum is cleanser, vitamin C, moisturizer and sunscreen. Everything else is optional.",
+        ],
+      },
+      {
+        heading: "An evening routine with vitamin C",
+        paragraphs: [
+          "At night, remove sunscreen and makeup first, then cleanse. Apply vitamin C on clean skin, let it settle, and follow with moisturizer. A sheet mask fits between cleansing and serum on the nights you use one.",
+          "If you use retinol or exfoliating acids in the evening, those nights are a good time to skip vitamin C and keep it for the morning instead. Giving each strong active its own time of day keeps the routine simple and easier on the skin.",
+        ],
+      },
+      {
+        heading: "How much to use, and how often",
+        paragraphs: [
+          "Use the amount your product's directions give, which is usually enough to cover the face in a thin, even layer. Using more does not make a serum work faster, and an extra-thick layer can feel sticky or pill under the next step.",
+          "Most people can use vitamin C once a day, and many use it twice. If you are new to it, start with once a day, or every other day if your skin is sensitive, and build up as your skin stays comfortable. A brief tingle can happen with pure vitamin C; lasting redness, stinging or itching is a sign to stop and rinse.",
+        ],
+      },
+      {
+        heading: "What to expect, and when",
+        paragraphs: [
+          "Skin can feel smoother and look fresher soon after you start, because a serum also hydrates. Changes in how bright and even the skin looks build up with regular use, so give a new serum several weeks of steady use before judging it, and keep using sunscreen throughout.",
+          "Results vary from person to person. Be wary of any product that promises to remove spots or change your skin overnight: cosmetics can help skin look brighter, but they are not treatments for skin conditions. If you have a persistent skin concern, ask a dermatologist.",
+        ],
+      },
+      {
         heading: "Layering with other products",
         paragraphs: [
           "Vitamin C layers well with hydrating ingredients such as hyaluronic acid and panthenol. If you also use stronger actives, such as retinol or exfoliating acids, many people keep vitamin C for the morning and use the other active at night, so each has its own slot. Introduce one new product at a time and patch test.",
+          "Niacinamide and vitamin C are often used in the same routine. Apply the thinner product first and let it absorb before the next. If the combination makes your skin feel warm or tight, use them at different times of day.",
+        ],
+      },
+      {
+        heading: "Common mistakes to avoid",
+        paragraphs: [
+          "Skipping sunscreen. Vitamin C belongs in a daytime routine, but it is not sun protection. Without sunscreen, any brightening effort is working against daily sun exposure.",
+          "Applying it on top of heavy cream. A serum should go on before moisturizer, while skin is clean, so it can sit close to the skin. Over a rich cream it mostly sits on top.",
+          "Starting too many new products at once. If you add vitamin C, a new exfoliant and a retinol in the same week and your skin reacts, you won't know which one caused it. Add one product, wait a week or two, then add the next.",
+          "Leaving the bottle open or in a warm bathroom. Close the cap right after use and keep the bottle in a cool, dry place away from direct sunlight, and use it within the period printed on the package.",
+          "Giving up too early. A serum works through steady daily use. Changing products every few days makes it hard to tell what works for your skin.",
         ],
       },
       {
@@ -273,7 +319,7 @@ export const GUIDES: Guide[] = [
     ],
     products: ["ampoule"],
     published: "2026-11-10",
-    updated: "2026-11-15",
+    updated: "2026-11-26",
   },
   {
     slug: "vitamin-c-for-sensitive-skin",
