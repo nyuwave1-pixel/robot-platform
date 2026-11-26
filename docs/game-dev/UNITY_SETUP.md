@@ -470,3 +470,18 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - (추가) **적도 분대원을 노림**(웹 규칙): 플레이어가 안 보일 때 경계 중이거나 분대가 사격을 시작했으면 min(시야 × 1.2, 70) m 안 보이는 분대원을 목표로 — 감지 1.2/s 상승, 1.1 m 높이 조준·탄 퍼짐 × 1.2 (`Perception.SeesSquad`, 웹 원문 대조). 분대원 이름표: HUD 가 45 m 안 앞쪽 분대원 머리 위에 이름(쓰러지면 빨간 "— DOWN")을 표시(`HudToolkit.SquadTags`).
 - dotnet `CoreTests~` **340/340**. PlayMode `SquadPlayTests`. **Unity 확인 전**.
 
+
+## 2026-11-26 — 캠페인 5개 미션·장비·분대·컷신 첫 Unity 실행 (PC Unity 세션)
+
+- 대상: 허브 커밋 ~f54356c·0351379(M03–M05, 컷신·보트 인트로, 문 사수, 전술 장비, 분대원·이름표, 적이 분대도 조준).
+- 컴파일 오류 3건(클라우드 dotnet 에선 통과): `IntroDirector` 지역변수 `m` 겹침(CS0136), `IslandPropsTests` 의 NUnit 3.5 이후 `Using<T>(Func<T,T,bool>)`,
+  `EnemyTypeParityTests` 가 Windows CRLF 에서 정규식 불일치 → 수정(e2ae4e5).
+- PlayMode 2/33: `GearController` 의 `MaterialPropertyBlock` 필드 초기화가 "CreateImpl is not allowed … MonoBehaviour constructor" → Awake 로(1690b01).
+  남은 3개는 테스트 가정(문 사수 5프레임, 교전 중 분대 14 m 규칙, 순찰 측정 중 발각) → 고침. **최종 EditMode 341/341, PlayMode 31/31.**
+- run-batch: EditMode 가 결과를 쓰고 "Shut down." 후 28분간 종료하지 않음 → 60 s 뒤 중지·결과 파일로 판정.
+- 슬라이스: M01 night 9+3 QRF · M02 dawn 17+5 · M03 storm 18+2+5 · M04 facility 11+8 · M05 dusk 11+37, `extraction helicopter Blender Heli`.
+- **WebGL 23.5 MB**(미션 5개 포함; 어제 33.6 MB): Meshes 55.7 → 6.3 MB(식생 GPU 인스턴싱), Textures 12.9 MB 가 가장 큼. 인스턴싱 오류 없음.
+- 화면(`screenshots/unity-mission0{1,3,5}*.jpg`): M01 브리핑 → 보트 인트로(자막·분대 야간투시경) → 해변(감시탑·야자수·오두막·모래주머니),
+  M03 폭풍 기지 남문 "HIDDEN", M05 활주로 인트로·컨테이너 야적장 "Eliminate COMMANDER VIPER".
+- 허브에 넘긴 화면 문제: ① M01 시작 4 s 만에 "COMBAT · 9 ENGAGING"(잠입 미션인데 인트로 중 적 AI 가 도는 듯) ② 밤 바다가 밝은 하늘색
+  ③ 컷신 중 HUD(적 수·장비 키) 표시 ④ 폭풍(흐림)인데 나무 그림자가 진하고 날카로움.

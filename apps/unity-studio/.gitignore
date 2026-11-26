@@ -30,3 +30,7 @@ crashlytics-build.properties
 /CoreTests~/obj/
 !/CoreTests~/CoreTests.csproj
 /Data/
+
+# test-runner leftovers when a PlayMode run is interrupted
+/Assets/InitTestScene*.unity
+/Assets/InitTestScene*.unity.meta
