@@ -2,7 +2,8 @@
 //   node tools/game-lab/new-game.mjs --genre rhythm --id beat-lab --name "BEAT LAB" [--summary "…"]
 //   node tools/game-lab/new-game.mjs --list          (the lab's games)
 //   node tools/game-lab/new-game.mjs --index         (rebuild docs/game-dev/genres/LAB_INDEX.md only)
-// Genres: rhythm, racing, blank (any other genre starts from blank). Creates apps/game-lab/<id>/ with rules in src/core,
+// Genres: rhythm, racing, blank (any other genre starts from blank). Creates apps/game-lab/<id>/ with rules in src/logic.js (+ levels.js, verify.js replay
+// verifier and portal.js bridge: airobotphysical RP + BIT PARK proofs — rhythm/racing), 
 // tests (node --test, no install), game.json, README, asset and third-party ledgers; then refreshes the lab index.
 // Afterwards: claim the folder in docs/game-dev/STUDIO_HUB.md, run its tests, regenerate the portal feed.
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
