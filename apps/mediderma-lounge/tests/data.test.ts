@@ -102,3 +102,40 @@ describe("다국어", () => {
     for (const [k, v] of [...Object.entries(ko), ...Object.entries(en)]) expect(emoji.test(v), k).toBe(false);
   });
 });
+
+describe("메이크업 (베이스 · 블러셔 · 아이섀도 · 립)", () => {
+  it("베이스 아이템마다 얼굴 변화 값이 있고, 색조 아이템은 모두 색이 있다", async () => {
+    const { FASHION } = await import("../src/data/game");
+    const { BASE_FX } = await import("../src/data/makeup");
+    const base = FASHION.filter((f) => f.slot === "base");
+    expect(base.length).toBeGreaterThanOrEqual(4);
+    for (const f of base) {
+      const fx = BASE_FX[f.id];
+      expect(fx, f.id).toBeDefined();
+      expect(fx.rough > 0 && fx.rough <= 1 && fx.bright > 0.9 && fx.bright < 1.15 && fx.even >= 0 && fx.even <= 1).toBe(true);
+    }
+    for (const slot of ["makeup", "shadow", "lip"] as const) {
+      const items = FASHION.filter((f) => f.slot === slot);
+      expect(items.length, slot).toBeGreaterThanOrEqual(3);
+      for (const f of items) expect(f.color, f.id).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
+  it("다른 플레이어에게 보내는 룩에서도 메이크업은 아는 아이템만 받는다", async () => {
+    const { cleanLook } = await import("../src/net/plaza");
+    const l = cleanLook({ base: "base-glow", shadow: "sh-pink", lip: "lip-red", makeup: "mk-rose" });
+    expect([l.base, l.shadow, l.lip, l.makeup]).toEqual(["base-glow", "sh-pink", "lip-red", "mk-rose"]);
+    const bad = cleanLook({ base: "<script>", shadow: 3, lip: "hair-bob-x" });
+    expect([bad.base, bad.shadow, bad.lip]).toEqual([null, null, null]);
+  });
+  it("완성형 캐릭터마다 얼굴 위치(블러셔 · 섀도 · 립)가 있다", async () => {
+    const { DESIGNED_FACE } = await import("../src/data/makeup");
+    const { DESIGNED_BODIES } = await import("../src/store/game");
+    for (const b of DESIGNED_BODIES) {
+      const f = DESIGNED_FACE[b];
+      expect(f, b).toBeDefined();
+      expect(f.headY).toBeGreaterThan(1.1); // 얼굴 확대 카메라 높이
+      expect(f.shadow[1]).toBeGreaterThan(f.blush[1]); // 섀도는 볼보다 위
+      expect(f.blush[1]).toBeGreaterThan(f.lip[0]); // 볼은 입술보다 위
+    }
+  });
+});

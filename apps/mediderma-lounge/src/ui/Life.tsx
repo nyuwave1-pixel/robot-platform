@@ -3,16 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { DEMO_FRIENDS, LOUNGE_LEVELS } from "../data/game";
 import {
   BOX_COST, CURIO_SETS, CURIOS, DUP_REFUND, FIT_STEPS, FIT_TITLES_EN, FIT_TITLES_KO, FRIEND_MILESTONES, GIFT_COINS, GIFT_DAILY, HELP_COINS, HELP_DAILY,
-  PLANT_MAP, PLANTS, RARITY_ODDS, WATER_EVERY_H, WORKOUT_DAILY, WORKOUTS, fitLevel, growth, potsFor, type Workout,
-} from "../data/life";
+  PLANT_MAP, PLANTS, RARITY_ODDS, WATER_EVERY_H, WORKOUT_DAILY, WORKOUTS, fitLevel, growth, potsFor, type Workout, FERTILIZER_COST, goldenChance } from "../data/life";
 import { useGame } from "../store/game";
 import { lifeDaily, ownedCurios, useLife } from "../store/life";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
+import { BragButton } from "./Brag";
 import { BoxArt, CurioArt, PlantArt, WorkoutArt } from "./LifeArt";
 import { Preview } from "./Screens";
 import { StyleChallenge } from "./StyleChallenge";
+import { reportPlay } from "../platform";
 
 const toast = (s: string, sound?: Parameters<ReturnType<typeof useUI.getState>["toast"]>[1]) => useUI.getState().toast(s, sound);
 type Tab = "style" | "garden" | "fit" | "collect" | "friends";
@@ -70,12 +71,20 @@ function Garden() {
               </div>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ink/10"><div className="h-full rounded-full" style={{ width: `${g.ratio * 100}%`, background: p.color }} /></div>
               {g.stage >= 3 ? (
-                <button className="btn-primary mt-2 w-full !py-1.5 text-xs" onClick={() => { const r = life.harvest(slot.id); if (r) toast(`${t("garden.harvested")} ${r.ingredient} · +${r.coins} COIN`, "reward"); }}>{t("garden.harvest")}</button>
+                <button className="btn-primary mt-2 w-full !py-1.5 text-xs" data-testid="harvest" onClick={() => { const r = life.harvest(slot.id); if (r) reportPlay("harvest", r.coins); if (r) toast(`${r.golden ? `✨ ${t("garden.golden")} ` : ""}${t("garden.harvested")} ${r.ingredient} · +${r.coins} COIN`, "reward"); }}>{t("garden.harvest")}</button>
               ) : (
-                <button disabled={!canWater} className="btn-ghost mt-2 w-full !py-1.5 text-xs disabled:opacity-40" onClick={() => { if (life.water(slot.id)) toast(t("garden.watered"), "pickup"); }}>
-                  <Icon n="drop" /> {canWater ? t("garden.water") : t("garden.wait")}
-                </button>
+                <div className="mt-2 flex gap-1.5">
+                  <button disabled={!canWater} className="btn-ghost min-w-0 flex-1 !px-2 !py-1.5 text-xs disabled:opacity-40" onClick={() => { if (life.water(slot.id)) toast(t("garden.watered"), "pickup"); }}>
+                    <Icon n="drop" /> {canWater ? t("garden.water") : t("garden.wait")}
+                  </button>
+                  {!slot.fert && (
+                    <button className="btn-ghost shrink-0 !px-2 !py-1.5 text-[12px]" data-testid="fertilize" title={t("garden.fertHint")} onClick={() => { const r = life.fertilize(slot.id); toast(r === "ok" ? t("garden.fertDone") : r === "money" ? t("shop.noMoney") : t("garden.fertUsed"), r === "ok" ? "pickup" : "error"); }}>
+                      {t("garden.fert")} <Price c="coin" n={FERTILIZER_COST} />
+                    </button>
+                  )}
+                </div>
               )}
+              <p className="mt-1 text-[12px] font-semibold text-gold">✨ {t("garden.goldenOdds", { n: Math.round(goldenChance(slot) * 100) })}{slot.fert ? ` · ${t("garden.fertOn")}` : ""}</p>
             </div>
           );
         })}
@@ -100,9 +109,9 @@ function Garden() {
       </div>
       {Object.keys(life.harvested).length > 0 && (
         <>
-          <p className="mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("garden.book")}</p>
+          <div className="mt-4 flex items-center justify-between gap-2"><p className="text-[13px] font-black tracking-wide text-pink-deep">{t("garden.book")}</p><BragButton kind="plant" /></div>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {PLANTS.filter((p) => life.harvested[p.id]).map((p) => <span key={p.id} className="chip inline-flex items-center gap-1"><PlantArt color={p.color} stage={3} size={18} /> {p.ingredient} ×{life.harvested[p.id]}</span>)}
+            {PLANTS.filter((p) => life.harvested[p.id]).map((p) => <span key={p.id} className="chip inline-flex items-center gap-1"><PlantArt color={p.color} stage={3} size={18} /> {p.ingredient} ×{life.harvested[p.id]}{(life.golden ?? {})[p.id] ? <b className="text-gold"> ✨{life.golden[p.id]}</b> : null}</span>)}
           </div>
         </>
       )}
@@ -237,7 +246,7 @@ function Collection() {
         </div>
         <button className="btn-primary shrink-0 !px-3 !py-2 text-xs" onClick={open} data-testid="open-box"><Price c="coin" n={BOX_COST} /></button>
       </div>
-      <p className="mt-3 text-[13px] font-black tracking-wide text-pink-deep">{t("col.album")} ({ownedCurios(life)}/{CURIOS.length})</p>
+      <div className="mt-3 flex items-center justify-between gap-2"><p className="text-[13px] font-black tracking-wide text-pink-deep">{t("col.album")} ({ownedCurios(life)}/{CURIOS.length})</p>{ownedCurios(life) > 0 && <BragButton kind="collection" />}</div>
       {CURIO_SETS.map((st) => {
         const items = CURIOS.filter((c) => c.set === st.id);
         const have = items.filter((c) => (life.curios[c.id] ?? 0) > 0).length;

@@ -4,13 +4,13 @@
  */
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { BOX_COST, CURIO_MAP, CURIO_SETS, CURIOS, DUP_REFUND, FRIEND_MILESTONES, GIFT_COINS, GIFT_DAILY, HELP_COINS, HELP_DAILY, PLANT_MAP, WATER_EVERY_H, WORKOUT_DAILY, WORKOUT_MAP, growth, potsFor, rollCurio, type Curio } from "../data/life";
+import { FERTILIZER_COST, goldenChance, BOX_COST, CURIO_MAP, CURIO_SETS, CURIOS, DUP_REFUND, FRIEND_MILESTONES, GIFT_COINS, GIFT_DAILY, HELP_COINS, HELP_DAILY, PLANT_MAP, WATER_EVERY_H, WORKOUT_DAILY, WORKOUT_MAP, growth, potsFor, rollCurio, type Curio } from "../data/life";
 import { useGame } from "./game";
 import { CHALLENGE_DAILY, PLACE_REWARD, rivalsOf, scoreFit, streakBonus, themeOfDay, trendOfDay, type Fit, type Score } from "../data/style";
 
 export interface ChallengeResult { score: Score; place: number; rivals: { name: string; score: number }[]; coins: number; followers: number; gems: number; streak: number }
 
-export interface PlantSlot { id: string; type: string; planted: number; water: number; lastWater: number }
+export interface PlantSlot { id: string; type: string; planted: number; water: number; lastWater: number; /** 영양제를 줬는지 */ fert?: boolean }
 
 const day = (t = Date.now()) => new Date(t).toISOString().slice(0, 10);
 
@@ -28,7 +28,10 @@ export interface LifeState {
 
   plant: (type: string, now?: number) => "ok" | "full" | "money" | "level";
   water: (id: string, now?: number) => boolean;
-  harvest: (id: string, now?: number) => { coins: number; ingredient: string } | null;
+  harvest: (id: string, now?: number, rnd?: () => number) => { coins: number; ingredient: string; golden: boolean } | null;
+  fertilize: (id: string, now?: number) => "ok" | "done" | "money";
+  /** 식물별 황금 수확 수 */
+  golden: Record<string, number>;
   finishWorkout: (id: string, hits: number) => { fit: number; coins: number; rewarded: boolean };
   openBox: (rnd?: () => number) => { curio: Curio; dup: boolean } | "money";
   claimSet: (setId: string) => boolean;
@@ -64,6 +67,7 @@ export const useLife = create<LifeState>()(
   persist(
     (set, get) => ({
       garden: [],
+      golden: {},
       harvested: {},
       fit: 0,
       bestScore: {},
@@ -89,13 +93,25 @@ export const useLife = create<LifeState>()(
         reward({ exp: { lounge: 2 } });
         return true;
       },
-      harvest: (id, now = Date.now()) => {
+      harvest: (id, now = Date.now(), rnd = Math.random) => {
         const s = get(); const slot = s.garden.find((x) => x.id === id); const p = slot && PLANT_MAP[slot.type];
         if (!slot || !p || growth(slot, p, now).stage < 3) return null;
-        set({ garden: s.garden.filter((x) => x.id !== id), harvested: { ...s.harvested, [p.id]: (s.harvested[p.id] ?? 0) + 1 } });
-        reward({ coins: p.coins, exp: { lounge: Math.round(p.exp / 2), knowledge: Math.round(p.exp / 2) } });
+        const golden = rnd() < goldenChance(slot);
+        const coins = p.coins * (golden ? 2 : 1);
+        set({
+          garden: s.garden.filter((x) => x.id !== id), harvested: { ...s.harvested, [p.id]: (s.harvested[p.id] ?? 0) + 1 },
+          golden: golden ? { ...(s.golden ?? {}), [p.id]: ((s.golden ?? {})[p.id] ?? 0) + 1 } : s.golden ?? {},
+        });
+        reward({ coins, exp: { lounge: Math.round(p.exp / 2), knowledge: Math.round(p.exp / 2) } });
         count("harvest");
-        return { coins: p.coins, ingredient: p.ingredient };
+        return { coins, ingredient: p.ingredient, golden };
+      },
+      fertilize: (id, now = Date.now()) => {
+        const s = get(); const slot = s.garden.find((x) => x.id === id); const p = slot && PLANT_MAP[slot.type];
+        if (!slot || !p || slot.fert || growth(slot, p, now).stage >= 3) return "done";
+        if (!spend(FERTILIZER_COST)) return "money";
+        set({ garden: s.garden.map((x) => (x.id === id ? { ...x, fert: true } : x)) });
+        return "ok";
       },
       finishWorkout: (id, hits) => {
         const w = WORKOUT_MAP[id]; const s = get(); const d = dailyOf(s);

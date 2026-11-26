@@ -4,9 +4,10 @@ import { EXP_META, type ExpKey } from "../data/game";
 import { PRODUCT_MAP, productImage } from "../data/products";
 import { useGame } from "../store/game";
 import { useUI } from "../store/ui";
-import { applyProduct, availableProduct, beginFree, beginRoutine, closeCare, finishCare, routineUnlocked, selectZone } from "../store/care";
+import { applyProduct, availableProduct, beginFree, beginRoutine, closeCare, dirAccuracy, finishCare, routineUnlocked, selectZone } from "../store/care";
 import { useL, useT } from "../i18n";
 import { Icon, Price } from "./Icon";
+import { BragButton } from "./Brag";
 
 export function CarePanel() {
   const t = useT();
@@ -87,6 +88,11 @@ export function CarePanel() {
           <p className="mt-1 text-center text-xl font-black text-ink">{isCustomer ? t("care.customerDone") : t("care.done")}</p>
           {r.stars !== undefined && <p className="mt-1 text-center text-2xl text-gold">{"★".repeat(r.stars)}<span className="text-ink/15">{"★".repeat(5 - r.stars)}</span></p>}
           {r.firstTime && <p className="mt-1 text-center text-xs font-bold text-pink-deep"><Icon n="party" /> {t("care.first")}</p>}
+          {r.accuracy !== undefined && (
+            <p className={`mt-2 rounded-xl px-3 py-1.5 text-center text-[12px] font-bold ${r.dirBonus ? "bg-gold/20 text-ink" : "bg-ink/5 text-ink/55"}`} data-testid="care-accuracy">
+              {t("care.dir.acc", { n: r.accuracy })}{r.dirBonus ? ` · ${t("care.dir.bonus")}` : ` · ${t("care.dir.tip")}`}
+            </p>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-2">
             {(Object.entries(r.gain) as [ExpKey, number][]).filter(([, v]) => v > 0).map(([k, v]) => (
               <div key={k} className="rounded-2xl bg-cream px-3 py-2">
@@ -98,7 +104,10 @@ export function CarePanel() {
             {!!r.lp && <div className="rounded-2xl bg-cream px-3 py-2"><p className="text-[12px] font-bold text-gold">LOUNGE POINT</p><p className="text-lg font-black text-ink">+<Price c="lp" n={r.lp} /></p></div>}
           </div>
           <p className="mt-3 text-center text-[12px] text-ink/45">{t("care.fantasy")}</p>
-          <button className="btn-primary mt-3 w-full" onClick={closeCare}>{t("common.ok")}</button>
+          <div className="mt-3 flex gap-2">
+            {!isCustomer && <BragButton kind="care" care={{ routine: care.routineId, acc: r.accuracy ?? null, stars: null }} before={closeCare} className="shrink-0" />}
+            <button className="btn-primary flex-1" onClick={closeCare}>{t("common.ok")}</button>
+          </div>
         </Sheet>
       </>
     );
@@ -191,6 +200,20 @@ export function CarePanel() {
                   </div>
                   <p className="mt-1.5 text-[13px] font-semibold text-ink/65"><Icon n="hand" /> {t("care.stroke", { zone: L(ZONES[care.zone]) })}</p>
                   <p className="text-[12px] text-ink/45">➜ {t("care.direction")}: {L(ZONES[care.zone].dir)}</p>
+                  {/* 모드별 손놀림 · 피부 접촉 상태 */}
+                  <div className="mt-1.5 flex items-center gap-2 rounded-xl bg-ink/5 px-2.5 py-1.5">
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${stroking ? "animate-pulse" : ""}`} style={{ background: stroking ? mode.color : "#cbbfc4" }} />
+                    <p className="min-w-0 flex-1 text-[12px] leading-snug text-ink/65">
+                      <b className="text-ink/80">{stroking ? t("care.contactOn") : t("care.contactOff")}</b> · {t(`care.tech.${step.mode}`)}
+                    </p>
+                  </div>
+                  {/* 결 방향 판정: 마지막 문지름 + 지금까지 정확도 */}
+                  {care.dirLast !== undefined && (
+                    <p className={`mt-1 text-[12px] font-bold ${care.dirLast === 1 ? "text-gold" : care.dirLast === -1 ? "text-pink-deep" : "text-ink/55"}`} data-testid="care-dir">
+                      {t(`care.dir.${care.dirLast === 1 ? "good" : care.dirLast === -1 ? "bad" : "ok"}`)}
+                      {dirAccuracy(care) !== undefined && <span className="ml-1 font-semibold text-ink/45">· {t("care.dir.acc", { n: dirAccuracy(care)! })}</span>}
+                    </p>
+                  )}
                 </>
               )}
             </div>

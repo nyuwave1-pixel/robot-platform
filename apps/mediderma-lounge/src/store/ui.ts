@@ -33,13 +33,17 @@ export interface CareSession {
   done: ZoneId[];
   /** 현재 부위 진행도 0..1 */
   progress: number;
+  /** 결 방향 판정: 가이드 방향으로 민 거리 / 전체 문지른 거리, 마지막 한 번의 판정(1 좋음 · 0 보통 · -1 반대) */
+  dirGood?: number;
+  dirAll?: number;
+  dirLast?: number;
   modes: ModeId[];
   zonesDone: number;
   mist: boolean;
   mistAllowed: boolean;
   /** 고객 추천 적중 여부 */
   liked?: boolean;
-  result?: { gain: Partial<Record<ExpKey, number>>; coins: number; stars?: number; lp?: number; firstTime: boolean };
+  result?: { gain: Partial<Record<ExpKey, number>>; coins: number; stars?: number; lp?: number; firstTime: boolean; accuracy?: number; dirBonus?: boolean };
 }
 
 interface UIState {
@@ -52,6 +56,10 @@ interface UIState {
   nearPet: string | null;
   toasts: { id: number; text: string }[];
   care: CareSession | null;
+  /** 소셜 패널을 열 때 고를 탭 · 자랑하기 바로가기(종류 · 케어 기록) */
+  socialTab: string | null;
+  bragKind: "look" | "pet" | "plant" | "care" | "collection" | null;
+  bragCare: { routine: string | null; acc: number | null; stars: number | null } | null;
   customers: Customer[];
   consult: string | null;
   selected: string | null; // 편집 중 가구 uid
@@ -63,6 +71,8 @@ interface UIState {
   cine: { from: number; to: number } | null;
   growthView: number | null; // 연출 중 표시 성장값
   flash: number;
+  /** 캐릭터 화면에서 얼굴을 확대해 보여 줄지 (얼굴 · 메이크업 탭) */
+  faceCam: boolean;
   stroking: boolean;
   skipCine: boolean;
   set: (p: Partial<UIState>) => void;
@@ -84,6 +94,9 @@ export const useUI = create<UIState>((set, get) => ({
   nearPet: null,
   toasts: [],
   care: null,
+  socialTab: null,
+  bragKind: null,
+  bragCare: null,
   customers: [],
   consult: null,
   selected: null,
@@ -93,6 +106,7 @@ export const useUI = create<UIState>((set, get) => ({
   cine: null,
   growthView: null,
   flash: 0,
+  faceCam: false,
   stroking: false,
   skipCine: false,
   set: (p) => set(p),

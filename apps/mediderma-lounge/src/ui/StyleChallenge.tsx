@@ -8,6 +8,7 @@ import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
 import { Icon } from "./Icon";
 import { Preview } from "./Screens";
+import { reportPlay } from "../platform";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const GRADE_COLOR: Record<string, string> = { S: "#c9a66b", A: "#e2718d", B: "#b9a2e8", C: "#7fc8a9", D: "#9a9095" };
@@ -106,7 +107,7 @@ export function StyleChallenge() {
       </details>
 
       <button disabled={left <= 0} className="btn-primary mt-3 w-full disabled:opacity-50" data-testid="enter-challenge"
-        onClick={() => { const r = life.enterChallenge(fit); if (r) { setResult(r); useUI.getState().toast(`${r.score.grade} · ${t("sc.place").replace("{n}", String(r.place + 1))}`, r.place === 0 ? "reward" : "pickup"); } }}>
+        onClick={() => { const r = life.enterChallenge(fit); if (r) { setResult(r); reportPlay("style", r.score.total); useUI.getState().toast(`${r.score.grade} · ${t("sc.place").replace("{n}", String(r.place + 1))}`, r.place === 0 ? "reward" : "pickup"); } }}>
         {left > 0 ? `${t("sc.enter")} (${left}/${CHALLENGE_DAILY})` : t("sc.doneToday")}
       </button>
       <p className="mt-2 text-[12px] font-semibold text-ink/50">

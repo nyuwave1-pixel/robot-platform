@@ -28,10 +28,18 @@ export const WATER_EVERY_H = 1;
 /** 라운지 레벨별 화분 수 */
 export const potsFor = (loungeLevel: number) => Math.min(6, 2 + loungeLevel);
 
+/** 영양제: 화분마다 한 번, 남은 성장 시간을 줄이고 황금 수확 확률을 올린다 */
+export const FERTILIZER_COST = 50;
+export const FERTILIZER_SPEED = 0.7; // 다 자라는 데 걸리는 시간 배율
+/** 황금 수확: 기본 확률 + 물 준 횟수(최대 3번) + 영양제 → 코인 2배, 황금 원료 도감 */
+export function goldenChance(p: { water: number; fert?: boolean }) {
+  return Math.min(0.35, 0.08 + 0.04 * Math.min(3, p.water) + (p.fert ? 0.1 : 0));
+}
+
 /** 0 씨앗 · 1 새싹 · 2 봉오리 · 3 수확 가능 */
-export function growth(p: { planted: number; water: number }, plant: Plant, now = Date.now()) {
+export function growth(p: { planted: number; water: number; fert?: boolean }, plant: Plant, now = Date.now()) {
   const h = (now - p.planted) / 3_600_000;
-  const need = plant.hours * Math.max(0.25, 1 - p.water * WATER_BOOST);
+  const need = plant.hours * Math.max(0.25, 1 - p.water * WATER_BOOST) * (p.fert ? FERTILIZER_SPEED : 1);
   const r = Math.min(1, need <= 0 ? 1 : h / need);
   return { ratio: r, stage: r >= 1 ? 3 : r >= 0.5 ? 2 : r >= 0.15 ? 1 : 0, leftMin: Math.max(0, Math.ceil((need - h) * 60)) };
 }

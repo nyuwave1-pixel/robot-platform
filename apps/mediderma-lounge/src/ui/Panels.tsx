@@ -1,5 +1,5 @@
 /** 메뉴 패널: 캐릭터 · 라운지 · 상점/도감 · 소셜 · 퀘스트 · 프로필 · 성장 · 고객 · 설정 · 상담 */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { MODES, ROUTINES } from "../data/devices";
 import {
@@ -7,7 +7,7 @@ import {
   LOUNGE_LEVELS, POSES, PROMOS, QUESTS, RANKS, SKIN_TONES, STAGES, type Slot,
 } from "../data/game";
 import { MALL_URL, PRODUCTS, PRODUCT_MAP, RARITY_COLOR, productImage, usesOf, type Product } from "../data/products";
-import { levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
+import { COORD_SLOTS, DESIGNED_BODIES, levelOf, questClaimed, questValue, saveStatus, totalExp, useGame } from "../store/game";
 import { useUI } from "../store/ui";
 import { beginRoutine, openCare, routineUnlocked } from "../store/care";
 import { LANGS, useL, useT } from "../i18n";
@@ -16,6 +16,10 @@ import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
 import { GuestbookPanel } from "./Guestbook";
+import { BragButton, BragFeed, GiftInbox } from "./Brag";
+import { useGifts } from "../net/gifts";
+import { CloudSettings, RpExchange } from "./Cloud";
+import { useAttendOpen } from "./Attendance";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
 
@@ -65,13 +69,17 @@ export function PanelHost() {
 }
 
 // ───────────── MY BEAUTY CHARACTER ─────────────
-const SLOT_TABS: [Slot, string][] = [["outfit", "look.outfit"], ["accessory", "look.accessory"], ["earring", "look.earring"], ["necklace", "look.necklace"], ["bag", "look.bag"], ["shoes", "look.shoes"], ["makeup", "look.makeup"], ["nail", "look.nail"]];
+const SLOT_TABS: [Slot, string][] = [["outfit", "look.outfit"], ["accessory", "look.accessory"], ["earring", "look.earring"], ["necklace", "look.necklace"], ["bag", "look.bag"], ["shoes", "look.shoes"], ["base", "look.base"], ["makeup", "look.makeup"], ["shadow", "look.shadow"], ["lip", "look.lip"], ["nail", "look.nail"]];
 function CharacterPanel() {
   const t = useT();
   const L = useL();
   const g = useGame();
   const [tab, setTab] = useState<"face" | "hair" | "style" | "pose">("face");
   const [slot, setSlot] = useState<Slot>("outfit");
+  // 얼굴 탭 · 메이크업 슬롯에서는 카메라가 얼굴을 확대한다
+  const face = tab === "face" || (tab === "style" && (slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip"));
+  useEffect(() => { useUI.setState({ faceCam: face }); }, [face]);
+  useEffect(() => () => useUI.setState({ faceCam: false }), []);
   const look = g.look;
   const wear = (s: Slot) => FASHION.filter((f) => f.slot === s);
   const Item = ({ id, s }: { id: string; s: Slot }) => {
@@ -125,8 +133,15 @@ function CharacterPanel() {
       )}
       {tab === "style" && (
         <>
+          <CoordRow />
           <div className="mb-2 flex gap-1 overflow-x-auto pb-1">{SLOT_TABS.map(([s, k]) => <button key={s} onClick={() => setSlot(s)} className={`chip shrink-0 ${slot === s ? "chip-on" : ""}`}>{t(k)}</button>)}</div>
+          {(slot === "base" || slot === "makeup" || slot === "shadow" || slot === "lip") && (
+            <p className="mb-2 rounded-xl bg-pink-soft/60 px-3 py-2 text-[12px] leading-relaxed text-ink/65">
+              {slot === "base" && (DESIGNED_BODIES as readonly string[]).includes(look.body ?? "") ? t("makeup.noteDesigned") : t(`makeup.note.${slot}`)}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-2">{wear(slot).map((f) => <Item key={f.id} id={f.id} s={slot} />)}</div>
+          <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-pink-soft/40 px-3 py-2"><p className="text-[12px] font-semibold text-ink/60">{t("brag.lookHint")}</p><BragButton kind="look" className="shrink-0" /></div>
         </>
       )}
       {tab === "pose" && (
@@ -217,6 +232,7 @@ function ShopPanel() {
   return (
     <Sheet title={tab === "codex" ? "PRODUCT COLLECTION" : tab === "fashion" ? "FASHION SHOP" : tab === "interior" ? "INTERIOR SHOP" : "SKINCARE ITEM SHOP"} wide>
       <Tabs tabs={[["product", t("shop.product")], ["codex", t("shop.codex")], ["fashion", t("shop.fashion")], ["interior", t("shop.interior")]]} value={tab} onPick={(v) => useUI.setState({ shopTab: v })} />
+      <RpExchange />
       {(tab === "product" || tab === "codex") && (
         <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] leading-relaxed text-ink/60">
           ⓘ {t("shop.virtual")} <a className="font-bold text-pink-deep underline" href={MALL_URL} target="_blank" rel="noreferrer">{t("shop.mall")}</a>
@@ -366,7 +382,12 @@ function ProductDetail({ p, onClose }: { p: Product; onClose: () => void }) {
 function SocialPanel() {
   const t = useT();
   const g = useGame();
-  const [tab, setTab] = useState<"feed" | "friends" | "invite" | "rank">("feed");
+  const giftN = useGifts((s) => s.list.length);
+  const [tab, setTab] = useState<"brag" | "gifts" | "feed" | "friends" | "invite" | "rank">(() => {
+    const want = useUI.getState().socialTab;
+    return want === "gifts" || want === "feed" || want === "friends" || want === "invite" || want === "rank" ? want : "brag";
+  });
+  useEffect(() => { useUI.setState({ socialTab: null }); }, []);
   const [text, setText] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [cm, setCm] = useState("");
@@ -376,9 +397,11 @@ function SocialPanel() {
   ].sort((a, b) => b.score - a.score), [g.followers, g.lounge.level, g.stage, g.name]);
   return (
     <Sheet title="BEAUTY SOCIAL" wide>
-      <Tabs tabs={[["feed", "BEAUTY FEED"], ["friends", t("social.friends")], ["invite", t("invite.tab")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
+      <Tabs tabs={[["brag", t("brag.tab")], ["gifts", `${t("gift.tab")}${giftN ? ` ${giftN}` : ""}`], ["feed", t("social.myFeed")], ["friends", t("social.friends")], ["invite", t("invite.tab")], ["rank", t("social.rank")]]} value={tab} onPick={setTab} />
       {tab === "invite" && <InviteBody />}
-      <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>
+      {tab === "brag" && <BragFeed />}
+      {tab === "gifts" && <GiftInbox />}
+      {tab !== "brag" && tab !== "gifts" && <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>}
       {tab === "feed" && (
         <>
           <div className="mb-3 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">
@@ -448,6 +471,43 @@ function SocialPanel() {
   );
 }
 
+/** 내 코디: 지금 룩을 저장해 두었다가 한 번에 갈아입기 (의상 · 헤어 · 액세서리 · 메이크업) */
+function CoordRow() {
+  const t = useT();
+  const coords = useGame((s) => s.coords);
+  const toast = useUI((s) => s.toast);
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="mb-3 rounded-2xl bg-cream p-2.5" data-testid="coords">
+      <div className="flex items-center justify-between">
+        <p className="text-[13px] font-black tracking-wide text-pink-deep">{t("coord.title")}</p>
+        <button className={`chip ${saving ? "chip-on" : ""}`} onClick={() => setSaving(!saving)} data-testid="coord-save-mode">{saving ? t("coord.pick") : t("coord.save")}</button>
+      </div>
+      <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+        {Array.from({ length: COORD_SLOTS }, (_, i) => {
+          const c = Array.isArray(coords) ? coords[i] : null;
+          const dots = c ? (["outfit", "hair", "makeup", "shadow", "lip", "shoes"] as const).map((k) => c.items[k]).filter((id): id is string => !!id && !!FASHION_MAP[id]) : [];
+          const click = () => {
+            const g = useGame.getState();
+            if (saving) { g.saveCoord(i); setSaving(false); toast(t("coord.saved", { n: i + 1 })); return; }
+            if (!c) { setSaving(true); return; }
+            const n = g.wearCoord(i);
+            toast(n ? t("coord.worn", { n: i + 1 }) : t("coord.same"));
+          };
+          return (
+            <button key={i} onClick={click} data-testid={`coord-${i}`} className={`rounded-xl border-2 bg-white p-1.5 text-left ${saving ? "border-pink-deep" : "border-transparent"}`}>
+              <p className="text-[12px] font-black text-ink/70">{t("coord.slot", { n: i + 1 })}</p>
+              {c ? (
+                <span className="mt-1 flex flex-wrap gap-0.5">{dots.map((id, k) => <span key={k} className="h-3 w-3 rounded-full border border-ink/10" style={{ background: FASHION_MAP[id].color ?? "#f2b8c6" }} />)}</span>
+              ) : <span className="mt-1 block text-[12px] text-ink/40">{t("coord.empty")}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ───────────── QUEST & MISSION ─────────────
 function QuestsPanel() {
   const t = useT();
@@ -474,6 +534,7 @@ function QuestsPanel() {
   });
   return (
     <Sheet title="QUEST & MISSION">
+      <button className="btn-ghost mb-3 w-full !py-2 text-xs" onClick={() => useAttendOpen.setState({ open: true })} data-testid="attend-open"><Icon n="gift" /> {t("att.open")}</button>
       <p className="mb-1.5 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.daily")}</p>
       <div className="space-y-2">{render(true)}</div>
       <p className="mb-1.5 mt-4 text-[13px] font-black tracking-wide text-pink-deep">{t("quest.main")}</p>
@@ -668,6 +729,7 @@ function SettingsPanel() {
       </div>
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.controls")}</p>
       <p className="mt-1 whitespace-pre-line rounded-2xl bg-cream p-3 text-[13px] leading-relaxed text-ink/65">{t("set.controlsBody")}</p>
+      <CloudSettings />
       <p className="mt-4 text-xs font-bold text-ink/70">{t("set.save")}</p>
       <p className="mt-1 text-[13px] text-ink/60">{saveStatus.ok ? `✔ ${t("set.saveOk")}` : <><Icon n="warn" /> {t("set.saveFail")}</>}</p>
       {!confirm ? (

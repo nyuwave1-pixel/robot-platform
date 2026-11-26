@@ -8,6 +8,7 @@ import { ToneMappingMode, type DepthOfFieldEffect } from "postprocessing";
 import * as THREE from "three";
 import { DEMO_FRIENDS } from "../data/game";
 import { DEFAULT_LOOK, earnedStage, useGame, type Look } from "../store/game";
+import { DESIGNED_FACE, REAL_HEAD_Y } from "../data/makeup";
 import { input, useUI } from "../store/ui";
 import { bodyDims, Character } from "./Character";
 import { Lounge } from "./Lounge";
@@ -425,6 +426,15 @@ function CameraRig({ L }: { L: Layout }) {
         const gd = Math.max(3.4, spread * 2.1 + 2.4) * (narrow ? 1.35 : 1), gp = 0.2;
         wantT.set(cx, d.height * 0.6, cz);
         want.set(cx + Math.sin(c.yaw) * Math.cos(gp) * gd, wantT.y + Math.sin(gp) * gd, cz + Math.cos(c.yaw) * Math.cos(gp) * gd);
+      }
+      // 얼굴 · 메이크업 탭: 얼굴을 가까이 (휴대폰은 아래 패널에 가리지 않게 얼굴이 화면 위쪽에 오도록)
+      if (dress && ui.faceCam) {
+        // 완성형 모델은 기본 모델보다 머리 위치가 낮다 (모델마다 잰 머리 높이 비율)
+        const fh = d.height * (DESIGNED_FACE[game.look.body ?? ""]?.headY ?? REAL_HEAD_Y) / REAL_HEAD_Y;
+        const fd = (narrow ? 1.15 : 0.85) * (d.height / 1.5);
+        wantT.set(p.x, fh * 0.9 - (narrow ? d.height * 0.13 : 0), p.z);
+        want.set(p.x + Math.sin(c.yaw) * fd, wantT.y + 0.06, p.z + Math.cos(c.yaw) * fd);
+        if (!narrow) { const ox = Math.cos(c.yaw) * fd * 0.2, oz = -Math.sin(c.yaw) * fd * 0.2; wantT.x += ox; wantT.z += oz; want.x += ox; want.z += oz; }
       }
       // 카메라가 벽 밖으로 나가지 않게 (벽·입구 프레임에 가리지 않도록)
       want.x = THREE.MathUtils.clamp(want.x, -L.w / 2 + 0.35, L.w / 2 - 0.35);
