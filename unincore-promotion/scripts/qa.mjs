@@ -178,7 +178,38 @@ await gp.goto(BASE + "/", { waitUntil: "load" });
 const consent = await gp.evaluate(() => (window.dataLayer || []).map((x) => Array.from(x)).find((a) => a[0] === "consent" && a[1] === "default"));
 check("GPC signal → Consent Mode default denied", consent?.[2]?.ad_storage === "denied", JSON.stringify(consent?.[2]));
 check("GPC → no cookie banner shown", (await gp.locator('[aria-label="Privacy choices"]').count()) === 0);
+check("GPC → no privacy notice strip", (await gp.locator('[aria-label="Privacy notice"]').count()) === 0);
 await gpcCtx.close();
+
+// ---------- privacy notice never covers a buy button (client report 2026-11-25) ----------
+// The old notice was a card fixed to the bottom of the screen; on phones it hid the gallery
+// Amazon button and the sticky bottom button until the visitor chose. It now lives in the top strip.
+{
+  const nCtx = await browser.newContext({ viewport: { width: 390, height: 760 }, isMobile: true, hasTouch: true, userAgent: UA });
+  const np = await nCtx.newPage();
+  const covered = () =>
+    np.evaluate(() =>
+      [...document.querySelectorAll("a[data-cta]")]
+        .filter((a) => {
+          const r = a.getBoundingClientRect();
+          if (!r.height || r.bottom <= 0 || r.top >= innerHeight) return false;
+          const hit = document.elementFromPoint(r.left + r.width / 2, Math.min(r.top + r.height / 2, innerHeight - 2));
+          return !(hit && a.contains(hit));
+        })
+        .map((a) => a.dataset.cta),
+    );
+  for (const p of PRODUCTS) {
+    await np.goto(`${BASE}/products/${p.slug}`, { waitUntil: "load" });
+    await np.waitForTimeout(1200);
+    const notice = await np.locator('[aria-label="Privacy notice"]').count();
+    const first = await covered();
+    await np.mouse.wheel(0, 1100);
+    await np.waitForTimeout(1000);
+    const later = await covered();
+    check(`mobile ${p.key}: privacy notice shown, no Amazon button covered`, notice === 1 && !first.length && !later.length, JSON.stringify({ notice, first, later }));
+  }
+  await nCtx.close();
+}
 
 // ---------- technical ----------
 const sm = await (await fetch(`${BASE}/sitemap.xml`)).text();

@@ -1,6 +1,7 @@
 import { getProducts, getSettings } from "@/lib/cms";
 import { TrackingScripts } from "@/components/site/TrackingScripts";
 import { ConsentBanner } from "@/components/site/ConsentBanner";
+import { ConsentNotice } from "@/components/site/ConsentNotice";
 import { RevealProvider } from "@/components/site/RevealProvider";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -21,8 +22,15 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-ivory">
         Skip to content
       </a>
-      {settings.announcement.enabled && settings.announcement.text && (
-        <AnnouncementBar text={settings.announcement.text} banners={Object.fromEntries(products.map((p) => [`/products/${p.slug}`, LANDING[p.key].banner]))} />
+      {/* The first-visit privacy notice lives in this top strip (never over a buy button). */}
+      {settings.announcement.enabled && settings.announcement.text ? (
+        <AnnouncementBar
+          text={settings.announcement.text}
+          banners={Object.fromEntries(products.map((p) => [`/products/${p.slug}`, LANDING[p.key].banner]))}
+          consentMode={settings.consentMode}
+        />
+      ) : (
+        <ConsentNotice mode={settings.consentMode} />
       )}
       <Header products={products} />
       <main id="main">{children}</main>

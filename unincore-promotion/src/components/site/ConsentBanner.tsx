@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { gpcEnabled, setConsent, storedConsent } from "@/lib/analytics";
+import { gpcEnabled, setConsent } from "@/lib/analytics";
 
+/**
+ * Full privacy choices card. Opens only when the visitor asks for it ("Your Privacy Choices" in the
+ * footer and on /privacy). The first-visit notice is the one-line strip at the top of the page
+ * (ConsentNotice), because this card, fixed to the bottom of the screen, covered the mobile Amazon buttons.
+ */
 export function ConsentBanner({ mode }: { mode: "opt-out" | "opt-in" }) {
   const [open, setOpen] = useState(false);
   const [gpc, setGpc] = useState(false);
 
   useEffect(() => {
     setGpc(gpcEnabled());
-    if (!storedConsent() && !gpcEnabled()) setOpen(true);
     const reopen = () => setOpen(true);
     window.addEventListener("uc-open-privacy", reopen);
     return () => window.removeEventListener("uc-open-privacy", reopen);
