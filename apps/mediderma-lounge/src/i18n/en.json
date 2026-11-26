@@ -703,5 +703,8 @@
   "king.title": "Show-off King this week",
   "king.rule": "Top 3 rewarded next week",
   "king.none": "No liked posts yet this week. Be the first King!",
-  "king.reward": "Last week's Show-off King #{n}! COIN +{c} · GEM +{g}"
+  "king.reward": "Last week's Show-off King #{n}! COIN +{c} · GEM +{g}",
+  "brag.share": "Share",
+  "brag.shareText": "{name}'s BEAUTY LIFE — {msg} Visit my lounge on BitPark!",
+  "brag.shareCopied": "Share link copied"
 }

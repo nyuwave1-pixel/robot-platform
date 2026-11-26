@@ -16,7 +16,7 @@ import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, B
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
-import { reportPlay } from "../platform";
+import { reportPlay, shareUrl } from "../platform";
 import { claimGifts, GIFT_COINS, loadInbox, sendGift, useGifts } from "../net/gifts";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
@@ -146,7 +146,10 @@ function BragCard({ b }: { b: Brag }) {
       <footer className="mt-2 flex items-center gap-3 text-xs font-bold">
         <button className={b.liked ? "text-pink-deep" : "text-ink/45"} disabled={b.writer === me} onClick={like} data-testid="brag-like">{b.liked ? "♥" : "♡"} {b.likes}</button>
         {b.writer === me
-          ? <button className="ml-auto text-ink/35" onClick={() => void deleteBrag(b.id)}>{t("brag.delete")}</button>
+          ? <>
+              <button className="ml-auto text-pink-deep" onClick={() => void shareBrag(b, L(msg), t)} data-testid="brag-share"><Icon n="gift" /> {t("brag.share")}</button>
+              <button className="text-ink/35" onClick={() => void deleteBrag(b.id)}>{t("brag.delete")}</button>
+            </>
           : <>
               <button className="ml-auto text-ink/55" onClick={() => setGift(!gift)} data-testid="gift-open"><Icon n="gift" /> {t("gift.btn")}</button>
               <button className="text-pink-deep" onClick={visit}><Icon n="lounge" /> {t("brag.visit")}</button>
@@ -334,4 +337,15 @@ export function GiftInbox() {
       </div>
     </div>
   );
+}
+
+/** 내 자랑을 외부 SNS · 메신저로 공유: 비트파크에서 내 라운지로 바로 들어오는 링크 */
+export async function shareBrag(b: Brag, msg: string, t: (k: string, v?: Record<string, string | number>) => string) {
+  const url = shareUrl({ visit: b.writer });
+  const text = t("brag.shareText", { name: b.name, msg });
+  try {
+    if (navigator.share) { await navigator.share({ title: "BEAUTY LIFE", text, url }); return; }
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    useUI.getState().toast(t("brag.shareCopied"));
+  } catch { /* 사용자가 공유 창을 닫음 */ }
 }

@@ -703,5 +703,8 @@
   "king.title": "이번 주 자랑왕",
   "king.rule": "1~3위 다음 주 보상",
   "king.none": "아직 좋아요를 받은 자랑이 없어요. 이번 주 자랑왕에 도전해 보세요!",
-  "king.reward": "지난 주 자랑왕 {n}위 보상! COIN +{c} · GEM +{g}"
+  "king.reward": "지난 주 자랑왕 {n}위 보상! COIN +{c} · GEM +{g}",
+  "brag.share": "공유",
+  "brag.shareText": "{name}의 뷰티 라이프 — {msg} 비트파크에서 내 라운지에 놀러 와요!",
+  "brag.shareCopied": "공유 링크를 복사했어요"
 }
