@@ -115,6 +115,7 @@ namespace SpecialSoldier
 
             CrosshairAndCentre();
             Waypoint(cam);
+            SquadTags(cam);
             _compass.MarkDirtyRepaint(); _minimap.MarkDirtyRepaint(); _overlay.MarkDirtyRepaint(); _hitmarker.MarkDirtyRepaint();
             PositionCompassLabels();
 
@@ -169,6 +170,27 @@ namespace SpecialSoldier
             p.x = Mathf.Clamp(p.x, 40f, W - 40f); p.y = Mathf.Clamp(p.y, 70f, H - 170f);
             _waypoint.style.display = DisplayStyle.Flex; _waypoint.style.left = p.x; _waypoint.style.top = p.y;
             _wpDist.text = HudMath.Distance(Vector2.Distance(new Vector2(player.transform.position.x, player.transform.position.z), new Vector2(_marker.x, _marker.z)));
+        }
+
+        /// <summary>SQUAD 07 name tags over each team-mate within 45 m in front of you ("— DOWN" in red while down).</summary>
+        readonly List<Label> _tags = new List<Label>();
+        void SquadTags(Camera cam)
+        {
+            var mates = SquadMate.Active;
+            while (_tags.Count < mates.Count) _tags.Add(T(_root, "squad-tag"));
+            bool show = cam && _root.panel != null && (!_dir || _dir.State == GameDirector.Outcome.Playing);
+            for (int i = 0; i < _tags.Count; i++)
+            {
+                var l = _tags[i];
+                var m = i < mates.Count ? mates[i] : null;
+                Vector3 world = m ? m.transform.position + Vector3.up * 2.15f : Vector3.zero;
+                Vector3 vp = show && m ? cam.WorldToViewportPoint(world) : Vector3.back;
+                if (vp.z <= 0f || vp.z > 45f) { l.style.display = DisplayStyle.None; continue; }
+                Vector2 p = RuntimePanelUtils.CameraTransformWorldToPanel(_root.panel, world, cam);
+                l.text = m.Down ? m.Name + " — DOWN" : m.Name;
+                l.style.color = m.Down ? Red : new Color(0.55f, 0.9f, 0.84f);
+                l.style.display = DisplayStyle.Flex; l.style.left = p.x; l.style.top = p.y;
+            }
         }
 
         void PositionCompassLabels()

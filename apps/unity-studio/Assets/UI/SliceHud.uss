@@ -65,3 +65,5 @@
 .result-title { font-size: 54px; }
 .result-grade { font-size: 96px; color: rgb(255, 210, 58); }
 .click { position: absolute; left: 0; right: 0; top: 60%; -unity-text-align: middle-center; font-size: 30px; display: none; }
+/* SQUAD 07 name tags (HudToolkit.SquadTags): centred above the head */
+.squad-tag { position: absolute; translate: -50% -100%; font-size: 13px; -unity-font-style: bold; letter-spacing: 1px; }
