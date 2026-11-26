@@ -57,6 +57,12 @@ const feedB = await B.evaluate(() => (SS.mp.ui.log || []).join(' ')); check('kil
 await B.evaluate(() => { SS.skipRender = false; }); await sleep(500); await B.screenshot({ path: `${OUT}/mp-${KIND}-dead.png` }); await B.evaluate(() => { SS.skipRender = true; });
 await B.waitForFunction(() => SS.player.alive, null, { timeout: 9000 }).catch(() => {});
 check('B respawns after the delay', await B.evaluate(() => SS.player.alive && SS.mission.stats.deaths === 1), await B.evaluate(() => JSON.stringify({ alive: SS.player.alive, hp: SS.player.health, st: SS.state, active: SS.mp.active, respawnAt: SS.mp.respawnAt, feed: document.getElementById('mpFeed').textContent })));
+// anti-cheat: B claims a hit on A with an impact point 6 m beside A → the Authority rejects it, A keeps its health
+await sleep(2500);
+const hpBefore = await A.evaluate(() => SS.player.health);
+await B.evaluate(() => { const r = [...SS.mp.remotes.values()][0], P = SS.player, E = P.eye; SS.mp.toHost({ k: 'hit', t: r.id, d: 90, z: 'head', sp: [P.pos.x, P.pos.y, P.pos.z], o: [E.x, E.y, E.z], h: [r.pos.x + 6, r.pos.y + 1.2, r.pos.z] }); });
+await sleep(1500);
+check('forged hit claim (impact beside the target) is rejected', (await A.evaluate(() => SS.player.health)) === hpBefore, `A health ${hpBefore} → ${await A.evaluate(() => SS.player.health)}`);
 const net = await Promise.all([A, B].map((p) => p.evaluate(() => ({ sent: SS.mp.stats.sent, recv: SS.mp.stats.recv, hz: SS.mp.transport.sendHz }))));
 console.log('net:', JSON.stringify(net));
 // host / leader leaves: on Supabase the other browser becomes the host and keeps the score

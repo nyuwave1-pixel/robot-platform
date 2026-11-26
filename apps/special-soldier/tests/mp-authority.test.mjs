@@ -70,3 +70,20 @@ test('host migration rebuilds the match from the last roster', () => {
   const r = a.roster(), b = Authority.fromRoster(r, { now: () => 2000, emit: () => {} });
   assert.equal(b.phase, 'live'); assert.deepEqual(b.score, a.score); assert.equal(b.players.get('A').kills, 1); assert.equal(b.players.get('B').alive, false);
 });
+
+test('impact point must be on the target (lag window), eye near the shooter, and not through the terrain', () => {
+  let t = 1000; const ev = []; const hill = (x, z) => (x > 40 && x < 60 ? 30 : 0); // a 30 m ridge between x 40 and 60
+  const a = new Authority({ mode: 'duel', now: () => t, emit: (e) => ev.push(e), rnd: () => 0.5, ground: hill, strict: true });
+  a.join('A'); a.join('B'); a.start(); t += 3;
+  a.state('A', [0, 0, 0]); a.state('B', [20, 0, 0]);
+  assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso' }), false, 'strict: claim without impact point');
+  assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [25, 1.2, 0] }), false, 'impact 5 m beside the target');
+  assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [10, 1.6, 0], h: [20, 1.2, 0] }), false, 'eye far from the shooter');
+  assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [20, 1.2, 0] }), true, 'clean hit');
+  // lag compensation: B moved 4 m after the shot; the impact at its old spot is still accepted inside the window
+  t += 0.2; a.state('B', [20, 0, 4]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [20, 1.2, 0] }), true, 'old position within 0.6 s');
+  t += 1.0; a.state('B', [20, 0, 4]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [20, 1.2, 0] }), false, 'old position after the window');
+  // terrain: B behind the ridge
+  a.state('B', [80, 0, 0]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [80, 1.2, 0] }), false, 'through the ridge');
+  assert.ok(ev.filter((e) => e.k === 'reject').map((e) => e.why).includes('terrain'));
+});

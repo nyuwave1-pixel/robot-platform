@@ -7,6 +7,7 @@
 import http from 'node:http';
 import { WebSocketServer } from 'ws';
 import { Authority, MODES } from '../src/net/authority.js';
+import { rawHeight } from '../src/world/terrain.js';
 
 const PORT = +(process.env.PORT || 8787), TICK_MS = 50;
 const rooms = new Map();
@@ -17,7 +18,7 @@ let bytesOut = 0, msgsIn = 0, tickMsMax = 0;
 function room(code) {
   let r = rooms.get(code); if (r) return r;
   r = { code, clients: new Map(), states: new Map(), dirty: false, leader: null };
-  r.auth = new Authority({ mode: 'tdm', emit: (ev) => broadcast(r, ev) });
+  r.auth = new Authority({ mode: 'tdm', emit: (ev) => broadcast(r, ev), ground: rawHeight, strict: true }); // impact point + terrain line of sight required
   rooms.set(code, r); return r;
 }
 function sendRaw(ws, s) { if (ws.readyState === 1) { ws.send(s); bytesOut += s.length; } }

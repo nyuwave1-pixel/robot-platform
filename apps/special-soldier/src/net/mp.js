@@ -8,6 +8,8 @@
 import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { Authority, MODES, TEAMS, TEAM_NAME, MAX_HP } from './authority.js';
+import { rawHeight } from '../world/terrain.js';
+const AUTH_OPTS = { ground: rawHeight, strict: true }; // host checks impact points + terrain line of sight like the server
 import { SupabaseTransport, WsTransport, SUPABASE_MAX_PLAYERS } from './transport.js';
 import { makeSoldier, poseSoldier } from '../game/models.js';
 import { WEAPONS } from '../config/weapons.js';
@@ -71,7 +73,7 @@ export class MP {
     if (T.kind === 'supabase') {
       if (ids.length > SUPABASE_MAX_PLAYERS && !this.warnedCap) { this.warnedCap = true; this.ui.status(`More than ${SUPABASE_MAX_PLAYERS} players: use a dedicated server for full 15v15 rooms.`); }
       if (T.isHost() && !this.auth) {
-        this.auth = this.roster ? Authority.fromRoster(this.roster, { emit: (e) => this.emitEv(e) }) : new Authority({ mode: this.wantMode, emit: (e) => this.emitEv(e) });
+        this.auth = this.roster ? Authority.fromRoster(this.roster, { ...AUTH_OPTS, emit: (e) => this.emitEv(e) }) : new Authority({ ...AUTH_OPTS, mode: this.wantMode, emit: (e) => this.emitEv(e) });
         this.auth.join(this.id, this.name); this.transport.send({ k: 'rejoin' });
       } else if (!T.isHost()) this.auth = null;
       if (this.auth) for (const p of [...this.auth.players.keys()]) if (!ids.includes(p)) this.auth.leave(p);
@@ -177,9 +179,9 @@ export class MP {
     }
     return best;
   }
-  claimHit(r, dmg, zone) {
+  claimHit(r, dmg, zone, hit) {
     G.audio.play('impact:flesh', { x: r.pos.x, y: r.pos.y + 1, z: r.pos.z }); G.mission.stats.hits++;
-    const P = G.player.pos; this.toHost({ k: 'hit', t: r.id, d: Math.round(dmg * 10) / 10, z: zone, sp: [r2(P.x), r2(P.y), r2(P.z)] });
+    const P = G.player.pos, E = G.player.eye; this.toHost({ k: 'hit', t: r.id, d: Math.round(dmg * 10) / 10, z: zone, sp: [r2(P.x), r2(P.y), r2(P.z)], o: [r2(E.x), r2(E.y), r2(E.z)], h: hit ? [r2(hit[0]), r2(hit[1]), r2(hit[2])] : undefined });
   }
   onShot(o, d) { if (this.shots.length < 4) this.shots.push([r2(o.x), r2(o.y), r2(o.z), r3(d.x), r3(d.y), r3(d.z)]); }
 

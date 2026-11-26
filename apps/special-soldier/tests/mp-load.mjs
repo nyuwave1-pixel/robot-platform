@@ -3,6 +3,7 @@
 //   node tests/mp-load.mjs            DURATION=60 by default
 import { spawn } from 'node:child_process';
 import WebSocket from 'ws';
+import { rawHeight } from '../src/world/terrain.js';
 const PORT = 8798, ROOM = 'LOAD' + Math.floor(Math.random() * 1000), DUR = +(process.env.DURATION || 60), BOTS = 30;
 const results = []; const check = (n, ok, info = '') => { results.push(ok); console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${info ? '  — ' + info : ''}`); };
 const srv = spawn(process.execPath, ['server/mp-server.mjs'], { env: { ...process.env, PORT: String(PORT) }, stdio: ['ignore', 'pipe', 'inherit'] });
@@ -25,13 +26,13 @@ class Bot {
   }
   send(m) { if (this.ws.readyState === 1) this.ws.send(JSON.stringify(m)); }
   step(dt) {
-    if (!this.alive) return; this.pos[0] = Math.max(-120, Math.min(120, this.pos[0] + (Math.random() - 0.5) * 6 * dt * 4)); this.pos[2] = Math.max(-185, Math.min(-5, this.pos[2] + (this.team === 'blue' ? -1 : 1) * 3 * dt));
+    if (!this.alive) return; this.pos[0] = Math.max(-120, Math.min(120, this.pos[0] + (Math.random() - 0.5) * 6 * dt * 4)); this.pos[2] = Math.max(-185, Math.min(-5, this.pos[2] + (this.team === 'blue' ? -1 : 1) * 3 * dt)); this.pos[1] = rawHeight(this.pos[0], this.pos[2]);
     this.send({ k: 'st', p: this.pos.map((v) => Math.round(v * 100) / 100), y: Math.random() * 6.28, pt: 0, s: 0, w: 'm4', a: 1 });
   }
   shoot() {
     if (!this.alive || !this.roster) return; let best = null, bd = 70;
     for (const s of this.others.values()) { const p = this.roster.players.find((q) => q.i === s.f); if (!p || p.tm === this.team || !p.al) continue; const d = Math.hypot(s.p[0] - this.pos[0], s.p[2] - this.pos[2]); if (d < bd) { bd = d; best = s.f; } }
-    if (best && Math.random() < 0.6) this.send({ k: 'hit', t: best, d: 30, z: Math.random() < 0.2 ? 'head' : 'torso', sp: this.pos });
+    if (best && Math.random() < 0.6) { const tp = this.others.get(best).p; this.send({ k: 'hit', t: best, d: 30, z: Math.random() < 0.2 ? 'head' : 'torso', sp: this.pos, o: [this.pos[0], this.pos[1] + 1.6, this.pos[2]], h: [tp[0], tp[1] + 1.2, tp[2]] }); }
   }
 }
 const bots = []; for (let i = 0; i < BOTS; i++) { const b = new Bot(i); await b.connect(); bots.push(b); }

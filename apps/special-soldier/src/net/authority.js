@@ -18,10 +18,13 @@ export const SPAWNS = { blue: { x: 0, z: -14, yaw: 0, spread: 42 }, red: { x: 0,
 export const ARENA = { x0: -130, x1: 130, z0: -192, z1: 2 };
 // Limits a claim must respect. Highest single bullet: the 12-gauge slug / magnum to the head is ~ 110 × 2.6.
 const MAX_HIT = 300, MAX_DPS = 1600, MAX_SHOOTER_DRIFT = 9, MAX_RANGE = 950;
+// Hit-point check: the claimed impact must sit in the target's body column at one of its positions from the last
+// HIST_S seconds (that window is the lag compensation), and the line eye → impact must not pass under the terrain.
+export const HIST_S = 0.6, BODY_R = 1.2, BODY_LO = -0.4, BODY_HI = 2.2, EYE_DRIFT = 3.5;
 
 export class Authority {
-  constructor({ mode = 'duel', now = () => Date.now() / 1000, emit = () => {}, rnd = Math.random } = {}) {
-    this.mode = MODES[mode] ? mode : 'duel'; this.now = now; this.emit = emit; this.rnd = rnd;
+  constructor({ mode = 'duel', now = () => Date.now() / 1000, emit = () => {}, rnd = Math.random, ground = null, strict = false } = {}) {
+    this.mode = MODES[mode] ? mode : 'duel'; this.now = now; this.emit = emit; this.rnd = rnd; this.ground = ground; this.strict = strict; // ground(x, z) → terrain height, or null to skip the line-of-sight check
     this.players = new Map(); this.score = { blue: 0, red: 0 }; this.phase = 'lobby'; this.endsAt = 0; this.winner = null; this.rejected = 0;
   }
   get cfg() { return MODES[this.mode]; }
@@ -42,7 +45,18 @@ export class Authority {
     for (const t of TEAMS) { const extra = [...this.players.values()].filter((p) => p.team === t).slice(this.cfg.perTeam); for (const p of extra) { const o = TEAMS.find((x) => x !== t); if (this.teamCount(o) < this.cfg.perTeam) p.team = o; else this.players.delete(p.id); } }
     this.emitRoster(); }
   /** Latest position report of a player (for claim checks). */
-  state(id, pos) { const p = this.players.get(id); if (!p || !pos) return; p.pos = pos; p.posT = this.now(); }
+  state(id, pos) { const p = this.players.get(id); if (!p || !pos) return; const t = this.now(); p.pos = pos; p.posT = t; (p.hist = p.hist || []).push({ t, pos }); while (p.hist.length && t - p.hist[0].t > 1) p.hist.shift(); }
+  /** Was point h inside the target's body column at any position it reported in the last HIST_S seconds? */
+  inBody(v, h) {
+    const now = this.now(), list = [...(v.hist || []).filter((e) => now - e.t <= HIST_S).map((e) => e.pos), v.pos].filter(Boolean);
+    return list.some((p) => Math.hypot(h[0] - p[0], h[2] - p[2]) <= BODY_R && h[1] >= p[1] + BODY_LO && h[1] <= p[1] + BODY_HI);
+  }
+  /** Does the segment a → b stay above the terrain (sampled every 3 m, ends excluded)? */
+  clearOfTerrain(a, b) {
+    if (!this.ground) return true; const L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), n = Math.floor(L / 3);
+    for (let i = 1; i < n; i++) { const k = i / n, x = a[0] + (b[0] - a[0]) * k, y = a[1] + (b[1] - a[1]) * k, z = a[2] + (b[2] - a[2]) * k; if (this.ground(x, z) > y + 0.8) return false; }
+    return true;
+  }
   start() {
     if (this.phase === 'live') return false;
     this.phase = 'live'; this.score = { blue: 0, red: 0 }; this.winner = null; this.endsAt = this.now() + this.cfg.timeLimit;
@@ -59,7 +73,7 @@ export class Authority {
     this.emit({ k: 'spawn', i: p.id, x: sp.x, z: sp.z, yaw: sp.yaw });
   }
   /** A client claims that its bullet hit someone. Checked against what the authority knows, then applied. */
-  hit({ i, t, d, z, sp }) {
+  hit({ i, t, d, z, sp, o, h }) {
     const s = this.players.get(i), v = this.players.get(t), now = this.now();
     const no = (why) => { this.rejected++; this.emit({ k: 'reject', i, why }); return false; };
     if (this.phase !== 'live') return no('not live');
@@ -69,6 +83,11 @@ export class Authority {
     const dmg = Number(d); if (!(dmg > 0) || dmg > MAX_HIT) return no('damage');
     if (Array.isArray(sp) && s.pos) { const drift = Math.hypot(sp[0] - s.pos[0], sp[2] - s.pos[2]); if (drift > MAX_SHOOTER_DRIFT + (now - s.posT) * 8) return no('shooter position'); }
     if (s.pos && v.pos && Math.hypot(s.pos[0] - v.pos[0], s.pos[2] - v.pos[2]) > MAX_RANGE) return no('range');
+    if (Array.isArray(h) && Array.isArray(o)) { // impact point + shooter eye: body column, eye drift, terrain line of sight
+      if (v.pos && !this.inBody(v, h)) return no('not on target');
+      if (s.pos && Math.hypot(o[0] - s.pos[0], o[2] - s.pos[2]) > EYE_DRIFT + (now - s.posT) * 8) return no('eye position');
+      if (!this.clearOfTerrain(o, h)) return no('terrain');
+    } else if (this.strict) return no('no impact point');
     s.dmgWindow = s.dmgWindow.filter((w) => now - w.t < 1); const recent = s.dmgWindow.reduce((a, w) => a + w.d, 0);
     if (recent + dmg > MAX_DPS) return no('rate');
     s.dmgWindow.push({ t: now, d: dmg });
