@@ -22,9 +22,25 @@ const MAX_HIT = 300, MAX_DPS = 1600, MAX_SHOOTER_DRIFT = 9, MAX_RANGE = 950;
 // HIST_S seconds (that window is the lag compensation), and the line eye → impact must not pass under the terrain.
 export const HIST_S = 0.6, BODY_R = 1.2, BODY_LO = -0.4, BODY_HI = 2.2, EYE_DRIFT = 3.5;
 
+// ---- static boxes: uniform grid (16 m cells) + segment / box slab test; boxes shrunk 0.15 m so grazing edges pass ----
+const CELL = 16, SHRINK = 0.15;
+function boxGrid(list) {
+  const g = new Map();
+  for (const r of list) { const b = [r[0] + SHRINK, r[1] + SHRINK, r[2] + SHRINK, r[3] - SHRINK, r[4] - SHRINK, r[5] - SHRINK]; if (b[0] >= b[3] || b[2] >= b[5]) continue;
+    for (let x = Math.floor(b[0] / CELL); x <= Math.floor(b[3] / CELL); x++) for (let z = Math.floor(b[2] / CELL); z <= Math.floor(b[5] / CELL); z++) { const k = x + ',' + z; if (!g.has(k)) g.set(k, []); g.get(k).push(b); } }
+  return g;
+}
+export function segBox(a, b, x) {
+  let t0 = 0, t1 = 1;
+  for (let i = 0; i < 3; i++) { const d = b[i] - a[i], lo = x[i], hi = x[i + 3];
+    if (Math.abs(d) < 1e-9) { if (a[i] < lo || a[i] > hi) return false; continue; }
+    let u = (lo - a[i]) / d, v = (hi - a[i]) / d; if (u > v) [u, v] = [v, u]; t0 = Math.max(t0, u); t1 = Math.min(t1, v); if (t0 > t1) return false; }
+  return true;
+}
+
 export class Authority {
-  constructor({ mode = 'duel', now = () => Date.now() / 1000, emit = () => {}, rnd = Math.random, ground = null, strict = false } = {}) {
-    this.mode = MODES[mode] ? mode : 'duel'; this.now = now; this.emit = emit; this.rnd = rnd; this.ground = ground; this.strict = strict; // ground(x, z) → terrain height, or null to skip the line-of-sight check
+  constructor({ mode = 'duel', now = () => Date.now() / 1000, emit = () => {}, rnd = Math.random, ground = null, strict = false, boxes = null } = {}) {
+    this.mode = MODES[mode] ? mode : 'duel'; this.now = now; this.emit = emit; this.rnd = rnd; this.ground = ground; this.strict = strict; this.grid = boxes ? boxGrid(boxes) : null; // ground(x, z) → terrain height, or null to skip the line-of-sight check
     this.players = new Map(); this.score = { blue: 0, red: 0 }; this.phase = 'lobby'; this.endsAt = 0; this.winner = null; this.rejected = 0;
   }
   get cfg() { return MODES[this.mode]; }
@@ -50,6 +66,13 @@ export class Authority {
   inBody(v, h) {
     const now = this.now(), list = [...(v.hist || []).filter((e) => now - e.t <= HIST_S).map((e) => e.pos), v.pos].filter(Boolean);
     return list.some((p) => Math.hypot(h[0] - p[0], h[2] - p[2]) <= BODY_R && h[1] >= p[1] + BODY_LO && h[1] <= p[1] + BODY_HI);
+  }
+  /** Does the segment a → b miss every static wall / building box (src/net/colliders.json)? */
+  clearOfBoxes(a, b) {
+    if (!this.grid) return true; const seen = new Set(), L = Math.hypot(b[0] - a[0], b[2] - a[2]), n = Math.max(1, Math.ceil(L / (CELL / 2)));
+    for (let i = 0; i <= n; i++) { const k = i / n, cx = Math.floor((a[0] + (b[0] - a[0]) * k) / CELL), cz = Math.floor((a[2] + (b[2] - a[2]) * k) / CELL);
+      for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) for (const bx of this.grid.get(cx + dx + ',' + (cz + dz)) || []) { if (seen.has(bx)) continue; seen.add(bx); if (segBox(a, b, bx)) return false; } }
+    return true;
   }
   /** Does the segment a → b stay above the terrain (sampled every 3 m, ends excluded)? */
   clearOfTerrain(a, b) {
@@ -87,6 +110,7 @@ export class Authority {
       if (v.pos && !this.inBody(v, h)) return no('not on target');
       if (s.pos && Math.hypot(o[0] - s.pos[0], o[2] - s.pos[2]) > EYE_DRIFT + (now - s.posT) * 8) return no('eye position');
       if (!this.clearOfTerrain(o, h)) return no('terrain');
+      if (!this.clearOfBoxes(o, h)) return no('wall');
     } else if (this.strict) return no('no impact point');
     s.dmgWindow = s.dmgWindow.filter((w) => now - w.t < 1); const recent = s.dmgWindow.reduce((a, w) => a + w.d, 0);
     if (recent + dmg > MAX_DPS) return no('rate');

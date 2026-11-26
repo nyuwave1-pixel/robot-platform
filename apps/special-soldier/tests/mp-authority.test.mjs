@@ -87,3 +87,23 @@ test('impact point must be on the target (lag window), eye near the shooter, and
   a.state('B', [80, 0, 0]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [80, 1.2, 0] }), false, 'through the ridge');
   assert.ok(ev.filter((e) => e.k === 'reject').map((e) => e.why).includes('terrain'));
 });
+
+test('walls: a box between shooter and impact blocks the hit; grazing past an edge does not', async () => {
+  const { segBox } = await import('../src/net/authority.js');
+  assert.equal(segBox([0, 1, 0], [10, 1, 0], [4, 0, -1, 5, 3, 1]), true); assert.equal(segBox([0, 1, 0], [10, 1, 0], [4, 0, 2, 5, 3, 3]), false);
+  let t = 1000; const wall = [[9, 0, -3, 10, 4, 3]];
+  const a = new Authority({ mode: 'duel', now: () => t, emit: () => {}, rnd: () => 0.5, strict: true, boxes: wall });
+  a.join('A'); a.join('B'); a.start(); t += 3; a.state('A', [0, 0, 0]); a.state('B', [20, 0, 0]);
+  assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [20, 1.2, 0] }), false, 'through the wall');
+  a.state('B', [20, 0, 12]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'torso', sp: [0, 0, 0], o: [0, 1.6, 0], h: [20, 1.2, 12] }), true, 'clear line beside the wall');
+  a.state('B', [20, 0, 0]); assert.equal(a.hit({ i: 'A', t: 'B', d: 30, z: 'head', sp: [0, 0, 0], o: [0, 8, 0], h: [20, 1.7, 0] }), true, 'from a roof, over the top of the wall');
+});
+test('the real island colliders load and block a shot through a building', async () => {
+  const { readFileSync } = await import('node:fs'); const boxes = JSON.parse(readFileSync(new URL('../src/net/colliders.json', import.meta.url))).boxes;
+  assert.ok(boxes.length > 500, `${boxes.length} boxes`);
+  const big = boxes.filter((b) => b[3] - b[0] > 6 && b[5] - b[2] > 6 && b[4] - b[1] > 3)[0]; assert.ok(big, 'a building-sized box exists');
+  const cx = (big[0] + big[3]) / 2, cz = (big[2] + big[5]) / 2, y = big[1] + 1.5, a = new Authority({ mode: 'duel', boxes });
+  assert.equal(a.clearOfBoxes([big[0] - 5, y, cz], [big[3] + 5, y, cz]), false, 'line through the middle of a building');
+  assert.equal(a.clearOfBoxes([big[0] - 5, 200, cz], [big[3] + 5, 200, cz]), true, 'line high above the island');
+  void cx;
+});

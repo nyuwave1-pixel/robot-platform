@@ -6,7 +6,7 @@ WORKDIR /app
 COPY server/package.json server/
 RUN cd server && npm install --omit=dev --no-audit --no-fund
 COPY server/mp-server.mjs server/
-COPY src/net/authority.js src/net/
+COPY src/net/authority.js src/net/colliders.json src/net/
 COPY src/world/terrain.js src/world/
 COPY src/core/util.js src/core/
 ENV PORT=8787

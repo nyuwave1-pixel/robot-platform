@@ -63,6 +63,17 @@ const hpBefore = await A.evaluate(() => SS.player.health);
 await B.evaluate(() => { const r = [...SS.mp.remotes.values()][0], P = SS.player, E = P.eye; SS.mp.toHost({ k: 'hit', t: r.id, d: 90, z: 'head', sp: [P.pos.x, P.pos.y, P.pos.z], o: [E.x, E.y, E.z], h: [r.pos.x + 6, r.pos.y + 1.2, r.pos.z] }); });
 await sleep(1500);
 check('forged hit claim (impact beside the target) is rejected', (await A.evaluate(() => SS.player.health)) === hpBefore, `A health ${hpBefore} → ${await A.evaluate(() => SS.player.health)}`);
+// walls: A outside and B inside the base's south wall; A claims a hit on B's body → rejected (line of sight through the wall)
+const side = await A.evaluate(() => { const c = SS.world.colliders.find((c) => c.hp === undefined && !c.pass && !c.thin && c.max.x - c.min.x > 50 && c.max.z - c.min.z < 1.5 && c.max.y - c.min.y > 3 && c.min.z > -2 && c.max.z < 2 && c.min.x > 0); // the base's south perimeter wall (east half)
+  if (!c) return null; const x = (c.min.x + c.max.x) / 2; SS.player.place(x, c.max.z + 5, 0); return { x, z: c.min.z - 5, box: [c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z].map(Math.round) }; });
+if (side) {
+  await B.evaluate((s) => SS.player.place(s.x, s.z, Math.PI), side); await sleep(1800);
+  const hpB = await B.evaluate(() => SS.player.health);
+  await A.evaluate(() => { const r = [...SS.mp.remotes.values()][0], P = SS.player, E = P.eye; SS.mp.toHost({ k: 'hit', t: r.id, d: 40, z: 'torso', sp: [P.pos.x, P.pos.y, P.pos.z], o: [E.x, E.y, E.z], h: [r.pos.x, r.pos.y + 1.2, r.pos.z] }); });
+  await sleep(1500);
+  const why = await A.evaluate(() => SS.mp.lastReject);
+  check('hit through the real base wall is rejected (reason: wall)', (await B.evaluate(() => SS.player.health)) === hpB && why === 'wall', `wall ${JSON.stringify(side.box)}, reason ${why}, B health ${hpB} → ${await B.evaluate(() => SS.player.health)}`);
+} else check('found the base wall for the wall test', false);
 const net = await Promise.all([A, B].map((p) => p.evaluate(() => ({ sent: SS.mp.stats.sent, recv: SS.mp.stats.recv, hz: SS.mp.transport.sendHz }))));
 console.log('net:', JSON.stringify(net));
 // host / leader leaves: on Supabase the other browser becomes the host and keeps the score

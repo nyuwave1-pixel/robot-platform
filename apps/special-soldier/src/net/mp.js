@@ -9,7 +9,8 @@ import * as THREE from 'three';
 import { G } from '../core/ctx.js';
 import { Authority, MODES, TEAMS, TEAM_NAME, MAX_HP } from './authority.js';
 import { rawHeight } from '../world/terrain.js';
-const AUTH_OPTS = { ground: rawHeight, strict: true }; // host checks impact points + terrain line of sight like the server
+import COLLIDERS from './colliders.json';
+const AUTH_OPTS = { ground: rawHeight, strict: true, boxes: COLLIDERS.boxes }; // host checks impact points + terrain line of sight like the server
 import { SupabaseTransport, WsTransport, SUPABASE_MAX_PLAYERS } from './transport.js';
 import { makeSoldier, poseSoldier } from '../game/models.js';
 import { WEAPONS } from '../config/weapons.js';
@@ -124,7 +125,7 @@ export class MP {
       case 'kill': this.onKill(e); break;
       case 'end': this.endMatch(e); break;
       case 'full': if (e.i === this.id) { this.ui.status('Room is full (both teams at capacity).'); this.leave(true); } break;
-      case 'reject': if (e.i === this.id && G.test) console.warn('[mp] hit rejected:', e.why); break;
+      case 'reject': if (e.i === this.id) { this.lastReject = e.why; if (G.test) console.warn('[mp] hit rejected:', e.why); } break;
       case 'left': this.dropRemote(e.i); break;
     }
   }

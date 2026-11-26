@@ -19,4 +19,5 @@ This repo holds several projects. Read the part that matches your task.
 - The island is shared: `apps/special-soldier/src/world/{terrain,vegetation}.js` are the source; Unity's `Core/IslandTerrain.cs` /
   `IslandVegetation.cs` must match (`node "apps/unity-studio/Tools~/gen-terrain-fixture.mjs"` and `gen-vegetation-fixture.mjs` after
   changing them, then `dotnet test "apps/unity-studio/CoreTests~"`). Island → Unity coordinates go through `IslandTerrain.ToWorld` (z flip).
+- Multiplayer line of sight uses `apps/special-soldier/src/net/colliders.json` (static world boxes): after changing island buildings, regenerate it with `node tests/shots.mjs colliders` (in `apps/special-soldier`, after `npm run build`).
 - Do not commit Unity `Library/`, build output, Asset Store assets, or `__pycache__/`.

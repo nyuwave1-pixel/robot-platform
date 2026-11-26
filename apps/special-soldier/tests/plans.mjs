@@ -372,3 +372,21 @@ export async function korean({ page, sim, shot }) {
   await page.evaluate(() => { SS.settings.lang = 'en'; SS.applyLanguage(); }); await page.waitForTimeout(300);
   console.log('back to English:', await page.textContent('#objText'));
 }
+
+// v0.23: dump the static world colliders the multiplayer Authority uses for wall / building line-of-sight checks
+export async function colliders({ page }) {
+  const { writeFileSync } = await import('node:fs');
+  const data = await page.evaluate(() => {
+    const kinds = {}, out = [];
+    for (const c of SS.world.colliders) {
+      kinds[c.kind || 'none'] = (kinds[c.kind || 'none'] || 0) + 1;
+      if (c.hp !== undefined || c.pass || c.thin || c.seeThrough || c.kind === 'glass' || c.min.y < -30) continue; // destructible, walk-through, thin (bullets pass), see-through, underground
+      const r = (v) => Math.round(v * 10) / 10, sx = c.max.x - c.min.x, sy = c.max.y - c.min.y, sz = c.max.z - c.min.z;
+      if (sx * sy * sz < 0.5) continue; // props too small to hide behind
+      out.push([r(c.min.x), r(c.min.y), r(c.min.z), r(c.max.x), r(c.max.y), r(c.max.z)]);
+    }
+    return { kinds, boxes: out, total: SS.world.colliders.length };
+  });
+  console.log('total', data.total, 'kept', data.boxes.length, JSON.stringify(data.kinds));
+  writeFileSync(new URL('../src/net/colliders.json', import.meta.url), JSON.stringify({ _note: 'Static world colliders for multiplayer line-of-sight checks. Regenerate after changing the island buildings: node tests/shots.mjs colliders', boxes: data.boxes }));
+}
