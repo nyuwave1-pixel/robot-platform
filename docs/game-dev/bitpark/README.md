@@ -50,3 +50,15 @@ node tools/portal/export-bitpark-feed.mjs
 웹판 SPECIAL SOLDIER는 airobotphysical.com `/games/play/special-soldier/` 에서 iframe으로 열립니다(`playable.portal`).
 미션을 마치면 게임이 부모 창에 `{type:"game_result", game:"special-soldier", score, rp, mission, grade}` 를 보내고, 사이트가 로그인 사용자에게 RP를 적립합니다(하루 1회). RP: S 60 · A 45 · B 30 · C 15 (사이트 상한 65).
 사이트의 GAME DEV LAB 섹션은 이 `feed.json` 을 복사해 씁니다(`src/data/gamedev-lab.json`). 게임을 바꾼 뒤 피드를 다시 만들고 사이트 쪽 복사본도 갱신하세요.
+
+## `genreLab` (추가 필드, 2026-11-26 — schemaVersion 1 그대로, 없으면 무시)
+
+장르 게임 랩의 하부 섹션. 포털은 "GAME DEV LAB" 아래 하위 카드로 보여 주면 됩니다.
+
+| 필드 | 뜻 |
+|---|---|
+| `genreLab.catalog` | 오픈소스 조사 문서 경로와 GitHub 항목 수 (없으면 null) |
+| `genreLab.subsections[]` | `slug`, `name`, `genre`(rhythm·racing·…), `status`(prototype·playable·polished), `engine`, `summary`, `created`, `learnedFrom`(참고한 오픈소스), `tests`(규칙 테스트 수), `path`, `screenshot`(없으면 null) |
+
+새 하부 섹션은 `node tools/game-lab/new-game.mjs --genre <장르> --id <id> --name "<이름>"` 으로 만들고, 피드를 다시 만들면 자동으로 들어옵니다.
+

@@ -12,6 +12,8 @@ This repo holds several projects. Read the part that matches your task.
   (or the `BLENDER_EXE` / `UNITY_EDITOR` environment variables). Never hard-code a PC-specific path.
 - Where everything stands and how to resume on another PC: `docs/game-dev/HANDOFF.md`. Who does what across sessions and PCs: `docs/game-dev/STUDIO_HUB.md`. Claim files in its "작업 중" table before editing.
 - Free assets: follow the `free-asset-pipeline` skill (license gate, ledger, test in the running game).
+- Genre Game Lab (rhythm, racing, … sub-sections): `docs/game-dev/genres/README.md`. New game: `node tools/game-lab/new-game.mjs --genre <g> --id <id>`;
+  open-source code only under MIT/BSD/Zlib/Apache/CC0 (GPL is study-only) — see `docs/game-dev/genres/OPEN_SOURCE_CATALOG.md`.
 - Unity: `docs/game-dev/UNITY_SETUP.md`, `docs/game-dev/UNITY_CLAUDE_INTEGRATION.md`. SPECIAL SOLDIER stays on Three.js.
 - BIT PARK portal (separate repo) reads `docs/game-dev/bitpark/feed.json`; regenerate it with `node tools/portal/export-bitpark-feed.mjs` after game changes.
 - The island is shared: `apps/special-soldier/src/world/{terrain,vegetation}.js` are the source; Unity's `Core/IslandTerrain.cs` /

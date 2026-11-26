@@ -59,8 +59,21 @@ const shots = existsSync(join(ROOT, 'docs/game-dev/screenshots'))
 const webgl = 'apps/unity-studio/Builds/WebGL';
 
 // ---- dev log (game work only)
-const log = git('log', '-n', '40', '--date=short', '--format=%h%x09%ad%x09%s', '--', 'apps/special-soldier', 'apps/unity-studio', 'docs/game-dev', 'tools/dev-env')
+const log = git('log', '-n', '40', '--date=short', '--format=%h%x09%ad%x09%s', '--', 'apps/special-soldier', 'apps/unity-studio', 'apps/game-lab', 'docs/game-dev', 'tools/dev-env', 'tools/game-lab')
   .split('\n').filter(Boolean).map((l) => { const [hash, date, subject] = l.split('\t'); const area = (subject.match(/^\w+\(([^)]+)\)/) || [])[1] ?? 'general'; return { hash, date, area, subject }; });
+
+// ---- Genre Game Lab: sub-sections created by tools/game-lab/new-game.mjs (apps/game-lab/*/game.json)
+const labDir = join(ROOT, 'apps', 'game-lab');
+const labGames = existsSync(labDir) ? readdirSync(labDir).filter((d) => existsSync(join(labDir, d, 'game.json'))).map((d) => {
+  const g = JSON.parse(read(`apps/game-lab/${d}/game.json`));
+  const testFiles = existsSync(join(labDir, d, 'tests')) ? readdirSync(join(labDir, d, 'tests')).filter((f) => f.endsWith('.test.mjs')) : [];
+  const testCount = testFiles.reduce((n, f) => n + (read(`apps/game-lab/${d}/tests/${f}`).match(/^test\(/gm) || []).length, 0);
+  const shot = `docs/game-dev/screenshots/game-lab-${d}.png`;
+  return { slug: g.id, name: g.name, genre: g.genre, status: g.status, engine: g.engine, summary: g.summary, created: g.created, learnedFrom: g.learnedFrom || [],
+    tests: testCount, path: `apps/game-lab/${d}`, screenshot: existsSync(join(ROOT, shot)) ? shot : null };
+}).sort((a, b) => a.created.localeCompare(b.created)) : [];
+const catalog = read('docs/game-dev/genres/OPEN_SOURCE_CATALOG.md');
+const catalogEntries = (catalog.match(/^\|[^|\n]+\|\s*https:\/\/github\.com\//gm) || []).length;
 
 const feed = {
   schemaVersion: 1,
@@ -94,11 +107,17 @@ const feed = {
     claudeUnityLiveControl: cliDone ? 'done' : 'pending',
   },
   learning: { courses, units, next },
+  genreLab: {
+    title: '장르 게임 랩',
+    about: '오픈소스 게임을 장르별로 조사·학습하고, 생성기(tools/game-lab/new-game.mjs)로 하부 섹션을 만들어 개발합니다.',
+    catalog: catalog ? { path: 'docs/game-dev/genres/OPEN_SOURCE_CATALOG.md', githubEntries: catalogEntries } : null,
+    subsections: labGames,
+  },
   devlog: log,
 };
 
 const out = join(ROOT, 'docs/game-dev/bitpark/feed.json');
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, JSON.stringify(feed, null, 2) + '\n');
-console.log(`[feed] ${relative(ROOT, out)}: ${feed.projects.length} projects, ${units.length} learning units, ${courses.length} courses, ${uniqueSources.length} asset sources, ${openSource.length} GitHub projects, ${log.length} log entries`);
+console.log(`[feed] ${relative(ROOT, out)}: ${feed.projects.length} projects, ${units.length} learning units, ${courses.length} courses, ${uniqueSources.length} asset sources, ${openSource.length} GitHub projects, ${log.length} log entries, ${labGames.length} genre-lab games`);
 console.log(`[feed] special-soldier v${ssVersion} e2e ${e2e ? e2e[1] + '/' + e2e[2] : '-'} | unity edit ${edit ? edit[1] + '/' + edit[2] : '-'} play ${play ? play[1] + '/' + play[2] : '-'} | live control ${feed.pipeline.claudeUnityLiveControl}`);

@@ -1,0 +1,10 @@
+{
+  "id": "beat-lab",
+  "name": "BEAT LAB",
+  "genre": "rhythm",
+  "status": "prototype",
+  "engine": "web (ES modules, Canvas 2D / Web Audio)",
+  "created": "2026-11-26",
+  "summary": "4-lane rhythm game: Web Audio clock, judgement windows, combo, accuracy and rank.",
+  "learnedFrom": []
+}

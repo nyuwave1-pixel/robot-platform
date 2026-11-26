@@ -1,0 +1,10 @@
+{
+  "id": "turbo-lap",
+  "name": "TURBO LAP",
+  "genre": "racing",
+  "status": "prototype",
+  "engine": "web (ES modules, Canvas 2D / Web Audio)",
+  "created": "2026-11-26",
+  "summary": "Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race.",
+  "learnedFrom": []
+}
