@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T03:13:05.651Z",
+  "generatedAt": "2026-11-26T03:15:34.610Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "45cb2a0"
+    "commit": "84c7843"
   },
   "section": {
     "id": "game-dev-lab",
@@ -504,6 +504,12 @@
   },
   "devlog": [
     {
+      "hash": "84c7843",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab → portals: export to airobotphysical.com, Korean summaries, feed contract for portal fields"
+    },
+    {
       "hash": "45cb2a0",
       "date": "2026-11-26",
       "area": "general",
@@ -736,12 +742,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "hub: claim Mission 05 port"
-    },
-    {
-      "hash": "b6a40c4",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: port Mission 04 UNDERGROUND ZERO with security cameras (U4)"
     }
   ]
 }
