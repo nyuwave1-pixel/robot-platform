@@ -485,3 +485,6 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   M03 폭풍 기지 남문 "HIDDEN", M05 활주로 인트로·컨테이너 야적장 "Eliminate COMMANDER VIPER".
 - 허브에 넘긴 화면 문제: ① M01 시작 4 s 만에 "COMBAT · 9 ENGAGING"(잠입 미션인데 인트로 중 적 AI 가 도는 듯) ② 밤 바다가 밝은 하늘색
   ③ 컷신 중 HUD(적 수·장비 키) 표시 ④ 폭풍(흐림)인데 나무 그림자가 진하고 날카로움.
+- **허브 화면 수정 bf1f6de 확인**(EditMode 341/341, PlayMode 31/31, WebGL 23.5 MB): ① M01 시작 SUSPICIOUS → 3 s 뒤 정면 17 m 보초 1명만 교전("COMBAT · 1 ENGAGING", 전에는 4 s 만에 9명)
+  ② 밤 바다 짙은 남색 ③ 컷신 중 HUD 숨김 — 모두 확인(`screenshots/unity-mission01-boat-intro.jpg`·`-first-contact.jpg`).
+  남은 것: 바다 위 세로 빛기둥(달 반사로 보이나 과다 노출), 시작 지점이 보초 시야 안(17 m), 헬기·트럭·APC 방향·분대 이름표는 마우스 시점 회전이 안 돼 미확인.
