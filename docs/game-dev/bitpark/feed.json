@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T02:26:21.121Z",
+  "generatedAt": "2026-11-26T03:00:34.082Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "bf1f6de"
+    "commit": "4922327"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": null
+        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
       },
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
@@ -68,6 +68,7 @@
         "docs/game-dev/screenshots/unity-island-slice-lighting.png",
         "docs/game-dev/screenshots/unity-mission01-boat-intro.jpg",
         "docs/game-dev/screenshots/unity-mission01-briefing.jpg",
+        "docs/game-dev/screenshots/unity-mission01-first-contact.jpg",
         "docs/game-dev/screenshots/unity-mission01-squad.jpg",
         "docs/game-dev/screenshots/unity-mission01.jpg",
         "docs/game-dev/screenshots/unity-mission03.jpg",
@@ -467,6 +468,30 @@
   },
   "devlog": [
     {
+      "hash": "4922327",
+      "date": "2026-11-26",
+      "area": "unity-studio",
+      "subject": "docs(unity-studio): verify the hub's M01 screen fixes (bf1f6de) in WebGL; regenerated scenes"
+    },
+    {
+      "hash": "1b5da13",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "e11a3d7",
+      "date": "2026-11-26",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): multiplayer hit validation — impact point, lag window, terrain line of sight"
+    },
+    {
+      "hash": "9ee20c2",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab: open-source catalog (86 GitHub entries, licenses verified), learnedFrom for BEAT LAB / TURBO LAP, feed"
+    },
+    {
       "hash": "bf1f6de",
       "date": "2026-11-26",
       "area": "unity-studio",
@@ -681,30 +706,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "QA: briefing operation map + campaign regression 17/17"
-    },
-    {
-      "hash": "e00c7e9",
-      "date": "2026-11-25",
-      "area": "game-dev",
-      "subject": "docs(game-dev): HANDOFF.md — current state of every game workstream and how to resume on another PC"
-    },
-    {
-      "hash": "77cc61d",
-      "date": "2026-11-25",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): operation map on the mission briefing"
-    },
-    {
-      "hash": "e655422",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "QA: v0.22 full e2e 66/66, multiplayer and HUD settings results; refresh BIT PARK feed"
-    },
-    {
-      "hash": "e0d526c",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
     }
   ]
 }
