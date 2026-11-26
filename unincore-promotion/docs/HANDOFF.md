@@ -12,7 +12,7 @@
 | 코드 | GitHub `nyuwave1-pixel/robot-platform`, 브랜치 `claude/awesome-gauss-5kqwk2` (PR #2, Draft). 사이트 `unincore-promotion/`, SEO 엔진 `unincore-engine/`, 매일 실행 워크플로 `.github/workflows/unincore-engine-daily.yml` |
 | 호스팅 | Netlify 프로젝트 `unincore-promotion` (siteId `4a3fa453-4eb7-4f23-9855-816a3cc62589`, 팀 nyuwave1) |
 | 도메인 | 후이즈 DNS: `promotion` CNAME → `unincore-promotion.netlify.app` · HTTPS Let's Encrypt 자동 |
-| 분석 | GA4 `G-QDK6Q436G5` (계정 387197170 / 속성 527901588, us.unincore.com 쇼핑몰과 같은 속성) |
+| 분석 | GA4 `G-QDK6Q436G5` + 전용 속성 `G-N8BRZ7ZYN5`(2026-11-26 추가, 환경 변수에 쉼표로 함께 설정) (계정 387197170 / 속성 527901588, us.unincore.com 쇼핑몰과 같은 속성) |
 | 검색 등록 | Google Search Console(HTML 파일) · 네이버 서치어드바이저(메타 태그) 완료 |
 | 엔진 DB | 기본은 로컬 SQLite. 운영용은 Supabase 프로젝트 `qeabsjyglethzkwlkmaw` 의 `seo_engine` 스키마(빈 상태로 준비됨). 접속 주소는 GitHub Secret `ENGINE_DATABASE_URL` 로만 보관 |
 | 배포 | 자동 배포 없음. Netlify에 수동 배포하며, 배포는 매번 담당자 승인 후에만 진행 |
@@ -136,7 +136,7 @@ Netlify에 Git 자동 배포가 연결되어 있지 않습니다. 둘 중 하나
    ```
 2. **Netlify 화면에서 Git 연결**: Site configuration → Build & deploy → Link repository → `robot-platform`, Base directory `unincore-promotion`, 브랜치 `claude/awesome-gauss-5kqwk2`(또는 병합 후 `main`). 이후 푸시할 때마다 자동 배포.
 
-Netlify 환경 변수 (현재): `NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5`, `NEXT_PUBLIC_SITE_URL=https://promotion.unincore.com`.
+Netlify 환경 변수 (현재): `NEXT_PUBLIC_GA4_ID=G-QDK6Q436G5,G-N8BRZ7ZYN5`, `NEXT_PUBLIC_SITE_URL=https://promotion.unincore.com`.
 
 배포 전 체크: `npm run typecheck && npm test && npm run build` 통과.
 

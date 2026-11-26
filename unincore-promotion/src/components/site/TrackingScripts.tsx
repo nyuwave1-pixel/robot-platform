@@ -1,5 +1,6 @@
 "use client";
 
+import { ga4Ids } from "@/lib/consent-snippet";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -60,7 +61,7 @@ export function TrackingScripts({ tracking, consentMode }: { tracking: TrackingS
         </Script>
       ) : ga4Id ? (
         // gtag('js') + gtag('config') are emitted in <head> by consentDefaultSnippet.
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`} strategy="afterInteractive" />
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${ga4Ids(ga4Id)[0] ?? ""}`} strategy="afterInteractive" />
       ) : null}
       {ready && metaPixelId && allowed && (
         <Script id="meta-pixel" strategy="afterInteractive">
