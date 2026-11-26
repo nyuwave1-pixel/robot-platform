@@ -49,6 +49,10 @@ namespace SpecialSoldier.PlayModeTests
             yield return Load();
             var walker = Object.FindObjectsByType<SoldierAnimator>().FirstOrDefault(a => a.GetComponent<EnemyAgent>().patrolPoints?.Length > 0);
             if (!walker) Assert.Ignore("no patrolling soldier with a model");
+            // this test is about the walk cycle, not the AI: take the player out of sight (the slice's sentries spot you at the
+            // spawn and a patrol in COMBAT stops to shoot — Speed 0, PlayMode 2026-11-26)
+            var pl = GameDirector.Instance.player; var plCc = pl.GetComponent<CharacterController>();
+            plCc.enabled = false; pl.transform.position += Vector3.down * 200f; plCc.enabled = true;
             var leg = walker.visual.GetComponentsInChildren<Transform>().First(t => t.name == "legL");
             float min = 999f, max = -999f;
             for (float t = 0; t < 2.5f; t += Time.deltaTime)
@@ -57,7 +61,10 @@ namespace SpecialSoldier.PlayModeTests
                 min = Mathf.Min(min, x); max = Mathf.Max(max, x);
                 yield return null;
             }
-            Assert.That(walker.Speed, Is.GreaterThan(0.3), "the patrol is walking");
+            var ag = walker.GetComponent<UnityEngine.AI.NavMeshAgent>(); var ea = walker.GetComponent<EnemyAgent>();
+            Assert.That(walker.Speed, Is.GreaterThan(0.3), $"the patrol is walking ({walker.name}: agent enabled={ag.enabled} onMesh={ag.isOnNavMesh} " +
+                $"stopped={(ag.isOnNavMesh && ag.isStopped)} hasPath={ag.hasPath} vel={ag.velocity.magnitude:F2} speed={ag.speed:F2}, enemy enabled={ea.enabled} " +
+                $"state={(ea.Brain != null ? ea.Brain.State.ToString() : "-")} patrol={ea.patrolPoints?.Length} goal={ea.Goal} timeScale={Time.timeScale} briefing={BriefingScreen.IsOpen})");
             Assert.That(max - min, Is.GreaterThan(10f), "the thigh swings while walking");
 
             var root = walker.transform; float yawBefore = root.eulerAngles.y;

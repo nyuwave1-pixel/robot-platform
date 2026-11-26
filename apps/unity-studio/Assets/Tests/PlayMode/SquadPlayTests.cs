@@ -35,9 +35,14 @@ namespace SpecialSoldier.PlayModeTests
             var d = GameDirector.Instance; var p = d.player.transform; var cc = d.player.GetComponent<CharacterController>();
             Vector3 start = mates[2].transform.position;
             cc.enabled = false; p.position += p.forward * 14f; cc.enabled = true;   // walk 14 m up the beach
-            for (float s = 0; s < 4f; s += Time.deltaTime) yield return null;
-            Assert.That(Vector3.Distance(mates[2].transform.position, start), Is.GreaterThan(6f), "ATLAS followed");
-            Assert.That(Vector3.Distance(mates[2].transform.position, p.position), Is.LessThan(12f), "and keeps formation behind you");
+            // the rear mate catches up over a few seconds (12.7 m after exactly 4 s on the PC, 2026-11-26): wait for it, ≤ 8 s
+            for (float s = 0; s < 8f && Vector3.Distance(mates[2].transform.position, p.position) >= (mates[2].Fighting ? 14.5f : 12f); s += Time.deltaTime) yield return null;
+            // engaged, ATLAS only closes to 14 m (≈ 6.4 m of travel after a 14 m move), so expect less travel then
+            Assert.That(Vector3.Distance(mates[2].transform.position, start), Is.GreaterThan(mates[2].Fighting ? 4f : 6f), $"ATLAS followed (fighting={mates[2].Fighting})");
+            // Core.Squad.FollowSpeed: a mate with a live target only moves once you are > 14 m away (web rule), otherwise > 1.6 m.
+            // On the PC the night-beach sentries were already engaged, so ATLAS rightly held at ~12.8 m (2026-11-26).
+            float keep = mates[2].Fighting ? 14.5f : 12f;
+            Assert.That(Vector3.Distance(mates[2].transform.position, p.position), Is.LessThan(keep), $"and keeps formation behind you (fighting={mates[2].Fighting})");
 
             Assert.IsFalse(d.SquadWeaponsFree);
             d.ReportNoise(p.position, 50f);

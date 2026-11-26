@@ -79,7 +79,8 @@ namespace SpecialSoldier.PlayModeTests
             Assert.AreEqual(4, d.enemies.Count(e => e && e.Alive && e.group == "port"), "first port wave at 2 s");
             Assert.That(Vector3.Distance(d.player.transform.position, d.heli.position), Is.LessThan(5f), "you ride in the door");
             DoorGunner.Instance.T = 45.95f;
-            for (int i = 0; i < 5; i++) yield return null;
+            // 0.05 s of game time left; batch-mode frames can be ~5 ms, so wait for the flag (≤ 1 s) instead of 5 frames
+            for (float s = 0; s < 1f && !d.Mission.Flags.Contains("gunnerDone"); s += Time.deltaTime) yield return null;
             Assert.IsTrue(d.Mission.Flags.Contains("gunnerDone"));
             Assert.AreEqual(0, d.enemies.Count(e => e && e.group == "port"), "the port is clear");
         }

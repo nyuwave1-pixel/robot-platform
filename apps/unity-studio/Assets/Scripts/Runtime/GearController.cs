@@ -26,11 +26,14 @@ namespace SpecialSoldier
         Volume _volume; ColorAdjustments _ca; FilmGrain _grain; Vignette _vig;
         Light _spot;
         Camera _droneCam; float _dyaw, _dpitch, _scanT, _thermalRefresh;
-        readonly MaterialPropertyBlock _mpb = new MaterialPropertyBlock();
+        // created in Awake: constructing a MaterialPropertyBlock in a field initializer throws "CreateImpl is not allowed to be
+        // called from a MonoBehaviour constructor" in Unity (failed 29 PlayMode tests, 2026-11-26)
+        MaterialPropertyBlock _mpb;
 
         void Awake()
         {
             Instance = this;
+            _mpb = new MaterialPropertyBlock();
             if (!motor) motor = GetComponentInParent<PlayerMotor>();
             if (!view) view = GetComponentInChildren<Camera>();
             var go = new GameObject("GearVolume"); go.transform.SetParent(transform, false);
