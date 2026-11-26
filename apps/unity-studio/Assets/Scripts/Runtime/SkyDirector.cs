@@ -111,7 +111,7 @@ namespace SpecialSoldier
                 // web sky.js: water colour = sky bottom × 0.35 + #061a26, roughness 0.3
                 var wc = C(p.Bottom) * 0.35f + new Color(0x06 / 255f, 0x1a / 255f, 0x26 / 255f); wc.a = 1f;
                 sea.GetPropertyBlock(_seaBlock);
-                _seaBlock.SetColor(BaseColorId, wc); _seaBlock.SetColor(ColorId, wc); _seaBlock.SetFloat(SmoothId, 0.7f);
+                _seaBlock.SetColor(BaseColorId, wc); _seaBlock.SetColor(ColorId, wc); _seaBlock.SetFloat(SmoothId, SeaSmoothness(p));
                 sea.SetPropertyBlock(_seaBlock);
             }
             RenderSettings.fog = p.FogDensity > 0f;
@@ -146,6 +146,11 @@ namespace SpecialSoldier
                 var vel = _rain.velocityOverLifetime; vel.x = p.Wind * 1.6f;
             }
         }
+
+        /// <summary>Web water roughness 0.3 (smoothness 0.7) by day. At night the moon's sharp specular made a long white column on
+        /// the flat sea plane (PC 2026-11-26, M01 boat intro), and the web water has a normal map that breaks it up — rougher
+        /// water at night and under storm clouds spreads the highlight into a soft sheen instead.</summary>
+        public static float SeaSmoothness(SkyPreset p) => Mathf.Lerp(0.7f, 0.25f, Mathf.Clamp01(Mathf.Max(p.Night, p.Storm)));
 
         void MakeRain()
         {
