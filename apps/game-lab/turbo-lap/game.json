@@ -5,7 +5,7 @@
   "status": "playable",
   "engine": "web (ES modules, Canvas 2D / Web Audio)",
   "created": "2026-11-26",
-  "summary": "Top-down arcade racer: spline circuit, kart physics, AI rivals, 3-lap race.",
+  "summary": "탑다운 아케이드 레이싱 — 스플라인 서킷, 카트 물리, 드리프트 미니 터보, AI 3대와 3랩, 고정 스텝 리플레이 검증.",
   "learnedFrom": [
     {
       "repo": "pmndrs/racing-game",

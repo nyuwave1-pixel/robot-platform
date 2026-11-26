@@ -58,7 +58,11 @@ node tools/portal/export-bitpark-feed.mjs
 | 필드 | 뜻 |
 |---|---|
 | `genreLab.catalog` | 오픈소스 조사 문서 경로와 GitHub 항목 수 (없으면 null) |
-| `genreLab.subsections[]` | `slug`, `name`, `genre`(rhythm·racing·…), `status`(prototype·playable·polished), `engine`, `summary`, `created`, `learnedFrom`(참고한 오픈소스), `tests`(규칙 테스트 수), `path`, `screenshot`(없으면 null) |
+| `genreLab.subsections[]` | `slug`, `name`, `genre`(rhythm·racing·…), `status`(prototype·playable·polished), `engine`, `summary`, `created`, `learnedFrom`(참고한 오픈소스), `tests`(규칙 테스트 수), `path`, `screenshot`(없으면 null), `portal`(아래) |
+| `subsections[].portal` | `airobotphysical`: `{message:"game_result", rpByGrade:{S,A,B,C}, rpReward}` · `bitpark`: `{sdk, verify, levels, status}` — 게임이 두 포털에 보내는 것과 BIT PARK 검증 함수 위치 |
+
+포털 반영: BIT PARK는 `scripts/collect-lab.mjs`(또는 `npm run content`)가 스크린샷과 게임(`public/lab-games/<slug>/`)을 복사하고, airobotphysical.com은
+`node tools/portal/export-to-airobotverse.mjs`가 `public/arcade/<slug>/`·커버·`src/data/gamedev-lab.json`을 복사합니다(등록 줄은 `games-config.ts`에 직접).
 
 새 하부 섹션은 `node tools/game-lab/new-game.mjs --genre <장르> --id <id> --name "<이름>"` 으로 만들고, 피드를 다시 만들면 자동으로 들어옵니다.
 
