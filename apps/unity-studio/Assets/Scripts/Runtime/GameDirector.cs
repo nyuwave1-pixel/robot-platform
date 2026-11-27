@@ -247,7 +247,8 @@ namespace SpecialSoldier
                 float k = Mathf.Clamp01(t / 8.5f), e = 1f - Mathf.Pow(1f - k, 3f);
                 var w = IslandTerrain.ToWorld(p.x + (1 - e) * 240, 7.2 + (1 - e) * 70 + (k < 1 ? Mathf.Sin(Time.time * 2f) * 0.3f : 0f), p.z - (1 - e) * 120);
                 heli.position = new Vector3((float)w.x, (float)w.y, (float)w.z);
-                heli.rotation = Quaternion.Euler(-(1 - k) * 0.25f * Mathf.Rad2Deg, -(-1.9f + e * 0.35f) * Mathf.Rad2Deg, 0f);   // island yaw → Unity (mirrored)
+                // island yaw → Unity: 180° − yaw for a +z model under the z mirror (−yaw put the nose backward: VehicleFacingTests)
+                heli.rotation = Quaternion.Euler(-(1 - k) * 0.25f * Mathf.Rad2Deg, (float)WebAngles.EnemyYawToWorldDeg(-1.9 + e * 0.35), 0f);
                 if (rotor) rotor.Rotate(0f, 26f * Mathf.Rad2Deg * Time.deltaTime, 0f, Space.Self);
                 if (tail) tail.Rotate(40f * Mathf.Rad2Deg * Time.deltaTime, 0f, 0f, Space.Self);
                 if (k >= 1f && !HeliLanded) { Mission?.Flags.Add("heliLanded"); Radio("HELICOPTER LANDED — BOARD NOW"); }

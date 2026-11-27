@@ -53,7 +53,8 @@ namespace SpecialSoldier
             {
                 var hw = IslandTerrain.ToWorld(pose.x, pose.y, pose.z);
                 _heli.position = new Vector3((float)hw.x, (float)hw.y, (float)hw.z);
-                _heli.rotation = Quaternion.Euler(0.06f * Mathf.Rad2Deg, (float)(-pose.yaw * Mathf.Rad2Deg), T < DoorGun.LiftSeconds ? 0f : -0.12f * Mathf.Rad2Deg);
+                // web rotation.set(0.06, yaw, −0.12) under the z mirror: pitch kept, yaw 180° − yaw, roll changes sign
+                _heli.rotation = Quaternion.Euler(0.06f * Mathf.Rad2Deg, (float)WebAngles.EnemyYawToWorldDeg(pose.yaw), T < DoorGun.LiftSeconds ? 0f : 0.12f * Mathf.Rad2Deg);
             }
             // aim inside the door's arc (web: rel ±1.25, pitch −1.15 … 0.3)
             var mouse = Mouse.current; bool alive = _d.player && _d.player.GetComponent<Damageable>().Alive;

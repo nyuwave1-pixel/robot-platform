@@ -81,9 +81,9 @@ namespace SpecialSoldier.PlayModeTests
             if (!heli) Assert.Ignore("Mission05 has no extraction helicopter");
             var tail = Child(heli, "tail");
             if (!tail) Assert.Ignore("helicopter is the box stand-in (no Blender model)");
-            // the same rotation GameDirector gives it on the approach (web yaw −1.9 + e × 0.35, mirrored), at e = 0.5
+            // the same rotation GameDirector / DoorGunner give it (web yaw −1.9 + e × 0.35 on the approach), at e = 0.5
             double webYaw = -1.9 + 0.5 * 0.35;
-            heli.rotation = Quaternion.Euler(0f, -(float)(webYaw * Mathf.Rad2Deg), 0f);
+            heli.rotation = Quaternion.Euler(0f, (float)WebAngles.EnemyYawToWorldDeg(webYaw), 0f);
             Vector3 nose = heli.position - tail.position; nose.y = 0f;
             Assert.That(Vector3.Dot(nose.normalized, WebFront(webYaw)), Is.GreaterThan(0.9f), Say("helicopter nose", nose, WebFront(webYaw)));
         }

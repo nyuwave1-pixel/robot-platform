@@ -287,7 +287,7 @@ namespace SpecialSoldier.EditorTools
             var boat = Object.Instantiate(node.gameObject); boat.name = "IntroBoat";
             foreach (var c in boat.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             var w = IslandTerrain.ToWorld(3.2, 0, 331.5);
-            boat.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); boat.transform.rotation = Quaternion.Euler(2f, 187f, 1.7f);
+            boat.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z); boat.transform.rotation = Quaternion.Euler(2f, -7f, -1.7f);   // web (0.04, π + 0.12, 0.03): yaw 180° − y, roll flips
             double[][] seats = { new[] { 1.02, 2.5 }, new[] { -1.02, 2.5 }, new[] { 1.02, 1.1 }, new[] { -1.02, 1.1 }, new[] { 1.02, -0.3 }, new[] { 0.0, -1.75 } };   // web SEATS_NEW
             var crew = new System.Collections.Generic.List<GameObject>();
             var sit = SoldierPose.Pose(sit: true);
@@ -296,8 +296,9 @@ namespace SpecialSoldier.EditorTools
                 var c = Object.Instantiate(soldier, boat.transform); c.name = $"Crew{i}";
                 foreach (var col in c.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(col);
                 double x = seats[i][0], z = seats[i][1], r = i == 5 ? 0 : x > 0 ? -1.25 : 1.25;   // web: the driver stands, the rest face inboard
-                c.transform.localPosition = new Vector3((float)x, i == 5 ? 0.6f : 0.7f, (float)-z);   // boat-local z mirrored with the island
-                c.transform.localRotation = Quaternion.Euler(0f, (float)(180 - r * Mathf.Rad2Deg), 0f);
+                // boat-local: the GLB import mirrors x (glTF +z stays the bow), so web seat (x, z) → (−x, z) and yaw r → −r
+                c.transform.localPosition = new Vector3((float)-x, i == 5 ? 0.6f : 0.7f, (float)z);
+                c.transform.localRotation = Quaternion.Euler(0f, (float)(-r * Mathf.Rad2Deg), 0f);
                 if (i != 5)
                 {
                     void Pitch(string n, double rad) { var t = c.GetComponentsInChildren<Transform>(true).FirstOrDefault(x2 => x2.name == n); if (t) t.localRotation *= Quaternion.Euler((float)(rad * Mathf.Rad2Deg), 0f, 0f); }
@@ -426,7 +427,9 @@ namespace SpecialSoldier.EditorTools
                 go.name = pm.Geo == "CommsTower" ? "RelayMast" : pm.Geo;
                 go.transform.position = new Vector3((float)w.x, (float)w.y, (float)w.z) + (node ? Vector3.zero : Vector3.up * 15f);
                 go.transform.rotation = Quaternion.identity;
-                go.transform.rotation = Quaternion.Euler(0f, (float)(-pm.RotY * Mathf.Rad2Deg), 0f);   // z mirror: yaw changes sign (trucks lie along x)
+                // island yaw → Unity for a glTF +z model: 180° − yaw (the import mirrors x, the island mirrors z). −yaw turned
+                // every placed model around (VehicleFacingTests 2026-11-27: motor-pool truck off by 180°).
+                go.transform.rotation = Quaternion.Euler(0f, (float)WebAngles.EnemyYawToWorldDeg(pm.RotY), 0f);
                 if (pm.Geo != "CommsTower") foreach (var t in go.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(t.gameObject, (StaticEditorFlags)~0 & ~StaticEditorFlags.BatchingStatic);
                 named[pm.Geo] = go.transform; drawn++;
             }

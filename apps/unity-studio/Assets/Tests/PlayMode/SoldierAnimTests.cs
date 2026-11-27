@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
+using SpecialSoldier.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -53,6 +54,11 @@ namespace SpecialSoldier.PlayModeTests
             // spawn and a patrol in COMBAT stops to shoot — Speed 0, PlayMode 2026-11-26)
             var pl = GameDirector.Instance.player; var plCc = pl.GetComponent<CharacterController>();
             plCc.enabled = false; pl.transform.position += Vector3.down * 200f; plCc.enabled = true;
+            // a sentry that glimpsed the spawn is SUSPICIOUS and stands still; with the player gone it calms down after 5 s
+            // (AwarenessBrain) and walks its route again (PlayMode 2026-11-27: state=Suspicious, Speed 0 after 2.5 s)
+            var brainOf = walker.GetComponent<EnemyAgent>();
+            for (float t = 0; t < 10f && brainOf.Brain != null && brainOf.Brain.State != AlertState.Patrol; t += Time.deltaTime) yield return null;
+            yield return Wait(1f);   // the agent picks up its next patrol point
             var leg = walker.visual.GetComponentsInChildren<Transform>().First(t => t.name == "legL");
             float min = 999f, max = -999f;
             for (float t = 0; t < 2.5f; t += Time.deltaTime)

@@ -84,7 +84,7 @@ namespace SpecialSoldier
         {
             var w = IslandTerrain.ToWorld(at[0], at[1], at[2]);
             boat.position = new Vector3((float)w.x, (float)w.y + bob, (float)w.z);
-            boat.rotation = Quaternion.Euler(Mathf.Sin(Time.time * 1.3f) * 1.2f, 180f, Mathf.Sin(Time.time * 0.9f) * 1.5f);
+            boat.rotation = Quaternion.Euler(Mathf.Sin(Time.time * 1.3f) * 1.2f, 0f, Mathf.Sin(Time.time * 0.9f) * 1.5f);   // web y = π → 180° − 180° (bow is glTF +z)
         }
 
         void End()
@@ -93,7 +93,7 @@ namespace SpecialSoldier
             if (boat && _cine?.Anchor != null)
             {
                 // web placeBoat(true): beached at (3.2, 331.5); only the driver and one operator stay aboard
-                PlaceBoat(new[] { 3.2, 0.0, 331.5 }, 0f); boat.rotation = Quaternion.Euler(2f, 180f + 7f, 1.7f);
+                PlaceBoat(new[] { 3.2, 0.0, 331.5 }, 0f); boat.rotation = Quaternion.Euler(2f, -7f, -1.7f);   // web (0.04, π + 0.12, 0.03)
                 for (int i = 0; i < crew.Length; i++) if (crew[i]) crew[i].SetActive(i == 4 || i == 5);
             }
             if (_cam) Destroy(_cam.gameObject);

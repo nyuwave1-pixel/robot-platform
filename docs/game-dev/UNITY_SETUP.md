@@ -488,3 +488,15 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **허브 화면 수정 bf1f6de 확인**(EditMode 341/341, PlayMode 31/31, WebGL 23.5 MB): ① M01 시작 SUSPICIOUS → 3 s 뒤 정면 17 m 보초 1명만 교전("COMBAT · 1 ENGAGING", 전에는 4 s 만에 9명)
   ② 밤 바다 짙은 남색 ③ 컷신 중 HUD 숨김 — 모두 확인(`screenshots/unity-mission01-boat-intro.jpg`·`-first-contact.jpg`).
   남은 것: 바다 위 세로 빛기둥(달 반사로 보이나 과다 노출), 시작 지점이 보초 시야 안(17 m), 헬기·트럭·APC 방향·분대 이름표는 마우스 시점 회전이 안 돼 미확인.
+
+## 2026-11-27 — 탈것 방향 확인(허브 f3b51f1 VehicleFacingTests) — PC
+
+- 허브가 Unity 없이 쓴 `VehicleFacingTests` 첫 실행: 장갑차 통과, **헬기 −179°·보트 −173°·모터풀 트럭 180° 반대**.
+  원인 하나: 섬 각도 → Unity 를 `−yaw` 로 바꾼 곳(헬기 접근·문사수 비행, 보트, `SliceBuilder.BuildProps`). glTF +z 모델은
+  가져오기가 x 를, 섬이 z 를 뒤집으므로 맞는 식은 `180° − yaw` = `WebAngles.EnemyYawToWorldDeg`(적·보안 카메라가 이미 씀).
+- 수정: `GameDirector`·`DoorGunner`(헬기 yaw, 문사수 기울기 roll 부호도 거울 규칙대로), `IntroDirector`·`SliceBuilder`(보트 0°/해변 −7°,
+  승무원 좌석은 보트 기준 `(−x, z)`·`−r` 로 바꿔 세계 위치는 그대로), `BuildProps` 전 모델 `EnemyYawToWorldDeg`.
+- `SoldierAnimTests`: 슬라이스 보초가 시작 때 SUSPICIOUS(제자리) → 플레이어를 치운 뒤 PATROL 로 돌아올 때까지(최대 10 s) 기다렸다 측정.
+- 결과: EditMode 341/341, PlayMode 35/37(2 건너뜀, 실패 0, 방향 4개 통과), WebGL 23.5 MB. 브라우저: 밤바다 빛기둥 사라짐,
+  보트 선수가 섬 쪽·승무원 좌석 정상(`screenshots/unity-mission01-boat-ride.jpg`, `unity-mission01-boat-facing.jpg`). 콘솔 오류 0.
+- 운영 포털(release fc57783) `?mission=m01` 로드·콘솔 오류 0 확인(4922327 빌드).
