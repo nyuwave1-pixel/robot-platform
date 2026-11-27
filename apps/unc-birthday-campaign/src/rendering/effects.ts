@@ -114,7 +114,7 @@ export function dataGrid(b: Box, unit: number): string {
 /** Vector QR code (dark modules on an ivory tile) — scannable on print. */
 export function qr(text: string, x: number, y: number, size: number): string {
   const q = qrcode(0, "M"); q.addData(text); q.make();
-  const n = q.getModuleCount(); const quiet = 2; const m = size / (n + quiet * 2);
+  const n = q.getModuleCount(); const quiet = 4; /* ISO/IEC 18004 quiet zone */ const m = size / (n + quiet * 2);
   let d = "";
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${f(x + (c + quiet) * m)} ${f(y + (r + quiet) * m)}h${f(m)}v${f(m)}h${f(-m)}z`;
   return `<g data-el="qr"><rect x="${f(x)}" y="${f(y)}" width="${f(size)}" height="${f(size)}" rx="${f(size * 0.04)}" fill="#F4EFE7"/><path d="${d}" fill="#17110F"/></g>`;

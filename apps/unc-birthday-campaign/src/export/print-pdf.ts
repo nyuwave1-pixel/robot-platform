@@ -53,8 +53,9 @@ export async function buildPrintPdf(svg: string, report: RenderReport, meta: { t
   const pxW = Math.round((CW / 25.4) * dpi);
   const rgba = new Resvg(art, { fitTo: { mode: "width", value: pxW }, background: "#080706" }).render();
   const pxH = rgba.height;
-  const rgb = sharp(Buffer.from(rgba.pixels), { raw: { width: rgba.width, height: rgba.height, channels: 4 }, limitInputPixels: false }).removeAlpha();
-  const jpg = await rgb.clone().withIccProfile(CMYK_ICC).jpeg({ quality: 90, chromaSubsampling: "4:4:4" }).toBuffer();
+  // feed resvg's pixel buffer straight into sharp (no extra copy) — wall-size art is 80+ Mpx
+  const rgb = sharp(rgba.pixels, { raw: { width: rgba.width, height: rgba.height, channels: 4 }, limitInputPixels: false }).removeAlpha();
+  const jpg = await rgb.withIccProfile(CMYK_ICC).jpeg({ quality: 90, chromaSubsampling: "4:4:4" }).toBuffer();
   // RGB preview of the *full* design (art + type) for review/web
   const prevW = Math.min(2400, pxW);
   const rgbPreview = await sharp(Buffer.from(new Resvg(svg, { fitTo: { mode: "width", value: prevW }, background: "#080706" }).render().asPng()))

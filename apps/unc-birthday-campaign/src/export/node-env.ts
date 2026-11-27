@@ -70,7 +70,7 @@ async function cropBackgrounds(svg: string): Promise<string> {
     const left = Math.floor(((x0 - x) / w) * SW), top = Math.floor(((y0 - y) / h) * SH);
     const cw = Math.min(SW - left, Math.ceil(((x1 - x0) / w) * SW)), ch = Math.min(SH - top, Math.ceil(((y1 - y0) / h) * SH));
     const dx = x + (left / SW) * w, dy = y + (top / SH) * h, dw = (cw / SW) * w, dh = (ch / SH) * h;
-    const target = Math.min(cw, Math.ceil(dw * pxPer * 1.1));
+    const target = Math.min(cw, Math.ceil(dw * pxPer * (pxPer > 2 ? 1.0 : 1.1)));
     jobs.push({ tag, rep: (async () => {
       const key = `${p}|${left},${top},${cw},${ch}|${target}`;
       let uri = memo.get(key);
