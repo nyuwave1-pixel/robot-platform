@@ -21,7 +21,8 @@
 - 팔 수 있는 것: 꾸미기(테마·스킨·펫·카드 뒷면), 순위 밖 모드(자유 모드·연습·샌드박스), 편의 기능 중 점수와 무관한 것(통계·기록 보기).
 - 가격은 PP. 하트(HEART)·이벤트(EVT) 통화는 BIT PARK 운영 판단.
 - 아이템 id: `<slug>-<이름>` (소문자·숫자·하이픈, 40자 이하 — `shop_items.id` 규칙).
-- 1인 1개(`per_user_limit` 1)가 기본. 소모품은 만들지 않는다(서버 소비 API가 아직 없음).
+- 1인 1개(`per_user_limit` 1)가 기본. 소모품은 **서버 차감 호출 `useGameItem { id, ref }` 이 BIT PARK 에 생긴 뒤에만** 쓸 수 있다(요청: [`bitpark/SHOP_CONTRACT.md`](bitpark/SHOP_CONTRACT.md) 2장). 그 전에는 게임이 `unknown_call` 을 받고 효과를 주지 않는다.
+  소모품도 순위 점수에 영향이 없어야 한다 — SPECIAL SOLDIER 의 부활권·보급 상자는 캠페인 전용(멀티플레이 경기에는 안 들어감).
 
 ## 3. SDK 호출 (게임 ↔ 포털)
 
@@ -49,3 +50,4 @@ RP → PP 전환은 BIT PARK `import_rp` 가 이미 지원한다(AIROBOT_LINK_PR
 | ROGUE LEGENDS | ✅ | ✅ (BIT PARK 등록됨) | 연결부만 (아이템 목록 다음 작업) |
 | BEAT LAB · TURBO LAP | ✅ | ✅ (등록됨) | 연결부만 |
 | SURVIVAL WORLD | RP만 (검증 없음) | — | 연결부만 |
+| SPECIAL SOLDIER | ✅ (RP `game_result`) | — | 꾸미기 4 · 캠페인 잠금 해제 3 · 소모품 2 — 게임 안 상점 완성(웹판), 포털 등록·`useGameItem` 대기 (`bitpark/SHOP_CONTRACT.md`) |
