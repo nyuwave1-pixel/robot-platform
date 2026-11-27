@@ -722,5 +722,7 @@
   "follow.fail.limit": "You can follow up to 200 players",
   "follow.fail.missing": "Player not found",
   "follow.fail.auth": "Couldn't verify your player",
-  "follow.fail.error": "Connection is unstable. Try again soon"
+  "follow.fail.error": "Connection is unstable. Try again soon",
+  "follow.seen.on": "Online now",
+  "follow.seen.day": "Active today"
 }

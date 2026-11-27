@@ -722,5 +722,7 @@
   "follow.fail.limit": "최대 200명까지 팔로우할 수 있어요",
   "follow.fail.missing": "플레이어를 찾을 수 없어요",
   "follow.fail.auth": "플레이어 확인에 실패했어요",
-  "follow.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요"
+  "follow.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요",
+  "follow.seen.on": "지금 접속 중",
+  "follow.seen.day": "오늘 접속"
 }

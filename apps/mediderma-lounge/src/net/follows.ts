@@ -7,14 +7,18 @@ import { useGame } from "../store/game";
 import { cleanName } from "./plaza";
 import { rpc, secret } from "./contest";
 
-export interface Followee { code: string; name: string }
+/** seen: "on" = 지금 접속 중(7분 안), "day" = 오늘 접속(24시간 안), 없음 = 그보다 오래 */
+export interface Followee { code: string; name: string; seen?: "on" | "day" }
 export const useFollows = create<{ list: Followee[]; followers: number; loaded: boolean }>(() => ({ list: [], followers: 0, loaded: false }));
 
 export function cleanFollows(v: unknown): { list: Followee[]; followers: number } {
   const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
   const list = (Array.isArray(o.following) ? o.following.slice(0, 200) : []).map((x) => {
     const q = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
-    return typeof q.code === "string" && /^[A-Z0-9]{6}$/.test(q.code) ? { code: q.code, name: cleanName(q.name) } : null;
+    if (typeof q.code !== "string" || !/^[A-Z0-9]{6}$/.test(q.code)) return null;
+    const f: Followee = { code: q.code, name: cleanName(q.name) };
+    if (q.seen === "on" || q.seen === "day") f.seen = q.seen;
+    return f;
   }).filter((x): x is Followee => !!x);
   const f = typeof o.followers === "number" && isFinite(o.followers) ? Math.max(0, Math.floor(o.followers)) : 0;
   return { list, followers: f };
@@ -42,4 +46,15 @@ export async function setFollow(code: string, name: string, on: boolean): Promis
     useFollows.setState({ list: before });
     return (["self", "limit", "missing", "auth"] as const).find((e) => e === r.error) ?? "error";
   } catch { useFollows.setState({ list: before }); return "error"; }
+}
+
+/** 접속 중인 친구를 위로 (같으면 서버 순서 = 최근 팔로우 순) */
+export const SEEN_ORDER = { on: 0, day: 1, none: 2 } as const;
+export const sortBySeen = (list: Followee[]) => [...list].sort((a, b) => SEEN_ORDER[a.seen ?? "none"] - SEEN_ORDER[b.seen ?? "none"]);
+
+/** 게임이 켜져 있다는 표시 (5분마다) — 친구 목록의 "지금 접속 중"에 쓰인다 */
+export async function ping() {
+  const g = useGame.getState();
+  if (!g.started || !/^[A-Z0-9]{6}$/.test(g.friendCode ?? "")) return;
+  try { await rpc("mdl_ping", { p_code: g.friendCode, p_secret: secret() }); } catch { /* 표시만 안 됨 */ }
 }

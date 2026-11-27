@@ -18,7 +18,7 @@ import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
 import { reportPlay, shareUrl } from "../platform";
 import { claimGifts, GIFT_COINS, loadInbox, sendGift, useGifts } from "../net/gifts";
-import { loadFollows, setFollow, useFollows } from "../net/follows";
+import { loadFollows, ping, setFollow, sortBySeen, useFollows } from "../net/follows";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
 const LOOK_SLOTS = ["outfit", "hair", "makeup", "shadow", "lip", "base", "shoes", "accessory", "earring", "necklace", "bag", "nail"] as const;
@@ -278,6 +278,7 @@ export function BragWatcher() {
     if (screen !== "game") return;
     let seenGifts = -1;
     const check = async () => {
+      void ping();
       const n = await checkBragLikes();
       if (n > 0) useUI.getState().toast(t("brag.newLikes", { n }), "reward");
       const g = await loadInbox();
@@ -383,11 +384,17 @@ export function FollowList() {
       </div>
       {loaded && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("follow.none")}</p>}
       <div className="space-y-2">
-        {list.map((f) => (
+        {sortBySeen(list).map((f) => (
           <div key={f.code} className="card !p-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: `hsl(${parseInt(f.code, 36) % 360} 60% 72%)` }}>{f.name.slice(0, 1).toUpperCase()}</span>
-              <p className="min-w-0 flex-1 truncate text-xs font-black text-ink">{f.name}</p>
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: `hsl(${parseInt(f.code, 36) % 360} 60% 72%)` }}>
+                {f.name.slice(0, 1).toUpperCase()}
+                {f.seen === "on" && <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-black text-ink">{f.name}</p>
+                {f.seen && <p className={`text-[11px] font-bold ${f.seen === "on" ? "text-emerald-600" : "text-ink/40"}`} data-testid="follow-seen">{t(`follow.seen.${f.seen}`)}</p>}
+              </div>
               <button className="chip" onClick={() => setGift(gift === f.code ? null : f.code)}><Icon n="gift" /> {t("gift.btn")}</button>
               <button className="btn-primary !px-3 !py-1.5 text-[12px]" onClick={() => visit(f.code)}>{t("brag.visit")}</button>
               <button className="text-[12px] font-bold text-ink/35" onClick={() => void setFollow(f.code, f.name, false)}>{t("follow.unfollow")}</button>

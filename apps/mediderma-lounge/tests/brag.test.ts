@@ -198,3 +198,15 @@ describe("팔로잉 새 자랑 알림", () => {
     } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle", followNew: 0 }); useGame.setState({ followSeenAt: undefined }); }
   });
 });
+
+describe("친구 접속 상태", () => {
+  it("서버가 준 접속 상태는 on · day 만 받고, 접속 중인 친구가 위로 온다", async () => {
+    const { cleanFollows, sortBySeen } = await import("../src/net/follows");
+    const r = cleanFollows({ followers: 1, following: [
+      { code: "AAA111", name: "가", seen: null }, { code: "BBB222", name: "나", seen: "day" },
+      { code: "CCC333", name: "다", seen: "on" }, { code: "DDD444", name: "라", seen: "2026-11-27T01:00:00Z" },
+    ] });
+    expect(r.list.map((f) => f.seen)).toEqual([undefined, "day", "on", undefined]);
+    expect(sortBySeen(r.list).map((f) => f.code)).toEqual(["CCC333", "BBB222", "AAA111", "DDD444"]);
+  });
+});
