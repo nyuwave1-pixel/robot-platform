@@ -2,6 +2,8 @@
 // levels.js and verify.js to its score server). A whole run is (seed, hero, level) + the list of actions the player took;
 // replaying those actions through apply() rebuilds the run exactly — that list is the save file AND the score proof.
 // All heroes, cards, relics and enemies are original to this game.
+// Rules version 2 (2026-11-27): two acts (each 12 map floors + a boss). A proof replays under the rules version it was made with.
+export const RULES_VERSION = 2;
 
 // ---------------------------------------------------------------- RNG
 function rngNext(s) { // mulberry32 step on a uint32 state → [nextState, value 0..1)
@@ -17,10 +19,12 @@ function shuffle(S, arr) { for (let i = arr.length - 1; i > 0; i--) { const j = 
 // ---------------------------------------------------------------- content
 // Card effect ops: ['dmg', n, hits=1] target · ['dmgAll', n] · ['block', n] · ['draw', n] · ['energy', n] · ['st', key, n] status on
 // target · ['stAll', key, n] · ['self', key, n] status on hero · ['heal', n] · ['blockHit'] damage = current block ·
-// ['detonate', k] damage = target burn × k, burn cleared · ['burnX', k] target burn × k · ['nextEnergy', n].
+// ['detonate', k] damage = target burn × k, burn cleared · ['burnX', k] target burn × k · ['burnXAll', k] every foe's burn × k ·
+// ['nextEnergy', n] · ['blockHalfAll'] every foe takes half your block · ['cleanse'] remove your weak/vuln · ['execute', n] n, doubled
+// if the target is at half health or less.
 // Statuses: str (+dmg) · dex (+block) · vuln (+50% taken) · weak (−25% dealt) · burn (end of your turn: take burn, burn halves) ·
 // rot (start of its turn: take rot, rot −1) · thorns (attacker takes n) · plate (start of turn gain n block) · kindle (start of
-// turn: burn n on all foes) · insight (draw +n each turn).
+// turn: burn n on all foes) · insight (draw +n each turn) · bastion (your block no longer fades) · surge (+n energy each turn).
 export const HEROES = {
   warden: { name: 'WARDEN', title: '성벽의 수호자', hp: 80, color: '#e0a24a',
     deck: ['strike', 'strike', 'strike', 'strike', 'strike', 'guard', 'guard', 'guard', 'guard', 'shieldbash'], relic: 'ironBadge' },
@@ -64,7 +68,17 @@ export const CARDS = {
   prism: C('프리즘', 0, 'skill', 'self', '다음 턴 에너지 +2 · 소멸', [['nextEnergy', 2]], { fx: [['nextEnergy', 3]], text: '다음 턴 에너지 +3 · 소멸' }, { hero: 'arcanist', exhaust: true }),
   comet: C('혜성', 3, 'attack', 'enemy', '피해 26', [['dmg', 26]], { fx: [['dmg', 34]], text: '피해 34' }, { hero: 'arcanist' }),
   rotbloom: C('부패의 꽃', 1, 'skill', 'enemy', '부패 6', [['st', 'rot', 6]], { fx: [['st', 'rot', 9]], text: '부패 9' }, { hero: 'arcanist' }),
+  bastion: C('불락의 성채', 2, 'power', 'self', '방어가 턴이 지나도 사라지지 않음', [['self', 'bastion', 1]], { cost: 1, text: '방어가 턴이 지나도 사라지지 않음 (비용 1)' }, { hero: 'warden' }),
+  shieldwall: C('방패 벽 밀치기', 1, 'attack', 'all', '모든 적에게 방어의 절반만큼 피해', [['blockHalfAll']], { fx: [['block', 4], ['blockHalfAll']], text: '방어 4 · 모든 적에게 방어의 절반만큼 피해' }, { hero: 'warden' }),
+  grit: C('이 악물기', 1, 'skill', 'self', '방어 6 · 약화·취약 해제', [['block', 6], ['cleanse']], { fx: [['block', 9], ['cleanse']], text: '방어 9 · 약화·취약 해제' }, { hero: 'warden' }),
+  execute: C('처단', 2, 'attack', 'enemy', '피해 10 · 대상 체력 절반 이하면 2배', [['execute', 10]], { fx: [['execute', 14]], text: '피해 14 · 대상 체력 절반 이하면 2배' }, { hero: 'warden' }),
+  inferno: C('대화재', 3, 'skill', 'all', '모든 적의 화상 2배', [['burnXAll', 2]], { cost: 2, text: '모든 적의 화상 2배 (비용 2)' }, { hero: 'arcanist' }),
+  frostnova: C('서리 폭발', 1, 'skill', 'all', '모든 적 약화 2 · 방어 5', [['stAll', 'weak', 2], ['block', 5]], { fx: [['stAll', 'weak', 3], ['block', 8]], text: '모든 적 약화 3 · 방어 8' }, { hero: 'arcanist' }),
+  leyline: C('지맥', 3, 'power', 'self', '매 턴 에너지 +1', [['self', 'surge', 1]], { cost: 2, text: '매 턴 에너지 +1 (비용 2)' }, { hero: 'arcanist' }),
+  pyroclasm: C('화쇄류', 2, 'attack', 'all', '모든 적 피해 6 · 화상 3', [['dmgAll', 6], ['stAll', 'burn', 3]], { fx: [['dmgAll', 8], ['stAll', 'burn', 5]], text: '모든 적 피해 8 · 화상 5' }, { hero: 'arcanist' }),
   // shared
+  adrenaline: C('아드레날린', 0, 'skill', 'self', '에너지 +1 · 카드 2장 · 소멸', [['energy', 1], ['draw', 2]], { fx: [['energy', 2], ['draw', 2]], text: '에너지 +2 · 카드 2장 · 소멸' }, { exhaust: true }),
+  parry: C('받아넘기기', 1, 'skill', 'self', '방어 6 · 카드 1장', [['block', 6], ['draw', 1]], { fx: [['block', 9], ['draw', 1]], text: '방어 9 · 카드 1장' }),
   bandage: C('응급 처치', 1, 'skill', 'self', '회복 6 · 소멸', [['heal', 6]], { fx: [['heal', 9]], text: '회복 9 · 소멸' }, { exhaust: true }),
   quickstep: C('빠른 발', 0, 'skill', 'self', '방어 2 · 카드 1장', [['block', 2], ['draw', 1]], { fx: [['block', 4], ['draw', 1]], text: '방어 4 · 카드 1장' }),
 };
@@ -95,13 +109,24 @@ export const ENEMIES = {
   // elites
   matron: { name: '강철 여족장', hp: [70, 76], art: 'matron', elite: true, moves: [{ t: 'atk', n: 14 }, { t: 'def', n: 12 }, { t: 'atkdeb', n: 8, st: 'vuln', k: 2 }, { t: 'buff', st: 'str', n: 2 }] },
   lantern: { name: '쌍둥이 초롱', hp: [34, 38], art: 'lamp', elite: true, moves: [{ t: 'atkdeb', n: 6, st: 'weak', k: 1 }, { t: 'atk', n: 5, hits: 2 }, { t: 'def', n: 7 }] },
-  // boss
-  colossus: { name: '잿불 거상', hp: [165, 165], art: 'colossus', boss: true, moves: [{ t: 'buff', st: 'plate', n: 6 }, { t: 'atk', n: 18 }, { t: 'atk', n: 6, hits: 3 }, { t: 'atkdeb', n: 10, st: 'vuln', k: 2 }, { t: 'buff', st: 'str', n: 3 }] },
+  // act 2
+  sporeling: { name: '포자 덩굴', hp: [26, 30], art: 'spore', act: 2, moves: [{ t: 'debuff', st: 'weak', n: 2 }, { t: 'atk', n: 9 }, { t: 'atk', n: 5, hits: 2 }] },
+  glasswing: { name: '유리날개', hp: [22, 26], art: 'glass', act: 2, moves: [{ t: 'atk', n: 3, hits: 4 }, { t: 'def', n: 6 }, { t: 'atk', n: 12 }] },
+  stonekin: { name: '바위 혈족', hp: [48, 54], art: 'stone', act: 2, moves: [{ t: 'def', n: 14 }, { t: 'atk', n: 16 }, { t: 'buff', st: 'str', n: 2 }] },
+  leech: { name: '피거머리', hp: [30, 34], art: 'leech', act: 2, moves: [{ t: 'drain', n: 8 }, { t: 'debuff', st: 'vuln', n: 1 }, { t: 'atk', n: 10 }] },
+  mirrorknight: { name: '거울 기사', hp: [95, 100], art: 'knight', elite: true, act: 2, moves: [{ t: 'buff', st: 'thorns', n: 3 }, { t: 'atk', n: 9, hits: 2 }, { t: 'atkdeb', n: 14, st: 'weak', k: 2 }, { t: 'def', n: 15 }] },
+  // bosses
+  tidewyrm: { name: '심연의 조수룡', hp: [220, 220], art: 'wyrm', boss: true, act: 2, moves: [{ t: 'atk', n: 7, hits: 3 }, { t: 'buff', st: 'plate', n: 8 }, { t: 'atkdeb', n: 20, st: 'vuln', k: 2 }, { t: 'debuff', st: 'weak', n: 3 }, { t: 'drain', n: 14 }, { t: 'buff', st: 'str', n: 3 }] },
+  colossus: { name: '잿불 거상', hp: [150, 150], art: 'colossus', boss: true, act: 1, moves: [{ t: 'buff', st: 'plate', n: 6 }, { t: 'atk', n: 18 }, { t: 'atk', n: 6, hits: 3 }, { t: 'atkdeb', n: 10, st: 'vuln', k: 2 }, { t: 'buff', st: 'str', n: 3 }] },
 };
 const FIGHTS = [['mireslug', 'ashling'], ['brasssentry'], ['ashling', 'ashling', 'ashling'], ['boar'], ['mireslug', 'mireslug'], ['cultist'], ['brasssentry', 'ashling']];
 const EASY = [['mireslug'], ['ashling', 'ashling'], ['brasssentry']];
 const HARD = [['boar', 'ashling'], ['cultist', 'mireslug'], ['brasssentry', 'brasssentry'], ['boar', 'mireslug']];
 const ELITES = [['matron'], ['lantern', 'lantern']];
+const FIGHTS2 = [['sporeling', 'glasswing'], ['stonekin'], ['leech', 'sporeling'], ['glasswing', 'glasswing'], ['leech', 'leech']];
+const HARD2 = [['stonekin', 'glasswing'], ['stonekin', 'leech'], ['sporeling', 'sporeling', 'glasswing']];
+const ELITES2 = [['mirrorknight'], ['mirrorknight']];
+const BOSSES = ['colossus', 'tidewyrm'];
 const EVENTS = ['shrine', 'smith', 'camp'];
 export const EVENT_TEXT = {
   shrine: { name: '잊힌 제단', text: '피 묻은 제단이 무언가를 바치라고 속삭인다.', options: ['체력 12를 바치고 유물을 얻는다', '지나친다'] },
@@ -109,13 +134,16 @@ export const EVENT_TEXT = {
   camp: { name: '버려진 야영지', text: '아직 따뜻한 모닥불과 누군가의 짐 꾸러미가 있다.', options: ['체력 15 회복', '골드 60을 챙긴다'] },
 };
 
-export const FLOORS = 13;          // floors 0..11 on the map, floor 12 = boss
+export const FLOORS = 13;          // per act: floors 0..11 on the map, floor 12 = boss
+export const ACTS = 2;
+/** Floors climbed so far over the whole run (act 1 = 0..12, act 2 = 13..25). */
+export const depth = (S) => S.act * FLOORS + Math.max(0, S.floor);
 export const HAND = 5, ENERGY = 3;
 
 // ---------------------------------------------------------------- run
 export function newRun({ seed = 1, hero = 'warden', level = 0 } = {}) {
   const H = HEROES[hero]; if (!H) throw new Error('unknown hero ' + hero);
-  const S = { v: 1, seed: seed >>> 0, hero, level, rng: (seed * 2654435761) >>> 0, phase: 'map', floor: -1, node: null,
+  const S = { v: RULES_VERSION, seed: seed >>> 0, hero, level, rng: (seed * 2654435761) >>> 0, phase: 'map', act: 0, floor: -1, node: null, path: [],
     hp: H.hp, maxHp: H.hp, gold: 99, deck: H.deck.slice(), relics: [H.relic], turns: 0, kills: 0, elites: 0, log: [],
     map: null, combat: null, reward: null, shop: null, event: null, pickFor: null, result: null, actions: 0 };
   S.map = makeMap(S);
@@ -169,12 +197,15 @@ function dealDamage(S, src, dst, base) {
 }
 function gainBlock(o, n) { o.block += Math.max(0, n + st(o, 'dex')); }
 
+/** Extra damage on every enemy hit: +1 per difficulty level and +1 every 4 floors (act 2 restarts the count at +1). */
+export const enemyBonus = (S) => S.level + (S.act ? 1 + (Math.max(0, S.floor) >> 2) : Math.max(0, S.floor) >> 2);
+
 function rollIntent(S, e) {
   const D = ENEMIES[e.kind]; e.intent = D.moves[e.step % D.moves.length]; e.step++;
 }
 
 function startCombat(S, group, kind) {
-  const lvl = S.level, scale = (1 + lvl * 0.08) * (kind === 'boss' ? 1 : 1 + Math.max(0, S.floor) * 0.04);   // deeper floors hit harder
+  const lvl = S.level, scale = (1 + lvl * 0.08) * (kind === 'boss' ? 1 : 1 + Math.max(0, S.floor) * (S.act ? 0.03 : 0.04));   // act 2 has its own, tougher roster   // deeper floors hit harder
   const enemies = group.map((k, i) => {
     const D = ENEMIES[k], hp = Math.round((D.hp[0] + rint(S, D.hp[1] - D.hp[0] + 1)) * scale);
     return { id: 'e' + i, kind: k, name: D.name, hp, maxHp: hp, block: 0, st: {}, step: rint(S, D.boss ? 1 : D.moves.length), intent: null };
@@ -204,8 +235,8 @@ function draw(S, n) {
 function startTurn(S, first = false) {
   const c = S.combat, P = c.P;
   c.turn++; S.turns++; c.playedThisTurn = 0;
-  if (!first) P.block = 0;
-  c.energy = ENERGY + c.nextEnergy + (first && S.relics.includes('lantern') ? 1 : 0); c.nextEnergy = 0;
+  if (!first && !st(P, 'bastion')) P.block = 0;
+  c.energy = ENERGY + st(P, 'surge') + c.nextEnergy + (first && S.relics.includes('lantern') ? 1 : 0); c.nextEnergy = 0;
   if (st(P, 'plate')) gainBlock(P, st(P, 'plate'));
   if (st(P, 'kindle')) for (const e of alive(c)) addSt(e, 'burn', st(P, 'kindle'));
   draw(S, HAND + st(P, 'insight'));
@@ -229,6 +260,10 @@ function runFx(S, card, target) {
     else if (k === 'blockHit') dealDamage(S, P, target, P.block);
     else if (k === 'detonate') { const n = st(target, 'burn') * a; delete target.st.burn; target.hp -= n; c.fx.push({ who: target.id, n, burn: true }); }
     else if (k === 'burnX') { if (st(target, 'burn')) target.st.burn *= a; }
+    else if (k === 'burnXAll') { for (const e of alive(c)) if (st(e, 'burn')) e.st.burn *= a; }
+    else if (k === 'blockHalfAll') { const n = Math.floor(P.block / 2); for (const e of alive(c)) dealDamage(S, P, e, n); }
+    else if (k === 'cleanse') { delete P.st.weak; delete P.st.vuln; }
+    else if (k === 'execute') { const half = target.hp * 2 <= target.maxHp; dealDamage(S, P, target, half ? a * 2 : a); }
   }
 }
 
@@ -251,7 +286,8 @@ function enemyTurn(S) {
     if (st(e, 'rot')) { e.hp -= st(e, 'rot'); c.fx.push({ who: e.id, n: st(e, 'rot'), rot: true }); addSt(e, 'rot', -1); if (e.hp <= 0) continue; }
     if (st(e, 'plate')) e.block += st(e, 'plate');
     const m = e.intent;
-    if (m.t === 'atk' || m.t === 'atkdeb') for (let h = 0; h < (m.hits || 1); h++) { if (P.hp > 0 && e.hp > 0) dealDamage(S, e, P, m.n + S.level + (S.floor >> 2)); }   // +1 damage every 4 floors
+    if (m.t === 'atk' || m.t === 'atkdeb') for (let h = 0; h < (m.hits || 1); h++) { if (P.hp > 0 && e.hp > 0) dealDamage(S, e, P, m.n + enemyBonus(S)); }
+    if (m.t === 'drain' && P.hp > 0 && e.hp > 0) { const lost = dealDamage(S, e, P, m.n + enemyBonus(S)); e.hp = Math.min(e.maxHp, e.hp + lost); }
     if (m.t === 'atkdeb' || m.t === 'debuff') addSt(P, m.st, m.k || m.n);
     if (m.t === 'def') e.block += m.n;
     if (m.t === 'buff') addSt(e, m.st, m.n);
@@ -269,7 +305,16 @@ function winCombat(S) {
   if (S.relics.includes('fieldkit')) S.hp = Math.min(S.maxHp, S.hp + 5);
   if (kind === 'elite') S.elites++;
   S.combat = null;
-  if (kind === 'boss') { finish(S, true); return; }
+  if (kind === 'boss') {
+    if (S.act >= ACTS - 1) { finish(S, true); return; }
+    // next act: heal 60 % of what is missing, a new tower, a boss reward (2 upgraded cards + 1, 100 gold, a relic)
+    S.act++; S.hp = Math.min(S.maxHp, S.hp + Math.round((S.maxHp - S.hp) * 0.6)); S.gold += 100;
+    S.map = makeMap(S); S.node = null; S.floor = -1; S.path = [];
+    const cards = cardOffer(S, 3, true); cards[1] = cards[1].endsWith('+') ? cards[1] : cards[1] + '+';
+    S.reward = { gold: 100, cards, relic: relicOffer(S), actClear: S.act };
+    if (S.reward.relic) gainRelic(S, S.reward.relic);
+    S.phase = 'reward'; return;
+  }
   let gold = kind === 'elite' ? 30 + rint(S, 11) : 12 + rint(S, 9);
   if (S.relics.includes('coinpurse')) gold = Math.floor(gold * 1.5);
   S.gold += gold;
@@ -290,24 +335,24 @@ function gainRelic(S, r) { S.relics.push(r); if (r === 'mossstone') { S.maxHp +=
 
 function finish(S, won) {
   S.phase = won ? 'victory' : 'defeat'; S.combat = null;
-  S.result = { won, floor: S.floor, turns: S.turns, kills: S.kills, elites: S.elites, hp: S.hp, maxHp: S.maxHp, gold: S.gold, score: score(S, won) };
+  S.result = { won, act: S.act + 1, depth: depth(S), floor: S.floor, turns: S.turns, kills: S.kills, elites: S.elites, hp: S.hp, maxHp: S.maxHp, gold: S.gold, score: score(S, won) };
 }
 /** Run score: progress, elites and the boss, plus what is left of your health. */
 export function score(S, won = S.phase === 'victory') {
-  return Math.max(0, (S.floor + 1) * 20 + S.elites * 40 + S.kills * 5 + (won ? 300 + S.hp * 2 + Math.max(0, 200 - S.turns) : 0));
+  return Math.max(0, (depth(S) + 1) * 20 + S.elites * 40 + S.kills * 5 + (won ? 300 + S.hp * 2 + Math.max(0, 200 - S.turns) : 0));
 }
 /** S A B C D: a win grades by health left, a loss by how far you got (for the portals' points). */
 export function grade(S) {
   if (!S.result) return null;
   if (S.result.won) { const k = S.hp / S.maxHp; return k >= 0.5 ? 'S' : k >= 0.25 ? 'A' : 'B'; }
-  return S.floor >= 8 ? 'C' : 'D';
+  return depth(S) >= 8 ? 'C' : 'D';
 }
 
 function enterNode(S, k) {
-  const n = S.map[k]; S.node = k; S.floor = n.f;
-  if (n.type === 'fight') startCombat(S, S.floor < 3 ? pick(S, EASY) : S.floor < 7 ? pick(S, FIGHTS) : pick(S, HARD), 'fight');
-  else if (n.type === 'elite') startCombat(S, pick(S, ELITES), 'elite');
-  else if (n.type === 'boss') startCombat(S, ['colossus'], 'boss');
+  const n = S.map[k]; S.node = k; S.floor = n.f; S.path.push(k);
+  if (n.type === 'fight') startCombat(S, S.act ? (S.floor < 6 ? pick(S, FIGHTS2) : pick(S, HARD2)) : S.floor < 3 ? pick(S, EASY) : S.floor < 7 ? pick(S, FIGHTS) : pick(S, HARD), 'fight');
+  else if (n.type === 'elite') startCombat(S, pick(S, S.act ? ELITES2 : ELITES), 'elite');
+  else if (n.type === 'boss') startCombat(S, [BOSSES[S.act]], 'boss');
   else if (n.type === 'rest') S.phase = 'rest';
   else if (n.type === 'treasure') { const r = relicOffer(S); if (r) gainRelic(S, r); S.reward = { gold: 0, cards: [], relic: r }; S.phase = 'reward'; }
   else if (n.type === 'shop') { S.shop = makeShop(S); S.phase = 'shop'; }

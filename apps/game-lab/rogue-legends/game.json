@@ -3,9 +3,9 @@
   "name": "ROGUE LEGENDS",
   "genre": "deckbuilder",
   "status": "playable",
-  "engine": "web (ES modules, DOM/CSS UI, SVG art, Web Audio)",
+  "engine": "web (ES modules, DOM/CSS UI, SVG art, Web Audio, Gamepad API)",
   "created": "2026-11-27",
-  "summary": "오리지널 덱빌딩 로그라이크 — 영웅 2종·카드 34장·유물 10종·적 8종, 시드 지도 13층과 잿불 거상 보스, 행동 기록 저장·리플레이 검증.",
+  "summary": "오리지널 덱빌딩 로그라이크 — 2막(각 13층)·영웅 2종·카드 44장·유물 10종·적 14종(보스 2), 한국어/English, 게임패드, 행동 기록 저장·리플레이 검증.",
   "learnedFrom": [],
   "portal": {
     "airobotphysical": {

@@ -1,5 +1,7 @@
 // Original vector art for ROGUE LEGENDS (drawn for this game; no third-party assets). Each returns an inline SVG string.
-const wrap = (body, defs = '') => `<svg viewBox="0 0 160 160" class="art" aria-hidden="true"><defs>${defs}</defs>${body}</svg>`;
+// Every drawing gets its own gradient id: several different creatures on one page must not share id="g".
+let uid = 0;
+const wrap = (body, defs = '') => { const id = 'rg' + ++uid; return `<svg viewBox="0 0 160 160" class="art" aria-hidden="true"><defs>${defs.replace('id="g"', `id="${id}"`)}</defs>${body.split('url(#g)').join(`url(#${id})`)}</svg>`; };
 const shadow = '<ellipse cx="80" cy="146" rx="46" ry="8" fill="#000" opacity=".35"/>';
 const grad = (id, a, b) => `<radialGradient id="${id}" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`;
 const eyes = (y, dx = 12, c = '#ffd36b') => `<circle cx="${80 - dx}" cy="${y}" r="5" fill="${c}"/><circle cx="${80 + dx}" cy="${y}" r="5" fill="${c}"/>`;
@@ -37,6 +39,30 @@ export const ENEMY_ART = {
     <rect x="58" y="70" width="44" height="14" rx="6" fill="#120806"/><circle cx="70" cy="77" r="5" fill="#ffb04a"/><circle cx="90" cy="77" r="5" fill="#ffb04a"/>
     <path d="M44 100 Q80 120 116 100 M48 122 Q80 138 112 122" stroke="#ff7a4a" stroke-width="4" fill="none" opacity=".8"/>
     <circle cx="20" cy="96" r="16" fill="#4a2a1e"/><circle cx="140" cy="96" r="16" fill="#4a2a1e"/>`, grad('g', '#7a4632', '#20110b')),
+  spore: () => wrap(`${shadow}<path d="M80 140 Q72 110 78 84" stroke="#4d6b2e" stroke-width="8" fill="none"/><path d="M80 140 Q96 116 104 96" stroke="#4d6b2e" stroke-width="6" fill="none"/>
+    <ellipse cx="78" cy="70" rx="38" ry="28" fill="url(#g)"/><ellipse cx="108" cy="90" rx="18" ry="13" fill="url(#g)"/>
+    <circle cx="64" cy="62" r="5" fill="#f2f7c0"/><circle cx="88" cy="58" r="4" fill="#f2f7c0"/><circle cx="76" cy="80" r="3" fill="#f2f7c0"/>${eyes(70, 10, '#2a0f2a')}
+    <circle cx="40" cy="44" r="3" fill="#c9e27a" opacity=".7"/><circle cx="122" cy="52" r="2.5" fill="#c9e27a" opacity=".7"/>`, grad('g', '#b48ad8', '#4d2a6a')),
+  glass: () => wrap(`<path d="M80 74 L20 40 L44 92 Z M80 74 L140 40 L116 92 Z" fill="#9fe3ff" opacity=".55" stroke="#dff6ff" stroke-width="2"/>
+    <path d="M80 74 L34 112 L64 100 Z M80 74 L126 112 L96 100 Z" fill="#7fc8ea" opacity=".45" stroke="#dff6ff" stroke-width="1.5"/>
+    <ellipse cx="80" cy="84" rx="10" ry="30" fill="url(#g)"/>${eyes(66, 5, '#ff4a8a')}`, grad('g', '#e9f8ff', '#3a7fa8')),
+  stone: () => wrap(`${shadow}<path d="M34 142 L40 80 L60 56 L100 54 L122 78 L128 142 Z" fill="url(#g)"/>
+    <path d="M60 56 L70 30 L94 30 L100 54" fill="#7a7068"/><path d="M48 96 L70 104 M92 110 L118 98 M60 126 L84 120" stroke="#3b342e" stroke-width="3"/>
+    <rect x="66" y="40" width="28" height="8" rx="3" fill="#1d1916"/><circle cx="73" cy="44" r="3" fill="#ffb04a"/><circle cx="87" cy="44" r="3" fill="#ffb04a"/>
+    <path d="M22 100 Q34 86 40 100 L40 124 L22 124 Z M138 100 Q126 86 120 100 L120 124 L138 124 Z" fill="#5d554e"/>`, grad('g', '#a39788', '#4a433c')),
+  leech: () => wrap(`${shadow}<path d="M26 122 Q30 76 80 70 Q132 66 138 112 Q136 136 108 132 Q80 128 54 134 Q26 140 26 122 Z" fill="url(#g)"/>
+    <path d="M40 98 Q80 88 126 96 M36 112 Q80 102 132 112" stroke="#3a0c12" stroke-width="3" fill="none" opacity=".6"/>
+    <circle cx="128" cy="96" r="13" fill="#2a070c"/><path d="M120 92 L136 92 M122 100 L134 100 M128 86 L128 106" stroke="#e8c0c6" stroke-width="2"/>`, grad('g', '#a8323e', '#3a0c12')),
+  knight: () => wrap(`${shadow}<path d="M44 142 L50 74 Q80 60 110 74 L116 142 Z" fill="url(#g)" stroke="#e6f2ff" stroke-width="2"/>
+    <path d="M58 30 Q80 14 102 30 L104 62 Q80 74 56 62 Z" fill="url(#g)" stroke="#e6f2ff" stroke-width="2"/><rect x="64" y="42" width="32" height="6" rx="3" fill="#0d1620"/>
+    <circle cx="72" cy="45" r="2.5" fill="#8ff0ff"/><circle cx="88" cy="45" r="2.5" fill="#8ff0ff"/>
+    <path d="M118 30 L126 30 L126 120 L118 120 Z" fill="#cfe2f2"/><rect x="108" y="116" width="28" height="6" rx="2" fill="#5a6b7a"/>
+    <path d="M26 84 L52 78 L54 124 L28 128 Z" fill="#9fb8cc" opacity=".9" stroke="#e6f2ff" stroke-width="2"/>`, grad('g', '#d6e6f4', '#4a5f72')),
+  wyrm: () => wrap(`<path d="M18 150 Q14 96 52 86 Q70 40 108 36 Q148 34 146 70 Q144 96 118 98 Q130 120 110 150 Z" fill="url(#g)"/>
+    <path d="M108 36 Q122 14 140 20 Q128 28 126 44 Z" fill="#1b4a5a"/><path d="M70 58 Q62 40 72 30 Q78 44 86 48 Z" fill="#1b4a5a"/>
+    <circle cx="118" cy="62" r="7" fill="#ffe27a"/><circle cx="119" cy="62" r="3" fill="#0b1c22"/>
+    <path d="M128 80 L144 80 M130 86 L142 88" stroke="#0b1c22" stroke-width="3"/>
+    <path d="M30 120 Q60 110 90 124 M40 140 Q70 130 100 142" stroke="#8ff0e0" stroke-width="3" fill="none" opacity=".6"/>`, grad('g', '#3fa3a8', '#0b2a33')),
 };
 
 export const HERO_ART = {
@@ -69,4 +95,3 @@ export function cardIcon(d) {
 }
 export const RELIC_ICON = { ironBadge: '🛡️', emberCoal: '🔥', lantern: '🏮', cog: '⚙️', fieldkit: '🩹', whetstone: '🗡️', mossstone: '🪨', coinpurse: '👛', thornseed: '🌵', hourglass: '⏳' };
 export const NODE_ICON = { fight: '⚔️', elite: '💀', rest: '🔥', shop: '🪙', event: '❔', treasure: '🎁', boss: '👑' };
-export const ST_LABEL = { str: '힘', dex: '민첩', vuln: '취약', weak: '약화', burn: '화상', rot: '부패', thorns: '가시', plate: '판금', kindle: '잿불', insight: '통찰' };

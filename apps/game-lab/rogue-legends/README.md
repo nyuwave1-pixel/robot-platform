@@ -1,6 +1,7 @@
 # ROGUE LEGENDS
 
-오리지널 **덱빌딩 로그라이크** · 장르 게임 랩 하부 섹션 · NEXT-GEN INDIE STUDIO 첫 MVP (2026-11-27).
+오리지널 **덱빌딩 로그라이크** · 장르 게임 랩 하부 섹션 · NEXT-GEN INDIE STUDIO 첫 게임 (2026-11-27, 규칙 v2: 2막).
+한국어 / English (첫 화면 버튼, 브라우저 언어로 자동) · 키보드 · 마우스 · **게임패드/Steam Deck**.
 기획서: [`docs/indie-studio/GAME_DESIGN_DOCUMENTS/ROGUE_LEGENDS.md`](../../../docs/indie-studio/GAME_DESIGN_DOCUMENTS/ROGUE_LEGENDS.md)
 
 ## 실행
@@ -20,7 +21,7 @@ node tools/sim.mjs 300                 # 밸런스 시뮬레이터: 봇이 영�
 | `src/levels.js` | 영웅 × 난이도 6개 (BIT PARK 레벨 번호) |
 | `src/verify.js` | 리플레이 검증: (seed, 행동 목록) → 결과. BIT PARK 점수 서버가 그대로 씀 |
 | `src/bot.js` · `tools/sim.mjs` | 탐욕 봇과 밸런스 시뮬레이터 (게임 화면은 안 씀) |
-| `src/main.js` · `src/style.css` · `src/art.js` | 화면(DOM·CSS), 원본 SVG 그림, Web Audio 효과음 |
+| `src/main.js` · `src/style.css` · `src/art.js` · `src/i18n.js` | 화면(DOM·CSS), 원본 SVG 그림, Web Audio 효과음, 영어 문구(화면 전용 — 검증기는 안 읽음) |
 | `src/portal.js` | airobotphysical RP(`game_result`) + BIT PARK SDK v1(`levelStart`/`levelClear` + proof) |
 
 **저장 = 증명**: 원정은 `(seed, 영웅, 난이도) + 행동 목록`으로만 저장됩니다(localStorage). 불러올 때 행동을 다시 재생하고,
@@ -29,13 +30,16 @@ node tools/sim.mjs 300                 # 밸런스 시뮬레이터: 봇이 영�
 ## 조작
 
 카드 클릭(대상이 여럿이면 적 클릭) · 숫자키 1–9 카드 · Tab 대상 바꾸기 · E 턴 종료 · D 덱 보기 · Esc 취소.
+게임패드(표준 배치): 십자키/스틱 포커스 이동 · A 선택 · B 취소 · X 턴 종료 · Y 덱 · LB/RB 대상.
 
-## 밸런스 (탐욕 봇 300판, 2026-11-27)
+## 밸런스 (탐욕 봇 300판, 규칙 v2, 2026-11-27)
 
-| 레벨 | 승률 |
-|---|---|
-| WARDEN 0 / ARCANIST 0 | 34% / 31% |
-| 난이도 1 (WARDEN / ARCANIST) | 11% / 14% |
-| 난이도 2 | 3% / 1% |
+`node tools/sim.mjs 300` — 1막 돌파율 / 2막까지 최종 승률:
+
+| 레벨 | 1막 돌파 | 최종 승리 |
+|---|---|---|
+| WARDEN 0 / ARCANIST 0 | 34% / 31% | 7% / 5% |
+| 난이도 1 | 11% / 18% | 2% / 2% |
+| 난이도 2 | 3% / 3% | 0% / 0% |
 
 봇은 다음 수를 내다보지 않으므로 사람의 승률은 이보다 높아야 정상입니다. 사람 플레이 테스트 후 조정합니다.

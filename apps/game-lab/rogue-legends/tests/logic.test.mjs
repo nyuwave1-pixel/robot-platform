@@ -82,3 +82,51 @@ test('content sanity: enemies and boss', () => {
   assert.ok(ENEMIES.colossus.boss); assert.equal(FLOORS, 13);
   for (const [k, e] of Object.entries(ENEMIES)) { assert.ok(e.moves.length >= 2, k); assert.ok(e.hp[0] <= e.hp[1], k); }
 });
+
+import { ACTS, depth, enemyBonus } from '../src/logic.js';
+
+test('act 2: beating the first boss opens a new tower, heals, rewards; the second boss ends the run', () => {
+  assert.equal(ACTS, 2);
+  let found = null;
+  for (let s = 1; s < 300 && !found; s++) { const r = playRun(s * 7919, 'warden', 0); if (r.S.result.act === 2) found = r; }
+  assert.ok(found, 'some bot run reaches act 2');
+  const S = newRun({ seed: found.S.seed, hero: 'warden' });
+  let sawBossReward = false;
+  for (const a of found.acts) {
+    const before = S.act; apply(S, a);
+    if (S.act === 1 && before === 0) {
+      sawBossReward = true;
+      assert.equal(S.phase, 'reward'); assert.equal(S.floor, -1); assert.equal(S.reward.actClear, 1);
+      assert.ok(S.reward.cards.some((c) => c.endsWith('+')), 'an upgraded card on offer');
+      assert.ok(choices({ ...S, phase: 'map' }).length >= 2, 'a fresh map to climb');
+    }
+  }
+  assert.ok(sawBossReward);
+  assert.ok(depth(S) >= 13, 'depth counts both acts');
+});
+
+test('new cards: bastion keeps block, execute doubles on a wounded foe, shield wall, inferno, cleanse', () => {
+  const S = newRun({ seed: 12, hero: 'warden' }); apply(S, { a: 'go', k: choices(S)[0] });
+  const c = S.combat, P = c.P, e = c.enemies[0]; e.hp = e.maxHp = 100; c.energy = 9;
+  c.hand = ['bastion', 'execute', 'grit', 'shieldwall', 'strike'];
+  P.st.weak = 2; P.st.vuln = 1;
+  apply(S, { a: 'play', i: 2, t: -1 }); assert.equal(P.st.weak, undefined); assert.equal(P.st.vuln, undefined);
+  apply(S, { a: 'play', i: 0, t: -1 }); assert.equal(P.st.bastion, 1);
+  const blk = P.block; apply(S, { a: 'play', i: 0, t: 0 }); assert.equal(e.hp, 90, 'execute 10 on a healthy foe');
+  e.hp = 40; e.block = 0; c.hand.unshift('execute'); apply(S, { a: 'play', i: 0, t: 0 }); assert.equal(e.hp, 20, 'execute doubles at half health');
+  const hp = e.hp; c.hand.unshift('shieldwall'); apply(S, { a: 'play', i: 0, t: -1 }); assert.equal(hp - e.hp, Math.floor(blk / 2));
+  e.hp = 100; e.st = {}; apply(S, { a: 'end' });
+  if (S.combat) assert.ok(S.combat.P.block > 0 || S.combat.P.hp < P.hp + 999, 'bastion: block survives the turn change');
+  const A = newRun({ seed: 12, hero: 'arcanist' }); apply(A, { a: 'go', k: choices(A)[0] });
+  const ac = A.combat; ac.enemies.forEach((x) => { x.hp = x.maxHp = 100; x.st = { burn: 4 }; }); ac.energy = 9; ac.hand = ['inferno'];
+  apply(A, { a: 'play', i: 0, t: -1 }); assert.ok(ac.enemies.every((x) => x.st.burn === 8));
+});
+
+test('drain heals the attacker by the damage it dealt; enemy bonus grows with floors and restarts in act 2', () => {
+  const S = newRun({ seed: 21, hero: 'warden' }); apply(S, { a: 'go', k: choices(S)[0] });
+  const c = S.combat, e = c.enemies[0]; c.enemies.splice(1); e.hp = 10; e.maxHp = 50; e.block = 0; e.st = {}; e.intent = { t: 'drain', n: 8 };
+  c.P.block = 0; c.P.st = {}; const before = c.P.hp; c.hand = [];
+  apply(S, { a: 'end' });
+  assert.equal(before - c.P.hp, 8 + enemyBonus(S)); assert.equal(e.hp, 10 + 8 + enemyBonus(S));
+  assert.equal(enemyBonus({ level: 0, act: 0, floor: 8 }), 2); assert.equal(enemyBonus({ level: 1, act: 1, floor: 0 }), 2);
+});

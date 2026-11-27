@@ -137,3 +137,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .dock { grid-template-columns: 80px 1fr 80px; } .energy { width: 56px; height: 56px; font-size: 22px; }
   .top { gap: 10px; font-size: 12px; flex-wrap: wrap; }
 }
+
+/* gamepad focus (shown only while a gamepad is in use) */
+.gp { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 12px; }
+.card.gp { transform: translateY(-26px) scale(1.06); z-index: 5; }
+.mnode.gp circle { stroke: #fff; stroke-width: 5; }
