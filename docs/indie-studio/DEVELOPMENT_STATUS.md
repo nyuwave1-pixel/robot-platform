@@ -18,6 +18,7 @@
 | 3단계 (규칙 v2) | ROGUE LEGENDS 2막(적 6종·보스 2), 카드 44장, 한국어/English, 게임패드·Steam Deck 입력, 테스트 13개 | **완료** |
 | 플레이 테스트 준비 | 로컬 플레이 기록(시드+행동) · JSON 내보내기 · 재생 기반 리포트 도구 · 생성형 음악 · `PLAYTEST_GUIDE.md` | **완료 — 테스터 모집은 사용자 결정** |
 | SURVIVAL WORLD 기술 프로토타입 | `apps/game-lab/survival-world` — 시드 섬(three.js), 채집·제작·건축, 생존 수치, 낮밤, 밤 늑대, 자동 저장, 규칙 테스트 8개, 브라우저(SwiftShader) 확인 | **완료 (프로토타입)** |
+| SURVIVAL WORLD 유니티판 (Blender 모델) | Blender(bpy) `blender/build_assets.py` → `assets/survival.glb`(10개 모델) · C# Core `SurvivalRules.cs`(웹 규칙과 비트 단위 일치, 패리티 테스트 통과) · Unity 런타임·씬 빌더·PlayMode 테스트 작성 | **진행 중 — PC Unity 세션 컴파일·플레이 검증 대기** |
 | PHASE 7 플랫폼 | BIT PARK `docs/STUDIO_PLATFORM_MATRIX.md` (20개 중 12·6·2) | BIT PARK 세션 |
 | 포털 등록 | BEAT LAB·TURBO LAP 검증기 등록(BIT PARK, 함수 배포는 사용자 CLI 로그인 대기), ROGUE LEGENDS는 피드에 추가 → BIT PARK 세션이 등록 | 진행 중 |
 

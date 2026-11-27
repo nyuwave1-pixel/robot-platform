@@ -23,3 +23,11 @@
 - 규칙(`logic.js`)은 순수 함수·시드 RNG라 node 테스트가 됩니다(테스트 8개). 화면은 three.js r170(MIT)을 저장소에 함께 두어 설치 없이 실행.
 - 실시간 3D라 ROGUE LEGENDS 같은 "행동 목록 재생" 검증은 아직 없음 → 포털 랭킹·PP는 등록하지 않음. 협동 서버를 만들면 서버 권위 구조로 검증.
 - 엔진: 웹으로 루프를 검증한 뒤, 본 개발에서 Godot 4 / Unity 6 중 선택(TECHNICAL_ARCHITECTURE §3). 우리 Unity 판에는 이미 섬 지형·식생 공유 구조가 있음.
+
+## 5. 유니티판 (2026-11-27)
+
+- **모델**: Blender 스크립트 `apps/game-lab/survival-world/blender/build_assets.py` 가 나무 2종·바위·덤불·늑대(다리·머리·꼬리 피벗)·모닥불·벽·도구 3종을 만들어 `assets/survival.glb` 로 내보냄 (`--render` 는 Cycles CPU 미리보기). 원본 직접 제작이라 라이선스 문제 없음.
+- **규칙**: `apps/unity-studio/Assets/Scripts/Core/Survival/SurvivalRules.cs` — 웹 `logic.js` 를 옮긴 것. `Tools~/gen-survival-fixture.mjs` 로 웹 결과를 뽑아 지형·월드·난수·밤 시뮬레이션이 같은지 `dotnet test` 로 확인.
+- **런타임**: `Runtime/Survival/SurvivalDirector.cs`(조작은 웹과 같음, IMGUI HUD), `SurvivalTerrain.cs`(웹 z → Unity −z).
+- **씬**: 메뉴 *Survival World/Build Island Scene* → `Assets/Survival/SurvivalIsland.unity`. WebGL: `SurvivalSceneBuilder.BuildWebGL` → `Builds/SurvivalWebGL`.
+- 아직 없는 것: 저장(웹판에만 있음), 사운드, 게임패드.
