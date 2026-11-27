@@ -481,11 +481,13 @@ export const GUIDES: Guide[] = [
       { q: "Is a face mist the same as a toner?", a: "Not quite. A toner is a step right after cleansing, while a face mist is a light spray you can use any time: after cleansing, before skincare, over makeup or midday. The UNI&CORE serum mist gives serum-level hydration in an ultra-fine spray." },
       { q: "Is a face mist the same as a setting spray?", a: "No. A face mist is skincare that adds hydration and a fresh finish, while a setting spray is a makeup product made to help makeup last. Over makeup, a mist refreshes the finish rather than extending wear." },
       { q: "What is copper tripeptide-1 in a face mist?", a: "Copper tripeptide-1, also called GHK-Cu, is a peptide used in skincare. In the UNI&CORE serum mist it is paired with a mild CICA complex in nano liposomes, for skin that looks and feels revitalized." },
+      // Search research 2026-11-27: "copper peptide face mist benefits how to use".
+      { q: "Can I use a copper peptide mist with exfoliating acids?", a: "Many people keep copper peptides and strong exfoliating acids apart, for example acids at night and the mist in the morning. In the UNI&CORE routine, the serum mist is the finishing step after the ampoule and cream. Patch test new combinations and stop if irritation occurs." },
       { q: "Where can I buy the UNI&CORE serum mist?", a: "On TikTok Shop. Use the Shop on TikTok Shop button in this guide." },
     ],
     products: ["mist"],
     published: "2026-11-16",
-    updated: "2026-11-16",
+    updated: "2026-11-27",
   },
   {
     slug: "skin-barrier-care-routine",
