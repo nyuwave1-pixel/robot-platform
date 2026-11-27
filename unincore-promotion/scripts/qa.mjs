@@ -134,8 +134,10 @@ await popup.close();
 {
   const tctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, userAgent: UA });
   const tp = await tctx.newPage();
+  // Several GA4 IDs (NEXT_PUBLIC_GA4_ID="G-A,G-B"): Google's tag loads gtag/js once per ID. Each ID once, none twice.
+  const onePerId = (ids) => ids.length > 0 && new Set(ids).size === ids.length;
   const tagReqs = [];
-  tp.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) tagReqs.push(Date.now()); });
+  tp.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) tagReqs.push(new URL(r.url()).searchParams.get("id")); });
   const tStart = Date.now();
   await tp.goto(BASE + "/", { waitUntil: "load" });
   await tp.waitForTimeout(600);
@@ -144,13 +146,13 @@ await popup.close();
   const slowLoad = Date.now() - tStart > 2500;
   await tp.mouse.move(200, 300);
   await tp.waitForTimeout(800);
-  check("gtag.js waits for the first interaction, then loads", (before === 0 || slowLoad) && tagReqs.length === 1, `${before}/${tagReqs.length}${slowLoad ? " (slow load)" : ""}`);
+  check("gtag.js waits for the first interaction, then loads", (before === 0 || slowLoad) && onePerId(tagReqs), `${before}/${tagReqs.join(",")}${slowLoad ? " (slow load)" : ""}`);
   const idle = await tctx.newPage();
   const idleReqs = [];
-  idle.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) idleReqs.push(1); });
+  idle.on("request", (r) => { if (r.url().includes("googletagmanager.com/gtag/js")) idleReqs.push(new URL(r.url()).searchParams.get("id")); });
   await idle.goto(BASE + "/", { waitUntil: "load" });
   await idle.waitForTimeout(4000);
-  check("gtag.js loads by itself after 3 s without interaction", idleReqs.length === 1, String(idleReqs.length));
+  check("gtag.js loads by itself after 3 s without interaction", onePerId(idleReqs), idleReqs.join(","));
   await tctx.close();
 }
 
