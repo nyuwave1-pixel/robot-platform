@@ -79,6 +79,15 @@ export const stTip = (k) => ((lang === 'en' ? ST : ST_KO)[k] || [k, ''])[1];
 
 // interface lines: Korean original → English
 const UI = {
+  'PP 상점': 'PP shop', '구매': 'Buy', '보유': 'Owned', '닫기': 'Close', '구매 완료!': 'Purchased!', '포털 확인 창을 기다리는 중…': 'Waiting for the portal to confirm…',
+  '보유 PP {pp} · 결제는 BIT PARK 포털이 확인 창을 띄운 뒤 서버에서 처리합니다.': 'You have {pp} PP · BIT PARK asks you to confirm, then its server takes payment.',
+  '이 포털에서는 아직 게임 상점을 쓸 수 없습니다.': 'This portal does not offer the game shop yet.', 'BIT PARK에서 이 게임을 열면 PP(포털 포인트)로 살 수 있습니다.': 'Open this game on BIT PARK to buy with PP (portal points).',
+  '꾸미기 아이템이라 점수·순위에는 영향이 없습니다.': 'Cosmetic only: scores and rankings are not affected.',
+  'BIT PARK에 로그인해야 합니다': 'Sign in to BIT PARK first', 'PP가 부족합니다': 'Not enough PP', '이미 가지고 있습니다': 'Already owned', '구매를 취소했습니다': 'Purchase cancelled',
+  '지금은 판매하지 않는 아이템입니다': 'Not on sale right now', '이 포털은 아직 게임 상점을 지원하지 않습니다': 'This portal does not support the game shop yet', '포털이 응답하지 않습니다': 'The portal did not answer', '구매하지 못했습니다': 'Purchase failed',
+  '수호자 스킨: 서리 갑주': 'Warden skin: Frost Plate', '수호자의 갑옷이 차가운 서리빛으로 바뀝니다.': "The Warden's armour turns frost-blue.",
+  '비전술사 스킨: 공허': 'Arcanist skin: Void', '비전술사의 불꽃이 보랏빛 공허로 바뀝니다.': "The Arcanist's flames turn to violet void.",
+  '황금 카드 테두리': 'Gilded card frames', '모든 카드에 금박 테두리와 빛이 들어갑니다.': 'Every card gets a gold-leaf frame and glow.',
   '할 수 없는 행동입니다': 'You cannot do that', '이번 원정을 포기하고 처음 화면으로 갈까요?': 'Abandon this expedition and return to the title?',
   '체력': 'HP', '최고 기록': 'Best', '없음': 'none', '난이도 {l}': 'Difficulty {l}', ' (+{p}% 체력·+{l} 피해)': ' (+{p}% HP · +{l} damage)', ' (기본)': ' (standard)',
   '원정 시작': 'Begin expedition', '이어 하기': 'Continue',

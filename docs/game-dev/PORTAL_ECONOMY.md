@@ -47,7 +47,7 @@ RP → PP 전환은 BIT PARK `import_rp` 가 이미 지원한다(AIROBOT_LINK_PR
 | 게임 | PP/RP 적립 | 검증 | PP 아이템 |
 |---|---|---|---|
 | HEARTHVALE | ✅ | ✅ (metric = 점수, 높을수록 좋음) | 벚꽃 테마 300 · 고양이 200 · 자유 모드 500 — 게임 안 상점 완성, 포털 쪽 대기 |
-| ROGUE LEGENDS | ✅ | ✅ (BIT PARK 등록됨) | 연결부만 (아이템 목록 다음 작업) |
+| ROGUE LEGENDS | ✅ | ✅ (BIT PARK 등록됨) | 수호자 스킨 '서리 갑주' 300 · 비전술사 스킨 '공허' 300 · 황금 카드 테두리 250 — 게임 안 상점 완성, 포털 쪽 대기 |
 | BEAT LAB · TURBO LAP | ✅ | ✅ (등록됨) | 연결부만 |
 | SURVIVAL WORLD | RP만 (검증 없음) | — | 연결부만 |
 | SPECIAL SOLDIER | ✅ (RP `game_result`) | — | 꾸미기 4 · 캠페인 잠금 해제 3 · 소모품 2 — 게임 안 상점 완성(웹판), 포털 등록·`useGameItem` 대기 (`bitpark/SHOP_CONTRACT.md`) |

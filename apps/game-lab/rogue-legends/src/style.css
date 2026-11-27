@@ -145,3 +145,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card .swell { position: absolute; right: -8px; top: -10px; background: var(--ward); color: #08202e; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 999px; border: 2px solid #cfeaff; }
 .echo { font-size: 12px; color: var(--arcane); margin-bottom: 6px; }
 .levels .btn:disabled { opacity: .35; }
+
+/* PP shop (cosmetics bought through the portal; docs/game-dev/PORTAL_ECONOMY.md) */
+.shopOverlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; z-index: 50; padding: 16px; }
+.shopCard { background: var(--panel); border: 1px solid var(--line2); border-radius: var(--r); padding: 20px; max-width: 540px; width: 100%; box-shadow: var(--shadow); }
+.shopCard h2 { font-family: var(--fd); letter-spacing: .1em; margin: 0 0 8px; color: var(--gold); }
+.shopItem { display: flex; gap: 12px; align-items: center; border-top: 1px solid var(--line); padding: 12px 0; }
+.shopItem > div { flex: 1; } .shopItem .price { color: var(--gold); font-weight: 700; white-space: nowrap; }
+.shopItem .owned { background: var(--rot); color: #10140c; border-radius: 999px; padding: 2px 10px; font-size: 12px; }
+.heroArt { display: contents; }
+body.rogue-legends-skin-warden-frost .hero-warden .art { filter: hue-rotate(175deg) saturate(1.25) brightness(1.08); }
+body.rogue-legends-skin-arcanist-void .hero-arcanist .art { filter: hue-rotate(235deg) saturate(1.3); }
+body.rogue-legends-cards-gilded .card { outline: 2px solid var(--gold); outline-offset: -4px; box-shadow: 0 0 14px rgba(233,180,90,.45), var(--shadow); }

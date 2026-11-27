@@ -12,11 +12,44 @@ import { tr, getLang, setLang, cardName, cardText, enemyName, relicName, relicTe
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const store = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
-const SAVE = 'rogue-legends.run', BEST = 'rogue-legends.best', HISTORY = 'rogue-legends.history';
+const SAVE = 'rogue-legends.run', BEST = 'rogue-legends.best', HISTORY = 'rogue-legends.history', OWNED = 'rogue-legends.owned';
+// PP shop (docs/game-dev/PORTAL_ECONOMY.md): cosmetics only — they never enter the action log, so verified scores are untouched.
+// Same list as game.json "items"; the portal's shop_items rows are made from it. The portal confirms and pays.
+const SHOP = [
+  { id: 'rogue-legends-skin-warden-frost', name: '수호자 스킨: 서리 갑주', about: '수호자의 갑옷이 차가운 서리빛으로 바뀝니다.', price: 300 },
+  { id: 'rogue-legends-skin-arcanist-void', name: '비전술사 스킨: 공허', about: '비전술사의 불꽃이 보랏빛 공허로 바뀝니다.', price: 300 },
+  { id: 'rogue-legends-cards-gilded', name: '황금 카드 테두리', about: '모든 카드에 금박 테두리와 빛이 들어갑니다.', price: 250 },
+];
+let owned = new Set(store.get(OWNED) || []), shopItems = null, shopWallet = null, shopOpen = false, shopMsg = '';
+async function refreshShop() {
+  const list = await portal.items();
+  if (list) { shopItems = list; owned = new Set(list.filter((i) => i.owned).map((i) => i.id)); store.set(OWNED, [...owned]); }
+  shopWallet = await portal.wallet(); applyCosmetics();
+}
+function applyCosmetics() { for (const it of SHOP) document.body.classList.toggle(it.id, owned.has(it.id)); }
+async function buyItem(id) {
+  shopMsg = tr('포털 확인 창을 기다리는 중…'); render();
+  try { await portal.buy(id); await refreshShop(); shopMsg = tr('구매 완료!'); } catch (e) {
+    shopMsg = tr({ not_signed_in: 'BIT PARK에 로그인해야 합니다', insufficient_funds: 'PP가 부족합니다', already_owned: '이미 가지고 있습니다', cancelled: '구매를 취소했습니다',
+      item_unavailable: '지금은 판매하지 않는 아이템입니다', unknown_call: '이 포털은 아직 게임 상점을 지원하지 않습니다', portal_timeout: '포털이 응답하지 않습니다' }[e.message] || '구매하지 못했습니다');
+  }
+  render();
+}
+function shopHtml() {
+  const live = shopItems ? Object.fromEntries(shopItems.map((i) => [i.id, i])) : null;
+  return `<div class="shopOverlay"><div class="shopCard"><h2>${tr('PP 상점')}</h2>
+    <p class="note">${live ? tr('보유 PP {pp} · 결제는 BIT PARK 포털이 확인 창을 띄운 뒤 서버에서 처리합니다.', { pp: shopWallet?.PP ?? '—' }) : portal.embedded ? tr('이 포털에서는 아직 게임 상점을 쓸 수 없습니다.') : tr('BIT PARK에서 이 게임을 열면 PP(포털 포인트)로 살 수 있습니다.')}
+    ${tr('꾸미기 아이템이라 점수·순위에는 영향이 없습니다.')}</p>
+    ${SHOP.map((c) => { const it = live?.[c.id], have = owned.has(c.id); return `<div class="shopItem"><div><b>${esc(tr(c.name))}</b><br/><span class="note">${esc(tr(c.about))}</span></div>
+      <span class="price">${it ? `${it.price} ${it.currency}` : `${c.price} PP`}</span>${have ? `<span class="owned">${tr('보유')}</span>` : it ? `<button class="btn primary" data-buy="${c.id}">${tr('구매')}</button>` : ''}</div>`; }).join('')}
+    <p class="note" id="shopMsg">${esc(shopMsg)}</p><button class="btn" data-shopclose>${tr('닫기')}</button></div></div>`;
+}
+
 let interacted = false;   // music may start only after a click / key / pad press (browser autoplay rules)
 for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => { if (!interacted) { interacted = true; music(moodNow()); } }, { capture: true });
 const moodNow = () => (S && S.phase === 'combat' ? (S.combat.enemies.some((e) => ENEMIES[e.kind].boss) ? 'boss' : 'combat') : 'map');
 const portal = createPortal('rogue-legends'); portal.ready();
+setTimeout(() => refreshShop().then(() => { if (shopOpen) render(); }), 0);
 
 let S = null, run = null, armed = -1, target = 0, overlay = null, started = 0, reported = false;
 let pickHero = 'warden', pickLevel = 0, pickVariant = 'classic';
@@ -98,7 +131,7 @@ const VARIANT_TIP = { classic: '덱빌딩 로그라이크 기본 규칙', echo: 
 function titleHtml() {
   const saved = store.get(SAVE), best = store.get(BEST) || {}, hist = store.get(HISTORY) || [];
   const hero = (id) => { const H = HEROES[id]; return `<button class="heroCard ${pickHero === id ? 'sel' : ''}" data-hero="${id}" style="--hc:${H.color}">
-      ${HERO_ART[id]()}<h3>${H.name}</h3><p>${esc(heroTitle(id, H.title))} · ${tr('체력')} ${H.hp}</p>
+      <span class="heroArt hero-${id}">${HERO_ART[id]()}</span><h3>${H.name}</h3><p>${esc(heroTitle(id, H.title))} · ${tr('체력')} ${H.hp}</p>
       <p>${esc(heroDesc(id, id === 'warden' ? '방어를 쌓고 그 방어로 친다. 힘·가시·판금으로 버티며 밀어붙이는 전사.' : '적을 불태우고(화상) 한 번에 터뜨린다. 카드를 많이 뽑고 에너지를 끌어 쓰는 마도사.'))}</p>
       <p style="color:var(--ink3)">${tr('최고 기록')} ${[0, 1, 2].map((l) => best[`${id}-${l}`] ? `L${l} ${best[`${id}-${l}`].score}` : '').filter(Boolean).join(' · ') || tr('없음')}</p></button>`; };
   return `<div class="title"><div>
@@ -106,12 +139,15 @@ function titleHtml() {
     <div class="heroes">${hero('warden')}${hero('arcanist')}</div>
     <div class="levels">${VARIANTS.map((v) => `<button class="btn ${pickVariant === v ? 'sel' : ''}" data-variant="${v}" data-tip="${esc(tr(VARIANT_TIP[v]))}">${tr(VARIANT_NAME[v])}</button>`).join('')}</div>
     <div class="levels">${[0, 1, 2].map((l) => `<button class="btn ${pickLevel === l ? 'sel' : ''}" data-level="${l}" ${pickVariant !== 'classic' && l ? 'disabled' : ''}>${tr('난이도 {l}', { l })}${l ? tr(' (+{p}% 체력·+{l} 피해)', { p: l * 8, l }) : tr(' (기본)')}</button>`).join('')}</div>
-    <div class="row"><button class="btn primary" data-start>${tr('원정 시작')}</button>${saved && !saved.done ? `<button class="btn" data-resume>${tr('이어 하기')}</button>` : ''}<button class="btn" data-lang>${getLang() === 'en' ? '한국어' : 'English'}</button></div>
+    <div class="row"><button class="btn primary" data-start>${tr('원정 시작')}</button>${saved && !saved.done ? `<button class="btn" data-resume>${tr('이어 하기')}</button>` : ''}<button class="btn" data-lang>${getLang() === 'en' ? '한국어' : 'English'}</button><button class="btn" data-shop>🛒 ${tr('PP 상점')}</button></div>
     ${hist.length ? `<p class="note">${tr('플레이 기록 {n}판 · 승리 {w}', { n: hist.length, w: hist.filter((h) => h.won).length })} · <button class="btn" data-export>${tr('기록 내보내기 (JSON)')}</button></p>` : ''}
     <p class="note">${tr('두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기 · M 음악')}<br/>${tr('모든 원정은 행동 기록으로 저장되고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.')}</p>
-  </div></div>`;
+  </div></div>${shopOpen ? shopHtml() : ''}`;
 }
 function bindTitle() {
+  $('[data-shop]').onclick = () => { shopOpen = true; shopMsg = ''; render(); refreshShop().then(() => { if (shopOpen) render(); }); };
+  const sc = $('[data-shopclose]'); if (sc) sc.onclick = () => { shopOpen = false; render(); };
+  document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => buyItem(b.dataset.buy)));
   document.querySelectorAll('[data-hero]').forEach((b) => (b.onclick = () => { pickHero = b.dataset.hero; render(); }));
   document.querySelectorAll('[data-level]').forEach((b) => (b.onclick = () => { pickLevel = +b.dataset.level; render(); }));
   document.querySelectorAll('[data-variant]').forEach((b) => (b.onclick = () => { pickVariant = b.dataset.variant; if (pickVariant !== 'classic') pickLevel = 0; render(); }));
@@ -190,7 +226,7 @@ function combatHtml() {
   const hand = c.hand.map((id, i) => cardHtml(id, i, { off: cardDef(id).cost > c.energy, swell: S.variant === 'tide' ? c.swell[i] || 0 : 0 })).join('');
   return `<div class="combat">
     <div class="field">
-      <div class="unit" id="u-p">${P.block ? `<div class="blockPip"><b>${P.block}</b></div>` : ''}${HERO_ART[S.hero]()}<div class="name">${HEROES[S.hero].name}</div>${bar({ hp: P.hp, maxHp: S.maxHp })}<div class="sts">${stsHtml(P)}</div></div>
+      <div class="unit" id="u-p">${P.block ? `<div class="blockPip"><b>${P.block}</b></div>` : ''}<span class="heroArt hero-${S.hero}">${HERO_ART[S.hero]()}</span><div class="name">${HEROES[S.hero].name}</div>${bar({ hp: P.hp, maxHp: S.maxHp })}<div class="sts">${stsHtml(P)}</div></div>
       <div style="display:flex;gap:3vw">${enemies}</div>
     </div>
     ${armed >= 0 ? `<div class="hint">${tr('대상을 고르세요 (클릭 · Tab 후 같은 숫자키) · Esc 취소')}</div>` : ''}
