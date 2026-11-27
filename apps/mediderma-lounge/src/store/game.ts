@@ -99,6 +99,8 @@ export interface GameState {
   followers: number;
   /** 뷰티 자랑에서 마지막으로 확인한 받은 좋아요 합계 (새 좋아요 알림용) */
   bragLikesSeen?: number;
+  /** "내 팔로잉" 피드에서 마지막으로 본 가장 새 자랑 시각 (새 자랑 알림용) */
+  followSeenAt?: string;
   following: string[];
   settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number; charStyle?: "real" | "chibi" };
 

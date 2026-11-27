@@ -167,3 +167,34 @@ describe("팔로잉 피드", () => {
     } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle" }); }
   });
 });
+
+describe("팔로잉 새 자랑 알림", () => {
+  const mk = (id: number, at: string) => ({ id, writer: "ABC123", name: "미나", kind: "look" as const, msg: 0, data: {}, likes: 0, liked: false, at });
+  it("처음(기준 없음)에는 0, 기준 뒤에 올라온 것만 센다", async () => {
+    const { countNewSince } = await import("../src/net/brag");
+    const list = [mk(1, "2026-11-27T01:00:00Z"), mk(2, "2026-11-27T03:00:00Z"), mk(3, "2026-11-27T05:00:00Z")];
+    expect(countNewSince(list, undefined)).toBe(0);
+    expect(countNewSince(list, "2026-11-27T02:00:00Z")).toBe(2);
+    expect(countNewSince(list, "2026-11-27T05:00:00Z")).toBe(0);
+  });
+  it("확인하면 새로 늘어난 수만 알리고, 팔로잉 피드를 열면 기준이 갱신되어 0이 된다", async () => {
+    const { vi } = await import("vitest");
+    const { checkFollowFeed, loadBrags, useBrag } = await import("../src/net/brag");
+    const look = useGame.getState().look;
+    let rows = [{ ...mk(1, "2026-11-27T01:00:00Z"), data: { look } }];
+    vi.stubGlobal("fetch", async () => ({ ok: true, json: async () => ({ ok: true, list: rows }) }));
+    try {
+      expect(await checkFollowFeed(false)).toBe(0);                 // 팔로우 없으면 안 부름
+      expect(await checkFollowFeed(true)).toBe(0);                  // 처음: 기준만 잡음
+      expect(useGame.getState().followSeenAt).toBe("2026-11-27T01:00:00.000Z");
+      rows = [{ ...mk(2, "2026-11-27T02:00:00Z"), data: { look } }, ...rows];
+      expect(await checkFollowFeed(true)).toBe(1);
+      expect(useBrag.getState().followNew).toBe(1);
+      expect(await checkFollowFeed(true)).toBe(0);                  // 같은 글로 또 알리지 않음
+      expect(useBrag.getState().followNew).toBe(1);
+      await loadBrags("follow", null);
+      expect(useBrag.getState().followNew).toBe(0);
+      expect(useGame.getState().followSeenAt).toBe("2026-11-27T02:00:00.000Z");
+    } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle", followNew: 0 }); useGame.setState({ followSeenAt: undefined }); }
+  });
+});

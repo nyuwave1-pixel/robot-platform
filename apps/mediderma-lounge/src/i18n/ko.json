@@ -591,6 +591,7 @@
   "brag.sort.hot": "이번 주 인기",
   "brag.sort.follow": "내 팔로잉",
   "brag.followNone": "팔로우한 플레이어가 아직 자랑을 올리지 않았어요.",
+  "brag.followNew": "팔로우한 친구가 새 자랑 {n}개를 올렸어요!",
   "brag.all": "전체",
   "brag.loading": "불러오는 중…",
   "brag.error": "자랑 피드를 불러오지 못했어요.",

@@ -12,7 +12,7 @@ import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
-import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_SORTS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
+import { claimKing, loadKing, useKing, checkBragLikes, checkFollowFeed, BRAG_DAILY, BRAG_KINDS, BRAG_SORTS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
@@ -203,7 +203,7 @@ function Composer({ initial, onDone }: { initial: BragKind; onDone: () => void }
 /** 소셜 패널의 "뷰티 자랑" 탭 */
 export function BragFeed() {
   const t = useT();
-  const { sort, kind, status, list, mine, mineLikes } = useBrag();
+  const { sort, kind, status, list, mine, mineLikes, followNew } = useBrag();
   const want = useUI((s) => s.bragKind);
   const [compose, setCompose] = useState<BragKind | null>(want ?? null);
   const [showMine, setShowMine] = useState(false);
@@ -237,7 +237,7 @@ export function BragFeed() {
         )}
       </div>
       <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
-        {BRAG_SORTS.map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
+        {BRAG_SORTS.map((s) => <button key={s} onClick={() => { setShowMine(false); void loadBrags(s, kind); }} className={`chip relative shrink-0 ${!showMine && sort === s ? "chip-on" : ""}`} data-testid={`brag-sort-${s}`}>{t(`brag.sort.${s}`)}{s === "follow" && followNew > 0 && <span className="ml-1 rounded-full bg-pink-deep px-1.5 text-[11px] font-black text-white" data-testid="follow-new">{followNew}</span>}</button>)}
         <span className="mx-1 w-px shrink-0 bg-ink/10" />
         <button onClick={() => { setShowMine(false); void loadBrags(sort, null); }} className={`chip shrink-0 ${!showMine && kind === null ? "chip-on" : ""}`}>{t("brag.all")}</button>
         {BRAG_KINDS.map((k) => <button key={k} onClick={() => { setShowMine(false); void loadBrags(sort, k); }} className={`chip shrink-0 ${!showMine && kind === k ? "chip-on" : ""}`}>{t(`brag.kind.${k}`)}</button>)}
@@ -283,6 +283,9 @@ export function BragWatcher() {
       const g = await loadInbox();
       if (g > 0 && g !== seenGifts) useUI.getState().toast(t("gift.arrived", { n: g }), "reward");
       seenGifts = g;
+      if (!useFollows.getState().loaded) await loadFollows();
+      const f = await checkFollowFeed(useFollows.getState().list.length > 0);
+      if (f > 0) useUI.getState().toast(t("brag.followNew", { n: f }), "reward");
     };
     const first = setTimeout(check, 4000);
     const id = setInterval(check, 5 * 60_000);

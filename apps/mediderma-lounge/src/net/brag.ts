@@ -120,8 +120,10 @@ interface BragState {
   sort: BragSort; kind: BragKind | null; status: "idle" | "loading" | "ok" | "error"; list: Brag[];
   /** 내 자랑 (최근 20개) · 받은 좋아요 합계 */
   mine: Brag[]; mineLikes: number;
+  /** 팔로우한 플레이어가 마지막 확인 뒤 올린 새 자랑 수 */
+  followNew: number;
 }
-export const useBrag = create<BragState>(() => ({ sort: "new", kind: null, status: "idle", list: [], mine: [], mineLikes: 0 }));
+export const useBrag = create<BragState>(() => ({ sort: "new", kind: null, status: "idle", list: [], mine: [], mineLikes: 0, followNew: 0 }));
 
 /** 새로 받은 좋아요 → 팔로워 (한 번에 최대 BRAG_FOLLOW_CAP) */
 export const BRAG_FOLLOW_CAP = 50;
@@ -157,6 +159,7 @@ export async function loadBrags(sort = useBrag.getState().sort, kind = useBrag.g
       const r = await rpc<{ ok: boolean; list?: unknown }>("mdl_brag_following", { p_code: code, p_secret: secret(), p_kind: kind });
       if (!r.ok) throw new Error("auth");
       raw = r.list;
+      markFollowSeen(Array.isArray(raw) ? raw.map(cleanBrag).filter((b): b is Brag => !!b) : []);
     } else {
       raw = await rpc<unknown[]>("mdl_brag_list", { p_sort: sort, p_kind: kind, p_code: code });
     }
@@ -239,4 +242,38 @@ export async function claimKing(): Promise<{ rank: number; coins: number; gems: 
     useGame.setState((s) => ({ coins: s.coins + rw.coins, gems: s.gems + rw.gems }));
     return { rank: r.rank!, ...rw };
   } catch { return null; }
+}
+
+/* ── 팔로잉 새 자랑 알림 ── */
+const newest = (list: Brag[]) => list.reduce<string | undefined>((m, b) => (!m || b.at > m ? b.at : m), undefined);
+
+/** seen 이후에 올라온 자랑 수. seen 이 없으면(처음) 0 — 예전 글이 한꺼번에 "새 글"로 뜨지 않게 */
+export function countNewSince(list: Brag[], seen: string | undefined): number {
+  if (!seen) return 0;
+  const t = Date.parse(seen);
+  return list.filter((b) => Date.parse(b.at) > t).length;
+}
+
+function markFollowSeen(list: Brag[]) {
+  const n = newest(list);
+  const cur = useGame.getState().followSeenAt;
+  if (n && (!cur || Date.parse(n) > Date.parse(cur))) useGame.setState({ followSeenAt: n });
+  useBrag.setState({ followNew: 0 });
+}
+
+/** 팔로우한 플레이어의 새 자랑 확인 → 새로 늘어난 수 (알림용). 팔로우가 없으면 서버를 부르지 않는다 */
+export async function checkFollowFeed(hasFollows: boolean): Promise<number> {
+  const g = useGame.getState();
+  if (!hasFollows || !g.started || !/^[A-Z0-9]{6}$/.test(g.friendCode ?? "")) return 0;
+  try {
+    const r = await rpc<{ ok: boolean; list?: unknown }>("mdl_brag_following", { p_code: g.friendCode, p_secret: secret(), p_kind: null });
+    if (!r.ok) return 0;
+    const list = (Array.isArray(r.list) ? r.list : []).map(cleanBrag).filter((b): b is Brag => !!b);
+    const seen = useGame.getState().followSeenAt;
+    if (!seen) { markFollowSeen(list); return 0; }
+    const n = countNewSince(list, seen);
+    const before = useBrag.getState().followNew;
+    useBrag.setState({ followNew: n });
+    return Math.max(0, n - before);
+  } catch { return 0; }
 }

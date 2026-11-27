@@ -591,6 +591,7 @@
   "brag.sort.hot": "Hot this week",
   "brag.sort.follow": "Following",
   "brag.followNone": "The players you follow have not posted yet.",
+  "brag.followNew": "People you follow posted {n} new show-offs!",
   "brag.all": "All",
   "brag.loading": "Loading…",
   "brag.error": "Couldn't load the show-off feed.",
