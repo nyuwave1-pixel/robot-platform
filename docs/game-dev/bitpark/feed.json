@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T05:33:05.050Z",
+  "generatedAt": "2026-11-27T05:39:47.897Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "7b43208"
+    "commit": "a26486b"
   },
   "section": {
     "id": "game-dev-lab",
@@ -64,6 +64,8 @@
         "docs/game-dev/screenshots/game-lab-rogue-legends-map.png",
         "docs/game-dev/screenshots/game-lab-rogue-legends-title.png",
         "docs/game-dev/screenshots/game-lab-rogue-legends.png",
+        "docs/game-dev/screenshots/game-lab-survival-world-night.png",
+        "docs/game-dev/screenshots/game-lab-survival-world.png",
         "docs/game-dev/screenshots/game-lab-turbo-lap.png",
         "docs/game-dev/screenshots/island-terrain-shared.png",
         "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
@@ -536,10 +538,64 @@
         "tests": 14,
         "path": "apps/game-lab/rogue-legends",
         "screenshot": "docs/game-dev/screenshots/game-lab-rogue-legends.png"
+      },
+      {
+        "slug": "survival-world",
+        "name": "SURVIVAL WORLD",
+        "genre": "survival",
+        "status": "prototype",
+        "engine": "web (three.js r170 vendored, ES modules)",
+        "summary": "오픈월드 생존·제작 기술 프로토타입 — 시드로 만드는 섬, 채집·제작·건축, 배고픔·갈증·체온, 낮밤, 밤의 늑대, 자동 저장.",
+        "created": "2026-11-27",
+        "learnedFrom": [
+          {
+            "repo": "mrdoob/three.js",
+            "license": "MIT",
+            "what": "renderer (vendored r170 build, vendor/THREE_LICENSE)"
+          },
+          {
+            "repo": "CleverRaven/Cataclysm-DDA",
+            "license": "CC-BY-SA-3.0 (study only)",
+            "what": "needs + crafting as data tables — idea only, no code"
+          }
+        ],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "not registered (real-time 3D — no replay verifier yet)"
+          }
+        },
+        "tests": 8,
+        "path": "apps/game-lab/survival-world",
+        "screenshot": "docs/game-dev/screenshots/game-lab-survival-world.png"
       }
     ]
   },
   "devlog": [
+    {
+      "hash": "a26486b",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD: technical prototype — seeded island, gather / craft / build, needs, day-night, wolves"
+    },
+    {
+      "hash": "d7481a4",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
     {
       "hash": "7b43208",
       "date": "2026-11-27",
@@ -767,18 +823,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Unity: fix four issues from a compile review; Mission 01 boat intro"
-    },
-    {
-      "hash": "bdc1ceb",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Core: Mission 01 boat intro (web playBoatIntro) as boat-relative shots"
-    },
-    {
-      "hash": "f5a26cc",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: Mission 05 door-gunner set piece (catch up with web v0.23)"
     }
   ]
 }
