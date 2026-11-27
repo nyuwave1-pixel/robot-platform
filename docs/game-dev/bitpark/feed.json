@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T06:18:35.607Z",
+  "generatedAt": "2026-11-27T08:07:05.960Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "59385f9"
+    "commit": "bb95e6f"
   },
   "section": {
     "id": "game-dev-lab",
@@ -60,6 +60,7 @@
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
         "docs/game-dev/screenshots/game-lab-beat-lab.png",
+        "docs/game-dev/screenshots/game-lab-hearthvale.png",
         "docs/game-dev/screenshots/game-lab-rogue-legends-en.png",
         "docs/game-dev/screenshots/game-lab-rogue-legends-map.png",
         "docs/game-dev/screenshots/game-lab-rogue-legends-tide.png",
@@ -510,6 +511,38 @@
         "screenshot": "docs/game-dev/screenshots/game-lab-turbo-lap.png"
       },
       {
+        "slug": "hearthvale",
+        "name": "HEARTHVALE",
+        "genre": "life-sim",
+        "status": "playable",
+        "engine": "web (ES modules, DOM/CSS UI, emoji art, Web Audio)",
+        "summary": "오리지널 생활 시뮬레이션 — 28일 한 계절 동안 24칸 밭(작물 4종)을 가꾸고 마을 사람 3명과 친해지는 하루 계획 게임. 날씨·시세는 시드로 고정, 행동 기록 리플레이 검증, PP 아이템(꾸미기·자유 모드).",
+        "created": "2026-11-27",
+        "learnedFrom": [],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)",
+            "metric": "score (higher is better)"
+          }
+        },
+        "tests": 9,
+        "path": "apps/game-lab/hearthvale",
+        "screenshot": "docs/game-dev/screenshots/game-lab-hearthvale.png"
+      },
+      {
         "slug": "rogue-legends",
         "name": "ROGUE LEGENDS",
         "genre": "deckbuilder",
@@ -585,6 +618,30 @@
     ]
   },
   "devlog": [
+    {
+      "hash": "95549f1",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: runtime director, Blender-model scene builder, PlayMode test"
+    },
+    {
+      "hash": "6bda782",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: Blender asset script + GLB, C# Core port with web parity tests"
+    },
+    {
+      "hash": "74b1ac9",
+      "date": "2026-11-27",
+      "area": "hub",
+      "subject": "docs(hub): claim new SURVIVAL WORLD Unity-edition paths"
+    },
+    {
+      "hash": "20009e0",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
     {
       "hash": "59385f9",
       "date": "2026-11-27",
@@ -800,30 +857,6 @@
       "date": "2026-11-26",
       "area": "unity-studio",
       "subject": "fix(unity-studio): three hub changes that compiled/passed in the cloud but not in Unity on Windows"
-    },
-    {
-      "hash": "0351379",
-      "date": "2026-11-26",
-      "area": "general",
-      "subject": "Unity HUD: SQUAD 07 name tags"
-    },
-    {
-      "hash": "934ae6b",
-      "date": "2026-11-26",
-      "area": "general",
-      "subject": "hub: claim squad name tags"
-    },
-    {
-      "hash": "f54356c",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: enemies target the squad too (web rule)"
-    },
-    {
-      "hash": "94e3baf",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim enemies targeting the squad"
     }
   ]
 }

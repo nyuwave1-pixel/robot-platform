@@ -11,6 +11,8 @@ This repo holds several projects. Read the part that matches your task.
 - Tool versions are pinned in `tools/dev-env/versions.json`. Find Blender and Unity through `tools/dev-env/find-tools.ps1`
   (or the `BLENDER_EXE` / `UNITY_EDITOR` environment variables). Never hard-code a PC-specific path.
 - Where everything stands and how to resume on another PC: `docs/game-dev/HANDOFF.md`. Who does what across sessions and PCs: `docs/game-dev/STUDIO_HUB.md`. Claim files in its "작업 중" table before editing.
+- Every game links to BIT PARK points and benefits, and sells paid items only for portal points (PP) through the portal (cosmetic or unranked only):
+  `docs/game-dev/PORTAL_ECONOMY.md`.
 - Free assets: follow the `free-asset-pipeline` skill (license gate, ledger, test in the running game).
 - Genre Game Lab (rhythm, racing, … sub-sections): `docs/game-dev/genres/README.md`. New game: `node tools/game-lab/new-game.mjs --genre <g> --id <id>`;
   open-source code only under MIT/BSD/Zlib/Apache/CC0 (GPL is study-only) — see `docs/game-dev/genres/OPEN_SOURCE_CATALOG.md`.
