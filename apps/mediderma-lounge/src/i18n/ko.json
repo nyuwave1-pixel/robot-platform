@@ -706,5 +706,18 @@
   "king.reward": "지난 주 자랑왕 {n}위 보상! COIN +{c} · GEM +{g}",
   "brag.share": "공유",
   "brag.shareText": "{name}의 뷰티 라이프 — {msg} 비트파크에서 내 라운지에 놀러 와요!",
-  "brag.shareCopied": "공유 링크를 복사했어요"
+  "brag.shareCopied": "공유 링크를 복사했어요",
+  "follow.on": "팔로잉",
+  "follow.off": "팔로우",
+  "follow.unfollow": "끊기",
+  "follow.following": "팔로잉",
+  "follow.followers": "팔로워",
+  "follow.desc": "뷰티 자랑에서 팔로우한 플레이어예요. 라운지에 놀러 가거나 선물을 보낼 수 있어요.",
+  "follow.none": "아직 팔로우한 플레이어가 없어요. 뷰티 자랑 카드의 '팔로우'를 눌러 보세요.",
+  "follow.demoTitle": "샘플 친구 (DEMO)",
+  "follow.fail.self": "나는 팔로우할 수 없어요",
+  "follow.fail.limit": "최대 200명까지 팔로우할 수 있어요",
+  "follow.fail.missing": "플레이어를 찾을 수 없어요",
+  "follow.fail.auth": "플레이어 확인에 실패했어요",
+  "follow.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요"
 }

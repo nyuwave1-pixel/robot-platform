@@ -138,3 +138,11 @@ describe("주간 자랑왕", async () => {
     expect(cleanKing([{ code: "ABC123", name: "미나<b>", likes: "12", posts: 3, rank: 1 }, { code: "bad", likes: 9 }])).toEqual([{ code: "ABC123", name: "미나b", likes: 12, posts: 3, rank: 1 }]);
   });
 });
+
+describe("플레이어 팔로우", async () => {
+  const { cleanFollows } = await import("../src/net/follows");
+  it("팔로우 목록은 아는 형식만", () => {
+    expect(cleanFollows({ followers: 3.9, following: [{ code: "ABC123", name: "미나<b>" }, { code: "bad", name: "x" }] })).toEqual({ followers: 3, list: [{ code: "ABC123", name: "미나b" }] });
+    expect(cleanFollows(null)).toEqual({ followers: 0, list: [] });
+  });
+});

@@ -706,5 +706,18 @@
   "king.reward": "Last week's Show-off King #{n}! COIN +{c} · GEM +{g}",
   "brag.share": "Share",
   "brag.shareText": "{name}'s BEAUTY LIFE — {msg} Visit my lounge on BitPark!",
-  "brag.shareCopied": "Share link copied"
+  "brag.shareCopied": "Share link copied",
+  "follow.on": "Following",
+  "follow.off": "Follow",
+  "follow.unfollow": "Unfollow",
+  "follow.following": "Following",
+  "follow.followers": "Followers",
+  "follow.desc": "Players you followed from show-offs. Visit their lounge or send a gift.",
+  "follow.none": "You're not following anyone yet. Tap 'Follow' on a show-off card.",
+  "follow.demoTitle": "Sample friends (DEMO)",
+  "follow.fail.self": "You can't follow yourself",
+  "follow.fail.limit": "You can follow up to 200 players",
+  "follow.fail.missing": "Player not found",
+  "follow.fail.auth": "Couldn't verify your player",
+  "follow.fail.error": "Connection is unstable. Try again soon"
 }

@@ -18,6 +18,7 @@ import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
 import { reportPlay, shareUrl } from "../platform";
 import { claimGifts, GIFT_COINS, loadInbox, sendGift, useGifts } from "../net/gifts";
+import { loadFollows, setFollow, useFollows } from "../net/follows";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
 const LOOK_SLOTS = ["outfit", "hair", "makeup", "shadow", "lip", "base", "shoes", "accessory", "earring", "necklace", "bag", "nail"] as const;
@@ -139,6 +140,7 @@ function BragCard({ b }: { b: Brag }) {
           <p className="truncate text-xs font-black text-ink">{b.name}</p>
           <p className="text-[12px] text-ink/45">{ago(b.at, t)}</p>
         </div>
+        {b.writer !== me && <FollowChip code={b.writer} name={b.name} />}
         <span className="flex items-center gap-1 rounded-full bg-pink-soft/60 px-2 py-0.5 text-[12px] font-bold text-pink-deep"><Icon n={BRAG_ICON[b.kind]} />{t(`brag.kind.${b.kind}`)}</span>
       </header>
       <p className="mt-2 text-[13px] font-semibold text-ink/85">{L(msg)}</p>
@@ -207,7 +209,7 @@ export function BragFeed() {
   const [showMine, setShowMine] = useState(false);
   const king = useKing((s) => s.list);
   useEffect(() => {
-    void loadBrags(); void checkBragLikes(); void loadKing();
+    void loadBrags(); void checkBragLikes(); void loadKing(); void loadFollows();
     void claimKing().then((r) => { if (r) useUI.getState().toast(t("king.reward", { n: r.rank, c: r.coins, g: r.gems }), "reward"); });
   }, []);
   useEffect(() => { if (want) { setCompose(want); useUI.setState({ bragKind: null }); } }, [want]);
@@ -348,4 +350,48 @@ export async function shareBrag(b: Brag, msg: string, t: (k: string, v?: Record<
     await navigator.clipboard.writeText(`${text}\n${url}`);
     useUI.getState().toast(t("brag.shareCopied"));
   } catch { /* 사용자가 공유 창을 닫음 */ }
+}
+
+/** 팔로우 토글 */
+export function FollowChip({ code, name }: { code: string; name: string }) {
+  const t = useT();
+  const on = useFollows((s) => s.list.some((f) => f.code === code));
+  const click = async () => {
+    const r = await setFollow(code, name, !on);
+    if (r !== "ok") useUI.getState().toast(t(`follow.fail.${r}`), "error");
+  };
+  return <button onClick={click} className={`chip shrink-0 !px-2 !py-0.5 !text-[12px] ${on ? "chip-on" : ""}`} data-testid="follow">{on ? t("follow.on") : t("follow.off")}</button>;
+}
+
+/** 소셜 '친구' 탭: 내가 팔로우한 실제 플레이어 */
+export function FollowList() {
+  const t = useT();
+  const { list, followers, loaded } = useFollows();
+  const [gift, setGift] = useState<string | null>(null);
+  useEffect(() => { void loadFollows(); }, []);
+  const visit = async (code: string) => { const r = await visitByCode(code); if (r !== "ok") useUI.getState().toast(t(`live.visit.${r}`), "error"); };
+  return (
+    <div className="mb-4" data-testid="follow-list">
+      <div className="mb-2 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">
+        <div className="text-center"><p className="text-lg font-black text-ink">{list.length}</p><p className="text-[12px] font-bold text-ink/50">{t("follow.following")}</p></div>
+        <div className="text-center"><p className="text-lg font-black text-ink">{followers}</p><p className="text-[12px] font-bold text-ink/50">{t("follow.followers")}</p></div>
+        <p className="min-w-0 flex-1 text-[12px] leading-snug text-ink/60">{t("follow.desc")}</p>
+      </div>
+      {loaded && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("follow.none")}</p>}
+      <div className="space-y-2">
+        {list.map((f) => (
+          <div key={f.code} className="card !p-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: `hsl(${parseInt(f.code, 36) % 360} 60% 72%)` }}>{f.name.slice(0, 1).toUpperCase()}</span>
+              <p className="min-w-0 flex-1 truncate text-xs font-black text-ink">{f.name}</p>
+              <button className="chip" onClick={() => setGift(gift === f.code ? null : f.code)}><Icon n="gift" /> {t("gift.btn")}</button>
+              <button className="btn-primary !px-3 !py-1.5 text-[12px]" onClick={() => visit(f.code)}>{t("brag.visit")}</button>
+              <button className="text-[12px] font-bold text-ink/35" onClick={() => void setFollow(f.code, f.name, false)}>{t("follow.unfollow")}</button>
+            </div>
+            {gift === f.code && <GiftPicker to={f.code} name={f.name} onDone={() => setGift(null)} />}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
