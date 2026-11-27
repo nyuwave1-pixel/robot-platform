@@ -8,7 +8,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/dashboard", "/profile", "/settings"],
+        // 경로는 basePath 포함 절대 경로여야 실제로 적용된다 (호스트 루트 기준으로 해석됨)
+        disallow: ["/robot-platform/dashboard", "/robot-platform/profile"],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
