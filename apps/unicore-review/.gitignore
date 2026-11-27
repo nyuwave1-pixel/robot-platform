@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+# 생성 에셋 (scripts/fetch-assets.mjs 가 빌드 시 생성)
+public/media/film/
+public/media/stills/
+public/media/posters/
+public/media/detail/
+.assets-cache
+.env*.local
+backend/node_modules
