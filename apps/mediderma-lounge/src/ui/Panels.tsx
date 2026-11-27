@@ -16,9 +16,10 @@ import { LifeBody } from "./Life";
 import { Icon, Price } from "./Icon";
 import { EventsPanel } from "./Events";
 import { GuestbookPanel } from "./Guestbook";
-import { BragButton, BragFeed, GiftInbox } from "./Brag";
+import { BragButton, BragFeed, FollowList, GiftInbox } from "./Brag";
 import { useGifts } from "../net/gifts";
 import { CloudSettings, RpExchange } from "./Cloud";
+import { PPShop } from "./PPShop";
 import { useAttendOpen } from "./Attendance";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
@@ -232,6 +233,7 @@ function ShopPanel() {
   return (
     <Sheet title={tab === "codex" ? "PRODUCT COLLECTION" : tab === "fashion" ? "FASHION SHOP" : tab === "interior" ? "INTERIOR SHOP" : "SKINCARE ITEM SHOP"} wide>
       <Tabs tabs={[["product", t("shop.product")], ["codex", t("shop.codex")], ["fashion", t("shop.fashion")], ["interior", t("shop.interior")]]} value={tab} onPick={(v) => useUI.setState({ shopTab: v })} />
+      <PPShop />
       <RpExchange />
       {(tab === "product" || tab === "codex") && (
         <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] leading-relaxed text-ink/60">
@@ -401,7 +403,7 @@ function SocialPanel() {
       {tab === "invite" && <InviteBody />}
       {tab === "brag" && <BragFeed />}
       {tab === "gifts" && <GiftInbox />}
-      {tab !== "brag" && tab !== "gifts" && <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>}
+      {tab !== "brag" && tab !== "gifts" && tab !== "friends" && <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] text-ink/55">ⓘ {t("social.demo")}</p>}
       {tab === "feed" && (
         <>
           <div className="mb-3 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">
@@ -442,8 +444,10 @@ function SocialPanel() {
           </div>
         </>
       )}
+      {tab === "friends" && <FollowList />}
       {tab === "friends" && (
         <div className="space-y-2">
+          <p className="text-[12px] font-bold text-ink/45">{t("follow.demoTitle")}</p>
           {DEMO_FRIENDS.map((f) => (
             <div key={f.id} className="card flex items-center gap-3 !p-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: f.hairColor }}>{f.name[0]}</span>

@@ -15,6 +15,7 @@ import { useContest } from "../net/contest";
 import { castVote } from "./Contest";
 import { GroupPhotoButton, GroupPhotoOverlay, captureCanvas, useShot } from "./GroupPhoto";
 import { BragWatcher } from "./Brag";
+import { useBrag } from "../net/brag";
 import { Attendance } from "./Attendance";
 import { usePlatformStatus } from "../platform/status";
 
@@ -66,6 +67,7 @@ export function Hud() {
   const claimable = claimableCount(g);
   const daily = QUESTS.find((q) => q.daily && !questClaimed(g, q));
   const evBadge = useEventBadge();
+  const followNew = useBrag((s) => s.followNew);
 
   // 등급이 오르면 한 번 알린다
   useEffect(() => {
@@ -161,7 +163,7 @@ export function Hud() {
             ] as const).map(([id, icon, key]) => (
               <button key={id} onClick={() => (id === "care" ? openCare("player") : open(id))}
                 className={`flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2 text-[12px] font-bold transition-colors ${id === "care" ? "bg-gradient-to-b from-pink-deep to-[#d9799a] text-white shadow" : panel === id ? "bg-pink-soft text-ink" : "text-ink/70"}`}>
-                <Icon n={icon} className="!h-6 !w-6" />
+                <span className="relative"><Icon n={icon} className="!h-6 !w-6" />{id === "social" && followNew > 0 && <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-pink-deep px-1 text-[11px] font-bold text-white" data-testid="nav-social-badge">{followNew}</span>}</span>
                 {/* 휴대폰처럼 좁은 화면에서는 짧은 이름 (두 줄로 접혀 메뉴가 높아지지 않게) */}
                 <span className="whitespace-nowrap sm:hidden">{t(`${key}.short`)}</span>
                 <span className="hidden whitespace-nowrap sm:inline">{t(key)}</span>

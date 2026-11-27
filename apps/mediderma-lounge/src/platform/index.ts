@@ -8,6 +8,7 @@
 import { useGame } from "../store/game";
 import { bitpark } from "./bitpark";
 import { web } from "./web";
+import { bpPortalOrigin, loadPPShop, portalCall, portalEmit } from "./ppShop";
 import type { LinkParams, Platform, PlayEvent } from "./types";
 
 export type { LinkParams, Platform, PlatformId, PlayEvent } from "./types";
@@ -44,6 +45,12 @@ export function reportPlay(ev: PlayEvent, score = 1) {
 export function initPlatform() {
   const p = platform();
   p.init();
+  // BIT PARK 포털(bitpark.airobotphysical.com) 안: 준비 알림 · "플레이 중" 표시 · 결제했지만 못 받은 아이템 마저 지급
+  if (bpPortalOrigin()) {
+    portalEmit("ready");
+    void portalCall("playing").catch(() => null);
+    setTimeout(() => { if (useGame.getState().started) void loadPPShop(); }, 5000);
+  }
   let last = useGame.getState().stats.care ?? 0;
   useGame.subscribe((s) => {
     const n = s.stats.care ?? 0;

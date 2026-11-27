@@ -12,12 +12,13 @@ import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
-import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
+import { claimKing, loadKing, useKing, checkBragLikes, checkFollowFeed, BRAG_DAILY, BRAG_KINDS, BRAG_SORTS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
-import { reportPlay } from "../platform";
+import { reportPlay, shareUrl } from "../platform";
 import { claimGifts, GIFT_COINS, loadInbox, sendGift, useGifts } from "../net/gifts";
+import { loadFollows, ping, setFollow, sortBySeen, useFollows } from "../net/follows";
 
 export const BRAG_ICON: Record<BragKind, IconName> = { look: "character", pet: "smile", plant: "flower", care: "sparkle", collection: "gift" };
 const LOOK_SLOTS = ["outfit", "hair", "makeup", "shadow", "lip", "base", "shoes", "accessory", "earring", "necklace", "bag", "nail"] as const;
@@ -139,6 +140,7 @@ function BragCard({ b }: { b: Brag }) {
           <p className="truncate text-xs font-black text-ink">{b.name}</p>
           <p className="text-[12px] text-ink/45">{ago(b.at, t)}</p>
         </div>
+        {b.writer !== me && <FollowChip code={b.writer} name={b.name} />}
         <span className="flex items-center gap-1 rounded-full bg-pink-soft/60 px-2 py-0.5 text-[12px] font-bold text-pink-deep"><Icon n={BRAG_ICON[b.kind]} />{t(`brag.kind.${b.kind}`)}</span>
       </header>
       <p className="mt-2 text-[13px] font-semibold text-ink/85">{L(msg)}</p>
@@ -146,7 +148,10 @@ function BragCard({ b }: { b: Brag }) {
       <footer className="mt-2 flex items-center gap-3 text-xs font-bold">
         <button className={b.liked ? "text-pink-deep" : "text-ink/45"} disabled={b.writer === me} onClick={like} data-testid="brag-like">{b.liked ? "♥" : "♡"} {b.likes}</button>
         {b.writer === me
-          ? <button className="ml-auto text-ink/35" onClick={() => void deleteBrag(b.id)}>{t("brag.delete")}</button>
+          ? <>
+              <button className="ml-auto text-pink-deep" onClick={() => void shareBrag(b, L(msg), t)} data-testid="brag-share"><Icon n="gift" /> {t("brag.share")}</button>
+              <button className="text-ink/35" onClick={() => void deleteBrag(b.id)}>{t("brag.delete")}</button>
+            </>
           : <>
               <button className="ml-auto text-ink/55" onClick={() => setGift(!gift)} data-testid="gift-open"><Icon n="gift" /> {t("gift.btn")}</button>
               <button className="text-pink-deep" onClick={visit}><Icon n="lounge" /> {t("brag.visit")}</button>
@@ -198,13 +203,14 @@ function Composer({ initial, onDone }: { initial: BragKind; onDone: () => void }
 /** 소셜 패널의 "뷰티 자랑" 탭 */
 export function BragFeed() {
   const t = useT();
-  const { sort, kind, status, list, mine, mineLikes } = useBrag();
+  const { sort, kind, status, list, mine, mineLikes, followNew } = useBrag();
   const want = useUI((s) => s.bragKind);
   const [compose, setCompose] = useState<BragKind | null>(want ?? null);
   const [showMine, setShowMine] = useState(false);
   const king = useKing((s) => s.list);
+  const follows = useFollows((s) => s.list);
   useEffect(() => {
-    void loadBrags(); void checkBragLikes(); void loadKing();
+    void loadBrags(); void checkBragLikes(); void loadKing(); void loadFollows();
     void claimKing().then((r) => { if (r) useUI.getState().toast(t("king.reward", { n: r.rank, c: r.coins, g: r.gems }), "reward"); });
   }, []);
   useEffect(() => { if (want) { setCompose(want); useUI.setState({ bragKind: null }); } }, [want]);
@@ -231,7 +237,7 @@ export function BragFeed() {
         )}
       </div>
       <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
-        {(["new", "hot"] as const).map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
+        {BRAG_SORTS.map((s) => <button key={s} onClick={() => { setShowMine(false); void loadBrags(s, kind); }} className={`chip relative shrink-0 ${!showMine && sort === s ? "chip-on" : ""}`} data-testid={`brag-sort-${s}`}>{t(`brag.sort.${s}`)}{s === "follow" && followNew > 0 && <span className="ml-1 rounded-full bg-pink-deep px-1.5 text-[11px] font-black text-white" data-testid="follow-new">{followNew}</span>}</button>)}
         <span className="mx-1 w-px shrink-0 bg-ink/10" />
         <button onClick={() => { setShowMine(false); void loadBrags(sort, null); }} className={`chip shrink-0 ${!showMine && kind === null ? "chip-on" : ""}`}>{t("brag.all")}</button>
         {BRAG_KINDS.map((k) => <button key={k} onClick={() => { setShowMine(false); void loadBrags(sort, k); }} className={`chip shrink-0 ${!showMine && kind === k ? "chip-on" : ""}`}>{t(`brag.kind.${k}`)}</button>)}
@@ -247,7 +253,7 @@ export function BragFeed() {
       )}
       {!showMine && status === "loading" && <p className="py-6 text-center text-xs text-ink/45">{t("brag.loading")}</p>}
       {!showMine && status === "error" && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.error")} <button className="font-bold text-pink-deep" onClick={() => void loadBrags()}>{t("brag.retry")}</button></p>}
-      {!showMine && status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.none")}</p>}
+      {!showMine && status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55" data-testid="brag-empty">{t(sort === "follow" ? (follows.length ? "brag.followNone" : "follow.none") : "brag.none")}</p>}
       {!showMine && <div className="space-y-3">{list.map((b) => <BragCard key={b.id} b={b} />)}</div>}
     </>
   );
@@ -272,11 +278,15 @@ export function BragWatcher() {
     if (screen !== "game") return;
     let seenGifts = -1;
     const check = async () => {
+      void ping();
       const n = await checkBragLikes();
       if (n > 0) useUI.getState().toast(t("brag.newLikes", { n }), "reward");
       const g = await loadInbox();
       if (g > 0 && g !== seenGifts) useUI.getState().toast(t("gift.arrived", { n: g }), "reward");
       seenGifts = g;
+      if (!useFollows.getState().loaded) await loadFollows();
+      const f = await checkFollowFeed(useFollows.getState().list.length > 0);
+      if (f > 0) useUI.getState().toast(t("brag.followNew", { n: f }), "reward");
     };
     const first = setTimeout(check, 4000);
     const id = setInterval(check, 5 * 60_000);
@@ -329,6 +339,67 @@ export function GiftInbox() {
             <span className="text-lg text-pink-deep">{g.kind === "heart" ? "♥" : <Icon n="coin" />}</span>
             <p className="min-w-0 flex-1 truncate text-xs font-bold text-ink">{g.name} <span className="font-semibold text-ink/50">· {g.kind === "heart" ? t("gift.heartItem") : `${g.amount} COIN`}</span></p>
             <span className="text-[12px] text-ink/40">{ago(g.at, t)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 내 자랑을 외부 SNS · 메신저로 공유: 비트파크에서 내 라운지로 바로 들어오는 링크 */
+export async function shareBrag(b: Brag, msg: string, t: (k: string, v?: Record<string, string | number>) => string) {
+  const url = shareUrl({ visit: b.writer });
+  const text = t("brag.shareText", { name: b.name, msg });
+  try {
+    if (navigator.share) { await navigator.share({ title: "BEAUTY LIFE", text, url }); return; }
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    useUI.getState().toast(t("brag.shareCopied"));
+  } catch { /* 사용자가 공유 창을 닫음 */ }
+}
+
+/** 팔로우 토글 */
+export function FollowChip({ code, name }: { code: string; name: string }) {
+  const t = useT();
+  const on = useFollows((s) => s.list.some((f) => f.code === code));
+  const click = async () => {
+    const r = await setFollow(code, name, !on);
+    if (r !== "ok") useUI.getState().toast(t(`follow.fail.${r}`), "error");
+  };
+  return <button onClick={click} className={`chip shrink-0 !px-2 !py-0.5 !text-[12px] ${on ? "chip-on" : ""}`} data-testid="follow">{on ? t("follow.on") : t("follow.off")}</button>;
+}
+
+/** 소셜 '친구' 탭: 내가 팔로우한 실제 플레이어 */
+export function FollowList() {
+  const t = useT();
+  const { list, followers, loaded } = useFollows();
+  const [gift, setGift] = useState<string | null>(null);
+  useEffect(() => { void loadFollows(); }, []);
+  const visit = async (code: string) => { const r = await visitByCode(code); if (r !== "ok") useUI.getState().toast(t(`live.visit.${r}`), "error"); };
+  return (
+    <div className="mb-4" data-testid="follow-list">
+      <div className="mb-2 flex items-center gap-3 rounded-2xl bg-pink-soft/50 p-3">
+        <div className="text-center"><p className="text-lg font-black text-ink">{list.length}</p><p className="text-[12px] font-bold text-ink/50">{t("follow.following")}</p></div>
+        <div className="text-center"><p className="text-lg font-black text-ink">{followers}</p><p className="text-[12px] font-bold text-ink/50">{t("follow.followers")}</p></div>
+        <p className="min-w-0 flex-1 text-[12px] leading-snug text-ink/60">{t("follow.desc")}</p>
+      </div>
+      {loaded && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("follow.none")}</p>}
+      <div className="space-y-2">
+        {sortBySeen(list).map((f) => (
+          <div key={f.code} className="card !p-3">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: `hsl(${parseInt(f.code, 36) % 360} 60% 72%)` }}>
+                {f.name.slice(0, 1).toUpperCase()}
+                {f.seen === "on" && <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-black text-ink">{f.name}</p>
+                {f.seen && <p className={`text-[11px] font-bold ${f.seen === "on" ? "text-emerald-600" : "text-ink/40"}`} data-testid="follow-seen">{t(`follow.seen.${f.seen}`)}</p>}
+              </div>
+              <button className="chip" onClick={() => setGift(gift === f.code ? null : f.code)}><Icon n="gift" /> {t("gift.btn")}</button>
+              <button className="btn-primary !px-3 !py-1.5 text-[12px]" onClick={() => visit(f.code)}>{t("brag.visit")}</button>
+              <button className="text-[12px] font-bold text-ink/35" onClick={() => void setFollow(f.code, f.name, false)}>{t("follow.unfollow")}</button>
+            </div>
+            {gift === f.code && <GiftPicker to={f.code} name={f.name} onDone={() => setGift(null)} />}
           </div>
         ))}
       </div>

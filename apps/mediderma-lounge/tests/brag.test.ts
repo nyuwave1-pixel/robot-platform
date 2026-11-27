@@ -138,3 +138,75 @@ describe("주간 자랑왕", async () => {
     expect(cleanKing([{ code: "ABC123", name: "미나<b>", likes: "12", posts: 3, rank: 1 }, { code: "bad", likes: 9 }])).toEqual([{ code: "ABC123", name: "미나b", likes: 12, posts: 3, rank: 1 }]);
   });
 });
+
+describe("플레이어 팔로우", async () => {
+  const { cleanFollows } = await import("../src/net/follows");
+  it("팔로우 목록은 아는 형식만", () => {
+    expect(cleanFollows({ followers: 3.9, following: [{ code: "ABC123", name: "미나<b>" }, { code: "bad", name: "x" }] })).toEqual({ followers: 3, list: [{ code: "ABC123", name: "미나b" }] });
+    expect(cleanFollows(null)).toEqual({ followers: 0, list: [] });
+  });
+});
+
+describe("팔로잉 피드", () => {
+  it("본인 확인용 비밀값과 함께 mdl_brag_following 을 부르고, 아는 값만 목록에 넣는다", async () => {
+    const { vi } = await import("vitest");
+    const { loadBrags, useBrag } = await import("../src/net/brag");
+    const calls: { url: string; body: Record<string, unknown> }[] = [];
+    const brag = { id: 9, writer: "ABC123", name: "미나", kind: "look", msg: 0, data: { look: useGame.getState().look }, likes: 2, liked: false, at: "2026-11-27T01:00:00Z" };
+    vi.stubGlobal("fetch", async (url: string, init: { body: string }) => {
+      calls.push({ url, body: JSON.parse(init.body) });
+      return { ok: true, json: async () => ({ ok: true, list: [brag, { id: "x" }] }) };
+    });
+    try {
+      await loadBrags("follow", null);
+      expect(calls[0].url).toMatch(/mdl_brag_following$/);
+      expect(calls[0].body.p_code).toBe(useGame.getState().friendCode);
+      expect(String(calls[0].body.p_secret)).toMatch(/^[0-9a-f]{32}$/);
+      expect(useBrag.getState()).toMatchObject({ sort: "follow", status: "ok" });
+      expect(useBrag.getState().list.map((b) => b.id)).toEqual([9]);
+    } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle" }); }
+  });
+});
+
+describe("팔로잉 새 자랑 알림", () => {
+  const mk = (id: number, at: string) => ({ id, writer: "ABC123", name: "미나", kind: "look" as const, msg: 0, data: {}, likes: 0, liked: false, at });
+  it("처음(기준 없음)에는 0, 기준 뒤에 올라온 것만 센다", async () => {
+    const { countNewSince } = await import("../src/net/brag");
+    const list = [mk(1, "2026-11-27T01:00:00Z"), mk(2, "2026-11-27T03:00:00Z"), mk(3, "2026-11-27T05:00:00Z")];
+    expect(countNewSince(list, undefined)).toBe(0);
+    expect(countNewSince(list, "2026-11-27T02:00:00Z")).toBe(2);
+    expect(countNewSince(list, "2026-11-27T05:00:00Z")).toBe(0);
+  });
+  it("확인하면 새로 늘어난 수만 알리고, 팔로잉 피드를 열면 기준이 갱신되어 0이 된다", async () => {
+    const { vi } = await import("vitest");
+    const { checkFollowFeed, loadBrags, useBrag } = await import("../src/net/brag");
+    const look = useGame.getState().look;
+    let rows = [{ ...mk(1, "2026-11-27T01:00:00Z"), data: { look } }];
+    vi.stubGlobal("fetch", async () => ({ ok: true, json: async () => ({ ok: true, list: rows }) }));
+    try {
+      expect(await checkFollowFeed(false)).toBe(0);                 // 팔로우 없으면 안 부름
+      expect(await checkFollowFeed(true)).toBe(0);                  // 처음: 기준만 잡음
+      expect(useGame.getState().followSeenAt).toBe("2026-11-27T01:00:00.000Z");
+      rows = [{ ...mk(2, "2026-11-27T02:00:00Z"), data: { look } }, ...rows];
+      expect(await checkFollowFeed(true)).toBe(1);
+      expect(useBrag.getState().followNew).toBe(1);
+      expect(await checkFollowFeed(true)).toBe(0);                  // 같은 글로 또 알리지 않음
+      expect(useBrag.getState().followNew).toBe(1);
+      await loadBrags("follow", null);
+      expect(useBrag.getState().followNew).toBe(0);
+      expect(useGame.getState().followSeenAt).toBe("2026-11-27T02:00:00.000Z");
+    } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle", followNew: 0 }); useGame.setState({ followSeenAt: undefined }); }
+  });
+});
+
+describe("친구 접속 상태", () => {
+  it("서버가 준 접속 상태는 on · day 만 받고, 접속 중인 친구가 위로 온다", async () => {
+    const { cleanFollows, sortBySeen } = await import("../src/net/follows");
+    const r = cleanFollows({ followers: 1, following: [
+      { code: "AAA111", name: "가", seen: null }, { code: "BBB222", name: "나", seen: "day" },
+      { code: "CCC333", name: "다", seen: "on" }, { code: "DDD444", name: "라", seen: "2026-11-27T01:00:00Z" },
+    ] });
+    expect(r.list.map((f) => f.seen)).toEqual([undefined, "day", "on", undefined]);
+    expect(sortBySeen(r.list).map((f) => f.code)).toEqual(["CCC333", "BBB222", "AAA111", "DDD444"]);
+  });
+});
