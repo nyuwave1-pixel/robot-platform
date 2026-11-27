@@ -1,8 +1,8 @@
 {
   "date": "2026-11-27",
-  "products": 61,
-  "product_images": 235,
-  "keywords": 269,
+  "products": 57,
+  "product_images": 220,
+  "keywords": 255,
   "seo_pages": 23,
   "open_seo_issues": 0,
   "image_jobs_waiting": 5,
@@ -58,8 +58,8 @@
       "attempts": 1,
       "error": "",
       "result": {
-        "new_keywords": 269,
-        "duplicates_skipped": 35,
+        "new_keywords": 255,
+        "duplicates_skipped": 28,
         "note": "검색량·경쟁도는 미측정(NULL). GSC/Amazon 데이터 연결 후 채워짐"
       }
     },
@@ -79,11 +79,11 @@
       "error": "",
       "result": {
         "categories": 9,
-        "products_found": 61,
-        "synced": 61,
-        "created": 57,
+        "products_found": 57,
+        "synced": 57,
+        "created": 53,
         "updated": 4,
-        "new_images": 235
+        "new_images": 220
       }
     },
     "connections": {
