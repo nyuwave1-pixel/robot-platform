@@ -589,6 +589,8 @@
   "brag.fail.error": "Connection is unstable. Try again soon",
   "brag.sort.new": "Latest",
   "brag.sort.hot": "Hot this week",
+  "brag.sort.follow": "Following",
+  "brag.followNone": "The players you follow have not posted yet.",
   "brag.all": "All",
   "brag.loading": "Loading…",
   "brag.error": "Couldn't load the show-off feed.",

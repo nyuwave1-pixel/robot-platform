@@ -146,3 +146,24 @@ describe("플레이어 팔로우", async () => {
     expect(cleanFollows(null)).toEqual({ followers: 0, list: [] });
   });
 });
+
+describe("팔로잉 피드", () => {
+  it("본인 확인용 비밀값과 함께 mdl_brag_following 을 부르고, 아는 값만 목록에 넣는다", async () => {
+    const { vi } = await import("vitest");
+    const { loadBrags, useBrag } = await import("../src/net/brag");
+    const calls: { url: string; body: Record<string, unknown> }[] = [];
+    const brag = { id: 9, writer: "ABC123", name: "미나", kind: "look", msg: 0, data: { look: useGame.getState().look }, likes: 2, liked: false, at: "2026-11-27T01:00:00Z" };
+    vi.stubGlobal("fetch", async (url: string, init: { body: string }) => {
+      calls.push({ url, body: JSON.parse(init.body) });
+      return { ok: true, json: async () => ({ ok: true, list: [brag, { id: "x" }] }) };
+    });
+    try {
+      await loadBrags("follow", null);
+      expect(calls[0].url).toMatch(/mdl_brag_following$/);
+      expect(calls[0].body.p_code).toBe(useGame.getState().friendCode);
+      expect(String(calls[0].body.p_secret)).toMatch(/^[0-9a-f]{32}$/);
+      expect(useBrag.getState()).toMatchObject({ sort: "follow", status: "ok" });
+      expect(useBrag.getState().list.map((b) => b.id)).toEqual([9]);
+    } finally { vi.unstubAllGlobals(); useBrag.setState({ sort: "new", list: [], status: "idle" }); }
+  });
+});

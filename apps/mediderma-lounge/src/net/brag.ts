@@ -112,8 +112,12 @@ export function bragDataOf(kind: BragKind, extra?: { petId?: string; care?: Brag
   return { curios: { owned: owned.length, total: Object.keys(CURIO_MAP).length, sets: L.setsClaimed.filter((s) => CURIO_SETS.some((x) => x.id === s)), best } };
 }
 
+/** new · hot = 모두의 자랑, follow = 내가 팔로우한 플레이어의 자랑만 (본인 확인 필요) */
+export type BragSort = "new" | "hot" | "follow";
+export const BRAG_SORTS: BragSort[] = ["new", "hot", "follow"];
+
 interface BragState {
-  sort: "new" | "hot"; kind: BragKind | null; status: "idle" | "loading" | "ok" | "error"; list: Brag[];
+  sort: BragSort; kind: BragKind | null; status: "idle" | "loading" | "ok" | "error"; list: Brag[];
   /** 내 자랑 (최근 20개) · 받은 좋아요 합계 */
   mine: Brag[]; mineLikes: number;
 }
@@ -146,7 +150,16 @@ export async function checkBragLikes(): Promise<number> {
 export async function loadBrags(sort = useBrag.getState().sort, kind = useBrag.getState().kind) {
   useBrag.setState((s) => ({ sort, kind, status: s.list.length && s.sort === sort && s.kind === kind ? s.status : "loading" }));
   try {
-    const raw = await rpc<unknown[]>("mdl_brag_list", { p_sort: sort, p_kind: kind, p_code: useGame.getState().friendCode || null });
+    const code = useGame.getState().friendCode || null;
+    let raw: unknown;
+    if (sort === "follow") {
+      if (!code || !/^[A-Z0-9]{6}$/.test(code)) { useBrag.setState({ status: "ok", list: [] }); return; }
+      const r = await rpc<{ ok: boolean; list?: unknown }>("mdl_brag_following", { p_code: code, p_secret: secret(), p_kind: kind });
+      if (!r.ok) throw new Error("auth");
+      raw = r.list;
+    } else {
+      raw = await rpc<unknown[]>("mdl_brag_list", { p_sort: sort, p_kind: kind, p_code: code });
+    }
     const cur = useBrag.getState();
     if (cur.sort !== sort || cur.kind !== kind) return;
     useBrag.setState({ status: "ok", list: (Array.isArray(raw) ? raw : []).map(cleanBrag).filter((b): b is Brag => !!b) });

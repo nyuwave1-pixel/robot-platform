@@ -12,7 +12,7 @@ import { STYLES, scoreFit, themeOfDay } from "../data/style";
 import { useGame, type Look } from "../store/game";
 import { useUI } from "../store/ui";
 import { useL, useT } from "../i18n";
-import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
+import { claimKing, loadKing, useKing, checkBragLikes, BRAG_DAILY, BRAG_KINDS, BRAG_SORTS, BRAG_MESSAGES, BRAG_REWARD, bragDataOf, deleteBrag, likeBrag, loadBrags, postBrag, useBrag, type Brag, type BragData, type BragKind } from "../net/brag";
 import { visitByCode } from "./Events";
 import { CurioArt, PlantArt } from "./LifeArt";
 import { Icon, type IconName } from "./Icon";
@@ -208,6 +208,7 @@ export function BragFeed() {
   const [compose, setCompose] = useState<BragKind | null>(want ?? null);
   const [showMine, setShowMine] = useState(false);
   const king = useKing((s) => s.list);
+  const follows = useFollows((s) => s.list);
   useEffect(() => {
     void loadBrags(); void checkBragLikes(); void loadKing(); void loadFollows();
     void claimKing().then((r) => { if (r) useUI.getState().toast(t("king.reward", { n: r.rank, c: r.coins, g: r.gems }), "reward"); });
@@ -236,7 +237,7 @@ export function BragFeed() {
         )}
       </div>
       <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
-        {(["new", "hot"] as const).map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
+        {BRAG_SORTS.map((s) => <button key={s} onClick={() => void loadBrags(s, kind)} className={`chip shrink-0 ${sort === s ? "chip-on" : ""}`}>{t(`brag.sort.${s}`)}</button>)}
         <span className="mx-1 w-px shrink-0 bg-ink/10" />
         <button onClick={() => { setShowMine(false); void loadBrags(sort, null); }} className={`chip shrink-0 ${!showMine && kind === null ? "chip-on" : ""}`}>{t("brag.all")}</button>
         {BRAG_KINDS.map((k) => <button key={k} onClick={() => { setShowMine(false); void loadBrags(sort, k); }} className={`chip shrink-0 ${!showMine && kind === k ? "chip-on" : ""}`}>{t(`brag.kind.${k}`)}</button>)}
@@ -252,7 +253,7 @@ export function BragFeed() {
       )}
       {!showMine && status === "loading" && <p className="py-6 text-center text-xs text-ink/45">{t("brag.loading")}</p>}
       {!showMine && status === "error" && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.error")} <button className="font-bold text-pink-deep" onClick={() => void loadBrags()}>{t("brag.retry")}</button></p>}
-      {!showMine && status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55">{t("brag.none")}</p>}
+      {!showMine && status === "ok" && list.length === 0 && <p className="rounded-2xl bg-cream p-3 text-xs text-ink/55" data-testid="brag-empty">{t(sort === "follow" ? (follows.length ? "brag.followNone" : "follow.none") : "brag.none")}</p>}
       {!showMine && <div className="space-y-3">{list.map((b) => <BragCard key={b.id} b={b} />)}</div>}
     </>
   );
