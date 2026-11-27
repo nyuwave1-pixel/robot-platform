@@ -307,7 +307,10 @@ namespace SurvivalWorld.Runtime
             var r = new Rect(12 * s, (12 + i * 24) * s, 200 * s, 18 * s);
             GUI.color = new Color(0, 0, 0, 0.5f); GUI.DrawTexture(r, Texture2D.whiteTexture);
             GUI.color = c; GUI.DrawTexture(new Rect(r.x, r.y, r.width * (float)(v / 100.0), r.height), Texture2D.whiteTexture);
-            GUI.color = Color.white; GUI.Label(new Rect(r.x + 6, r.y - 1, r.width, r.height + 4), $"{label} {Mathf.CeilToInt((float)v)}", new GUIStyle(GUI.skin.label) { fontSize = (int)(12 * s) });
+            // white text with a dark 1 px shadow: readable on the yellow (warmth) and green (stamina) bars too (PC WebGL check)
+            var st = new GUIStyle(GUI.skin.label) { fontSize = (int)(12 * s) }; string text = $"{label} {Mathf.CeilToInt((float)v)}";
+            st.normal.textColor = new Color(0, 0, 0, 0.85f); GUI.Label(new Rect(r.x + 7, r.y, r.width, r.height + 4), text, st);
+            st.normal.textColor = Color.white; GUI.color = Color.white; GUI.Label(new Rect(r.x + 6, r.y - 1, r.width, r.height + 4), text, st);
         }
 
         void CraftPanel(float s, GUIStyle box)
