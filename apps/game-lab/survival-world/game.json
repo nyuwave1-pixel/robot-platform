@@ -1,0 +1,39 @@
+{
+  "id": "survival-world",
+  "name": "SURVIVAL WORLD",
+  "genre": "survival",
+  "status": "prototype",
+  "engine": "web (three.js r170 vendored, ES modules)",
+  "created": "2026-11-27",
+  "summary": "오픈월드 생존·제작 기술 프로토타입 — 시드로 만드는 섬, 채집·제작·건축, 배고픔·갈증·체온, 낮밤, 밤의 늑대, 자동 저장.",
+  "learnedFrom": [
+    {
+      "repo": "mrdoob/three.js",
+      "license": "MIT",
+      "what": "renderer (vendored r170 build, vendor/THREE_LICENSE)"
+    },
+    {
+      "repo": "CleverRaven/Cataclysm-DDA",
+      "license": "CC-BY-SA-3.0 (study only)",
+      "what": "needs + crafting as data tables — idea only, no code"
+    }
+  ],
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 30,
+        "A": 22,
+        "B": 15,
+        "C": 8
+      },
+      "rpReward": 30
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "verify": "src/verify.js",
+      "levels": "src/levels.js",
+      "status": "not registered (real-time 3D — no replay verifier yet)"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "game-lab-survival-world",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes vite --port 5180",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
