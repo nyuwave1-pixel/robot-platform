@@ -7,7 +7,7 @@ import { LEVELS } from './levels.js';
 export const encodeActions = (list) => list.map(encode).join(',');
 
 export function replay(L, seed, tokens) {
-  const S = newRun({ seed, hero: L.hero, level: L.level });
+  const S = newRun({ seed, hero: L.hero, level: L.level, variant: L.variant || 'classic' });
   for (const tok of tokens) { const act = decode(tok); if (!act) throw new Error('bad token ' + tok); apply(S, act); }
   return S;
 }

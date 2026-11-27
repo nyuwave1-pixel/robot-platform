@@ -24,6 +24,7 @@ node tools/playtest-report.mjs a.json  # 테스터가 보낸 플레이 기록(�
 | `src/bot.js` · `tools/sim.mjs` | 탐욕 봇과 밸런스 시뮬레이터 (게임 화면은 안 씀) |
 | `src/main.js` · `src/style.css` · `src/art.js` · `src/i18n.js` | 화면(DOM·CSS), 원본 SVG 그림, Web Audio 효과음, 영어 문구(화면 전용 — 검증기는 안 읽음) |
 | `src/music.js` | 생성형 배경음악(Web Audio, 파일 없음) — 지도/전투/보스 분위기, M 키로 끔 |
+| 규칙 변형 | 기본 · 메아리 · 밀물 — A/B 플레이 테스트용 (`docs/indie-studio/RULE_TWISTS.md`) |
 | `tools/playtest-report.mjs` | 플레이 테스트 리포트: 내보낸 기록을 규칙으로 다시 재생해 승률·끝난 위치·카드 선택률 집계 — 안내 `docs/indie-studio/PLAYTEST_GUIDE.md` |
 | `src/portal.js` | airobotphysical RP(`game_result`) + BIT PARK SDK v1(`levelStart`/`levelClear` + proof) |
 

@@ -4,6 +4,13 @@
 // All heroes, cards, relics and enemies are original to this game.
 // Rules version 2 (2026-11-27): two acts (each 12 map floors + a boss). A proof replays under the rules version it was made with.
 export const RULES_VERSION = 2;
+/** Rule twists for A/B playtests (DEVELOPMENT_PRIORITY: 2–3 prototypes, keep the one with the strongest "one more run").
+ *  classic — the base game. echo — every 4th card you play in a combat resolves its damage, block and statuses a second
+ *  time (powers, draw, energy and healing are not repeated).
+ *  tide — your hand is kept between turns; each held card swells +2 damage/block per turn (max +6), and you only draw
+ *  back up to 5 cards. A run's variant is part of its level (levels.js), so proofs replay under the right twist. */
+export const VARIANTS = ['classic', 'echo', 'tide'];
+export const SWELL = 2, SWELL_MAX = 3, ECHO_EVERY = 4, ECHO_HP = 1.25;   // echo foes are tougher to pay for the repeats
 
 // ---------------------------------------------------------------- RNG
 function rngNext(s) { // mulberry32 step on a uint32 state → [nextState, value 0..1)
@@ -141,9 +148,10 @@ export const depth = (S) => S.act * FLOORS + Math.max(0, S.floor);
 export const HAND = 5, ENERGY = 3;
 
 // ---------------------------------------------------------------- run
-export function newRun({ seed = 1, hero = 'warden', level = 0 } = {}) {
+export function newRun({ seed = 1, hero = 'warden', level = 0, variant = 'classic' } = {}) {
+  if (!VARIANTS.includes(variant)) throw new Error('unknown variant ' + variant);
   const H = HEROES[hero]; if (!H) throw new Error('unknown hero ' + hero);
-  const S = { v: RULES_VERSION, seed: seed >>> 0, hero, level, rng: (seed * 2654435761) >>> 0, phase: 'map', act: 0, floor: -1, node: null, path: [],
+  const S = { v: RULES_VERSION, seed: seed >>> 0, hero, level, variant, rng: (seed * 2654435761) >>> 0, phase: 'map', act: 0, floor: -1, node: null, path: [],
     hp: H.hp, maxHp: H.hp, gold: 99, deck: H.deck.slice(), relics: [H.relic], turns: 0, kills: 0, elites: 0, log: [],
     map: null, combat: null, reward: null, shop: null, event: null, pickFor: null, result: null, actions: 0 };
   S.map = makeMap(S);
@@ -205,13 +213,13 @@ function rollIntent(S, e) {
 }
 
 function startCombat(S, group, kind) {
-  const lvl = S.level, scale = (1 + lvl * 0.08) * (kind === 'boss' ? 1 : 1 + Math.max(0, S.floor) * (S.act ? 0.03 : 0.04));   // act 2 has its own, tougher roster   // deeper floors hit harder
+  const lvl = S.level, scale = (S.variant === 'echo' ? ECHO_HP : 1) * (1 + lvl * 0.08) * (kind === 'boss' ? 1 : 1 + Math.max(0, S.floor) * (S.act ? 0.03 : 0.04));   // act 2 has its own, tougher roster   // deeper floors hit harder
   const enemies = group.map((k, i) => {
     const D = ENEMIES[k], hp = Math.round((D.hp[0] + rint(S, D.hp[1] - D.hp[0] + 1)) * scale);
     return { id: 'e' + i, kind: k, name: D.name, hp, maxHp: hp, block: 0, st: {}, step: rint(S, D.boss ? 1 : D.moves.length), intent: null };
   });
   const P = { id: 'p', hp: S.hp, block: 0, st: {} };
-  S.combat = { kind, enemies, P, draw: shuffle(S, S.deck.slice()), hand: [], discard: [], exhaust: [], energy: ENERGY, nextEnergy: 0,
+  S.combat = { kind, enemies, P, draw: shuffle(S, S.deck.slice()), hand: [], swell: [], played: 0, discard: [], exhaust: [], energy: ENERGY, nextEnergy: 0,
     turn: 0, playedThisTurn: 0, fx: [] };
   S.phase = 'combat';
   const has = (r) => S.relics.includes(r);
@@ -228,7 +236,7 @@ function draw(S, n) {
   for (let i = 0; i < n; i++) {
     if (!c.draw.length) { if (!c.discard.length) return; c.draw = shuffle(S, c.discard); c.discard = []; }
     if (c.hand.length >= 10) return;
-    c.hand.push(c.draw.pop());
+    c.hand.push(c.draw.pop()); c.swell.length = c.hand.length - 1; c.swell.push(0);
   }
 }
 
@@ -239,14 +247,15 @@ function startTurn(S, first = false) {
   c.energy = ENERGY + st(P, 'surge') + c.nextEnergy + (first && S.relics.includes('lantern') ? 1 : 0); c.nextEnergy = 0;
   if (st(P, 'plate')) gainBlock(P, st(P, 'plate'));
   if (st(P, 'kindle')) for (const e of alive(c)) addSt(e, 'burn', st(P, 'kindle'));
-  draw(S, HAND + st(P, 'insight'));
+  if (S.variant === 'tide' && !first) draw(S, Math.max(1, HAND + st(P, 'insight') - c.hand.length));   // tide: top the hand back up
+  else draw(S, HAND + st(P, 'insight'));
 }
 const alive = (c) => c.enemies.filter((e) => e.hp > 0);
 
-function runFx(S, card, target) {
+function runFx(S, card, target, bonus = 0) {
   const c = S.combat, P = c.P;
   for (const op of card.fx) {
-    const [k, a, b] = op;
+    const [k, a0, b] = op, a = (k === 'dmg' || k === 'dmgAll' || k === 'block') ? a0 + bonus : a0;
     if (k === 'dmg') for (let h = 0; h < (b || 1); h++) { if (target.hp > 0) dealDamage(S, P, target, a); }
     else if (k === 'dmgAll') for (const e of alive(c)) dealDamage(S, P, e, a);
     else if (k === 'block') gainBlock(P, a);
@@ -401,15 +410,22 @@ export function apply(S, act) {
   } else if (S.phase === 'combat') {
     const c = S.combat; c.fx = [];
     if (act.a === 'end') {
-      for (const id of c.hand) c.discard.push(id); c.hand = [];
+      if (S.variant === 'tide') c.swell = c.hand.map((_, i) => Math.min(SWELL_MAX, (c.swell[i] || 0) + 1));   // tide: the hand stays and swells
+      else { for (const id of c.hand) c.discard.push(id); c.hand = []; c.swell = []; }
       enemyTurn(S);
     } else if (act.a === 'play') {
       const id = c.hand[act.i]; if (id == null) bad('no card');
       const d = cardDef(id); if (d.cost > c.energy) bad('energy');
       let target = null;
       if (d.target === 'enemy') { target = c.enemies[act.t]; if (!target || target.hp <= 0) bad('target'); }
-      c.energy -= d.cost; c.hand.splice(act.i, 1);
-      runFx(S, d, target);
+      const bonus = S.variant === 'tide' ? (c.swell[act.i] || 0) * SWELL : 0;
+      c.energy -= d.cost; c.hand.splice(act.i, 1); c.swell.splice(act.i, 1);
+      c.played++;
+      runFx(S, d, target, bonus);
+      if (S.variant === 'echo' && c.played % ECHO_EVERY === 0 && d.type !== 'power' && alive(c).length) {
+        const again = { ...d, fx: d.fx.filter(([k]) => !['draw', 'energy', 'nextEnergy', 'heal'].includes(k)) };
+        c.fx.push({ who: 'p', echo: true }); runFx(S, again, target && target.hp > 0 ? target : alive(c)[0], bonus);
+      }
       if (d.type === 'power') { /* stays in play */ } else if (d.exhaust) c.exhaust.push(id); else c.discard.push(id);
       c.playedThisTurn++;
       if (S.relics.includes('cog') && c.playedThisTurn % 3 === 0) draw(S, 1);

@@ -101,5 +101,9 @@ const UI = {
   '두 탑을 모두 정복했다!': 'Both towers conquered!', '원정 실패': 'Expedition failed', '도달한 층': 'Reached', '{a}막 {f}층 (전체 {d} / {n})': 'Act {a} floor {f} ({d} / {n} overall)',
   '처치': 'Kills', '{k} (정예 {e})': '{k} ({e} elites)', '턴': 'Turns', '남은 체력': 'HP left', '점수': 'Score', ' · 최고 기록!': ' · new best!', '포털 보상': 'Portal reward',
   '이 원정의 행동 {n}개가 저장되었고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.': 'The {n} actions of this expedition were saved; the same list re-computes the result.',
-  '새 원정': 'New expedition', '플레이 기록 {n}판 · 승리 {w}': 'Play history: {n} runs · {w} won', '기록 내보내기 (JSON)': 'Export history (JSON)', '덱 ({n})': 'Deck ({n})', '닫기': 'Close',
+  '새 원정': 'New expedition', '규칙: 기본': 'Rules: Classic', '규칙: 메아리': 'Rules: Echo', '규칙: 밀물': 'Rules: Tide',
+  '덱빌딩 로그라이크 기본 규칙': 'The base deckbuilding roguelike rules',
+  '전투에서 4번째 카드마다 피해·방어·상태 효과가 한 번 더 (대신 적 체력 +25%)': 'Every 4th card in a combat repeats its damage, block and statuses (foes have +25% HP)',
+  '손패가 턴을 넘어 남고, 남은 카드는 턴마다 피해·방어 +2 (최대 +6). 새 카드는 손패 5장까지만': 'Your hand stays between turns and held cards swell +2 damage/block per turn (max +6); you only draw back up to 5',
+  '밀물: 피해·방어 +{n}': 'Tide: damage/block +{n}', '메아리까지 {n}장': 'Echo in {n} cards', '플레이 기록 {n}판 · 승리 {w}': 'Play history: {n} runs · {w} won', '기록 내보내기 (JSON)': 'Export history (JSON)', '덱 ({n})': 'Deck ({n})', '닫기': 'Close',
 };

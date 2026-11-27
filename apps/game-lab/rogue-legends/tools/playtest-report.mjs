@@ -1,7 +1,7 @@
 // Playtest report: reads history files exported from the title screen ("기록 내보내기 (JSON)") and replays every run with the
 // game's own rules, so each number comes from what really happened, not from a separate tracker.
 //   node tools/playtest-report.mjs tester1.json tester2.json … [--out report.md]
-// Per hero × level: runs, wins, depth, minutes · where runs end and what killed them · card pick rate (taken / offered)
+// Per hero × level × rule variant (classic / echo / tide — the A/B comparison): runs, wins, depth, minutes · where runs end and what killed them · card pick rate (taken / offered)
 // and shop buys · relics in winning runs. Runs made under another rules version are counted but not replayed.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { newRun, apply, decode, RULES_VERSION, ENEMIES, cardDef, RELICS } from '../src/logic.js';
@@ -13,7 +13,7 @@ export function analyse(files) {
     if (run.rules !== RULES_VERSION) { R.skipped++; continue; }
     let S;
     try {
-      S = newRun({ seed: run.seed, hero: run.hero, level: run.level });
+      S = newRun({ seed: run.seed, hero: run.hero, level: run.level, variant: run.variant || 'classic' });
       for (const tok of run.actions ? run.actions.split(',') : []) {
         const a = decode(tok);
         if (S.phase === 'reward' && S.reward.cards.length && (a.a === 'take' || a.a === 'skip')) {
@@ -26,7 +26,7 @@ export function analyse(files) {
       }
     } catch { R.broken++; continue; }
     if (!S.result) { R.broken++; continue; }
-    const k = `${run.hero} L${run.level}`, g = (R.groups[k] = R.groups[k] || { runs: 0, wins: 0, depth: 0, seconds: 0 });
+    const k = `${run.hero} L${run.level}${run.variant && run.variant !== 'classic' ? ' ' + run.variant : ''}`, g = (R.groups[k] = R.groups[k] || { runs: 0, wins: 0, depth: 0, seconds: 0 });
     g.runs++; g.wins += S.result.won ? 1 : 0; g.depth += S.result.depth + 1; g.seconds += run.seconds || 0;
     const end = S.result.won ? 'won' : `act ${S.result.act} floor ${S.result.floor + 1}`; R.ends[end] = (R.ends[end] || 0) + 1;
     for (const e of S.result.killedBy || []) R.killers[e] = (R.killers[e] || 0) + 1;

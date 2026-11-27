@@ -142,3 +142,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .gp { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 12px; }
 .card.gp { transform: translateY(-26px) scale(1.06); z-index: 5; }
 .mnode.gp circle { stroke: #fff; stroke-width: 5; }
+.card .swell { position: absolute; right: -8px; top: -10px; background: var(--ward); color: #08202e; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 999px; border: 2px solid #cfeaff; }
+.echo { font-size: 12px; color: var(--arcane); margin-bottom: 6px; }
+.levels .btn:disabled { opacity: .35; }

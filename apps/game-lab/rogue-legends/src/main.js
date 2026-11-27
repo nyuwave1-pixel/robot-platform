@@ -2,7 +2,7 @@
 // clicks / keys into actions. The run is saved as its action list (localStorage) and replayed on load — the same list is the
 // replay proof the portals check with ./verify.js. Keys: 1–9 play a card · Tab next target · E end turn · D deck · Esc cancel.
 // Gamepad (Steam Deck): D-pad / stick move the focus · A select · B cancel · X end turn · Y deck · LB / RB change target.
-import { newRun, apply, legal, choices, cardDef, HEROES, RELICS, EVENT_TEXT, ENEMIES, FLOORS, ACTS, RULES_VERSION, depth, enemyBonus, encode, decode, grade } from './logic.js';
+import { newRun, apply, legal, choices, cardDef, HEROES, RELICS, EVENT_TEXT, ENEMIES, FLOORS, ACTS, RULES_VERSION, VARIANTS, SWELL, ECHO_EVERY, depth, enemyBonus, encode, decode, grade } from './logic.js';
 import { LEVELS } from './levels.js';
 import { ENEMY_ART, HERO_ART, CARD_ICON, cardIcon, RELIC_ICON, NODE_ICON } from './art.js';
 import { createPortal } from './portal.js';
@@ -19,7 +19,7 @@ const moodNow = () => (S && S.phase === 'combat' ? (S.combat.enemies.some((e) =>
 const portal = createPortal('rogue-legends'); portal.ready();
 
 let S = null, run = null, armed = -1, target = 0, overlay = null, started = 0, reported = false;
-let pickHero = 'warden', pickLevel = 0;
+let pickHero = 'warden', pickLevel = 0, pickVariant = 'classic';
 
 // ------------------------------------------------------------ audio (tiny synth, no files)
 let ac = null;
@@ -33,16 +33,17 @@ function sfx(kind) {
 }
 
 // ------------------------------------------------------------ run lifecycle
-function startRun(hero, levelIdx, fixedSeed = null) {
-  const L = LEVELS.find((l) => l.hero === hero && l.level === levelIdx);
+function startRun(hero, levelIdx, fixedSeed = null, variant = 'classic') {
+  if (variant !== 'classic') levelIdx = 0;   // the rule-twist variants exist at difficulty 0 only
+  const L = LEVELS.find((l) => l.hero === hero && l.level === levelIdx && (l.variant || 'classic') === variant);
   const seed = fixedSeed != null ? fixedSeed >>> 0 : (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
-  run = { seed, hero, level: levelIdx, li: LEVELS.indexOf(L), tokens: [] };
-  S = newRun({ seed, hero, level: levelIdx }); started = Date.now(); reported = false; armed = -1; target = 0;
+  run = { seed, hero, level: levelIdx, variant, li: LEVELS.indexOf(L), tokens: [] };
+  S = newRun({ seed, hero, level: levelIdx, variant }); started = Date.now(); reported = false; armed = -1; target = 0;
   store.set(SAVE, run); portal.levelStart(run.li + 1); render();
 }
 function resume() {
   const r = store.get(SAVE); if (!r) return false;
-  try { const s = newRun({ seed: r.seed, hero: r.hero, level: r.level }); for (const t of r.tokens) apply(s, decode(t)); run = r; S = s; started = Date.now(); reported = !!s.result; return true; }
+  try { const s = newRun({ seed: r.seed, hero: r.hero, level: r.level, variant: r.variant || 'classic' }); for (const t of r.tokens) apply(s, decode(t)); run = r; S = s; started = Date.now(); reported = !!s.result; return true; }
   catch { store.set(SAVE, null); return false; }
 }
 
@@ -65,11 +66,11 @@ function finishRun() {
   const g = grade(S), r = S.result;
   const best = store.get(BEST) || {}, key = `${run.hero}-${run.level}`;
   if (!best[key] || r.score > best[key].score) { best[key] = { score: r.score, won: r.won, grade: g }; store.set(BEST, best); r.newBest = true; }
-  r.rp = portal.result({ level: run.li + 1, score: r.score, grade: g, mode: `${run.hero.toUpperCase()} L${run.level}`, seconds: Math.round((Date.now() - started) / 1000),
+  r.rp = portal.result({ level: run.li + 1, score: r.score, grade: g, mode: `${run.hero.toUpperCase()} L${run.level}${run.variant && run.variant !== 'classic' ? ' ' + run.variant : ''}`, seconds: Math.round((Date.now() - started) / 1000),
     stars: { S: 3, A: 2, B: 1 }[g] || 0, proof: { seed: run.seed, actions: run.tokens.join(',') }, clear: r.won });
   // play history for playtests: the run itself (seed + actions) — tools/playtest-report.mjs replays it for every statistic
   const hist = store.get(HISTORY) || [];
-  hist.push({ rules: RULES_VERSION, at: new Date().toISOString(), hero: run.hero, level: run.level, seed: run.seed, actions: run.tokens.join(','),
+  hist.push({ rules: RULES_VERSION, at: new Date().toISOString(), hero: run.hero, level: run.level, variant: run.variant || 'classic', seed: run.seed, actions: run.tokens.join(','),
     seconds: Math.round((Date.now() - started) / 1000), won: r.won, act: r.act, floor: r.floor + 1, score: r.score, grade: g });
   store.set(HISTORY, hist.slice(-60));
   sfx(r.won ? 'win' : 'die');
@@ -92,6 +93,8 @@ function render() {
   applyFocus();
 }
 
+const VARIANT_NAME = { classic: '규칙: 기본', echo: '규칙: 메아리', tide: '규칙: 밀물' };
+const VARIANT_TIP = { classic: '덱빌딩 로그라이크 기본 규칙', echo: '전투에서 4번째 카드마다 피해·방어·상태 효과가 한 번 더 (대신 적 체력 +25%)', tide: '손패가 턴을 넘어 남고, 남은 카드는 턴마다 피해·방어 +2 (최대 +6). 새 카드는 손패 5장까지만' };
 function titleHtml() {
   const saved = store.get(SAVE), best = store.get(BEST) || {}, hist = store.get(HISTORY) || [];
   const hero = (id) => { const H = HEROES[id]; return `<button class="heroCard ${pickHero === id ? 'sel' : ''}" data-hero="${id}" style="--hc:${H.color}">
@@ -101,7 +104,8 @@ function titleHtml() {
   return `<div class="title"><div>
     <h1>ROGUE LEGENDS</h1><div class="sub">DECKBUILDING ROGUELIKE</div>
     <div class="heroes">${hero('warden')}${hero('arcanist')}</div>
-    <div class="levels">${[0, 1, 2].map((l) => `<button class="btn ${pickLevel === l ? 'sel' : ''}" data-level="${l}">${tr('난이도 {l}', { l })}${l ? tr(' (+{p}% 체력·+{l} 피해)', { p: l * 8, l }) : tr(' (기본)')}</button>`).join('')}</div>
+    <div class="levels">${VARIANTS.map((v) => `<button class="btn ${pickVariant === v ? 'sel' : ''}" data-variant="${v}" data-tip="${esc(tr(VARIANT_TIP[v]))}">${tr(VARIANT_NAME[v])}</button>`).join('')}</div>
+    <div class="levels">${[0, 1, 2].map((l) => `<button class="btn ${pickLevel === l ? 'sel' : ''}" data-level="${l}" ${pickVariant !== 'classic' && l ? 'disabled' : ''}>${tr('난이도 {l}', { l })}${l ? tr(' (+{p}% 체력·+{l} 피해)', { p: l * 8, l }) : tr(' (기본)')}</button>`).join('')}</div>
     <div class="row"><button class="btn primary" data-start>${tr('원정 시작')}</button>${saved && !saved.done ? `<button class="btn" data-resume>${tr('이어 하기')}</button>` : ''}<button class="btn" data-lang>${getLang() === 'en' ? '한국어' : 'English'}</button></div>
     ${hist.length ? `<p class="note">${tr('플레이 기록 {n}판 · 승리 {w}', { n: hist.length, w: hist.filter((h) => h.won).length })} · <button class="btn" data-export>${tr('기록 내보내기 (JSON)')}</button></p>` : ''}
     <p class="note">${tr('두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기 · M 음악')}<br/>${tr('모든 원정은 행동 기록으로 저장되고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.')}</p>
@@ -110,7 +114,8 @@ function titleHtml() {
 function bindTitle() {
   document.querySelectorAll('[data-hero]').forEach((b) => (b.onclick = () => { pickHero = b.dataset.hero; render(); }));
   document.querySelectorAll('[data-level]').forEach((b) => (b.onclick = () => { pickLevel = +b.dataset.level; render(); }));
-  $('[data-start]').onclick = () => startRun(pickHero, pickLevel);
+  document.querySelectorAll('[data-variant]').forEach((b) => (b.onclick = () => { pickVariant = b.dataset.variant; if (pickVariant !== 'classic') pickLevel = 0; render(); }));
+  $('[data-start]').onclick = () => startRun(pickHero, pickLevel, null, pickVariant);
   const r = $('[data-resume]'); if (r) r.onclick = () => { if (resume()) render(); };
   $('[data-lang]').onclick = () => { setLang(getLang() === 'en' ? 'ko' : 'en'); render(); };
   const ex = $('[data-export]');
@@ -124,7 +129,7 @@ function topHtml() {
   const H = HEROES[S.hero], hp = S.combat ? S.combat.P.hp : S.hp;
   return `<span class="hero" style="color:${H.color}">${H.name}</span>
     <span class="stat">❤️ <b>${Math.max(0, hp)}/${S.maxHp}</b></span><span class="stat">🪙 <b>${S.gold}</b></span>
-    <span class="stat">${tr('{a}막', { a: S.act + 1 })} <b>${tr('{f}/{n}층', { f: Math.max(1, S.floor + 1), n: FLOORS })}</b></span><span class="stat">${tr('난이도')} <b>${S.level}</b></span>
+    <span class="stat">${tr('{a}막', { a: S.act + 1 })} <b>${tr('{f}/{n}층', { f: Math.max(1, S.floor + 1), n: FLOORS })}</b></span><span class="stat">${tr('난이도')} <b>${S.level}</b></span>${S.variant !== 'classic' ? `<span class="stat"><b>${tr(VARIANT_NAME[S.variant])}</b></span>` : ''}
     <span class="relics">${S.relics.map((r) => `<span class="relic" data-tip="${esc(relicName(r, RELICS[r].name))}\n${esc(relicText(r, RELICS[r].text))}">${RELIC_ICON[r]}</span>`).join('')}</span>
     <span class="grow"></span><button class="btn" data-music title="M">${musicOn() ? '🔊' : '🔇'}</button><button class="btn" data-deck>${tr('덱 {n}', { n: S.deck.length })}</button><button class="btn danger" data-quit>${S.result ? tr('처음으로') : tr('포기')}</button>`;
 }
@@ -173,7 +178,7 @@ function cardHtml(id, i = -1, opts = {}) {
   const d = cardDef(id), H = d.hero ? HEROES[d.hero].color : '#9aa3ad';
   const off = opts.off ? 'off' : '', type = tr({ attack: '공격', skill: '기술', power: '능력' }[d.type]);
   return `<div class="card ${off} ${d.upgraded ? 'up' : ''} ${armed === i && i >= 0 ? 'armed' : ''}" style="--cc:${H}" ${i >= 0 ? `data-card="${i}"` : ''} ${opts.attr || ''}>
-    <div class="cost">${d.cost}</div><div class="cname">${esc(cardName(id, d))}</div><div class="cart">${CARD_ICON[cardIcon(d)](H)}</div>
+    <div class="cost">${d.cost}</div>${opts.swell ? `<div class="swell" title="${esc(tr('밀물: 피해·방어 +{n}', { n: opts.swell * SWELL }))}">+${opts.swell * SWELL}</div>` : ''}<div class="cname">${esc(cardName(id, d))}</div><div class="cart">${CARD_ICON[cardIcon(d)](H)}</div>
     <div class="ctype">${type}${d.exhaust ? tr(' · 소멸') : ''}</div><div class="ctext">${esc(cardText(id, d))}</div>${i >= 0 && i < 9 ? `<span class="key">${i + 1}</span>` : ''}</div>`;
 }
 
@@ -182,7 +187,7 @@ function combatHtml() {
   const enemies = c.enemies.map((e, i) => `<div class="unit enemy ${e.hp <= 0 ? 'dead' : ''} ${i === target ? 'target' : ''}" data-enemy="${i}" id="u-${e.id}">
       ${intentOf(e)}${e.block ? `<div class="blockPip"><b>${e.block}</b></div>` : ''}${ENEMY_ART[ENEMIES[e.kind].art]()}
       <div class="name">${esc(enemyName(e.kind, e.name))}${ENEMIES[e.kind].elite ? tr(' · 정예') : ENEMIES[e.kind].boss ? tr(' · 보스') : ''}</div>${bar(e)}<div class="sts">${stsHtml(e)}</div></div>`).join('');
-  const hand = c.hand.map((id, i) => cardHtml(id, i, { off: cardDef(id).cost > c.energy })).join('');
+  const hand = c.hand.map((id, i) => cardHtml(id, i, { off: cardDef(id).cost > c.energy, swell: S.variant === 'tide' ? c.swell[i] || 0 : 0 })).join('');
   return `<div class="combat">
     <div class="field">
       <div class="unit" id="u-p">${P.block ? `<div class="blockPip"><b>${P.block}</b></div>` : ''}${HERO_ART[S.hero]()}<div class="name">${HEROES[S.hero].name}</div>${bar({ hp: P.hp, maxHp: S.maxHp })}<div class="sts">${stsHtml(P)}</div></div>
@@ -190,7 +195,7 @@ function combatHtml() {
     </div>
     ${armed >= 0 ? `<div class="hint">${tr('대상을 고르세요 (클릭 · Tab 후 같은 숫자키) · Esc 취소')}</div>` : ''}
     <div class="dock">
-      <div class="pile"><div class="energy" title="${tr('에너지')}">${c.energy}</div>${tr('뽑을 카드')} <b>${c.draw.length}</b></div>
+      <div class="pile"><div class="energy" title="${tr('에너지')}">${c.energy}</div>${S.variant === 'echo' ? `<div class="echo">${tr('메아리까지 {n}장', { n: ECHO_EVERY - (c.played % ECHO_EVERY) })}</div>` : ''}${tr('뽑을 카드')} <b>${c.draw.length}</b></div>
       <div class="hand">${hand}</div>
       <div class="pile"><button class="btn primary endTurn" data-end>${tr('턴 종료 (E)')}</button>${tr('버린 카드')} <b>${c.discard.length}</b>${c.exhaust.length ? `<br/>${tr('소멸 {n}', { n: c.exhaust.length })}` : ''}</div>
     </div></div>`;
