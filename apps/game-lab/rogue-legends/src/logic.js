@@ -334,8 +334,9 @@ function relicOffer(S) { const left = RELIC_POOL.filter((r) => !S.relics.include
 function gainRelic(S, r) { S.relics.push(r); if (r === 'mossstone') { S.maxHp += 10; S.hp += 10; } }
 
 function finish(S, won) {
+  const killedBy = !won && S.combat ? alive(S.combat).map((e) => e.kind) : [];
   S.phase = won ? 'victory' : 'defeat'; S.combat = null;
-  S.result = { won, act: S.act + 1, depth: depth(S), floor: S.floor, turns: S.turns, kills: S.kills, elites: S.elites, hp: S.hp, maxHp: S.maxHp, gold: S.gold, score: score(S, won) };
+  S.result = { won, killedBy, act: S.act + 1, depth: depth(S), floor: S.floor, turns: S.turns, kills: S.kills, elites: S.elites, hp: S.hp, maxHp: S.maxHp, gold: S.gold, score: score(S, won) };
 }
 /** Run score: progress, elites and the boss, plus what is left of your health. */
 export function score(S, won = S.phase === 'victory') {

@@ -82,8 +82,8 @@ const UI = {
   '할 수 없는 행동입니다': 'You cannot do that', '이번 원정을 포기하고 처음 화면으로 갈까요?': 'Abandon this expedition and return to the title?',
   '체력': 'HP', '최고 기록': 'Best', '없음': 'none', '난이도 {l}': 'Difficulty {l}', ' (+{p}% 체력·+{l} 피해)': ' (+{p}% HP · +{l} damage)', ' (기본)': ' (standard)',
   '원정 시작': 'Begin expedition', '이어 하기': 'Continue',
-  '두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기':
-    'Climb two towers (13 floors each) and defeat the Cinder Colossus and the Abyssal Tidewyrm · cards 1–9 · Tab target · E end turn · D deck · gamepad supported',
+  '두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기 · M 음악':
+    'Climb two towers (13 floors each) and defeat the Cinder Colossus and the Abyssal Tidewyrm · cards 1–9 · Tab target · E end turn · D deck · M music · gamepad supported',
   '모든 원정은 행동 기록으로 저장되고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.': 'Every expedition is saved as its list of actions, and the same list re-computes the result for verified rankings.',
   '{a}막': 'Act {a}', '{f}/{n}층': 'Floor {f}/{n}', '난이도': 'Difficulty', '덱 {n}': 'Deck {n}', '처음으로': 'Title', '포기': 'Abandon',
   '⚔️ 전투 · 💀 정예 · 🔥 모닥불 · 🪙 상점': '⚔️ fight · 💀 elite · 🔥 campfire · 🪙 shop', '❔ 사건 · 🎁 보물 · 👑 보스 — 빛나는 칸으로 이동': '❔ event · 🎁 treasure · 👑 boss — move to a glowing node',
@@ -101,5 +101,5 @@ const UI = {
   '두 탑을 모두 정복했다!': 'Both towers conquered!', '원정 실패': 'Expedition failed', '도달한 층': 'Reached', '{a}막 {f}층 (전체 {d} / {n})': 'Act {a} floor {f} ({d} / {n} overall)',
   '처치': 'Kills', '{k} (정예 {e})': '{k} ({e} elites)', '턴': 'Turns', '남은 체력': 'HP left', '점수': 'Score', ' · 최고 기록!': ' · new best!', '포털 보상': 'Portal reward',
   '이 원정의 행동 {n}개가 저장되었고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.': 'The {n} actions of this expedition were saved; the same list re-computes the result.',
-  '새 원정': 'New expedition', '덱 ({n})': 'Deck ({n})', '닫기': 'Close',
+  '새 원정': 'New expedition', '플레이 기록 {n}판 · 승리 {w}': 'Play history: {n} runs · {w} won', '기록 내보내기 (JSON)': 'Export history (JSON)', '덱 ({n})': 'Deck ({n})', '닫기': 'Close',
 };

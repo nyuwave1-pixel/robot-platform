@@ -11,6 +11,7 @@ cd apps/game-lab/rogue-legends
 python3 -m http.server 5180            # 브라우저에서 http://localhost:5180  (?seed=123&hero=arcanist&level=1 로 고정 시드)
 node --test tests/*.test.mjs           # 규칙·리플레이 테스트 (설치 없음)
 node tools/sim.mjs 300                 # 밸런스 시뮬레이터: 봇이 영웅·난이도별 300판
+node tools/playtest-report.mjs a.json  # 테스터가 보낸 플레이 기록(첫 화면 「기록 내보내기」)을 재생해 리포트
 ```
 
 ## 구조
@@ -22,6 +23,8 @@ node tools/sim.mjs 300                 # 밸런스 시뮬레이터: 봇이 영�
 | `src/verify.js` | 리플레이 검증: (seed, 행동 목록) → 결과. BIT PARK 점수 서버가 그대로 씀 |
 | `src/bot.js` · `tools/sim.mjs` | 탐욕 봇과 밸런스 시뮬레이터 (게임 화면은 안 씀) |
 | `src/main.js` · `src/style.css` · `src/art.js` · `src/i18n.js` | 화면(DOM·CSS), 원본 SVG 그림, Web Audio 효과음, 영어 문구(화면 전용 — 검증기는 안 읽음) |
+| `src/music.js` | 생성형 배경음악(Web Audio, 파일 없음) — 지도/전투/보스 분위기, M 키로 끔 |
+| `tools/playtest-report.mjs` | 플레이 테스트 리포트: 내보낸 기록을 규칙으로 다시 재생해 승률·끝난 위치·카드 선택률 집계 — 안내 `docs/indie-studio/PLAYTEST_GUIDE.md` |
 | `src/portal.js` | airobotphysical RP(`game_result`) + BIT PARK SDK v1(`levelStart`/`levelClear` + proof) |
 
 **저장 = 증명**: 원정은 `(seed, 영웅, 난이도) + 행동 목록`으로만 저장됩니다(localStorage). 불러올 때 행동을 다시 재생하고,

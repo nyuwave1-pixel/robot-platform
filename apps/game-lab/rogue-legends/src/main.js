@@ -2,16 +2,20 @@
 // clicks / keys into actions. The run is saved as its action list (localStorage) and replayed on load — the same list is the
 // replay proof the portals check with ./verify.js. Keys: 1–9 play a card · Tab next target · E end turn · D deck · Esc cancel.
 // Gamepad (Steam Deck): D-pad / stick move the focus · A select · B cancel · X end turn · Y deck · LB / RB change target.
-import { newRun, apply, legal, choices, cardDef, HEROES, RELICS, EVENT_TEXT, ENEMIES, FLOORS, ACTS, depth, enemyBonus, encode, decode, grade } from './logic.js';
+import { newRun, apply, legal, choices, cardDef, HEROES, RELICS, EVENT_TEXT, ENEMIES, FLOORS, ACTS, RULES_VERSION, depth, enemyBonus, encode, decode, grade } from './logic.js';
 import { LEVELS } from './levels.js';
 import { ENEMY_ART, HERO_ART, CARD_ICON, cardIcon, RELIC_ICON, NODE_ICON } from './art.js';
 import { createPortal } from './portal.js';
+import { music, toggleMusic, musicOn } from './music.js';
 import { tr, getLang, setLang, cardName, cardText, enemyName, relicName, relicText, heroTitle, heroDesc, eventText, stLabel, stTip } from './i18n.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const store = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
-const SAVE = 'rogue-legends.run', BEST = 'rogue-legends.best';
+const SAVE = 'rogue-legends.run', BEST = 'rogue-legends.best', HISTORY = 'rogue-legends.history';
+let interacted = false;   // music may start only after a click / key / pad press (browser autoplay rules)
+for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => { if (!interacted) { interacted = true; music(moodNow()); } }, { capture: true });
+const moodNow = () => (S && S.phase === 'combat' ? (S.combat.enemies.some((e) => ENEMIES[e.kind].boss) ? 'boss' : 'combat') : 'map');
 const portal = createPortal('rogue-legends'); portal.ready();
 
 let S = null, run = null, armed = -1, target = 0, overlay = null, started = 0, reported = false;
@@ -63,6 +67,11 @@ function finishRun() {
   if (!best[key] || r.score > best[key].score) { best[key] = { score: r.score, won: r.won, grade: g }; store.set(BEST, best); r.newBest = true; }
   r.rp = portal.result({ level: run.li + 1, score: r.score, grade: g, mode: `${run.hero.toUpperCase()} L${run.level}`, seconds: Math.round((Date.now() - started) / 1000),
     stars: { S: 3, A: 2, B: 1 }[g] || 0, proof: { seed: run.seed, actions: run.tokens.join(',') }, clear: r.won });
+  // play history for playtests: the run itself (seed + actions) — tools/playtest-report.mjs replays it for every statistic
+  const hist = store.get(HISTORY) || [];
+  hist.push({ rules: RULES_VERSION, at: new Date().toISOString(), hero: run.hero, level: run.level, seed: run.seed, actions: run.tokens.join(','),
+    seconds: Math.round((Date.now() - started) / 1000), won: r.won, act: r.act, floor: r.floor + 1, score: r.score, grade: g });
+  store.set(HISTORY, hist.slice(-60));
   sfx(r.won ? 'win' : 'die');
   render();
 }
@@ -70,11 +79,13 @@ function finishRun() {
 // ------------------------------------------------------------ rendering
 function render() {
   const top = $('#top'), scr = $('#screen');
-  if (!S) { top.hidden = true; scr.innerHTML = titleHtml(); bindTitle(); closeOverlay(); applyFocus(); return; }
+  if (!S) { top.hidden = true; scr.innerHTML = titleHtml(); bindTitle(); closeOverlay(); applyFocus(); if (interacted) music('map'); return; }
   top.hidden = false; top.innerHTML = topHtml();
   top.querySelector('[data-deck]').onclick = () => showDeck();
+  top.querySelector('[data-music]').onclick = () => { toggleMusic(); render(); };
   top.querySelector('[data-quit]').onclick = () => { if (S.result || confirm(tr('이번 원정을 포기하고 처음 화면으로 갈까요?'))) { store.set(SAVE, null); S = null; render(); } };
   closeOverlay();
+  if (interacted) music(moodNow());
   if (S.phase === 'map') { scr.innerHTML = mapHtml(); bindMap(); }
   else if (S.phase === 'combat') { scr.innerHTML = combatHtml(); bindCombat(); }
   else { if (!['reward', 'rest', 'shop', 'event', 'pick', 'victory', 'defeat'].includes(S.phase)) return; scr.innerHTML = mapHtml(); openPanel(); }
@@ -82,7 +93,7 @@ function render() {
 }
 
 function titleHtml() {
-  const saved = store.get(SAVE), best = store.get(BEST) || {};
+  const saved = store.get(SAVE), best = store.get(BEST) || {}, hist = store.get(HISTORY) || [];
   const hero = (id) => { const H = HEROES[id]; return `<button class="heroCard ${pickHero === id ? 'sel' : ''}" data-hero="${id}" style="--hc:${H.color}">
       ${HERO_ART[id]()}<h3>${H.name}</h3><p>${esc(heroTitle(id, H.title))} · ${tr('체력')} ${H.hp}</p>
       <p>${esc(heroDesc(id, id === 'warden' ? '방어를 쌓고 그 방어로 친다. 힘·가시·판금으로 버티며 밀어붙이는 전사.' : '적을 불태우고(화상) 한 번에 터뜨린다. 카드를 많이 뽑고 에너지를 끌어 쓰는 마도사.'))}</p>
@@ -92,7 +103,8 @@ function titleHtml() {
     <div class="heroes">${hero('warden')}${hero('arcanist')}</div>
     <div class="levels">${[0, 1, 2].map((l) => `<button class="btn ${pickLevel === l ? 'sel' : ''}" data-level="${l}">${tr('난이도 {l}', { l })}${l ? tr(' (+{p}% 체력·+{l} 피해)', { p: l * 8, l }) : tr(' (기본)')}</button>`).join('')}</div>
     <div class="row"><button class="btn primary" data-start>${tr('원정 시작')}</button>${saved && !saved.done ? `<button class="btn" data-resume>${tr('이어 하기')}</button>` : ''}<button class="btn" data-lang>${getLang() === 'en' ? '한국어' : 'English'}</button></div>
-    <p class="note">${tr('두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기')}<br/>${tr('모든 원정은 행동 기록으로 저장되고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.')}</p>
+    ${hist.length ? `<p class="note">${tr('플레이 기록 {n}판 · 승리 {w}', { n: hist.length, w: hist.filter((h) => h.won).length })} · <button class="btn" data-export>${tr('기록 내보내기 (JSON)')}</button></p>` : ''}
+    <p class="note">${tr('두 개의 탑(각 13층)을 올라 잿불 거상과 심연의 조수룡을 쓰러뜨리세요 · 카드 숫자키 1–9 · Tab 대상 · E 턴 종료 · D 덱 보기 · M 음악')}<br/>${tr('모든 원정은 행동 기록으로 저장되고, 같은 기록으로 결과를 다시 계산해 확인할 수 있습니다.')}</p>
   </div></div>`;
 }
 function bindTitle() {
@@ -101,6 +113,11 @@ function bindTitle() {
   $('[data-start]').onclick = () => startRun(pickHero, pickLevel);
   const r = $('[data-resume]'); if (r) r.onclick = () => { if (resume()) render(); };
   $('[data-lang]').onclick = () => { setLang(getLang() === 'en' ? 'ko' : 'en'); render(); };
+  const ex = $('[data-export]');
+  if (ex) ex.onclick = () => {   // a file the tester sends back; tools/playtest-report.mjs reads it
+    const blob = new Blob([JSON.stringify({ game: 'rogue-legends', exported: new Date().toISOString(), lang: getLang(), runs: store.get(HISTORY) || [] }, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `rogue-legends-playtest-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
 }
 
 function topHtml() {
@@ -109,7 +126,7 @@ function topHtml() {
     <span class="stat">❤️ <b>${Math.max(0, hp)}/${S.maxHp}</b></span><span class="stat">🪙 <b>${S.gold}</b></span>
     <span class="stat">${tr('{a}막', { a: S.act + 1 })} <b>${tr('{f}/{n}층', { f: Math.max(1, S.floor + 1), n: FLOORS })}</b></span><span class="stat">${tr('난이도')} <b>${S.level}</b></span>
     <span class="relics">${S.relics.map((r) => `<span class="relic" data-tip="${esc(relicName(r, RELICS[r].name))}\n${esc(relicText(r, RELICS[r].text))}">${RELIC_ICON[r]}</span>`).join('')}</span>
-    <span class="grow"></span><button class="btn" data-deck>${tr('덱 {n}', { n: S.deck.length })}</button><button class="btn danger" data-quit>${S.result ? tr('처음으로') : tr('포기')}</button>`;
+    <span class="grow"></span><button class="btn" data-music title="M">${musicOn() ? '🔊' : '🔇'}</button><button class="btn" data-deck>${tr('덱 {n}', { n: S.deck.length })}</button><button class="btn danger" data-quit>${S.result ? tr('처음으로') : tr('포기')}</button>`;
 }
 
 // map
@@ -262,6 +279,7 @@ let toastT = 0;
 function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (el.hidden = true), 1400); }
 
 // ------------------------------------------------------------ keys
+addEventListener('keydown', (e) => { if ((e.key === 'm' || e.key === 'M') && S) { toggleMusic(); render(); } });
 addEventListener('keydown', (e) => {
   if (!S || S.phase !== 'combat' || overlay) { if (e.key === 'Escape' && overlay && S && S.phase === 'combat') render(); return; }
   const c = S.combat;
