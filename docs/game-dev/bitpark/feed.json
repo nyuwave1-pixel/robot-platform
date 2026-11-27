@@ -1,0 +1,865 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-27T09:42:31.121Z",
+  "source": {
+    "repo": "nyuwave1-pixel/robot-platform",
+    "branch": "claude/relaxed-ramanujan-83okpi",
+    "commit": "7aacbc5"
+  },
+  "section": {
+    "id": "game-dev-lab",
+    "title": "GAME DEV LAB",
+    "subtitle": "무료 에셋·오픈소스로 웹 게임과 Unity를 함께 개발하는 과정",
+    "honesty": "모든 수치는 저장소의 테스트 보고서·문서·Git 기록에서 자동으로 읽은 값입니다."
+  },
+  "projects": [
+    {
+      "slug": "special-soldier",
+      "name": "SPECIAL SOLDIER",
+      "engine": "Three.js (web)",
+      "version": "0.23",
+      "tests": {
+        "e2e": {
+          "passed": 66,
+          "total": 66
+        },
+        "lastRegression": {
+          "passed": 17,
+          "total": 17
+        }
+      },
+      "playable": {
+        "web": "https://special-soldier.vercel.app",
+        "portal": "https://www.airobotphysical.com/games/play/special-soldier/",
+        "rpMessage": "game_result"
+      },
+      "docs": [
+        "apps/special-soldier/README.md",
+        "apps/special-soldier/docs/GAME_DESIGN.md"
+      ]
+    },
+    {
+      "slug": "unity-island-slice",
+      "name": "SPECIAL SOLDIER — Unity Island Slice",
+      "engine": "Unity 6000.6.9f1 (URP)",
+      "status": "pilot",
+      "tests": {
+        "editMode": {
+          "passed": 347,
+          "total": 347
+        },
+        "playMode": {
+          "passed": 37,
+          "total": 39
+        }
+      },
+      "playable": {
+        "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
+        "webgl": null
+      },
+      "screenshots": [
+        "docs/game-dev/screenshots/editions-play-mode.jpg",
+        "docs/game-dev/screenshots/game-lab-beat-lab.png",
+        "docs/game-dev/screenshots/game-lab-hearthvale.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-en.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-map.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-tide.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-title.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends.png",
+        "docs/game-dev/screenshots/game-lab-survival-world-night.png",
+        "docs/game-dev/screenshots/game-lab-survival-world.png",
+        "docs/game-dev/screenshots/game-lab-turbo-lap.png",
+        "docs/game-dev/screenshots/island-terrain-shared.png",
+        "docs/game-dev/screenshots/rogue-legends-pp-cosmetics.png",
+        "docs/game-dev/screenshots/special-soldier-pp-shop-ko.jpg",
+        "docs/game-dev/screenshots/special-soldier-pp-shop.jpg",
+        "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
+        "docs/game-dev/screenshots/unity-hud.jpg",
+        "docs/game-dev/screenshots/unity-island-slice-first-run.png",
+        "docs/game-dev/screenshots/unity-island-slice-lighting.png",
+        "docs/game-dev/screenshots/unity-mission01-boat-facing.jpg",
+        "docs/game-dev/screenshots/unity-mission01-boat-intro.jpg",
+        "docs/game-dev/screenshots/unity-mission01-boat-ride.jpg",
+        "docs/game-dev/screenshots/unity-mission01-briefing.jpg",
+        "docs/game-dev/screenshots/unity-mission01-first-contact.jpg",
+        "docs/game-dev/screenshots/unity-mission01-squad.jpg",
+        "docs/game-dev/screenshots/unity-mission01.jpg",
+        "docs/game-dev/screenshots/unity-mission03.jpg",
+        "docs/game-dev/screenshots/unity-mission05-intro.jpg",
+        "docs/game-dev/screenshots/unity-mission05.jpg",
+        "docs/game-dev/screenshots/unity-sky-dawn.jpg",
+        "docs/game-dev/screenshots/unity-sky-day.jpg",
+        "docs/game-dev/screenshots/unity-sky-dusk.jpg",
+        "docs/game-dev/screenshots/unity-sky-night.jpg",
+        "docs/game-dev/screenshots/unity-sky-presets-hdri.jpg",
+        "docs/game-dev/screenshots/unity-sky-storm.jpg"
+      ],
+      "docs": [
+        "apps/unity-studio/README.md",
+        "docs/game-dev/UNITY_SETUP.md"
+      ]
+    }
+  ],
+  "pipeline": {
+    "steps": [
+      "무료 에셋 조사·라이선스 확인(CC0 우선)",
+      "Blender 5.3 변환(GLB)",
+      "웹 게임·Unity 양쪽 적용",
+      "자동 테스트(E2E·EditMode·PlayMode)",
+      "라이선스 대장 기록"
+    ],
+    "sources": [
+      {
+        "name": "Poly Haven",
+        "url": "https://polyhaven.com",
+        "license": "CC0"
+      },
+      {
+        "name": "ambientCG",
+        "url": "https://ambientcg.com",
+        "license": "CC0"
+      },
+      {
+        "name": "Quaternius",
+        "url": "https://quaternius.com",
+        "license": "CC0"
+      },
+      {
+        "name": "Kenney",
+        "url": "https://kenney.nl/assets",
+        "license": "CC0"
+      },
+      {
+        "name": "Sketchfab",
+        "url": "https://sketchfab.com",
+        "license": "모델마다 다름(CC0/CC-BY/NC/유료)"
+      },
+      {
+        "name": "Fab",
+        "url": "https://www.fab.com",
+        "license": "Fab 라이선스(무료 항목 포함)"
+      },
+      {
+        "name": "Mixamo",
+        "url": "https://www.mixamo.com",
+        "license": "Adobe 약관: 게임 내 사용 무료, 원본 재배포 금지"
+      },
+      {
+        "name": "Freesound",
+        "url": "https://freesound.org",
+        "license": "파일마다 CC0 / CC-BY / CC-BY-NC"
+      },
+      {
+        "name": "Sonniss GDC Bundle",
+        "url": "https://sonniss.com/gameaudiogdc",
+        "license": "상업 사용 가능, 크레딧 불요(번들 약관 확인)"
+      },
+      {
+        "name": "OpenGameArt",
+        "url": "https://opengameart.org",
+        "license": "파일마다 다름"
+      },
+      {
+        "name": "game-icons.net",
+        "url": "https://game-icons.net",
+        "license": "CC-BY 3.0"
+      },
+      {
+        "name": "itch.io game assets",
+        "url": "https://itch.io/game-assets/free",
+        "license": "팩마다 다름"
+      },
+      {
+        "name": "KayKit (Kay Lousberg)",
+        "url": "https://kaylousberg.itch.io",
+        "license": "무료판 CC0 (팩마다 itch 페이지 확인)"
+      },
+      {
+        "name": "Poly Pizza",
+        "url": "https://poly.pizza",
+        "license": "모델마다 CC0 또는 CC-BY(대부분 CC-BY)"
+      },
+      {
+        "name": "Rokoko 무료 모션",
+        "url": "https://www.rokoko.com/resources/download-263-rokoko-motion-capture-assets",
+        "license": "상업 사용 가능(게임 포함) 명시"
+      },
+      {
+        "name": "ActorCore 무료 모션 (Reallusion)",
+        "url": "https://actorcore.reallusion.com",
+        "license": "무료 항목 상업 사용 가능"
+      },
+      {
+        "name": "CMU Graphics Lab Mocap",
+        "url": "http://mocap.cs.cmu.edu",
+        "license": "사용료 없음, 상업 사용 전 CMU 약관 확인"
+      },
+      {
+        "name": "Unity Asset Store 무료 에셋",
+        "url": "https://assetstore.unity.com",
+        "license": "Standard EULA(타 엔진 사용 허용) / Unity Companion License"
+      },
+      {
+        "name": "glTFast",
+        "url": "https://docs.unity3d.com/Packages/com.unity.cloud.gltfast@latest",
+        "license": "Unity 패키지"
+      }
+    ],
+    "openSource": [
+      {
+        "repo": "tranek/GASDocumentation",
+        "url": "https://github.com/tranek/GASDocumentation",
+        "stars": 5999,
+        "license": "MIT",
+        "verdict": "UE5 GAS 설계 참고서. 신뢰도 높음, UE 5.4+ 변경분은 별도 확인"
+      },
+      {
+        "repo": "ellisonleao/magictools",
+        "url": "https://github.com/ellisonleao/magictools",
+        "stars": 17824,
+        "license": "MIT",
+        "verdict": "활발히 관리되는 게임 개발 리소스 목록 — 목록 출발점으로 추천"
+      },
+      {
+        "repo": "Calinou/awesome-gamedev",
+        "url": "https://github.com/Calinou/awesome-gamedev",
+        "stars": 3229,
+        "license": "CC-BY-SA-4.0",
+        "verdict": "무료·오픈소스 도구/에셋 목록"
+      },
+      {
+        "repo": "madjin/awesome-cc0",
+        "url": "https://github.com/madjin/awesome-cc0",
+        "stars": 563,
+        "license": "CC0",
+        "verdict": "CC0 출처만 모은 목록"
+      },
+      {
+        "repo": "XistGG/XistCommonGameSample",
+        "url": "https://github.com/XistGG/XistCommonGameSample",
+        "stars": 47,
+        "license": "MIT",
+        "verdict": "UE5 CommonUI/입력 샘플"
+      },
+      {
+        "repo": "motionforge/Unreal-Engine-5-Game-Starter-Template",
+        "url": "https://github.com/motionforge/Unreal-Engine-5-Game-Starter-Template",
+        "stars": 29,
+        "license": "MIT",
+        "verdict": "UE5 스타터. 별이 적어 코드 검토 후 일부만"
+      },
+      {
+        "repo": "A19200332/awesome-game-assets",
+        "url": "https://github.com/A19200332/awesome-game-assets",
+        "stars": 1,
+        "license": "없음",
+        "verdict": "링크 참고만. 내용 복사 금지"
+      },
+      {
+        "repo": "jjones26/free-and-open-source-game-dev-resources",
+        "url": "https://github.com/jjones26/free-and-open-source-game-dev-resources",
+        "stars": null,
+        "license": "없음",
+        "verdict": "링크 참고만. 내용 복사 금지"
+      }
+    ],
+    "claudeUnityLiveControl": "done"
+  },
+  "learning": {
+    "courses": [
+      {
+        "title": "Unity Essentials",
+        "duration": "약 2주",
+        "practice": "에디터 창, 씬·게임오브젝트·컴포넌트 → IslandSlice.unity 를 열어 Player, Enemies, Level 구조 살펴보기",
+        "url": "https://learn.unity.com/pathway/unity-essentials"
+      },
+      {
+        "title": "Junior Programmer",
+        "duration": "약 12주",
+        "practice": "C#·MonoBehaviour 생명주기 → 아래 2장 코드 읽기 순서대로",
+        "url": "https://learn.unity.com/pathway/junior-programmer"
+      },
+      {
+        "title": "Creative Core",
+        "duration": "약 10주",
+        "practice": "조명·VFX·애니메이션·오디오·UI → 3장 \"다음 업데이트\" 과제",
+        "url": "https://learn.unity.com/pathway/creative-core"
+      }
+    ],
+    "units": [
+      {
+        "unit": "2-1 어셈블리 정의",
+        "files": "Assets/Scripts/Core/SpecialSoldier.Core.asmdef (noEngineReferences: true)",
+        "learn": "asmdef로 컴파일 단위 나누기, 엔진 의존 금지"
+      },
+      {
+        "unit": "2-2 데이터",
+        "files": "Core/WeaponStats.cs, Core/WeaponTable.g.cs (Tools~/gen-core-data.mjs 가 웹 데이터에서 생성)",
+        "learn": "데이터 주도 설계, 두 엔진이 한 데이터 공유"
+      },
+      {
+        "unit": "2-3 순수 로직",
+        "files": "Core/Ballistics.cs, Core/HealthModel.cs, Core/WeaponState.cs",
+        "learn": "시간(Tick(dt))으로 움직이는 상태 기계, 엔진 없이 테스트 가능한 코드"
+      },
+      {
+        "unit": "2-4 AI 상태 기계",
+        "files": "Core/AwarenessBrain.cs",
+        "learn": "PATROL→SUSPICIOUS→SEARCH→COMBAT↔RETREAT, 인지 게이지"
+      },
+      {
+        "unit": "2-5 테스트",
+        "files": "Assets/Tests/EditMode/*.cs",
+        "learn": "NUnit, Unity Test Framework, 웹 JS와 숫자 대조(패리티) 테스트"
+      },
+      {
+        "unit": "2-6 컴포넌트",
+        "files": "Runtime/Damageable.cs, HitZone.cs",
+        "learn": "이벤트, GetComponentInParent, 부위별 피해"
+      },
+      {
+        "unit": "2-7 플레이어",
+        "files": "Runtime/PlayerMotor.cs",
+        "learn": "CharacterController, Input System 장치 직접 읽기, 반동"
+      },
+      {
+        "unit": "2-8 무기",
+        "files": "Runtime/WeaponController.cs",
+        "learn": "Physics.Raycast 히트스캔, 탄퍼짐·블룸, LineRenderer 예광"
+      },
+      {
+        "unit": "2-9 적",
+        "files": "Runtime/EnemyAgent.cs",
+        "learn": "NavMeshAgent, 시야각+가시선, 생각 주기(0.13/0.45 s)"
+      },
+      {
+        "unit": "2-10 게임 규칙·HUD",
+        "files": "Runtime/GameDirector.cs, Runtime/Hud.cs",
+        "learn": "승패, 소음 전파, 즉시 모드 GUI"
+      },
+      {
+        "unit": "2-11 에디터 자동화",
+        "files": "Assets/Editor/Slice/SliceBuilder.cs, Assets/Editor/StudioBootstrap.cs",
+        "learn": "-batchmode -executeMethod, 코드로 씬·NavMesh·URP 생성, BuildPipeline"
+      },
+      {
+        "unit": "2-12 조건부 컴파일",
+        "files": "Runtime/*.asmdef 의 versionDefines + defineConstraints",
+        "learn": "패키지가 설치되기 전에는 그 코드를 컴파일하지 않기"
+      }
+    ],
+    "next": [
+      {
+        "task": "HUD를 UI Toolkit으로 교체 — 완료(2026-11-25, PC Unity·WebGL 화면 확인): 나침반·미니맵·목표 표시·피격 방향·킬 피드",
+        "feature": "UXML·USS, 데이터 바인딩",
+        "resource": "Unity 기본"
+      },
+      {
+        "task": "총소리·발소리·피격음 — 1차(PC) + 2차 합성음(2026-11-25) 완료, Unity 재생 확인 전",
+        "feature": "AudioSource, AudioMixer 그룹",
+        "resource": "Freesound CC0(웹 게임 v0.14 사운드 재사용)"
+      },
+      {
+        "task": "총구 화염·탄착 먼지",
+        "feature": "VFX Graph 또는 Particle System",
+        "resource": "Unity 기본"
+      },
+      {
+        "task": "하늘·조명 — 2026-11-25 PC 확인(storm·dusk·night 하늘 밝기 조정 남음): HDRI 5종·웹 날씨 프리셋·번개·비·Bloom·SSAO",
+        "feature": "URP 후처리(Bloom·Tonemapping·SSAO), HDRI 스카이박스",
+        "resource": "Poly Haven HDRI(CC0)"
+      },
+      {
+        "task": "지형·바닥 재질",
+        "feature": "Terrain, PBR 머티리얼",
+        "resource": "ambientCG / Poly Haven(CC0)"
+      },
+      {
+        "task": "병사 애니메이션",
+        "feature": "Humanoid 리그, Animator, 리타깃",
+        "resource": "Quaternius UAL / Rokoko 무료 모션"
+      },
+      {
+        "task": "적 엄폐·측면 우회 — Core 완료(2026-11-24): Core/TacticsPlanner.cs + 테스트 10개, EnemyAgent 연결(Unity 컴파일·플레이 확인 전)",
+        "feature": "NavMesh 쿼리, 엄폐 점수, 숨기·고개 내밀기",
+        "resource": "웹 게임 enemies.js findCover/plan 이식"
+      },
+      {
+        "task": "수류탄 — Core 완료(2026-11-25): Core/Explosives.cs, Runtime/Grenade.cs·GrenadeThrower.cs (Unity 확인 전)",
+        "feature": "Rigidbody·PhysicsMaterial, OverlapSphere, Linecast",
+        "resource": "웹 fx.js 이식"
+      },
+      {
+        "task": "설정·일시정지 메뉴 — 2026-11-25 클라우드 완료(Unity 확인 전): Core/GameSettings.cs, Runtime/PauseMenu.cs",
+        "feature": "UI Toolkit 컨트롤(Slider·Toggle·Button), PlayerPrefs, Time.timeScale",
+        "resource": "웹 save.js·menu.js"
+      },
+      {
+        "task": "PlayMode 테스트",
+        "feature": "씬을 띄워 플레이어 이동·사격 자동 검증",
+        "resource": "Unity Test Framework"
+      },
+      {
+        "task": "Claude Code 에디터 실시간 제어",
+        "feature": "Unity CLI unity command eval",
+        "resource": "UNITY_CLAUDE_INTEGRATION.md"
+      }
+    ]
+  },
+  "genreLab": {
+    "title": "장르 게임 랩",
+    "about": "오픈소스 게임을 장르별로 조사·학습하고, 생성기(tools/game-lab/new-game.mjs)로 하부 섹션을 만들어 개발합니다.",
+    "catalog": {
+      "path": "docs/game-dev/genres/OPEN_SOURCE_CATALOG.md",
+      "githubEntries": 86
+    },
+    "subsections": [
+      {
+        "slug": "beat-lab",
+        "name": "BEAT LAB",
+        "genre": "rhythm",
+        "status": "playable",
+        "engine": "web (ES modules, Canvas 2D / Web Audio)",
+        "summary": "4레인 리듬 게임 — Web Audio 시계 동기화, EASY·NORMAL·HARD 판정 폭, 롱노트, 콤보·정확도·랭크, 리플레이 검증.",
+        "created": "2026-11-26",
+        "learnedFrom": [
+          {
+            "repo": "ppy/osu",
+            "license": "MIT",
+            "what": "hit windows (HitWindows.cs / ManiaHitWindows.cs) and per-map audio offset — ideas re-implemented, no code copied"
+          },
+          {
+            "repo": "Tonejs/Tone.js",
+            "license": "MIT",
+            "what": "schedule notes on the AudioContext clock, not requestAnimationFrame"
+          },
+          {
+            "repo": "111116/webosu",
+            "license": "MIT",
+            "what": "browser audio/note sync reference"
+          }
+        ],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 10,
+        "path": "apps/game-lab/beat-lab",
+        "screenshot": "docs/game-dev/screenshots/game-lab-beat-lab.png"
+      },
+      {
+        "slug": "turbo-lap",
+        "name": "TURBO LAP",
+        "genre": "racing",
+        "status": "playable",
+        "engine": "web (ES modules, Canvas 2D / Web Audio)",
+        "summary": "탑다운 아케이드 레이싱 — 스플라인 서킷, 카트 물리, 드리프트 미니 터보, AI 3대와 3랩, 고정 스텝 리플레이 검증.",
+        "created": "2026-11-26",
+        "learnedFrom": [
+          {
+            "repo": "pmndrs/racing-game",
+            "license": "MIT (assets CC0)",
+            "what": "arcade handling feel, skid/drift effects (next step)"
+          },
+          {
+            "repo": "pmndrs/cannon-es",
+            "license": "MIT",
+            "what": "RaycastVehicle — candidate for the 3D version"
+          },
+          {
+            "repo": "Mugen87/yuka",
+            "license": "MIT",
+            "what": "FollowPathBehavior for AI racing lines"
+          },
+          {
+            "repo": "supertuxkart/stk-code",
+            "license": "GPL-3.0 (study only)",
+            "what": "kart AI racing-line ideas; no code copied"
+          }
+        ],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 8,
+        "path": "apps/game-lab/turbo-lap",
+        "screenshot": "docs/game-dev/screenshots/game-lab-turbo-lap.png"
+      },
+      {
+        "slug": "hearthvale",
+        "name": "HEARTHVALE",
+        "genre": "life-sim",
+        "status": "playable",
+        "engine": "web (ES modules, DOM/CSS UI, emoji art, Web Audio)",
+        "summary": "오리지널 생활 시뮬레이션 — 28일 한 계절 동안 24칸 밭(작물 4종)을 가꾸고 마을 사람 3명과 친해지는 하루 계획 게임. 날씨·시세는 시드로 고정, 행동 기록 리플레이 검증, PP 아이템(꾸미기·자유 모드).",
+        "created": "2026-11-27",
+        "learnedFrom": [],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)",
+            "metric": "score (higher is better)"
+          }
+        },
+        "tests": 9,
+        "path": "apps/game-lab/hearthvale",
+        "screenshot": "docs/game-dev/screenshots/game-lab-hearthvale.png"
+      },
+      {
+        "slug": "rogue-legends",
+        "name": "ROGUE LEGENDS",
+        "genre": "deckbuilder",
+        "status": "playable",
+        "engine": "web (ES modules, DOM/CSS UI, SVG art, Web Audio, Gamepad API)",
+        "summary": "오리지널 덱빌딩 로그라이크 — 2막(각 13층)·영웅 2종·카드 44장·유물 10종·적 14종(보스 2), 한국어/English, 게임패드, 행동 기록 저장·리플레이 검증.",
+        "created": "2026-11-27",
+        "learnedFrom": [],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 17,
+        "path": "apps/game-lab/rogue-legends",
+        "screenshot": "docs/game-dev/screenshots/game-lab-rogue-legends.png"
+      },
+      {
+        "slug": "survival-world",
+        "name": "SURVIVAL WORLD",
+        "genre": "survival",
+        "status": "prototype",
+        "engine": "web (three.js r170 vendored, ES modules)",
+        "summary": "오픈월드 생존·제작 기술 프로토타입 — 시드로 만드는 섬, 채집·제작·건축, 배고픔·갈증·체온, 낮밤, 밤의 늑대, 자동 저장.",
+        "created": "2026-11-27",
+        "learnedFrom": [
+          {
+            "repo": "mrdoob/three.js",
+            "license": "MIT",
+            "what": "renderer (vendored r170 build, vendor/THREE_LICENSE)"
+          },
+          {
+            "repo": "CleverRaven/Cataclysm-DDA",
+            "license": "CC-BY-SA-3.0 (study only)",
+            "what": "needs + crafting as data tables — idea only, no code"
+          }
+        ],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "not registered (real-time 3D — no replay verifier yet)"
+          }
+        },
+        "tests": 8,
+        "path": "apps/game-lab/survival-world",
+        "screenshot": "docs/game-dev/screenshots/game-lab-survival-world.png"
+      }
+    ]
+  },
+  "devlog": [
+    {
+      "hash": "7aacbc5",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: shadowed HUD bar labels (readable on yellow/green bars)"
+    },
+    {
+      "hash": "02c4261",
+      "date": "2026-11-27",
+      "area": "survival-world",
+      "subject": "test(survival-world): Korean HUD font verified in WebGL after 0dea61c; regenerated scene + font metas"
+    },
+    {
+      "hash": "ee35c55",
+      "date": "2026-11-27",
+      "area": "economy",
+      "subject": "docs(economy): consumables only after BIT PARK's server-side useGameItem, never in ranked; SPECIAL SOLDIER shop row; feed"
+    },
+    {
+      "hash": "4da8989",
+      "date": "2026-11-27",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): BIT PARK PP shop — cosmetics, campaign unlocks and server-spent consumables"
+    },
+    {
+      "hash": "0dea61c",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: Korean HUD font (Noto Sans KR OFL subset, 85 kB)"
+    },
+    {
+      "hash": "110bf56",
+      "date": "2026-11-27",
+      "area": "survival-world",
+      "subject": "test(survival-world): first Unity compile + run on PC — scene built (7 Blender models), EditMode 347/347, PlayMode 2/2 (new wolf facing / ground normal test), WebGL 18.5 MB; Korean IMGUI text missing in WebGL"
+    },
+    {
+      "hash": "9bbdeb4",
+      "date": "2026-11-27",
+      "area": "hub",
+      "subject": "docs(hub): PC claims the BIT PARK point shop for SPECIAL SOLDIER (web first)"
+    },
+    {
+      "hash": "1e5dad1",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "HEARTHVALE life sim + portal economy standard (BIT PARK PP items)"
+    },
+    {
+      "hash": "95549f1",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: runtime director, Blender-model scene builder, PlayMode test"
+    },
+    {
+      "hash": "6bda782",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD Unity: Blender asset script + GLB, C# Core port with web parity tests"
+    },
+    {
+      "hash": "74b1ac9",
+      "date": "2026-11-27",
+      "area": "hub",
+      "subject": "docs(hub): claim new SURVIVAL WORLD Unity-edition paths"
+    },
+    {
+      "hash": "20009e0",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
+    {
+      "hash": "59385f9",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "ROGUE LEGENDS: Echo and Tide rule-twist variants for A/B playtests"
+    },
+    {
+      "hash": "a1e0779",
+      "date": "2026-11-27",
+      "area": "studio-hub",
+      "subject": "docs(studio-hub): close 11 stale PC Unity requests — covered by the full run-batch since (EditMode 341/341, PlayMode 37/39)"
+    },
+    {
+      "hash": "3ae5af1",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
+    {
+      "hash": "b5ed4bb",
+      "date": "2026-11-27",
+      "area": "unity-studio",
+      "subject": "docs(unity-studio): full run-batch after the terrain fix — EditMode 341/341, PlayMode 37/39, WebGL 22.9 MB"
+    },
+    {
+      "hash": "d3953fc",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (SURVIVAL WORLD prototype)"
+    },
+    {
+      "hash": "a26486b",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "SURVIVAL WORLD: technical prototype — seeded island, gather / craft / build, needs, day-night, wolves"
+    },
+    {
+      "hash": "d7481a4",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
+    {
+      "hash": "7b43208",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "ROGUE LEGENDS: playtest readiness — play history + JSON export, replay-based report, generative music"
+    },
+    {
+      "hash": "f66ae40",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (terrain fix, squad tag / storm checks)"
+    },
+    {
+      "hash": "ea4e007",
+      "date": "2026-11-27",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): IslandTerrain.asset was corrupted by git (binary file under *.asset text eol=lf); verify squad tags + M03 storm shadows"
+    },
+    {
+      "hash": "1f18e46",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (ROGUE LEGENDS v2)"
+    },
+    {
+      "hash": "433d083",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "ROGUE LEGENDS v2: Act 2, English, gamepad / Steam Deck controls"
+    },
+    {
+      "hash": "c2c89a9",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed after the vehicle facing fix"
+    },
+    {
+      "hash": "a911975",
+      "date": "2026-11-27",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): vehicles faced backward — island yaw is 180° − yaw for glTF +z models (VehicleFacingTests on PC)"
+    },
+    {
+      "hash": "94ac68c",
+      "date": "2026-11-27",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): grenades in multiplayer, blast resolved by the Authority"
+    },
+    {
+      "hash": "ba6b455",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (ROGUE LEGENDS in the genre lab)"
+    },
+    {
+      "hash": "1460686",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "ROGUE LEGENDS: first NEXT-GEN INDIE STUDIO MVP — original deckbuilding roguelike, replay-verified"
+    },
+    {
+      "hash": "f89b351",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "ed0aab5",
+      "date": "2026-11-26",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): multiplayer wall / building line of sight"
+    },
+    {
+      "hash": "f3b51f1",
+      "date": "2026-11-26",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): night sea glint; VehicleFacingTests for APC / heli / boat / trucks (PC review)"
+    },
+    {
+      "hash": "1e9fd6d",
+      "date": "2026-11-26",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
+    {
+      "hash": "84c7843",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab → portals: export to airobotphysical.com, Korean summaries, feed contract for portal fields"
+    },
+    {
+      "hash": "45cb2a0",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "8c4d29d",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Genre Game Lab: portal-ready games — RP + BIT PARK replay proofs, rhythm levels/holds/smooth clock, racing drift/boost"
+    },
+    {
+      "hash": "d436b6f",
+      "date": "2026-11-26",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed after the M01 screen-fix verification (new screenshots)"
+    },
+    {
+      "hash": "4922327",
+      "date": "2026-11-26",
+      "area": "unity-studio",
+      "subject": "docs(unity-studio): verify the hub's M01 screen fixes (bf1f6de) in WebGL; regenerated scenes"
+    },
+    {
+      "hash": "1b5da13",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "e11a3d7",
+      "date": "2026-11-26",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): multiplayer hit validation — impact point, lag window, terrain line of sight"
+    }
+  ]
+}

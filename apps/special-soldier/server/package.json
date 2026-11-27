@@ -1,0 +1,9 @@
+{
+  "name": "special-soldier-mp-server",
+  "private": true,
+  "type": "module",
+  "description": "Dedicated multiplayer server for SPECIAL SOLDIER (rules: ../src/net/authority.js)",
+  "scripts": { "start": "node mp-server.mjs" },
+  "dependencies": { "ws": "^8.23.0" },
+  "engines": { "node": ">=20" }
+}

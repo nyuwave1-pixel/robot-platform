@@ -1,0 +1,58 @@
+{
+  "id": "hearthvale",
+  "name": "HEARTHVALE",
+  "genre": "life-sim",
+  "status": "playable",
+  "engine": "web (ES modules, DOM/CSS UI, emoji art, Web Audio)",
+  "created": "2026-11-27",
+  "summary": "오리지널 생활 시뮬레이션 — 28일 한 계절 동안 24칸 밭(작물 4종)을 가꾸고 마을 사람 3명과 친해지는 하루 계획 게임. 날씨·시세는 시드로 고정, 행동 기록 리플레이 검증, PP 아이템(꾸미기·자유 모드).",
+  "learnedFrom": [],
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 30,
+        "A": 22,
+        "B": 15,
+        "C": 8
+      },
+      "rpReward": 30
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "verify": "src/verify.js",
+      "levels": "src/levels.js",
+      "status": "verify-ready (not registered)",
+      "metric": "score (higher is better)"
+    }
+  },
+  "items": [
+    {
+      "id": "hearthvale-theme-sakura",
+      "name": "벚꽃 농장 테마",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 300,
+      "effect": "cosmetic",
+      "about": "밭·집·하늘을 벚꽃 색으로 바꿉니다."
+    },
+    {
+      "id": "hearthvale-pet-cat",
+      "name": "고양이 친구 보리",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 200,
+      "effect": "cosmetic",
+      "about": "농장에 고양이가 함께 삽니다 (점수와 무관)."
+    },
+    {
+      "id": "hearthvale-freeplay",
+      "name": "자유 농장 모드",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 500,
+      "effect": "unranked-mode",
+      "about": "원하는 시드·마을로 연습하는 모드. 결과는 순위·RP·PP에 들어가지 않습니다."
+    }
+  ]
+}

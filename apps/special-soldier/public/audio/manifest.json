@@ -1,0 +1,106 @@
+{
+ "files": {
+  "shot": "shot",
+  "explosion": "explosion",
+  "heli": "heli",
+  "battle": "battle",
+  "step_concrete": [
+   "step_concrete1",
+   "step_concrete2",
+   "step_concrete3",
+   "step_concrete4"
+  ],
+  "step_gravel": [
+   "step_gravel1",
+   "step_gravel2",
+   "step_gravel3",
+   "step_gravel4"
+  ],
+  "music_menu": "music_menu",
+  "music_combat": "music_combat",
+  "music_stealth": "music_stealth"
+ },
+ "sources": [
+  {
+   "key": "gunshot",
+   "freesound_id": "166191",
+   "author": "ShawnyBoy",
+   "title": "Gunshot 4.wav",
+   "url": "https://freesound.org/people/ShawnyBoy/sounds/166191/",
+   "license": "CC0 1.0",
+   "sha256": "5ba94bfc1ec09a7bea726022acf830c777389182cec1bbd5ae4cce689dec2b36"
+  },
+  {
+   "key": "explosion",
+   "freesound_id": "235968",
+   "author": "tommccann",
+   "title": "Explosion_01.wav",
+   "url": "https://freesound.org/people/tommccann/sounds/235968/",
+   "license": "CC0 1.0",
+   "sha256": "363b19fb2898e10ea865d61e7a00e7444e77261e547cc6f1b961c031fd7f1c05"
+  },
+  {
+   "key": "heli",
+   "freesound_id": "413655",
+   "author": "alegemaate",
+   "title": "Helicopter",
+   "url": "https://freesound.org/people/alegemaate/sounds/413655/",
+   "license": "CC0 1.0",
+   "sha256": "56d6431eb6f744f7eb313ddc54daf3bb5ce8f6dc779aee1882b75808494eed09"
+  },
+  {
+   "key": "war",
+   "freesound_id": "387140",
+   "author": "frankum",
+   "title": "Sounds of war 01 (Explosions, shots and more)",
+   "url": "https://freesound.org/people/frankum/sounds/387140/",
+   "license": "CC0 1.0",
+   "sha256": "9229637825604e0f8caedd7b1e331626bfa0b2aafaf68b467829649e0cf2cb58"
+  },
+  {
+   "key": "concrete",
+   "freesound_id": "459964",
+   "author": "florianreichelt",
+   "title": "Footsteps on concrete",
+   "url": "https://freesound.org/people/florianreichelt/sounds/459964/",
+   "license": "CC0 1.0",
+   "sha256": "a212ad7c507cfae371b92568c511e82e03c7014006ac0cd6704a07c67f9ad486"
+  },
+  {
+   "key": "gravel",
+   "freesound_id": "352870",
+   "author": "PotatokingXII",
+   "title": "Footsteps Dirt Gravel",
+   "url": "https://freesound.org/people/PotatokingXII/sounds/352870/",
+   "license": "CC0 1.0",
+   "sha256": "75dc7fc5cb4fe225eab27070e6b6b6771f8aa8ef00884b0028e13b767348b3a6"
+  },
+  {
+   "key": "m_menu",
+   "freesound_id": "155139",
+   "author": "burning-mir",
+   "title": "Action music loop with dark ambient drones",
+   "url": "https://freesound.org/people/burning-mir/sounds/155139/",
+   "license": "CC0 1.0",
+   "sha256": "63d959c9578fd51fc696dce390b5ea9ab86f04dedec972b8290ab788e7b743b9"
+  },
+  {
+   "key": "m_combat",
+   "freesound_id": "716157",
+   "author": "Lumamorph",
+   "title": "Loop. An intense cinematic track for an active episode of your movie",
+   "url": "https://freesound.org/people/Lumamorph/sounds/716157/",
+   "license": "CC0 1.0",
+   "sha256": "d1bb2725ffbb9576c36bec2aa7f379d56a8040fefa10769c5f54bef193ea9d01"
+  },
+  {
+   "key": "m_stealth",
+   "freesound_id": "730224",
+   "author": "Ncone",
+   "title": "Suspense Music Loop",
+   "url": "https://freesound.org/people/Ncone/sounds/730224/",
+   "license": "CC0 1.0",
+   "sha256": "a917a62561d7a40e876a322992a518332b2d8f79cea65a9c1a6b436db8586894"
+  }
+ ]
+}

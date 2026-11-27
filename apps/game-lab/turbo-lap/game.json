@@ -1,0 +1,49 @@
+{
+  "id": "turbo-lap",
+  "name": "TURBO LAP",
+  "genre": "racing",
+  "status": "playable",
+  "engine": "web (ES modules, Canvas 2D / Web Audio)",
+  "created": "2026-11-26",
+  "summary": "탑다운 아케이드 레이싱 — 스플라인 서킷, 카트 물리, 드리프트 미니 터보, AI 3대와 3랩, 고정 스텝 리플레이 검증.",
+  "learnedFrom": [
+    {
+      "repo": "pmndrs/racing-game",
+      "license": "MIT (assets CC0)",
+      "what": "arcade handling feel, skid/drift effects (next step)"
+    },
+    {
+      "repo": "pmndrs/cannon-es",
+      "license": "MIT",
+      "what": "RaycastVehicle — candidate for the 3D version"
+    },
+    {
+      "repo": "Mugen87/yuka",
+      "license": "MIT",
+      "what": "FollowPathBehavior for AI racing lines"
+    },
+    {
+      "repo": "supertuxkart/stk-code",
+      "license": "GPL-3.0 (study only)",
+      "what": "kart AI racing-line ideas; no code copied"
+    }
+  ],
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 30,
+        "A": 22,
+        "B": 15,
+        "C": 8
+      },
+      "rpReward": 30
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "verify": "src/verify.js",
+      "levels": "src/levels.js",
+      "status": "verify-ready (not registered)"
+    }
+  }
+}

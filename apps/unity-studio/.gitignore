@@ -1,0 +1,36 @@
+# Unity generated / machine-local
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]serSettings/
+/[Mm]emoryCaptures/
+*.csproj
+*.sln
+*.slnx
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+crashlytics-build.properties
+# the shared Blender GLB is copied in at import time from apps/special-soldier (single source of truth)
+/Assets/Imported/
+/Assets/Imported.meta
+# Asset Store downloads are never committed
+/Assets/AssetStoreTools/
+
+# dotnet test project for the engine-free Core (runs without Unity)
+/CoreTests~/bin/
+/CoreTests~/obj/
+!/CoreTests~/CoreTests.csproj
+/Data/
+
+# test-runner leftovers when a PlayMode run is interrupted
+/Assets/InitTestScene*.unity
+/Assets/InitTestScene*.unity.meta

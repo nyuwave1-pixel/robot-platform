@@ -1,0 +1,69 @@
+/* SPECIAL SOLDIER — Island Slice HUD (UI Toolkit). Reference resolution 1920×1080, colours follow the web HUD. */
+.hud-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: rgb(232, 238, 230); -unity-font-style: bold; font-size: 18px; }
+/* outline + shadow: the day HDRI sky is near-white behind the top HUD row (WebGL check 2026-11-25) */
+.hud-text { color: rgb(232, 238, 230); -unity-text-outline-width: 1px; -unity-text-outline-color: rgba(0, 0, 0, 0.85); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.75); }
+.hud-small { font-size: 15px; }
+.hud-big { font-size: 40px; }
+.hud-dim { color: rgba(220, 230, 222, 0.7); }
+
+/* compass */
+.compass { position: absolute; top: 14px; left: 50%; width: 640px; height: 40px; margin-left: -320px; background-color: rgba(8, 14, 12, 0.35); border-radius: 4px; overflow: hidden; }
+.compass-label { position: absolute; top: 14px; width: 40px; margin-left: -20px; -unity-text-align: middle-center; font-size: 15px; }
+.compass-north { color: rgb(255, 90, 74); }
+.heading { position: absolute; top: 56px; left: 50%; width: 120px; margin-left: -60px; -unity-text-align: middle-center; font-size: 15px; }
+
+/* top-left: awareness, objective, counters */
+.top-left { position: absolute; top: 18px; left: 24px; width: 640px; }
+.aware-bar { width: 220px; height: 6px; background-color: rgba(0, 0, 0, 0.45); margin-top: 4px; }
+.aware-fill { height: 100%; width: 0; background-color: rgb(120, 220, 140); }
+.aware-sus .aware-fill { background-color: rgb(255, 196, 60); }
+.aware-warn .aware-fill { background-color: rgb(255, 140, 40); }
+.aware-combat .aware-fill { background-color: rgb(255, 72, 56); }
+.objective { margin-top: 10px; white-space: normal; }
+.radio { margin-top: 8px; color: rgb(140, 220, 255); font-size: 14px; white-space: normal; max-width: 420px; }
+.objective-title { color: rgb(255, 210, 58); font-size: 13px; }
+
+/* top-right: weather, minimap, kill feed */
+.top-right { position: absolute; top: 18px; right: 24px; width: 360px; align-items: flex-end; }
+.minimap { width: 176px; height: 176px; margin-top: 8px; }
+.minimap-info { margin-top: 2px; font-size: 13px; }
+.feed-line { font-size: 15px; margin-top: 2px; background-color: rgba(0, 0, 0, 0.35); padding: 1px 6px; }
+
+/* bottom-left: vitals */
+.vitals { position: absolute; left: 24px; bottom: 24px; width: 300px; }
+.bar { height: 12px; background-color: rgba(0, 0, 0, 0.5); margin-top: 4px; }
+.bar-fill { height: 100%; width: 100%; }
+.hp-fill { background-color: rgb(228, 70, 56); }
+.ar-fill { background-color: rgb(90, 166, 255); }
+.vitals-low .hp-fill { background-color: rgb(255, 40, 30); }
+
+/* bottom-right: weapon */
+.weapon { position: absolute; right: 24px; bottom: 24px; width: 380px; align-items: flex-end; }
+.ammo { flex-direction: row; align-items: flex-end; }
+.mag { font-size: 48px; }
+.mag-low { color: rgb(255, 90, 74); }
+.slots { flex-direction: row; margin-top: 4px; }
+.slot { font-size: 13px; margin-left: 10px; color: rgba(220, 230, 222, 0.55); }
+.slot-on { color: rgb(255, 210, 58); }
+
+/* centre */
+.overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.arm { position: absolute; background-color: rgba(240, 246, 240, 0.9); }
+.hitmarker { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin-left: -15px; margin-top: -15px; opacity: 0; }
+.prompt { position: absolute; left: 50%; top: 58%; width: 420px; margin-left: -210px; align-items: center; display: none; }
+.prompt-bar { width: 220px; height: 6px; background-color: rgba(0, 0, 0, 0.5); margin-top: 6px; }
+.prompt-fill { height: 100%; width: 0; background-color: rgb(80, 230, 120); }
+.reload { position: absolute; left: 50%; top: 54%; width: 140px; height: 5px; margin-left: -70px; background-color: rgba(0, 0, 0, 0.5); display: none; }
+.reload-fill { height: 100%; width: 0; background-color: rgb(240, 246, 240); }
+.nade { position: absolute; left: 50%; top: 30%; width: 400px; margin-left: -200px; -unity-text-align: middle-center; color: rgb(255, 72, 56); font-size: 30px; display: none; }
+.waypoint { position: absolute; width: 80px; margin-left: -40px; align-items: center; }
+.waypoint-dist { font-size: 14px; color: rgb(255, 210, 58); }
+
+/* screens */
+.flash { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(215, 230, 255, 0.12); display: none; }
+.result { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.62); align-items: center; justify-content: center; display: none; }
+.result-title { font-size: 54px; }
+.result-grade { font-size: 96px; color: rgb(255, 210, 58); }
+.click { position: absolute; left: 0; right: 0; top: 60%; -unity-text-align: middle-center; font-size: 30px; display: none; }
+/* SQUAD 07 name tags (HudToolkit.SquadTags): centred above the head */
+.squad-tag { position: absolute; translate: -50% -100%; font-size: 13px; -unity-font-style: bold; letter-spacing: 1px; }

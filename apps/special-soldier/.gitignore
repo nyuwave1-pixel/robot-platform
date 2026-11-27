@@ -1,0 +1,13 @@
+node_modules
+dist
+release
+test-results
+tests/out
+dist-single
+tools/blender/.cache/
+__pycache__/
+*.pyc
+*.blend1
+tools/assets/.cache/
+# local test-run logs (results go into docs/QA_REPORT.md)
+e2e*.log

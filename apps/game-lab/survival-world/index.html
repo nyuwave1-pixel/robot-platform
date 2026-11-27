@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SURVIVAL WORLD</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <div id="hud" class="hud" hidden>
+    <div class="bars" id="bars"></div>
+    <div class="clock" id="clock"></div>
+    <div class="hint" id="hint"></div>
+    <div class="cross">+</div>
+    <div class="log" id="log"></div>
+    <div class="hotbar" id="hotbar"></div>
+  </div>
+  <div id="panel" class="panel" hidden></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+{
+  "id": "special-soldier",
+  "name": "SPECIAL SOLDIER",
+  "genre": "fps",
+  "status": "playable",
+  "engine": "Three.js / WebGL2 (classic) + Unity 6 WebGL (Unity edition)",
+  "summary": "전술 FPS — 5개 미션 캠페인, 분대, 전술 장비, 온라인 대전. PP 상점: 꾸미기·캠페인 잠금 해제·소모품(랭크전 영향 없음).",
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 60,
+        "A": 45,
+        "B": 30,
+        "C": 15
+      }
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "shop": "src/config/shop.js (catalog) ? src/ui/shop.js (screen) ? docs/game-dev/bitpark/SHOP_CONTRACT.md"
+    }
+  },
+  "items": [
+    {
+      "id": "special-soldier-camo-desert",
+      "name": "사막 위장 무늬",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 150,
+      "effect": "cosmetic",
+      "about": "Sand-coloured finish on every weapon.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-camo-urban",
+      "name": "도시 위장 무늬",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 150,
+      "effect": "cosmetic",
+      "about": "Grey urban finish on every weapon.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-camo-gold",
+      "name": "황금 마감",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 600,
+      "effect": "cosmetic",
+      "about": "Polished gold on every weapon. Shows off, does nothing else.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-callsign-gold",
+      "name": "황금 콜사인",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 200,
+      "effect": "cosmetic",
+      "about": "Your callsign in gold on the main menu and in the kill feed.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-armory",
+      "name": "무기고 전체 해제",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 800,
+      "effect": "unranked-unlock",
+      "about": "Every campaign weapon available from mission 1.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-mission-select",
+      "name": "미션 전체 열기",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 500,
+      "effect": "unranked-unlock",
+      "about": "Play any of the five campaign missions without finishing the earlier ones.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-gear-early",
+      "name": "전술 장비 조기 지급",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 300,
+      "effect": "unranked-unlock",
+      "about": "Recon drone and thermal imager from mission 1.",
+      "per_user_limit": 1
+    },
+    {
+      "id": "special-soldier-revive",
+      "name": "현장 부활권",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 60,
+      "effect": "unranked-consumable",
+      "about": "When you go down, get up where you fell with 60 health instead of restarting from the checkpoint.",
+      "consumable": true,
+      "per_user_limit": null
+    },
+    {
+      "id": "special-soldier-supply",
+      "name": "보급 상자",
+      "kind": "game_item",
+      "currency": "PP",
+      "price": 40,
+      "effect": "unranked-consumable",
+      "about": "Start a mission with 2 extra med kits and 2 extra grenades.",
+      "consumable": true,
+      "per_user_limit": null
+    }
+  ]
+}

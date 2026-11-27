@@ -1,0 +1,14 @@
+{
+  "id": "__ID__",
+  "name": "__NAME__",
+  "genre": "__GENRE__",
+  "status": "prototype",
+  "engine": "web (ES modules, Canvas 2D / Web Audio)",
+  "created": "__DATE__",
+  "summary": "__SUMMARY__",
+  "learnedFrom": [],
+  "portal": {
+    "airobotphysical": { "message": "game_result", "rpByGrade": { "S": 30, "A": 22, "B": 15, "C": 8 }, "rpReward": 30 },
+    "bitpark": { "sdk": "1.0.0", "verify": "src/verify.js", "levels": "src/levels.js", "status": "verify-ready (not registered)" }
+  }
+}
