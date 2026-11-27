@@ -19,6 +19,7 @@ import { GuestbookPanel } from "./Guestbook";
 import { BragButton, BragFeed, FollowList, GiftInbox } from "./Brag";
 import { useGifts } from "../net/gifts";
 import { CloudSettings, RpExchange } from "./Cloud";
+import { PPShop } from "./PPShop";
 import { useAttendOpen } from "./Attendance";
 import { InviteBody, LoungeMap, MiniGameBody, PetsBody, RankBody } from "./Extras";
 
@@ -232,6 +233,7 @@ function ShopPanel() {
   return (
     <Sheet title={tab === "codex" ? "PRODUCT COLLECTION" : tab === "fashion" ? "FASHION SHOP" : tab === "interior" ? "INTERIOR SHOP" : "SKINCARE ITEM SHOP"} wide>
       <Tabs tabs={[["product", t("shop.product")], ["codex", t("shop.codex")], ["fashion", t("shop.fashion")], ["interior", t("shop.interior")]]} value={tab} onPick={(v) => useUI.setState({ shopTab: v })} />
+      <PPShop />
       <RpExchange />
       {(tab === "product" || tab === "codex") && (
         <p className="mb-2 rounded-2xl bg-cream px-3 py-2 text-[12px] leading-relaxed text-ink/60">

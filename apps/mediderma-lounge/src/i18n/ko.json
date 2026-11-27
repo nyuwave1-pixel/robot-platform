@@ -724,5 +724,21 @@
   "follow.fail.auth": "플레이어 확인에 실패했어요",
   "follow.fail.error": "연결이 불안정해요. 잠시 후 다시 해 주세요",
   "follow.seen.on": "지금 접속 중",
-  "follow.seen.day": "오늘 접속"
+  "follow.seen.day": "오늘 접속",
+  "pp.offNote": "포털 포인트로 뷰티 젬 · 프리미엄 아이템을 살 수 있어요. BIT PARK에서 열면 사용할 수 있어요.",
+  "pp.openBitpark": "BIT PARK에서 열기",
+  "pp.loading": "불러오는 중…",
+  "pp.signin": "포털에 로그인하면 사용할 수 있어요",
+  "pp.error": "포털과 연결하지 못했어요.",
+  "pp.items": "프리미엄 아이템 포인트로 바로 사기",
+  "pp.note": "결제는 BIT PARK 포털 확인 창에서 직접 눌러야 진행돼요. 차감된 포인트는 돌려받을 수 없어요.",
+  "pp.done": "{item} 받았어요!",
+  "pp.doneKept": "이미 가진 아이템이라 같은 값의 뷰티 젬으로 받았어요 ({item})",
+  "pp.fail.no_portal": "BIT PARK 포털 안에서만 살 수 있어요",
+  "pp.fail.not_signed_in": "BIT PARK 포털에 로그인해 주세요",
+  "pp.fail.insufficient_funds": "포인트가 부족해요",
+  "pp.fail.daily_limit": "오늘은 더 살 수 없는 상품이에요",
+  "pp.fail.item_unavailable": "지금은 팔지 않는 상품이에요",
+  "pp.fail.busy": "다른 구매를 진행 중이에요",
+  "pp.fail.error": "구매를 마치지 못했어요. 결제됐다면 상점을 다시 열 때 지급돼요"
 }

@@ -724,5 +724,21 @@
   "follow.fail.auth": "Couldn't verify your player",
   "follow.fail.error": "Connection is unstable. Try again soon",
   "follow.seen.on": "Online now",
-  "follow.seen.day": "Active today"
+  "follow.seen.day": "Active today",
+  "pp.offNote": "Use portal points for Beauty Gems and premium items. Open the game on BIT PARK to use them.",
+  "pp.openBitpark": "Open on BIT PARK",
+  "pp.loading": "Loading…",
+  "pp.signin": "Sign in to the portal to use points",
+  "pp.error": "Could not reach the portal.",
+  "pp.items": "Buy premium items with points",
+  "pp.note": "You confirm every purchase in the BIT PARK portal's own window. Spent points are not refunded.",
+  "pp.done": "Got {item}!",
+  "pp.doneKept": "You already own it, so you got its value in Beauty Gems ({item})",
+  "pp.fail.no_portal": "Only available inside the BIT PARK portal",
+  "pp.fail.not_signed_in": "Please sign in to the BIT PARK portal",
+  "pp.fail.insufficient_funds": "Not enough points",
+  "pp.fail.daily_limit": "Daily limit reached for this item",
+  "pp.fail.item_unavailable": "This item is not on sale now",
+  "pp.fail.busy": "Another purchase is in progress",
+  "pp.fail.error": "Could not finish. If you were charged, it will be granted next time you open the shop"
 }
