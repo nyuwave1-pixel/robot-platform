@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T05:17:04.295Z",
+  "generatedAt": "2026-11-27T05:22:20.169Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
-    "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "433d083"
+    "branch": "HEAD",
+    "commit": "ea4e007"
   },
   "section": {
     "id": "game-dev-lab",
@@ -55,7 +55,7 @@
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": null
+        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
       },
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
@@ -541,6 +541,18 @@
   },
   "devlog": [
     {
+      "hash": "ea4e007",
+      "date": "2026-11-27",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): IslandTerrain.asset was corrupted by git (binary file under *.asset text eol=lf); verify squad tags + M03 storm shadows"
+    },
+    {
+      "hash": "1f18e46",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (ROGUE LEGENDS v2)"
+    },
+    {
       "hash": "433d083",
       "date": "2026-11-27",
       "area": "general",
@@ -767,18 +779,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
-    },
-    {
-      "hash": "454d35b",
-      "date": "2026-11-25",
-      "area": "special-soldier",
-      "subject": "feat(special-soldier): Korean interface (Language / 언어 in SETTINGS)"
-    },
-    {
-      "hash": "ff65419",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: mission intro cutscenes (M02-M05); flag the web Mission 05 door-gunner gap"
     }
   ]
 }
