@@ -511,3 +511,13 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   전체 run-batch 는 slice 단계가 지형을 새로 만들어 가려졌음 — 저장소에서 바로 열면(다른 PC·허브) 지형이 깨진 상태였음.
   수정: 두 경로를 `binary` 로 지정, slice 다시 실행, `git add --renormalize` 로 온전한 파일 커밋(내비메시는 바이트 변화 없음).
 - 전체 run-batch -WebGL 재실행(14분): EditMode 341/341, PlayMode 37/39(2 건너뜀, 실패 0 — 새 테스트 2개 포함), WebGL 22.9 MB. 브라우저 `?mission=m03`: 지형·비·옅은 나무 그림자 정상, 콘솔 오류 0.
+
+## 2026-11-27 — SURVIVAL WORLD Unity 판 첫 검증(허브 6bda782·95549f1) — PC
+
+- 컴파일 오류 0. `SurvivalSceneBuilder.BuildSceneBatch` → `[Survival] scene saved: Assets/Survival/SurvivalIsland.unity (models all 7)`.
+- EditMode 347/347(Survival 규칙 6 포함). PlayMode `SurvivalPlayTests` 2/2 — 새 `Ground_FacesUp_Wolf_HeadLeads`: 지형 법선 위쪽,
+  달리는 늑대의 head−tail 방향 · 이동 방향 = 0.78(머리 먼저, `LookRotation(face)` 그대로 맞음).
+- WebGL `BuildWebGL` 18.5 MB, 브라우저 콘솔 오류 0. 지형·Blender 나무 정상(`apps/game-lab/survival-world/screenshots/unity-webgl-dawn.jpg`).
+- **문제: IMGUI HUD 한글이 WebGL 에서 안 보임**(숫자만 표시) — Unity 기본 글꼴에 한글이 없음. 저장소에 글꼴 파일 없음 →
+  한글 글꼴(예: Noto Sans KR, OFL) 하위 집합을 무료 에셋 절차로 넣거나 HUD 를 영어로. 허브 결정.
+- 사람 확인 남음: 마우스 시점 방향, 밤 조명·모닥불 빛, 벽 회전(R) — 포인터 잠금이 필요.
