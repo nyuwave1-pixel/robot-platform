@@ -510,3 +510,4 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
   새로 연 에디터가 "Unknown error occurred while loading 'Assets/Settings/IslandTerrain.asset'" 로 지형을 못 읽음.
   전체 run-batch 는 slice 단계가 지형을 새로 만들어 가려졌음 — 저장소에서 바로 열면(다른 PC·허브) 지형이 깨진 상태였음.
   수정: 두 경로를 `binary` 로 지정, slice 다시 실행, `git add --renormalize` 로 온전한 파일 커밋(내비메시는 바이트 변화 없음).
+- 전체 run-batch -WebGL 재실행(14분): EditMode 341/341, PlayMode 37/39(2 건너뜀, 실패 0 — 새 테스트 2개 포함), WebGL 22.9 MB. 브라우저 `?mission=m03`: 지형·비·옅은 나무 그림자 정상, 콘솔 오류 0.
