@@ -521,3 +521,4 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - **문제: IMGUI HUD 한글이 WebGL 에서 안 보임**(숫자만 표시) — Unity 기본 글꼴에 한글이 없음. 저장소에 글꼴 파일 없음 →
   한글 글꼴(예: Noto Sans KR, OFL) 하위 집합을 무료 에셋 절차로 넣거나 HUD 를 영어로. 허브 결정.
 - 사람 확인 남음: 마우스 시점 방향, 밤 조명·모닥불 빛, 벽 회전(R) — 포인터 잠금이 필요.
+- 허브 0dea61c(Noto Sans KR 하위 집합 85 kB) 후 씬·WebGL 재빌드(18.5 MB): **한글 HUD 정상 표시**(체력·배고픔·1일째·조작 안내·소지품), 콘솔 오류 0 — `screenshots/unity-webgl-korean-hud.jpg`.
