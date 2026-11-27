@@ -22,7 +22,7 @@ for (const id of readdirSync(lab).filter((d) => existsSync(join(lab, d, 'game.js
   const out = join(DEST, 'public', 'arcade', id);
   rmSync(out, { recursive: true, force: true }); mkdirSync(join(out, 'src'), { recursive: true });
   cpSync(join(lab, id, 'index.html'), join(out, 'index.html'));
-  for (const f of readdirSync(join(lab, id, 'src')).filter((f) => f.endsWith('.js'))) cpSync(join(lab, id, 'src', f), join(out, 'src', f));
+  for (const f of readdirSync(join(lab, id, 'src')).filter((f) => /\.(js|css|json|svg)$/.test(f))) cpSync(join(lab, id, 'src', f), join(out, 'src', f));
   writeFileSync(join(out, 'SOURCE.md'), `Generated from nyuwave1-pixel/robot-platform apps/game-lab/${id} by tools/portal/export-to-airobotverse.mjs — edit it there, not here.\n`);
   const shot = join(ROOT, 'docs', 'game-dev', 'screenshots', `game-lab-${id}.png`);
   if (existsSync(shot)) cpSync(shot, join(DEST, 'public', 'images', 'game-covers', `${id}.png`));
