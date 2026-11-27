@@ -5,12 +5,22 @@
 import { tune } from "../data/config";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { BATH_AFFECTION, BATH_COST, PET_ACC_MAP, PET_BOND, PLAY_AFFECTION, PLAY_COOLDOWN_MIN, petLevel } from "../data/pets";
 import { EXP_KEYS, type ExpKey, FASHION_MAP, INTERIOR_MAP, LOUNGE_LEVELS, MAX_PETS, PET_MAP, PROMOS, QUESTS, RANKS, rankFor, type PV, STAGES, STARTER_FASHION, STATION_COSTS, stageFor, DEMO_POSTS, type Quest, type Slot } from "../data/game";
 import { PRODUCT_MAP, usesOf } from "../data/products";
 import type { ModeId } from "../data/devices";
 import type { Lang } from "../i18n";
 
 /** Higgsfield 로 디자인한 완성형 캐릭터 (옷·헤어가 텍스처에 구워져 있다) */
+/** 코디 저장 칸 수와 코디에 담는 슬롯 */
+/** 7일 출석부 보상 (날짜가 이어지지 않아도 출석한 날만큼 칸이 찬다) */
+export interface AttendReward { coins?: number; gems?: number; stars?: number }
+export const ATTEND_REWARDS: AttendReward[] = [
+  { coins: 100 }, { coins: 150 }, { gems: 3 }, { coins: 200 }, { coins: 300 }, { gems: 5 }, { gems: 10, stars: 3 },
+];
+export const COORD_SLOTS = 3;
+export const COORD_KEYS: Slot[] = ["hair", "outfit", "accessory", "earring", "necklace", "bag", "shoes", "makeup", "nail", "base", "shadow", "lip"];
+export interface Coord { items: Partial<Record<Slot, string | null>>; t: number }
 export const DESIGNED_BODIES = ["signature", "guest_mint", "guest_lavender", "guest_coral", "guest_gentle"] as const;
 export type DesignedBody = (typeof DESIGNED_BODIES)[number];
 /** 손님·광장 NPC 로 쓰는 디자인 캐릭터 */
@@ -27,6 +37,8 @@ export interface Look {
   /** 실사 스타일의 체형 (기본: 여성) */
   body?: "female" | "male" | DesignedBody;
   accessory: string | null; earring: string | null; necklace: string | null; bag: string | null; shoes: string | null; makeup: string | null; nail: string | null;
+  /** 베이스 메이크업(기초 화장) · 아이섀도 · 립 (없으면 맨 피부 · 섀도 없음 · 기본 입술색) */
+  base?: string | null; shadow?: string | null; lip?: string | null;
 }
 export const DEFAULT_LOOK: Look = {
   skin: "#ffe4d2", hairColor: "#6b4630", eyeColor: "#4a3326", lipColor: "#e98c9a",
@@ -37,7 +49,11 @@ export const DEFAULT_LOOK: Look = {
 
 export interface Furniture { uid: string; type: string; x: number; z: number; rot: number }
 export interface Post { id: string; author: string; country?: string; mine: boolean; text: string; tag: string; img?: string; hue?: number; likes: number; liked: boolean; comments: { who: string; text: string }[]; t: number; demo?: boolean }
-export interface Pet { id: string; type: string; name: string; affection: number; lastPet: string }
+export interface Pet {
+  id: string; type: string; name: string; affection: number; lastPet: string;
+  /** 유대감 (돌봄으로 쌓이고 줄지 않음 → 레벨), 씌운 장식, 마지막 놀아주기(ms) · 목욕(날짜) */
+  bond?: number; acc?: string | null; lastPlay?: number; lastBath?: string;
+}
 export interface Friend { code: string; name: string }
 export interface Regular { name: string; type: string; visits: number; lastStars: number }
 
@@ -56,6 +72,8 @@ export interface GameState {
   inventory: Record<string, number>;
   codex: string[];
   ownedFashion: string[];
+  /** 저장한 코디 (의상 · 헤어 · 액세서리 · 메이크업 한 벌), 최대 COORD_SLOTS 개 */
+  coords: (Coord | null)[];
   ownedInterior: string[];
   storage: Record<string, number>; // 보관 중인 가구 수량
   lounge: { level: number; furniture: Furniture[]; floor: string; wall: string; light: string; stations: number };
@@ -79,6 +97,8 @@ export interface GameState {
   regulars: Regular[];
   posts: Post[];
   followers: number;
+  /** 뷰티 자랑에서 마지막으로 확인한 받은 좋아요 합계 (새 좋아요 알림용) */
+  bragLikesSeen?: number;
   following: string[];
   settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number; charStyle?: "real" | "chibi" };
 
@@ -92,6 +112,10 @@ export interface GameState {
   grantProduct: (id: string, n?: number) => void;
   buyFashion: (id: string) => boolean;
   equip: (slot: Slot, id: string | null) => void;
+  /** 지금 입은 룩을 i 번 코디에 저장 */
+  saveCoord: (i: number) => void;
+  /** i 번 코디로 갈아입기 (가진 아이템만, 바뀐 슬롯 수를 돌려준다) */
+  wearCoord: (i: number) => number;
   buyInterior: (id: string) => boolean;
   place: (type: string) => string | null;
   moveFurniture: (uid: string, x: number, z: number) => void;
@@ -109,6 +133,18 @@ export interface GameState {
   adoptPet: (type: string, name: string) => boolean;
   petPet: (id: string) => { star: boolean } | null;
   feedPet: (id: string) => boolean;
+  /** 놀아주기 (한 시간에 한 번) */
+  playPet: (id: string, now?: number) => { ok: true; levelUp: boolean } | { ok: false; wait: number };
+  /** 목욕 (하루 한 번, 코인) */
+  bathPet: (id: string) => { ok: true; levelUp: boolean } | { ok: false; why: "done" | "money" };
+  /** 펫 장식 사기 · 씌우기 */
+  petAccs: string[];
+  /** 7일 출석부: 마지막으로 받은 날, 받은 칸 수(0~6 → 7칸을 채우면 처음부터) */
+  attend?: { day: string; count: number };
+  /** 오늘 출석 보상 받기 (이미 받았으면 null) */
+  claimAttendance: () => { slot: number; reward: AttendReward } | null;
+  buyPetAcc: (accId: string) => boolean;
+  wearPetAcc: (petId: string, accId: string | null) => boolean;
   buyStation: (maxStations: number) => boolean;
   autoServe: (r: { name: string; type: string; stars: number; coins: number; lp: number }) => void;
   acceptInvite: (code: string, name: string) => boolean;
@@ -148,6 +184,7 @@ const fresh = () => ({
   inventory: { "soothing-gel": 6, "toner-pad": 6, "deep-repair-cream": 4, "serum-mist": 4, "vitac-mask": 2, "vitac-ampoule": 2 } as Record<string, number>,
   codex: ["derma-home", "soothing-gel", "toner-pad", "deep-repair-cream", "serum-mist", "vitac-mask", "vitac-ampoule"],
   ownedFashion: [...STARTER_FASHION],
+  coords: [] as (Coord | null)[],
   ownedInterior: ["floor-cream", "wall-cream", "light-warm"],
   storage: { plant: 1, flower: 1 } as Record<string, number>,
   lounge: { level: 1, furniture: [] as Furniture[], floor: "floor-cream", wall: "wall-cream", light: "light-warm", stations: 0 },
@@ -156,6 +193,8 @@ const fresh = () => ({
   rankNotice: null as number | null,
   promo: 0,
   pets: [] as Pet[],
+  petAccs: [] as string[],
+  attend: { day: "", count: 0 },
   friendCode: Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "7"),
   invitedBy: null as Friend | null,
   friends: [] as Friend[],
@@ -248,6 +287,28 @@ export const useGame = create<GameState>()(
         return true;
       },
       equip: (slot, id) => set((s) => ({ look: { ...s.look, [slot]: id } })),
+      saveCoord: (i) => set((s) => {
+        if (i < 0 || i >= COORD_SLOTS) return {};
+        const coords = Array.from({ length: COORD_SLOTS }, (_, k) => (Array.isArray(s.coords) ? s.coords[k] ?? null : null));
+        coords[i] = { items: Object.fromEntries(COORD_KEYS.map((k) => [k, s.look[k] ?? null])) as Coord["items"], t: Date.now() };
+        return { coords };
+      }),
+      wearCoord: (i) => {
+        const s = get();
+        const c = Array.isArray(s.coords) ? s.coords[i] : null;
+        if (!c?.items) return 0;
+        const patch: Partial<Look> = {};
+        for (const k of COORD_KEYS) {
+          const id = c.items[k];
+          if (id === undefined) continue;
+          // 기본(필수) 슬롯은 비울 수 없고, 가진 아이템으로만 갈아입는다
+          if (id === null) { if (k !== "hair" && k !== "outfit" && (s.look[k] ?? null) !== null) patch[k] = null; continue; }
+          if (FASHION_MAP[id]?.slot === k && s.ownedFashion.includes(id) && s.look[k] !== id) patch[k] = id;
+        }
+        const n = Object.keys(patch).length;
+        if (n) set({ look: { ...s.look, ...patch } });
+        return n;
+      },
 
       buyInterior: (id) => {
         const it = INTERIOR_MAP[id]; const s = get();
@@ -381,7 +442,7 @@ export const useGame = create<GameState>()(
         if (!p) return null;
         const star = p.lastPet !== today();
         set({
-          pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.pet_affection")), lastPet: today() } : x)),
+          pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.pet_affection")), lastPet: today(), bond: (x.bond ?? 0) + PET_BOND.pet } : x)),
           stars: s.stars + (star ? tune("pet.daily_star") : 0),
           stats: { ...s.stats, petted: (s.stats.petted ?? 0) + 1 },
         });
@@ -390,7 +451,52 @@ export const useGame = create<GameState>()(
       feedPet: (id) => {
         const s = get(); const cost = tune("pet.feed_cost");
         if (!s.pets.some((x) => x.id === id) || s.coins < cost) return false;
-        set({ coins: s.coins - cost, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.feed_affection")) } : x)) });
+        set({ coins: s.coins - cost, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + tune("pet.feed_affection")), bond: (x.bond ?? 0) + PET_BOND.feed } : x)) });
+        return true;
+      },
+      playPet: (id, now = Date.now()) => {
+        const s = get(); const p = s.pets.find((x) => x.id === id);
+        if (!p) return { ok: false, wait: 0 };
+        const wait = (p.lastPlay ?? 0) + PLAY_COOLDOWN_MIN * 60_000 - now;
+        if (wait > 0) return { ok: false, wait };
+        const bond = (p.bond ?? 0) + PET_BOND.play;
+        set({ pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + PLAY_AFFECTION), bond, lastPlay: now } : x)), exp: { ...s.exp, lounge: s.exp.lounge + 2 } });
+        return { ok: true, levelUp: petLevel(bond) > petLevel(p.bond ?? 0) };
+      },
+      bathPet: (id) => {
+        const s = get(); const p = s.pets.find((x) => x.id === id);
+        if (!p || p.lastBath === today()) return { ok: false, why: "done" };
+        if (s.coins < BATH_COST) return { ok: false, why: "money" };
+        const bond = (p.bond ?? 0) + PET_BOND.bath;
+        set({ coins: s.coins - BATH_COST, pets: s.pets.map((x) => (x.id === id ? { ...x, affection: Math.min(100, x.affection + BATH_AFFECTION), bond, lastBath: today() } : x)) });
+        return { ok: true, levelUp: petLevel(bond) > petLevel(p.bond ?? 0) };
+      },
+      claimAttendance: () => {
+        const s = get(); const a = s.attend ?? { day: "", count: 0 };
+        if (a.day === today()) return null;
+        const slot = a.count % ATTEND_REWARDS.length;
+        const reward = ATTEND_REWARDS[slot];
+        set({
+          attend: { day: today(), count: slot + 1 },
+          coins: s.coins + (reward.coins ?? 0), gems: s.gems + (reward.gems ?? 0), stars: s.stars + (reward.stars ?? 0),
+        });
+        return { slot, reward };
+      },
+      buyPetAcc: (accId) => {
+        const s = get(); const a = PET_ACC_MAP[accId];
+        const owned = Array.isArray(s.petAccs) ? s.petAccs : [];
+        if (!a || owned.includes(accId) || s.coins < a.price) return false;
+        set({ coins: s.coins - a.price, petAccs: [...owned, accId] });
+        return true;
+      },
+      wearPetAcc: (petId, accId) => {
+        const s = get(); const p = s.pets.find((x) => x.id === petId);
+        if (!p) return false;
+        if (accId !== null) {
+          const a = PET_ACC_MAP[accId];
+          if (!a || !(s.petAccs ?? []).includes(accId) || petLevel(p.bond ?? 0) < a.minLevel) return false;
+        }
+        set({ pets: s.pets.map((x) => (x.id === petId ? { ...x, acc: accId } : x)) });
         return true;
       },
       buyStation: (maxStations) => {

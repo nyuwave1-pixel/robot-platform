@@ -343,5 +343,6 @@ export async function applyDeepLink(t: (k: string, v?: Record<string, string | n
     useUI.setState({ panel: "events" });
     return;
   }
+  if (open === "brag") { useUI.setState({ panel: "social", socialTab: "brag" }); return; }
   if (tab) { useEvTab.setState({ tab }); useUI.setState({ panel: "events" }); }
 }

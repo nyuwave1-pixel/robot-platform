@@ -8,7 +8,7 @@ import { useLife } from "../src/store/life";
 const H = 3_600_000;
 beforeEach(() => {
   useGame.setState({ coins: 10_000, gems: 0, lounge: { ...useGame.getState().lounge, level: 1 } });
-  useLife.setState({ style: { date: "", entries: 0, best: 0, streak: 0, lastDay: "", wins: 0 }, garden: [], harvested: {}, fit: 0, bestScore: {}, curios: {}, setsClaimed: [], milestones: [], daily: { date: new Date().toISOString().slice(0, 10), workouts: 0, gifts: [], helps: [], boxes: 0 } });
+  useLife.setState({ style: { date: "", entries: 0, best: 0, streak: 0, lastDay: "", wins: 0 }, garden: [], harvested: {}, golden: {}, fit: 0, bestScore: {}, curios: {}, setsClaimed: [], milestones: [], daily: { date: new Date().toISOString().slice(0, 10), workouts: 0, gifts: [], helps: [], boxes: 0 } });
 });
 
 describe("뷰티 가든", () => {
@@ -32,7 +32,7 @@ describe("뷰티 가든", () => {
     expect(useLife.getState().water(id, t0 + 1000)).toBe(true);
     expect(useLife.getState().water(id, t0 + 2000)).toBe(false); // 1시간에 한 번
     expect(useLife.getState().harvest(id, t0 + 1000)).toBeNull(); // 아직 안 자람
-    const r = useLife.getState().harvest(id, t0 + PLANT_MAP.mint.hours * H);
+    const r = useLife.getState().harvest(id, t0 + PLANT_MAP.mint.hours * H, () => 0.99); // 황금 수확이 아닌 경우
     expect(r?.coins).toBe(PLANT_MAP.mint.coins);
     expect(useLife.getState().garden).toHaveLength(0);
     expect(useLife.getState().harvested.mint).toBe(1);
@@ -130,7 +130,7 @@ describe("스타일 챌린지", () => {
     const cute = scoreFit({ outfit: "fit-pastel", hair: "hair-twin", shoes: "shoe-pink" }, red, "glam").total;
     const glam = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold" }, red, "glam").total;
     expect(glam).toBeGreaterThan(cute + 20);
-    const full = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold", accessory: "acc-tiara", earring: "ear-gold", necklace: "neck-gold", bag: "bag-black", makeup: "mk-rose", nail: "nail-gold" }, red, "glam");
+    const full = scoreFit({ outfit: "fit-gown", hair: "hair-wave", shoes: "shoe-gold", accessory: "acc-tiara", earring: "ear-gold", necklace: "neck-gold", bag: "bag-black", makeup: "mk-rose", nail: "nail-gold", base: "base-satin", shadow: "sh-gold", lip: "lip-red" }, red, "glam");
     expect(full.total).toBeGreaterThanOrEqual(90);
     expect(full.grade).toBe("S");
   });
@@ -164,5 +164,32 @@ describe("스타일 챌린지", () => {
     for (let i = 0; i < 400; i++) expect(STYLES).toContain(trendOfDay(new Date(Date.UTC(2026, 0, 1) + i * 86_400_000).toISOString().slice(0, 10)));
     const days = new Set(Array.from({ length: 30 }, (_, i) => themeOfDay(`2026-04-${String(i + 1).padStart(2, "0")}`).id));
     expect(days.size).toBeGreaterThan(5); // 테마가 고르게 돈다
+  });
+});
+
+describe("뷰티 가든 — 영양제 · 황금 수확", () => {
+  it("영양제는 화분마다 한 번, 성장이 빨라지고 황금 수확 확률이 오른다", async () => {
+    const { FERTILIZER_COST, goldenChance } = await import("../src/data/life");
+    const t0 = Date.now();
+    useLife.getState().plant("chamomile", t0);
+    const id = useLife.getState().garden[0].id;
+    const c0 = useGame.getState().coins;
+    expect(goldenChance(useLife.getState().garden[0])).toBeCloseTo(0.08);
+    expect(useLife.getState().fertilize(id, t0)).toBe("ok");
+    expect(useGame.getState().coins).toBe(c0 - FERTILIZER_COST);
+    expect(useLife.getState().fertilize(id, t0)).toBe("done");
+    const slot = useLife.getState().garden[0];
+    expect(goldenChance(slot)).toBeCloseTo(0.18);
+    const p = PLANT_MAP.chamomile;
+    expect(growth(slot, p, t0 + p.hours * H * 0.71).stage).toBe(3); // 70% 시간에 다 자람
+  });
+  it("황금 수확은 코인 2배와 황금 도감", () => {
+    const t0 = Date.now();
+    useLife.getState().plant("mint", t0);
+    const id = useLife.getState().garden[0].id;
+    const r = useLife.getState().harvest(id, t0 + PLANT_MAP.mint.hours * H, () => 0)!;
+    expect(r.golden).toBe(true);
+    expect(r.coins).toBe(PLANT_MAP.mint.coins * 2);
+    expect(useLife.getState().golden.mint).toBe(1);
   });
 });

@@ -3,10 +3,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { makeGLTFLoader } from "./gltf";
-import { useFrame } from "@react-three/fiber";
+import { createPortal, useFrame } from "@react-three/fiber";
 import { Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { PET_MAP, type PetType } from "../data/game";
+import { PET_ACC_MAP, type PetAcc } from "../data/pets";
 import type { Pet } from "../store/game";
 import { input } from "../store/ui";
 import type { Layout } from "./layout";
@@ -15,7 +16,44 @@ import type { Layout } from "./layout";
 export const petPos: Record<string, { x: number; z: number }> = {};
 export const petFx: Record<string, number> = {};
 
-export function PetModel({ t, walking }: { t: PetType; walking?: { current: boolean } }) {
+/** 펫 머리 장식 (머리 꼭대기 기준, 머리 반지름 약 0.13 크기에 맞춤) */
+export function PetAccMesh({ acc }: { acc: PetAcc }) {
+  const m = (c: string, metal = 0) => <meshStandardMaterial color={c} roughness={metal ? 0.3 : 0.6} metalness={metal} />;
+  if (acc.shape === "ribbon") return (
+    <group position={[0.06, -0.01, 0.02]} rotation={[0, 0, -0.35]}>
+      <mesh>{<sphereGeometry args={[0.022, 10, 8]} />}{m(acc.color)}</mesh>
+      {[-1, 1].map((k) => <mesh key={k} position={[k * 0.04, 0, 0]} rotation={[0, 0, k * Math.PI / 2]} scale={[1, 1, 0.45]}><coneGeometry args={[0.032, 0.06, 12]} />{m(acc.color)}</mesh>)}
+    </group>
+  );
+  if (acc.shape === "star") return (
+    <group position={[0.065, 0, 0.03]} rotation={[0, 0.3, -0.3]}>
+      <mesh scale={[1, 1, 0.35]}><octahedronGeometry args={[0.035]} />{m(acc.color, 0.4)}</mesh>
+      <mesh scale={[0.6, 0.6, 0.4]} position={[0, 0, 0.004]}><octahedronGeometry args={[0.035]} />{m(acc.accent)}</mesh>
+    </group>
+  );
+  if (acc.shape === "party") return (
+    <group position={[0.01, 0.06, 0]} rotation={[0, 0, -0.18]}>
+      <mesh><coneGeometry args={[0.05, 0.14, 16]} />{m(acc.color)}</mesh>
+      <mesh position={[0, -0.03, 0]}><torusGeometry args={[0.04, 0.006, 6, 16]} />{m(acc.accent)}</mesh>
+      <mesh position={[0, 0.075, 0]}><sphereGeometry args={[0.018, 8, 8]} />{m(acc.accent)}</mesh>
+    </group>
+  );
+  if (acc.shape === "flowers") return (
+    <group position={[0, -0.005, 0]} rotation={[0.12, 0, 0]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.065, 0.009, 6, 24]} />{m(acc.color)}</mesh>
+      {Array.from({ length: 7 }, (_, i) => { const a = (i / 7) * Math.PI * 2; return <mesh key={i} position={[Math.cos(a) * 0.065, 0.008, Math.sin(a) * 0.065]}><sphereGeometry args={[0.016, 8, 6]} />{m(i % 2 ? "#fff3c2" : acc.accent)}</mesh>; })}
+    </group>
+  );
+  return ( // crown
+    <group position={[0, 0.02, 0]}>
+      <mesh><cylinderGeometry args={[0.055, 0.05, 0.04, 16, 1, true]} /><meshStandardMaterial color={acc.color} metalness={0.8} roughness={0.25} side={THREE.DoubleSide} /></mesh>
+      {Array.from({ length: 5 }, (_, i) => { const a = (i / 5) * Math.PI * 2; return <mesh key={i} position={[Math.cos(a) * 0.052, 0.035, Math.sin(a) * 0.052]}><coneGeometry args={[0.012, 0.03, 6]} />{m(acc.color, 0.8)}</mesh>; })}
+      <mesh position={[0, 0.005, 0.054]}><sphereGeometry args={[0.009, 8, 6]} /><meshStandardMaterial color="#e2718d" roughness={0.2} /></mesh>
+    </group>
+  );
+}
+
+export function PetModel({ t, walking, acc }: { t: PetType; walking?: { current: boolean }; acc?: PetAcc | null }) {
   const tail = useRef<THREE.Group>(null!);
   const legs = useRef<THREE.Group>(null!);
   const head = useRef<THREE.Group>(null!);
@@ -46,6 +84,7 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
       </group>
       <group ref={head} position={[0, 0.32, 0.2]}>
         <mesh castShadow scale={[1.08, 0.95, 0.95]}><sphereGeometry args={[0.13, 18, 14]} />{fur}</mesh>
+        {acc && <group position={[0, 0.12, 0]}><PetAccMesh acc={acc} /></group>}
         <mesh position={[0, -0.035, 0.1]} scale={[1, 0.7, 0.8]}><sphereGeometry args={[cat ? 0.05 : 0.065, 10, 8]} />{fur2}</mesh>
         <mesh position={[0, -0.02, cat ? 0.142 : 0.16]}><sphereGeometry args={[0.016, 8, 8]} /><meshStandardMaterial color={cat ? "#e58aa0" : "#2a2224"} roughness={0.4} /></mesh>
         {[-1, 1].map((k) => (
@@ -76,6 +115,14 @@ export function PetModel({ t, walking }: { t: PetType; walking?: { current: bool
   );
 }
 
+/** 애니메이션 펫 모델마다 머리 뼈 기준 장식 위치 (p: 실제 크기 m, r: 회전, s: 배율) */
+// Quaternius 동물 리그는 머리 뼈 Y 가 주둥이 쪽, Z 가 위쪽 → 장식의 위(Y)를 뼈 Z 로, 앞(Z)을 뼈 Y 로 돌린다
+const QUAT_RIG = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 1).normalize(), Math.PI);
+const PET_ACC_FIT: Record<string, { p: [number, number, number]; q: THREE.Quaternion; s: number }> = {
+  default: { p: [0, 0.025, 0.065], q: QUAT_RIG, s: 0.85 },
+  pet_fox: { p: [0, 0.01, 0.06], q: QUAT_RIG, s: 0.8 },
+};
+
 // ───────────── 애니메이션 펫 (Quaternius Ultimate Animated Animals, CC0) ─────────────
 const petCache = new Map<string, Promise<GLTF | null>>();
 function loadPet(name: string) {
@@ -88,7 +135,7 @@ function loadPet(name: string) {
 }
 
 /** 모델을 불러오는 동안·실패하면 코드 모델(PetModel)을 그대로 보여 준다 */
-export function AnimatedPet({ t, walking, happy }: { t: PetType; walking?: { current: boolean }; happy?: { current: number } }) {
+export function AnimatedPet({ t, walking, happy, acc }: { t: PetType; walking?: { current: boolean }; happy?: { current: number }; acc?: PetAcc | null }) {
   const [gltf, setGltf] = useState<GLTF | null>(null);
   useEffect(() => { let on = true; if (t.model) void loadPet(t.model).then((g) => on && setGltf(g)); return () => { on = false; }; }, [t.model]);
   const rig = useMemo(() => {
@@ -101,7 +148,17 @@ export function AnimatedPet({ t, walking, happy }: { t: PetType; walking?: { cur
     joy?.setLoop(THREE.LoopOnce, 1);
     if (joy) joy.clampWhenFinished = false;
     idle?.play();
-    return { obj, mixer, idle, walk, joy, sniff, cur: idle, lastHappy: 0, t: 0 };
+    // 장식을 붙일 머리 뼈와, 모델 크기에 맞춘 장식 배율 (뼈 공간 단위 → 실제 크기)
+    let head: THREE.Object3D | null = null;
+    obj.traverse((o) => { if (!head && (o as THREE.Bone).isBone && /head/i.test(o.name) && !/end|top/i.test(o.name)) head = o; });
+    let accScale = 1;
+    if (head) {
+      obj.updateMatrixWorld(true);
+      const ws = new THREE.Vector3(); (head as THREE.Object3D).getWorldScale(ws);
+      const os = new THREE.Vector3(); obj.getWorldScale(os);
+      accScale = os.x / Math.max(1e-6, ws.x);
+    }
+    return { obj, mixer, idle, walk, joy, sniff, cur: idle, lastHappy: 0, t: 0, head: head as THREE.Object3D | null, accScale };
   }, [gltf]);
   useEffect(() => () => { rig?.mixer.stopAllAction(); }, [rig]);
   useFrame((_, dt) => {
@@ -115,12 +172,22 @@ export function AnimatedPet({ t, walking, happy }: { t: PetType; walking?: { cur
     if (want && want !== rig.cur) { want.reset().fadeIn(0.25).play(); rig.cur?.fadeOut(0.25); rig.cur = want; }
     rig.mixer.update(Math.min(dt, 0.05));
   });
-  if (!rig) return <PetModel t={t} walking={walking} />;
-  return <primitive object={rig.obj} />;
+  if (!rig) return <PetModel t={t} walking={walking} acc={acc} />;
+  const fit = PET_ACC_FIT[t.model ?? ""] ?? PET_ACC_FIT.default;
+  return (
+    <>
+      <primitive object={rig.obj} />
+      {acc && rig.head && createPortal(
+        <group scale={rig.accScale * fit.s} position={fit.p.map((v) => v * rig.accScale) as [number, number, number]} quaternion={fit.q}><PetAccMesh acc={acc} /></group>,
+        rig.head,
+      )}
+    </>
+  );
 }
 
 export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }) {
   const t = PET_MAP[pet.type];
+  const acc = pet.acc ? PET_ACC_MAP[pet.acc] ?? null : null;
   const g = useRef<THREE.Group>(null!);
   const pos = useRef({ x: -1 + seed * 0.9, z: 1.5 + (seed % 2) });
   const goal = useRef<{ x: number; z: number } | null>(null);
@@ -165,8 +232,8 @@ export function PetActor({ pet, L, seed }: { pet: Pet; L: Layout; seed: number }
   });
   if (!t) return null;
   return (
-    <group ref={g}>
-      {t.model ? <AnimatedPet t={t} walking={walking} happy={happy} /> : <PetModel t={t} walking={walking} />}
+    <group ref={g} userData={{ petId: pet.id }}>
+      {t.model ? <AnimatedPet t={t} walking={walking} happy={happy} acc={acc} /> : <PetModel t={t} walking={walking} acc={acc} />}
       <group ref={hearts} visible={false}>
         <Sparkles count={14} scale={[0.6, 0.7, 0.6]} position={[0, 0.7, 0]} size={5} speed={1.6} color="#ff7fa5" />
       </group>

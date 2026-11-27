@@ -58,7 +58,7 @@ export const EYE_SHAPES = ["round", "almond", "smile"] as const;
 export const BROWS = ["soft", "arch", "straight"] as const;
 export const POSES = ["stand", "cute", "model", "heart"] as const;
 
-export type Slot = "hair" | "outfit" | "accessory" | "earring" | "necklace" | "bag" | "shoes" | "makeup" | "nail";
+export type Slot = "hair" | "outfit" | "accessory" | "earring" | "necklace" | "bag" | "shoes" | "makeup" | "nail" | "base" | "shadow" | "lip";
 export interface FashionItem {
   id: string; slot: Slot; ko: string; en: string;
   price: number; currency: "coin" | "star" | "gem";
@@ -116,6 +116,26 @@ export const FASHION: FashionItem[] = [
   F({ id: "mk-natural", slot: "makeup", ko: "내추럴", en: "Natural", price: 0, currency: "coin", minStage: 1, color: "#f7b3bd" }),
   F({ id: "mk-peach", slot: "makeup", ko: "피치 블러셔", en: "Peach Blush", price: 120, currency: "coin", minStage: 1, color: "#f6a98a" }),
   F({ id: "mk-rose", slot: "makeup", ko: "로즈 글램", en: "Rose Glam", price: 260, currency: "coin", minStage: 3, color: "#e2718d" }),
+  F({ id: "mk-coral", slot: "makeup", ko: "코랄 블러셔", en: "Coral Blush", price: 160, currency: "coin", minStage: 1, color: "#f28c78" }),
+  F({ id: "mk-lavender", slot: "makeup", ko: "라벤더 블러셔", en: "Lavender Blush", price: 30, currency: "star", minStage: 2, color: "#c9a2e0" }),
+  // 베이스(기초 화장): 피부 질감·톤이 바뀐다 (data/makeup.ts BASE_FX)
+  F({ id: "base-skin", slot: "base", ko: "맨 피부 (보습만)", en: "Bare Skin (moisturizer)", price: 0, currency: "coin", minStage: 1, color: "#f6dccb" }),
+  F({ id: "base-glow", slot: "base", ko: "물광 쿠션", en: "Dewy Glow Cushion", price: 180, currency: "coin", minStage: 1, color: "#ffe8dc" }),
+  F({ id: "base-matte", slot: "base", ko: "매트 파운데이션", en: "Matte Foundation", price: 200, currency: "coin", minStage: 1, color: "#e9c9b3" }),
+  F({ id: "base-toneup", slot: "base", ko: "톤업 크림", en: "Tone-up Cream", price: 150, currency: "coin", minStage: 1, color: "#fff2ec" }),
+  F({ id: "base-satin", slot: "base", ko: "새틴 스킨 베이스", en: "Satin Skin Base", price: 40, currency: "star", minStage: 3, color: "#f7dfd0" }),
+  // 아이섀도
+  F({ id: "sh-brown", slot: "shadow", ko: "데일리 브라운 섀도", en: "Daily Brown Shadow", price: 140, currency: "coin", minStage: 1, color: "#a8775e" }),
+  F({ id: "sh-pink", slot: "shadow", ko: "로지 핑크 섀도", en: "Rosy Pink Shadow", price: 160, currency: "coin", minStage: 1, color: "#de8fa8" }),
+  F({ id: "sh-peach", slot: "shadow", ko: "피치 코랄 섀도", en: "Peach Coral Shadow", price: 160, currency: "coin", minStage: 1, color: "#f0a487" }),
+  F({ id: "sh-gold", slot: "shadow", ko: "샴페인 골드 섀도", en: "Champagne Gold Shadow", price: 35, currency: "star", minStage: 2, color: "#d9b26a" }),
+  F({ id: "sh-smoky", slot: "shadow", ko: "스모키 플럼 섀도", en: "Smoky Plum Shadow", price: 20, currency: "gem", minStage: 3, color: "#6e4a62" }),
+  // 립 (착용하면 입술 색이 이 색으로)
+  F({ id: "lip-mlbb", slot: "lip", ko: "MLBB 틴트", en: "MLBB Tint", price: 120, currency: "coin", minStage: 1, color: "#c9757a" }),
+  F({ id: "lip-coral", slot: "lip", ko: "코랄 글로스", en: "Coral Gloss", price: 140, currency: "coin", minStage: 1, color: "#f07b6b" }),
+  F({ id: "lip-pink", slot: "lip", ko: "베이비 핑크 립밤", en: "Baby Pink Balm", price: 100, currency: "coin", minStage: 1, color: "#f19bb0" }),
+  F({ id: "lip-red", slot: "lip", ko: "클래식 레드 립스틱", en: "Classic Red Lipstick", price: 30, currency: "star", minStage: 2, color: "#c8323c" }),
+  F({ id: "lip-berry", slot: "lip", ko: "베리 벨벳 립", en: "Berry Velvet Lip", price: 15, currency: "gem", minStage: 3, color: "#8e2f4f" }),
   F({ id: "nail-pink", slot: "nail", ko: "베이비 핑크 네일", en: "Baby Pink Nails", price: 80, currency: "coin", minStage: 1, color: "#f7a8bd" }),
   F({ id: "nail-gold", slot: "nail", ko: "골드 글리터 네일", en: "Gold Glitter Nails", price: 20, currency: "star", minStage: 3, color: "#d8b468" }),
 ];
