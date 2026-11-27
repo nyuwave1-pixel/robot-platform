@@ -99,9 +99,9 @@ export class MpUi {
     const el = this.$('mpRespawn'); if (!sec) { el.style.display = 'none'; return; }
     el.innerHTML = `RESPAWN IN ${Math.ceil(sec)}<small>KILLED BY ${esc(by || '?')}</small>`; el.style.display = 'block';
   }
-  feed(a, at, b, bt, head) {
+  feed(a, at, b, bt, zone) {
     (this.log = this.log || []).push(`${a}>${b}`); const f = this.$('mpFeed'), d = document.createElement('div'), me = this.mp.name;
-    d.innerHTML = `<span class="${at}">${esc(a)}</span> ${head ? '⊕' : '▸'} <span class="${bt}">${esc(b)}</span>`; if (a === me || b === me) d.className = 'me';
+    d.innerHTML = `<span class="${at}">${esc(a)}</span> ${zone === 'head' ? '⊕' : zone === 'nade' ? '✸' : '▸'} <span class="${bt}">${esc(b)}</span>`; if (a === me || b === me) d.className = 'me';
     f.prepend(d); while (f.children.length > 6) f.lastChild.remove(); setTimeout(() => d.remove(), 6000);
   }
   board(final) {

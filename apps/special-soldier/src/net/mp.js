@@ -93,6 +93,7 @@ export class MP {
     switch (m.k) {
       case 'join': A.join(m.f, m.n, m.tm); break;
       case 'hit': A.hit({ ...m, i: m.f }); break;
+      case 'boom': A.boom(m.f, m.id, m.p); break;
       case 'team': A.setTeam(m.f, m.team); break;
       case 'st': A.state(m.f, m.p); break;
     }
@@ -104,6 +105,7 @@ export class MP {
     if (m.k === 'st') { if (this.auth) this.auth.state(m.f, m.p); if (m.f !== this.id) this.ingest(m); return; }
     if (m.k === 'snap') { for (const row of m.s) if (row[0] !== this.id) this.ingest({ f: row[0], p: [row[1], row[2], row[3]], y: row[4], pt: row[5], s: row[6], w: row[7], a: row[8], sh: row[9] }); return; }
     if (m.k === 'ev') { this.onEvent(m.e); return; }
+    if (m.k === 'nade') { if (this.auth) this.auth.nade(m.f, m.id, m.p); if (m.f !== this.id && this.active) G.fx.grenade(new THREE.Vector3(...m.p), new THREE.Vector3(...m.v), 'remote'); return; }
     if (m.k === 'rejoin') { this.toHost({ k: 'join', n: this.name, tm: this.myTeam }); return; }
     if (m.k === 'disconnected') { this.ui.status('Disconnected from the server.'); this.leave(true); return; }
     if (m.to === 'host' && this.auth) { this.hostHandle(m); return; }
@@ -184,6 +186,12 @@ export class MP {
     G.audio.play('impact:flesh', { x: r.pos.x, y: r.pos.y + 1, z: r.pos.z }); G.mission.stats.hits++;
     const P = G.player.pos, E = G.player.eye; this.toHost({ k: 'hit', t: r.id, d: Math.round(dmg * 10) / 10, z: zone, sp: [r2(P.x), r2(P.y), r2(P.z)], o: [r2(E.x), r2(E.y), r2(E.z)], h: hit ? [r2(hit[0]), r2(hit[1]), r2(hit[2])] : undefined });
   }
+  /** Our grenade left the hand: register it with the Authority and show it to everyone (visual only for them). */
+  onNade(o, v) {
+    const id = 'n' + Math.random().toString(36).slice(2, 8), m = { k: 'nade', id, p: [r2(o.x), r2(o.y), r2(o.z)], v: [r2(v.x), r2(v.y), r2(v.z)] };
+    if (this.auth) this.auth.nade(this.id, id, m.p); if (this.transport) this.transport.send(m); return id;
+  }
+  claimBoom(id, p) { this.toHost({ k: 'boom', id, p: [r2(p.x), r2(p.y), r2(p.z)] }); }
   onShot(o, d) { if (this.shots.length < 4) this.shots.push([r2(o.x), r2(o.y), r2(o.z), r3(d.x), r3(d.y), r3(d.z)]); }
 
   // ---------- local player ----------
@@ -196,7 +204,7 @@ export class MP {
     this.ui.showHud(); if (!G.test) G.input.lock();
   }
   spawnMe(e) {
-    const P = G.player; P.reset(); P.place(e.x, e.z, e.yaw); P.health = MAX_HP; P.armor = 0; G.weapons.equip(G.save.loadout); G.weapons.root.visible = true;
+    const P = G.player; P.reset(); P.place(e.x, e.z, e.yaw); P.health = MAX_HP; P.armor = 0; G.weapons.equip(G.save.loadout); G.weapons.grenades = 2; G.weapons.root.visible = true;
     this.respawnAt = 0; if (G.state === 'dead' || G.state === 'deadMenu') G.state = 'playing'; this.ui.respawn(0);
   }
   hurtMe(e) {
@@ -206,7 +214,7 @@ export class MP {
   onKill(e) {
     const name = (id) => { if (id === this.id) return this.name; const p = this.roster && this.roster.players.find((q) => q.i === id); return p ? p.n : '?'; };
     const team = (id) => { if (id === this.id) return this.myTeam; const p = this.roster && this.roster.players.find((q) => q.i === id); return p ? p.tm : 'red'; };
-    this.ui.feed(name(e.by), team(e.by), name(e.i), team(e.i), e.z === 'head');
+    this.ui.feed(name(e.by), team(e.by), name(e.i), team(e.i), e.z);
     if (this.roster) { this.roster.score = e.score; for (const p of this.roster.players) { if (p.i === e.by) p.k++; if (p.i === e.i) { p.d++; p.al = false; } } }
     if (e.by === this.id) { G.hud.hitMarker(e.z === 'head', true); G.audio.play('kill'); G.mission.stats.kills++; if (e.z === 'head') G.mission.stats.headshots++; }
     if (e.i === this.id) { const P = G.player; P.health = 0; P.alive = false; G.mission.stats.deaths++; this.respawnAt = nowS() + e.respawn; this.ui.respawn(e.respawn, name(e.by)); }

@@ -50,6 +50,8 @@ wss.on('connection', (ws, req) => {
     switch (m.k) {
       case 'st': r.states.set(id, m); r.auth.state(id, m.p); r.dirty = true; break;
       case 'hit': r.auth.hit({ ...m, i: id }); break;
+      case 'nade': if (r.auth.nade(id, m.id, m.p)) { const s = JSON.stringify({ k: 'nade', f: id, id: m.id, p: m.p, v: m.v }); for (const [cid, ws2] of r.clients) if (cid !== id) sendRaw(ws2, s); } break;
+      case 'boom': r.auth.boom(id, m.id, m.p); break;
       case 'team': r.auth.setTeam(id, m.team); break;
       case 'mode': if (id === r.leader) r.auth.setMode(m.mode); break;
       case 'start': if (id === r.leader) r.auth.start(); break;

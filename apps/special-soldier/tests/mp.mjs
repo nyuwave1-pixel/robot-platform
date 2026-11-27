@@ -74,6 +74,16 @@ if (side) {
   const why = await A.evaluate(() => SS.mp.lastReject);
   check('hit through the real base wall is rejected (reason: wall)', (await B.evaluate(() => SS.player.health)) === hpB && why === 'wall', `wall ${JSON.stringify(side.box)}, reason ${why}, B health ${hpB} → ${await B.evaluate(() => SS.player.health)}`);
 } else check('found the base wall for the wall test', false);
+// grenades: open ground again, A lobs a frag at B; the Authority deals the blast; B sees the grenade in flight
+await B.waitForFunction(() => SS.player.alive, null, { timeout: 9000 }).catch(() => {});
+await A.evaluate(([x, z]) => SS.player.place(x, z, 0), a0); await B.evaluate(([x, z]) => SS.player.place(x, z - 9, 0), a0); await sleep(2600);
+const hpB0 = await B.evaluate(() => SS.player.health), deaths0 = await B.evaluate(() => SS.mission.stats.deaths);
+await A.evaluate(() => { const r = [...SS.mp.remotes.values()][0], P = SS.player; const dx = r.pos.x - P.eye.x, dz = r.pos.z - P.eye.z; P.yaw = Math.atan2(-dx, -dz); P.pitch = -0.28; SS.skipRender = true; SS.tick(1 / 60); SS.weapons.throwGrenade(); });
+let sawNade = false;
+for (let i = 0; i < 40; i++) { await A.evaluate(() => { for (let k = 0; k < 6; k++) SS.tick(1 / 60); }); if (!sawNade) sawNade = await B.evaluate(() => SS.fx.nades.some((n) => n.owner === 'remote')); await sleep(50); }
+await sleep(800);
+const hpB1 = await B.evaluate(() => SS.player.health), deaths1 = await B.evaluate(() => SS.mission.stats.deaths);
+check('grenade: B sees it in flight, the blast hurts or kills B', sawNade && (hpB1 < hpB0 || deaths1 > deaths0), `seen ${sawNade}, B health ${hpB0} → ${hpB1}, deaths ${deaths0} → ${deaths1}, A grenades left ${await A.evaluate(() => SS.weapons.grenades)}`);
 const net = await Promise.all([A, B].map((p) => p.evaluate(() => ({ sent: SS.mp.stats.sent, recv: SS.mp.stats.recv, hz: SS.mp.transport.sendHz }))));
 console.log('net:', JSON.stringify(net));
 // host / leader leaves: on Supabase the other browser becomes the host and keeps the score

@@ -107,3 +107,24 @@ test('the real island colliders load and block a shot through a building', async
   assert.equal(a.clearOfBoxes([big[0] - 5, 200, cz], [big[3] + 5, 200, cz]), true, 'line high above the island');
   void cx;
 });
+
+test('grenades: known throw only, two per life, blast falls off with distance, cover cuts it, own grenade gives no score', () => {
+  let t = 1000; const ev = []; const of = (k) => ev.filter((e) => e.k === k);
+  const a = new Authority({ mode: 'tdm', now: () => t, emit: (e) => ev.push(e), rnd: () => 0.5, boxes: [[4, 0, 8, 5, 4, 12]] });
+  a.join('A'); a.join('B'); a.join('C'); a.start(); t += 3; // A blue, B red, C blue
+  a.state('A', [0, 0, 0]); a.state('B', [3, 0, 0]); a.state('C', [0, 0, 30]);
+  assert.equal(a.boom('A', 'x1', [3, 0, 0]), false, 'boom without a throw');
+  assert.equal(a.nade('A', 'n1', [0, 1.6, 0]), true); assert.equal(a.nade('A', 'n2', [0, 1.6, 0]), true); assert.equal(a.nade('A', 'n3', [0, 1.6, 0]), false, 'third grenade in one life');
+  assert.equal(a.boom('A', 'n1', [80, 0, 0]), false, 'boom far from the throw point');
+  assert.equal(a.boom('A', 'n2', [3, 0, 1]), true); const hpB = a.players.get('B').hp; assert.ok(hpB < 100, `B ${hpB}`);
+  assert.equal(a.players.get('C').hp, 100, 'team-mate far away untouched');
+  // cover: B behind the box at z 8–12, grenade on the other side
+  const B = a.players.get('B'); Object.assign(B, { alive: true, hp: 100, protectUntil: 0 }); // first blast killed B; bring it back for the cover test
+  a.players.get('A').nadesLeft = 2; a.state('B', [4.5, 0, 14]); const before = B.hp;
+  a.nade('A', 'n4', [0, 1.6, 0]); a.boom('A', 'n4', [4.5, 0, 7.4]); const covered = before - a.players.get('B').hp;
+  B.hp = 100; a.state('B', [4.5, 0, 1]); a.nade('A', 'n5', [0, 1.6, 0]); a.boom('A', 'n5', [4.5, 0, 7.4]); const open = 100 - a.players.get('B').hp;
+  assert.ok(covered < open, `covered ${covered.toFixed(0)} < open ${open.toFixed(0)}`);
+  // own grenade kill: death, no score
+  const A = a.players.get('A'); A.nadesLeft = 1; A.hp = 10; const score = { ...a.score }; a.nade('A', 'n6', [0, 1.6, 0]); a.state('A', [0, 0, 0]); a.boom('A', 'n6', [0, 0, 0.5]);
+  assert.equal(A.alive, false); assert.deepEqual(a.score, score); assert.equal(A.kills, of('kill').filter((e) => e.by === 'A' && e.i !== 'A').length);
+});

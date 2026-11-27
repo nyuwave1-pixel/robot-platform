@@ -105,7 +105,7 @@ export class Weapons {
     G.audio.play('shot:' + w.cls); G.enemies.hear(p.pos.x, p.pos.y, p.pos.z, w.loud, 'shot'); G.squad.weaponsFree();
     if (w.cls !== 'SIDEARM') G.fx.puff(p.eye.x + _dir.x * 1.1, p.eye.y + _dir.y * 1.1 - 0.08, p.eye.z + _dir.z * 1.1, 0x999999, 0.18, 0.5, 0.18, _dir.x, 0.4, _dir.z, false, 0, 4);
   }
-  throwGrenade() { if (G.mp && G.mp.active) return; if (this.grenades <= 0 || this.throwT > 0) return; this.grenades--; this.throwT = 0.9; const cam = G.camera; cam.getWorldDirection(_dir); G.fx.grenade(_o.copy(G.player.eye).addScaledVector(_dir, 0.5), _d.copy(_dir).multiplyScalar(17).add(_up.set(0, 4.5, 0)).add(G.player.vel), 'player'); G.audio.play('step:sand', null, { g: 0.3 }); }
+  throwGrenade() { if (this.grenades <= 0 || this.throwT > 0) return; this.grenades--; this.throwT = 0.9; const cam = G.camera; cam.getWorldDirection(_dir); _o.copy(G.player.eye).addScaledVector(_dir, 0.5); _d.copy(_dir).multiplyScalar(17).add(_up.set(0, 4.5, 0)).add(G.player.vel); const mpId = G.mp && G.mp.active ? G.mp.onNade(_o, _d) : undefined; G.fx.grenade(_o, _d, 'player', { mpId }); G.audio.play('step:sand', null, { g: 0.3 }); }
   update(dt) {
     const I = G.input, p = G.player, s = this.slot, w = s.w, active = p.alive && !G.gear.droneActive && !p.frozen;
     this.cool -= dt; this.throwT -= dt; this.bloom = Math.max(0, this.bloom - dt * (3 + this.bloom * 2)); if (G.time - this.lastShot > 0.3) this.shotsSince = 0;

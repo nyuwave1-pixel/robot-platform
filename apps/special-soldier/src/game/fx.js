@@ -52,7 +52,7 @@ export class FX {
   }
   grenade(o, vel, owner, opt = {}) {
     const mesh = new THREE.Mesh(this.nadeGeo, this.nadeMat); mesh.position.copy(o); G.scene.add(mesh);
-    this.nades.push({ p: o.clone(), v: vel.clone(), fuse: opt.fuse ?? 2.8, owner, mesh, impact: opt.impact, radius: opt.radius || 7.5, dmg: opt.dmg || 170, smoke: opt.smoke });
+    this.nades.push({ p: o.clone(), v: vel.clone(), fuse: opt.fuse ?? 2.8, owner, mesh, impact: opt.impact, radius: opt.radius || 7.5, dmg: opt.dmg || 170, smoke: opt.smoke, mpId: opt.mpId });
   }
   explode(x, y, z, radius, owner, dmg = 170) {
     if (G.mission && G.mission.onExplosion) G.mission.onExplosion(x, z);
@@ -106,7 +106,7 @@ export class FX {
         else n.p.addScaledVector(n.v, dt); }
       if (!boom && n.impact && n.owner !== 'enemy' && G.enemies.hitTest(n.p, _d, 1.2)) boom = true;
       n.mesh.position.copy(n.p); n.mesh.rotation.x += dt * 9;
-      if (boom) { G.scene.remove(n.mesh); this.nades.splice(i, 1); if (n.smoke) { this.smokes.push({ x: n.p.x, y: n.p.y, z: n.p.z, life: 70, color: n.smoke }); G.audio.play('splash', n.p); } else this.explode(n.p.x, n.p.y, n.p.z, n.radius, n.owner, n.dmg); }
+      if (boom) { G.scene.remove(n.mesh); this.nades.splice(i, 1); if (n.smoke) { this.smokes.push({ x: n.p.x, y: n.p.y, z: n.p.z, life: 70, color: n.smoke }); G.audio.play('splash', n.p); } else { if (n.mpId && G.mp) G.mp.claimBoom(n.mpId, n.p); this.explode(n.p.x, n.p.y, n.p.z, n.radius, n.owner, n.dmg); } } // multiplayer: the Authority deals the blast damage
     }
     for (let i = this.smokes.length - 1; i >= 0; i--) { const s = this.smokes[i]; s.life -= dt; if (Math.random() < dt * 14) this.puff(s.x + (Math.random() - 0.5), s.y + 0.4, s.z + (Math.random() - 0.5), s.color, 1.6, 5, 0.55, G.sky.wind * 0.8, 1.6, 0.3, false, 0, 3.2); if (s.life <= 0) this.smokes.splice(i, 1); }
     // ---- particles ----

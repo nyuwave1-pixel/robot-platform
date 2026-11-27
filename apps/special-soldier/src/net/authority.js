@@ -20,6 +20,9 @@ export const ARENA = { x0: -130, x1: 130, z0: -192, z1: 2 };
 const MAX_HIT = 300, MAX_DPS = 1600, MAX_SHOOTER_DRIFT = 9, MAX_RANGE = 950;
 // Hit-point check: the claimed impact must sit in the target's body column at one of its positions from the last
 // HIST_S seconds (that window is the lag compensation), and the line eye → impact must not pass under the terrain.
+// Grenades: the thrower's client simulates the throw and reports where it went off; the Authority checks the report
+// (known throw, fuse time, distance from the throw point) and deals the blast damage itself.
+export const NADES_PER_LIFE = 2, NADE_R = 7.5, NADE_DMG = 170, NADE_MAX_S = 6, NADE_MAX_DIST = 55;
 export const HIST_S = 0.6, BODY_R = 1.2, BODY_LO = -0.4, BODY_HI = 2.2, EYE_DRIFT = 3.5;
 
 // ---- static boxes: uniform grid (16 m cells) + segment / box slab test; boxes shrunk 0.15 m so grazing edges pass ----
@@ -92,7 +95,7 @@ export class Authority {
     return { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10, yaw: s.yaw };
   }
   spawn(p) {
-    const sp = this.spawnPoint(p.team); p.hp = MAX_HP; p.alive = true; p.respawnAt = 0; p.protectUntil = this.now() + SPAWN_PROTECT_S; p.pos = [sp.x, 0, sp.z]; p.posT = this.now();
+    const sp = this.spawnPoint(p.team); p.hp = MAX_HP; p.alive = true; p.nadesLeft = NADES_PER_LIFE; p.nades = new Map(); p.respawnAt = 0; p.protectUntil = this.now() + SPAWN_PROTECT_S; p.pos = [sp.x, 0, sp.z]; p.posT = this.now();
     this.emit({ k: 'spawn', i: p.id, x: sp.x, z: sp.z, yaw: sp.yaw });
   }
   /** A client claims that its bullet hit someone. Checked against what the authority knows, then applied. */
@@ -115,15 +118,40 @@ export class Authority {
     s.dmgWindow = s.dmgWindow.filter((w) => now - w.t < 1); const recent = s.dmgWindow.reduce((a, w) => a + w.d, 0);
     if (recent + dmg > MAX_DPS) return no('rate');
     s.dmgWindow.push({ t: now, d: dmg });
+    this.applyDamage(s, v, dmg, z, s.pos);
+    return true;
+  }
+  applyDamage(s, v, dmg, z, from) {
     v.hp = Math.max(0, v.hp - dmg);
-    this.emit({ k: 'dmg', i: t, by: i, hp: Math.round(v.hp), z, d: Math.round(dmg), fx: s.pos ? s.pos[0] : 0, fz: s.pos ? s.pos[2] : 0 });
+    this.emit({ k: 'dmg', i: v.id, by: s.id, hp: Math.round(v.hp), z, d: Math.round(dmg), fx: from ? from[0] : 0, fz: from ? from[2] : 0 });
     if (v.hp <= 0) this.kill(s, v, z);
+  }
+  /** A player threw a grenade (id chosen by the client, position = the throw point). */
+  nade(i, id, p) {
+    const s = this.players.get(i); if (this.phase !== 'live' || !s || !s.alive || !Array.isArray(p)) return false;
+    s.nadesLeft = s.nadesLeft ?? NADES_PER_LIFE; if (s.nadesLeft <= 0) { this.rejected++; this.emit({ k: 'reject', i, why: 'no grenades' }); return false; }
+    s.nadesLeft--; (s.nades = s.nades || new Map()).set(id, { t: this.now(), p }); return true;
+  }
+  /** That grenade went off at p: checked, then blast damage to everyone in range (cover reduces it to a quarter). */
+  boom(i, id, p) {
+    const s = this.players.get(i), no = (why) => { this.rejected++; this.emit({ k: 'reject', i, why }); return false; };
+    const n = s && s.nades && s.nades.get(id); if (this.phase !== 'live' || !n || !Array.isArray(p)) return no('unknown grenade');
+    s.nades.delete(id);
+    if (this.now() - n.t > NADE_MAX_S) return no('grenade too late');
+    if (Math.hypot(p[0] - n.p[0], p[1] - n.p[1], p[2] - n.p[2]) > NADE_MAX_DIST) return no('grenade too far');
+    this.emit({ k: 'boom', i, x: p[0], y: p[1], z: p[2] });
+    for (const v of [...this.players.values()]) {
+      if (!v.alive || !v.pos || (v.team === s.team && v !== s) || this.now() < v.protectUntil) continue;
+      const c = [v.pos[0], v.pos[1] + 1, v.pos[2]], d = Math.hypot(c[0] - p[0], c[1] - p[1], c[2] - p[2]); if (d > NADE_R) continue;
+      let k = 1 - d / NADE_R; const e = [p[0], p[1] + 0.6, p[2]]; if (d > 1.5 && !(this.clearOfTerrain(e, c) && this.clearOfBoxes(e, c))) k *= 0.25;
+      const dmg = NADE_DMG * k * (v === s ? 0.6 : 1); if (dmg > 1) this.applyDamage(s, v, dmg, 'nade', p);
+    }
     return true;
   }
   kill(s, v, zone) {
-    v.alive = false; v.deaths++; v.respawnAt = this.now() + RESPAWN_S; s.kills++; this.score[s.team]++;
+    v.alive = false; v.deaths++; v.respawnAt = this.now() + RESPAWN_S; if (s !== v) { s.kills++; this.score[s.team]++; } // own grenade: a death, no score
     this.emit({ k: 'kill', by: s.id, i: v.id, z: zone, score: { ...this.score }, respawn: RESPAWN_S });
-    if (this.score[s.team] >= this.cfg.scoreLimit) this.end(s.team);
+    if (s !== v && this.score[s.team] >= this.cfg.scoreLimit) this.end(s.team);
   }
   end(winner) {
     if (this.phase !== 'live') return; this.phase = 'ended'; this.winner = winner;
