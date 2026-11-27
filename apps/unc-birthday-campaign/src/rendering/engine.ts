@@ -347,6 +347,13 @@ export function scrim(ctx: Ctx, kind: "left" | "top" | "bottom", amount: number,
   if (kind === "bottom") ctx.layers.scrim.push(`<rect data-el="scrim" x="0" y="${f(CH * (1 - amount))}" width="${f(CW)}" height="${f(CH * amount)}" fill="url(#fade-b)" opacity="${f(opacity)}"/>`);
 }
 
+/** Feathered dark pad behind small text sitting on bright artwork (invisible on dark plates, restores contrast on liquid gold). */
+export function pad(ctx: Ctx, b: Box, strength = 1) {
+  const o = Math.min(1, strength * (ctx.spec.overrides?.bg?.scrim ?? 1)); if (o <= 0) return;
+  const m = Math.max(b.h * 0.9, ctx.unit * 0.02);
+  ctx.layers.scrim.push(`<ellipse data-el="pad" cx="${f(b.x + b.w / 2)}" cy="${f(b.y + b.h / 2)}" rx="${f(b.w / 2 * 1.2 + m)}" ry="${f(b.h / 2 * 1.3 + m)}" fill="url(#pad-r)" opacity="${f(o)}"/>`);
+}
+
 export function sparkle(ctx: Ctx, focus: Box, density = 1) {
   const d = density * (ctx.spec.overrides?.bg?.effects ?? 1);
   if (d <= 0) return;

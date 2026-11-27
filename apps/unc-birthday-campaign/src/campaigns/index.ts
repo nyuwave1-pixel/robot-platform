@@ -1,6 +1,6 @@
 import { INGREDIENTS, PRODUCTS, type IngredientKey } from "../rendering/assets";
 import { C, dataGrid, f, qr, ring28 } from "../rendering/effects";
-import { cta, ensureFonts, finish, footnote, hero, logo, makeCtx, minSize, pxPer, record, scrim, sparkle, stack, styled, textAt, type Block, type Ctx, type Env, type Placed } from "../rendering/engine";
+import { cta, ensureFonts, finish, footnote, hero, logo, makeCtx, minSize, pad, pxPer, record, scrim, sparkle, stack, styled, textAt, type Block, type Ctx, type Env, type Placed } from "../rendering/engine";
 import type { Box, RenderResult, RenderSpec } from "../rendering/types";
 import { LOGO } from "../rendering/logo";
 
@@ -140,6 +140,7 @@ function printAction(ctx: Ctx, z: Zones, prod: Box) {
       [S.x + S.w - w, S.y + S.h - h, "right"], [S.x + S.w - w, S.y, "right"], [S.x, S.y + S.h - h, "left"],
     ];
     const c = cands.find(([x, y]) => isFree(ctx, { x, y, w, h }, u * 0.01)) ?? cands[0];
+    pad(ctx, { x: c[0], y: c[1], w, h });
     textAt(ctx, "url", sh.url, st, { x: c[0], y: c[1], w, h }, c[2]);
     return;
   }
@@ -160,6 +161,7 @@ function printAction(ctx: Ctx, z: Zones, prod: Box) {
     const rowW = q + gap + tw; const x0 = ctx.frame.x + ctx.frame.w / 2 - rowW / 2;
     ctx.layers.ui.push(qr(target, x0, y, q)); record(ctx, "qr", "logo", { x: x0, y, w: q, h: q });
     const ty = y + q / 2 - (LL.height + url.size * 0.5 + UL.height) / 2;
+    pad(ctx, { x: x0 + q + gap, y: ty, w: tw, h: LL.height + url.size * 0.5 + UL.height });
     textAt(ctx, "qr-label", sh.qrLabel, lab, { x: x0 + q + gap, y: ty, w: tw, h: LL.height + 1 }, "left");
     textAt(ctx, "url", sh.url, url, { x: x0 + q + gap, y: ty + LL.height + url.size * 0.5, w: tw, h: UL.height + 1 }, "left");
   } else {
@@ -173,6 +175,7 @@ function printAction(ctx: Ctx, z: Zones, prod: Box) {
     // beside the QR if that strip is free, otherwise stacked above it
     let bx = x - gap - tw, by = y + qs - th;
     if (!isFree(ctx, { x: bx, y: by, w: tw, h: th }, u * 0.01)) { bx = x + qs - tw; by = y - gap - th; }
+    pad(ctx, { x: bx, y: by, w: tw, h: th });
     textAt(ctx, "qr-label", sh.qrLabel, lab, { x: bx, y: by, w: tw, h: LL.height + 1 }, "right");
     textAt(ctx, "url", sh.url, url, { x: bx, y: by + LL.height + url.size * 0.5, w: tw, h: UL.height + 1 }, "right");
   }

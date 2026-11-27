@@ -10,6 +10,8 @@
 | 3개 언어 문구 정확성 | `glyphs` (누락 글리프 0) | 시트에서 언어별 카피 확인 |
 | 중국어 폰트 정상 표시 | `glyphs`, Noto Serif/Sans SC 내장 아웃라인 | 시트 확인 |
 | 텍스트 잘림·겹침 없음 | `layout` (text-fit, overlap-text, overlap-product, outside-safe, outside-trim) | — |
+| 한·중 줄바꿈 | 문단 끝 1~2글자 고립 방지(같은 크기·같은 줄 수에서 가장 고른 분할 자동 선택) | 시트 확인 |
+| 밝은 배경 위 작은 글자 | QR 안내·URL 뒤에 페더 처리된 어두운 패드 자동 배치 | 시트 확인 |
 | 이미지 왜곡 없음 | `product-aspect` | — |
 | 임상 수치와 주석 정확성 | `clinical-footnote` (임상 캠페인은 각주 필수), 수치는 공식 자료로 고정 | — |
 | 28일 고지 | `story-disclaimer` | — |
@@ -20,4 +22,4 @@
 | 해상도 | `raster-ppi` (규격 dpi ±2), `source-resolution` (원본 ppi 표시) | 대형물은 PRINT_GUIDE 참고 |
 | 파일 정상 열림 | PNG·JPG·PDF·SVG를 다시 열어 파싱, `svg-self-contained` | — |
 | 플랫폼 용량 제한 | `file-size` (JPG ≤ maxKB) | — |
-| QR 정상 작동 | `qr-scan` (렌더 결과에서 디코드 → 언어별 URL 일치) | 실물 스캔 |
+| QR 정상 작동 | `qr-scan` (렌더 결과에서 QR 영역을 카메라처럼 잘라 디코드 → 언어별 URL 일치) | 실물 스캔 |

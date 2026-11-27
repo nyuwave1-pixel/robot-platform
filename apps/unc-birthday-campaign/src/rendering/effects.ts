@@ -45,6 +45,7 @@ export function goldDefs(u: number): string {
 <linearGradient id="fade-t" x1="0" y1="0" x2="0" y2="1">
   <stop offset="0" stop-color="#080706" stop-opacity="0.82"/><stop offset="0.65" stop-color="#080706" stop-opacity="0.38"/><stop offset="1" stop-color="#080706" stop-opacity="0"/>
 </linearGradient>
+<radialGradient id="pad-r" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#0B0806" stop-opacity="0.78"/><stop offset="0.5" stop-color="#0B0806" stop-opacity="0.6"/><stop offset="0.8" stop-color="#0B0806" stop-opacity="0.22"/><stop offset="1" stop-color="#0B0806" stop-opacity="0"/></radialGradient>
 <linearGradient id="fade-b" x1="0" y1="1" x2="0" y2="0">
   <stop offset="0" stop-color="#080706" stop-opacity="0.9"/><stop offset="0.6" stop-color="#080706" stop-opacity="0.35"/><stop offset="1" stop-color="#080706" stop-opacity="0"/>
 </linearGradient>

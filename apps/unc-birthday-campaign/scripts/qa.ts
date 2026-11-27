@@ -65,7 +65,20 @@ for (const it of man.items) {
       await sharp(prev).metadata(); add("rgb-preview", true);
       if (s.qr) {
         // decode the QR from the rendered artwork → must resolve to the campaign site for this language
-        const { data, info } = await sharp(prev).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+        // A phone camera is aimed at the code, so scan the QR card region (located from the SVG, +25% margin
+        // of surrounding artwork). Whole-poster search is unreliable on busy backgrounds such as marble veins.
+        const svgSrc = fs.readFileSync(path.join(OUT, it.files.svg.path), "utf8");
+        const vb = svgSrc.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+        const qm = svgSrc.match(/data-el="qr"><rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/);
+        const meta = await sharp(prev).metadata();
+        let img = sharp(prev);
+        if (vb && qm) {
+          const k = meta.width! / Number(vb[1]); const [qx, qy, qs] = qm.slice(1, 4).map(Number); const pad = qs * 0.25;
+          const left = Math.max(0, Math.floor((qx - pad) * k)), top = Math.max(0, Math.floor((qy - pad) * k));
+          const width = Math.min(meta.width! - left, Math.ceil((qs + pad * 2) * k)), height = Math.min(meta.height! - top, Math.ceil((qs + pad * 2) * k));
+          img = img.extract({ left, top, width, height });
+        }
+        const { data, info } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
         const code = jsQR(new Uint8ClampedArray(data.buffer, data.byteOffset, data.length), info.width, info.height);
         const want = `https://birthday.unincore.com${it.lang === "ko" ? "" : `/${it.lang}`}`;
         add("qr-scan", code?.data === want, code ? code.data : "not decoded");

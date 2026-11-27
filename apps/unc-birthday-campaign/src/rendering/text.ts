@@ -70,7 +70,7 @@ function tokenize(runs: Run[], lang: Lang): Token[] {
 }
 
 export interface GlyphPos { ch: string; font: opentype.Font; x: number; adv: number; accent: boolean }
-export interface Line { tokens: Token[]; width: number; glyphs: GlyphPos[] }
+export interface Line { tokens: Token[]; width: number; glyphs: GlyphPos[]; paraEnd?: boolean }
 export interface TextLayout {
   size: number; lines: Line[]; width: number; height: number; overflow: boolean; capTop: number; lineGap: number;
   minSize: number; text: string;
@@ -123,13 +123,13 @@ export class TextEngine {
     const lines: Line[] = [];
     let cur: Token[] = []; let curW = 0;
     const tokW = (t: Token) => this.measureToken(t, style, size).w;
-    const push = () => {
+    const push = (paraEnd = false) => {
       while (cur.length && cur[cur.length - 1].space) { curW -= tokW(cur[cur.length - 1]); cur.pop(); }
-      lines.push(this.buildLine(cur, style, size));
+      lines.push({ ...this.buildLine(cur, style, size), paraEnd });
       cur = []; curW = 0;
     };
     for (const t of tokens) {
-      if (t.forceBreak) { push(); continue; }
+      if (t.forceBreak) { push(true); continue; }
       const w = tokW(t);
       if (t.space && !cur.length) continue;
       if (curW + w <= maxW || !cur.length) {
@@ -146,8 +146,31 @@ export class TextEngine {
         cur.push(t); curW += w;
       } else { push(); if (!t.space) { cur.push(t); curW = w; } }
     }
-    if (cur.length) push();
+    if (cur.length) push(true);
+    if (lines.length) lines[lines.length - 1].paraEnd = true;
     return lines;
+  }
+
+  /** a paragraph's last line holding only 1–2 CJK characters (e.g. "光。") — a typographic widow */
+  private hasWidow(lines: Line[]): boolean {
+    return lines.some((l, i) => {
+      if (!l.paraEnd || i === 0 || lines[i - 1].paraEnd) return false;
+      const t = l.tokens.map((k) => k.text).join("").replace(/[\s\p{P}]/gu, "");
+      return t.length > 0 && t.length <= 2 && (CJK.test(t) || HANGUL.test(t));
+    });
+  }
+
+  /** same size, same line count, narrower measure → balanced CJK lines without a widow */
+  private balance(tokens: Token[], style: TextStyle, size: number, maxW: number, lines: Line[]): Line[] {
+    if (!this.hasWidow(lines)) return lines;
+    // the narrowest measure that keeps the line count is the most even split (e.g. 5+5 chars, not 6+4)
+    let best = lines;
+    for (let f = 0.975; f >= 0.4; f -= 0.0125) {
+      const alt = this.wrap(tokens, style, size, maxW * f);
+      if (alt.length > lines.length) break;
+      if (!this.hasWidow(alt)) best = alt;
+    }
+    return best;
   }
 
   private buildLine(tokens: Token[], style: TextStyle, size: number): Line {
@@ -180,7 +203,7 @@ export class TextEngine {
     let size = style.size;
     let best: TextLayout | null = null;
     for (let i = 0; i < 60; i++) {
-      const lines = this.wrap(tokens, style, size, box.w);
+      const lines = this.balance(tokens, style, size, box.w, this.wrap(tokens, style, size, box.w));
       const width = Math.max(0, ...lines.map((l) => l.width));
       const cap = this.capHeight(style, size, hasCJK);
       const height = cap + (lines.length - 1) * size * lh + size * 0.22;
