@@ -16,11 +16,12 @@ export function createPortal(slug) {
     ready() { post({ type: 'game_ready', game: slug }); bp('ready'); },
     /** level: 1-based level number as BIT PARK counts them. */
     levelStart(level) { bp('levelStart', { level }); },
-    /** One finished play. grade S/A/B/C/D decides the RP; proof is what verify.js replays. */
-    result({ level, score, grade, mode, seconds = 0, stars = 0, proof }) {
+    /** One finished play. grade S/A/B/C/D decides the RP; proof is what verify.js replays. clear: false for a lost run —
+     *  it still earns its RP grade, but is not sent to BIT PARK as a level clear. */
+    result({ level, score, grade, mode, seconds = 0, stars = 0, proof, clear = true }) {
       const rp = RP_BY_GRADE[grade] || 0;
       post({ type: 'game_result', game: slug, score: Math.max(0, Math.round(score)), rp, mission: mode, grade });
-      bp('levelClear', { level, stars, seconds, moves: 0, proof });
+      if (clear) bp('levelClear', { level, stars, seconds, moves: 0, proof });
       return rp;
     },
   };

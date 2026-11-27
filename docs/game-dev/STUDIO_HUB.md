@@ -34,6 +34,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
 | 허브(클라우드) | **장르 게임 랩(오픈소스 조사·하부 섹션 생성 환경)**: 새 `docs/game-dev/genres/`(조사 카탈로그·장르별 학습 노트), 새 `tools/game-lab/`(새 게임 하부 섹션 생성기·템플릿), 새 `apps/game-lab/`(리듬·레이싱 시작 프로토타입), `tools/portal/export-bitpark-feed.mjs`(장르 랩 프로젝트 목록), `CLAUDE.md`(게임 개발 절 한 줄) | 2026-11-26 (푸시 완료) |
+| 허브(클라우드) | **NEXT-GEN INDIE STUDIO**: 새 `docs/indie-studio/`(시장 조사·GitHub 감사·기획서·기술 구조·현황), 새 `tools/indie-studio/`(Steam 데이터 수집), 새 `apps/game-lab/rogue-legends`(첫 MVP), `tools/game-lab/templates/common/src/portal.js`(clear 플래그). 플랫폼·포털 등록은 BIT PARK 포털 세션 | 2026-11-27 |
 | 허브(클라우드) | **분대원 이름표 HUD**: `apps/unity-studio/Assets/Scripts/Runtime/HudToolkit.cs`·`Assets/UI/SliceHud.uss` | 2026-11-26 (푸시 완료) |
 | 허브(클라우드) | **Unity 적이 분대원도 노림(웹 규칙)**: `apps/unity-studio/Assets/Scripts/Core/AwarenessBrain.cs`(Perception.SeesSquad)·테스트, `Runtime/{EnemyAgent,SquadMate}.cs`. 웹 `enemies.js` 는 읽기만 | 2026-11-25 (푸시 완료) |
 | 허브(클라우드) | **Unity 분대원 SQUAD 07(REAPER·NOMAD·ATLAS)**: 새 `apps/unity-studio/Assets/Scripts/Core/Squad.cs`·테스트, 새 `Runtime/SquadMate.cs`, 수정 `Runtime/{GameDirector(무기 자유·분대 목록),SoldierAnimator(분대 웅크림·조준),EnemyAgent(빗나간 탄 35 %),IntroDirector,DoorGunner}.cs`, `Editor/Slice/SliceBuilder.cs`(캠페인 씬에 분대). 웹 `squad.js` 는 읽기만 | 2026-11-25 (푸시 완료) |

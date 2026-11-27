@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T03:15:34.610Z",
+  "generatedAt": "2026-11-27T01:43:18.884Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "84c7843"
+    "commit": "f89b351"
   },
   "section": {
     "id": "game-dev-lab",
@@ -60,6 +60,9 @@
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
         "docs/game-dev/screenshots/game-lab-beat-lab.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-map.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends-title.png",
+        "docs/game-dev/screenshots/game-lab-rogue-legends.png",
         "docs/game-dev/screenshots/game-lab-turbo-lap.png",
         "docs/game-dev/screenshots/island-terrain-shared.png",
         "docs/game-dev/screenshots/unity-hud-webgl-dpr125-overflow.jpg",
@@ -499,10 +502,65 @@
         "tests": 8,
         "path": "apps/game-lab/turbo-lap",
         "screenshot": "docs/game-dev/screenshots/game-lab-turbo-lap.png"
+      },
+      {
+        "slug": "rogue-legends",
+        "name": "ROGUE LEGENDS",
+        "genre": "deckbuilder",
+        "status": "playable",
+        "engine": "web (ES modules, DOM/CSS UI, SVG art, Web Audio)",
+        "summary": "오리지널 덱빌딩 로그라이크 — 영웅 2종·카드 34장·유물 10종·적 8종, 시드 지도 13층과 잿불 거상 보스, 행동 기록 저장·리플레이 검증.",
+        "created": "2026-11-27",
+        "learnedFrom": [],
+        "portal": {
+          "airobotphysical": {
+            "message": "game_result",
+            "rpByGrade": {
+              "S": 30,
+              "A": 22,
+              "B": 15,
+              "C": 8
+            },
+            "rpReward": 30
+          },
+          "bitpark": {
+            "sdk": "1.0.0",
+            "verify": "src/verify.js",
+            "levels": "src/levels.js",
+            "status": "verify-ready (not registered)"
+          }
+        },
+        "tests": 10,
+        "path": "apps/game-lab/rogue-legends",
+        "screenshot": "docs/game-dev/screenshots/game-lab-rogue-legends.png"
       }
     ]
   },
   "devlog": [
+    {
+      "hash": "f89b351",
+      "date": "2026-11-26",
+      "area": "general",
+      "subject": "Merge branch 'claude/relaxed-ramanujan-83okpi' of https://github.com/nyuwave1-pixel/robot-platform into claude/relaxed-ramanujan-83okpi"
+    },
+    {
+      "hash": "ed0aab5",
+      "date": "2026-11-26",
+      "area": "special-soldier",
+      "subject": "feat(special-soldier): multiplayer wall / building line of sight"
+    },
+    {
+      "hash": "f3b51f1",
+      "date": "2026-11-26",
+      "area": "unity-studio",
+      "subject": "fix(unity-studio): night sea glint; VehicleFacingTests for APC / heli / boat / trucks (PC review)"
+    },
+    {
+      "hash": "1e9fd6d",
+      "date": "2026-11-26",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed"
+    },
     {
       "hash": "84c7843",
       "date": "2026-11-26",
@@ -718,30 +776,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "hub: claim Unity tactical gear"
-    },
-    {
-      "hash": "d3a8018",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: campaign flow — briefing, saved progress, next mission"
-    },
-    {
-      "hash": "57de40a",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Unity campaign flow (briefing, progress, next mission)"
-    },
-    {
-      "hash": "b80759a",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: port Mission 05 LAST EXTRACTION — all five campaign missions (U4)"
-    },
-    {
-      "hash": "ca15567",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Mission 05 port"
     }
   ]
 }

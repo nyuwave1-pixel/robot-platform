@@ -1,0 +1,28 @@
+{
+  "id": "rogue-legends",
+  "name": "ROGUE LEGENDS",
+  "genre": "deckbuilder",
+  "status": "playable",
+  "engine": "web (ES modules, DOM/CSS UI, SVG art, Web Audio)",
+  "created": "2026-11-27",
+  "summary": "오리지널 덱빌딩 로그라이크 — 영웅 2종·카드 34장·유물 10종·적 8종, 시드 지도 13층과 잿불 거상 보스, 행동 기록 저장·리플레이 검증.",
+  "learnedFrom": [],
+  "portal": {
+    "airobotphysical": {
+      "message": "game_result",
+      "rpByGrade": {
+        "S": 30,
+        "A": 22,
+        "B": 15,
+        "C": 8
+      },
+      "rpReward": 30
+    },
+    "bitpark": {
+      "sdk": "1.0.0",
+      "verify": "src/verify.js",
+      "levels": "src/levels.js",
+      "status": "verify-ready (not registered)"
+    }
+  }
+}
