@@ -11,7 +11,7 @@ import { sizeById } from "../src/templates/sizes";
 const OUT = path.resolve(process.argv[2] ?? "exports");
 const man = JSON.parse(fs.readFileSync(path.join(OUT, "manifest.json"), "utf8"));
 const dir = path.join(OUT, "_sheets"); fs.mkdirSync(dir, { recursive: true });
-const W = 2400, ROW_H = 300, GAP = 24, LABEL = 34, PAD = 40, HEAD = 120;
+const W = 2400, ROW_H = 300, GAP = 28, LABEL = 56, PAD = 40, HEAD = 120, MIN_SLOT = 300;
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 const groups = new Map<string, any[]>();
@@ -19,7 +19,7 @@ for (const it of man.items) { const k = `${it.lang}_${it.campaign}_${it.kind}`; 
 
 for (const [k, items] of groups) {
   const [lang, campaign, kind] = k.split("_");
-  const tiles: Array<{ buf: Buffer; w: number; h: number; label: string }> = [];
+  const tiles: Array<{ buf: Buffer; w: number; h: number; label: string; dim: string; slot: number }> = [];
   for (const it of items) {
     const s = sizeById(it.size)!;
     const src = path.join(OUT, kind === "online" ? it.files.jpg.path : it.files["RGB-preview.jpg"].path);
@@ -27,17 +27,22 @@ for (const [k, items] of groups) {
     const img = sharp(src).resize({ height: Math.round(rh), width: W - PAD * 2, fit: "inside" });
     const buf = await img.toBuffer(); const m = await sharp(buf).metadata();
     const errs = it.issues.filter((i: any) => i.level === "error").length;
-    tiles.push({ buf, w: m.width!, h: m.height!, label: `${s.label.ko} · ${s.w}×${s.h}${kind === "print" ? "mm" : ""}${errs ? `  ⚠ ${errs}` : "  ✓"}` });
+    tiles.push({ buf, w: m.width!, h: m.height!, slot: Math.max(m.width!, MIN_SLOT), label: s.label.ko, dim: `${s.w}×${s.h}${kind === "print" ? "mm" : ""}${errs ? `  ⚠ ${errs}` : "  ✓"}` });
   }
   // flow layout
   const rows: Array<typeof tiles> = []; let row: typeof tiles = []; let x = 0;
-  for (const t of tiles) { if (row.length && x + t.w > W - PAD * 2) { rows.push(row); row = []; x = 0; } row.push(t); x += t.w + GAP; }
+  for (const t of tiles) { if (row.length && x + t.slot > W - PAD * 2) { rows.push(row); row = []; x = 0; } row.push(t); x += t.slot + GAP; }
   if (row.length) rows.push(row);
   const H = HEAD + rows.reduce((a, r) => a + Math.max(...r.map((t) => t.h)) + LABEL + GAP, 0) + PAD;
   const comps: sharp.OverlayOptions[] = []; let y = HEAD; let labels = "";
   for (const r of rows) {
     let cx = PAD; const rh = Math.max(...r.map((t) => t.h));
-    for (const t of r) { comps.push({ input: t.buf, left: cx, top: y }); labels += `<text x="${cx}" y="${y + rh + 24}" font-size="17" fill="#b7ab9c">${esc(t.label)}</text>`; cx += t.w + GAP; }
+    for (const t of r) {
+      const ix = cx + Math.round((t.slot - t.w) / 2);
+      comps.push({ input: t.buf, left: ix, top: y });
+      labels += `<text x="${cx}" y="${y + rh + 24}" font-size="17" fill="#e8dfd2">${esc(t.label)}</text><text x="${cx}" y="${y + rh + 45}" font-size="15" fill="#9a8f83">${esc(t.dim)}</text>`;
+      cx += t.slot + GAP;
+    }
     y += rh + LABEL + GAP;
   }
   const meta = CAMPAIGN_META[campaign as keyof typeof CAMPAIGN_META];
