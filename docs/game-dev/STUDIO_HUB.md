@@ -34,6 +34,7 @@ UE5 전용 항목(Lyra, GAS, Nanite, Lumen)은 `.uproject` 가 있는 프로젝�
 | 세션 | 대상 파일/폴더 | 시작일 |
 |---|---|---|
 | PC Unity 세션 | **탈것 방향 180° 수정(VehicleFacingTests 결과)**: `apps/unity-studio/Assets/Scripts/Runtime/{GameDirector,DoorGunner,IntroDirector}.cs`(헬기·보트 회전 줄만), `Editor/Slice/SliceBuilder.cs`(BuildProps 회전 한 줄), `Tests/PlayMode/{VehicleFacingTests,SoldierAnimTests}.cs` | 2026-11-27 (푸시 완료) |
+| PC Unity 세션 | **분대 이름표·M03 폭풍 그림자 확인 + 지형 파일 손상 수정**: `.gitattributes`, `apps/unity-studio/Assets/Tests/PlayMode/HudSquadTagStormTests.cs`(새 파일), 다시 만든 `Assets/Scenes/*.unity`·`Assets/Settings/IslandTerrain.asset` | 2026-11-27 (푸시 완료) |
 | 허브(클라우드) | **장르 게임 랩(오픈소스 조사·하부 섹션 생성 환경)**: 새 `docs/game-dev/genres/`(조사 카탈로그·장르별 학습 노트), 새 `tools/game-lab/`(새 게임 하부 섹션 생성기·템플릿), 새 `apps/game-lab/`(리듬·레이싱 시작 프로토타입), `tools/portal/export-bitpark-feed.mjs`(장르 랩 프로젝트 목록), `CLAUDE.md`(게임 개발 절 한 줄) | 2026-11-26 (푸시 완료) |
 | 허브(클라우드) | **NEXT-GEN INDIE STUDIO**: 새 `docs/indie-studio/`(시장 조사·GitHub 감사·기획서·기술 구조·현황), 새 `tools/indie-studio/`(Steam 데이터 수집), 새 `apps/game-lab/rogue-legends`(첫 MVP), `tools/game-lab/templates/common/src/portal.js`(clear 플래그). 플랫폼·포털 등록은 BIT PARK 포털 세션 | 2026-11-27 |
 | 허브(클라우드) | **분대원 이름표 HUD**: `apps/unity-studio/Assets/Scripts/Runtime/HudToolkit.cs`·`Assets/UI/SliceHud.uss` | 2026-11-26 (푸시 완료) |

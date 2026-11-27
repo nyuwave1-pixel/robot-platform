@@ -14,6 +14,10 @@
 *.mat    text eol=lf
 *.anim   text eol=lf
 *.controller text eol=lf
+# …except the .asset files Unity serialises as BINARY (TerrainData, NavMeshData): as text, git stripped their CR bytes and
+# Unity failed to load the terrain ("Unknown error occurred while loading IslandTerrain.asset", PC 2026-11-27)
+apps/unity-studio/Assets/Settings/IslandTerrain.asset binary
+apps/unity-studio/Assets/Scenes/*_NavMesh.asset binary
 
 # Binary game assets
 *.glb   binary

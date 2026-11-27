@@ -500,3 +500,13 @@ Unity CLI(`unity`)는 아직 이 PC에 없음(설치 스크립트를 사용자�
 - 결과: EditMode 341/341, PlayMode 35/37(2 건너뜀, 실패 0, 방향 4개 통과), WebGL 23.5 MB. 브라우저: 밤바다 빛기둥 사라짐,
   보트 선수가 섬 쪽·승무원 좌석 정상(`screenshots/unity-mission01-boat-ride.jpg`, `unity-mission01-boat-facing.jpg`). 콘솔 오류 0.
 - 운영 포털(release fc57783) `?mission=m01` 로드·콘솔 오류 0 확인(4922327 빌드).
+## 2026-11-27 — 분대 이름표·M03 폭풍 그림자 확인, 지형 파일 손상 수정 — PC
+
+- 브라우저에서 마우스 시점 회전이 안 돼 미뤘던 두 가지를 PlayMode 테스트로 확인(`HudSquadTagStormTests`, 플레이어를 코드로 돌림):
+  - 분대원 이름표: M01 에서 REAPER 를 바라보면 머리 위 이름 표시, 뒤돌면 숨김 → 통과.
+  - M03 폭풍 그림자: storm 1.00·rain 1.00 에서 태양 그림자 Soft, 세기 0.28(맑은 날 1) → 통과(허브 SkyDirector 흐림 규칙).
+- **찾은 버그: `.gitattributes` 가 `*.asset` 을 전부 텍스트(eol=lf)로 다뤘는데, Unity 는 `IslandTerrain.asset`(TerrainData)과
+  `*_NavMesh.asset` 을 바이너리로 저장함.** git 이 바이너리 속 CR 바이트를 지워(1.9 MB 지형 파일에 CRLF 0쌍, 다시 만들면 8쌍·4바이트 더 김)
+  새로 연 에디터가 "Unknown error occurred while loading 'Assets/Settings/IslandTerrain.asset'" 로 지형을 못 읽음.
+  전체 run-batch 는 slice 단계가 지형을 새로 만들어 가려졌음 — 저장소에서 바로 열면(다른 PC·허브) 지형이 깨진 상태였음.
+  수정: 두 경로를 `binary` 로 지정, slice 다시 실행, `git add --renormalize` 로 온전한 파일 커밋(내비메시는 바이트 변화 없음).
