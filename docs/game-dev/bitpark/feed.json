@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T05:39:47.897Z",
+  "generatedAt": "2026-11-27T05:45:06.680Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
-    "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "a26486b"
+    "branch": "HEAD",
+    "commit": "b5ed4bb"
   },
   "section": {
     "id": "game-dev-lab",
@@ -49,13 +49,13 @@
           "total": 341
         },
         "playMode": {
-          "passed": 35,
-          "total": 37
+          "passed": 37,
+          "total": 39
         }
       },
       "playable": {
         "windows": "apps/unity-studio/Builds/Slice/IslandSlice.exe (local build, not committed)",
-        "webgl": null
+        "webgl": "apps/unity-studio/Builds/WebGL/index.html"
       },
       "screenshots": [
         "docs/game-dev/screenshots/editions-play-mode.jpg",
@@ -585,6 +585,18 @@
   },
   "devlog": [
     {
+      "hash": "b5ed4bb",
+      "date": "2026-11-27",
+      "area": "unity-studio",
+      "subject": "docs(unity-studio): full run-batch after the terrain fix — EditMode 341/341, PlayMode 37/39, WebGL 22.9 MB"
+    },
+    {
+      "hash": "d3953fc",
+      "date": "2026-11-27",
+      "area": "portal",
+      "subject": "docs(portal): regenerate BIT PARK feed (SURVIVAL WORLD prototype)"
+    },
+    {
       "hash": "a26486b",
       "date": "2026-11-27",
       "area": "general",
@@ -811,18 +823,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Unity: SQUAD 07 team-mates (REAPER, NOMAD, ATLAS)"
-    },
-    {
-      "hash": "86717f5",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Unity squad teammates"
-    },
-    {
-      "hash": "26a08f2",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "Unity: fix four issues from a compile review; Mission 01 boat intro"
     }
   ]
 }
