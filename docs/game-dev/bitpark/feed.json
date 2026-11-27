@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T01:43:18.884Z",
+  "generatedAt": "2026-11-27T01:43:49.872Z",
   "source": {
     "repo": "nyuwave1-pixel/robot-platform",
     "branch": "claude/relaxed-ramanujan-83okpi",
-    "commit": "f89b351"
+    "commit": "1460686"
   },
   "section": {
     "id": "game-dev-lab",
@@ -538,6 +538,12 @@
   },
   "devlog": [
     {
+      "hash": "1460686",
+      "date": "2026-11-27",
+      "area": "general",
+      "subject": "ROGUE LEGENDS: first NEXT-GEN INDIE STUDIO MVP — original deckbuilding roguelike, replay-verified"
+    },
+    {
       "hash": "f89b351",
       "date": "2026-11-26",
       "area": "general",
@@ -770,12 +776,6 @@
       "date": "2026-11-25",
       "area": "general",
       "subject": "Unity: tactical gear — night vision, thermal, tac light, med kits, recon drone"
-    },
-    {
-      "hash": "c00a7b1",
-      "date": "2026-11-25",
-      "area": "general",
-      "subject": "hub: claim Unity tactical gear"
     }
   ]
 }
