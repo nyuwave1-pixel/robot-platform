@@ -190,10 +190,30 @@ export const KO = {
   'CREATE ROOM': '방 만들기', 'JOIN': '참가', 'ROOM CODE': '방 코드', 'DEDICATED SERVER': '전용 서버', 'INVITE': '초대', 'COPY': '복사', 'START MATCH': '경기 시작', 'LEAVE ROOM': '방 나가기',
   'SWITCH HERE': '이 팀으로', 'empty': '비어 있음', 'Waiting for the host to start…': '호스트가 시작하기를 기다리는 중…', 'BACK TO LOBBY': '로비로', 'DRAW': '무승부', 'PLAYER': '플레이어',
   'Invite link copied.': '초대 링크를 복사했습니다.', 'Creating room…': '방을 만드는 중…', 'Joining…': '참가하는 중…', 'Enter a room code.': '방 코드를 입력하세요.',
+  // PP SHOP (src/ui/shop.js, config/shop.js)
+  'PP SHOP': 'PP 상점', 'BIT PARK points — cosmetics, unlocks, supplies': 'BIT PARK 포인트 — 꾸미기·잠금 해제·보급', 'PP SHOP — BIT PARK POINTS': 'PP 상점 — BIT PARK 포인트',
+  'Items are bought with': '아이템은 플레이로 모은', 'BIT PARK points (PP)': 'BIT PARK 포인트(PP)',
+  'earned by playing. The portal shows its own confirm window and charges on its server — this game never sees your account. Nothing here changes multiplayer matches.': '로 삽니다. 결제 확인 창과 차감은 포털이 직접 하며, 게임은 계정을 보지 않습니다. 멀티플레이 경기에는 아무 영향이 없습니다.',
+  'WALLET': '지갑', 'REFRESH': '새로고침', 'OWNED': '보유', 'EQUIP': '장착', 'EQUIPPED': '장착됨',
+  'COSMETICS — LOOKS ONLY': '꾸미기 — 겉모습만', 'UNLOCKS — CAMPAIGN ONLY, NEVER IN MULTIPLAYER': '잠금 해제 — 캠페인 전용, 멀티플레이 제외', 'CONSUMABLES — ONE USE, CAMPAIGN ONLY': '소모품 — 1회 사용, 캠페인 전용',
+  'Open SPECIAL SOLDIER on': 'SPECIAL SOLDIER 를', 'and sign in to buy items. Items you bought there show up here too.': '에서 열고 로그인하면 살 수 있습니다. 거기서 산 아이템은 여기에도 적용됩니다.',
+  'Consumables are spent on the BIT PARK server when you use them (revive on the K.I.A. screen, supply drop on the briefing). Until BIT PARK switches that on, they cannot be used.': '소모품은 쓸 때 BIT PARK 서버에서 차감됩니다(부활권은 전사 화면, 보급 상자는 브리핑에서). BIT PARK 가 이 기능을 켜기 전까지는 쓸 수 없습니다.',
+  'Connecting to BIT PARK…': 'BIT PARK 에 연결하는 중…', 'The BIT PARK shop is not available for this game yet (sign in, or the portal has not listed the items).': '이 게임의 BIT PARK 상점을 아직 쓸 수 없습니다(로그인하거나, 포털에 아이템이 등록되어야 합니다).',
+  'Sand-coloured finish on every weapon.': '모든 무기를 모래색으로.', 'Grey urban finish on every weapon.': '모든 무기를 회색 도시 무늬로.', 'Polished gold on every weapon. Shows off, does nothing else.': '모든 무기를 금빛으로. 보기만 좋고 성능은 같습니다.',
+  'Your callsign in gold on the main menu and in the kill feed.': '메인 메뉴와 처치 알림의 호출부호가 금색이 됩니다.', 'Every campaign weapon available from mission 1.': '캠페인 무기 전부를 미션 1부터 사용.',
+  'Play any of the five campaign missions without finishing the earlier ones.': '앞 미션을 깨지 않아도 다섯 미션 아무거나 플레이.', 'Recon drone and thermal imager from mission 1.': '정찰 드론과 열상 장비를 미션 1부터.',
+  'When you go down, get up where you fell with 60 health instead of restarting from the checkpoint.': '쓰러지면 체크포인트로 돌아가지 않고 그 자리에서 체력 60으로 일어납니다.', 'Start a mission with 2 extra med kits and 2 extra grenades.': '미션을 구급상자 +2, 수류탄 +2 로 시작합니다.',
+  'SUPPLY DROP': '보급 상자', 'TAKE ONE ON THIS MISSION': '이번 미션에 가져가기', 'TAKING ONE ✓': '가져감 ✓', 'FIELD REVIVE — BACK IN THE FIGHT': '현장 부활 — 다시 전투로',
+  'Sign in to BIT PARK first.': 'BIT PARK 에 먼저 로그인하세요.', 'Not enough PP.': 'PP 가 부족합니다.', 'You already own this.': '이미 가지고 있습니다.', 'Purchase cancelled.': '구매를 취소했습니다.',
+  'This item is not on sale right now.': '지금은 팔지 않는 아이템입니다.', 'Open the game on BIT PARK to buy items.': 'BIT PARK 에서 게임을 열어야 살 수 있습니다.', 'The portal did not answer — try again.': '포털이 응답하지 않습니다 — 다시 시도하세요.',
+  'BIT PARK has not switched this on yet.': 'BIT PARK 에서 아직 켜지 않은 기능입니다.', 'None left.': '남은 것이 없습니다.',
 };
 
 // Text built from parts at run time: [regex, replacement]. Applied when no exact entry matches.
 export const KO_RULES = [
+  [/^(\d+) LEFT$/, '$1개 남음'], [/^BUY · (\d+) PP$/, '구매 · $1 PP'], [/^FIELD REVIVE — GET UP HERE \((\d+) LEFT\)$/, '현장 부활 — 여기서 일어나기 ($1개 남음)'],
+  [/^(.+) — purchased\.$/, '$1 — 구매 완료'], [/^(\d+) left · \+(\d+) med kits, \+(\d+) grenades$/, '$1개 남음 · 구급상자 +$2, 수류탄 +$3'],
+  [/^SUPPLY DROP: \+(\d+) MED KITS · \+(\d+) GRENADES$/, '보급 상자: 구급상자 +$1 · 수류탄 +$2'],
   [/^MISSION (\d\d) — (.+?) · (\d+)\/(\d+)$/, 'MISSION $1 — $2 · $3/$4'],
   [/^Not yet recovered — search (.+)\.$/, (m, z) => `아직 못 찾음 — ${tz(z)}을(를) 수색하세요.`],
   [/^INTEL ARCHIVE — (\d+)\/(\d+)$/, '정보 문서 보관함 — $1/$2'],

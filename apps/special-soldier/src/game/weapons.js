@@ -28,6 +28,8 @@ const SHAPE = { // per-weapon view model proportions (metres): body length, barr
 function box(g, sx, sy, sz, x, y, z, m) { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(x, y, z); g.add(b); return b; }
 function cyl(g, r, len, x, y, z, m) { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), m); c.rotation.x = Math.PI / 2; c.position.set(x, y, z); g.add(c); return c; }
 const FP_GUN_MAT = photoDetail(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.75 }), 'gun', 5, 0.4);
+/** PP SHOP camo (config/shop.js): tints every first-person weapon; null restores the factory finish. Looks only. */
+export function applyCamo(tint) { FP_GUN_MAT.color.set(tint ?? 0xffffff); mGun.color.set(tint != null ? new THREE.Color(tint).multiplyScalar(0.4) : new THREE.Color(0x1c1e20)); }
 function gunFromAsset(id) {
   // lift the dark finish so it still reads at night — but only dark colours: a ×2.2 on tan furniture (ARX, bullpup) blew it out to white (v0.14)
   const lift = (c) => { const l = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b, k = Math.min(2.2, Math.max(1, 0.11 / Math.max(l, 1e-4))); return c.clone().multiplyScalar(k).addScalar(0.015); };

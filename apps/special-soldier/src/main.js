@@ -24,6 +24,7 @@ import { TunePanel } from './ui/tune.js';
 import { makeSoldier, makeAPC, makeHeli, poseSoldier, PALETTE, HOT } from './game/models.js';
 import { MP } from './net/mp.js';
 import { initLanguage, applyLanguage } from './ui/i18n.js';
+import { initShop, useConsumable, SUPPLY, REVIVE_HP } from './ui/shop.js';
 
 const canvas = document.getElementById('game'), $ = (id) => document.getElementById(id);
 const step = (pct, text) => new Promise((r) => { $('loadBar').style.width = pct + '%'; $('loadText').textContent = text; setTimeout(r, 30); });
@@ -51,7 +52,7 @@ async function boot() {
   await step(40, 'SKY · OCEAN · WEATHER'); G.sky = new Sky(); G.post = new Post(); G.fx = new FX();
   await step(55, 'ZONES 01–05 — STRUCTURES & VEGETATION'); buildIsland();
   await step(75, 'OPERATORS · WEAPONS · AI'); G.player = new Player(); G.weapons = new Weapons(); G.enemies = new Enemies(); G.squad = new Squad(); G.gear = new Gear(); G.mission = new MissionSys(); G.cine = new Cine();
-  await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.mp = new MP(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
+  await step(90, 'INTERFACE'); G.hud = new Hud(); G.hud.buildMap(); G.menu = new Menu(); G.mp = new MP(); initShop(); G.weapons.equip(G.save.loadout); G.weapons.root.visible = false;
   G.tune = new TunePanel(); initLanguage(); G.applyLanguage = applyLanguage;
   G.applySettings(); addEventListener('resize', G.applySettings);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && G.state === 'playing' && !G.test) G.pause(); }); // hidden tab: pause instead of running a huge catch-up frame
@@ -67,7 +68,7 @@ async function boot() {
 addEventListener('pointerdown', () => { if (G.state === 'menu' && !G.test) { G.audio.init(); G.audio.music('menu'); } });
 G.toMenu = () => { G.state = 'menu'; G.hud.show(false); G.hud.cinematic(false); G.cine.active = false; G.enemies.clear(); G.squad.clear(); G.fx.reset(); G.gear.reset(); G.input.unlock(); G.audio.hush(); if (G.audio.enabled) { G.audio.stopLoops(); if (!G.test) G.audio.music('menu'); } G.weapons.root.visible = false; G.post.fadeTarget = 0; if (G.mission.heli) { G.scene.remove(G.mission.heli); G.mission.heli = null; } G.cine.menuScene(); G.menu.main(); $('lockHint').style.display = 'none'; };
 G.startMission = (i, skipIntro = false) => {
-  G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); const d = i === 'training' ? TRAINING : MISSIONS[i]; G.player.frozen = false; if (d.training) skipIntro = true;
+  G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); G.hud.show(true); G.mission.load(i); shopSupply(i); const d = i === 'training' ? TRAINING : MISSIONS[i]; G.player.frozen = false; if (d.training) skipIntro = true;
   const go = () => { G.state = 'playing'; G.mission.begin(); if (!G.test) G.input.lock(); if (i === 0) G.hud.radio('REAPER: Feet wet. Move up the beach — quiet.'); G.player.updateCamera(0); };
   if (skipIntro) return go();
   const realtime = () => { if (d.intro === 'boat') G.cine.playBoatIntro(go); else G.cine.play(d.intro, go, { showSquad: true }); };
@@ -76,6 +77,17 @@ G.startMission = (i, skipIntro = false) => {
 G.pause = () => { if (G.state !== 'playing') return; G.state = 'paused'; G.input.unlock(); G.audio.hush(); G.menu.pause(); };
 G.resume = () => { if (G.state !== 'paused') return; G.menu.hide(); G.state = 'playing'; if (!G.test) G.input.lock(); };
 G.respawn = () => { G.menu.hide(); G.mission.respawn(); G.state = 'playing'; if (!G.test) G.input.lock(); };
+// PP SHOP consumables (src/ui/shop.js): spent on the BIT PARK server first, applied only when the server says yes.
+function shopSupply(i) {
+  if (typeof i !== 'number' || !G.shop.supplyPick) return; G.shop.supplyPick = false;
+  useConsumable('special-soldier-supply', `supply:${i}:${Date.now()}`).then((ok) => { if (!ok || G.mission.idx !== i) return; G.player.medkits += SUPPLY.medkits; G.weapons.grenades += SUPPLY.grenades; G.hud.toast(`SUPPLY DROP: +${SUPPLY.medkits} MED KITS · +${SUPPLY.grenades} GRENADES`); });
+}
+G.reviveHere = async () => {
+  if (G.state !== 'deadMenu' || G.mission.idx === 'training') return;
+  const ok = await useConsumable('special-soldier-revive', `revive:${G.mission.idx}:${Date.now()}`);
+  if (!ok || G.state !== 'deadMenu') return G.menu.death(deathKind);
+  const P = G.player; P.alive = true; P.health = REVIVE_HP; P.hurt = 0; G.menu.hide(); G.state = 'playing'; if (!G.test) G.input.lock(); G.hud.toast('FIELD REVIVE — BACK IN THE FIGHT');
+};
 G.onPlayerDeath = (kind) => { G.state = 'dead'; deadT = 1.8; deathKind = kind; G.hud.toast('OPERATOR DOWN', true); if (G.gear.droneActive) G.gear.toggleDrone(); };
 G.onMissionComplete = () => {
   if (G.mission.def && G.mission.def.training) return G.onTrainingComplete();

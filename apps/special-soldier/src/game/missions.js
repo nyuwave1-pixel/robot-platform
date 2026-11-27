@@ -290,3 +290,8 @@ export class MissionSys {
   }
 }
 export function unlockedWeapons(progress) { return Object.keys(WEAPONS).filter((id) => WEAPONS[id].unlock <= progress); }
+/** Multiplayer loadout: only weapons earned by campaign progress (a PP SHOP armory unlock never reaches a match). */
+export function earnedLoadout(L, progress) {
+  const ok = (id, fb) => (WEAPONS[id] && WEAPONS[id].unlock <= progress ? id : fb);
+  return { primary: ok(L.primary, 'm4'), secondary: ok(L.secondary, 'smg'), sidearm: ok(L.sidearm, 'pistol') };
+}

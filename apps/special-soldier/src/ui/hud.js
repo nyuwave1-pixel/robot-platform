@@ -63,7 +63,7 @@ export class Hud {
   }
   hitFrom(angle) { const d = document.createElement('i'); $('dmgDir').appendChild(d); this.dirs.push({ d, angle, t: 1.6 }); }
   hitMarker(head, kill) { const h = $('hitm'); h.className = (head ? 'head ' : '') + (kill ? 'kill ' : '') + 'on'; this.hitT = 0.22; }
-  killFeed(name, head) { const f = $('feed'), d = document.createElement('div'); d.innerHTML = `<b>${G.save.callsign}</b> ${head ? '◎ HEADSHOT' : '▸'} <span>${name}</span>`; f.appendChild(d); while (f.children.length > 5) f.firstChild.remove(); setTimeout(() => d.remove(), 4500); }
+  killFeed(name, head) { const f = $('feed'), d = document.createElement('div'); d.innerHTML = `<b${G.shop && G.shop.fx.callsignColor ? ` style="color:${G.shop.fx.callsignColor}"` : ''}>${G.save.callsign}</b> ${head ? '◎ HEADSHOT' : '▸'} <span>${name}</span>`; f.appendChild(d); while (f.children.length > 5) f.firstChild.remove(); setTimeout(() => d.remove(), 4500); }
   update(dt) {
     applyHudPrefs();
     const P = G.player, wp = G.weapons, s = wp.slot, cam = G.camera, w = innerWidth, h = innerHeight;

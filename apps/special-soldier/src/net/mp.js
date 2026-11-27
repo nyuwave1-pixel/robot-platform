@@ -14,6 +14,7 @@ const AUTH_OPTS = { ground: rawHeight, strict: true, boxes: COLLIDERS.boxes }; /
 import { SupabaseTransport, WsTransport, SUPABASE_MAX_PLAYERS } from './transport.js';
 import { makeSoldier, poseSoldier } from '../game/models.js';
 import { WEAPONS } from '../config/weapons.js';
+import { earnedLoadout } from '../game/missions.js';
 import { damp } from '../core/util.js';
 import { MpUi } from '../ui/mp.js';
 
@@ -200,11 +201,11 @@ export class MP {
     G.enemies.clear(); G.squad.clear(); G.fx.reset(); G.gear.reset();
     const M = G.mission; M.objs = []; M.oi = 0; M.def = null; M.completeT = -1; M.interactables.length = 0; M.intelItems = []; M.boss = null; M.stats = M.newStats();
     G.audio.init(); G.audio.hush(); G.audio.stopLoops(); G.menu.hide(); this.ui.closeLobby(); G.hud.show(true); G.hud.objective(MODES[this.roster ? this.roster.mode : this.wantMode].name + ' — ' + this.room);
-    G.weapons.equip(G.save.loadout); G.weapons.root.visible = true; G.player.reset(); G.player.alive = false; G.state = 'playing';
+    G.weapons.equip(earnedLoadout(G.save.loadout, G.save.progress)); G.weapons.root.visible = true; G.player.reset(); G.player.alive = false; G.state = 'playing';
     this.ui.showHud(); if (!G.test) G.input.lock();
   }
   spawnMe(e) {
-    const P = G.player; P.reset(); P.place(e.x, e.z, e.yaw); P.health = MAX_HP; P.armor = 0; G.weapons.equip(G.save.loadout); G.weapons.grenades = 2; G.weapons.root.visible = true;
+    const P = G.player; P.reset(); P.place(e.x, e.z, e.yaw); P.health = MAX_HP; P.armor = 0; G.weapons.equip(earnedLoadout(G.save.loadout, G.save.progress)); G.weapons.grenades = 2; G.weapons.root.visible = true;
     this.respawnAt = 0; if (G.state === 'dead' || G.state === 'deadMenu') G.state = 'playing'; this.ui.respawn(0);
   }
   hurtMe(e) {

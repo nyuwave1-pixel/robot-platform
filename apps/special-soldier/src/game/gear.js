@@ -14,7 +14,7 @@ export class Gear {
     this.vision = 0; this.light = false; this.droneActive = false; this.battery = 1; this.sel = 0; this.dronePos = new THREE.Vector3(); this.dyaw = 0; this.dpitch = 0;
     this.spot = new THREE.SpotLight(0xf2f6ff, 0, 55, 0.42, 0.5, 1.3); this.spot.position.set(0.15, -0.1, 0); G.camera.add(this.spot); const t = new THREE.Object3D(); t.position.set(0, 0, -6); G.camera.add(t); this.spot.target = t;
   }
-  has(id) { return G.save.progress >= GEAR.find((g) => g.id === id).unlock || G.allGear; }
+  has(id) { return G.save.progress >= GEAR.find((g) => g.id === id).unlock || G.allGear || !!(G.shop && G.shop.fx.earlyGear && !(G.mp && G.mp.active)); } // PP SHOP EARLY GEAR: campaign only
   list() { return GEAR.filter((g) => this.has(g.id)); }
   reset() { this.vision = 0; this.light = false; this.spot.intensity = 0; if (this.droneActive) this.toggleDrone(); this.battery = 1; G.enemies.setThermal(false); }
   setVision(v) { this.vision = this.vision === v ? 0 : v; G.enemies.setThermal(this.vision === 2); G.audio.play('nvg'); }

@@ -13,8 +13,10 @@ import { UNITY_EDITION, unityEditionUrl } from '../config/editions.js';
 import { hudSettingsHtml, bindHudSettings } from './hudprefs.js';
 import { drawOpMap, objectiveLabels } from './opmap.js';
 import { LANGS, applyLanguage } from './i18n.js';
+import { shopBody, buyItem, refreshShop, pickCamo, SUPPLY } from './shop.js';
+import { missionOpen } from '../config/shop.js';
 
-const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
+const MAIN = [['campaign', 'CAMPAIGN', 'Operation: Island Invasion — 5 missions'], ['training', 'BOOT CAMP', 'Firing range · learn the controls · difficulty test'], ['operations', 'OPERATIONS', 'Mission records & intel'], ['weapons', 'WEAPONS', 'Armory, DPS data, loadout'], ['operator', 'OPERATOR', 'Profile, equipment, service record'], ['edition', 'PLAY MODE', 'Classic campaign or the Unity edition'], ['shop', 'PP SHOP', 'BIT PARK points — cosmetics, unlocks, supplies'],['settings', 'SETTINGS', 'Graphics, controls, audio'], ['exit', 'EXIT GAME', '']];
 const KEYS = [['W A S D', 'Move'], ['MOUSE', 'Look'], ['SHIFT', 'Sprint'], ['CTRL / C', 'Crouch · slide while sprinting'], ['Z', 'Prone'], ['SPACE', 'Jump / stand'], ['LMB', 'Fire'], ['RMB', 'Aim down sights (peeks from cover)'], ['R', 'Reload'], ['V', 'Fire mode'], ['1 2 3 · Q · WHEEL', 'Switch weapon'], ['G', 'Frag grenade'], ['E', 'Interact (hold where shown)'], ['F · X', 'Use / cycle tactical equipment'], ['N · T · L', 'Night vision · thermal · tac light'], ['B', 'Recon drone'], ['H', 'Med kit'], ['TAB', 'Tactical map'], ['ESC', 'Pause']];
 export const TIPS = ['A sentry who survives five seconds after spotting you calls a reaction force. Silence him first.',
   'Crouch [CTRL] to steady your aim; go prone [Z] behind low cover.',
@@ -43,6 +45,10 @@ export class Menu {
   act(a, v) {
     switch (a) {
       case 'main': return this.main(); case 'campaign': return this.campaign(); case 'operations': return this.operations(); case 'weapons': return this.weapons(); case 'operator': return this.operator(); case 'settings': return this.settings(v || 'main'); case 'attrib': return this.attributions(v || 'main'); case 'multiplayer': return this.multiplayer(); case 'edition': return this.edition();
+      case 'shop': return this.shop(); case 'buy': return buyItem(v); case 'shopRefresh': return refreshShop();
+      case 'camo': pickCamo(v); storeSave(G.save); return this.shop();
+      case 'supply': G.shop.supplyPick = !G.shop.supplyPick; return this.briefing(+v);
+      case 'revive': return G.reviveHere();
       case 'playUnity': return this.playUnity(); case 'exit': return this.exit(); case 'pauseBack': return this.pause();
       case 'brief': return this.briefing(+v); case 'deploy': if (+v === 0 && !G.save.training && !G.save.skipTraining && !G.test) return this.firstRun(); return G.startMission(+v);
       case 'training': return G.startMission('training');
@@ -62,13 +68,13 @@ export class Menu {
     this.screen = 'main'; const p = G.save.progress;
     this.open(`<div class="title"><div class="kicker">INTERNATIONAL SPECIAL OPERATIONS COMMAND · SQUAD 07</div><h1>SPECIAL<br><span>SOLDIER</span></h1><div class="sub">OPERATION: ISLAND INVASION</div></div>
       <nav>${MAIN.map(([a, t, d], i) => `<button data-a="${a}"><em>0${i + 1}</em><b>${t}</b><small>${d}</small></button>`).join('')}</nav>
-      <div class="status"><div><b>${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.23 · THREE.JS / WEBGL2 · CHARACTERS: HIGGSFIELD · WORLD: BLENDER 5.3 · TEXTURES & AUDIO: CC0</div></div>`, 'main');
+      <div class="status"><div><b style="${G.shop.fx.callsignColor ? 'color:' + G.shop.fx.callsignColor : ''}">${G.save.callsign}</b> · CAMPAIGN ${Math.min(p, 5)}/5 · ${DIFFICULTY[G.settings.difficulty].label}</div><div>PLAYABLE PROTOTYPE v0.23 · THREE.JS / WEBGL2 · CHARACTERS: HIGGSFIELD · WORLD: BLENDER 5.3 · TEXTURES & AUDIO: CC0</div></div>`, 'main');
   }
   campaign() {
     const p = G.save.progress;
     this.open(this.frame('CAMPAIGN — OPERATION: ISLAND INVASION', `<p class="lead">2029. An unregistered island in the outer Pacific hides a bio-chemical research facility run by the armed organisation <b>BLACK COBRA</b>. SQUAD 07 goes in by boat, before dawn.</p>
       <div class="diff">DIFFICULTY ${Object.entries(DIFFICULTY).map(([k, d]) => `<button data-a="diff" data-v="${k}" class="${G.settings.difficulty === k ? 'on' : ''}">${d.label}</button>`).join('')}<small>Scales enemy detection range, reaction time, accuracy and damage.</small></div>
-      <div class="missions">${MISSIONS.map((m, i) => { const locked = i > p, best = G.save.best[i]; return `<button data-a="brief" data-v="${i}" class="mcard ${locked ? 'locked' : ''} ${i === Math.min(p, 4) ? 'cur' : ''}"><em>${m.code}</em><b>${m.name}</b><small>${m.zone}</small><span>${locked ? '🔒 LOCKED' : best ? `GRADE ${best.grade} · ${fmtTime(best.time)}` : 'AVAILABLE'}</span></button>`; }).join('')}</div>`));
+      <div class="missions">${MISSIONS.map((m, i) => { const locked = !missionOpen(i, p, G.shop.fx), best = G.save.best[i]; return `<button data-a="brief" data-v="${i}" class="mcard ${locked ? 'locked' : ''} ${i === Math.min(p, 4) ? 'cur' : ''}"><em>${m.code}</em><b>${m.name}</b><small>${m.zone}</small><span>${locked ? '🔒 LOCKED' : best ? `GRADE ${best.grade} · ${fmtTime(best.time)}` : 'AVAILABLE'}</span></button>`; }).join('')}</div>`));
   }
   /** Title card: logo over the live menu scene; any key or click opens the main menu. */
   title() {
@@ -91,7 +97,7 @@ export class Menu {
     const m = MISSIONS[i];
     const lab = objectiveLabels(m);
     this.open(this.frame(`${m.code} — ${m.name}`, `<div class="brief"><div><h3>${m.zone}</h3><canvas id="opMap" class="opmap" width="640" height="300"></canvas>${m.brief.map((b) => `<p>${b}</p>`).join('')}<h3>OBJECTIVES</h3><ol class="objs">${m.objectives.map((o, k) => `<li><em>${lab[k]}</em>${o.type === 'any' ? `${o.text}: ${o.parts.map((q, j) => `<b>${'AB'[j]}</b> ${q.text}`).join(' · ')}` : o.text}</li>`).join('')}</ol></div>
-      <aside><h3>LOADOUT</h3><ul>${['primary', 'secondary', 'sidearm'].map((s, k) => `<li><em>${k + 1}</em> ${WEAPONS[G.save.loadout[s]].name}</li>`).join('')}</ul><button data-a="weapons">CHANGE LOADOUT</button><h3>REWARD</h3><ul>${m.unlocks.map((u) => `<li>${u}</li>`).join('')}</ul><h3>DIFFICULTY</h3><p>${DIFFICULTY[G.settings.difficulty].label}</p></aside></div>
+      <aside><h3>LOADOUT</h3><ul>${['primary', 'secondary', 'sidearm'].map((s, k) => `<li><em>${k + 1}</em> ${WEAPONS[G.save.loadout[s]].name}</li>`).join('')}</ul><button data-a="weapons">CHANGE LOADOUT</button><h3>REWARD</h3><ul>${m.unlocks.map((u) => `<li>${u}</li>`).join('')}</ul><h3>DIFFICULTY</h3><p>${DIFFICULTY[G.settings.difficulty].label}</p>${this.supplyHtml(i)}</aside></div>
       <div class="actions">${tip()}<button class="primary" data-a="deploy" data-v="${i}">▶ DEPLOY</button></div>`, 'campaign'));
     drawOpMap(document.getElementById('opMap'), m); // insertion point, numbered objectives and route on the real island
   }
@@ -101,7 +107,7 @@ export class Menu {
       <h3>THREAT INTEL — BLACK COBRA ORDER OF BATTLE</h3><table class="tbl"><tr><th>TYPE</th><th>HEALTH</th><th>ARMOR</th><th>BEHAVIOUR</th><th>BURST DPS</th></tr>${Object.values(ENEMY_TYPES).map((t) => `<tr><td><b>${t.name}</b></td><td>${t.hp}</td><td>${t.armor}</td><td>${{ cover: 'Holds cover, peeks to fire, falls back when hurt', push: 'Advances cover to cover', hold: t.vehicle ? 'Turret; immune to small arms (10% damage)' : 'Static overwatch, laser-aimed single shots', suppress: 'Slow advance, long suppressive bursts', flank: t.boss ? 'Flanks, grenades, calls reserves at 50% health' : 'Flanks wide, throws grenades at cover' }[t.behavior]}</td><td>${((t.gun.dmg * t.rpm) / 60).toFixed(0)}</td></tr>`).join('')}</table>`));
   }
   weapons() {
-    const p = G.save.progress, un = unlockedWeapons(p), w = WEAPONS[this.sel], L = G.save.loadout, locked = !un.includes(this.sel), tk = timeToKill(w, 100, 0, 15), ta = timeToKill(w, 150, 90, 15), near = w.cls === 'SHOTGUN' || w.cls === 'SMG' || w.cls === 'SIDEARM' ? 12 : w.cls === 'SNIPER RIFLE' ? 150 : 40;
+    const p = G.save.progress, un = G.shop.fx.allWeapons ? Object.keys(WEAPONS) : unlockedWeapons(p), w = WEAPONS[this.sel], L = G.save.loadout, locked = !un.includes(this.sel), tk = timeToKill(w, 100, 0, 15), ta = timeToKill(w, 150, 90, 15), near = w.cls === 'SHOTGUN' || w.cls === 'SMG' || w.cls === 'SIDEARM' ? 12 : w.cls === 'SNIPER RIFLE' ? 150 : 40;
     this.open(this.frame('WEAPONS — ARMORY', `<div class="armory"><div class="wlist">${Object.entries(WEAPONS).map(([id, x]) => `<button data-a="wsel" data-v="${id}" class="${id === this.sel ? 'on' : ''} ${un.includes(id) ? '' : 'dim'}"><b>${x.name}</b><small>${x.cls}${un.includes(id) ? (Object.values(L).includes(id) ? ' · EQUIPPED' : '') : ` · UNLOCK: MISSION 0${x.unlock}`}</small></button>`).join('')}</div>
       <div class="wdetail"><h3>${w.name} <small>${w.cls}</small></h3><p>${w.desc}</p>
       <div class="stats"><label>DAMAGE</label>${bar(w.dmg * w.pellets, 190)}<b>${w.dmg}${w.pellets > 1 ? '×' + w.pellets : ''}</b><label>FIRE RATE</label>${bar(w.rpm, 1000)}<b>${w.rpm} rpm</b><label>RECOIL</label>${bar(w.recoilV, 5.5, 'neg')}<b>${w.recoilV.toFixed(2)}°</b><label>ACCURACY (ADS)</label>${bar(1 / (w.adsSpread + 0.05), 17)}<b>${w.adsSpread}°</b><label>HIP SPREAD</label>${bar(w.spread, 5.5, 'neg')}<b>${w.spread}°</b><label>RANGE</label>${bar(w.range[0], 200)}<b>${w.range[0]}–${w.range[1]} m</b><label>MAGAZINE</label>${bar(w.mag, 100)}<b>${w.mag} / ${w.reserve}</b><label>RELOAD</label>${bar(cycleTime(w) - ((w.mag - 1) * 60) / w.rpm, 6, 'neg')}<b>${(cycleTime(w) - ((w.mag - 1) * 60) / w.rpm).toFixed(1)} s</b><label>ADS SPEED</label>${bar(w.ads, 0.45, 'neg')}<b>${(w.ads * 1000).toFixed(0)} ms</b><label>WEIGHT</label>${bar(w.weight, 8.5, 'neg')}<b>${w.weight} kg</b><label>MUZZLE VELOCITY</label>${bar(w.vel, 950)}<b>${w.vel} m/s</b></div>
@@ -160,9 +166,19 @@ export class Menu {
     if (/Electron/i.test(navigator.userAgent) || location.protocol === 'file:') { window.open(url, '_blank'); return this.edition(); }   // desktop build: open in the browser
     location.assign(url);
   }
+  /** PP SHOP (src/ui/shop.js): the portal sells; the game shows, remembers and applies. */
+  shop() { this.screen = 'shop'; this.open(this.frame('PP SHOP — BIT PARK POINTS', shopBody())); }
+  supplyHtml(i) {
+    const n = G.shop.own.counts['special-soldier-supply'] || 0; if (!n) return '';
+    return `<h3>SUPPLY DROP</h3><p>${n} left · +${SUPPLY.medkits} med kits, +${SUPPLY.grenades} grenades</p><button data-a="supply" data-v="${i}" class="${G.shop.supplyPick ? 'on' : ''}">${G.shop.supplyPick ? 'TAKING ONE ✓' : 'TAKE ONE ON THIS MISSION'}</button>`;
+  }
+  reviveHtml() {
+    const n = G.shop.own.counts['special-soldier-revive'] || 0;
+    return n > 0 && G.mission.idx !== 'training' ? `<button class="primary" data-a="revive">FIELD REVIVE — GET UP HERE (${n} LEFT)</button>` : '';
+  }
   exit() { this.open(`<div class="panel small"><h2>EXIT GAME</h2><p>Progress is saved automatically.</p><div class="actions"><button class="primary" data-a="exitYes">EXIT</button><button data-a="main">CANCEL</button></div></div>`); }
   pause() { const m = G.mission; this.open(`<div class="panel small"><h2>PAUSED</h2><p>${m.def.code} — ${m.def.name}<br><small>${m.objText()}</small></p><div class="col"><button class="primary" data-a="resume">RESUME</button><button data-a="restart">RESTART FROM CHECKPOINT</button><button data-a="restartMission">RESTART MISSION</button><button data-a="settings" data-v="pauseBack">SETTINGS</button><button data-a="quit">ABORT TO MAIN MENU</button></div></div>`, 'dim'); }
-  death(kind) { this.open(`<div class="panel small kia"><h2>K.I.A.</h2><p>${{ bullet: 'You were shot.', explosion: 'You were killed by an explosion.', fall: 'You fell.' }[kind] || 'You were killed.'} SQUAD 07 falls back to the last checkpoint.</p>${tip()}<div class="col"><button class="primary" data-a="restart">RESTART FROM CHECKPOINT</button><button data-a="restartMission">RESTART MISSION</button><button data-a="quit">ABORT TO MAIN MENU</button></div></div>`, 'red'); }
+  death(kind) { this.open(`<div class="panel small kia"><h2>K.I.A.</h2><p>${{ bullet: 'You were shot.', explosion: 'You were killed by an explosion.', fall: 'You fell.' }[kind] || 'You were killed.'} SQUAD 07 falls back to the last checkpoint.</p>${tip()}<div class="col">${this.reviveHtml()}<button class="primary" data-a="restart">RESTART FROM CHECKPOINT</button><button data-a="restartMission">RESTART MISSION</button><button data-a="quit">ABORT TO MAIN MENU</button></div></div>`, 'red'); }
   result(r) {
     this.open(`<div class="panel"><header><h2>AFTER-ACTION REPORT — ${r.code} ${r.name}</h2></header><div class="body"><div class="result"><div class="grade g${r.grade}">${r.grade}</div><table class="tbl"><tr><td>Mission time</td><td>${fmtTime(r.time)}</td></tr><tr><td>Hostiles neutralised</td><td>${r.kills}</td></tr><tr><td>Headshots</td><td>${r.headshots}</td></tr><tr><td>Accuracy</td><td>${r.acc}% (${r.hits}/${r.shots})</td></tr><tr><td>Alarms raised</td><td>${r.alarms}</td></tr><tr><td>Times KIA</td><td>${r.deaths}</td></tr>${r.intelMax ? `<tr><td>Intel collected</td><td>${r.intel} this run · ${((G.save.intel || {})[MISSIONS.findIndex((m) => m.code === r.code)] || []).length}/${r.intelMax} total</td></tr>` : ''}<tr><td>Score</td><td>${r.score}</td></tr></table></div>
       ${r.unlocks.length ? `<h3>UNLOCKED</h3><div class="unl">${r.unlocks.map((u) => `<span>${u}</span>`).join('')}</div>` : ''}
