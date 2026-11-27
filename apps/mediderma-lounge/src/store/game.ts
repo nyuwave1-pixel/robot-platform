@@ -101,6 +101,10 @@ export interface GameState {
   bragLikesSeen?: number;
   /** "내 팔로잉" 피드에서 마지막으로 본 가장 새 자랑 시각 (새 자랑 알림용) */
   followSeenAt?: string;
+  /** BIT PARK 포인트로 산 한 번짜리 아이템 중 이 저장에 이미 넣은 것 (포털 인벤토리 동기화용) */
+  ppGranted?: string[];
+  /** 쓰기 요청을 보냈지만 결과를 아직 못 받은 젬 팩 (ref → 상품 id). 같은 ref 로 다시 물으면 서버가 한 번만 차감한다 */
+  ppPending?: Record<string, string>;
   following: string[];
   settings: { lang: Lang; quality: "auto" | "low" | "high"; tutorial: boolean; sound?: boolean; music?: number; charStyle?: "real" | "chibi" };
 
