@@ -17,6 +17,7 @@ namespace SurvivalWorld.Runtime
         public long seed = 2026;
         public GameObject tree, treeTall, rock, bush, wolf, campfire, wall;
         public Light sun;
+        public Font hudFont;   // Noto Sans KR subset (Tools~/gen-survival-font.py): the built-in font has no Hangul in WebGL
         public Material groundMaterial, seaMaterial, ghostOk, ghostBad;
         public float mouseSensitivity = 0.0025f;
 
@@ -275,6 +276,7 @@ namespace SurvivalWorld.Runtime
         void OnGUI()
         {
             if (G == null) return;
+            if (hudFont) GUI.skin.font = hudFont;
             var P = G.P; float s = Screen.height / 720f;
             var box = new GUIStyle(GUI.skin.box) { fontSize = (int)(14 * s), alignment = TextAnchor.UpperLeft };
             var big = new GUIStyle(GUI.skin.label) { fontSize = (int)(30 * s), alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };

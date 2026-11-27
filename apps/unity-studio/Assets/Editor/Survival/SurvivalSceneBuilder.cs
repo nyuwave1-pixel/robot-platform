@@ -37,6 +37,8 @@ namespace SurvivalWorld.EditorTools
 
             var director = new GameObject("SurvivalDirector").AddComponent<SurvivalDirector>();
             director.sun = sun;
+            director.hudFont = AssetDatabase.LoadAssetAtPath<Font>(Dir + "/Fonts/NotoSansKR-Survival.ttf");
+            if (!director.hudFont) Debug.LogWarning("[Survival] Korean HUD font missing — run Tools~/gen-survival-font.py");
             var templates = (GameObject)PrefabUtility.InstantiatePrefab(model);
             templates.name = "Templates (Blender models)"; templates.transform.SetParent(director.transform, false);
             director.tree = Child(templates, "Tree"); director.treeTall = Child(templates, "TreeTall"); director.rock = Child(templates, "Rock");
