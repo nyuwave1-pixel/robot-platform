@@ -315,11 +315,13 @@ export const GUIDES: Guide[] = [
       { q: "Can I wear vitamin C serum under makeup?", a: "Yes. Let it absorb for a few minutes, then apply moisturizer and sunscreen, and give your skincare time to settle before foundation. If products pill, try fewer layers or a longer wait." },
       // Search research 2026-11-20: "vitamin c serum before or after sunscreen".
       { q: "Do I apply vitamin C serum before or after sunscreen?", a: "Before. In the morning, apply vitamin C serum after cleansing, then moisturizer, and finish with sunscreen as the last step. Vitamin C works alongside sunscreen; it does not replace it." },
+      // Search research 2026-11-28: "is vitamin C serum good for oily acne-prone skin".
+      { q: "Is vitamin C serum good for oily skin?", a: "It can be. Many people with oily skin use a lightweight vitamin C serum, let it absorb, then follow with a light moisturizer. If you also use salicylic acid or other exfoliating acids, try vitamin C in the morning and acids at night. Patch test first, and see a dermatologist for persistent breakouts." },
       { q: "Where can I buy the UNI&CORE vitamin C serum?", a: "On Amazon.com through the official UNI&CORE listing. Use the Shop on Amazon button in this guide." },
     ],
     products: ["ampoule"],
     published: "2026-11-10",
-    updated: "2026-11-26",
+    updated: "2026-11-28",
   },
   {
     slug: "vitamin-c-for-sensitive-skin",
